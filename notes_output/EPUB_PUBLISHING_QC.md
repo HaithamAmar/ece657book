@@ -30,6 +30,11 @@ change exists.
 python3 epub_builder/build.py --variant both --clean
 ```
 
+### Cover source
+
+- Current cover source is configured in `notes_output/book_metadata.json` under `cover_image`.
+- Prefer the higher-resolution `notes_output/BookCover.png` (1600×2560) over `notes_output/BookCover_1024x1536.png`.
+
 ### 2) Regression screenshots: PDF vs EPUB (figures/tables/equations)
 
 Produces side-by-side images keyed by `.aux` labels.
@@ -107,4 +112,3 @@ Automated tools cannot catch these reliably; review visually in Apple Books and 
 - Dedicated typography pass (body font, headings, caption rhythm, blockquote spacing) with Apple/Kindle-specific CSS variants.
 - Reader-tested MathML fallback for Kindle devices that don’t fully support MathML (rasterized math variant).
 - Formal accessibility pass: alt-text for figures, semantic landmarks, and navigational TOC validation.
-
