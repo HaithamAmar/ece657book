@@ -216,6 +216,7 @@ def audit(*, epub: Path, qc_dir: Path | None, out_json: Path) -> None:
                 flags.append("low_sharpness")
 
             media_path = "EPUB/media/" + p.name
+            is_cover = bool(cover_media and media_path == cover_media)
             if cover_media and media_path == cover_media:
                 # Full-bleed cover art will touch borders; that's expected.
                 flags = [f for f in flags if f not in ("content_touches_border", "small_pixel_dimensions")]
@@ -236,6 +237,7 @@ def audit(*, epub: Path, qc_dir: Path | None, out_json: Path) -> None:
                     },
                     "flags": flags,
                     "risk_score": None,
+                    "is_cover": is_cover,
                     "refs": [
                         {
                             "xhtml": r.xhtml,
@@ -252,6 +254,9 @@ def audit(*, epub: Path, qc_dir: Path | None, out_json: Path) -> None:
             m = im["metrics"]
             w = im["width"]
             h = im["height"]
+            if im.get("is_cover"):
+                im["risk_score"] = 0.0
+                continue
             score = 0.0
             score += max(0.0, (1400 - min(w, h)) / 1400) * 10  # small images
             score += max(0.0, (0.001 - m["laplacian_var"]) / 0.001) * 12  # blur-ish
@@ -316,6 +321,7 @@ def audit(*, epub: Path, qc_dir: Path | None, out_json: Path) -> None:
         payload = {
             "epub": str(epub),
             "qc_dir": str(qc_dir) if qc_dir else None,
+            "cover_media": cover_media,
             "images": results,
             "qc_blur_regressions": blur_regressions,
             "summary": {
@@ -333,7 +339,8 @@ def write_markdown(*, src_json: Path, out_md: Path, top_n: int) -> None:
     def score(it):
         return (len(it["flags"]) * 100) + float(it.get("risk_score") or 0.0)
 
-    worst = sorted(images, key=score, reverse=True)[:top_n]
+    worst = [im for im in images if not im.get("is_cover")]
+    worst = sorted(worst, key=score, reverse=True)[:top_n]
 
     out_md.parent.mkdir(parents=True, exist_ok=True)
     lines: list[str] = []
@@ -348,6 +355,14 @@ def write_markdown(*, src_json: Path, out_md: Path, top_n: int) -> None:
     lines.append("- `mostly_blank`: likely missing render or transparent/blank export.\n\n")
 
     lines.append("## Worst offenders (prioritized)\n\n")
+    cover = data.get("cover_media")
+    if cover:
+        cover_item = next((im for im in images if im.get("media_path") == cover), None)
+        if cover_item:
+            lines.append("### Cover image\n")
+            lines.append(f"- Media: `{cover}`\n")
+            lines.append(f"- Size: {cover_item['width']}×{cover_item['height']} ({cover_item['file_bytes']} bytes)\n")
+            lines.append("\n")
     for im in worst:
         lines.append(f"### `{im['media_path']}`\n")
         lines.append(f"- Size: {im['width']}×{im['height']} ({im['file_bytes']} bytes)\n")

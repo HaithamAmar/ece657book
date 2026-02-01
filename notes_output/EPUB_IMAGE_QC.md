@@ -1,6 +1,6 @@
 # EPUB image quality audit (heuristic + model-assisted triage)
 
-- Source JSON: `notes_output/artifacts/qc/epub_image_quality_20260201_184424.json`
+- Source JSON: `notes_output/artifacts/qc/epub_image_quality_20260201_185112.json`
 - Total images: 75
 - Flagged images: 0
 
@@ -13,11 +13,9 @@
 
 ## Worst offenders (prioritized)
 
-### `EPUB/media/file74.png`
+### Cover image
+- Media: `EPUB/media/file74.png`
 - Size: 1600×2560 (4815964 bytes)
-- Risk score: 8.0
-- Flags: (none)
-- Metrics: lap_var=0.003841, edge=0.0805, white=0.048, border_nonwhite=1.000
 
 ### `EPUB/media/file71.png`
 - Size: 10993×3557 (404782 bytes)
@@ -178,38 +176,6 @@
 - Metrics: lap_var=0.004490, edge=0.0115, white=0.928, border_nonwhite=0.000
 - Ref: `fig:mlp_gd_surface` in `EPUB/text/ch010.xhtml`
 - Caption: Figure 23. Schematic: Think of performance as a surface over the weights. Gradient descent moves in one vector step (blue), whereas coordinate-wise updates can zig-zag (orange).
-
-### `EPUB/media/file23.png`
-- Size: 4505×1747 (106077 bytes)
-- Risk score: 0.0
-- Flags: (none)
-- Metrics: lap_var=0.006736, edge=0.0077, white=0.962, border_nonwhite=0.000
-- Ref: `fig:mlp_step_vs_sigmoid` in `EPUB/text/ch010.xhtml`
-- Caption: Figure 24. Schematic: Hard thresholds block gradient-based learning because the derivative is zero almost everywhere. A smooth activation like the sigmoid provides informative derivatives across a wide range of inputs.
-
-### `EPUB/media/file24.png`
-- Size: 8146×3795 (409349 bytes)
-- Risk score: 0.0
-- Flags: (none)
-- Metrics: lap_var=0.001840, edge=0.0049, white=0.864, border_nonwhite=0.000
-- Ref: `fig:backprop-computational-graph` in `EPUB/text/ch011.xhtml`
-- Caption: Figure 25. Schematic: Computational graph for a feedforward network. Backpropagation is reverse-mode AD: the forward sweep caches intermediate values; the reverse sweep propagates error signals (deltas) and accumulates gradients for weights and biases from those cached values.
-
-### `EPUB/media/file25.png`
-- Size: 3706×2356 (291967 bytes)
-- Risk score: 0.0
-- Flags: (none)
-- Metrics: lap_var=0.003986, edge=0.0086, white=0.868, border_nonwhite=0.000
-- Ref: `fig:lec4_backprop_flow` in `EPUB/text/ch011.xhtml`
-- Caption: Figure 26. Schematic: Forward (blue) and backward (orange) flows for a two-layer MLP. The cached activations and the layerwise error terms (deltas) are exactly the quantities carried along these arrows; backward signals are computed with the next-layer weights and the activation derivative.
-
-### `EPUB/media/file26.png`
-- Size: 4190×3108 (181621 bytes)
-- Risk score: 0.0
-- Flags: (none)
-- Metrics: lap_var=0.005380, edge=0.0059, white=0.964, border_nonwhite=0.000
-- Ref: `fig:lec4-activations` in `EPUB/text/ch011.xhtml`
-- Caption: Figure 27. Schematic: Canonical activation functions on a common axis. Solid curves show the activation; dashed curves show its derivative.
 
 ## Figures softer than PDF (from QC bundle)
 
