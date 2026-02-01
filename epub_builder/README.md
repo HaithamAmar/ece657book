@@ -81,3 +81,25 @@ The builder also enforces “no caption-only figures”:
 - Still do final manual QA in real readers:
   - Apple Books app (macOS)
   - Kindle Previewer (macOS)
+
+## Visual regression (EPUB vs PDF)
+
+To systematically improve EPUB quality, use the QC script that screenshots:
+- Figures / tables / labeled equations in the EPUB (cropped around the labeled element)
+- The corresponding PDF page (from `notes_output/ece657_notes.pdf`)
+- A side-by-side comparison image
+
+Run (Apple EPUB):
+
+```bash
+epub_builder/.venv/bin/python epub_builder/scripts/qc_epub_vs_pdf.py \
+  --epub epub_builder/dist/ece657_ebook_apple.epub \
+  --pdf notes_output/ece657_notes.pdf \
+  --aux notes_output/ece657_notes.aux \
+  --out epub_builder/artifacts/qc/pdf_vs_epub_$(date +%Y%m%d_%H%M%S) \
+  --max-eq 0
+```
+
+Outputs land under `epub_builder/artifacts/qc/.../`:
+- `manifest.json`
+- `compare/{fig,tab,eq}/` (PDF left, EPUB right)

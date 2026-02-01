@@ -149,7 +149,7 @@ def inject_equation_targets(text: str) -> str:
     Workaround: for each equation-like environment containing `\\label{eq:...}`,
     inject a `\\hypertarget{eq:...}{}` immediately before the environment.
     """
-    envs = ["equation", "align", "gather", "multline", "alignat"]
+    envs = ["equation", "equation*", "align", "align*", "gather", "gather*", "multline", "multline*", "alignat", "alignat*"]
     out: list[str] = []
     i = 0
     while i < len(text):
@@ -170,16 +170,50 @@ def inject_equation_targets(text: str) -> str:
             out.append(text[next_pos:])
             break
         block = text[next_pos : end_pos + len(end_tag)]
-        m = re.search(r"\\label\{(eq:[^}]+)\}", block)
-        if m:
-            label = m.group(1)
+        labels = []
+        for m in re.finditer(r"\\label\{(eq:[^}]+)\}", block):
+            lab = m.group(1).strip()
+            if lab and lab not in labels:
+                labels.append(lab)
+        if labels:
             # Avoid double-injecting when re-running transforms.
-            prefix = text[max(0, next_pos - 80) : next_pos]
-            if f"\\hypertarget{{{label}}}{{}}" not in prefix:
-                out.append(f"\\hypertarget{{{label}}}{{}}\n")
+            prefix = text[max(0, next_pos - 160) : next_pos]
+            for lab in labels:
+                if f"\\hypertarget{{{lab}}}{{}}" in prefix:
+                    continue
+                out.append(f"\\hypertarget{{{lab}}}{{}}\n")
         out.append(block)
         i = end_pos + len(end_tag)
-    return "".join(out)
+    text = "".join(out)
+
+    # Also handle display-math blocks written as \[ ... \] (common in the manuscript).
+    out2: list[str] = []
+    i = 0
+    while True:
+        s = text.find("\\[", i)
+        if s == -1:
+            out2.append(text[i:])
+            break
+        e = text.find("\\]", s + 2)
+        if e == -1:
+            out2.append(text[i:])
+            break
+        block = text[s : e + 2]
+        labels: list[str] = []
+        for m in re.finditer(r"\\label\{(eq:[^}]+)\}", block):
+            lab = m.group(1).strip()
+            if lab and lab not in labels:
+                labels.append(lab)
+        out2.append(text[i:s])
+        if labels:
+            prefix = text[max(0, s - 160) : s]
+            for lab in labels:
+                if f"\\hypertarget{{{lab}}}{{}}" in prefix:
+                    continue
+                out2.append(f"\\hypertarget{{{lab}}}{{}}\n")
+        out2.append(block)
+        i = e + 2
+    return "".join(out2)
 
 
 def _join_refs(labels: list[str]) -> str:
@@ -487,7 +521,7 @@ def add_visible_equation_numbers(text: str, *, aux_numbers: dict[str, str]) -> s
     """
     Add a visible equation number line after each labeled equation-like environment.
     """
-    envs = ["equation", "align", "gather", "multline", "alignat"]
+    envs = ["equation", "equation*", "align", "align*", "gather", "gather*", "multline", "multline*", "alignat", "alignat*"]
     out: list[str] = []
     i = 0
     while i < len(text):
@@ -508,17 +542,54 @@ def add_visible_equation_numbers(text: str, *, aux_numbers: dict[str, str]) -> s
             out.append(text[next_pos:])
             break
         block = text[next_pos : end_pos + len(end_tag)]
-        m = re.search(r"\\label\{(eq:[^}]+)\}", block)
+        labels: list[str] = []
+        for m in re.finditer(r"\\label\{(eq:[^}]+)\}", block):
+            lab = m.group(1).strip()
+            if lab and lab not in labels:
+                labels.append(lab)
         out.append(block)
-        if m:
-            lab = m.group(1)
+        nums = []
+        for lab in labels:
             num = aux_numbers.get(lab)
             if num:
-                # Pandoc's MathML output does not include equation numbers, so we
-                # add a small right-aligned line after the display block.
-                out.append(f"\n\n\\begin{{flushright}}\\small ({num})\\end{{flushright}}\n")
+                nums.append(num)
+        if nums:
+            # Pandoc's MathML output does not include equation numbers, so we
+            # add a small right-aligned line after the display block.
+            rendered = "\\\\\n".join(f"({n})" for n in nums)
+            out.append(f"\n\n\\begin{{flushright}}\\small {rendered}\\end{{flushright}}\n")
         i = end_pos + len(end_tag)
-    return "".join(out)
+    text2 = "".join(out)
+
+    # Also add visible numbers for display math written as \[...\].
+    out3: list[str] = []
+    i = 0
+    while True:
+        s = text2.find("\\[", i)
+        if s == -1:
+            out3.append(text2[i:])
+            break
+        e = text2.find("\\]", s + 2)
+        if e == -1:
+            out3.append(text2[i:])
+            break
+        block = text2[s : e + 2]
+        labels: list[str] = []
+        for m in re.finditer(r"\\label\{(eq:[^}]+)\}", block):
+            lab = m.group(1).strip()
+            if lab and lab not in labels:
+                labels.append(lab)
+        out3.append(text2[i : e + 2])
+        nums = []
+        for lab in labels:
+            num = aux_numbers.get(lab)
+            if num:
+                nums.append(num)
+        if nums:
+            rendered = "\\\\\n".join(f"({n})" for n in nums)
+            out3.append(f"\n\n\\begin{{flushright}}\\small {rendered}\\end{{flushright}}\n")
+        i = e + 2
+    return "".join(out3)
 
 
 def strip_captionsetup_commands(text: str) -> str:

@@ -167,6 +167,10 @@ Build & publishing workflow
 - Verify citations, the GRU figure, and the new preface text after each build; check the log for warnings about missing references or TikZ issues.
 - Before a publish-ready export, run the editorial QC pipeline: `notes_output/scripts/run_editorial_qc.sh`. It rebuilds the PDF and writes an automated report to `notes_output/artifacts/qc/publish_qc_report.md` (TOC/LOF/LOT anomalies, overfull boxes, whitespace/style flags).
 - For “don’t make me keep re-testing” publishing checks, run `bash notes_output/scripts/run_release_checks.sh`. It rebuilds PDF+EPUB, then extracts “critical pages” (PDF) and “critical sections” (EPUB: figures + pseudocode) into `notes_output/artifacts/release_checks/` and writes a manifest for quick regression checking.
+- For **EPUB vs PDF visual regression**, use the builder QC script:
+  - Run (Apple EPUB): `epub_builder/.venv/bin/python epub_builder/scripts/qc_epub_vs_pdf.py --epub epub_builder/dist/ece657_ebook_apple.epub --pdf notes_output/ece657_notes.pdf --aux notes_output/ece657_notes.aux --out epub_builder/artifacts/qc/pdf_vs_epub_$(date +%Y%m%d_%H%M%S) --max-eq 0`
+  - Output: a manifest plus side-by-side crops under `epub_builder/artifacts/qc/.../compare/{fig,tab,eq}/`
+  - Use this when fixing EPUB styling/structure so improvements are global and regressions are caught early.
 - Editorial style decisions (dialect, dash style, spelling preferences) live in `notes_output/editorial_style.toml`; update this file first when changing house style so a new LLM can onboard quickly and apply consistent edits.
 - The full workflow + checklist is documented in `notes_output/EDITORIAL_QC.md`.
 - Mechanical helpers: `notes_output/scripts/fix_whitespace.py` (tabs/trailing whitespace) and `notes_output/scripts/apply_house_style.py` (house spelling normalization; run as `/usr/bin/python3 notes_output/scripts/apply_house_style.py --root notes_output`).
