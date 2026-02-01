@@ -120,12 +120,25 @@ def _epub_label_locator(page, label: str):  # playwright Page
     # Use XPath to avoid CSS escaping issues with ':' in ids.
     return page.locator(f"xpath=//*[@id='{label}']")
 
+def _stitch_vertical(*, top_png: Path, bottom_png: Path, out_png: Path, gap: int = 12) -> None:
+    from PIL import Image
+
+    a = Image.open(top_png).convert("RGB")
+    b = Image.open(bottom_png).convert("RGB")
+    w = max(a.width, b.width)
+    out = Image.new("RGB", (w, a.height + gap + b.height), (255, 255, 255))
+    out.paste(a, ((w - a.width) // 2, 0))
+    out.paste(b, ((w - b.width) // 2, a.height + gap))
+    out_png.parent.mkdir(parents=True, exist_ok=True)
+    out.save(out_png)
+
 
 def screenshot_epub_label(
     *,
     page,
     xhtml_path: Path,
     label: str,
+    kind: str,
     out_png: Path,
     context_px: int,
 ) -> bool:
@@ -137,28 +150,72 @@ def screenshot_epub_label(
     loc = _epub_label_locator(page, label)
     if loc.count() == 0:
         return False
-    loc.first.scroll_into_view_if_needed()
-    page.wait_for_timeout(150)
 
-    box = loc.first.bounding_box()
-    if not box:
-        # Some ids land on anchors/spans; fallback to screenshot of the viewport.
-        page.screenshot(path=str(out_png), full_page=False)
+    # Equations: ids often land on a zero-size anchor; capture the next display math
+    # and the following equation-number line (flushright) when present.
+    if kind == "eq":
+        # Pandoc typically emits MathML (<math>), but some readers/wrappers can
+        # surface math as <span class="math ...">. Use a union XPath.
+        math_loc = page.locator(
+            f"xpath=(//*[@id='{label}']/following::math | //*[@id='{label}']/following::span[contains(@class,'math')])[1]"
+        )
+        if math_loc.count() == 0:
+            # Fallback: try to scroll to the anchor, then screenshot the viewport.
+            try:
+                loc.first.scroll_into_view_if_needed()
+                page.wait_for_timeout(120)
+                page.screenshot(path=str(out_png), full_page=False)
+            except Exception:
+                page.screenshot(path=str(out_png), full_page=False)
+            return True
+        math_loc.first.scroll_into_view_if_needed()
+        page.wait_for_timeout(180)
+
+        tmp_math = out_png.with_suffix(".math.png")
+        try:
+            math_loc.first.screenshot(path=str(tmp_math))
+        except Exception:
+            page.screenshot(path=str(out_png), full_page=False)
+            return True
+
+        num_loc = page.locator(f"xpath=//*[@id='{label}']/following::div[contains(@class,'flushright')][1]")
+        if num_loc.count() > 0:
+            tmp_num = out_png.with_suffix(".num.png")
+            try:
+                num_loc.first.screenshot(path=str(tmp_num))
+                _stitch_vertical(top_png=tmp_math, bottom_png=tmp_num, out_png=out_png, gap=10)
+            finally:
+                if tmp_num.exists():
+                    tmp_num.unlink()
+                if tmp_math.exists():
+                    tmp_math.unlink()
+            return True
+
+        tmp_math.replace(out_png)
         return True
 
-    # Screenshot a padded rectangle around the element for context.
-    x = max(0, int(box["x"]) - context_px)
-    y = max(0, int(box["y"]) - context_px)
-    w = int(box["width"]) + 2 * context_px
-    h = int(box["height"]) + 2 * context_px
-
-    # Cap to viewport size (Playwright requires clip within viewport).
-    vw = page.viewport_size["width"]
-    vh = page.viewport_size["height"]
-    w = min(w, vw - x)
-    h = min(h, vh - y)
-    page.screenshot(path=str(out_png), clip={"x": x, "y": y, "width": w, "height": h})
-    return True
+    # Figures/tables: capture the element itself (includes caption in most cases).
+    loc.first.scroll_into_view_if_needed()
+    page.wait_for_timeout(150)
+    try:
+        loc.first.screenshot(path=str(out_png))
+        return True
+    except Exception:
+        # Fallback: cropped viewport around the element box.
+        box = loc.first.bounding_box()
+        if not box:
+            page.screenshot(path=str(out_png), full_page=False)
+            return True
+        x = max(0, int(box["x"]) - context_px)
+        y = max(0, int(box["y"]) - context_px)
+        w = int(box["width"]) + 2 * context_px
+        h = int(box["height"]) + 2 * context_px
+        vw = page.viewport_size["width"]
+        vh = page.viewport_size["height"]
+        w = min(w, vw - x)
+        h = min(h, vh - y)
+        page.screenshot(path=str(out_png), clip={"x": x, "y": y, "width": w, "height": h})
+        return True
 
 
 def _side_by_side(*, left_png: Path, right_png: Path, out_png: Path) -> None:
@@ -266,6 +323,7 @@ def main(argv: list[str]) -> int:
                     page=page,
                     xhtml_path=xhtml,
                     label=info.label,
+                    kind=info.kind,
                     out_png=epub_png,
                     context_px=args.context_px,
                 )
