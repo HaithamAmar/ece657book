@@ -247,6 +247,14 @@ def _join_hyper_numbers(labels: list[str], *, aux_numbers: dict[str, str]) -> st
         return parts[0] + " and " + parts[1]
     return ", ".join(parts[:-1]) + ", and " + parts[-1]
 
+def _hyperlink_phrase(label: str, phrase: str) -> str:
+    # Use \hyperlink{...}{...} (not \hyperref[...]{...}) to avoid introducing
+    # `]` into contexts like bracket-delimited option lists (e.g., tcolorbox).
+    return f"\\hyperlink{{{label}}}{{{phrase}}}"
+
+def _hyperlink_noun_number(label: str, *, noun: str, aux_numbers: dict[str, str]) -> str:
+    return _hyperlink_phrase(label, f"{noun}~{aux_numbers.get(label, '?')}")
+
 
 def _join_eq_links(labels: list[str], *, aux_numbers: dict[str, str]) -> str:
     # Use \hyperref[...]{} (not \href{#...}{}) because Pandoc's math parser accepts
@@ -277,32 +285,36 @@ def rewrite_crossrefs(text: str, *, aux_numbers: dict[str, str]) -> str:
         if not labels:
             return m.group(0)
         if all(l.startswith("chap:") for l in labels):
-            prefix = "Chapter" if len(labels) == 1 else "Chapters"
-            return f"{prefix}~{_join_hyper_numbers(labels, aux_numbers=aux_numbers)}"
+            if len(labels) == 1:
+                return _hyperlink_noun_number(labels[0], noun="Chapter", aux_numbers=aux_numbers)
+            return "Chapters~" + _join_hyper_numbers(labels, aux_numbers=aux_numbers)
         if all(l.startswith("eq:") for l in labels):
             return _join_eq_links(labels, aux_numbers=aux_numbers)
         if all(l.startswith("fig:") for l in labels):
-            prefix = "Figure" if len(labels) == 1 else "Figures"
-            return f"{prefix}~{_join_hyper_numbers(labels, aux_numbers=aux_numbers)}"
+            if len(labels) == 1:
+                return _hyperlink_noun_number(labels[0], noun="Figure", aux_numbers=aux_numbers)
+            return "Figures~" + _join_hyper_numbers(labels, aux_numbers=aux_numbers)
         if all(l.startswith("tab:") for l in labels):
-            prefix = "Table" if len(labels) == 1 else "Tables"
-            return f"{prefix}~{_join_hyper_numbers(labels, aux_numbers=aux_numbers)}"
+            if len(labels) == 1:
+                return _hyperlink_noun_number(labels[0], noun="Table", aux_numbers=aux_numbers)
+            return "Tables~" + _join_hyper_numbers(labels, aux_numbers=aux_numbers)
         if all(l.startswith("sec:") for l in labels):
-            prefix = "Section" if len(labels) == 1 else "Sections"
-            return f"{prefix}~{_join_hyper_numbers(labels, aux_numbers=aux_numbers)}"
+            if len(labels) == 1:
+                return _hyperlink_noun_number(labels[0], noun="Section", aux_numbers=aux_numbers)
+            return "Sections~" + _join_hyper_numbers(labels, aux_numbers=aux_numbers)
         # Mixed types: keep a readable list.
         rendered = []
         for lab in labels:
             if lab.startswith("eq:"):
                 rendered.append(f"\\hyperref[{lab}]{{({aux_numbers.get(lab,'?')})}}")
             elif lab.startswith("chap:"):
-                rendered.append(f"Chapter~\\hyperlink{{{lab}}}{{{aux_numbers.get(lab,'?')}}}")
+                rendered.append(_hyperlink_noun_number(lab, noun="Chapter", aux_numbers=aux_numbers))
             elif lab.startswith("fig:"):
-                rendered.append(f"Figure~\\hyperlink{{{lab}}}{{{aux_numbers.get(lab,'?')}}}")
+                rendered.append(_hyperlink_noun_number(lab, noun="Figure", aux_numbers=aux_numbers))
             elif lab.startswith("tab:"):
-                rendered.append(f"Table~\\hyperlink{{{lab}}}{{{aux_numbers.get(lab,'?')}}}")
+                rendered.append(_hyperlink_noun_number(lab, noun="Table", aux_numbers=aux_numbers))
             elif lab.startswith("sec:"):
-                rendered.append(f"Section~\\hyperlink{{{lab}}}{{{aux_numbers.get(lab,'?')}}}")
+                rendered.append(_hyperlink_noun_number(lab, noun="Section", aux_numbers=aux_numbers))
             else:
                 rendered.append(f"\\ref{{{lab}}}")
         return ", ".join(rendered)
@@ -331,24 +343,24 @@ def rewrite_crossrefs(text: str, *, aux_numbers: dict[str, str]) -> str:
         before_wide = text[max(0, start - 48) : start]
         if lab.startswith("chap:"):
             if re.search(r"(Chapter|Chapters)[\\s~]*$", before) or ("Chapters" in before_wide):
-                out.append(f"\\hyperlink{{{lab}}}{{{aux_numbers.get(lab,'?')}}}")
+                out.append(_hyperlink_phrase(lab, aux_numbers.get(lab, "?")))
             else:
-                out.append(f"Chapter~\\hyperlink{{{lab}}}{{{aux_numbers.get(lab,'?')}}}")
+                out.append(_hyperlink_noun_number(lab, noun="Chapter", aux_numbers=aux_numbers))
         elif lab.startswith("fig:"):
             if re.search(r"(Figure|Figures)[\\s~]*$", before) or ("Figures" in before_wide):
-                out.append(f"\\hyperlink{{{lab}}}{{{aux_numbers.get(lab,'?')}}}")
+                out.append(_hyperlink_phrase(lab, aux_numbers.get(lab, "?")))
             else:
-                out.append(f"Figure~\\hyperlink{{{lab}}}{{{aux_numbers.get(lab,'?')}}}")
+                out.append(_hyperlink_noun_number(lab, noun="Figure", aux_numbers=aux_numbers))
         elif lab.startswith("tab:"):
             if re.search(r"(Table|Tables)[\\s~]*$", before) or ("Tables" in before_wide):
-                out.append(f"\\hyperlink{{{lab}}}{{{aux_numbers.get(lab,'?')}}}")
+                out.append(_hyperlink_phrase(lab, aux_numbers.get(lab, "?")))
             else:
-                out.append(f"Table~\\hyperlink{{{lab}}}{{{aux_numbers.get(lab,'?')}}}")
+                out.append(_hyperlink_noun_number(lab, noun="Table", aux_numbers=aux_numbers))
         elif lab.startswith("sec:"):
             if re.search(r"(Section|Sections)[\\s~]*$", before) or ("Sections" in before_wide):
-                out.append(f"\\hyperlink{{{lab}}}{{{aux_numbers.get(lab,'?')}}}")
+                out.append(_hyperlink_phrase(lab, aux_numbers.get(lab, "?")))
             else:
-                out.append(f"Section~\\hyperlink{{{lab}}}{{{aux_numbers.get(lab,'?')}}}")
+                out.append(_hyperlink_noun_number(lab, noun="Section", aux_numbers=aux_numbers))
         elif lab.startswith("eq:"):
             out.append(f"\\hyperref[{lab}]{{({aux_numbers.get(lab,'?')})}}")
         else:

@@ -282,12 +282,36 @@ def build(*, variant: str, clean: bool, skip_validate: bool) -> Path:
     title = metadata.get("title")
     creator = metadata.get("creator") or metadata.get("author")
     lang = metadata.get("language")
+    cover_val = metadata.get("cover_image") or metadata.get("cover") or metadata.get("cover-image")
     if title:
         pandoc_metadata_args += ["-M", f"title={title}"]
     if creator:
         pandoc_metadata_args += ["-M", f"author={creator}"]
     if lang:
         pandoc_metadata_args += ["-M", f"lang={lang}"]
+
+    cover_path: Path | None = None
+    if cover_val:
+        cand = Path(str(cover_val))
+        if not cand.is_absolute():
+            # Prefer paths relative to notes_output (same folder as metadata).
+            cand_notes = (p.notes_output / cand).resolve()
+            cand_repo = (p.repo_root / cand).resolve()
+            if cand_notes.exists():
+                cand = cand_notes
+            elif cand_repo.exists():
+                cand = cand_repo
+        if cand.exists() and cand.is_file():
+            cover_path = cand
+    if cover_path is None:
+        for cand in (
+            p.notes_output / "BookCover_1024x1536.png",
+            p.notes_output / "BookCover.png",
+            p.notes_output / "upload" / "Modern_Intelligent_Systems_cover.png",
+        ):
+            if cand.exists():
+                cover_path = cand.resolve()
+                break
 
     pandoc_cmd = [
         "pandoc",
@@ -297,6 +321,7 @@ def build(*, variant: str, clean: bool, skip_validate: bool) -> Path:
         "--mathml",
         "--css",
         str(css_path),
+        *(["--epub-cover-image", str(cover_path)] if cover_path else []),
         "--resource-path",
         str(p.media) + ":" + str(p.repo_root) + ":" + str(p.notes_output),
         "--output",
