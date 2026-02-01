@@ -28,6 +28,7 @@ from lib.latex import (
     resolve_bare_includegraphics,
     strip_captionsetup_commands,
     unwrap_graphics_wrappers,
+    rasterize_pdf_includegraphics,
     verify_includegraphics_targets,
 )
 from lib.tikz import compile_tikz_block_to_png
@@ -50,6 +51,25 @@ def _run(cmd: list[str], *, cwd: Path | None = None) -> None:
     proc = subprocess.run(cmd, cwd=cwd, check=False, text=True)
     if proc.returncode != 0:
         raise SystemExit(proc.returncode)
+
+def _png_dimensions(path: Path) -> tuple[int, int] | None:
+    """
+    Read PNG width/height without external deps (IHDR chunk).
+    """
+    try:
+        data = path.read_bytes()
+    except OSError:
+        return None
+    if len(data) < 24 or data[:8] != b"\x89PNG\r\n\x1a\n":
+        return None
+    try:
+        width = int.from_bytes(data[16:20], "big")
+        height = int.from_bytes(data[20:24], "big")
+    except Exception:
+        return None
+    if width <= 0 or height <= 0:
+        return None
+    return width, height
 
 
 def _ensure_tools() -> None:
@@ -122,6 +142,13 @@ def _verify_epub_figures(epub_path: Path) -> None:
                 bad.append(f"{name}: figure missing renderable content")
                 break
 
+            # Guard against Pandoc's internal ref numbering drifting from the
+            # PDF's global numbering. After LaTeX preprocessing we expect
+            # chapter/section/figure/table refs to be emitted via \hyperref with
+            # fixed text, not \ref-style data-reference attributes.
+            if re.search(r'data-reference-type="ref"\s+data-reference="(chap:|sec:|fig:|tab:)', s):
+                bad.append(f"{name}: contains pandoc \\ref-style crossrefs (data-reference=chap/sec/fig/tab)")
+
             # Ensure referenced <img src="..."> resources exist in the EPUB zip.
             for m in re.finditer(r"<img\b[^>]*\bsrc=\"([^\"]+)\"", s):
                 src = m.group(1)
@@ -181,6 +208,9 @@ def build(*, variant: str, clean: bool, skip_validate: bool) -> Path:
     tikz_blocks = extract_tikz_blocks(doc_body)
     rendered: dict = {}
     tikz_dpi = int(getattr(build, "_tikz_dpi", 300))  # set by main()
+    tikz_min_w = int(getattr(build, "_tikz_min_w", 0))  # set by main()
+    tikz_min_h = int(getattr(build, "_tikz_min_h", 0))  # set by main()
+    tikz_max_dpi = int(getattr(build, "_tikz_max_dpi", 0))  # set by main()
     strict_figures = bool(getattr(build, "_strict_figures", True))  # set by main()
     failed: list[str] = []
     for idx, block in enumerate(tikz_blocks, start=1):
@@ -195,6 +225,29 @@ def build(*, variant: str, clean: bool, skip_validate: bool) -> Path:
             stem=name,
             dpi=tikz_dpi,
         )
+        # Some TikZ figures are short line art; increase DPI only for those to
+        # keep them crisp on high-density displays without inflating every figure.
+        if ok and tikz_max_dpi > 0 and (tikz_min_w > 0 or tikz_min_h > 0):
+            dims = _png_dimensions(out_png)
+            if dims:
+                w, h = dims
+                need = 1.0
+                if tikz_min_w > 0:
+                    need = max(need, tikz_min_w / max(1, w))
+                if tikz_min_h > 0:
+                    need = max(need, tikz_min_h / max(1, h))
+                if need > 1.02:
+                    new_dpi = int(min(tikz_max_dpi, int((tikz_dpi * need) + 0.999)))
+                    if new_dpi > tikz_dpi:
+                        ok2 = compile_tikz_block_to_png(
+                            tikz_code=block.content,
+                            out_png=out_png,
+                            notes_output_dir=p.notes_output,
+                            log_dir=p.tikz_logs,
+                            stem=name,
+                            dpi=new_dpi,
+                        )
+                        ok = ok2 or ok
         if not ok:
             failed.append(name)
         rendered[block] = png_name if ok else None
@@ -210,6 +263,10 @@ def build(*, variant: str, clean: bool, skip_validate: bool) -> Path:
     doc_body = resolve_bare_includegraphics(doc_body, repo_root=p.repo_root)
     doc_body = strip_captionsetup_commands(doc_body)
     doc_body = unwrap_graphics_wrappers(doc_body)
+    asset_dpi = int(getattr(build, "_asset_dpi", int(getattr(build, "_tikz_dpi", 600))))  # set by main()
+    doc_body = rasterize_pdf_includegraphics(
+        doc_body, repo_root=p.repo_root, notes_output_dir=p.notes_output, media_dir=p.media, dpi=asset_dpi
+    )
     doc_body = prefix_caption_numbers(doc_body, aux_numbers=aux_numbers)
     doc_body = add_visible_equation_numbers(doc_body, aux_numbers=aux_numbers)
     if strict_figures:
@@ -262,12 +319,21 @@ def main(argv: list[str]) -> int:
     parser.add_argument("--variant", choices=["apple", "kindle", "both"], default="apple")
     parser.add_argument("--clean", action=argparse.BooleanOptionalAction, default=True)
     parser.add_argument("--skip-validate", action="store_true")
-    parser.add_argument("--tikz-dpi", type=int, default=300)
+    # High-DPI by default: this is an electronic book; prioritize crisp figures.
+    parser.add_argument("--tikz-dpi", type=int, default=1200)
+    parser.add_argument("--asset-dpi", type=int, default=1200)
+    parser.add_argument("--tikz-min-width", type=int, default=2400)
+    parser.add_argument("--tikz-min-height", type=int, default=1400)
+    parser.add_argument("--tikz-max-dpi", type=int, default=3000)
     parser.add_argument("--strict-figures", action=argparse.BooleanOptionalAction, default=True)
     args = parser.parse_args(argv)
 
     setattr(build, "_tikz_dpi", args.tikz_dpi)
+    setattr(build, "_asset_dpi", args.asset_dpi)
     setattr(build, "_strict_figures", args.strict_figures)
+    setattr(build, "_tikz_min_w", args.tikz_min_width)
+    setattr(build, "_tikz_min_h", args.tikz_min_height)
+    setattr(build, "_tikz_max_dpi", args.tikz_max_dpi)
 
     if args.variant == "both":
         build(variant="apple", clean=args.clean, skip_validate=args.skip_validate)

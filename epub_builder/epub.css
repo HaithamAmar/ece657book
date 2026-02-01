@@ -1,5 +1,11 @@
 /* epub_builder: lightweight, reader-safe styling */
 
+/* Avoid reader hyphenation artifacts like "Chap- ter" in cross-references. */
+body {
+  -webkit-hyphens: none;
+  hyphens: none;
+}
+
 /* Images and figures */
 img, svg, embed, object {
   max-width: 100%;
@@ -70,22 +76,16 @@ pre, code {
 
 /* Tables: avoid ultra-narrow columns in readers that honor colgroup widths */
 table {
-  display: block;
-  /* Override Pandoc's inline `style="width:..%"` */
-  width: 100% !important;
-  overflow-x: auto;
+  /* Keep tables compact; readers may otherwise stretch columns to full width. */
+  width: auto !important;
+  min-width: 60%;
+  max-width: 100%;
+  display: table;
   border-collapse: collapse;
   table-layout: auto;
   font-size: 0.92em;
-}
-
-/* Prefer true table layout in readers that handle it well; keep scroll fallback above. */
-@supports (display: table) {
-  table {
-    display: table;
-    margin-left: auto;
-    margin-right: auto;
-  }
+  margin-left: auto;
+  margin-right: auto;
 }
 
 col, colgroup, table col {

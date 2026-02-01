@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import re
+import subprocess
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -226,6 +227,26 @@ def _join_refs(labels: list[str]) -> str:
         return parts[0] + " and " + parts[1]
     return ", ".join(parts[:-1]) + ", and " + parts[-1]
 
+def _join_hyper_numbers(labels: list[str], *, aux_numbers: dict[str, str]) -> str:
+    """
+    Join labels as hyperlinked reference numbers using `.aux` numbering.
+
+    We intentionally avoid `\\ref{...}` because Pandoc will renumber refs based
+    on its own counters (often per-chapter), which can diverge from the global
+    PDF numbering we want to preserve for publishing.
+    """
+    # Use \hyperlink{...}{...} (not \hyperref[...]{...}) to avoid introducing
+    # `]` into contexts like `tcolorbox` option lists (which are bracket-delimited
+    # and parsed by our preprocessors).
+    parts = [f"\\hyperlink{{{lab}}}{{{aux_numbers.get(lab, '?')}}}" for lab in labels]
+    if not parts:
+        return ""
+    if len(parts) == 1:
+        return parts[0]
+    if len(parts) == 2:
+        return parts[0] + " and " + parts[1]
+    return ", ".join(parts[:-1]) + ", and " + parts[-1]
+
 
 def _join_eq_links(labels: list[str], *, aux_numbers: dict[str, str]) -> str:
     # Use \hyperref[...]{} (not \href{#...}{}) because Pandoc's math parser accepts
@@ -257,26 +278,31 @@ def rewrite_crossrefs(text: str, *, aux_numbers: dict[str, str]) -> str:
             return m.group(0)
         if all(l.startswith("chap:") for l in labels):
             prefix = "Chapter" if len(labels) == 1 else "Chapters"
-            return f"{prefix}~{_join_refs(labels)}"
+            return f"{prefix}~{_join_hyper_numbers(labels, aux_numbers=aux_numbers)}"
         if all(l.startswith("eq:") for l in labels):
             return _join_eq_links(labels, aux_numbers=aux_numbers)
         if all(l.startswith("fig:") for l in labels):
             prefix = "Figure" if len(labels) == 1 else "Figures"
-            return f"{prefix}~{_join_refs(labels)}"
+            return f"{prefix}~{_join_hyper_numbers(labels, aux_numbers=aux_numbers)}"
         if all(l.startswith("tab:") for l in labels):
             prefix = "Table" if len(labels) == 1 else "Tables"
-            return f"{prefix}~{_join_refs(labels)}"
+            return f"{prefix}~{_join_hyper_numbers(labels, aux_numbers=aux_numbers)}"
+        if all(l.startswith("sec:") for l in labels):
+            prefix = "Section" if len(labels) == 1 else "Sections"
+            return f"{prefix}~{_join_hyper_numbers(labels, aux_numbers=aux_numbers)}"
         # Mixed types: keep a readable list.
         rendered = []
         for lab in labels:
             if lab.startswith("eq:"):
                 rendered.append(f"\\hyperref[{lab}]{{({aux_numbers.get(lab,'?')})}}")
             elif lab.startswith("chap:"):
-                rendered.append(f"Chapter~\\ref{{{lab}}}")
+                rendered.append(f"Chapter~\\hyperlink{{{lab}}}{{{aux_numbers.get(lab,'?')}}}")
             elif lab.startswith("fig:"):
-                rendered.append(f"Figure~\\ref{{{lab}}}")
+                rendered.append(f"Figure~\\hyperlink{{{lab}}}{{{aux_numbers.get(lab,'?')}}}")
             elif lab.startswith("tab:"):
-                rendered.append(f"Table~\\ref{{{lab}}}")
+                rendered.append(f"Table~\\hyperlink{{{lab}}}{{{aux_numbers.get(lab,'?')}}}")
+            elif lab.startswith("sec:"):
+                rendered.append(f"Section~\\hyperlink{{{lab}}}{{{aux_numbers.get(lab,'?')}}}")
             else:
                 rendered.append(f"\\ref{{{lab}}}")
         return ", ".join(rendered)
@@ -305,19 +331,24 @@ def rewrite_crossrefs(text: str, *, aux_numbers: dict[str, str]) -> str:
         before_wide = text[max(0, start - 48) : start]
         if lab.startswith("chap:"):
             if re.search(r"(Chapter|Chapters)[\\s~]*$", before) or ("Chapters" in before_wide):
-                out.append(m.group(0))
+                out.append(f"\\hyperlink{{{lab}}}{{{aux_numbers.get(lab,'?')}}}")
             else:
-                out.append(f"Chapter~\\ref{{{lab}}}")
+                out.append(f"Chapter~\\hyperlink{{{lab}}}{{{aux_numbers.get(lab,'?')}}}")
         elif lab.startswith("fig:"):
             if re.search(r"(Figure|Figures)[\\s~]*$", before) or ("Figures" in before_wide):
-                out.append(m.group(0))
+                out.append(f"\\hyperlink{{{lab}}}{{{aux_numbers.get(lab,'?')}}}")
             else:
-                out.append(f"Figure~\\ref{{{lab}}}")
+                out.append(f"Figure~\\hyperlink{{{lab}}}{{{aux_numbers.get(lab,'?')}}}")
         elif lab.startswith("tab:"):
             if re.search(r"(Table|Tables)[\\s~]*$", before) or ("Tables" in before_wide):
-                out.append(m.group(0))
+                out.append(f"\\hyperlink{{{lab}}}{{{aux_numbers.get(lab,'?')}}}")
             else:
-                out.append(f"Table~\\ref{{{lab}}}")
+                out.append(f"Table~\\hyperlink{{{lab}}}{{{aux_numbers.get(lab,'?')}}}")
+        elif lab.startswith("sec:"):
+            if re.search(r"(Section|Sections)[\\s~]*$", before) or ("Sections" in before_wide):
+                out.append(f"\\hyperlink{{{lab}}}{{{aux_numbers.get(lab,'?')}}}")
+            else:
+                out.append(f"Section~\\hyperlink{{{lab}}}{{{aux_numbers.get(lab,'?')}}}")
         elif lab.startswith("eq:"):
             out.append(f"\\hyperref[{lab}]{{({aux_numbers.get(lab,'?')})}}")
         else:
@@ -776,8 +807,9 @@ def resolve_bare_includegraphics(text: str, *, repo_root: Path) -> str:
         return text
 
     def _pick_asset(stem: str) -> str | None:
-        # Prefer raster formats, and prefer non-dashed variants when multiple exist.
-        ext_order = [".png", ".jpg", ".jpeg", ".svg", ".pdf"]
+        # Prefer vector sources first, then raster formats. PDF/SVG will be
+        # rasterized at high DPI for EPUB later in the pipeline.
+        ext_order = [".pdf", ".svg", ".png", ".jpg", ".jpeg"]
         candidates: list[Path] = []
         for ext in ext_order:
             candidates.extend(assets_root.rglob(stem + ext))
@@ -812,12 +844,30 @@ def resolve_bare_includegraphics(text: str, *, repo_root: Path) -> str:
         target = m.group(1).strip()
         # If an extension is already present, keep it.
         if "." in Path(target).name:
-            # Prefer raster formats over embedded PDFs in EPUB whenever possible.
-            if target.lower().endswith(".pdf"):
-                rel = target.replace("\\", "/")
+            rel = target.replace("\\", "/")
+            lower = rel.lower()
+
+            # If a raster is referenced but a sibling vector exists, prefer vector.
+            # We will rasterize PDFs at high DPI later for crisp EPUB rendering.
+            if lower.endswith((".png", ".jpg", ".jpeg")):
+                base_noext = rel.rsplit(".", 1)[0]
+                # Try pdf first, then svg.
+                for ext in (".pdf", ".svg"):
+                    candidate = (repo_root / (base_noext + ext)).resolve()
+                    try:
+                        candidate.relative_to(repo_root.resolve())
+                    except ValueError:
+                        candidate = None
+                    if candidate and candidate.exists():
+                        return m.group(0).replace("{" + target + "}", "{" + (base_noext + ext) + "}")
+
+            # Prefer raster formats over embedded PDFs in EPUB whenever possible,
+            # but if the source is a PDF and a raster exists, swap to the raster.
+            if lower.endswith(".pdf"):
                 candidate = _pick_from_path_noext(rel[:-4])
                 if candidate and not candidate.lower().endswith(".pdf"):
                     return m.group(0).replace("{" + target + "}", "{" + candidate + "}")
+
             return m.group(0)
 
         # Prefer resolving explicit relative paths (e.g., assets/foo/bar) to a
@@ -835,6 +885,87 @@ def resolve_bare_includegraphics(text: str, *, repo_root: Path) -> str:
         return m.group(0).replace("{" + target + "}", "{" + resolved + "}")
 
     return include_re.sub(_sub, text)
+
+
+def rasterize_pdf_includegraphics(
+    text: str, *, repo_root: Path, notes_output_dir: Path, media_dir: Path, dpi: int
+) -> str:
+    """
+    Convert `\\includegraphics{...pdf}` into `\\includegraphics{assetpdf_XXXX.png}`.
+
+    Pandoc will otherwise rasterize PDFs at reader/tool defaults that can look
+    soft. We pre-rasterize at a high DPI via `pdftoppm` and cache outputs in the
+    EPUB media dir.
+    """
+    media_dir.mkdir(parents=True, exist_ok=True)
+    include_re = re.compile(r"\\includegraphics(?:\[[^\]]*\])?\{([^}]+)\}")
+
+    def _resolve(rel: str) -> Path | None:
+        p = Path(rel)
+        if p.is_absolute() or rel.startswith("~") or "://" in rel:
+            return None
+        rel_norm = rel[2:] if rel.startswith("./") else rel
+        cand = (media_dir / rel_norm).resolve()
+        if cand.exists():
+            return cand
+        for root in (repo_root, notes_output_dir):
+            c = (root / rel_norm).resolve()
+            if c.exists():
+                return c
+        return None
+
+    def _rasterize(src_pdf: Path) -> str | None:
+        if src_pdf.suffix.lower() != ".pdf":
+            return None
+        # Stable cache key: relative path + mtime + dpi.
+        try:
+            rel = src_pdf.resolve().relative_to(repo_root.resolve()).as_posix()
+        except ValueError:
+            rel = src_pdf.name
+        mtime = int(src_pdf.stat().st_mtime)
+        key = f"{rel}|{mtime}|{dpi}"
+        import hashlib
+
+        stem = "assetpdf_" + hashlib.sha1(key.encode("utf-8")).hexdigest()[:12]
+        out_png = media_dir / f"{stem}.png"
+        if out_png.exists() and out_png.stat().st_size > 0:
+            return out_png.name
+        # Render first page to PNG.
+        prefix = media_dir / stem
+        cmd = ["pdftoppm", "-r", str(dpi), "-png", "-singlefile", str(src_pdf), str(prefix)]
+        subprocess.run(cmd, check=False, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+        if out_png.exists() and out_png.stat().st_size > 0:
+            return out_png.name
+        return None
+
+    out_parts: list[str] = []
+    last = 0
+    for m in include_re.finditer(text):
+        target = m.group(1).strip()
+        lower = target.lower()
+        src: Path | None = None
+
+        if lower.endswith(".pdf"):
+            src = _resolve(target)
+        elif lower.endswith((".png", ".jpg", ".jpeg")):
+            # If a raster is referenced but a sibling PDF exists, prefer rasterizing
+            # the PDF at high DPI for crispness.
+            base = target.rsplit(".", 1)[0] + ".pdf"
+            src = _resolve(base)
+        else:
+            continue
+
+        if not src or not src.exists():
+            continue
+
+        png_name = _rasterize(src)
+        if not png_name:
+            continue
+        out_parts.append(text[last : m.start()])
+        out_parts.append(m.group(0).replace("{" + target + "}", "{" + png_name + "}"))
+        last = m.end()
+    out_parts.append(text[last:])
+    return "".join(out_parts)
 
 
 _INCLUDEGRAPHICS_RE = re.compile(r"\\includegraphics(?:\[[^\]]*\])?\{([^}]+)\}")
