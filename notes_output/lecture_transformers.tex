@@ -1,0 +1,482 @@
+%Chapter 13
+\section{Transformers: Attention-Based Sequence Modeling}\label{chap:transformers}
+
+\begin{tcolorbox}[summarybox,title={Learning Outcomes}]
+After this chapter, you should be able to:
+\begin{itemize}
+  \item Write the scaled dot-product attention and multi-head attention formulas.
+  \item Explain positional encodings and masking (causal/padding) in training/inference.
+  \item Describe encoder/decoder stacks, residuals, layer norm, and training stabilizers.
+  \item Compare RNNs vs. Transformers and know when each is preferable.
+  \item Outline common pretraining and fine-tuning strategies (MLM/CLM, LoRA/IA3) and decoding.
+\end{itemize}
+\end{tcolorbox}
+
+\Cref{chap:rnn} made the sequence problem explicit: stateful computation plus gradients that must flow across time. Transformers keep the sequence focus but remove recurrence, replacing it with attention so information can move globally in one layer. The roadmap in \Cref{fig:roadmap} shows this as the modern sequence branch.
+
+\begin{tcolorbox}[summarybox,title={Design motif}]
+Control information flow with structure (masks, normalization, residual paths) so optimization remains stable while context windows grow.
+\end{tcolorbox}
+
+\begin{tcolorbox}[summarybox,title={Author's note: attention allocates focus per token}]
+It is helpful to view attention as each token asking ``who else helps me understand my role,'' with masks and layer norms enforcing the rules of that dialogue. The scaled dot-product equations that follow merely quantify that per-token focus allocation.
+\end{tcolorbox}
+
+\subsection{Why transformers after RNNs?}
+\Cref{chap:rnn} closed with recurrent models that process tokens sequentially, leaving them prone to vanishing/exploding gradients, limited receptive fields, and low hardware utilization. Transformers replace the recurrence with attention so every position can condition on any other in a single layer, enabling parallel hardware use and more direct long-range interactions \citep{Vaswani2017}.
+
+\subsection{Scaled Dot-Product Attention}
+Given query, key, value matrices \(\mathbf{Q} \in \mathbb{R}^{n_q \times d_k}\), \(\mathbf{K} \in \mathbb{R}^{n_k \times d_k}\), and \(\mathbf{V} \in \mathbb{R}^{n_k \times d_v}\), the basic attention operation is
+\begin{equation}
+    \operatorname{Attn}(\mathbf{Q}, \mathbf{K}, \mathbf{V})
+    = \operatorname{softmax}\!\left(\frac{\mathbf{Q}\mathbf{K}^\top}{\sqrt{d_k}}\right) \mathbf{V}.
+\end{equation}
+Here \(n_q\) is the sequence length of the queries and \(n_k\) the sequence length of keys/values. We maintain the sequence-first convention from \Cref{chap:rnn}: rows index time positions (a ``token dimension'') and columns index features, while batch elements are processed independently. The \(1/\sqrt{d_k}\) factor stabilizes gradients by keeping logits in a reasonable range.
+
+\begin{tcolorbox}[summarybox,title={Shape ledger}]
+We treat mini\hyp{}batches as \(\mathbf{X}\in\mathbb{R}^{B\times n \times d_{\text{model}}}\) (batch, sequence, features). After the linear projections each head carries \(\mathbf{Q},\mathbf{K}\in\mathbb{R}^{B\times h \times n \times d_k}\), \(\mathbf{V}\in\mathbb{R}^{B\times h \times n \times d_v}\), and the attention weights live in \(\mathbb{R}^{B\times h \times n \times n}\). Reading dimensions in this order avoids confusion when mixing frameworks; \(h\cdot d_k = d_{\text{model}}\) (often \(d_v=d_k\)). FFN inner widths typically 2--4\(\times d_{\text{model}}\).
+\end{tcolorbox}
+
+\begin{tcolorbox}[summarybox,title={Complexity and memory}]
+Naive attention is \(O(n^2 d_{\text{model}})\) compute and \(O(n^2)\) memory per head/layer for the attention map; this dominates long sequences. FlashAttention reduces activation I/O but keeps the quadratic arithmetic; sparse/linear variants reduce the \(n^2\) factor by trading exactness for structure (see Longformer/BigBird/Reformer/Performer/Linformer). Causal/padding masks do not change complexity, only which entries participate.
+\end{tcolorbox}
+
+\subsection{Multi-Head Attention (MHA)}
+Multiple heads attend in parallel after learned linear projections:
+\begin{align}
+    \mathrm{head}_i &= \operatorname{Attn}(\mathbf{Q}\mathbf{W}_i^Q,\, \mathbf{K}\mathbf{W}_i^K,\, \mathbf{V}\mathbf{W}_i^V),\\
+    \operatorname{MHA}(\mathbf{Q},\mathbf{K},\mathbf{V}) &= [\mathrm{head}_1;\ldots;\mathrm{head}_h]\, \mathbf{W}^O,
+\end{align}
+with \(\mathbf{W}_i^Q \in \mathbb{R}^{d_{\text{model}} \times d_k}\), \(\mathbf{W}_i^K \in \mathbb{R}^{d_{\text{model}} \times d_k}\), \(\mathbf{W}_i^V \in \mathbb{R}^{d_{\text{model}} \times d_v}\), and output projection \(\mathbf{W}^O\). \Cref{fig:lec13_transformer_block} bundles scaled dot-product attention, multi-head concatenation, and the residual pre-LN block so the entire signal path is visible at a glance.
+
+\begin{figure}[h]
+    \centering
+    \resizebox{\linewidth}{!}{%
+    \begin{tikzpicture}[
+        >={Latex[length=4pt, width=3pt]},
+        font=\small\sffamily,
+        % Panels
+        panel/.style={draw=gray!40, rounded corners=5pt, fill=gray!3, line width=0.6pt},
+        panel_label/.style={anchor=north west, font=\bfseries\footnotesize, text=gray!80, inner sep=4pt},
+        % Functional blocks
+        func/.style={draw=cbBlue!80, fill=cbBlue!10, rounded corners=2pt, line width=0.7pt, minimum height=1.8em, align=center, inner sep=4pt},
+        % Operation blocks
+        proc/.style={draw=cbGreen!80, fill=cbGreen!10, rounded corners=2pt, line width=0.7pt, minimum height=1.8em, align=center},
+        % Warning/mask blocks
+        maskblock/.style={draw=cbOrange!80, fill=cbOrange!10, rounded corners=2pt, line width=0.7pt, minimum height=1.6em, align=center},
+        % Merge/add/concat
+        sum/.style={circle, draw=cbPink!80, fill=cbPink!10, line width=0.7pt, inner sep=1pt, minimum size=1.2em},
+        merge/.style={draw=cbPink!80, fill=cbPink!10, rounded corners=2pt, line width=0.7pt, minimum height=1.8em, align=center},
+        % Wires + annotation
+        wire/.style={->, draw=gray!70, line width=0.8pt, rounded corners=3pt},
+        skip/.style={->, draw=gray!55, line width=0.8pt, rounded corners=6pt},
+        annot/.style={font=\scriptsize, text=gray!60, align=left}
+    ]
+        % ==========================
+        % Panel (a): Scaled Dot-Product
+        % ==========================
+        \node[panel, minimum width=4.2cm, minimum height=6.2cm] (p1) at (0,0) {};
+        \node[panel_label] at (p1.north west) {(a) Scaled Dot-Product};
+
+        \node[func, minimum width=0.8cm] (q) at ([yshift=-1.2cm, xshift=-1.2cm]p1.north) {\(\mathbf{Q}\)};
+        \node[func, minimum width=0.8cm] (k) at ([yshift=-1.2cm]p1.north) {\(\mathbf{K}\)};
+        \node[func, minimum width=0.8cm] (v) at ([yshift=-1.2cm, xshift=1.2cm]p1.north) {\(\mathbf{V}\)};
+
+        \node[proc, minimum width=2.4cm] (matmul1) at ([yshift=-1.0cm]k.south) {MatMul};
+        \node[annot, right] at (matmul1.east) {\(\frac{\mathbf{Q}\mathbf{K}^\top}{\sqrt{d_k}}\)};
+
+        \node[maskblock, minimum width=2.4cm] (masknode) at ([yshift=-0.7cm]matmul1.south) {Mask (opt.)};
+        \node[proc, minimum width=2.4cm] (softmax) at ([yshift=-0.7cm]masknode.south) {Softmax};
+        \node[proc, minimum width=2.4cm] (matmul2) at ([yshift=-0.9cm]softmax.south) {MatMul};
+        \node[annot, right] at (matmul2.east) {Weighted\\Sum};
+
+        \draw[wire] (q.south) -- ++(0,-0.3) -| ([xshift=-4pt]matmul1.north);
+        \draw[wire] (k.south) -- (matmul1.north);
+        \draw[wire] (matmul1.south) -- (masknode.north);
+        \draw[wire] (masknode.south) -- (softmax.north);
+        \draw[wire] (softmax.south) -- (matmul2.north);
+        % Route V -> MatMul2 with an "outside" elbow so it avoids the right-side annotations.
+        \coordinate (vRouteX) at ($(p1.east)+(0.55,0)$);
+        \draw[wire] (v.east) -- (vRouteX |- v.east) |- (matmul2.north east);
+        \draw[wire] (matmul2.south) -- ++(0,-0.4);
+
+        % ==========================
+        % Panel (b): Multi-Head
+        % ==========================
+        \node[panel, minimum width=4.2cm, minimum height=6.2cm] (p2) at (5,0) {};
+        \node[panel_label] at (p2.north west) {(b) Multi-Head};
+
+        \node (input_b) at ([yshift=-0.8cm]p2.north) {};
+        \node[func, fill=white, draw=gray!30, minimum width=2.8cm, yshift=2pt, xshift=2pt] at ([yshift=-0.6cm]input_b.south) {};
+        \node[func, minimum width=2.8cm] (proj) at ([yshift=-0.6cm]input_b.south) {Projections\\\(W_i^Q, W_i^K, W_i^V\)};
+
+        \node[proc, fill=white, draw=gray!30, minimum width=2.2cm, yshift=2pt, xshift=2pt] at ([yshift=-0.9cm]proj.south) {};
+        \node[proc, minimum width=2.2cm] (head) at ([yshift=-0.9cm]proj.south) {Attention\\Head \(i\)};
+        \node[annot, right] at (head.east) {\(\times h\)};
+
+        \node[merge, minimum width=2.8cm] (concat) at ([yshift=-0.8cm]head.south) {Concat};
+        \node[func, minimum width=2.8cm] (out_proj) at ([yshift=-0.8cm]concat.south) {Output \(W^O\)};
+
+        \draw[wire] (proj.south) -- (head.north);
+        \draw[wire] (head.south) -- (concat.north);
+        \draw[wire] (concat.south) -- (out_proj.north);
+        \draw[wire] (out_proj.south) -- ++(0,-0.4);
+
+        % ==========================
+        % Panel (c): Pre-LN Encoder
+        % ==========================
+        \node[panel, minimum width=4.2cm, minimum height=6.2cm] (p3) at (10,0) {};
+        \node[panel_label] at (p3.north west) {(c) Pre-LN Block};
+
+        \node[coordinate] (in_c) at ([yshift=-1.0cm]p3.north) {};
+
+        \node[func, minimum width=2.4cm] (ln1_real) at ([yshift=-0.6cm]in_c) {LayerNorm};
+        \node[proc, minimum width=2.4cm] (mha_real) at ([yshift=-0.6cm]ln1_real.south) {Multi-Head Attn};
+        \node[sum] (add1_real) at ([yshift=-0.5cm]mha_real.south) {+};
+
+        \node[func, minimum width=2.4cm] (ln2_real) at ([yshift=-0.6cm]add1_real.south) {LayerNorm};
+        \node[proc, minimum width=2.4cm] (ffn_real) at ([yshift=-0.6cm]ln2_real.south) {FFN (GELU)};
+        \node[sum] (add2_real) at ([yshift=-0.5cm]ffn_real.south) {+};
+
+        \draw[wire] (in_c) -- (ln1_real.north);
+        \draw[wire] (ln1_real.south) -- (mha_real.north);
+        \draw[wire] (mha_real.south) -- (add1_real.north);
+        \draw[wire] (add1_real.south) -- (ln2_real.north);
+        \draw[wire] (ln2_real.south) -- (ffn_real.north);
+        \draw[wire] (ffn_real.south) -- (add2_real.north);
+        \draw[wire] (add2_real.south) -- ++(0,-0.4);
+
+        % Residual skips (explicit bypass into each residual add)
+        \draw[skip] ([yshift=0.2cm]ln1_real.north) -- ++(-1.6,0) |- node[pos=0.2, above, font=\scriptsize, text=gray!55]{residual} (add1_real.west);
+        \draw[skip] ([yshift=0.2cm]ln2_real.north) -- ++(-1.6,0) |- node[pos=0.2, above, font=\scriptsize, text=gray!55]{residual} (add2_real.west);
+
+        \node[draw=gray!50, dotted, fill=white, rounded corners, font=\tiny, align=left, inner sep=2pt] (postln) at ([xshift=1.3cm]add2_real.east) {Post-LN:\\Norm here};
+        \draw[->, dotted, gray!60] (postln.west) -- (add2_real.east);
+    \end{tikzpicture}}
+    % Avoid dense inline math in captions; it wraps poorly in EPUB renderers.
+    \caption{Schematic: Reference schematic for the Transformer. Left: scaled dot-product attention. Center: multi-head concatenation with an output projection. Right: pre-LN encoder block combining attention, FFN, and residual connections; a post-LN variant simply moves each LayerNorm after its residual add (dotted alternative, not shown).}
+    \label{fig:lec13_transformer_block}
+\end{figure}
+
+\begin{figure}[t]
+    \centering
+    \resizebox{\linewidth}{!}{%
+    \begin{tikzpicture}[
+        font=\small\sffamily,
+        enc/.style={thick, smooth},
+        panel/.style={draw=gray!55, rounded corners=4pt, thick, fill=gray!6, inner sep=6pt, minimum width=4.6cm, minimum height=3.6cm},
+        box/.style={draw=gray!60, rounded corners=3pt, thick, fill=gray!5, inner sep=6pt},
+        subbox/.style={draw=gray!60, rounded corners=3pt, thick, fill=cbOrange!20, inner sep=4pt},
+        mat/.style={draw=gray!60, rounded corners=3pt, thick, fill=cbBlue!12, minimum width=2cm, minimum height=1cm},
+        smallmat/.style={draw=gray!60, rounded corners=3pt, thick, fill=cbGreen!25, minimum width=1.4cm, minimum height=0.7cm}
+    ]
+
+    % Left panel: positional encodings
+    \begin{scope}[xshift=0cm]
+        \node[panel] (p1) {};
+        \begin{axis}[
+            at={(p1.center)},
+            anchor=center,
+            width=3.9cm,
+            height=2.8cm,
+            axis lines=none,
+            xmin=0, xmax=2*pi,
+            ymin=-1.2, ymax=1.2,
+            clip=false
+        ]
+            \addplot[enc, cbBlue, samples=200, domain=0:2*pi] {sin(deg(x))};
+            \addplot[enc, cbOrange, samples=200, domain=0:2*pi] {sin(deg(2*x))};
+        \end{axis}
+        \node[anchor=south, font=\small] at ([yshift=12pt]p1.south) {Positional encodings};
+        \node[anchor=north, font=\small] at ([yshift=2pt]p1.south) {sinusoidal / RoPE};
+        \node[anchor=north west, font=\footnotesize] at ([xshift=4pt,yshift=-4pt]p1.north west) {(a)};
+    \end{scope}
+
+    % Middle panel: Decoder + KV Cache
+    \begin{scope}[xshift=5.8cm]
+        \node[panel] (p2) {};
+        \node[box, minimum width=2.6cm, font=\small] (dec) at (p2.center|-0,0.65) {Decoder block};
+        \node[subbox, minimum width=2.6cm, font=\small] (kv) at (p2.center|-0,-0.65) {K/V cache};
+        \draw[->, line width=0.9pt] (dec) -- (kv);
+        \node[anchor=north west, font=\footnotesize] at ([xshift=4pt,yshift=-4pt]p2.north west) {(b)};
+    \end{scope}
+
+    % Right panel: LoRA adapters
+    \begin{scope}[xshift=11.6cm]
+        \node[panel] (p3) {};
+        % horizontal BA feeding W
+        \node[mat, font=\small] (W) at (p3.center|-0,1.35) {$\mathbf{W}$};
+        \node[smallmat, font=\small] (B) at ([xshift=-1.7cm]p3.center|-0,-0.15) {$\mathbf{B}$};
+        \node[smallmat, font=\small] (A) at ([xshift=1.7cm]p3.center|-0,-0.15) {$\mathbf{A}$};
+        \draw[->, line width=0.9pt] (B.north) -- ($(W.south)!0.55!(W.south west)$);
+        \draw[->, line width=0.9pt] (A.north) -- ($(W.south)!0.55!(W.south east)$);
+        \node[font=\scriptsize, anchor=south] at ([yshift=2pt]W.south) {rank $r$};
+        \node[font=\small] at ([yshift=-12pt]p3.south) {LoRA adapters};
+        \node[anchor=north west, font=\footnotesize] at ([xshift=4pt,yshift=-4pt]p3.north west) {(c)};
+    \end{scope}
+
+    % Cross-panel connectivity arrows
+    % Token flowing from positional encodings into the decoder block
+    \draw[->, line width=0.9pt, draw=gray!65]
+        ([xshift=0.25cm]p1.east) --
+        ([xshift=-0.25cm]p2.west)
+        node[midway, above, font=\small] {token};
+    % Reuse of cached K/V feeding the following decoding step
+    \draw[->, line width=0.9pt, draw=gray!65]
+        ([xshift=0.25cm]kv.east) --
+        ([xshift=-0.25cm]p3.west|-kv.east)
+        node[midway, above, font=\small] {reuse};
+
+    \end{tikzpicture}
+    }%
+    % Avoid inline math in captions; it wraps poorly in some EPUB renderers.
+    \caption{Schematic: Transformer micro-views. Left: positional encodings (sinusoidal/rotary) add order information. Center: KV cache stores past keys/values so decoding a new token reuses prior context. Right: LoRA inserts low-rank adapters (B A) on top of a frozen weight matrix W for parameter-efficient tuning.}
+    \label{fig:lec13_micro_figures}
+\end{figure}
+
+\paragraph{Micro attention example (2 tokens, causal mask).}
+Let \(Q=K=V=\begin{bmatrix}1&0\\0&1\end{bmatrix}\) and \(d_k=2\).
+Use a causal mask that sets all logits \emph{above} the diagonal to \(-\infty\), so those entries vanish after the softmax.
+The unscaled score matrix is \(\begin{bmatrix}1&0\\0&1\end{bmatrix}\); after masking and dividing by \(\sqrt{2}\), the first row softmaxes to \([1,0]\) and the second to \([\tfrac{e^{0}}{e^{0}+e^{1/\sqrt{2}}},\tfrac{e^{1/\sqrt{2}}}{e^{0}+e^{1/\sqrt{2}}}]\).
+These are exactly the attention weights, and because \(V\) is the identity the attention output equals the weight matrix:
+\[
+\operatorname{Attn}(Q,K,V)=
+\begin{bmatrix}
+1&0\\
+\tfrac{1}{1+e^{1/\sqrt{2}}} & \tfrac{e^{1/\sqrt{2}}}{1+e^{1/\sqrt{2}}}
+\end{bmatrix},
+\]
+which grounds the shapes and masking rules before we move on to larger examples.
+This toy case instantiates the left panel of \Cref{fig:lec13_transformer_block} with \(Q=K=V=\mathbf{I}_2\) and a \(2\times 2\) causal mask.
+
+\subsection{Positional Information}
+Transformers lack recurrence, so order is encoded explicitly. Two common choices:
+\begin{itemize}
+  \item \textbf{Sinusoidal encodings:} add \(\mathbf{P}\) with fixed sine/cosine frequencies to token embeddings.
+  \item \textbf{Learned encodings:} learn a position embedding table and add to token embeddings.
+\end{itemize}
+Relative position encodings generalize better to long contexts and variable windows.
+
+\subsection{Masks and Training Objectives}
+\begin{itemize}
+  \item \textbf{Causal masks} zero out attention to future positions for autoregressive language models.
+  \item \textbf{Padding masks} prevent attending to padding tokens in batches.
+  \item \textbf{Pretraining:} masked language modeling (MLM; encoder) and causal LM (CLM; decoder-only). Sequence-to-sequence uses teacher forcing with encoder\,\(\to\)decoder cross-attention.
+\end{itemize}
+
+\subsection{Encoder/Decoder Stacks and Stabilizers}
+Each block uses residual connections and layer normalization:
+\begin{align}
+\mathbf{H}' &= \operatorname{LayerNorm}(\mathbf{H} + \operatorname{MHA}(\mathbf{H},\mathbf{H},\mathbf{H})),\\
+\mathbf{H}_{\text{out}} &= \operatorname{LayerNorm}(\mathbf{H}' + \operatorname{FFN}(\mathbf{H}')).
+\end{align}
+The feed-forward sublayer (FFN) is position-wise, typically two linear layers with a nonlinearity (e.g., GELU). Dropout and label smoothing are common.
+
+\begin{tcolorbox}[summarybox,title={Transformer block (pre-LN) pseudocode}]
+\begin{verbatim}
+function Block(H):
+    # Pre-normalize inputs (pre-LN stabilizes deep stacks)
+    H_norm = LayerNorm(H)
+    attn = MHA(H_norm, H_norm, H_norm)
+    H = H + Dropout(attn)
+    H_norm = LayerNorm(H)
+    ff = FFN(H_norm)
+    return H + Dropout(ff)
+\end{verbatim}
+Decoder blocks add causal masks and cross-attention with encoder states. Pre-LN (shown here) is now common because it keeps gradients well behaved for very deep stacks; post-LN (original Transformer) is still used in smaller models.
+\end{tcolorbox}
+
+\begin{tcolorbox}[summarybox,title={Training defaults (decoder-only, 2024)}]
+AdamW with cosine decay and 1--3\% warmup; LR \(\sim10^{-3}\) for small models, \(1{-}2\times10^{-4}\) for mid-size. Weight decay \(\approx 0.01\) (exclude biases/LayerNorm gains). Attention/MLP dropout \(\approx0.1\); clip global norm to 1.0. Mixed precision (FP16/BF16) plus gradient checkpointing for long contexts; tie input embeddings to the LM head; use causal masks for CLM, padding masks for packed batches.
+\end{tcolorbox}
+
+\begin{tcolorbox}[summarybox,title={One training step (decoder-only, causal mask)}]
+\begin{verbatim}
+x = tokenizer(batch_text)                # [B, T]
+mask = causal_mask(x)                    # [B, 1, T, T]
+h = embed(x) + pos(x)                    # [B, T, d_model]
+for block in blocks:
+    h = block(h, mask)                   # pre-LN MHA + FFN
+logits = lm_head(h)                      # [B, T, vocab]
+loss = CE(logits[:, :-1], x[:, 1:])      # next-token
+loss.backward()
+clip_grad_norm_(model.parameters(), 1.0)
+opt.step(); opt.zero_grad()
+\end{verbatim}
+At inference, reuse cached K/V states per layer instead of recomputing attention over the full prefix.
+\end{tcolorbox}
+\paragraph{Code--math dictionary.} In code blocks, \texttt{x} is the token-index tensor (input IDs), \texttt{h} is the hidden-state array \(\mathbf{H}\), \texttt{mask} is the attention mask, and \texttt{embed(x)} denotes an embedding lookup into the learned matrix \(\mathbf{E}\) (written algebraically as a row-selection or \(\mathbf{E}[w_t]\) in \Cref{chap:rnn}).
+
+\subsection{Long Contexts and Efficient Attention}
+Memory and compute scale quadratically with sequence length. Practical systems therefore mix several tricks:
+\begin{itemize}
+    \item \textbf{Sparse or local attention} (e.g., Longformer, BigBird) to limit each query to a sliding or block-sparse neighborhood.
+    \item \textbf{Low-rank/kernelized approximations} and recurrent chunking (Performer, Transformer-XL) so that computation/storage grows roughly linearly in context length.
+    \item \textbf{Relative/rotary positions and cache reuse} to extrapolate beyond training lengths and avoid recomputing past keys/values during autoregressive decoding.
+    \item \textbf{I/O-aware kernels} such as FlashAttention that stream tiles through SRAM so the quadratic pattern remains exact without exhausting memory.
+\end{itemize}
+
+\subsection{Fine-Tuning and Parameter-Efficient Adaptation}
+Full fine-tuning updates all weights. Parameter-efficient methods (LoRA, IA3, adapters, prefix/prompt tuning) inject small trainable modules while freezing most of the base model, enabling rapid adaptation. Beyond RLHF, preference-based objectives such as DPO, KTO, or ORPO optimize alignment directly from ranked pairs without a full reinforcement-learning loop.
+
+\subsection{Decoding and Evaluation}
+Autoregressive generation uses greedy, beam search, top-\(p\) (nucleus), or top-\(k\) sampling. For safety and quality, monitor repetition, degeneration, and calibration. For classification tasks, prefer metrics aligned with class balance (AUPRC on imbalanced sets).
+
+\paragraph{When to use which.} Beam search suits short factual tasks; top-\(p\)/top-\(k\) sampling suits open-ended generation; temperature controls diversity/style. Track perplexity for language modeling (see \Cref{chap:nlp}) and win-rates or task metrics for downstream tasks.
+
+\begin{figure}[t]
+    \centering
+    \begin{tikzpicture}
+            \begin{groupplot}[
+                group style={group size=2 by 1, horizontal sep=1.2cm},
+                width=0.42\linewidth,
+                height=0.36\linewidth,
+                view={0}{90},
+            xmin=-0.5, xmax=4.5,
+            ymin=-0.5, ymax=4.5,
+            xtick={0,...,4},
+            ytick={0,...,4},
+            xticklabels={t\(_0\),t\(_1\),t\(_2\),t\(_3\),t\(_4\)},
+            yticklabels={t\(_0\),t\(_1\),t\(_2\),t\(_3\),t\(_4\)},
+                xticklabel style={font=\scriptsize},
+                yticklabel style={font=\scriptsize},
+                colorbar,
+                colorbar style={height=3.0cm},
+                colormap/viridis,
+                point meta min=0, point meta max=1,
+                nodes near coords,
+                nodes near coords align={center},
+                every node near coord/.append style={
+                    font=\scriptsize,
+                    fill=white,
+                    fill opacity=0.75,
+                    text opacity=1,
+                    inner sep=1.0pt
+                }
+            ]
+            \nextgroupplot[title={Padding mask}]
+                \addplot[matrix plot*, mesh/cols=5, mesh/rows=5, point meta=explicit] table [meta=z] {
+                    x y z
+                    0 0 1
+                    1 0 1
+                    2 0 1
+                    3 0 0
+                    4 0 0
+                    0 1 1
+                    1 1 1
+                    2 1 1
+                    3 1 0
+                    4 1 0
+                    0 2 1
+                    1 2 1
+                    2 2 1
+                    3 2 0
+                    4 2 0
+                    0 3 1
+                    1 3 1
+                    2 3 1
+                    3 3 0
+                    4 3 0
+                    0 4 1
+                    1 4 1
+                    2 4 1
+                    3 4 0
+                    4 4 0
+                };
+                \node[font=\scriptsize, anchor=north west] at (axis cs:-0.4,4.4) {keep};
+                \node[font=\scriptsize, anchor=south east] at (axis cs:3.4,0.0) {mask};
+            \nextgroupplot[title={Causal mask}]
+                \addplot[matrix plot*, mesh/cols=5, mesh/rows=5, point meta=explicit] table [meta=z] {
+                    x y z
+                    0 0 1
+                    1 0 0
+                    2 0 0
+                    3 0 0
+                    4 0 0
+                    0 1 1
+                    1 1 1
+                    2 1 0
+                    3 1 0
+                    4 1 0
+                    0 2 1
+                    1 2 1
+                    2 2 1
+                    3 2 0
+                    4 2 0
+                    0 3 1
+                    1 3 1
+                    2 3 1
+                    3 3 1
+                    4 3 0
+                    0 4 1
+                    1 4 1
+                    2 4 1
+                    3 4 1
+                    4 4 1
+                };
+                \node[font=\scriptsize, anchor=north east] at (axis cs:4.4,4.4) {future masked};
+        \end{groupplot}
+    \end{tikzpicture}
+    \caption{Schematic: Attention masks visualized as heatmaps (queries on rows, keys on columns). Left: padding mask zeroes attention into padded positions of a shorter sequence in a packed batch. Right: causal mask enforces autoregressive flow by blocking attention to future tokens.}
+    \label{fig:lec13-masks}
+\end{figure}
+
+\subsection{Alignment (Brief)}
+Post-training alignment shapes model behavior to human preferences. RLHF optimizes a policy against a learned reward model; DPO offers a simpler objective based on preference pairs.
+
+\subsection{Advanced attention and efficiency notes (2024 snapshot)}
+\begin{itemize}
+    \item \textbf{Relative/rotary positions.} RoPE \citep{Su2021RoPE} and ALiBi \citep{Press2022ALiBi} replace absolute sinusoidal embeddings with rotation/bias terms so extrapolating to longer sequences no longer requires re-fitting positional lookups; the trade-off is that absolute tables keep fixed anchors for classification tokens while rotary/relative schemes favour extrapolation and smoothly sliding windows.
+    \item \textbf{KV-cache management.} Decoder-only inference stores per-layer key/value tensors; chunked caching, paged attention, and sliding windows keep memory linear in context length. Speculative decoding and assisted decoding reuse a lightweight draft model to propose tokens that the full model verifies before committing.
+    \item \textbf{Efficient kernels.} FlashAttention \citep{Dao2022FlashAttention} computes attention blocks in streaming tiles to keep activations in SRAM. Long-context variants mix windowed attention, recurrent memory, or low-rank adapters; state-space models such as Mamba \citep{Gu2023Mamba} provide linear-time alternatives that back-propagate through implicitly defined kernels.
+    \item \textbf{Mixture-of-experts and routing.} Sparse MoE layers \citep{Shazeer2017MoE} add conditional capacity; router z-losses, capacity factors, and load-balancing losses are essential to avoid expert collapse.
+    \item \textbf{Parameter-efficient tuning.} LoRA/QLoRA \citep{Hu2022LoRA,Dettmers2023QLoRA} insert low-rank adapters; DoRA/LoRA-FA refine the decomposition by separating direction and magnitude to better preserve pretrained weights. Adapter stacks and prefix tuning remain competitive for small target datasets.
+    \item \textbf{Test-time scaling.} Curriculum-based sampling (nucleus, temperature annealing), classifier-free guidance, and beam-search variants all tune the accuracy/latency frontier; plan to log decoding hyperparameters alongside checkpoints so experiments are reproducible.
+\end{itemize}
+
+\subsection{RNNs vs. Transformers: When and Why}
+\begin{center}
+\begin{tabular}{@{}>{\raggedright\arraybackslash}p{0.24\linewidth} >{\raggedright\arraybackslash}p{0.34\linewidth} >{\raggedright\arraybackslash}p{0.34\linewidth}@{}}
+\toprule
+ & \textbf{RNN/LSTM/GRU} & \textbf{Transformer} \\
+\midrule
+Parallelism & Limited (sequential) & High (tokens in parallel) \\
+Long context & Challenging (vanishing) & Natural; quadratic cost \\
+Inductive bias & Order, recurrence & Content-based attention \\
+Best for & Small data, streaming & Large data, global deps \\
+Equivariance & N/A & Permutation-equivariant until positions (cf. conv translation equivariance in \Cref{chap:cnn}) \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\begin{tcolorbox}[summarybox,title={Practitioner box: pitfalls and checks}]
+\textbf{Pitfalls:} training instability (lr too high), attention collapse, over-length inputs.\newline
+\textbf{Checks:} monitor loss/entropy, validation perplexity, and attention patterns on probes.\newline
+\textbf{Hyperparams:} heads (4--16), depth (6--24), \(d_{\text{model}}\) (256--2048), FFN multiplier (\(\times 2\)--\(\times 4\)).
+\end{tcolorbox}
+
+\subsection*{Notes}
+Terminology: masked-LM and next-token LM are \emph{self-supervised} (targets derived from input), not unsupervised. For embeddings downstream, we adopt row-embedding convention consistent with \Crefrange{chap:backprop}{chap:rbf}.
+
+\begin{tcolorbox}[summarybox,title={Key takeaways}]
+\begin{itemize}
+    \item Attention replaces recurrence with content-based mixing, enabling highly parallel training but introducing quadratic cost in sequence length.
+    \item Practical stability depends on details (pre-LN vs.\ post-LN, optimizer choices, masking, and careful decoding/evaluation).
+    \item Architecture choices (encoder/decoder, positions, caching) are not cosmetic: they determine what the model can reuse at inference time.
+\end{itemize}
+\end{tcolorbox}
+
+\begin{tcolorbox}[summarybox,title={Exercises and lab ideas}]
+\begin{itemize}
+    \item Hand-compute a 2-token attention step with masking; verify against a short script.
+    \item Implement a single-block decoder-only transformer (embed + pos + pre-LN MHA + FFN) and train on a tiny character corpus; report perplexity.
+    \item Compare naive attention vs.\ FlashAttention on \(n \in \{256, 1024, 4096\}\); log peak memory and tokens/sec.
+    \item Fine-tune a base model with RoPE vs.\ ALiBi and evaluate extrapolation to 2\(\times\) the training context.
+    \item Implement DPO on a small preference dataset; report win-rates versus the SFT baseline.
+\end{itemize}
+\end{tcolorbox}
+
+\medskip
+\paragraph{Where we head next.} \Cref{chap:nlp} applies these architectures to language modeling and embeddings (tokenizers, weight tying, perplexity), and covers downstream metrics (BLEU/ROUGE/AUPRC) and bias/calibration checks. Keep the encoder/decoder distinctions in mind as we map them to concrete NLP pipelines; \Cref{chap:rnn} contrasts BPTT and sequential latency, and \Cref{chap:cnn} notes that ViTs \citep{Dosovitskiy2021} inherit convolutional translation equivariance only after patchification plus position encodings.
+
+\paragraph{References.} Full citations for works mentioned in this chapter appear in the book-wide bibliography.

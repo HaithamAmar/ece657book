@@ -1,0 +1,39 @@
+# macOS
+.DS_Store
+
+# Safety: ignore local git backups
+.git_backup_*/
+.git_trash_*/
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+**/.venv*/
+**/.python-version
+
+# Pandoc / LaTeX / build outputs
+epub_builder/.venv/
+epub_builder/artifacts/
+epub_builder/dist/
+
+notes_output/artifacts/
+notes_output/scripts/node_modules/
+notes_output/.venv_render/
+notes_output/.venv*/
+
+# Large legacy/source bundles not needed for the book build
+archive/
+NOTES ON BOARD ECE657/
+notes_output/*.aux
+notes_output/*.bbl
+notes_output/*.blg
+notes_output/*.log
+notes_output/*.out
+notes_output/*.toc
+notes_output/*.lof
+notes_output/*.lot
+notes_output/*.fls
+notes_output/*.fdb_latexmk
+notes_output/*.synctex.gz

@@ -1,0 +1,607 @@
+% Chapter 14
+\section{Neural Network Applications in Natural Language Processing}\label{chap:nlp}
+\graphicspath{{assets/lec8/}{assets/lec14/}}
+
+\begin{tcolorbox}[summarybox,title={Learning Outcomes}]
+\begin{itemize}
+    \item Describe distributional semantics and the motivation for dense word embeddings.
+    \item Derive and implement common embedding objectives (CBOW/skip-gram, negative sampling) and evaluate them via analogy tasks.
+    \item Connect embedding quality to downstream architectures (RNNs, Transformers) and fairness considerations.
+\end{itemize}
+\end{tcolorbox}
+
+\Cref{chap:transformers} showed how modern sequence models route information through attention. This chapter steps back one level to a foundational ingredient shared by RNNs and Transformers: embeddings that turn discrete tokens into geometry. The roadmap in \Cref{fig:roadmap} places this as the application/deployment tail of the neural strand.
+
+\begin{tcolorbox}[summarybox,title={Design motif}]
+Representation learning as a contract between data and objective---when you train on co-occurrence, you get both useful structure (analogies, clusters) and the biases present in the corpus.
+\end{tcolorbox}
+
+\subsection{Context and Motivation}
+
+In this chapter, we conclude our discussion on neural networks by focusing on their applications in natural language processing (NLP). Previously, we introduced the concept of representing words as inputs to a neural network, typically encoded as one-hot vectors, and obtaining as output a feature representation of these words. This feature representation captures semantic and syntactic properties of words in a continuous vector space.
+
+A classic example illustrating the power of such representations is the analogy:
+\[
+\text{king} - \text{man} + \text{woman} \approx \text{queen}.
+\]
+This demonstrates that vector arithmetic on word embeddings can capture meaningful relationships between words. The goal is to find a vector space embedding where semantic similarity corresponds to geometric closeness.
+
+\subsection{Problem Statement}
+
+Given a vocabulary (corpus) of approximately 10,000 words, we want to learn a mapping from each word to a dense vector representation in a feature space of dimension \(d\), where \(d\) is typically between 200 and 500. Formally, if the vocabulary size is \(V\), each word \(w_i\) is initially represented as a one-hot vector \(\mathbf{x}_i \in \mathbb{R}^V\), where
+\[
+x_{ij} = \begin{cases}
+1 & \text{if } j = i, \\
+0 & \text{otherwise}.
+\end{cases}
+\]
+Here the row index \(i\) selects the word and the column index \(j\) specifies the position within the \(V\)-dimensional one-hot vector, so each word is associated with a unique canonical basis vector.
+Our objective is to learn an embedding function
+\[
+f: \{1, \ldots, V\} \to \mathbb{R}^d,
+\]
+such that semantic and syntactic properties of words are preserved in the embedding space.
+
+\subsection{Key Insight: Distributional Hypothesis}
+
+The foundational linguistic principle underlying word embeddings is the \emph{distributional hypothesis}, often summarized by the phrase:
+\begin{quote}
+\textit{You shall know a word by the company it keeps.}
+\end{quote}
+This idea, attributed to the linguist John Robert Firth, states that the meaning of a word can be inferred from the contexts in which it appears.
+
+\paragraph{Example:} The word \emph{pretty} can have different meanings depending on context:
+\begin{itemize}
+    \item In the collocation ``pretty good,'' \emph{pretty} functions as an adverb meaning ``very'' and modifies an adjective.
+    \item In phrases such as ``pretty image'' or ``pretty optics,'' \emph{pretty} is an adjective meaning ``attractive.''
+\end{itemize}
+By explicitly examining the surrounding words (context windows of a few tokens to the left and right), we can infer the intended meaning: instances co-occurring with evaluative adjectives like ``good'' teach the ``intensifier'' sense, whereas contexts rich in nouns like ``image'' teach the ``aesthetic'' sense.
+
+\subsection{Contextual Meaning and Feature Extraction}
+
+Words appear in many different contexts, and by aggregating information from these contexts, we can infer intrinsic features of the word. For example, the contexts in which \emph{pretty} appears with \emph{good} or \emph{image} help us understand its different senses.
+
+This motivates the use of statistical models that learn word embeddings by analyzing large corpora and capturing co-occurrence patterns.
+
+\begin{tcolorbox}[summarybox,title={Author's note: who chooses the features?}]
+A natural student question is: if embeddings represent ``features,'' who decides what the features are? In modern embedding learning, the answer is: nobody writes them down explicitly. The features emerge from the training objective. By training a model to predict nearby words (or to distinguish real context pairs from random ones), the optimization process forces the hidden representation to encode whatever properties are useful for prediction. This is best viewed as \emph{self-supervised} learning: targets come from the text itself via context windows, rather than from human labels.
+\end{tcolorbox}
+
+\subsection{Word2Vec: Two Architectures}
+
+The Word2Vec framework, introduced by \citet{Mikolov2013}, operationalizes the distributional hypothesis through two main architectures:
+
+\begin{enumerate}
+    \item \textbf{Continuous Bag of Words (CBOW):} Predicts the target word given its surrounding context words.
+    \item \textbf{skip-gram:} Predicts the surrounding context words given the target word.
+\end{enumerate}
+
+Both architectures learn word embeddings as a byproduct of solving these prediction tasks.
+
+\subsubsection{Continuous Bag of Words (CBOW)}
+
+In CBOW, the model takes as input the context words surrounding a target word and tries to predict the target word itself. Formally, given a sequence of words \(\{w_1, w_2, \ldots, w_T\}\), and a context window size \(n\), the context for word \(w_t\) is
+\[
+\mathcal{C}_t = \{w_{t-n}, \ldots, w_{t-1}, w_{t+1}, \ldots, w_{t+n}\}.
+\]
+
+The CBOW model maximizes the probability
+\[
+p(w_t \mid \mathcal{C}_t),
+\]
+where the context words \(\mathcal{C}_t\) are represented as one-hot vectors and combined (e.g., averaged) to form the input.
+
+\paragraph{Example:} Consider the sentence
+\[
+\text{``to buy an automatic car''}.
+\]
+If we want to learn the embedding for the word \emph{automatic}, the context might be \(\{\text{to}, \text{buy}, \text{an}, \text{car}\}\). The CBOW model uses these context words to predict \emph{automatic}.
+
+\subsubsection{skip-gram}
+
+Conversely, the skip-gram model takes the target word as input and tries to predict each of the context words. It maximizes
+\[
+\prod_{w_c \in \mathcal{C}_t} p(w_c \mid w_t).
+\]
+The product makes the modeling assumption explicit: every context word within the window contributes a likelihood factor.
+In practice we maximize the sum of log-probabilities
+\(\sum_{w_c \in \mathcal{C}_t} \log p(w_c \mid w_t)\) so that each neighboring prediction provides an additive gradient signal.
+
+This approach tends to perform better on infrequent words and captures more detailed semantic relationships.
+
+\subsection{Mathematical Formulation of CBOW}
+
+Let the vocabulary size be \(V\), and embedding dimension be \(d\). Define the embedding matrix \(\mathbf{W} \in \mathbb{R}^{V \times d}\), where the \(i\)-th row \(\mathbf{v}_i\) is the embedding vector for word \(w_i\). \emph{Convention: we treat embeddings as \textbf{rows}; one-hot words index rows via $\mathbf{x}\mathbf{W}$ (row lookup).}
+
+% Chapter 14 (continued)
+
+\subsection{Neural Network Architecture for Word Embeddings}
+
+Consider a corpus with vocabulary size \( V = 10,000 \) words. Our goal is to learn a dense vector representation (embedding) for each word in this vocabulary. We denote the dimensionality of the embedding space as \( d = 300 \).
+
+\paragraph{Input Representation}
+
+Each input word is represented as a one-hot row vector \(\mathbf{x} \in \mathbb{R}^{1\times V}\), where only one element is 1 (corresponding to the word index) and the rest are 0. For example, if the word "want" is the \(i\)-th word in the vocabulary, then \(\mathbf{x}_i = 1\) and \(\mathbf{x}_j = 0\) for \(j \neq i\).
+
+\paragraph{Network Structure}
+
+We consider a simple feedforward neural network with:
+
+\begin{itemize}
+    \item An input layer of size \(V\) (one-hot encoded words).
+    \item A hidden layer of size \(d = 300\), which will serve as the embedding layer.
+    \item An output layer of size \(V\), which predicts the target word.
+\end{itemize}
+
+The weight matrix between the input and hidden layer is denoted as
+\[
+W \in \mathbb{R}^{V \times d}.
+\]
+Each row \(W_{i,:}\) corresponds to the embedding vector of the \(i\)-th word.
+
+\paragraph{Forward Pass}
+
+Given an input word represented by \(\mathbf{x}\), the hidden layer output \(\mathbf{h} \in \mathbb{R}^d\) is computed as:
+\begin{align}
+    \mathbf{h} &= \mathbf{x} W, \label{eq:hidden_layer}
+\end{align}
+where \(\mathbf{x}\) is a \(1 \times V\) vector and \(W\) is \(V \times d\), resulting in \(\mathbf{h}\) of size \(1 \times d\).
+
+Because \(\mathbf{x}\) is one-hot, this operation simply selects the row of \(W\) corresponding to the input word, i.e., the embedding vector for that word.
+
+\paragraph{Output Layer}
+
+The hidden layer output \(\mathbf{h}\) is then multiplied by an output matrix \(W_{\text{out}} \in \mathbb{R}^{d \times V}\) to produce the output logits \(\mathbf{z} \in \mathbb{R}^V\):
+\begin{align}
+    \mathbf{z} &= \mathbf{h} W_{\text{out}}. \label{eq:output_logits}
+\end{align}
+
+These logits are then passed through a softmax function to produce a probability distribution over the vocabulary:
+\begin{align}
+    \hat{\mathbf{y}}_j = \frac{\exp(z_j)}{\sum_{k=1}^V \exp(z_k)}, \quad j=1,\ldots,V. \label{eq:softmax}
+\end{align}
+
+\paragraph{Training Objective}
+
+The target output \(\mathbf{y}\) is also a one-hot vector corresponding to the word we want to predict (e.g., the word "automatic"). The training objective is to minimize the cross\hyp{}entropy loss between the predicted distribution \(\hat{\mathbf{y}}\) and the target \(\mathbf{y}\):
+\begin{align}
+    \mathcal{L} = - \sum_{j=1}^V y_j \log \hat{y}_j. \label{eq:cross_entropy}
+\end{align}
+
+\paragraph{Backpropagation and Weight Updates}
+
+During training, the weights \(\mathbf{W}\) and \(\mathbf{W}_{\text{out}}\) are updated via backpropagation to minimize \(\mathcal{L}\). This process adjusts the embeddings in \(\mathbf{W}\) so that words appearing in similar contexts have similar vector representations.
+
+\subsection{Context window and sequential input}
+
+Suppose we use a context window of size 4 words surrounding the target word. For example, to predict the word ``automatic'' in the phrase ``to buy an automatic car,'' the context words are
+\[
+\text{to}, \quad \text{buy}, \quad \text{an}, \quad \text{car}.
+\]
+
+Each context word is represented as a one-hot vector and fed into the network. Each one-hot vector shares the same embedding matrix \(\mathbf{W}\); multiplying \(\mathbf{x}\mathbf{W}\) is an efficient row lookup because \(\mathbf{x}\) is one-hot.
+
+\paragraph{Input Sequence Processing}
+
+The same embedding lookup is applied to each context token. If \(\mathbf{x}_{t+j}\) is the one-hot vector for the word at position \(t+j\), then its embedding is
+\[
+\mathbf{h}_{t+j} = \mathbf{x}_{t+j}\mathbf{W}.
+\]
+
+The hidden representations \(\mathbf{h}^{(i)}\) for each context word can be combined (e.g., concatenated or averaged) before passing to the output layer to predict the target word.
+
+\paragraph{Dimensionality and Sparsity}
+
+Note that the input vectors \(\mathbf{x}_{t+j}\) are extremely sparse (one-hot), and the embedding matrix \(\mathbf{W}\) is large (\(10{,}000 \times 300\), for example). However, the multiplication \(\mathbf{x}_{t+j}\mathbf{W}\) is efficient because it selects a single row of \(\mathbf{W}\) per input word.
+
+\subsection{Interpretation of the Weight Matrix \texorpdfstring{\(W\)}{W}}
+
+The matrix \(\mathbf{W}\) can be interpreted as a lookup table: the \(i\)-th row is the embedding for word \(w_i\), and \(\mathbf{x}\mathbf{W}\) (with one-hot \(\mathbf{x}\)) selects that row directly.
+
+% Chapter 14 (continued)
+
+\subsection{Word Embeddings: Continuous Bag of Words (CBOW) and skip-gram models}
+
+Recall from the previous discussion that word embeddings are dense vector representations of words learned from large corpora, capturing semantic and syntactic properties. Two foundational models for learning such embeddings are the Continuous Bag of Words (CBOW) and skip-gram models, both introduced in the Word2Vec framework.
+
+\subsubsection{Continuous Bag of Words (CBOW)}
+
+In CBOW, the objective is to predict a target word given its surrounding context words. Formally, given a sequence of words \( w_1, w_2, \ldots, w_T \), and a context window of size \( c \), the model predicts the word \( w_t \) based on the context words \( \{ w_{t-c}, \ldots, w_{t-1}, w_{t+1}, \ldots, w_{t+c} \} \).
+
+The input to the model is a one-hot encoded vector representing the context words. Since each word is represented as a one-hot vector of dimension \( V \) (the vocabulary size), the input is a sparse vector with a single 1 and zeros elsewhere. The embedding matrix \( \mathbf{W} \in \mathbb{R}^{V \times d} \) maps each word to a \( d \)-dimensional dense vector (embedding).
+
+The CBOW model computes the average of the embeddings of the context words using an \emph{input} embedding matrix \(\mathbf{W}\) and predicts with a separate \emph{output} embedding matrix \(\mathbf{W}_{\text{out}}\):
+
+\begin{align}
+\mathbf{h} = \frac{1}{2c} \sum_{\substack{-c \leq j \leq c \\ j \neq 0}} \mathbf{x}_{t+j}\mathbf{W}
+\end{align}
+
+where \( \mathbf{x}_{t+j} \) is the one-hot vector for the context word at position \( t+j \), and \(c\) denotes the \emph{half-window} size (there are \(2c\) context words around \(w_t\) when the document is long enough).
+
+This hidden representation \( \mathbf{h} \) is then used to predict the target word \( w_t \) via a softmax layer:
+
+\begin{align}
+P(w_t \mid \text{context}) = \frac{\exp(\mathbf{h}\,\mathbf{u}_{w_t})}{\sum_{w=1}^V \exp(\mathbf{h}\,\mathbf{u}_w)}
+\label{eq:cbow-softmax}
+\end{align}
+
+where \( \mathbf{u}_w \) is the output vector corresponding to word \( w \).
+It is useful to think of the set of output vectors as the \emph{columns} of a second matrix \(\mathbf{W}_{\text{out}} \in \mathbb{R}^{d \times V}\); although \(\mathbf{W}_{\text{out}}\) often starts as a copy of \(\mathbf{W}^\top\), the two sets of embeddings are optimized independently during training. Many modern implementations optionally \emph{tie} these matrices so that \(\mathbf{W}_{\text{out}}=\mathbf{W}^\top\), reducing parameters and encouraging symmetry between input and output spaces.
+
+Training proceeds by maximizing the log-likelihood over the corpus, adjusting the embedding matrix \( \mathbf{W} \) and output vectors \( \mathbf{u}_w \) to improve prediction accuracy. After sufficient training, the rows of \( \mathbf{W} \) serve as the learned word embeddings.
+
+\paragraph{Key Insight:} Because the input vectors are one-hot encoded, the multiplication \( \mathbf{x}_{t+j}\mathbf{W} \) simply selects the \emph{row} of $\mathbf{W}$ corresponding to the context word \( w_{t+j} \). This makes the embedding matrix \( \mathbf{W} \) a lookup table of word features.
+
+\subsubsection{skip-gram model}
+
+The skip-gram model reverses the CBOW objective: it uses the current word to predict its surrounding context words. Given a center word \( w_t \), the model aims to maximize the probability of each context word \( w_{t+j} \) within a window \( c \):
+
+\begin{align}
+\prod_{\substack{-c \leq j \leq c \\ j \neq 0}} P(w_{t+j} \mid w_t)
+\end{align}
+
+The input is the one-hot vector \( \mathbf{x}_t \) representing the center word, which is projected into the embedding space via the same input embedding matrix \( \mathbf{W} \in \mathbb{R}^{V \times d} \):
+
+\begin{align}
+\mathbf{h} = \mathbf{x}_t\mathbf{W}
+\end{align}
+
+Each context word \( w_{t+j} \) is predicted by applying a softmax over the output vectors (again using the output-embedding matrix \(\mathbf{W}_{\text{out}}\)):
+
+\begin{align}
+P(w_{t+j} \mid w_t) = \frac{\exp(\mathbf{h}\,\mathbf{u}_{w_{t+j}})}{\sum_{w=1}^V \exp(\mathbf{h}\,\mathbf{u}_w)}
+\label{eq:skipgram-softmax}
+\end{align}
+
+where \( \mathbf{u}_w \) are the output vectors as before.
+
+\paragraph{Training Objective:} Maximize the log-likelihood of the context words given the center word over the entire corpus. Compare to the RNN language-model objective in \Cref{chap:rnn}: both predict nearby tokens, but here the context is a fixed sliding window rather than a learned recurrent state.
+
+\paragraph{Interpretation:} The skip-gram model learns embeddings such that words appearing in similar contexts have similar vector representations.
+
+\subsubsection{Computational Challenges: Softmax Normalization}
+
+Both CBOW and skip-gram models require computing the softmax normalization over the entire vocabulary \( V \), which can be very large (e.g., \( V = 10,000 \) or more). The denominator in equations \eqref{eq:cbow-softmax} and \eqref{eq:skipgram-softmax} involves summing exponentials over all vocabulary words:
+
+\begin{align}
+Z = \sum_{w=1}^V \exp(\mathbf{h}\,\mathbf{u}_w)
+\end{align}
+
+\begin{tcolorbox}[summarybox,title={Recipe: skip-gram with negative sampling}]
+Preprocess: tokenize (BPE/WordPiece or whitespace), lowercase if appropriate, drop rare words below a cutoff, subsample frequent words with \(t\approx 10^{-5}\).\\
+Hyperparameters: window \(c=2\)--\(5\) (often dynamic/symmetric), embedding dim \(d=100\)--\(300\), negatives \(k=5\)--\(20\), unigram noise \(P_n(w)\propto f(w)^{0.75}\), LR on the order of \(10^{-3}\)--\(10^{-2}\).\\
+Per-positive loss (one context word): \(-\log \sigma(\mathbf{h}\,\mathbf{u}_{\text{pos}}) - \sum_{i=1}^k \log \sigma(-\mathbf{h}\,\mathbf{u}_{\text{neg},i})\); complexity \(O(k)\) vs. \(O(V)\) for full softmax.
+\end{tcolorbox}
+
+This is computationally expensive, especially when training on large corpora.
+
+\paragraph{Approximate Solutions:} To address this, several approximation techniques have been proposed:
+
+\begin{itemize}
+    \item \textbf{Hierarchical softmax:} factor the softmax into a tree so each update touches only a \(\log V\) path.
+    \item \textbf{Negative sampling:} replace the full softmax with \(k\) binary logistic losses against sampled ``noise'' words.
+\end{itemize}
+\subsection{Efficient Training of Word Embeddings: Hierarchical Softmax and Negative Sampling}
+
+Recall from the previous discussion that computing the full softmax over a large vocabulary is computationally expensive. Specifically, given an input word, calculating the probability distribution over all possible output words in the vocabulary requires a normalization over potentially millions of terms, which is prohibitive in practice.
+
+There are two primary strategies to address this computational bottleneck:
+
+\paragraph{1. Hierarchical Softmax}
+Hierarchical softmax replaces the flat softmax layer with a binary tree representation of the vocabulary. Each word corresponds to a leaf node, and the probability of a word is decomposed into the probabilities of traversing the path from the root to that leaf. This reduces the computational complexity from \(O(V)\) to \(O(\log V)\), where \(V\) is the vocabulary size.
+
+The key idea is to organize words so that frequent words have shorter paths, thus further improving efficiency. During training, only the nodes along the path to the target word are updated, avoiding the need to compute scores for all words.
+
+\paragraph{2. Negative Sampling}
+Negative sampling is an alternative approximation that simplifies the objective by transforming the multi-class classification problem into multiple binary classification problems.
+
+\begin{itemize}
+    \item For each observed word-context pair \((w, c)\), the model aims to distinguish the true pair from randomly sampled \emph{negative} pairs \((w, c')\), where \(c'\) is drawn from a noise distribution.
+    \item Instead of computing probabilities over the entire vocabulary, the model only updates parameters for the positive pair and a small number of negative samples.
+\end{itemize}
+
+\paragraph{Example:} Consider the sentence:
+\[
+\text{``I want to buy a big brick house in the city.''}
+\]
+Suppose the context word is \texttt{brick}. The true target word is \texttt{house}. Negative samples might be \texttt{lion}, \texttt{bake}, or \texttt{big} (although \texttt{big} appears in the sentence, it can still be sampled as a negative example depending on the sampling strategy).
+\noindent Negative draws occasionally colliding with real context words is harmless. The associated losses simply push the model to separate the sampled pair unless the data provide strong evidence to the contrary.
+
+\paragraph{Training Objective with Negative Sampling}
+
+Define the logistic regression classifier that, given an input word vector \(\mathbf{v}_w\) and an output word vector \(\mathbf{v}'_c\), predicts whether the pair \((w, c)\) is observed (label 1) or a negative sample (label 0).
+
+The probability that the pair is observed is modeled as:
+\begin{equation}
+    p(D=1 \mid w, c) = \sigma(\mathbf{v}_w\,\mathbf{v}'_c) \label{eq:neg-sample-prob}
+\end{equation}
+where \(\sigma(x) = \frac{1}{1 + e^{-x}}\) is the sigmoid function.
+
+The training objective for one positive pair \((w, c)\) and \(k\) negative samples \(\{c_1', \ldots, c_k'\}\) is:
+\begin{equation}
+    \log \sigma(\mathbf{v}_w\,\mathbf{v}'_c) + \sum_{i=1}^k \log \sigma\big(-\mathbf{v}_w\,\mathbf{v}'_{c_i'}\big) \label{eq:neg-sample-loss}
+\end{equation}
+where each \(c_i'\) is drawn independently from the noise distribution \(P_n(c)\). A widely used practical choice is \(P_n(w)\propto f(w)^{0.75}\), where \(f(w)\) is the empirical unigram frequency; this slightly downweights extremely frequent words while still sampling them often enough to learn robust embeddings.
+
+\paragraph{Tiny worked example (skip-gram with \(k=2\)).} Suppose the center word is \texttt{brick} with embedding \(\mathbf{v}_{\text{brick}}\), the true context is \texttt{house} (\(\mathbf{v}'_{\text{house}}\)), and we sample two negatives \texttt{lion}, \texttt{bake}. We compute:
+\[
+L = \log\sigma(\mathbf{v}_{\text{brick}}\,\mathbf{v}'_{\text{house}}) + \log\sigma(-\mathbf{v}_{\text{brick}}\,\mathbf{v}'_{\text{lion}}) + \log\sigma(-\mathbf{v}_{\text{brick}}\,\mathbf{v}'_{\text{bake}}).
+\]
+Gradients push \(\mathbf{v}_{\text{brick}}\) closer to \(\mathbf{v}'_{\text{house}}\) (if the dot product is too small) and simultaneously push it away from \(\mathbf{v}'_{\text{lion}}\) and \(\mathbf{v}'_{\text{bake}}\). Only these three context vectors update this step, so the cost stays \(O(k)\) regardless of vocabulary size.
+
+\paragraph{Interpretation:} The model learns to assign high similarity scores to true word-context pairs and low similarity scores to randomly sampled pairs, effectively learning meaningful embeddings without computing the full softmax. The expectation over the noise distribution is estimated by the empirical average across the \(k\) sampled negatives in \eqref{eq:neg-sample-loss}. Unlike noise-contrastive estimation (NCE), negative sampling is not a consistent estimator of the normalized softmax probabilities; it is best viewed as a task-specific approximation that yields high-quality embeddings rather than calibrated class posteriors.
+
+\paragraph{Backpropagation:} The gradients are computed only for the positive pair and the sampled negative pairs, drastically reducing computation.
+
+\paragraph{Connection to PMI (Levy \& Goldberg).} A useful theoretical lens relates skip-gram with negative sampling (SGNS) to pointwise mutual information (PMI). Under common choices of windowing and negative sampling distribution, SGNS implicitly factorizes a \emph{shifted} PMI matrix such that inner products approximate:
+\[
+    \mathbf{v}_i\,\mathbf{u}_k \;\approx\; \operatorname{PMI}(i,k) - \log k,\quad \text{where}\quad \operatorname{PMI}(i,k)=\log\frac{P(i,k)}{P(i)P(k)}.
+\]
+This connection helps explain why SGNS and GloVe often yield similar geometric regularities despite different training objectives: both methods recover statistics of co-occurrence up to monotone transformations and weighting.
+
+\subsection{Local Context vs. Global Matrix Factorization Approaches}
+
+Word embedding methods can be broadly categorized into two classes based on how they utilize context information:
+
+\paragraph{1. Local Context Window Methods}
+
+These methods focus on the immediate context of a word within a fixed-size window. Examples include:
+
+\begin{itemize}
+    \item Continuous Bag-of-Words (CBOW)
+    \item skip-gram
+\end{itemize}
+
+They learn embeddings by predicting a word given its neighbors (CBOW) or predicting neighbors given a word (skip-gram). These methods are computationally efficient and capture syntactic and semantic relationships based on local co-occurrence patterns.
+
+\paragraph{2. Global Matrix Factorization Methods}
+
+These methods consider the entire corpus to build a global co-occurrence matrix \(X\), where each entry \(X_{ij}\) counts how often word \(i\) co-occurs with word \(j\) across the corpus.
+
+\begin{itemize}
+    \item Latent Semantic Analysis (LSA) is an early example, which applies singular value decomposition (SVD) to the co-occurrence matrix.
+    \item More recent methods include GloVe (Global Vectors), which factorizes a weighted log-count matrix \citep{Pennington2014}.
+\end{itemize}
+
+\paragraph{Example: Co-occurrence Matrix}
+
+Suppose the vocabulary size is \(V\). The co-occurrence matrix \(X \in \mathbb{R}^{V \times V}\) is defined as:
+\[
+X_{ij} = \text{number of times word } i \text{ appears in the context of word } j
+\]
+
+This matrix is \emph{sparse} and \emph{large} (especially when $V$ runs into the hundreds of thousands), so storing it explicitly or factorizing it naively can be computationally expensive.
+
+\subsection{Global Word Vector Representations via Co-occurrence Statistics}
+
+Recall that our goal is to obtain a global vector representation for words, capturing semantic relationships beyond simple one-hot encodings. Instead of encoding words individually, we leverage \emph{co-occurrence} statistics of word pairs within a corpus to build richer embeddings.
+
+\paragraph{Setup:} Consider two words \( w_i \) and \( w_j \) appearing in some context window within a text corpus. We are interested in modeling the \emph{co-occurrence} of these words, possibly mediated by a third \emph{context} word \( w_k \). For example, in the phrase ``big historic castle,'' the words ``big'' and ``historic'' are targets, and ``castle'' can be a context word connecting them.
+
+\paragraph{Notation:}
+\begin{itemize}
+    \item Plain symbols \(w_i, w_j, w_k\) denote lexical items drawn from the vocabulary.
+    \item Bold symbols denote vectors: \(\mathbf{v}_i\) is the embedding of target word \(w_i\) and \(\mathbf{u}_k\) the embedding of context word \(w_k\).
+    \item \( X_{ik} \) counts how often \(w_i\) and \(w_k\) co-occur within the chosen context window, and \( X_i = \sum_k X_{ik} \) is the total number of context observations for \(w_i\).
+\end{itemize}
+
+\paragraph{Goal:} Define a function \( f \) that relates the co-occurrence statistics of the word pairs and context words to a scalar quantity representing their semantic association.
+
+\paragraph{Visualization.} Projecting the learned vectors onto two principal components typically reveals well-separated semantic clusters. \Cref{fig:lec8-embedding-clusters} highlights how gendered titles, fruits, and locations occupy distinct regions, reinforcing that co-occurrence-driven training captures rich lexical structure.
+
+\begin{figure}[t]
+    \centering
+    \includegraphics[width=0.82\linewidth]{lec14_analogy_geometry}
+    % Avoid inline math in captions; it wraps poorly in some EPUB renderers.
+    \caption{Schematic: Analogy geometry in embedding space. The classic offset ``v(king) - v(man) + v(woman) approx v(queen)'' forms a parallelogram; a similar gender direction also moves ``doctor'' toward ``nurse.'' Visualizing these displacement vectors (solid vs. dashed) makes the shared relational direction explicit. Points are shown after a 2D PCA projection, so directions are approximate rather than exact.}
+    \label{fig:lec8-embedding-clusters}
+\end{figure}
+
+\subsubsection{Modeling Co-occurrence Probabilities}
+
+We start by considering the conditional probability of observing a context word \( w_k \) given a target word \( w_i \):
+\begin{equation}
+    P(k|i) = \frac{X_{ik}}{X_i}.
+    \label{eq:cond_prob}
+\end{equation}
+
+This probability captures how likely the context word \( w_k \) appears near the target word \( w_i \).
+
+\paragraph{Relating to word vectors:} Suppose each word \( w_i \) is represented by a vector \( \mathbf{v}_i \in \mathbb{R}^d \). We want to model the relationship between \( \mathbf{v}_i \), \( \mathbf{u}_k \), and the co-occurrence probability \( P(k|i) \).
+
+A natural assumption is that the co-occurrence probability can be modeled as an exponential function of the inner product of the corresponding word vectors:
+\begin{equation}
+    P(k|i) \propto \exp\left( \mathbf{v}_i\,\mathbf{u}_k \right).
+    \label{eq:exp_model}
+\end{equation}
+More explicitly, we can write a normalized model
+\[
+    P(k|i) \approx \frac{1}{Z_i} \exp\big( \mathbf{v}_i\,\mathbf{u}_k + b_i + b_k \big),
+\]
+with partition function
+\[
+    Z_i = \sum_{k'} \exp\big( \mathbf{v}_i\,\mathbf{u}_{k'} + b_i + b_{k'} \big).
+\]
+
+Taking logarithms on both sides and absorbing the (word-specific) normalizer into the biases gives the approximate relation
+\begin{equation}
+    \log P(k|i) \approx \mathbf{v}_i\,\mathbf{u}_k + b_i + b_k,
+    \label{eq:log_prob}
+\end{equation}
+where \( b_i \) and \( b_k \) are bias terms associated with words \( w_i \) and \( w_k \), respectively. These biases account for the overall frequency or importance of each word while implicitly capturing the effect of \(Z_i\).
+
+\paragraph{Derivation:} Starting from the co-occurrence counts,
+\begin{align}
+    \log X_{ik} - \log X_i &= \log \frac{X_{ik}}{X_i} = \log P(k|i) \\
+    &\approx \mathbf{v}_i\,\mathbf{u}_k + b_i + b_k.
+    \label{eq:log_xik}
+\end{align}
+
+This equation suggests that the log co-occurrence counts can be approximated by a bilinear form plus biases.
+
+\subsubsection{Optimization Objective}
+
+Given the corpus co-occurrence matrix \( X = [X_{ik}] \), our goal is to find word vectors \( \mathbf{v}_i \), \( \mathbf{u}_k \) and biases \( b_i, b_k \) that minimize the reconstruction error:
+\begin{equation}
+    J = \sum_{i,k} f(X_{ik}) \left( \mathbf{v}_i\,\mathbf{u}_k + b_i + b_k - \log X_{ik} \right)^2,
+\end{equation}
+where \( f \) is a weighting function that controls the influence of each co-occurrence pair.
+
+\paragraph{Why weighting?} Many entries \( X_{ik} \) are zero or very small, which can cause numerical instability or dominate the objective. The function \( f \) is designed to:
+\begin{itemize}
+    \item Downweight rare co-occurrences (small \( X_{ik} \)) to avoid overfitting noise.
+    \item Possibly cap the influence of very frequent co-occurrences to prevent them from dominating.
+\end{itemize}
+
+A typical choice for \( f \) is:
+\begin{equation}
+    f(x) = \begin{cases}
+    \left(\frac{x}{x_{\max}}\right)^\alpha & \text{if } x < x_{\max}, \\
+    1 & \text{otherwise},
+    \end{cases}
+    \label{eq:weighting_function}
+\end{equation}
+where \( \alpha \in (0,1) \) and \( x_{\max} \) is a cutoff parameter.
+
+\subsubsection{Interpretation and Remarks}
+
+\subsection{Finalizing the Word Embedding Derivations}
+
+In the previous sections, we explored the formulation of word embeddings through co-occurrence statistics and matrix factorization approaches. We now conclude the derivations and clarify the role of bias terms and optimization strategies.
+
+Recall the key equation relating the word vectors \( \mathbf{v}_i \) and context vectors \( \mathbf{u}_k \) to the co-occurrence counts \( x_{ik} \):
+\begin{equation}
+    \mathbf{v}_i\,\mathbf{u}_k + b_i + b_k = \log x_{ik},
+    \label{eq:cooccurrence_log}
+\end{equation}
+where \( b_i \) and \( b_k \) are bias terms associated with the word and context, respectively.
+
+\paragraph{Symmetry and Bias Terms}
+
+Initially, two separate bias terms \( b_i \) and \( b_k \) were introduced to account for asymmetries in the data. However, it is often possible to simplify the model by combining or eliminating one of the biases without loss of generality. This is because the biases can absorb constant shifts in the embeddings, and the key information lies in the relative positions of the vectors. In practice we keep both biases so that very frequent terms (e.g., stop words) can learn large offsets while rarer words keep their dot products numerically stable.
+
+Hence, the equation can be rewritten as
+\begin{equation}
+    \mathbf{v}_i\,\mathbf{u}_k = \log x_{ik} - b_i - b_k.
+    \label{eq:cooccurrence_log_bias}
+\end{equation}
+
+In practice, the biases \( b_i \) and \( b_k \) are learned jointly with the embeddings to best fit the observed co-occurrence statistics.
+
+\paragraph{Objective Function and Optimization}
+
+Let the target embeddings be rows \( \mathbf{v}_i \in \mathbb{R}^{1\times d} \), the context embeddings be columns \( \mathbf{u}_k \in \mathbb{R}^{d\times 1} \), and the biases scalars \( b_i, b_k \in \mathbb{R} \). The scalar score \( \mathbf{v}_i\,\mathbf{u}_k \) therefore measures the alignment between the target and context embeddings. The goal is to find \( \{\mathbf{v}_i, \mathbf{u}_k, b_i, b_k\} \) that minimize the reconstruction error of the log co-occurrence matrix. Because raw counts span several orders of magnitude, the loss must behave like plain least squares for large \(x_{ik}\) yet dampen the influence of very small counts. Enforcing the limits \(f(x) \to 0\) as \(x \to 0\) and \(f(x) \to 1\) for \(x \ge x_{\max}\) yields the weighting scheme used by GloVe. The final weighted least-squares loss is
+\begin{equation}
+    J = \sum_{i=1}^{V}\sum_{k=1}^{V} f(x_{ik}) \left( \mathbf{v}_i\,\mathbf{u}_k + b_i + b_k - \log x_{ik} \right)^2,
+    \label{eq:objective}
+\end{equation}
+where \( f(x) \) is the weighting function that downweights rare (or extremely common) co-occurrences to improve robustness. GloVe, for instance, uses the piecewise definition
+\begin{equation}
+    f(x) = \begin{cases}
+        \left(\frac{x}{x_{\max}}\right)^\alpha & \text{if } x < x_{\max}, \\
+        1 & \text{otherwise},
+    \end{cases}
+    \qquad 0 < \alpha \leq 1,
+    \label{eq:glove_weight}
+\end{equation}
+so that very small counts contribute little to the loss while still allowing moderately frequent pairs to influence the fit. In the original paper, practical defaults such as \(\alpha \approx 0.75\) and \(x_{\max}\approx 100\) were found to work well across a range of corpora \citep{Pennington2014}; keeping those guardrails explicit also explains why the same weighting recipe keeps reappearing in derived models.
+
+\paragraph{Singular Value Decomposition (SVD) Connection}
+
+One approach to solving this problem is to perform a low-rank approximation of the matrix \( \log X \), where \( X = [x_{ik}] \) is the co-occurrence matrix and the logarithm is applied elementwise (with small smoothing constants, e.g., \(\epsilon = 10^{-8}\), added to avoid \(\log 0\)). The singular value decomposition (SVD) provides a principled method to find such a factorization:
+\begin{equation}
+    \log X \approx U_r \Sigma_r V_r^\top,
+    \label{eq:svd}
+\end{equation}
+where \(U_r \in \mathbb{R}^{V \times r}\) and \(V_r \in \mathbb{R}^{V \times r}\) contain the top-\(r\) singular vectors (for the desired embedding dimension \(d=r\)), and \(\Sigma_r \in \mathbb{R}^{r \times r}\) is a diagonal matrix of the corresponding singular values. The truncation rank \(r\), often between 100 and 300 in practice, acts exactly like the embedding dimensionality knob in neural models.
+
+By setting
+\[
+\mathbf{v}_i = (U_r)_i \Sigma_r^{1/2}, \quad \mathbf{u}_k = (V_r)_k \Sigma_r^{1/2},
+\]
+we obtain embeddings that approximate the log co-occurrence matrix in a least-squares sense.
+
+\paragraph{Interpretation and Limitations}
+
+While SVD provides a closed-form solution, it does not explicitly model the bias terms \( b_i, b_k \) or the weighting function \( f(x) \). Those additional degrees of freedom allow gradient-based methods such as GloVe to better match empirical co-occurrence ratios. Biases soak up unigram frequency effects while the weighting function prevents very noisy counts from dominating the fit.
+
+\subsection{Bias in Natural Language Processing}
+
+An important consideration in word embedding models is the presence of bias inherited from the training corpora. Since embeddings are learned from co-occurrence patterns in text, they reflect the statistical properties of the language data, including cultural and societal biases.
+
+\paragraph{Sources of Bias}
+
+- \textbf{Cultural Bias:} Text corpora often contain stereotypes or skewed representations of gender, ethnicity, and other social categories (e.g., news archives that associate ``nurse'' more frequently with women than men).
+- \textbf{Historical Bias:} Older texts may reflect outdated or prejudiced views. Digitized literature from the 19th century, for instance, over-represents colonial perspectives.
+- \textbf{Language-Specific Bias:} Different languages and dialects encode different cultural norms and connotations, such as grammatical gender or honorifics that privilege particular groups.
+
+\paragraph{Impact on Embeddings}
+
+For example, the well-known analogy
+\[
+\text{king} - \text{man} + \text{woman} \approx \text{queen}
+\]
+illustrates that many embeddings support approximately linear semantic relationships. However, these same linear structures can also reveal problematic biases, such as associating certain professions or attributes disproportionately with one gender or group.
+
+\paragraph{Debiasing Techniques}
+
+Addressing bias in embeddings is an active area of research. Techniques include:
+- \textit{Post-processing} embeddings to remove bias directions (e.g., Hard Debiasing by \citet{Bolukbasi2016}).
+- \textit{Data augmentation} to balance training corpora or swap gendered terms.
+- \textit{Regularization} during training to penalize biased associations or enforce equality constraints.
+
+\paragraph{Cross-Lingual Challenges}
+
+When extending embeddings to multiple languages, biases can manifest differently due to linguistic and cultural variations. For example, gender is grammatically encoded in Romance languages, so direct projection of English debiasing techniques may still leave gendered artifacts in Spanish or French embeddings. Careful consideration is required to ensure fairness and robustness across languages.
+
+\begin{tcolorbox}[summarybox,title={Practical bias checks}]
+\begin{itemize}
+    \item \textbf{Dataset audit:} Inspect class balance, label sources, and sensitive attributes; check for under-represented groups and spurious correlations (e.g., profession \(\leftrightarrow\) gender cues).
+    \item \textbf{Calibration and reliability:} Evaluate calibration (ECE, reliability diagrams) overall and for key subgroups; severely miscalibrated models magnify harm when used for decision support.
+    \item \textbf{Disaggregated evaluation:} Report accuracy, ROC/PR, and calibration metrics by subgroup rather than only aggregate scores; look for systematic performance gaps.
+    \item \textbf{Mitigation loop:} Combine data interventions (rebalancing, augmentation) with model-side debiasing and re-evaluation; treat mitigation as an iterative, experiment-driven process.
+\end{itemize}
+\end{tcolorbox}
+
+\begin{tcolorbox}[summarybox,title={Author's note: embeddings mix geometry and bias}]
+Embedding spaces faithfully capture geometry (analogies, clusters) precisely because they also capture the biases present in the data. Treat every downstream use as a combination of those two facets: audit the geometry you need, but also audit the offset directions you would rather suppress. Vector arithmetic makes biases quantifiable, so put that ability to work before shipping a model.
+\end{tcolorbox}
+
+\subsection{Responsible deployment checklist (appendix)}
+\begin{itemize}
+    \item \textbf{Purpose and consent.} Document the use-case, decision stakes, and where humans remain in the loop; distinguish exploratory prototypes from production decision aids.
+    \item \textbf{Data lineage and licensing.} Track licenses for each corpus (newswire, Common Crawl, proprietary logs) and state whether downstream users may redistribute the embeddings or derived models.
+    \item \textbf{Privacy and security.} Scan corpora for PII, redact when necessary, and restrict raw-data access. When embeddings leave the lab, accompany them with an acceptable-use policy and redaction guarantees.
+    \item \textbf{Monitoring.} Deploy subgroup-aware metrics, calibration checks, and toxicity filters in production; log drifts and institute retraining/rollback thresholds.
+    \item \textbf{Documentation.} Ship a short ``model card'' summarizing intended uses, failure modes, and evaluation data so downstream teams can reason about fit-for-purpose decisions.
+\end{itemize}
+
+\subsection{Contextual embeddings and transformers}
+
+Static embeddings assign a single vector per word type, so polysemous words such as ``bank'' cannot adapt to their context. Transformer-based language models (e.g., BERT; \citealp{Devlin2019}) compute token representations conditioned on the entire sentence via multi-head self-attention, allowing each occurrence to carry a context-specific vector. The techniques developed in this chapter remain useful for lightweight models and as initialization, but modern NLP pipelines increasingly fine-tune contextual models to capture sentence-level nuance.
+
+\subsection*{Wrap-up}
+
+In this chapter, we concluded the derivation of word embedding models based on co-occurrence statistics, emphasizing the role of bias terms and optimization strategies such as singular value decomposition. We highlighted the importance of understanding and mitigating bias in natural language processing, as embeddings inherently reflect the cultural and societal context of their training data. These considerations are crucial for developing fair and effective language models.
+
+\begin{tcolorbox}[summarybox,title={Key takeaways}]
+\begin{itemize}
+    \item Word embeddings are dense vectors learned from co-occurrence statistics (local windows or global matrices).
+    \item Analogies and clustering arise from linear geometry in the embedding space.
+    \item Bias in corpora propagates to embeddings; debiasing and careful datasets are important.
+\end{itemize}
+\end{tcolorbox}
+
+\begin{tcolorbox}[summarybox,title={Exercises and lab ideas}]
+\begin{itemize}
+    \item Implement a minimal example from this chapter and visualize intermediate quantities (plots or diagnostics) to match the pseudocode.
+    \item Stress-test a key hyperparameter or design choice discussed here and report the effect on validation performance or stability.
+    \item Re-derive one core equation or update rule by hand and check it numerically against your implementation.
+\end{itemize}
+\end{tcolorbox}
+
+\medskip
+\paragraph{Where we head next.} \Cref{chap:softcomp} steps away from neural embeddings to review the broader soft-computing toolkit (fuzzy logic, evolutionary ideas) that we previewed in the roadmap in \Cref{chap:intro}; keep the fairness discussion in mind as we compare alternative paradigms for reasoning under uncertainty.
+
+\paragraph{References.} Full citations for works mentioned in this chapter appear in the book-wide bibliography.
+\nocite{Mikolov2013,Pennington2014,LevyGoldberg2014,Devlin2019}

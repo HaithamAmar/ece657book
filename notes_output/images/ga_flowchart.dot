@@ -1,0 +1,25 @@
+digraph GA {
+    rankdir=LR;
+    node [shape=box, style="rounded,filled", fillcolor=white, fontname="Times-Roman", fontsize=12, margin=0.12];
+    edge [fontname="Times-Roman", fontsize=11, arrowsize=0.9];
+
+    init    [label="Initialization\nrandom population"];
+    fitness [label="Fitness evaluation"];
+    term    [label="Termination?", shape=diamond, style="rounded,filled"];
+    select  [label="Selection"];
+    cross   [label="Crossover"];
+    mutate  [label="Mutation"];
+    replace [label="Replacement"];
+
+    init -> fitness;
+    fitness -> term;
+    term -> select [label="no"];
+    term -> stop   [label="yes / stop", style=invis];
+
+    select -> cross;
+    cross -> mutate;
+    mutate -> replace;
+
+    cross -> select [label="inner loop", style=dashed, color=gray40, fontcolor=gray40];
+    replace -> fitness [label="next generation", style=dashed, color=gray40, fontcolor=gray40];
+}

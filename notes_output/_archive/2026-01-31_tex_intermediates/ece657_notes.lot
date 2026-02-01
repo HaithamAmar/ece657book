@@ -1,0 +1,10 @@
+\contentsline {table}{\numberline {1}{\ignorespaces Schematic: Transformation toolkit (safe vs.\ heuristic). Preconditions keep domains/branches explicit (e.g., restrictions like ``x in (-1,1)'' for square-root expressions); principal branches unless noted.\relax }}{60}{table.caption.3}%
+\contentsline {table}{\numberline {2}{\ignorespaces Schematic: Common losses and typical use (reference for \Crefrange {chap:supervised}{chap:perceptron}).\relax }}{71}{table.caption.7}%
+\contentsline {table}{\numberline {3}{\ignorespaces Schematic: Handling class imbalance for logistic models (\Cref {chap:logistic} reference table).\relax }}{91}{table.caption.23}%
+\contentsline {table}{\numberline {4}{\ignorespaces Schematic: Single-neuron flips from (1, 1, -1); all raise the energy, so the state is a local minimum.\relax }}{196}{table.caption.48}%
+\contentsline {table}{\numberline {5}{\ignorespaces Schematic: Fuzzy vs.\ probabilistic reasoning at a glance.\relax }}{295}{table.caption.68}%
+\contentsline {table}{\numberline {6}{\ignorespaces Schematic: Boolean operators vs.\ fuzzy operators at a glance.\relax }}{295}{table.caption.69}%
+\contentsline {table}{\numberline {7}{\ignorespaces Schematic: Typical operator choices in fuzzy inference and their qualitative effects. Here the t-norm implements fuzzy AND, the s-norm implements fuzzy OR, and the implication shapes consequents.\relax }}{333}{table.caption.73}%
+\contentsline {table}{\numberline {8}{\ignorespaces Schematic: Popular t\hyp {}norms and their typical roles.\relax }}{346}{table.caption.77}%
+\contentsline {table}{\numberline {9}{\ignorespaces Schematic: Toy GA generation on a bounded interval. One crossover and mutation illustrate how the fitness function guides selection before the next generation.\relax }}{386}{table.caption.82}%
+\contentsline {table}{\numberline {10}{\ignorespaces Schematic: Big-picture view of model families across the taxonomy and learning paradigms. Each entry represents a family introduced in the book; supervision labels indicate the dominant training signal rather than strict exclusivity.\relax }}{403}{table.caption.85}%

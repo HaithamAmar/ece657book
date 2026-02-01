@@ -1,0 +1,1006 @@
+\expandafter\ifx\csname doTocEntry\endcsname\relax \expandafter\endinput\fi 
+\doTocEntry\toclikesection{}{\csname a:TocLink\endcsname{2}{x2-1000}{QQ2-2-1}{Contents}}{4}\relax 
+\doTocEntry\toclikesection{}{\csname a:TocLink\endcsname{3}{x3-2000}{QQ2-3-2}{Preface}}{5}\relax 
+\doTocEntry\tocsection{}{\csname a:TocLink\endcsname{3}{Q1-3-3}{}{Preface}}{5}\relax 
+\doTocEntry\toclikesubsection{}{\csname a:TocLink\endcsname{3}{x3-3000}{QQ2-3-4}{Origins in ECE 657}}{6}\relax 
+\doTocEntry\toclikesection{}{\csname a:TocLink\endcsname{4}{x4-4000}{QQ2-4-5}{Acknowledgments}}{8}\relax 
+\doTocEntry\tocsection{}{\csname a:TocLink\endcsname{4}{Q1-4-6}{}{Acknowledgments}}{8}\relax 
+\doTocEntry\toclikesection{}{\csname a:TocLink\endcsname{5}{x5-5000}{QQ2-5-7}{Notation and Conventions}}{9}\relax 
+\doTocEntry\tocsection{}{\csname a:TocLink\endcsname{5}{Q1-5-8}{}{Notation and Conventions}}{9}\relax 
+\doTocEntry\toclikesubsection{}{\csname a:TocLink\endcsname{5}{x5-6000}{QQ2-5-9}{Conventions}}{10}\relax 
+\doTocEntry\toclikesubsection{}{\csname a:TocLink\endcsname{5}{x5-7000}{QQ2-5-10}{Reading Aids}}{12}\relax 
+\doTocEntry\tocsection{1}{\csname a:TocLink\endcsname{6}{x6-80001}{QQ2-6-11}{About This Book}}{19}\relax 
+\doTocEntry\tocsubsection{1.1}{\csname a:TocLink\endcsname{6}{x6-90001.1}{QQ2-6-12}{Historical Foundations of Intelligent Systems}}{21}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{6}{x6-10000}{QQ2-6-13}{Mechanical Automata and Scholastic Logic}}{22}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{6}{x6-11000}{QQ2-6-14}{The Mechanical Computer and Early Programming}}{22}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{6}{x6-12000}{QQ2-6-15}{Mathematical Logic and Formal Reasoning}}{22}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{6}{x6-13000}{QQ2-6-16}{The Turing Test and the Birth of AI}}{23}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{6}{x6-14000}{QQ2-6-17}{Early Machine Learning and Symbolic AI}}{23}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{6}{x6-15000}{QQ2-6-18}{Summary of Key Historical Milestones}}{24}\relax 
+\doTocEntry\tocsubsection{1.2}{\csname a:TocLink\endcsname{6}{x6-160001.2}{QQ2-6-19}{Defining Artificial Intelligence and Intelligent Systems}}{25}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{6}{x6-17000}{QQ2-6-20}{Core Definition of AI}}{25}\relax 
+\doTocEntry\tocsubsection{1.3}{\csname a:TocLink\endcsname{6}{x6-180001.3}{QQ2-6-21}{Intelligent Systems}}{27}\relax 
+\doTocEntry\tocsubsubsection{1.3.1}{\csname a:TocLink\endcsname{6}{x6-190001.3.1}{QQ2-6-22}{From value-centric questions to concrete designs}}{28}\relax 
+\doTocEntry\tocsubsubsection{1.3.2}{\csname a:TocLink\endcsname{6}{x6-200001.3.2}{QQ2-6-23}{Components of AI Systems: Thinking, Perception, and Action}}{29}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{6}{x6-21000}{QQ2-6-24}{Example: Autonomous Vehicle}}{30}\relax 
+\doTocEntry\tocsubsection{1.4}{\csname a:TocLink\endcsname{6}{x6-220001.4}{QQ2-6-25}{Case Study: AI-Enabled Camera as an Intelligent System}}{30}\relax 
+\doTocEntry\tocsubsection{1.5}{\csname a:TocLink\endcsname{6}{x6-230001.5}{QQ2-6-26}{Levels and Architectures of Intelligent Systems}}{32}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{6}{x6-24000}{QQ2-6-27}{What Constitutes Intelligence in Systems?}}{32}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{6}{x6-25000}{QQ2-6-28}{Levels of Intelligence (as an organizing lens)}}{33}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{6}{x6-26000}{QQ2-6-29}{Connectionist vs. agent-based/decentralized approaches}}{33}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{6}{x6-27000}{QQ2-6-30}{Example: Swarm Intelligence}}{34}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{6}{x6-28000}{QQ2-6-31}{Examples of Input and Output Variables in Dynamic Systems}}{34}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{6}{x6-29000}{QQ2-6-32}{Key Characteristics of Intelligent Systems}}{38}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{6}{x6-30000}{QQ2-6-33}{Intelligent Systems as Decision Makers}}{39}\relax 
+\doTocEntry\tocsubsection{1.6}{\csname a:TocLink\endcsname{6}{x6-310001.6}{QQ2-6-34}{Intelligent Systems and Intelligent Machines}}{39}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{6}{x6-32000}{QQ2-6-35}{Terminology Clarification}}{40}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{6}{x6-33000}{QQ2-6-36}{Behavior, Not Components}}{40}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{6}{x6-34000}{QQ2-6-37}{Examples}}{40}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{6}{x6-35000}{QQ2-6-38}{Consciousness and Intelligence}}{41}\relax 
+\doTocEntry\tocsubsection{1.7}{\csname a:TocLink\endcsname{6}{x6-360001.7}{QQ2-6-39}{Levels, Meta-cognition, and Safety}}{43}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{6}{x6-37000}{QQ2-6-40}{Meta-cognition (Operational View)}}{43}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{6}{x6-38000}{QQ2-6-41}{Implications and Risks}}{43}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{6}{x6-39000}{QQ2-6-42}{Designing Safe Intelligent Systems}}{43}\relax 
+\doTocEntry\tocsubsection{1.8}{\csname a:TocLink\endcsname{6}{x6-400001.8}{QQ2-6-43}{Audience, Prerequisites, and Scope}}{44}\relax 
+\doTocEntry\tocsubsection{1.9}{\csname a:TocLink\endcsname{6}{x6-410001.9}{QQ2-6-44}{Roadmap and Reading Paths}}{45}\relax 
+\doTocEntry\toclof{1}{\csname a:TocLink\endcsname{6}{x6-41001r1}{}{\ignorespaces Schematic: Roadmap (core supervised path; SOM/fuzzy; optimization/evolutionary).}}{figure}\relax 
+\doTocEntry\tocsubsection{1.10}{\csname a:TocLink\endcsname{6}{x6-420001.10}{QQ2-6-46}{Using and Navigating This Book}}{48}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{6}{x6-43000}{QQ2-6-47}{Where we head next.}}{53}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{6}{x6-44000}{QQ2-6-48}{References.}}{53}\relax 
+\doTocEntry\tocsection{2}{\csname a:TocLink\endcsname{7}{x7-450002}{QQ2-7-49}{Symbolic Integration and Problem-Solving Strategies}}{54}\relax 
+\doTocEntry\tocsubsection{2.1}{\csname a:TocLink\endcsname{7}{x7-460002.1}{QQ2-7-50}{Context and Motivation}}{60}\relax 
+\doTocEntry\tocsubsection{2.2}{\csname a:TocLink\endcsname{7}{x7-470002.2}{QQ2-7-51}{Problem Decomposition and Transformation}}{61}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{7}{x7-48000}{QQ2-7-52}{Safe Transformations}}{61}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{7}{x7-49000}{QQ2-7-53}{Example: Applying Safe Transformations}}{63}\relax 
+\doTocEntry\tocsubsection{2.3}{\csname a:TocLink\endcsname{7}{x7-500002.3}{QQ2-7-54}{Limitations of Safe Transformations}}{64}\relax 
+\doTocEntry\tocsubsection{2.4}{\csname a:TocLink\endcsname{7}{x7-510002.4}{QQ2-7-55}{Heuristic Transformations}}{64}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{7}{x7-52000}{QQ2-7-56}{Definition}}{65}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{7}{x7-53000}{QQ2-7-57}{Example: Trigonometric Heuristics}}{65}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{7}{x7-54000}{QQ2-7-58}{Heuristics as a Form of Intelligence}}{66}\relax 
+\doTocEntry\tocsubsection{2.5}{\csname a:TocLink\endcsname{7}{x7-550002.5}{QQ2-7-59}{Summary of the Approach}}{69}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{7}{x7-56000}{QQ2-7-60}{Cost heuristic.}}{69}\relax 
+\doTocEntry\tocsubsection{2.6}{\csname a:TocLink\endcsname{7}{x7-570002.6}{QQ2-7-61}{Heuristic Transformations: Revisiting the Integral with 1 - x squared}}{70}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{7}{x7-58000}{QQ2-7-62}{Step 1: Substitution and Differential}}{71}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{7}{x7-59000}{QQ2-7-63}{Step 2: Choosing the Next Transformation}}{73}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{7}{x7-60000}{QQ2-7-64}{Step 3: Functional Composition and Path Selection}}{74}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{7}{x7-61000}{QQ2-7-65}{Two safe options from here}}{74}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{7}{x7-62000}{QQ2-7-66}{Back-substitution and check}}{75}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{7}{x7-63000}{QQ2-7-67}{Pattern rule}}{76}\relax 
+\doTocEntry\tocsubsection{2.7}{\csname a:TocLink\endcsname{7}{x7-640002.7}{QQ2-7-68}{Example: Solving an Integral via Transformation Trees}}{76}\relax 
+\doTocEntry\tocsubsection{2.8}{\csname a:TocLink\endcsname{7}{x7-650002.8}{QQ2-7-69}{Transformation Trees and Search Strategies}}{77}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{7}{x7-66000}{QQ2-7-70}{Definition:}}{77}\relax 
+\doTocEntry\toclof{2}{\csname a:TocLink\endcsname{7}{x7-66001r2}{}{\ignorespaces Schematic: Transformation tree for the running example integral; badges \textbf  {[S]}/\textbf  {[H]} mark safe vs. heuristic moves; the dashed branch mirrors the sine substitution.}}{figure}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{7}{x7-67000}{QQ2-7-72}{Example:}}{80}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{7}{x7-68000}{QQ2-7-73}{Safe vs. Heuristic Transformations:}}{80}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{7}{x7-69000}{QQ2-7-74}{Backtracking:}}{81}\relax 
+\doTocEntry\tocsubsection{2.9}{\csname a:TocLink\endcsname{7}{x7-700002.9}{QQ2-7-75}{Algorithmic Outline for Symbolic Problem Solving}}{82}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{7}{x7-71000}{QQ2-7-76}{Note:}}{83}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{7}{x7-72000}{QQ2-7-77}{Residual test implementation.}}{84}\relax 
+\doTocEntry\toclot{1}{\csname a:TocLink\endcsname{7}{x7-72001r1}{}{\ignorespaces Schematic: Transformation toolkit (safe vs. heuristic). Preconditions keep domains/branches explicit (e.g., restrictions like ``x in (-1,1)'' for square-root expressions); principal branches unless noted.}}{table}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{7}{x7-73000}{QQ2-7-79}{Worked example: Beta template vs. numeric fallback}}{91}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{7}{x7-74000}{QQ2-7-80}{Failure path with certified numeric residual.}}{92}\relax 
+\doTocEntry\tocsubsection{2.10}{\csname a:TocLink\endcsname{7}{x7-750002.10}{QQ2-7-81}{Discussion: What this example illustrates}}{93}\relax 
+\doTocEntry\toclikesubsection{}{\csname a:TocLink\endcsname{7}{x7-76000}{QQ2-7-82}{Connection to statistical learning}}{93}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{7}{x7-77000}{QQ2-7-83}{Where we head next.}}{100}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{7}{x7-78000}{QQ2-7-84}{References.}}{100}\relax 
+\doTocEntry\tocsection{3}{\csname a:TocLink\endcsname{8}{x8-790003}{QQ2-8-85}{Supervised Learning Foundations}}{101}\relax 
+\doTocEntry\tocsubsection{3.1}{\csname a:TocLink\endcsname{8}{x8-800003.1}{QQ2-8-86}{Problem Setup and Notation}}{107}\relax 
+\doTocEntry\tocsubsection{3.2}{\csname a:TocLink\endcsname{8}{x8-810003.2}{QQ2-8-87}{Fitting, Overfitting, and Underfitting}}{108}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{8}{x8-82000}{QQ2-8-88}{Underfitting.}}{108}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{8}{x8-83000}{QQ2-8-89}{Overfitting.}}{109}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{8}{x8-84000}{QQ2-8-90}{What we aim for.}}{109}\relax 
+\doTocEntry\toclof{3}{\csname a:TocLink\endcsname{8}{x8-84001r3}{}{\ignorespaces Schematic: Underfitting and overfitting as a function of model complexity. Training error typically decreases with complexity, while validation error often has a U-shape. Regularization and model selection aim to operate near the minimum of the validation curve.}}{figure}\relax 
+\doTocEntry\tocsubsection{3.3}{\csname a:TocLink\endcsname{8}{x8-850003.3}{QQ2-8-92}{Empirical Risk Minimization and Regularization}}{112}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{8}{x8-86000}{QQ2-8-93}{Ridge and lasso.}}{113}\relax 
+\doTocEntry\toclof{4}{\csname a:TocLink\endcsname{8}{x8-86001r4}{}{\ignorespaces Schematic: Why L1 promotes sparsity. Minimizing loss subject to an L2 constraint tends to hit a smooth boundary; an L1 constraint has corners aligned with coordinate axes, so tangency often occurs at a point where some coordinates are exactly zero.}}{figure}\relax 
+\doTocEntry\toclof{5}{\csname a:TocLink\endcsname{8}{x8-86002r5}{}{\ignorespaces Schematic: A typical lasso path as the regularization strength increases. Coefficients shrink, and some become exactly zero, yielding sparse models.}}{figure}\relax 
+\doTocEntry\tocsubsection{3.4}{\csname a:TocLink\endcsname{8}{x8-870003.4}{QQ2-8-96}{Elastic-net paths and cross-validation}}{122}\relax 
+\doTocEntry\tocsubsection{3.5}{\csname a:TocLink\endcsname{8}{x8-880003.5}{QQ2-8-97}{Common Loss Functions}}{122}\relax 
+\doTocEntry\toclot{2}{\csname a:TocLink\endcsname{8}{x8-88003r2}{}{\ignorespaces Schematic: Common losses and typical use (reference for \Crefrange  {chap:supervised}{chap:perceptron}).}}{table}\relax 
+\doTocEntry\toclof{6}{\csname a:TocLink\endcsname{8}{x8-88004r6}{}{\ignorespaces Schematic: Classification losses as functions of the signed margin z.}}{figure}\relax 
+\doTocEntry\toclof{7}{\csname a:TocLink\endcsname{8}{x8-88005r7}{}{\ignorespaces Schematic: Regression losses versus prediction error. The Huber loss transitions from quadratic to linear to reduce sensitivity to outliers.}}{figure}\relax 
+\doTocEntry\tocsubsection{3.6}{\csname a:TocLink\endcsname{8}{x8-890003.6}{QQ2-8-101}{Model Selection, Splits, and Learning Curves}}{134}\relax 
+\doTocEntry\toclof{8}{\csname a:TocLink\endcsname{8}{x8-89001r8}{}{\ignorespaces Schematic: Dataset partitioning into training, validation, and test segments. Any resampling scheme should preserve disjoint evaluation data; when classes are imbalanced, shuffle within strata so each split reflects the overall class mix.}}{figure}\relax 
+\doTocEntry\toclof{9}{\csname a:TocLink\endcsname{8}{x8-89002r9}{}{\ignorespaces Schematic: Mini ERM pipeline (split once, iterate train/validate, then test only the best model on the held-out set).}}{figure}\relax 
+\doTocEntry\toclof{10}{\csname a:TocLink\endcsname{8}{x8-89003r10}{}{\ignorespaces Schematic: Learning curves reveal under/overfitting: the validation curve flattens while additional data continue to decrease training error only marginally. A shaded patience window marks when early stopping would halt if no validation improvement occurs.}}{figure}\relax 
+\doTocEntry\toclof{11}{\csname a:TocLink\endcsname{8}{x8-89004r11}{}{\ignorespaces Calibration and capacity diagnostics (reliability and double descent)}}{figure}\relax 
+\doTocEntry\toclof{12}{\csname a:TocLink\endcsname{8}{x8-89005r12}{}{\ignorespaces Schematic: Ridge regularization shrinks parameter norms as the penalty strength increases.}}{figure}\relax 
+\doTocEntry\tocsubsection{3.7}{\csname a:TocLink\endcsname{8}{x8-900003.7}{QQ2-8-107}{Linear regression: a first full case study}}{157}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{8}{x8-91000}{QQ2-8-108}{Model.}}{157}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{8}{x8-92000}{QQ2-8-109}{A noise model (why squared error shows up).}}{158}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{8}{x8-93000}{QQ2-8-110}{Objective.}}{160}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{8}{x8-94000}{QQ2-8-111}{Closed form and geometry.}}{161}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{8}{x8-95000}{QQ2-8-112}{Where overfitting enters.}}{162}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{8}{x8-96000}{QQ2-8-113}{Ridge and lasso in one line.}}{162}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{8}{x8-97000}{QQ2-8-114}{Where we head next.}}{166}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{8}{x8-98000}{QQ2-8-115}{References.}}{166}\relax 
+\doTocEntry\tocsection{4}{\csname a:TocLink\endcsname{9}{x9-990004}{QQ2-9-116}{Classification and Logistic Regression}}{167}\relax 
+\doTocEntry\tocsubsection{4.1}{\csname a:TocLink\endcsname{9}{x9-1000004.1}{QQ2-9-117}{From regression to classification}}{170}\relax 
+\doTocEntry\tocsubsection{4.2}{\csname a:TocLink\endcsname{9}{x9-1010004.2}{QQ2-9-118}{Classification problem statement}}{170}\relax 
+\doTocEntry\tocsubsection{4.3}{\csname a:TocLink\endcsname{9}{x9-1020004.3}{QQ2-9-119}{Bayes Optimal Classifier}}{171}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{9}{x9-103000}{QQ2-9-120}{Challenges in Practice}}{173}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{9}{x9-104000}{QQ2-9-121}{Running example: a two-cluster dataset}}{173}\relax 
+\doTocEntry\toclof{13}{\csname a:TocLink\endcsname{9}{x9-104001r13}{}{\ignorespaces Schematic: Synthetic binary dataset.}}{figure}\relax 
+\doTocEntry\toclof{14}{\csname a:TocLink\endcsname{9}{x9-104002r14}{}{\ignorespaces Schematic: Bayes-optimal boundary for two Gaussian classes with equal covariances and similar priors (LDA setting), which yields a linear separator. Unequal covariances produce a quadratic boundary. We place the boundary near the equal-posterior line (vertical, pink); left/right regions correspond to predicted classes R0 and R1.}}{figure}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{9}{x9-105000}{QQ2-9-124}{Naive Bayes Approximation}}{180}\relax 
+\doTocEntry\tocsubsection{4.4}{\csname a:TocLink\endcsname{9}{x9-1060004.4}{QQ2-9-125}{Logistic Regression: A Probabilistic Discriminative Model}}{180}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{9}{x9-107000}{QQ2-9-126}{Binary Classification Setup}}{182}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{9}{x9-108000}{QQ2-9-127}{Linear Model for the Log-Odds}}{182}\relax 
+\doTocEntry\tocsubsubsection{4.4.1}{\csname a:TocLink\endcsname{9}{x9-1090004.4.1}{QQ2-9-128}{Likelihood, loss, and gradient}}{185}\relax 
+\doTocEntry\toclof{15}{\csname a:TocLink\endcsname{9}{x9-109004r15}{}{\ignorespaces Schematic: The sigmoid maps logits to probabilities (left). The binary cross-{}entropy (negative log-{}likelihood) penalizes confident wrong predictions sharply (middle). Regularization typically shrinks parameter norms as the penalty strength increases (right).}}{figure}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{9}{x9-110000}{QQ2-9-130}{Optimization geometry (why iterative solvers)}}{189}\relax 
+\doTocEntry\toclof{16}{\csname a:TocLink\endcsname{9}{x9-110001r16}{}{\ignorespaces Schematic: Gradient-descent iterates contracting toward the minimizer of a convex quadratic cost. Ellipses are level sets; arrows show the ``steepest descent along contours'' direction.}}{figure}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{9}{x9-111000}{QQ2-9-132}{Geometry of the logistic surface.}}{192}\relax 
+\doTocEntry\toclof{17}{\csname a:TocLink\endcsname{9}{x9-111001r17}{}{\ignorespaces Schematic: Illustrative logistic-regression boundary. The dashed line marks the linear decision boundary at probability 0.5; labeled contours show how the posterior varies smoothly with margin, enabling calibrated decisions and adjustable thresholds.}}{figure}\relax 
+\doTocEntry\tocsubsection{4.5}{\csname a:TocLink\endcsname{9}{x9-1120004.5}{QQ2-9-134}{Probabilistic Interpretation: MLE and MAP}}{195}\relax 
+\doTocEntry\toclof{18}{\csname a:TocLink\endcsname{9}{x9-112001r18}{}{\ignorespaces Schematic: MAP estimates interpolate between the prior mean and the data-driven MLE. As the sample size grows, the MAP curve approaches the true mean.}}{figure}\relax 
+\doTocEntry\tocsubsection{4.6}{\csname a:TocLink\endcsname{9}{x9-1130004.6}{QQ2-9-136}{Confusion Matrices and Derived Metrics}}{198}\relax 
+\doTocEntry\toclof{19}{\csname a:TocLink\endcsname{9}{x9-113001r19}{}{\ignorespaces Schematic: ROC and PR curves with an explicit operating point. Left: ROC curve with iso-cost lines; right: PR curve with a class-prevalence baseline and iso-F1 contours. Together they visualize threshold trade-offs and calibration quality.}}{figure}\relax 
+\doTocEntry\toclof{20}{\csname a:TocLink\endcsname{9}{x9-113002r20}{}{\ignorespaces Schematic: Confusion matrix for a three-class classifier; diagonals dominate, indicating strong accuracy with modest confusion between classes B and C.}}{figure}\relax 
+\doTocEntry\toclot{3}{\csname a:TocLink\endcsname{9}{x9-113003r3}{}{\ignorespaces Schematic: Handling class imbalance for logistic models (\Cref  {chap:logistic} reference table).}}{table}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{9}{x9-114000}{QQ2-9-140}{Where we head next.}}{216}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{9}{x9-115000}{QQ2-9-141}{References.}}{216}\relax 
+\doTocEntry\tocsection{5}{\csname a:TocLink\endcsname{10}{x10-1160005}{QQ2-10-142}{Introduction to Neural Networks}}{217}\relax 
+\doTocEntry\tocsubsection{5.1}{\csname a:TocLink\endcsname{10}{x10-1170005.1}{QQ2-10-143}{Biological Inspiration}}{220}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{10}{x10-118000}{QQ2-10-144}{Neurons and Neural Activity}}{220}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{10}{x10-119000}{QQ2-10-145}{Complexities and Unknowns}}{221}\relax 
+\doTocEntry\tocsubsection{5.2}{\csname a:TocLink\endcsname{10}{x10-1200005.2}{QQ2-10-146}{From Biological to Artificial Neural Networks}}{221}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{10}{x10-121000}{QQ2-10-147}{Key Features of Artificial Neural Networks}}{222}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{10}{x10-122000}{QQ2-10-148}{Historical Context}}{222}\relax 
+\doTocEntry\tocsubsection{5.3}{\csname a:TocLink\endcsname{10}{x10-1230005.3}{QQ2-10-149}{Outline of Neural Network Study}}{223}\relax 
+\doTocEntry\tocsubsection{5.4}{\csname a:TocLink\endcsname{10}{x10-1240005.4}{QQ2-10-150}{Neural Network Architectures}}{223}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{10}{x10-125000}{QQ2-10-151}{Feedforward Neural Networks}}{223}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{10}{x10-126000}{QQ2-10-152}{Shapes and convention.}}{224}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{10}{x10-127000}{QQ2-10-153}{Recurrent Neural Networks}}{225}\relax 
+\doTocEntry\tocsubsection{5.5}{\csname a:TocLink\endcsname{10}{x10-1280005.5}{QQ2-10-154}{Activation Functions}}{225}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{10}{x10-129000}{QQ2-10-155}{Biological Motivation}}{226}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{10}{x10-130000}{QQ2-10-156}{Common Activation Functions}}{226}\relax 
+\doTocEntry\tocsubsection{5.6}{\csname a:TocLink\endcsname{10}{x10-1310005.6}{QQ2-10-157}{Learning Paradigms in Neural Networks}}{231}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{10}{x10-132000}{QQ2-10-158}{Supervised Learning}}{231}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{10}{x10-133000}{QQ2-10-159}{Unsupervised Learning}}{231}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{10}{x10-134000}{QQ2-10-160}{Reinforcement Learning}}{232}\relax 
+\doTocEntry\tocsubsection{5.7}{\csname a:TocLink\endcsname{10}{x10-1350005.7}{QQ2-10-161}{Fundamentals of Artificial Neural Networks}}{232}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{10}{x10-136000}{QQ2-10-162}{McCulloch-Pitts Neuron Model}}{232}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{10}{x10-137000}{QQ2-10-163}{Interpretation}}{234}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{10}{x10-138000}{QQ2-10-164}{Excitation and Inhibition}}{234}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{10}{x10-139000}{QQ2-10-165}{Learning Objective}}{235}\relax 
+\doTocEntry\tocsubsection{5.8}{\csname a:TocLink\endcsname{10}{x10-1400005.8}{QQ2-10-166}{Mathematical Formulation of the Neuron Output}}{235}\relax 
+\doTocEntry\tocsubsection{5.9}{\csname a:TocLink\endcsname{10}{x10-1410005.9}{QQ2-10-167}{McCulloch-Pitts neuron: examples and limits}}{237}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{10}{x10-142000}{QQ2-10-168}{Example: AND and OR gates}}{238}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{10}{x10-143000}{QQ2-10-169}{Limitations of the MP model}}{238}\relax 
+\doTocEntry\tocsubsection{5.10}{\csname a:TocLink\endcsname{10}{x10-1440005.10}{QQ2-10-170}{From MP Neuron to Perceptron and Beyond}}{239}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{10}{x10-145000}{QQ2-10-171}{Perceptron model}}{239}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{10}{x10-146000}{QQ2-10-172}{Perceptron update from the signed margin.}}{241}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{10}{x10-147000}{QQ2-10-173}{Perceptron convergence theorem.}}{242}\relax 
+\doTocEntry\toclof{21}{\csname a:TocLink\endcsname{10}{x10-147004r21}{}{\ignorespaces Schematic: Perceptron geometry. Points on either side of the separating hyperplane receive different labels, and the signed distance to the boundary controls both the class prediction and the magnitude of the update during learning. Compare to \Cref  {fig:lec2-logistic-boundary} in \Cref  {chap:logistic}: both share a linear separator, but logistic smooths the boundary into calibrated probabilities.}}{figure}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{10}{x10-148000}{QQ2-10-175}{Adaline model}}{249}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{10}{x10-149000}{QQ2-10-176}{Adaline weight update (derivation)}}{249}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{10}{x10-150000}{QQ2-10-177}{Where we head next.}}{258}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{10}{x10-151000}{QQ2-10-178}{References.}}{258}\relax 
+\doTocEntry\tocsection{6}{\csname a:TocLink\endcsname{11}{x11-1520006}{QQ2-11-179}{Multi-Layer Perceptrons: Challenges and Foundations}}{259}\relax 
+\doTocEntry\tocsubsection{6.1}{\csname a:TocLink\endcsname{11}{x11-1530006.1}{QQ2-11-180}{From a single unit to the smallest network}}{264}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{11}{x11-154000}{QQ2-11-181}{Function estimation as the unifying view.}}{264}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{11}{x11-155000}{QQ2-11-182}{From one unit to a chain of units.}}{264}\relax 
+\doTocEntry\toclof{22}{\csname a:TocLink\endcsname{11}{x11-155004r22}{}{\ignorespaces Schematic: The minimal neural network used in this chapter is a two-neuron chain. The first unit produces an intermediate signal, and the second unit maps that signal to the final output.}}{figure}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{11}{x11-156000}{QQ2-11-184}{Bias as a learned threshold.}}{272}\relax 
+\doTocEntry\tocsubsection{6.2}{\csname a:TocLink\endcsname{11}{x11-1570006.2}{QQ2-11-185}{Performance: what are we trying to improve?}}{272}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{11}{x11-158000}{QQ2-11-186}{Why a square?}}{273}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{11}{x11-159000}{QQ2-11-187}{A geometric intuition.}}{275}\relax 
+\doTocEntry\tocsubsection{6.3}{\csname a:TocLink\endcsname{11}{x11-1600006.3}{QQ2-11-188}{Gradient descent: how do weights move?}}{275}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{11}{x11-161000}{QQ2-11-189}{Step size is a design choice.}}{276}\relax 
+\doTocEntry\toclof{23}{\csname a:TocLink\endcsname{11}{x11-161001r23}{}{\ignorespaces Schematic: Think of performance as a surface over the weights. Gradient descent moves in one vector step (blue), whereas coordinate-wise updates can zig-zag (orange).}}{figure}\relax 
+\doTocEntry\tocsubsection{6.4}{\csname a:TocLink\endcsname{11}{x11-1620006.4}{QQ2-11-191}{Why hard thresholds block learning}}{279}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{11}{x11-163000}{QQ2-11-192}{Absorbing the threshold.}}{279}\relax 
+\doTocEntry\toclof{24}{\csname a:TocLink\endcsname{11}{x11-163001r24}{}{\ignorespaces Schematic: Hard thresholds block gradient-based learning because the derivative is zero almost everywhere. A smooth activation like the sigmoid provides informative derivatives across a wide range of inputs.}}{figure}\relax 
+\doTocEntry\tocsubsection{6.5}{\csname a:TocLink\endcsname{11}{x11-1640006.5}{QQ2-11-194}{Differentiable activations and the sigmoid trick}}{282}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{11}{x11-165000}{QQ2-11-195}{Derivation sketch.}}{285}\relax 
+\doTocEntry\tocsubsection{6.6}{\csname a:TocLink\endcsname{11}{x11-1660006.6}{QQ2-11-196}{Deriving weight updates for the two-{}neuron network}}{285}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{11}{x11-167000}{QQ2-11-197}{Second layer.}}{286}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{11}{x11-168000}{QQ2-11-198}{First layer.}}{287}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{11}{x11-169000}{QQ2-11-199}{Error terms (backprop view).}}{288}\relax 
+\doTocEntry\tocsubsection{6.7}{\csname a:TocLink\endcsname{11}{x11-1700006.7}{QQ2-11-200}{From two neurons to multi-{}layer networks}}{291}\relax 
+\doTocEntry\tocsubsection{6.8}{\csname a:TocLink\endcsname{11}{x11-1710006.8}{QQ2-11-201}{Summary}}{293}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{11}{x11-172000}{QQ2-11-202}{Where we head next.}}{297}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{11}{x11-173000}{QQ2-11-203}{References.}}{297}\relax 
+\doTocEntry\tocsection{7}{\csname a:TocLink\endcsname{12}{x12-1740007}{QQ2-12-204}{Backpropagation Learning in Multi-Layer Perceptrons}}{298}\relax 
+\doTocEntry\tocsubsection{7.1}{\csname a:TocLink\endcsname{12}{x12-1750007.1}{QQ2-12-205}{Context and Motivation}}{302}\relax 
+\doTocEntry\tocsubsection{7.2}{\csname a:TocLink\endcsname{12}{x12-1760007.2}{QQ2-12-206}{Problem Setup}}{302}\relax 
+\doTocEntry\tocsubsection{7.3}{\csname a:TocLink\endcsname{12}{x12-1770007.3}{QQ2-12-207}{Loss and Objective}}{303}\relax 
+\doTocEntry\tocsubsection{7.4}{\csname a:TocLink\endcsname{12}{x12-1780007.4}{QQ2-12-208}{Challenges in Weight Updates}}{304}\relax 
+\doTocEntry\tocsubsection{7.5}{\csname a:TocLink\endcsname{12}{x12-1790007.5}{QQ2-12-209}{Notation for Layers and Neurons}}{305}\relax 
+\doTocEntry\tocsubsection{7.6}{\csname a:TocLink\endcsname{12}{x12-1800007.6}{QQ2-12-210}{Forward Pass Recap}}{306}\relax 
+\doTocEntry\tocsubsection{7.7}{\csname a:TocLink\endcsname{12}{x12-1810007.7}{QQ2-12-211}{Backpropagation: Recursive Computation of Error Terms}}{309}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{12}{x12-182000}{QQ2-12-212}{Chain rule decomposition}}{311}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{12}{x12-183000}{QQ2-12-213}{Interpretation of \(\delta _j^{(l+1)}\)}}{313}\relax 
+\doTocEntry\tocsubsubsection{7.7.1}{\csname a:TocLink\endcsname{12}{x12-1840007.7.1}{QQ2-12-214}{Output layer error terms}}{313}\relax 
+\doTocEntry\tocsubsubsection{7.7.2}{\csname a:TocLink\endcsname{12}{x12-1850007.7.2}{QQ2-12-215}{Hidden layer error terms}}{314}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{12}{x12-186000}{QQ2-12-216}{Summary: Backpropagation recursion}}{316}\relax 
+\doTocEntry\tocsubsection{7.8}{\csname a:TocLink\endcsname{12}{x12-1870007.8}{QQ2-12-217}{Backpropagation Algorithm: Detailed Derivation}}{317}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{12}{x12-188000}{QQ2-12-218}{Error function and its derivatives}}{317}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{12}{x12-189000}{QQ2-12-219}{Step 1: Derivative of error with respect to output}}{318}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{12}{x12-190000}{QQ2-12-220}{Step 2: Derivative of output with respect to activation}}{318}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{12}{x12-191000}{QQ2-12-221}{Step 3: Derivative of activation with respect to weight}}{319}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{12}{x12-192000}{QQ2-12-222}{Putting it all together}}{320}\relax 
+\doTocEntry\tocsubsection{7.9}{\csname a:TocLink\endcsname{12}{x12-1930007.9}{QQ2-12-223}{Backpropagation for Hidden Layers}}{322}\relax 
+\doTocEntry\tocsubsection{7.10}{\csname a:TocLink\endcsname{12}{x12-1940007.10}{QQ2-12-224}{Batch and Stochastic Gradient Descent}}{323}\relax 
+\doTocEntry\toclof{25}{\csname a:TocLink\endcsname{12}{x12-194001r25}{}{\ignorespaces Computational graph for backpropagation (reverse-mode AD)}}{figure}\relax 
+\doTocEntry\tocsubsection{7.11}{\csname a:TocLink\endcsname{12}{x12-1950007.11}{QQ2-12-226}{Backpropagation Algorithm: Brief Numerical Check}}{331}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{12}{x12-196000}{QQ2-12-227}{Aside: squared-error loss (alternative)}}{332}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{12}{x12-197000}{QQ2-12-228}{Backward Propagation of Error}}{333}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{12}{x12-198000}{QQ2-12-229}{Weight Update Rule}}{335}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{12}{x12-199000}{QQ2-12-230}{Interpretation of Learning Rate and Momentum}}{337}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{12}{x12-200000}{QQ2-12-231}{Step-by-Step Example}}{337}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{12}{x12-201000}{QQ2-12-232}{Remarks}}{340}\relax 
+\doTocEntry\tocsubsection{7.12}{\csname a:TocLink\endcsname{12}{x12-2020007.12}{QQ2-12-233}{Training Procedure and Epochs in Multi-Layer Perceptrons}}{340}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{12}{x12-203000}{QQ2-12-234}{Remarks:}}{341}\relax 
+\doTocEntry\tocsubsection{7.13}{\csname a:TocLink\endcsname{12}{x12-2040007.13}{QQ2-12-235}{Role and Design of Hidden Layers}}{341}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{12}{x12-205000}{QQ2-12-236}{Key Questions Regarding Hidden Layers:}}{342}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{12}{x12-206000}{QQ2-12-237}{Design Considerations:}}{342}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{12}{x12-207000}{QQ2-12-238}{Trade-offs:}}{343}\relax 
+\doTocEntry\tocsubsection{7.14}{\csname a:TocLink\endcsname{12}{x12-2080007.14}{QQ2-12-239}{Case Study: Learning the Function y = x sin x}}{343}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{12}{x12-209000}{QQ2-12-240}{Setup:}}{344}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{12}{x12-210000}{QQ2-12-241}{Questions to Explore:}}{344}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{12}{x12-211000}{QQ2-12-242}{Remarks:}}{345}\relax 
+\doTocEntry\tocsubsection{7.15}{\csname a:TocLink\endcsname{12}{x12-2120007.15}{QQ2-12-243}{Applications of Multi-Layer Perceptrons}}{345}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{12}{x12-213000}{QQ2-12-244}{Summary:}}{346}\relax 
+\doTocEntry\tocsubsection{7.16}{\csname a:TocLink\endcsname{12}{x12-2140007.16}{QQ2-12-245}{Limitations of Multi-Layer Perceptrons}}{347}\relax 
+\doTocEntry\tocsubsection{7.17}{\csname a:TocLink\endcsname{12}{x12-2150007.17}{QQ2-12-246}{Conclusion of Multi-Layer Perceptron Derivations}}{347}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{12}{x12-216000}{QQ2-12-247}{Backpropagation Algorithm Recap}}{348}\relax 
+\doTocEntry\toclof{26}{\csname a:TocLink\endcsname{12}{x12-216005r26}{}{\ignorespaces Schematic: Forward (blue) and backward (orange) flows for a two-layer MLP. The cached activations and the layerwise error terms (deltas) are exactly the quantities carried along these arrows; backward signals are computed with the next-layer weights and the activation derivative.}}{figure}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{12}{x12-217000}{QQ2-12-249}{Example Execution}}{353}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{12}{x12-218000}{QQ2-12-250}{Remarks on Convergence and Practical Considerations}}{353}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{12}{x12-219000}{QQ2-12-251}{Comparing canonical nonlinearities}}{354}\relax 
+\doTocEntry\toclof{27}{\csname a:TocLink\endcsname{12}{x12-219001r27}{}{\ignorespaces Schematic: Canonical activation functions on a common axis. Solid curves show the activation; dashed curves show its derivative.}}{figure}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{12}{x12-220000}{QQ2-12-253}{Trade-offs}}{357}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{12}{x12-221000}{QQ2-12-254}{Where we head next.}}{363}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{12}{x12-222000}{QQ2-12-255}{References.}}{363}\relax 
+\doTocEntry\tocsection{8}{\csname a:TocLink\endcsname{13}{x13-2230008}{QQ2-13-256}{Radial Basis Function Networks (RBFNs)}}{364}\relax 
+\doTocEntry\tocsubsection{8.1}{\csname a:TocLink\endcsname{13}{x13-2240008.1}{QQ2-13-257}{Overview and Motivation}}{366}\relax 
+\doTocEntry\tocsubsection{8.2}{\csname a:TocLink\endcsname{13}{x13-2250008.2}{QQ2-13-258}{Architecture of RBFNs}}{370}\relax 
+\doTocEntry\toclof{28}{\csname a:TocLink\endcsname{13}{x13-225001r28}{}{\ignorespaces Schematic: RBFN architecture. Inputs feed fixed radial units parameterized by centers and widths; a linear readout with weights (and bias) is trained by a regression or classification loss. Only the output weights are typically learned; centers/widths come from k-means or spacing heuristics.}}{figure}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{13}{x13-226000}{QQ2-13-260}{A picture to keep in mind}}{375}\relax 
+\doTocEntry\toclof{29}{\csname a:TocLink\endcsname{13}{x13-226001r29}{}{\ignorespaces Schematic: Localized Gaussian basis functions (dashed) and their weighted sum (solid). Overlapping bumps allow RBF networks to interpolate complex signals smoothly.}}{figure}\relax 
+\doTocEntry\toclof{30}{\csname a:TocLink\endcsname{13}{x13-226002r30}{}{\ignorespaces Schematic: Center placement and overlap. Top: K-means prototypes roughly tile the data manifold, giving even overlap; bottom: random centers can leave gaps or excessive overlap, influencing the width (sigma) choice and conditioning.}}{figure}\relax 
+\doTocEntry\tocsubsubsection{8.2.1}{\csname a:TocLink\endcsname{13}{x13-2270008.2.1}{QQ2-13-263}{Mathematical Formulation}}{381}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{13}{x13-228000}{QQ2-13-264}{Interpretation:}}{382}\relax 
+\doTocEntry\tocsubsection{8.3}{\csname a:TocLink\endcsname{13}{x13-2290008.3}{QQ2-13-265}{Radial Basis Functions}}{383}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{13}{x13-230000}{QQ2-13-266}{Normalized RBFs.}}{383}\relax 
+\doTocEntry\tocsubsection{8.4}{\csname a:TocLink\endcsname{13}{x13-2310008.4}{QQ2-13-267}{Key Properties and Advantages}}{384}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{13}{x13-232000}{QQ2-13-268}{Curse of dimensionality.}}{385}\relax 
+\doTocEntry\tocsubsection{8.5}{\csname a:TocLink\endcsname{13}{x13-2330008.5}{QQ2-13-269}{Transforming Nonlinearly Separable Data into Linearly Separable Space}}{385}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{13}{x13-234000}{QQ2-13-270}{Example Setup:}}{385}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{13}{x13-235000}{QQ2-13-271}{Assumptions:}}{386}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{13}{x13-236000}{QQ2-13-272}{Transformation Results:}}{386}\relax 
+\doTocEntry\tocsubsection{8.6}{\csname a:TocLink\endcsname{13}{x13-2370008.6}{QQ2-13-273}{Finding the Optimal Weight Vector w}}{387}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{13}{x13-238000}{QQ2-13-274}{Normal Equations for the Weights:}}{388}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{13}{x13-239000}{QQ2-13-275}{Conditioning and capacity.}}{388}\relax 
+\doTocEntry\tocsubsection{8.7}{\csname a:TocLink\endcsname{13}{x13-2400008.7}{QQ2-13-276}{The Role of the Transformation Function g(.)}}{389}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{13}{x13-241000}{QQ2-13-277}{Choosing \(g(\cdot )\):}}{390}\relax 
+\doTocEntry\tocsubsection{8.8}{\csname a:TocLink\endcsname{13}{x13-2420008.8}{QQ2-13-278}{Examples of Kernel Functions}}{390}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{13}{x13-243000}{QQ2-13-279}{1. Inverse Distance Function:}}{390}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{13}{x13-244000}{QQ2-13-280}{2. Gaussian Radial Basis Function:}}{391}\relax 
+\doTocEntry\tocsubsection{8.9}{\csname a:TocLink\endcsname{13}{x13-2450008.9}{QQ2-13-281}{Interpretation of the Width Parameter sigma}}{393}\relax 
+\doTocEntry\tocsubsection{8.10}{\csname a:TocLink\endcsname{13}{x13-2460008.10}{QQ2-13-282}{Effect of sigma on Classification Boundaries}}{394}\relax 
+\doTocEntry\toclof{31}{\csname a:TocLink\endcsname{13}{x13-246001r31}{}{\ignorespaces Schematic: How the width parameter (sigma) influences decision boundaries on a 2D toy dataset. Too-large sigma underfits, intermediate sigma captures the boundary, too-small sigma overfits with fragmented regions. Use \Cref  {chap:supervised}'s validation curves to pick model size and regularization.}}{figure}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{13}{x13-247000}{QQ2-13-284}{Notation note.}}{397}\relax 
+\doTocEntry\tocsubsection{8.11}{\csname a:TocLink\endcsname{13}{x13-2480008.11}{QQ2-13-285}{Radial Basis Function Networks: Parameter Estimation and Training}}{397}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{13}{x13-249000}{QQ2-13-286}{Finding the Centers \(\mathbf@@ {v}_i\):}}{398}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{13}{x13-250000}{QQ2-13-287}{Determining the Spread Parameters \(\sigma _i\):}}{398}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{13}{x13-251000}{QQ2-13-288}{Training the Output Weights \( w_i \):}}{399}\relax 
+\doTocEntry\toclof{32}{\csname a:TocLink\endcsname{13}{x13-251002r32}{}{\ignorespaces Schematic: Primal (finite basis) vs. dual (kernel ridge) viewpoints. Using as many centers as data points recovers the dual form; using fewer centers corresponds to a Nystr\"om approximation. The same trade-off appears in kernel methods through the choice of kernel and effective rank.}}{figure}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{13}{x13-252000}{QQ2-13-290}{Iterative Optimization of \(\sigma _i\) and \( w_i \):}}{406}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{13}{x13-253000}{QQ2-13-291}{Summary of the Training Algorithm:}}{407}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{13}{x13-254000}{QQ2-13-292}{Worked toy (classification, XOR-like).}}{409}\relax 
+\doTocEntry\toclof{33}{\csname a:TocLink\endcsname{13}{x13-254001r33}{}{\ignorespaces Schematic: RBFN decision boundary on the XOR toy for a model with 4 centers, width sigma = 0.8, and ridge lambda = 1e-3. Shading indicates the predicted class under a 0.5 threshold; the black contour marks the 0.5 boundary. Training points are overlaid (class 0: open circles; class 1: filled squares). See \Cref  {fig:rbf_sigma_sweep} for how sigma changes this boundary.}}{figure}\relax 
+\doTocEntry\tocsubsection{8.12}{\csname a:TocLink\endcsname{13}{x13-2550008.12}{QQ2-13-294}{Remarks on Radial Basis Function Networks}}{412}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{13}{x13-256000}{QQ2-13-295}{Advantages:}}{412}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{13}{x13-257000}{QQ2-13-296}{Disadvantages:}}{413}\relax 
+\doTocEntry\toclikesubsection{}{\csname a:TocLink\endcsname{13}{x13-258000}{QQ2-13-297}{Optional sidebar: Wiener filter refresher}}{413}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{13}{x13-259000}{QQ2-13-298}{Sidebar: why include Wiener filtering here?}}{413}\relax 
+\doTocEntry\tocsubsection{8.13}{\csname a:TocLink\endcsname{13}{x13-2600008.13}{QQ2-13-299}{Interpretation and Properties of the Wiener Filter}}{416}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{13}{x13-261000}{QQ2-13-300}{Interpretation:}}{416}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{13}{x13-262000}{QQ2-13-301}{Properties:}}{417}\relax 
+\doTocEntry\tocsubsection{8.14}{\csname a:TocLink\endcsname{13}{x13-2630008.14}{QQ2-13-302}{Extension: Frequency-Domain Wiener Filter}}{417}\relax 
+\doTocEntry\tocsubsection{8.15}{\csname a:TocLink\endcsname{13}{x13-2640008.15}{QQ2-13-303}{Closing Remarks on Adaptive Filtering}}{418}\relax 
+\doTocEntry\tocsubsection{8.16}{\csname a:TocLink\endcsname{13}{x13-2650008.16}{QQ2-13-304}{Preview: Unsupervised and Localized Learning}}{418}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{13}{x13-266000}{QQ2-13-305}{Where we head next.}}{422}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{13}{x13-267000}{QQ2-13-306}{References.}}{422}\relax 
+\doTocEntry\tocsection{9}{\csname a:TocLink\endcsname{14}{x14-2680009}{QQ2-14-307}{Introduction to Self-Organizing Networks and Unsupervised Learning}}{423}\relax 
+\doTocEntry\tocsubsection{9.1}{\csname a:TocLink\endcsname{14}{x14-2690009.1}{QQ2-14-308}{Overview of Self-Organizing Networks}}{429}\relax 
+\doTocEntry\toclof{34}{\csname a:TocLink\endcsname{14}{x14-269001r34}{}{\ignorespaces Schematic: Learning-rate scheduling intuition. On a smooth objective (left), large initial steps quickly cover ground and roughly align prototypes, while a decaying step-size refines the solution near convergence. Right: common exponential and multiplicative decays used in SOM training.}}{figure}\relax 
+\doTocEntry\tocsubsection{9.2}{\csname a:TocLink\endcsname{14}{x14-2700009.2}{QQ2-14-310}{Clustering: Identifying Similarities and Dissimilarities}}{434}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{14}{x14-271000}{QQ2-14-311}{Example:}}{434}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{14}{x14-272000}{QQ2-14-312}{K-means Clustering:}}{435}\relax 
+\doTocEntry\tocsubsection{9.3}{\csname a:TocLink\endcsname{14}{x14-2730009.3}{QQ2-14-313}{Dimensionality Reduction: Simplifying High-Dimensional Data}}{436}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{14}{x14-274000}{QQ2-14-314}{Example:}}{437}\relax 
+\doTocEntry\toclof{35}{\csname a:TocLink\endcsname{14}{x14-274001r35}{}{\ignorespaces Schematic: Classical MDS intuition. Projecting a cube onto a plane via an orthogonal map yields a square (left), whereas an oblique projection along a body diagonal produces a hexagon (right). The local adjacency of vertices is preserved even though metric structure is distorted.}}{figure}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{14}{x14-275000}{QQ2-14-316}{Challenges:}}{440}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{14}{x14-276000}{QQ2-14-317}{Common Techniques:}}{440}\relax 
+\doTocEntry\tocsubsection{9.4}{\csname a:TocLink\endcsname{14}{x14-2770009.4}{QQ2-14-318}{Dimensionality Reduction and Feature Mapping}}{440}\relax 
+\doTocEntry\tocsubsection{9.5}{\csname a:TocLink\endcsname{14}{x14-2780009.5}{QQ2-14-319}{Self-Organizing Maps (SOMs): Introduction}}{442}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{14}{x14-279000}{QQ2-14-320}{Historical Context}}{444}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{14}{x14-280000}{QQ2-14-321}{Basic Architecture}}{444}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{14}{x14-281000}{QQ2-14-322}{Key Concept: Topographic Mapping}}{445}\relax 
+\doTocEntry\tocsubsection{9.6}{\csname a:TocLink\endcsname{14}{x14-2820009.6}{QQ2-14-323}{Conceptual Description of SOM Operation}}{445}\relax 
+\doTocEntry\tocsubsection{9.7}{\csname a:TocLink\endcsname{14}{x14-2830009.7}{QQ2-14-324}{Mathematical Formulation of SOM}}{448}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{14}{x14-284000}{QQ2-14-325}{Best Matching Unit (BMU)}}{448}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{14}{x14-285000}{QQ2-14-326}{Neighborhood Function}}{448}\relax 
+\doTocEntry\toclof{36}{\csname a:TocLink\endcsname{14}{x14-285002r36}{}{\ignorespaces Schematic: Gaussian neighborhood weights in SOM training. Early iterations use a broad kernel so many neighbors adapt; later iterations shrink the neighborhood width sigma(t) so only units near the BMU update.}}{figure}\relax 
+\doTocEntry\tocsubsection{9.8}{\csname a:TocLink\endcsname{14}{x14-2860009.8}{QQ2-14-328}{Kohonen Self-Organizing Maps (SOMs): Network Architecture and Operation}}{452}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{14}{x14-287000}{QQ2-14-329}{Network Structure}}{452}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{14}{x14-288000}{QQ2-14-330}{Mapping and Competition}}{453}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{14}{x14-289000}{QQ2-14-331}{Weight Update Rule}}{454}\relax 
+\doTocEntry\tocsubsection{9.9}{\csname a:TocLink\endcsname{14}{x14-2900009.9}{QQ2-14-332}{Example: SOM with a 3x3 Output Map and 4-Dimensional Input}}{455}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{14}{x14-291000}{QQ2-14-333}{Feedforward Computation}}{455}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{14}{x14-292000}{QQ2-14-334}{Weight Initialization and Update}}{457}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{14}{x14-293000}{QQ2-14-335}{Illustration}}{457}\relax 
+\doTocEntry\tocsubsection{9.10}{\csname a:TocLink\endcsname{14}{x14-2940009.10}{QQ2-14-336}{Key Properties of Kohonen SOMs}}{458}\relax 
+\doTocEntry\tocsubsection{9.11}{\csname a:TocLink\endcsname{14}{x14-2950009.11}{QQ2-14-337}{Winner-Takes-All Learning and Weight Update Rules}}{459}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{14}{x14-296000}{QQ2-14-338}{Discriminant Function and Similarity Measures}}{459}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{14}{x14-297000}{QQ2-14-339}{Weight Update Rule}}{460}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{14}{x14-298000}{QQ2-14-340}{Learning Rate Schedule}}{462}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{14}{x14-299000}{QQ2-14-341}{Summary of the Competitive Learning Algorithm}}{463}\relax 
+\doTocEntry\tocsubsection{9.12}{\csname a:TocLink\endcsname{14}{x14-3000009.12}{QQ2-14-342}{Numerical Example of Competitive Learning}}{464}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{14}{x14-301000}{QQ2-14-343}{Initial Weights}}{464}\relax 
+\doTocEntry\tocsubsection{9.13}{\csname a:TocLink\endcsname{14}{x14-3020009.13}{QQ2-14-344}{Winner-Takes-All Learning Recap}}{465}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{14}{x14-303000}{QQ2-14-345}{Practical considerations}}{467}\relax 
+\doTocEntry\tocsubsection{9.14}{\csname a:TocLink\endcsname{14}{x14-3040009.14}{QQ2-14-346}{Regularization and Monitoring During SOM Training}}{467}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{14}{x14-305000}{QQ2-14-347}{Bias--variance view.}}{467}\relax 
+\doTocEntry\toclof{37}{\csname a:TocLink\endcsname{14}{x14-305001r37}{}{\ignorespaces Schematic: Bias--variance trade-off when sweeping SOM capacity (number of units or kernel width). The optimum appears near the knee where bias and variance intersect.}}{figure}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{14}{x14-306000}{QQ2-14-349}{Loss-landscape smoothing.}}{470}\relax 
+\doTocEntry\toclof{38}{\csname a:TocLink\endcsname{14}{x14-306001r38}{}{\ignorespaces Schematic: Regularization smooths the loss surface. Coupling neighboring prototypes (right) yields wider, flatter basins than the jagged unregularized landscape (left).}}{figure}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{14}{x14-307000}{QQ2-14-351}{Quantization vs. information preservation.}}{473}\relax 
+\doTocEntry\toclof{39}{\csname a:TocLink\endcsname{14}{x14-307001r39}{}{\ignorespaces Schematic: Quantization error combined with an entropy-style regularizer (modern SOM variant; for example, a negative sum of p log p over unit usage). Valleys arise when prototypes cover the space evenly; ridges highlight collapse or poor topological preservation.}}{figure}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{14}{x14-308000}{QQ2-14-353}{Quantization vs. topographic error.}}{476}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{14}{x14-309000}{QQ2-14-354}{Stopping criteria.}}{478}\relax 
+\doTocEntry\toclof{40}{\csname a:TocLink\endcsname{14}{x14-309001r40}{}{\ignorespaces Schematic: Validation curves used to identify an early-{}stopping knee. When both quantization and topographic errors flatten (shaded band), further training risks map drift.}}{figure}\relax 
+\doTocEntry\tocsubsection{9.15}{\csname a:TocLink\endcsname{14}{x14-3100009.15}{QQ2-14-356}{Limitations of Winner-Takes-All and Motivation for Cooperation}}{483}\relax 
+\doTocEntry\toclof{41}{\csname a:TocLink\endcsname{14}{x14-310001r41}{}{\ignorespaces Schematic: Voronoi-like regions induced by SOM prototypes (left) and the corresponding softmax confidence after shrinking the neighborhood kernel (right). Softer updates blur the decision frontiers and reduce jagged mappings between adjacent neurons.}}{figure}\relax 
+\doTocEntry\tocsubsection{9.16}{\csname a:TocLink\endcsname{14}{x14-3110009.16}{QQ2-14-358}{Cooperation in Competitive Learning}}{486}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{14}{x14-312000}{QQ2-14-359}{Neighborhood Concept}}{486}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{14}{x14-313000}{QQ2-14-360}{Weight Update with Neighborhood Cooperation}}{486}\relax 
+\doTocEntry\toclof{42}{\csname a:TocLink\endcsname{14}{x14-313001r42}{}{\ignorespaces Schematic: Left: a 5-by-5 SOM lattice with best matching unit (blue) and neighbors within the Gaussian-kernel radius (green). Right: a toy U-Matrix (colormap chosen to remain interpretable in grayscale) showing average distances between neighboring codebook vectors; higher distances indicate likely cluster boundaries.}}{figure}\relax 
+\doTocEntry\toclof{43}{\csname a:TocLink\endcsname{14}{x14-313002r43}{}{\ignorespaces Schematic: Component planes for three features on a trained SOM (toy data). Each plane maps one feature's value across the map; aligned bright/dark regions across planes reveal correlated features, complementing the U-Matrix in \Cref  {fig:lec5-som-lattice-umatrix}. Interpret brightness comparatively within a plane rather than as an absolute calibrated scale.}}{figure}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{14}{x14-314000}{QQ2-14-363}{Gaussian Neighborhood Function}}{493}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{14}{x14-315000}{QQ2-14-364}{Interpretation}}{494}\relax 
+\doTocEntry\tocsubsection{9.17}{\csname a:TocLink\endcsname{14}{x14-3160009.17}{QQ2-14-365}{Example: Neighborhood Update Illustration}}{494}\relax 
+\doTocEntry\toclof{44}{\csname a:TocLink\endcsname{14}{x14-316001r44}{}{\ignorespaces Schematic: SOM lattice with the best-matching unit (BMU) highlighted in blue and a dashed neighborhood radius indicating which prototype vectors receive cooperative updates.}}{figure}\relax 
+\doTocEntry\tocsubsection{9.18}{\csname a:TocLink\endcsname{14}{x14-3170009.18}{QQ2-14-367}{Summary of Cooperative Competitive Learning Algorithm}}{497}\relax 
+\doTocEntry\tocsubsection{9.19}{\csname a:TocLink\endcsname{14}{x14-3180009.19}{QQ2-14-368}{Wrapping Up the Kohonen Self-Organizing Map (SOM) Derivations}}{497}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{14}{x14-319000}{QQ2-14-369}{Neighborhood Function and Its Role}}{499}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{14}{x14-320000}{QQ2-14-370}{Time-Dependent Parameters}}{500}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{14}{x14-321000}{QQ2-14-371}{Summary of the Six Learning Steps}}{501}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{14}{x14-322000}{QQ2-14-372}{Stages vs. Steps}}{505}\relax 
+\doTocEntry\tocsubsection{9.20}{\csname a:TocLink\endcsname{14}{x14-3230009.20}{QQ2-14-373}{Applications of Kohonen Self-Organizing Maps}}{505}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{14}{x14-324000}{QQ2-14-374}{Relation to k-means and modern variants}}{506}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{14}{x14-325000}{QQ2-14-375}{Complexity and out-of-sample mapping.}}{510}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{14}{x14-326000}{QQ2-14-376}{Theory link to other chapters.}}{510}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{14}{x14-327000}{QQ2-14-377}{Quality measures and magnification.}}{510}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{14}{x14-328000}{QQ2-14-378}{Where we head next.}}{513}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{14}{x14-329000}{QQ2-14-379}{References.}}{513}\relax 
+\doTocEntry\tocsection{10}{\csname a:TocLink\endcsname{15}{x15-33000010}{QQ2-15-380}{Hopfield Networks: Introduction and Context}}{514}\relax 
+\doTocEntry\tocsubsection{10.1}{\csname a:TocLink\endcsname{15}{x15-33100010.1}{QQ2-15-381}{From Feedforward to Recurrent Neural Networks}}{516}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{15}{x15-332000}{QQ2-15-382}{Challenges with General Recurrent Networks}}{517}\relax 
+\doTocEntry\tocsubsection{10.2}{\csname a:TocLink\endcsname{15}{x15-33300010.2}{QQ2-15-383}{Hopfield's Breakthrough (1982)}}{519}\relax 
+\doTocEntry\tocsubsection{10.3}{\csname a:TocLink\endcsname{15}{x15-33400010.3}{QQ2-15-384}{Network Architecture and Dynamics}}{520}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{15}{x15-335000}{QQ2-15-385}{Interpretation:}}{522}\relax 
+\doTocEntry\tocsubsection{10.4}{\csname a:TocLink\endcsname{15}{x15-33600010.4}{QQ2-15-386}{Encoding conventions}}{522}\relax 
+\doTocEntry\tocsubsection{10.5}{\csname a:TocLink\endcsname{15}{x15-33700010.5}{QQ2-15-387}{Energy Function and Stability}}{524}\relax 
+\doTocEntry\tocsubsection{10.6}{\csname a:TocLink\endcsname{15}{x15-33800010.6}{QQ2-15-388}{Hopfield Network States and Energy Function}}{525}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{15}{x15-339000}{QQ2-15-389}{Energy function for \(\pm 1\) states:}}{525}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{15}{x15-340000}{QQ2-15-390}{Energy function for \(\{0,1\}\) states:}}{526}\relax 
+\doTocEntry\tocsubsection{10.7}{\csname a:TocLink\endcsname{15}{x15-34100010.7}{QQ2-15-391}{Energy Minimization and Stable States}}{527}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{15}{x15-342000}{QQ2-15-392}{State update dynamics:}}{528}\relax 
+\doTocEntry\tocsubsection{10.8}{\csname a:TocLink\endcsname{15}{x15-34300010.8}{QQ2-15-393}{Example: Energy Calculation and State Updates}}{530}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{15}{x15-344000}{QQ2-15-394}{State update attempts:}}{531}\relax 
+\doTocEntry\toclot{4}{\csname a:TocLink\endcsname{15}{x15-344001r4}{}{\ignorespaces Schematic: Single-neuron flips from (1, 1, -1); all raise the energy, so the state is a local minimum.}}{table}\relax 
+\doTocEntry\toclof{45}{\csname a:TocLink\endcsname{15}{x15-344002r45}{}{\ignorespaces Schematic: Hopfield energy decreases monotonically under asynchronous updates. Starting from a noisy probe state s(0), successive single-neuron flips move downhill until the stored memory s(2) is recovered.}}{figure}\relax 
+\doTocEntry\tocsubsection{10.9}{\csname a:TocLink\endcsname{15}{x15-34500010.9}{QQ2-15-397}{Energy Function and Convergence of Hopfield Networks}}{537}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{15}{x15-346000}{QQ2-15-398}{Goal:}}{537}\relax 
+\doTocEntry\tocsubsubsection{10.9.1}{\csname a:TocLink\endcsname{15}{x15-34700010.9.1}{QQ2-15-399}{Energy Change Upon Updating a Single Neuron}}{537}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{15}{x15-348000}{QQ2-15-400}{Numeric check (single flip).}}{540}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{15}{x15-349000}{QQ2-15-401}{Continuous Hopfield / dense associative memory.}}{542}\relax 
+\doTocEntry\tocsubsubsection{10.9.2}{\csname a:TocLink\endcsname{15}{x15-35000010.9.2}{QQ2-15-402}{Update Rule and Energy Decrease}}{542}\relax 
+\doTocEntry\tocsubsection{10.10}{\csname a:TocLink\endcsname{15}{x15-35100010.10}{QQ2-15-403}{Asynchronous vs. Synchronous Updates in Hopfield Networks}}{544}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{15}{x15-352000}{QQ2-15-404}{Why asynchronous updates?}}{544}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{15}{x15-353000}{QQ2-15-405}{Conclusion:}}{545}\relax 
+\doTocEntry\tocsubsection{10.11}{\csname a:TocLink\endcsname{15}{x15-35400010.11}{QQ2-15-406}{Storage Capacity of Hopfield Networks}}{546}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{15}{x15-355000}{QQ2-15-407}{Classical result:}}{546}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{15}{x15-356000}{QQ2-15-408}{Inefficiency:}}{546}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{15}{x15-357000}{QQ2-15-409}{Stochastic updates (bridge to Boltzmann machines).}}{547}\relax 
+\doTocEntry\tocsubsection{10.12}{\csname a:TocLink\endcsname{15}{x15-35800010.12}{QQ2-15-410}{Improving Storage Capacity via Weight Updates}}{547}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{15}{x15-359000}{QQ2-15-411}{Idea:}}{547}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{15}{x15-360000}{QQ2-15-412}{Hebbian learning rule:}}{547}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{15}{x15-361000}{QQ2-15-413}{Properties:}}{548}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{15}{x15-362000}{QQ2-15-414}{Effect on capacity:}}{548}\relax 
+\doTocEntry\tocsubsection{10.13}{\csname a:TocLink\endcsname{15}{x15-36300010.13}{QQ2-15-415}{Example: Weight Calculation for a Single Pattern}}{549}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{15}{x15-364000}{QQ2-15-416}{Step 1: Compute outer product}}{549}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{15}{x15-365000}{QQ2-15-417}{Step 2: Remove diagonal terms}}{549}\relax 
+\doTocEntry\tocsubsection{10.14}{\csname a:TocLink\endcsname{15}{x15-36600010.14}{QQ2-15-418}{Finalizing the Hopfield Network Derivation and Discussion}}{550}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{15}{x15-367000}{QQ2-15-419}{Energy Function and Convergence}}{551}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{15}{x15-368000}{QQ2-15-420}{Memory Retrieval and Basins of Attraction}}{552}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{15}{x15-369000}{QQ2-15-421}{Limitations: Capacity and Classification}}{552}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{15}{x15-370000}{QQ2-15-422}{Example: Memory Recovery}}{553}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{15}{x15-371000}{QQ2-15-423}{Spurious attractors}}{555}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{15}{x15-372000}{QQ2-15-424}{Historical and Practical Significance}}{556}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{15}{x15-373000}{QQ2-15-425}{Connections to other chapters.}}{556}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{15}{x15-374000}{QQ2-15-426}{Where we head next.}}{560}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{15}{x15-375000}{QQ2-15-427}{References.}}{560}\relax 
+\doTocEntry\tocsection{11}{\csname a:TocLink\endcsname{16}{x16-37600011}{QQ2-16-428}{Introduction to Deep Learning and Neural Networks}}{561}\relax 
+\doTocEntry\tocsubsection{11.1}{\csname a:TocLink\endcsname{16}{x16-37700011.1}{QQ2-16-429}{Historical Context and Motivation}}{565}\relax 
+\doTocEntry\tocsubsection{11.2}{\csname a:TocLink\endcsname{16}{x16-37800011.2}{QQ2-16-430}{Overview of Neural Network Architectures}}{566}\relax 
+\doTocEntry\tocsubsubsection{11.2.1}{\csname a:TocLink\endcsname{16}{x16-37900011.2.1}{QQ2-16-431}{Feedforward Neural Networks (Multi-Layer Perceptrons)}}{566}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{16}{x16-380000}{QQ2-16-432}{Fully Connected Layers and Feature Transformation}}{568}\relax 
+\doTocEntry\tocsubsection{11.3}{\csname a:TocLink\endcsname{16}{x16-38100011.3}{QQ2-16-433}{Why Shallow Networks Are Insufficient}}{569}\relax 
+\doTocEntry\tocsubsection{11.4}{\csname a:TocLink\endcsname{16}{x16-38200011.4}{QQ2-16-434}{Limitations of Traditional Feedforward Neural Networks}}{569}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{16}{x16-383000}{QQ2-16-435}{Requirement for large datasets}}{569}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{16}{x16-384000}{QQ2-16-436}{High-dimensional inputs and flattening}}{570}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{16}{x16-385000}{QQ2-16-437}{Implications}}{571}\relax 
+\doTocEntry\tocsubsection{11.5}{\csname a:TocLink\endcsname{16}{x16-38600011.5}{QQ2-16-438}{Challenges in Training Large Fully Connected Networks}}{571}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{16}{x16-387000}{QQ2-16-439}{Parameter Explosion}}{571}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{16}{x16-388000}{QQ2-16-440}{Data Requirements}}{572}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{16}{x16-389000}{QQ2-16-441}{Computational and Storage Constraints}}{573}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{16}{x16-390000}{QQ2-16-442}{Overfitting Risk}}{574}\relax 
+\doTocEntry\tocsubsection{11.6}{\csname a:TocLink\endcsname{16}{x16-39100011.6}{QQ2-16-443}{Sparse connectivity and parameter sharing}}{574}\relax 
+\doTocEntry\tocsubsection{11.7}{\csname a:TocLink\endcsname{16}{x16-39200011.7}{QQ2-16-444}{Convolution and pooling mechanics}}{574}\relax 
+\doTocEntry\tocsubsubsection{11.7.1}{\csname a:TocLink\endcsname{16}{x16-39300011.7.1}{QQ2-16-445}{Worked stride and padding example}}{576}\relax 
+\doTocEntry\tocsubsection{11.8}{\csname a:TocLink\endcsname{16}{x16-39400011.8}{QQ2-16-446}{Pooling as nonparametric downsampling}}{577}\relax 
+\doTocEntry\tocsubsection{11.9}{\csname a:TocLink\endcsname{16}{x16-39500011.9}{QQ2-16-447}{Channels and feature maps}}{581}\relax 
+\doTocEntry\tocsubsection{11.10}{\csname a:TocLink\endcsname{16}{x16-39600011.10}{QQ2-16-448}{Convolutional hyperparameters (what you choose up front)}}{583}\relax 
+\doTocEntry\tocsubsection{11.11}{\csname a:TocLink\endcsname{16}{x16-39700011.11}{QQ2-16-449}{Multi-branch convolution blocks (Inception idea)}}{583}\relax 
+\doTocEntry\tocsubsection{11.12}{\csname a:TocLink\endcsname{16}{x16-39800011.12}{QQ2-16-450}{From feature maps to classifiers}}{584}\relax 
+\doTocEntry\tocsubsection{11.13}{\csname a:TocLink\endcsname{16}{x16-39900011.13}{QQ2-16-451}{Historical Context and the 2012 Breakthrough}}{584}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{16}{x16-400000}{QQ2-16-452}{SVM geometry refresher.}}{584}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{16}{x16-401000}{QQ2-16-453}{Stack depth versus receptive field.}}{585}\relax 
+\doTocEntry\tocsubsection{11.14}{\csname a:TocLink\endcsname{16}{x16-40200011.14}{QQ2-16-454}{Training Neural Networks: Gradient-Based Optimization}}{585}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{16}{x16-403000}{QQ2-16-455}{Backpropagation and Gradient Computation}}{586}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{16}{x16-404000}{QQ2-16-456}{Challenges in Deep Networks}}{586}\relax 
+\doTocEntry\tocsubsection{11.15}{\csname a:TocLink\endcsname{16}{x16-40500011.15}{QQ2-16-457}{Deep Network Optimization \relax \c:def \A:mbox {\A:mbox }\c:def \B:mbox {\B:mbox }\mbox  {Challenges}}}{586}\relax 
+\doTocEntry\tocsubsection{11.16}{\csname a:TocLink\endcsname{16}{x16-40600011.16}{QQ2-16-458}{Vanishing and Exploding Gradients in Deep Networks}}{586}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{16}{x16-407000}{QQ2-16-459}{Mathematical intuition}}{587}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{16}{x16-408000}{QQ2-16-460}{Consequences}}{588}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{16}{x16-409000}{QQ2-16-461}{Example: Activation function derivatives}}{588}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{16}{x16-410000}{QQ2-16-462}{Notation note.}}{589}\relax 
+\doTocEntry\tocsubsection{11.17}{\csname a:TocLink\endcsname{16}{x16-41100011.17}{QQ2-16-463}{Strategies to Mitigate Vanishing and Exploding Gradients}}{589}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{16}{x16-412000}{QQ2-16-464}{Weight initialization}}{589}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{16}{x16-413000}{QQ2-16-465}{Choice of activation function}}{590}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{16}{x16-414000}{QQ2-16-466}{Batch normalization}}{591}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{16}{x16-415000}{QQ2-16-467}{Gradient clipping}}{591}\relax 
+\doTocEntry\toclof{46}{\csname a:TocLink\endcsname{16}{x16-415001r46}{}{\ignorespaces Dropout effect on training/validation curves (validation flattening)}}{figure}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{16}{x16-416000}{QQ2-16-469}{Batch normalization.}}{594}\relax 
+\doTocEntry\toclof{47}{\csname a:TocLink\endcsname{16}{x16-416001r47}{}{\ignorespaces Schematic: Batch normalization transforms per-channel activations toward zero mean and unit variance prior to the learned affine re-scaling, stabilizing training.}}{figure}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{16}{x16-417000}{QQ2-16-471}{Adaptive optimizers.}}{597}\relax 
+\doTocEntry\toclof{48}{\csname a:TocLink\endcsname{16}{x16-417001r48}{}{\ignorespaces Schematic: Representative training curves for SGD with momentum versus Adam on the same CNN.}}{figure}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{16}{x16-418000}{QQ2-16-473}{Where we head next.}}{606}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{16}{x16-419000}{QQ2-16-474}{References.}}{606}\relax 
+\doTocEntry\tocsection{12}{\csname a:TocLink\endcsname{17}{x17-42000012}{QQ2-17-475}{Introduction to Recurrent Neural Networks}}{607}\relax 
+\doTocEntry\tocsubsection{12.1}{\csname a:TocLink\endcsname{17}{x17-42100012.1}{QQ2-17-476}{Quick recap: padding in CNNs}}{609}\relax 
+\doTocEntry\tocsubsection{12.2}{\csname a:TocLink\endcsname{17}{x17-42200012.2}{QQ2-17-477}{Autoencoders and latent representations}}{610}\relax 
+\doTocEntry\tocsubsection{12.3}{\csname a:TocLink\endcsname{17}{x17-42300012.3}{QQ2-17-478}{Motivation for Recurrent Neural Networks}}{611}\relax 
+\doTocEntry\tocsubsection{12.4}{\csname a:TocLink\endcsname{17}{x17-42400012.4}{QQ2-17-479}{Key Idea: State and Memory in RNNs}}{612}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{17}{x17-425000}{QQ2-17-480}{Interpretation:}}{614}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{17}{x17-426000}{QQ2-17-481}{Parameter sharing across time.}}{614}\relax 
+\doTocEntry\tocsubsection{12.5}{\csname a:TocLink\endcsname{17}{x17-42700012.5}{QQ2-17-482}{Comparison with Feedforward Networks}}{615}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{17}{x17-428000}{QQ2-17-483}{Summary:}}{615}\relax 
+\doTocEntry\tocsubsection{12.6}{\csname a:TocLink\endcsname{17}{x17-42900012.6}{QQ2-17-484}{Outline of this chapter}}{619}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{17}{x17-430000}{QQ2-17-485}{Code--math dictionary.}}{620}\relax 
+\doTocEntry\tocsubsection{12.7}{\csname a:TocLink\endcsname{17}{x17-43100012.7}{QQ2-17-486}{Recap: Feedforward Building Blocks}}{621}\relax 
+\doTocEntry\toclof{49}{\csname a:TocLink\endcsname{17}{x17-431001r49}{}{\ignorespaces Schematic: Decision boundaries for logistic regression (left) versus a shallow MLP (right). Linear models carve a single hyperplane, whereas hidden units can warp the boundary to follow non-convex manifolds such as the moons dataset.}}{figure}\relax 
+\doTocEntry\toclof{50}{\csname a:TocLink\endcsname{17}{x17-431002r50}{}{\ignorespaces Schematic: Binary cross-entropy geometry (left), effect of learning-rate schedules on loss (middle), and the typical training/validation divergence that motivates early stopping (right).}}{figure}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{17}{x17-432000}{QQ2-17-489}{Historical Note: Hopfield Networks}}{631}\relax 
+\doTocEntry\tocsubsection{12.8}{\csname a:TocLink\endcsname{17}{x17-43300012.8}{QQ2-17-490}{Input--output configurations and mathematical formulation}}{631}\relax 
+\doTocEntry\tocsubsection{12.9}{\csname a:TocLink\endcsname{17}{x17-43400012.9}{QQ2-17-491}{Recurrent Neural Networks: Historical Context and Motivation}}{634}\relax 
+\doTocEntry\tocsubsection{12.10}{\csname a:TocLink\endcsname{17}{x17-43500012.10}{QQ2-17-492}{The 1986 Breakthrough: Backpropagation and Trainable Multi-Layer Networks}}{634}\relax 
+\doTocEntry\tocsubsection{12.11}{\csname a:TocLink\endcsname{17}{x17-43600012.11}{QQ2-17-493}{State Dynamics in Recurrent Neural Networks}}{635}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{17}{x17-437000}{QQ2-17-494}{Interpretation}}{636}\relax 
+\doTocEntry\tocsubsection{12.12}{\csname a:TocLink\endcsname{17}{x17-43800012.12}{QQ2-17-495}{Unfolding the Recurrent Neural Network}}{636}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{17}{x17-439000}{QQ2-17-496}{Process}}{637}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{17}{x17-440000}{QQ2-17-497}{Significance}}{637}\relax 
+\doTocEntry\tocsubsection{12.13}{\csname a:TocLink\endcsname{17}{x17-44100012.13}{QQ2-17-498}{Mathematical Formulation of a Simple RNN Cell}}{637}\relax 
+\doTocEntry\toclof{51}{\csname a:TocLink\endcsname{17}{x17-441003r51}{}{\ignorespaces Schematic: Unrolling an RNN reveals repeated application of the same parameters across time steps. This view motivates backpropagation through time (BPTT), which accumulates gradients through every copy before updating the shared weights.}}{figure}\relax 
+\doTocEntry\tocsubsection{12.14}{\csname a:TocLink\endcsname{17}{x17-44200012.14}{QQ2-17-500}{Recurrent Neural Network (RNN) Unfolding and Parameter Sharing}}{641}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{17}{x17-443000}{QQ2-17-501}{Unfolding the RNN}}{641}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{17}{x17-444000}{QQ2-17-502}{Parameter Sharing}}{642}\relax 
+\doTocEntry\tocsubsection{12.15}{\csname a:TocLink\endcsname{17}{x17-44500012.15}{QQ2-17-503}{Mathematical Formulation of the RNN}}{643}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{17}{x17-446000}{QQ2-17-504}{Interpretation}}{644}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{17}{x17-447000}{QQ2-17-505}{Reusability of the Hidden State}}{645}\relax 
+\doTocEntry\tocsubsection{12.16}{\csname a:TocLink\endcsname{17}{x17-44800012.16}{QQ2-17-506}{Generalized Notation}}{645}\relax 
+\doTocEntry\tocsubsection{12.17}{\csname a:TocLink\endcsname{17}{x17-44900012.17}{QQ2-17-507}{Recurrent Neural Network (RNN) Architectures and Loss Computation}}{646}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{17}{x17-450000}{QQ2-17-508}{Forward and Backward Passes in RNNs}}{647}\relax 
+\doTocEntry\toclof{52}{\csname a:TocLink\endcsname{17}{x17-450001r52}{}{\ignorespaces Schematic: Backpropagation through time (BPTT): unrolled forward pass (black) and backward gradients (pink) through time.}}{figure}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{17}{x17-451000}{QQ2-17-510}{Vanishing and Exploding Gradients}}{651}\relax 
+\doTocEntry\toclof{53}{\csname a:TocLink\endcsname{17}{x17-451001r53}{}{\ignorespaces Schematic: Vanishing (blue) versus exploding (orange) gradients on a log scale. The gray strip highlights the stability band; the inset reminds readers that repeated Jacobian products either shrink gradients (thin blue arrows) or amplify them (thick orange arrows).}}{figure}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{17}{x17-452000}{QQ2-17-512}{Parameter Updates}}{654}\relax 
+\doTocEntry\tocsubsection{12.18}{\csname a:TocLink\endcsname{17}{x17-45300012.18}{QQ2-17-513}{Stabilizing Recurrent Training}}{654}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{17}{x17-454000}{QQ2-17-514}{Gradient clipping.}}{654}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{17}{x17-455000}{QQ2-17-515}{Dropout in RNNs.}}{659}\relax 
+\doTocEntry\toclof{54}{\csname a:TocLink\endcsname{17}{x17-455001r54}{}{\ignorespaces Schematic: Gradient norms (left) explode without clipping (orange) but remain bounded when the global norm is clipped at tau (green). Training loss (right) stabilizes as a result.}}{figure}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{17}{x17-456000}{QQ2-17-517}{Teacher forcing and scheduled sampling.}}{662}\relax 
+\doTocEntry\toclof{55}{\csname a:TocLink\endcsname{17}{x17-456001r55}{}{\ignorespaces Schematic: Teacher forcing vs. inference in a sequence-to-sequence decoder. Gold arrows show supervised targets; orange arrows highlight autoregressive feedback that motivates scheduled sampling.}}{figure}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{17}{x17-457000}{QQ2-17-519}{Gated cells.}}{665}\relax 
+\doTocEntry\toclof{56}{\csname a:TocLink\endcsname{17}{x17-457001r56}{}{\ignorespaces Schematic: Long Short-Term Memory (LSTM) cell \citep  {Hochreiter1997,Gers2000}.}}{figure}\relax 
+\doTocEntry\toclof{57}{\csname a:TocLink\endcsname{17}{x17-457002r57}{}{\ignorespaces Schematic: Gated Recurrent Unit (GRU) cell \citep  {Cho2014}.}}{figure}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{17}{x17-458000}{QQ2-17-522}{Attention mechanisms.}}{676}\relax 
+\doTocEntry\toclof{58}{\csname a:TocLink\endcsname{17}{x17-458001r58}{}{\ignorespaces Schematic: Attention heatmap for a translation model. Rows are target tokens (decoder steps) and columns are source tokens (encoder positions). Each cell is an attention weight; the dot in each row marks the source position receiving the most attention.}}{figure}\relax 
+\doTocEntry\tocsubsection{12.19}{\csname a:TocLink\endcsname{17}{x17-45900012.19}{QQ2-17-524}{RNN Input-Output Configurations}}{679}\relax 
+\doTocEntry\tocsubsection{12.20}{\csname a:TocLink\endcsname{17}{x17-46000012.20}{QQ2-17-525}{Representing Words for RNN Inputs}}{680}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{17}{x17-461000}{QQ2-17-526}{Vocabulary Size and Word Representation}}{680}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{17}{x17-462000}{QQ2-17-527}{One-Hot Encoding}}{680}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{17}{x17-463000}{QQ2-17-528}{Limitations of One-Hot Encoding}}{681}\relax 
+\doTocEntry\tocsubsection{12.21}{\csname a:TocLink\endcsname{17}{x17-46400012.21}{QQ2-17-529}{Example: Sentiment Analysis with RNNs}}{682}\relax 
+\doTocEntry\tocsubsection{12.22}{\csname a:TocLink\endcsname{17}{x17-46500012.22}{QQ2-17-530}{Limitations of One-Hot Encoding in Natural Language Processing}}{683}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{17}{x17-466000}{QQ2-17-531}{Example:}}{683}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{17}{x17-467000}{QQ2-17-532}{Document similarity:}}{683}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{17}{x17-468000}{QQ2-17-533}{Summary:}}{684}\relax 
+\doTocEntry\tocsubsection{12.23}{\csname a:TocLink\endcsname{17}{x17-46900012.23}{QQ2-17-534}{Feature-Based Word Representations}}{685}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{17}{x17-470000}{QQ2-17-535}{Example:}}{685}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{17}{x17-471000}{QQ2-17-536}{Notes:}}{686}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{17}{x17-472000}{QQ2-17-537}{Advantages:}}{687}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{17}{x17-473000}{QQ2-17-538}{Limitations:}}{687}\relax 
+\doTocEntry\tocsubsection{12.24}{\csname a:TocLink\endcsname{17}{x17-47400012.24}{QQ2-17-539}{Towards Distributed Word Representations}}{688}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{17}{x17-475000}{QQ2-17-540}{Key idea:}}{688}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{17}{x17-476000}{QQ2-17-541}{Methods to obtain distributed representations}}{689}\relax 
+\doTocEntry\tocsubsection{12.25}{\csname a:TocLink\endcsname{17}{x17-47700012.25}{QQ2-17-542}{Semantic Relationships in Word Embeddings}}{689}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{17}{x17-478000}{QQ2-17-543}{Subword tokenization and OOV handling.}}{689}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{17}{x17-479000}{QQ2-17-544}{Example: Gender and Royalty Analogies}}{689}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{17}{x17-480000}{QQ2-17-545}{Empirical Validation}}{691}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{17}{x17-481000}{QQ2-17-546}{Geographical and Cultural Clustering}}{692}\relax 
+\doTocEntry\toclof{59}{\csname a:TocLink\endcsname{17}{x17-481001r59}{}{\ignorespaces Schematic: Toy 2D projection of word embeddings showing neighboring clusters (countries vs. capitals). Light hulls highlight clusters; arrows show that country-to-capital displacement vectors align, a visual check on analogy structure.}}{figure}\relax 
+\doTocEntry\tocsubsection{12.26}{\csname a:TocLink\endcsname{17}{x17-48200012.26}{QQ2-17-548}{Feature-Based Representation vs. One-Hot Encoding}}{696}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{17}{x17-483000}{QQ2-17-549}{One-Hot Encoding}}{696}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{17}{x17-484000}{QQ2-17-550}{Feature-Based Embeddings}}{696}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{17}{x17-485000}{QQ2-17-551}{Context Window Convention}}{697}\relax 
+\doTocEntry\tocsubsection{12.27}{\csname a:TocLink\endcsname{17}{x17-48600012.27}{QQ2-17-552}{Open Questions: Feature Discovery and Representation}}{698}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{17}{x17-487000}{QQ2-17-553}{Self-supervised learning of embeddings}}{698}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{17}{x17-488000}{QQ2-17-554}{Summary}}{699}\relax 
+\doTocEntry\tocsubsection{12.28}{\csname a:TocLink\endcsname{17}{x17-48900012.28}{QQ2-17-555}{Wrapping Up the Derivations}}{700}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{17}{x17-490000}{QQ2-17-556}{Training Objective}}{701}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{17}{x17-491000}{QQ2-17-557}{Self-supervised nature of language modeling}}{702}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{17}{x17-492000}{QQ2-17-558}{Feature Representations}}{702}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{17}{x17-493000}{QQ2-17-559}{Summary of the Modeling Pipeline}}{703}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{17}{x17-494000}{QQ2-17-560}{Notation note.}}{705}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{17}{x17-495000}{QQ2-17-561}{Where we head next.}}{710}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{17}{x17-496000}{QQ2-17-562}{References.}}{710}\relax 
+\doTocEntry\tocsection{13}{\csname a:TocLink\endcsname{18}{x18-49700013}{QQ2-18-563}{Transformers: Attention-Based Sequence Modeling}}{711}\relax 
+\doTocEntry\tocsubsection{13.1}{\csname a:TocLink\endcsname{18}{x18-49800013.1}{QQ2-18-564}{Why transformers after RNNs?}}{715}\relax 
+\doTocEntry\tocsubsection{13.2}{\csname a:TocLink\endcsname{18}{x18-49900013.2}{QQ2-18-565}{Scaled Dot-Product Attention}}{715}\relax 
+\doTocEntry\tocsubsection{13.3}{\csname a:TocLink\endcsname{18}{x18-50000013.3}{QQ2-18-566}{Multi-Head Attention (MHA)}}{720}\relax 
+\doTocEntry\toclof{60}{\csname a:TocLink\endcsname{18}{x18-500003r60}{}{\ignorespaces Schematic: Reference schematic for the Transformer. Left: scaled dot-product attention. Center: multi-head concatenation with an output projection. Right: pre-LN encoder block combining attention, FFN, and residual connections; a post-LN variant simply moves each LayerNorm after its residual add (dotted alternative, not shown).}}{figure}\relax 
+\doTocEntry\toclof{61}{\csname a:TocLink\endcsname{18}{x18-500004r61}{}{\ignorespaces Schematic: Transformer micro-views. Left: positional encodings (sinusoidal/rotary) add order information. Center: KV cache stores past keys/values so decoding a new token reuses prior context. Right: LoRA inserts low-rank adapters (B A) on top of a frozen weight matrix W for parameter-efficient tuning.}}{figure}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{18}{x18-501000}{QQ2-18-569}{Micro attention example (2 tokens, causal mask).}}{726}\relax 
+\doTocEntry\tocsubsection{13.4}{\csname a:TocLink\endcsname{18}{x18-50200013.4}{QQ2-18-570}{Positional Information}}{727}\relax 
+\doTocEntry\tocsubsection{13.5}{\csname a:TocLink\endcsname{18}{x18-50300013.5}{QQ2-18-571}{Masks and Training Objectives}}{727}\relax 
+\doTocEntry\tocsubsection{13.6}{\csname a:TocLink\endcsname{18}{x18-50400013.6}{QQ2-18-572}{Encoder/Decoder Stacks and Stabilizers}}{728}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{18}{x18-505000}{QQ2-18-573}{Code--math dictionary.}}{731}\relax 
+\doTocEntry\tocsubsection{13.7}{\csname a:TocLink\endcsname{18}{x18-50600013.7}{QQ2-18-574}{Long Contexts and Efficient Attention}}{731}\relax 
+\doTocEntry\tocsubsection{13.8}{\csname a:TocLink\endcsname{18}{x18-50700013.8}{QQ2-18-575}{Fine-Tuning and Parameter-Efficient Adaptation}}{732}\relax 
+\doTocEntry\tocsubsection{13.9}{\csname a:TocLink\endcsname{18}{x18-50800013.9}{QQ2-18-576}{Decoding and Evaluation}}{733}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{18}{x18-509000}{QQ2-18-577}{When to use which.}}{733}\relax 
+\doTocEntry\toclof{62}{\csname a:TocLink\endcsname{18}{x18-509001r62}{}{\ignorespaces Schematic: Attention masks visualized as heatmaps (queries on rows, keys on columns). Left: padding mask zeroes attention into padded positions of a shorter sequence in a packed batch. Right: causal mask enforces autoregressive flow by blocking attention to future tokens.}}{figure}\relax 
+\doTocEntry\tocsubsection{13.10}{\csname a:TocLink\endcsname{18}{x18-51000013.10}{QQ2-18-579}{Alignment (Brief)}}{736}\relax 
+\doTocEntry\tocsubsection{13.11}{\csname a:TocLink\endcsname{18}{x18-51100013.11}{QQ2-18-580}{Advanced attention and efficiency notes (2024 snapshot)}}{736}\relax 
+\doTocEntry\tocsubsection{13.12}{\csname a:TocLink\endcsname{18}{x18-51200013.12}{QQ2-18-581}{RNNs vs. Transformers: When and Why}}{737}\relax 
+\doTocEntry\toclikesubsection{}{\csname a:TocLink\endcsname{18}{x18-513000}{QQ2-18-582}{Notes}}{740}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{18}{x18-514000}{QQ2-18-583}{Where we head next.}}{744}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{18}{x18-515000}{QQ2-18-584}{References.}}{744}\relax 
+\doTocEntry\tocsection{14}{\csname a:TocLink\endcsname{19}{x19-51600014}{QQ2-19-585}{Neural Network Applications in Natural Language Processing}}{745}\relax 
+\doTocEntry\tocsubsection{14.1}{\csname a:TocLink\endcsname{19}{x19-51700014.1}{QQ2-19-586}{Context and Motivation}}{748}\relax 
+\doTocEntry\tocsubsection{14.2}{\csname a:TocLink\endcsname{19}{x19-51800014.2}{QQ2-19-587}{Problem Statement}}{748}\relax 
+\doTocEntry\tocsubsection{14.3}{\csname a:TocLink\endcsname{19}{x19-51900014.3}{QQ2-19-588}{Key Insight: Distributional Hypothesis}}{750}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{19}{x19-520000}{QQ2-19-589}{Example:}}{750}\relax 
+\doTocEntry\tocsubsection{14.4}{\csname a:TocLink\endcsname{19}{x19-52100014.4}{QQ2-19-590}{Contextual Meaning and Feature Extraction}}{751}\relax 
+\doTocEntry\tocsubsection{14.5}{\csname a:TocLink\endcsname{19}{x19-52200014.5}{QQ2-19-591}{Word2Vec: Two Architectures}}{753}\relax 
+\doTocEntry\tocsubsubsection{14.5.1}{\csname a:TocLink\endcsname{19}{x19-52300014.5.1}{QQ2-19-592}{Continuous Bag of Words (CBOW)}}{753}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{19}{x19-524000}{QQ2-19-593}{Example:}}{754}\relax 
+\doTocEntry\tocsubsubsection{14.5.2}{\csname a:TocLink\endcsname{19}{x19-52500014.5.2}{QQ2-19-594}{skip-gram}}{755}\relax 
+\doTocEntry\tocsubsection{14.6}{\csname a:TocLink\endcsname{19}{x19-52600014.6}{QQ2-19-595}{Mathematical Formulation of CBOW}}{756}\relax 
+\doTocEntry\tocsubsection{14.7}{\csname a:TocLink\endcsname{19}{x19-52700014.7}{QQ2-19-596}{Neural Network Architecture for Word Embeddings}}{756}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{19}{x19-528000}{QQ2-19-597}{Input Representation}}{756}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{19}{x19-529000}{QQ2-19-598}{Network Structure}}{757}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{19}{x19-530000}{QQ2-19-599}{Forward Pass}}{758}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{19}{x19-531000}{QQ2-19-600}{Output Layer}}{759}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{19}{x19-532000}{QQ2-19-601}{Training Objective}}{760}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{19}{x19-533000}{QQ2-19-602}{Backpropagation and Weight Updates}}{760}\relax 
+\doTocEntry\tocsubsection{14.8}{\csname a:TocLink\endcsname{19}{x19-53400014.8}{QQ2-19-603}{Context window and sequential input}}{760}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{19}{x19-535000}{QQ2-19-604}{Input Sequence Processing}}{761}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{19}{x19-536000}{QQ2-19-605}{Dimensionality and Sparsity}}{762}\relax 
+\doTocEntry\tocsubsection{14.9}{\csname a:TocLink\endcsname{19}{x19-53700014.9}{QQ2-19-606}{Interpretation of the Weight Matrix W}}{762}\relax 
+\doTocEntry\tocsubsection{14.10}{\csname a:TocLink\endcsname{19}{x19-53800014.10}{QQ2-19-607}{Word Embeddings: Continuous Bag of Words (CBOW) and skip-gram models}}{763}\relax 
+\doTocEntry\tocsubsubsection{14.10.1}{\csname a:TocLink\endcsname{19}{x19-53900014.10.1}{QQ2-19-608}{Continuous Bag of Words (CBOW)}}{763}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{19}{x19-540000}{QQ2-19-609}{Key Insight:}}{765}\relax 
+\doTocEntry\tocsubsubsection{14.10.2}{\csname a:TocLink\endcsname{19}{x19-54100014.10.2}{QQ2-19-610}{skip-gram model}}{766}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{19}{x19-542000}{QQ2-19-611}{Training Objective:}}{767}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{19}{x19-543000}{QQ2-19-612}{Interpretation:}}{768}\relax 
+\doTocEntry\tocsubsubsection{14.10.3}{\csname a:TocLink\endcsname{19}{x19-54400014.10.3}{QQ2-19-613}{Computational Challenges: Softmax Normalization}}{768}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{19}{x19-545000}{QQ2-19-614}{Approximate Solutions:}}{770}\relax 
+\doTocEntry\tocsubsection{14.11}{\csname a:TocLink\endcsname{19}{x19-54600014.11}{QQ2-19-615}{Efficient Training of Word Embeddings: Hierarchical Softmax and Negative Sampling}}{770}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{19}{x19-547000}{QQ2-19-616}{1. Hierarchical Softmax}}{770}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{19}{x19-548000}{QQ2-19-617}{2. Negative Sampling}}{771}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{19}{x19-549000}{QQ2-19-618}{Example:}}{772}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{19}{x19-550000}{QQ2-19-619}{Training Objective with Negative Sampling}}{772}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{19}{x19-551000}{QQ2-19-620}{Tiny worked example (skip-gram with \(k=2\)).}}{773}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{19}{x19-552000}{QQ2-19-621}{Interpretation:}}{774}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{19}{x19-553000}{QQ2-19-622}{Backpropagation:}}{775}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{19}{x19-554000}{QQ2-19-623}{Connection to PMI (Levy \& Goldberg).}}{775}\relax 
+\doTocEntry\tocsubsection{14.12}{\csname a:TocLink\endcsname{19}{x19-55500014.12}{QQ2-19-624}{Local Context vs. Global Matrix Factorization Approaches}}{776}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{19}{x19-556000}{QQ2-19-625}{1. Local Context Window Methods}}{776}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{19}{x19-557000}{QQ2-19-626}{2. Global Matrix Factorization Methods}}{776}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{19}{x19-558000}{QQ2-19-627}{Example: Co-occurrence Matrix}}{777}\relax 
+\doTocEntry\tocsubsection{14.13}{\csname a:TocLink\endcsname{19}{x19-55900014.13}{QQ2-19-628}{Global Word Vector Representations via Co-occurrence Statistics}}{778}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{19}{x19-560000}{QQ2-19-629}{Setup:}}{778}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{19}{x19-561000}{QQ2-19-630}{Notation:}}{778}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{19}{x19-562000}{QQ2-19-631}{Goal:}}{779}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{19}{x19-563000}{QQ2-19-632}{Visualization.}}{779}\relax 
+\doTocEntry\toclof{63}{\csname a:TocLink\endcsname{19}{x19-563001r63}{}{\ignorespaces Schematic: Analogy geometry in embedding space. The classic offset ``v(king) - v(man) + v(woman) approx v(queen)'' forms a parallelogram; a similar gender direction also moves ``doctor'' toward ``nurse.'' Visualizing these displacement vectors (solid vs. dashed) makes the shared relational direction explicit. Points are shown after a 2D PCA projection, so directions are approximate rather than exact.}}{figure}\relax 
+\doTocEntry\tocsubsubsection{14.13.1}{\csname a:TocLink\endcsname{19}{x19-56400014.13.1}{QQ2-19-634}{Modeling Co-occurrence Probabilities}}{782}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{19}{x19-565000}{QQ2-19-635}{Relating to word vectors:}}{782}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{19}{x19-566000}{QQ2-19-636}{Derivation:}}{784}\relax 
+\doTocEntry\tocsubsubsection{14.13.2}{\csname a:TocLink\endcsname{19}{x19-56700014.13.2}{QQ2-19-637}{Optimization Objective}}{785}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{19}{x19-568000}{QQ2-19-638}{Why weighting?}}{786}\relax 
+\doTocEntry\tocsubsubsection{14.13.3}{\csname a:TocLink\endcsname{19}{x19-56900014.13.3}{QQ2-19-639}{Interpretation and Remarks}}{787}\relax 
+\doTocEntry\tocsubsection{14.14}{\csname a:TocLink\endcsname{19}{x19-57000014.14}{QQ2-19-640}{Finalizing the Word Embedding Derivations}}{787}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{19}{x19-571000}{QQ2-19-641}{Symmetry and Bias Terms}}{787}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{19}{x19-572000}{QQ2-19-642}{Objective Function and Optimization}}{788}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{19}{x19-573000}{QQ2-19-643}{Singular Value Decomposition (SVD) Connection}}{790}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{19}{x19-574000}{QQ2-19-644}{Interpretation and Limitations}}{791}\relax 
+\doTocEntry\tocsubsection{14.15}{\csname a:TocLink\endcsname{19}{x19-57500014.15}{QQ2-19-645}{Bias in Natural Language Processing}}{791}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{19}{x19-576000}{QQ2-19-646}{Sources of Bias}}{792}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{19}{x19-577000}{QQ2-19-647}{Impact on Embeddings}}{792}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{19}{x19-578000}{QQ2-19-648}{Debiasing Techniques}}{793}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{19}{x19-579000}{QQ2-19-649}{Cross-Lingual Challenges}}{793}\relax 
+\doTocEntry\tocsubsection{14.16}{\csname a:TocLink\endcsname{19}{x19-58000014.16}{QQ2-19-650}{Responsible deployment checklist (appendix)}}{797}\relax 
+\doTocEntry\tocsubsection{14.17}{\csname a:TocLink\endcsname{19}{x19-58100014.17}{QQ2-19-651}{Contextual embeddings and transformers}}{798}\relax 
+\doTocEntry\toclikesubsection{}{\csname a:TocLink\endcsname{19}{x19-582000}{QQ2-19-652}{Wrap-up}}{798}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{19}{x19-583000}{QQ2-19-653}{Where we head next.}}{802}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{19}{x19-584000}{QQ2-19-654}{References.}}{802}\relax 
+\doTocEntry\tocsection{15}{\csname a:TocLink\endcsname{20}{x20-58500015}{QQ2-20-655}{Introduction to Soft Computing}}{803}\relax 
+\doTocEntry\tocsubsection{15.1}{\csname a:TocLink\endcsname{20}{x20-58600015.1}{QQ2-20-656}{Hard Computing: The Classical Paradigm}}{809}\relax 
+\doTocEntry\tocsubsection{15.2}{\csname a:TocLink\endcsname{20}{x20-58700015.2}{QQ2-20-657}{Soft Computing: Motivation and Definition}}{810}\relax 
+\doTocEntry\tocsubsection{15.3}{\csname a:TocLink\endcsname{20}{x20-58800015.3}{QQ2-20-658}{Why Soft Computing?}}{811}\relax 
+\doTocEntry\tocsubsection{15.4}{\csname a:TocLink\endcsname{20}{x20-58900015.4}{QQ2-20-659}{Relationship Between Hard and Soft Computing}}{812}\relax 
+\doTocEntry\tocsubsection{15.5}{\csname a:TocLink\endcsname{20}{x20-59000015.5}{QQ2-20-660}{Overview of Soft Computing Constituents}}{813}\relax 
+\doTocEntry\tocsubsection{15.6}{\csname a:TocLink\endcsname{20}{x20-59100015.6}{QQ2-20-661}{Distinguishing Imprecision, Uncertainty, and Fuzziness}}{814}\relax 
+\doTocEntry\tocsubsection{15.7}{\csname a:TocLink\endcsname{20}{x20-59200015.7}{QQ2-20-662}{Soft Computing: Motivation and Overview}}{815}\relax 
+\doTocEntry\toclot{5}{\csname a:TocLink\endcsname{20}{x20-592001r5}{}{\ignorespaces Schematic: Fuzzy vs. probabilistic reasoning at a glance.}}{table}\relax 
+\doTocEntry\toclot{6}{\csname a:TocLink\endcsname{20}{x20-592002r6}{}{\ignorespaces Schematic: Boolean operators vs. fuzzy operators at a glance.}}{table}\relax 
+\doTocEntry\tocsubsection{15.8}{\csname a:TocLink\endcsname{20}{x20-59300015.8}{QQ2-20-665}{Fuzzy Logic: Capturing Human Knowledge Linguistically}}{823}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{20}{x20-594000}{QQ2-20-666}{Fuzzy Rules and Approximate Reasoning}}{823}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{20}{x20-595000}{QQ2-20-667}{Advantages over Traditional Systems}}{825}\relax 
+\doTocEntry\tocsubsection{15.9}{\csname a:TocLink\endcsname{20}{x20-59600015.9}{QQ2-20-668}{Comparison with Other Soft Computing Paradigms}}{825}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{20}{x20-597000}{QQ2-20-669}{Neural Networks}}{825}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{20}{x20-598000}{QQ2-20-670}{Genetic Algorithms}}{826}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{20}{x20-599000}{QQ2-20-671}{Probabilistic Reasoning}}{826}\relax 
+\doTocEntry\tocsubsection{15.10}{\csname a:TocLink\endcsname{20}{x20-60000015.10}{QQ2-20-672}{Zadeh's Insight and the Birth of Fuzzy Logic}}{827}\relax 
+\doTocEntry\tocsubsection{15.11}{\csname a:TocLink\endcsname{20}{x20-60100015.11}{QQ2-20-673}{Challenges in Fuzzy Logic Systems}}{827}\relax 
+\doTocEntry\tocsubsection{15.12}{\csname a:TocLink\endcsname{20}{x20-60200015.12}{QQ2-20-674}{Mathematical Languages as Foundations for Fuzzy Logic}}{828}\relax 
+\doTocEntry\tocsubsubsection{15.12.1}{\csname a:TocLink\endcsname{20}{x20-60300015.12.1}{QQ2-20-675}{Relational Algebra}}{828}\relax 
+\doTocEntry\tocsubsubsection{15.12.2}{\csname a:TocLink\endcsname{20}{x20-60400015.12.2}{QQ2-20-676}{Boolean Algebra}}{830}\relax 
+\doTocEntry\tocsubsubsection{15.12.3}{\csname a:TocLink\endcsname{20}{x20-60500015.12.3}{QQ2-20-677}{Predicate Algebra}}{831}\relax 
+\doTocEntry\tocsubsubsection{15.12.4}{\csname a:TocLink\endcsname{20}{x20-60600015.12.4}{QQ2-20-678}{Propositional Calculus}}{832}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{20}{x20-607000}{QQ2-20-679}{Modus Ponens}}{833}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{20}{x20-608000}{QQ2-20-680}{Modus Tollens}}{834}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{20}{x20-609000}{QQ2-20-681}{Hypothetical Syllogism}}{835}\relax 
+\doTocEntry\tocsubsection{15.13}{\csname a:TocLink\endcsname{20}{x20-61000015.13}{QQ2-20-682}{Fuzzy Logic as a New Mathematical Language}}{836}\relax 
+\doTocEntry\tocsubsection{15.14}{\csname a:TocLink\endcsname{20}{x20-61100015.14}{QQ2-20-683}{Fuzzy Logic: Motivation and Intuition}}{836}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{20}{x20-612000}{QQ2-20-684}{Fuzzy truth values}}{836}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{20}{x20-613000}{QQ2-20-685}{Why fuzzy logic?}}{837}\relax 
+\doTocEntry\tocsubsection{15.15}{\csname a:TocLink\endcsname{20}{x20-61400015.15}{QQ2-20-686}{From Crisp Sets to Fuzzy Sets}}{837}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{20}{x20-615000}{QQ2-20-687}{Crisp sets}}{837}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{20}{x20-616000}{QQ2-20-688}{Example:}}{838}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{20}{x20-617000}{QQ2-20-689}{Fuzzy sets}}{838}\relax 
+\doTocEntry\toclikesubsubsection{}{\csname a:TocLink\endcsname{20}{x20-618000}{QQ2-20-690}{Example: Sizes as fuzzy sets}}{839}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{20}{x20-619000}{QQ2-20-691}{Thermostat at a glance.}}{839}\relax 
+\doTocEntry\tocsubsection{15.16}{\csname a:TocLink\endcsname{20}{x20-62000015.16}{QQ2-20-692}{Wrapping Up Fuzzy Sets and Fuzzy Logic}}{843}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{20}{x20-621000}{QQ2-20-693}{Fuzzy Sets Recap}}{843}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{20}{x20-622000}{QQ2-20-694}{Universe of Discourse}}{844}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{20}{x20-623000}{QQ2-20-695}{Fuzziness and Degrees of Truth}}{844}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{20}{x20-624000}{QQ2-20-696}{Example: Height Classification}}{844}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{20}{x20-625000}{QQ2-20-697}{Fuzzy Actions and Control}}{844}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{20}{x20-626000}{QQ2-20-698}{Next Steps: Membership Functions and Fuzzy Inference Systems}}{845}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{20}{x20-627000}{QQ2-20-699}{Where we head next.}}{849}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{20}{x20-628000}{QQ2-20-700}{References.}}{849}\relax 
+\doTocEntry\tocsection{16}{\csname a:TocLink\endcsname{21}{x21-62900016}{QQ2-21-701}{Fuzzy Sets and Membership Functions: Foundations and Representations}}{850}\relax 
+\doTocEntry\tocsubsection{16.1}{\csname a:TocLink\endcsname{21}{x21-63000016.1}{QQ2-21-702}{Recap: Fuzzy Sets and the Universe of Discourse}}{857}\relax 
+\doTocEntry\tocsubsection{16.2}{\csname a:TocLink\endcsname{21}{x21-63100016.2}{QQ2-21-703}{Membership Functions: Definition and Interpretation}}{858}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{21}{x21-632000}{QQ2-21-704}{Example:}}{858}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{21}{x21-633000}{QQ2-21-705}{Mathematical Representation:}}{858}\relax 
+\doTocEntry\tocsubsection{16.3}{\csname a:TocLink\endcsname{21}{x21-63400016.3}{QQ2-21-706}{Discrete vs. Continuous Universes of Discourse}}{859}\relax 
+\doTocEntry\tocsubsubsection{16.3.1}{\csname a:TocLink\endcsname{21}{x21-63500016.3.1}{QQ2-21-707}{Discrete Universe}}{859}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{21}{x21-636000}{QQ2-21-708}{Example:}}{860}\relax 
+\doTocEntry\tocsubsubsection{16.3.2}{\csname a:TocLink\endcsname{21}{x21-63700016.3.2}{QQ2-21-709}{Continuous Universe}}{861}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{21}{x21-638000}{QQ2-21-710}{Interpretation:}}{862}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{21}{x21-639000}{QQ2-21-711}{Example:}}{862}\relax 
+\doTocEntry\tocsubsection{16.4}{\csname a:TocLink\endcsname{21}{x21-64000016.4}{QQ2-21-712}{Crisp Sets versus Fuzzy Sets}}{862}\relax 
+\doTocEntry\tocsubsection{16.5}{\csname a:TocLink\endcsname{21}{x21-64100016.5}{QQ2-21-713}{Membership Functions in Fuzzy Sets}}{863}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{21}{x21-642000}{QQ2-21-714}{Triangular Membership Function}}{863}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{21}{x21-643000}{QQ2-21-715}{Trapezoidal Membership Function}}{864}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{21}{x21-644000}{QQ2-21-716}{Gaussian Membership Function}}{865}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{21}{x21-645000}{QQ2-21-717}{Generalized Bell Membership Function}}{866}\relax 
+\doTocEntry\tocsubsection{16.6}{\csname a:TocLink\endcsname{21}{x21-64600016.6}{QQ2-21-718}{Comparison of Membership Functions}}{866}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{21}{x21-647000}{QQ2-21-719}{Example: Grading System as Fuzzy Sets}}{867}\relax 
+\doTocEntry\toclof{64}{\csname a:TocLink\endcsname{21}{x21-647001r64}{}{\ignorespaces Schematic: Trapezoidal membership functions for grades C and B with the overlapping region shaded. Scores near 78--82 partially satisfy both grade definitions.}}{figure}\relax 
+\doTocEntry\tocsubsection{16.7}{\csname a:TocLink\endcsname{21}{x21-64800016.7}{QQ2-21-721}{Example: Overlapping weight labels}}{872}\relax 
+\doTocEntry\toclof{65}{\csname a:TocLink\endcsname{21}{x21-648001r65}{}{\ignorespaces Overlapping membership functions for Small/Medium/Large labels}}{figure}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{21}{x21-649000}{QQ2-21-723}{Quick plotting snippet.}}{876}\relax 
+\doTocEntry\tocsubsection{16.8}{\csname a:TocLink\endcsname{21}{x21-65000016.8}{QQ2-21-724}{Fuzzy Sets: Core Concepts and Terminology}}{877}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{21}{x21-651000}{QQ2-21-725}{Support Set}}{877}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{21}{x21-652000}{QQ2-21-726}{Core Set}}{878}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{21}{x21-653000}{QQ2-21-727}{Normality}}{879}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{21}{x21-654000}{QQ2-21-728}{Crossover Points}}{879}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{21}{x21-655000}{QQ2-21-729}{Open and Closed Fuzzy Sets}}{879}\relax 
+\doTocEntry\tocsubsection{16.9}{\csname a:TocLink\endcsname{21}{x21-65600016.9}{QQ2-21-730}{Probability vs. Possibility}}{880}\relax 
+\doTocEntry\tocsubsection{16.10}{\csname a:TocLink\endcsname{21}{x21-65700016.10}{QQ2-21-731}{Fuzzy Set Operations}}{883}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{21}{x21-658000}{QQ2-21-732}{Union}}{883}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{21}{x21-659000}{QQ2-21-733}{Intersection}}{883}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{21}{x21-660000}{QQ2-21-734}{Complement}}{884}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{21}{x21-661000}{QQ2-21-735}{Remarks}}{885}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{21}{x21-662000}{QQ2-21-736}{Reminder on basic operators}}{886}\relax 
+\doTocEntry\tocsubsection{16.11}{\csname a:TocLink\endcsname{21}{x21-66300016.11}{QQ2-21-737}{Graphical Interpretation}}{886}\relax 
+\doTocEntry\tocsubsection{16.12}{\csname a:TocLink\endcsname{21}{x21-66400016.12}{QQ2-21-738}{Additional Fuzzy Set Operations}}{886}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{21}{x21-665000}{QQ2-21-739}{Algebraic Product}}{887}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{21}{x21-666000}{QQ2-21-740}{Scalar Multiplication}}{887}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{21}{x21-667000}{QQ2-21-741}{Algebraic Sum}}{888}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{21}{x21-668000}{QQ2-21-742}{Difference}}{888}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{21}{x21-669000}{QQ2-21-743}{Bounded Difference}}{889}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{21}{x21-670000}{QQ2-21-744}{Remarks:}}{889}\relax 
+\doTocEntry\tocsubsection{16.13}{\csname a:TocLink\endcsname{21}{x21-67100016.13}{QQ2-21-745}{Example: Union and Intersection of Fuzzy Sets}}{890}\relax 
+\doTocEntry\tocsubsection{16.14}{\csname a:TocLink\endcsname{21}{x21-67200016.14}{QQ2-21-746}{Cartesian Product of Fuzzy Sets}}{890}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{21}{x21-673000}{QQ2-21-747}{Definition:}}{890}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{21}{x21-674000}{QQ2-21-748}{Example:}}{891}\relax 
+\doTocEntry\tocsubsection{16.15}{\csname a:TocLink\endcsname{21}{x21-67500016.15}{QQ2-21-749}{Properties of Fuzzy Set Operations}}{892}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{21}{x21-676000}{QQ2-21-750}{Commutativity:}}{892}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{21}{x21-677000}{QQ2-21-751}{Associativity:}}{893}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{21}{x21-678000}{QQ2-21-752}{Distributivity:}}{893}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{21}{x21-679000}{QQ2-21-753}{Identity Elements:}}{894}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{21}{x21-680000}{QQ2-21-754}{Involution:}}{894}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{21}{x21-681000}{QQ2-21-755}{De Morgan's Laws:}}{895}\relax 
+\doTocEntry\tocsubsection{16.16}{\csname a:TocLink\endcsname{21}{x21-68200016.16}{QQ2-21-756}{Fuzzy Set Operators}}{896}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{21}{x21-683000}{QQ2-21-757}{Examples of Operators:}}{896}\relax 
+\doTocEntry\tocsubsection{16.17}{\csname a:TocLink\endcsname{21}{x21-68400016.17}{QQ2-21-758}{Complement Operators in Fuzzy Logic}}{896}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{21}{x21-685000}{QQ2-21-759}{Standard Complement}}{896}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{21}{x21-686000}{QQ2-21-760}{Parameterized Complement Operators}}{897}\relax 
+\doTocEntry\toclof{66}{\csname a:TocLink\endcsname{21}{x21-686003r66}{}{\ignorespaces Schematic: Fuzzy AND surfaces comparing minimum versus product t-{}norms; analogous OR surfaces show similar differences. Choices here influence rule aggregation in Chapter~\o:ref {chap:fuzzyinference}.}}{figure}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{21}{x21-687000}{QQ2-21-762}{Properties of Complement Operators}}{901}\relax 
+\doTocEntry\tocsubsection{16.18}{\csname a:TocLink\endcsname{21}{x21-68800016.18}{QQ2-21-763}{Triangular norms (t-{}norms)}}{901}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{21}{x21-689000}{QQ2-21-764}{Motivation}}{901}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{21}{x21-690000}{QQ2-21-765}{Definition}}{902}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{21}{x21-691000}{QQ2-21-766}{Examples of t-{}norms}}{903}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{21}{x21-692000}{QQ2-21-767}{Interpretation}}{905}\relax 
+\doTocEntry\tocsubsection{16.19}{\csname a:TocLink\endcsname{21}{x21-69300016.19}{QQ2-21-768}{Triangular conorms (t-{}conorms / s-{}norms)}}{905}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{21}{x21-694000}{QQ2-21-769}{Definition}}{905}\relax 
+\doTocEntry\tocsubsection{16.20}{\csname a:TocLink\endcsname{21}{x21-69500016.20}{QQ2-21-770}{T-Norms and S-Norms: Complementarity and Properties}}{908}\relax 
+\doTocEntry\tocsubsection{16.21}{\csname a:TocLink\endcsname{21}{x21-69600016.21}{QQ2-21-771}{Examples of common t-{}norm/s-{}norm pairs}}{910}\relax 
+\doTocEntry\tocsubsection{16.22}{\csname a:TocLink\endcsname{21}{x21-69700016.22}{QQ2-21-772}{Fuzzy Set Inclusion and Subset Relations}}{911}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{21}{x21-698000}{QQ2-21-773}{Definition (Fuzzy Subset).}}{912}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{21}{x21-699000}{QQ2-21-774}{Interpretation:}}{912}\relax 
+\doTocEntry\tocsubsection{16.23}{\csname a:TocLink\endcsname{21}{x21-70000016.23}{QQ2-21-775}{Degree of Inclusion}}{913}\relax 
+\doTocEntry\tocsubsection{16.24}{\csname a:TocLink\endcsname{21}{x21-70100016.24}{QQ2-21-776}{Set Operations and Inclusion Properties}}{914}\relax 
+\doTocEntry\tocsubsection{16.25}{\csname a:TocLink\endcsname{21}{x21-70200016.25}{QQ2-21-777}{Grades of Inclusion and Equality in Fuzzy Sets}}{915}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{21}{x21-703000}{QQ2-21-778}{Grade of Inclusion}}{915}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{21}{x21-704000}{QQ2-21-779}{Example}}{917}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{21}{x21-705000}{QQ2-21-780}{Grade of Equality}}{918}\relax 
+\doTocEntry\tocsubsection{16.26}{\csname a:TocLink\endcsname{21}{x21-70600016.26}{QQ2-21-781}{Dilation and Contraction of Fuzzy Sets}}{919}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{21}{x21-707000}{QQ2-21-782}{Motivation}}{920}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{21}{x21-708000}{QQ2-21-783}{Definitions}}{920}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{21}{x21-709000}{QQ2-21-784}{Properties}}{921}\relax 
+\doTocEntry\tocsubsection{16.27}{\csname a:TocLink\endcsname{21}{x21-71000016.27}{QQ2-21-785}{Closure of Membership Function Derivations}}{922}\relax 
+\doTocEntry\tocsubsubsection{16.27.1}{\csname a:TocLink\endcsname{21}{x21-71100016.27.1}{QQ2-21-786}{Generating New Membership Functions via Set Operations}}{922}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{21}{x21-712000}{QQ2-21-787}{Dilation (Expansion)}}{923}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{21}{x21-713000}{QQ2-21-788}{Contraction (Narrowing)}}{923}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{21}{x21-714000}{QQ2-21-789}{Complement}}{924}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{21}{x21-715000}{QQ2-21-790}{Intersection}}{924}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{21}{x21-716000}{QQ2-21-791}{Union}}{925}\relax 
+\doTocEntry\tocsubsubsection{16.27.2}{\csname a:TocLink\endcsname{21}{x21-71700016.27.2}{QQ2-21-792}{Examples of Constructed Membership Functions}}{925}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{21}{x21-718000}{QQ2-21-793}{Remark on Normality}}{927}\relax 
+\doTocEntry\tocsubsection{16.28}{\csname a:TocLink\endcsname{21}{x21-71900016.28}{QQ2-21-794}{Implications for Fuzzy Inference Systems}}{927}\relax 
+\doTocEntry\toclot{7}{\csname a:TocLink\endcsname{21}{x21-719001r7}{}{\ignorespaces Schematic: Typical operator choices in fuzzy inference and their qualitative effects. Here the t-norm implements fuzzy AND, the s-norm implements fuzzy OR, and the implication shapes consequents.}}{table}\relax 
+\doTocEntry\tocsubsection{16.29}{\csname a:TocLink\endcsname{21}{x21-72000016.29}{QQ2-21-796}{Worked Example: Mamdani Fuzzy Inference (End-to-End)}}{932}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{21}{x21-721000}{QQ2-21-797}{Universes and membership functions}}{932}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{21}{x21-722000}{QQ2-21-798}{Rule base}}{933}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{21}{x21-723000}{QQ2-21-799}{Fuzzify input and compute firing strengths}}{934}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{21}{x21-724000}{QQ2-21-800}{Defuzzification (centroid)}}{935}\relax 
+\doTocEntry\toclof{67}{\csname a:TocLink\endcsname{21}{x21-724001r67}{}{\ignorespaces Schematic: End-to-end fuzzy inference example. (A) Consequent membership functions with clipping levels from firing strengths at T = 27 deg C. (B) Aggregated output set (max of truncated consequents) and a centroid marker near s* approx 0.58.}}{figure}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{21}{x21-725000}{QQ2-21-802}{Where we head next.}}{943}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{21}{x21-726000}{QQ2-21-803}{References.}}{943}\relax 
+\doTocEntry\tocsection{17}{\csname a:TocLink\endcsname{22}{x22-72700017}{QQ2-22-804}{Fuzzy Set Transformations Between Related Universes}}{944}\relax 
+\doTocEntry\tocsubsection{17.1}{\csname a:TocLink\endcsname{22}{x22-72800017.1}{QQ2-22-805}{Context and Motivation}}{951}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{22}{x22-729000}{QQ2-22-806}{Notation.}}{951}\relax 
+\doTocEntry\tocsubsection{17.2}{\csname a:TocLink\endcsname{22}{x22-73000017.2}{QQ2-22-807}{Problem Statement}}{952}\relax 
+\doTocEntry\tocsubsection{17.3}{\csname a:TocLink\endcsname{22}{x22-73100017.3}{QQ2-22-808}{Intuition and Challenges}}{953}\relax 
+\doTocEntry\tocsubsection{17.4}{\csname a:TocLink\endcsname{22}{x22-73200017.4}{QQ2-22-809}{Formal Definition of the Transformed Membership Function}}{954}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{22}{x22-733000}{QQ2-22-810}{Remarks:}}{954}\relax 
+\doTocEntry\tocsubsection{17.5}{\csname a:TocLink\endcsname{22}{x22-73400017.5}{QQ2-22-811}{Interpretation}}{955}\relax 
+\doTocEntry\tocsubsection{17.6}{\csname a:TocLink\endcsname{22}{x22-73500017.6}{QQ2-22-812}{Example Setup}}{956}\relax 
+\doTocEntry\tocsubsection{17.7}{\csname a:TocLink\endcsname{22}{x22-73600017.7}{QQ2-22-813}{Transformation of Fuzzy Sets Between Universes}}{956}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{22}{x22-737000}{QQ2-22-814}{Example: Mapping via \( y = x^2 \)}}{957}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{22}{x22-738000}{QQ2-22-815}{Visual intuition.}}{961}\relax 
+\doTocEntry\toclof{68}{\csname a:TocLink\endcsname{22}{x22-738001r68}{}{\ignorespaces Schematic: Mapping a fuzzy set through the function ``y = x-squared''. The membership at an output value y is the supremum over all pre-images x that map to y; shared images such as x = +/-1 map to y = 1 using the maximum membership.}}{figure}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{22}{x22-739000}{QQ2-22-817}{Extension to Multiple Fuzzy Sets}}{964}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{22}{x22-740000}{QQ2-22-818}{Computing Membership Values in \( Y \)}}{965}\relax 
+\doTocEntry\tocsubsection{17.8}{\csname a:TocLink\endcsname{22}{x22-74100017.8}{QQ2-22-819}{Extension Principle Recap and Projection Operations}}{968}\relax 
+\doTocEntry\toclof{69}{\csname a:TocLink\endcsname{22}{x22-741002r69}{}{\ignorespaces Schematic: Alpha-cuts under the non-monotone map ``y = x-squared''. A symmetric triangular fuzzy set on X maps to a right-skewed fuzzy set on Y. Each alpha-cut on A splits into two intervals whose images union to the output alpha-cut.}}{figure}\relax 
+\doTocEntry\tocsubsection{17.9}{\csname a:TocLink\endcsname{22}{x22-74200017.9}{QQ2-22-821}{Projection of Fuzzy Relations}}{976}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{22}{x22-743000}{QQ2-22-822}{Cartesian Product of Fuzzy Sets}}{976}\relax 
+\doTocEntry\toclot{8}{\csname a:TocLink\endcsname{22}{x22-743002r8}{}{\ignorespaces Schematic: Popular t-{}norms and their typical roles.}}{table}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{22}{x22-744000}{QQ2-22-824}{Example}}{980}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{22}{x22-745000}{QQ2-22-825}{Projection of Fuzzy Relations}}{981}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{22}{x22-746000}{QQ2-22-826}{Definition (Projection onto $X$).}}{981}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{22}{x22-747000}{QQ2-22-827}{Definition (Projection onto $Y$).}}{981}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{22}{x22-748000}{QQ2-22-828}{Total Projection}}{982}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{22}{x22-749000}{QQ2-22-829}{Interpretation}}{983}\relax 
+\doTocEntry\toclof{70}{\csname a:TocLink\endcsname{22}{x22-749001r70}{}{\ignorespaces Schematic: Illustrative fuzzy relation table (left) together with its projections onto the error universe (middle) and the rate-of-change universe (right). These are the exact quantities used in the running thermostat example before composing rules.}}{figure}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{22}{x22-750000}{QQ2-22-831}{Example (continued)}}{986}\relax 
+\doTocEntry\tocsubsection{17.10}{\csname a:TocLink\endcsname{22}{x22-75100017.10}{QQ2-22-832}{Dimensional Extension and Projection in Fuzzy Set Operations}}{987}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{22}{x22-752000}{QQ2-22-833}{Cylindrical Extension}}{988}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{22}{x22-753000}{QQ2-22-834}{Projection}}{988}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{22}{x22-754000}{QQ2-22-835}{Example}}{989}\relax 
+\doTocEntry\tocsubsection{17.11}{\csname a:TocLink\endcsname{22}{x22-75500017.11}{QQ2-22-836}{Fuzzy Inference via Composition of Relations}}{990}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{22}{x22-756000}{QQ2-22-837}{Setup}}{990}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{22}{x22-757000}{QQ2-22-838}{Composition of Fuzzy Relations}}{991}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{22}{x22-758000}{QQ2-22-839}{Interpretation}}{991}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{22}{x22-759000}{QQ2-22-840}{Dimensional Considerations}}{992}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{22}{x22-760000}{QQ2-22-841}{Example}}{992}\relax 
+\doTocEntry\tocsubsection{17.12}{\csname a:TocLink\endcsname{22}{x22-76100017.12}{QQ2-22-842}{Recap and Motivation}}{994}\relax 
+\doTocEntry\tocsubsection{17.13}{\csname a:TocLink\endcsname{22}{x22-76200017.13}{QQ2-22-843}{Generalization of Fuzzy Relation Composition}}{995}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{22}{x22-763000}{QQ2-22-844}{Max--min Composition:}}{996}\relax 
+\doTocEntry\tocsubsection{17.14}{\csname a:TocLink\endcsname{22}{x22-76400017.14}{QQ2-22-845}{Example Calculation of Composition}}{997}\relax 
+\doTocEntry\tocsubsection{17.15}{\csname a:TocLink\endcsname{22}{x22-76500017.15}{QQ2-22-846}{Properties of Fuzzy Relation Composition}}{998}\relax 
+\doTocEntry\tocsubsection{17.16}{\csname a:TocLink\endcsname{22}{x22-76600017.16}{QQ2-22-847}{Alternative Composition Operators}}{1000}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{22}{x22-767000}{QQ2-22-848}{Where we head next.}}{1007}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{22}{x22-768000}{QQ2-22-849}{References.}}{1007}\relax 
+\doTocEntry\tocsection{18}{\csname a:TocLink\endcsname{23}{x23-76900018}{QQ2-23-850}{Fuzzy Inference Systems: Rule Composition and Output Calculation}}{1008}\relax 
+\doTocEntry\tocsubsection{18.1}{\csname a:TocLink\endcsname{23}{x23-77000018.1}{QQ2-23-851}{Context and Motivation}}{1013}\relax 
+\doTocEntry\tocsubsection{18.2}{\csname a:TocLink\endcsname{23}{x23-77100018.2}{QQ2-23-852}{Rule Antecedent Composition}}{1016}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{23}{x23-772000}{QQ2-23-853}{Membership values of antecedents:}}{1016}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{23}{x23-773000}{QQ2-23-854}{Aggregation operator:}}{1017}\relax 
+\doTocEntry\tocsubsection{18.3}{\csname a:TocLink\endcsname{23}{x23-77400018.3}{QQ2-23-855}{Rule Consequent and Output Fuzzy Set}}{1017}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{23}{x23-775000}{QQ2-23-856}{Implication operator:}}{1018}\relax 
+\doTocEntry\tocsubsection{18.4}{\csname a:TocLink\endcsname{23}{x23-77600018.4}{QQ2-23-857}{Aggregation of Multiple Rules}}{1021}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{23}{x23-777000}{QQ2-23-858}{Other aggregations}}{1021}\relax 
+\doTocEntry\tocsubsection{18.5}{\csname a:TocLink\endcsname{23}{x23-77800018.5}{QQ2-23-859}{Summary of the Fuzzy Inference Process}}{1021}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{23}{x23-779000}{QQ2-23-860}{Other defuzzifiers}}{1023}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{23}{x23-780000}{QQ2-23-861}{Zero-mass fallback}}{1023}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{23}{x23-781000}{QQ2-23-862}{Computation note}}{1023}\relax 
+\doTocEntry\tocsubsection{18.6}{\csname a:TocLink\endcsname{23}{x23-78200018.6}{QQ2-23-863}{Mamdani vs. Sugeno/Takagi--Sugeno systems}}{1029}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{23}{x23-783000}{QQ2-23-864}{Where we head next.}}{1035}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{23}{x23-784000}{QQ2-23-865}{References.}}{1035}\relax 
+\doTocEntry\tocsection{19}{\csname a:TocLink\endcsname{24}{x24-78500019}{QQ2-24-866}{Introduction to Evolutionary Computing}}{1036}\relax 
+\doTocEntry\tocsubsection{19.1}{\csname a:TocLink\endcsname{24}{x24-78600019.1}{QQ2-24-867}{Context and Motivation}}{1040}\relax 
+\doTocEntry\tocsubsection{19.2}{\csname a:TocLink\endcsname{24}{x24-78700019.2}{QQ2-24-868}{Philosophical and Historical Background}}{1040}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{24}{x24-788000}{QQ2-24-869}{Key Insight:}}{1041}\relax 
+\doTocEntry\tocsubsection{19.3}{\csname a:TocLink\endcsname{24}{x24-78900019.3}{QQ2-24-870}{Problem Setting: Optimization}}{1043}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{24}{x24-790000}{QQ2-24-871}{Challenges:}}{1043}\relax 
+\doTocEntry\tocsubsection{19.4}{\csname a:TocLink\endcsname{24}{x24-79100019.4}{QQ2-24-872}{Illustrative Example}}{1044}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{24}{x24-792000}{QQ2-24-873}{Goal:}}{1044}\relax 
+\doTocEntry\tocsubsection{19.5}{\csname a:TocLink\endcsname{24}{x24-79300019.5}{QQ2-24-874}{Why Not Brute Force?}}{1044}\relax 
+\doTocEntry\tocsubsection{19.6}{\csname a:TocLink\endcsname{24}{x24-79400019.6}{QQ2-24-875}{Summary}}{1045}\relax 
+\doTocEntry\tocsubsection{19.7}{\csname a:TocLink\endcsname{24}{x24-79500019.7}{QQ2-24-876}{Challenges in Continuous Optimization and Motivation for Evolutionary Computing}}{1046}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{24}{x24-796000}{QQ2-24-877}{Issues with Traditional Methods}}{1046}\relax 
+\doTocEntry\tocsubsection{19.8}{\csname a:TocLink\endcsname{24}{x24-79700019.8}{QQ2-24-878}{Introduction to Evolutionary Computing}}{1047}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{24}{x24-798000}{QQ2-24-879}{Key Idea}}{1047}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{24}{x24-799000}{QQ2-24-880}{Genetic Algorithms (GAs)}}{1047}\relax 
+\doTocEntry\tocsubsection{19.9}{\csname a:TocLink\endcsname{24}{x24-80000019.9}{QQ2-24-881}{Biological Inspiration: Evolutionary Concepts}}{1048}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{24}{x24-801000}{QQ2-24-882}{Chromosomes and Genes}}{1048}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{24}{x24-802000}{QQ2-24-883}{Cell Division: Mitosis vs. Meiosis}}{1048}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{24}{x24-803000}{QQ2-24-884}{Genetic Recombination and Variation}}{1048}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{24}{x24-804000}{QQ2-24-885}{Inheritance and Heredity}}{1049}\relax 
+\doTocEntry\tocsubsection{19.10}{\csname a:TocLink\endcsname{24}{x24-80500019.10}{QQ2-24-886}{Implications for Genetic Algorithms}}{1049}\relax 
+\doTocEntry\tocsubsection{19.11}{\csname a:TocLink\endcsname{24}{x24-80600019.11}{QQ2-24-887}{Summary of Biological Mechanisms Modeled in GAs}}{1050}\relax 
+\doTocEntry\tocsubsection{19.12}{\csname a:TocLink\endcsname{24}{x24-80700019.12}{QQ2-24-888}{Genetic Algorithms: Modeling Chromosomes}}{1055}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{24}{x24-808000}{QQ2-24-889}{Chromosomes as Information Carriers}}{1057}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{24}{x24-809000}{QQ2-24-890}{Inheritance and Crossover}}{1057}\relax 
+\doTocEntry\toclof{71}{\csname a:TocLink\endcsname{24}{x24-809001r71}{}{\ignorespaces Schematic: Evolutionary micro-operators. Left: fitter individuals get sampled more often (roulette/tournament). Middle: crossover splices parents by a mask (one-point shown). Right: constraint handling routes offspring through repair/penalty/feasibility before evaluation.}}{figure}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{24}{x24-810000}{QQ2-24-892}{Modeling the Genetic Operations}}{1061}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{24}{x24-811000}{QQ2-24-893}{Fitness and Selection}}{1062}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{24}{x24-812000}{QQ2-24-894}{Probabilistic Survival and Evolution}}{1063}\relax 
+\doTocEntry\tocsubsection{19.13}{\csname a:TocLink\endcsname{24}{x24-81300019.13}{QQ2-24-895}{Mapping Genetic Algorithms to Optimization Problems}}{1063}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{24}{x24-814000}{QQ2-24-896}{Key GA Components in Optimization Terms}}{1064}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{24}{x24-815000}{QQ2-24-897}{Fitness as Objective Function Proxy}}{1067}\relax 
+\doTocEntry\tocsubsection{19.14}{\csname a:TocLink\endcsname{24}{x24-81600019.14}{QQ2-24-898}{Encoding in Genetic Algorithms}}{1067}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{24}{x24-817000}{QQ2-24-899}{Genotype and Phenotype}}{1067}\relax 
+\doTocEntry\tocsubsubsection{19.14.1}{\csname a:TocLink\endcsname{24}{x24-81800019.14.1}{QQ2-24-900}{Common Encoding Schemes}}{1068}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{24}{x24-819000}{QQ2-24-901}{1. Binary Encoding}}{1068}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{24}{x24-820000}{QQ2-24-902}{2. Floating-Point Encoding}}{1069}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{24}{x24-821000}{QQ2-24-903}{3. Gray Coding}}{1069}\relax 
+\doTocEntry\tocsubsubsection{19.14.2}{\csname a:TocLink\endcsname{24}{x24-82200019.14.2}{QQ2-24-904}{Example: Binary Encoding of Parameters}}{1070}\relax 
+\doTocEntry\tocsubsubsection{19.14.3}{\csname a:TocLink\endcsname{24}{x24-82300019.14.3}{QQ2-24-905}{Example Problem: Minimization with Constraints}}{1071}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{24}{x24-824000}{QQ2-24-906}{Encoding Strategy}}{1071}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{24}{x24-825000}{QQ2-24-907}{Decoding}}{1072}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{24}{x24-826000}{QQ2-24-908}{Fitness Evaluation}}{1072}\relax 
+\doTocEntry\tocsubsection{19.15}{\csname a:TocLink\endcsname{24}{x24-82700019.15}{QQ2-24-909}{Population Initialization and Size}}{1073}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{24}{x24-828000}{QQ2-24-910}{Population Size}}{1073}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{24}{x24-829000}{QQ2-24-911}{Example}}{1073}\relax 
+\doTocEntry\tocsubsection{19.16}{\csname a:TocLink\endcsname{24}{x24-83000019.16}{QQ2-24-912}{Genetic Operators}}{1074}\relax 
+\doTocEntry\tocsubsubsection{19.16.1}{\csname a:TocLink\endcsname{24}{x24-83100019.16.1}{QQ2-24-913}{Selection}}{1074}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{24}{x24-832000}{QQ2-24-914}{Common Methods}}{1074}\relax 
+\doTocEntry\tocsubsubsection{19.16.2}{\csname a:TocLink\endcsname{24}{x24-83300019.16.2}{QQ2-24-915}{Crossover}}{1074}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{24}{x24-834000}{QQ2-24-916}{Binary Crossover}}{1075}\relax 
+\doTocEntry\tocsubsection{19.17}{\csname a:TocLink\endcsname{24}{x24-83500019.17}{QQ2-24-917}{Selection in Genetic Algorithms}}{1075}\relax 
+\doTocEntry\tocsubsubsection{19.17.1}{\csname a:TocLink\endcsname{24}{x24-83600019.17.1}{QQ2-24-918}{Fitness and Selection Probability}}{1075}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{24}{x24-837000}{QQ2-24-919}{Roulette Wheel Selection}}{1076}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{24}{x24-838000}{QQ2-24-920}{Example}}{1077}\relax 
+\doTocEntry\tocsubsubsection{19.17.2}{\csname a:TocLink\endcsname{24}{x24-83900019.17.2}{QQ2-24-921}{Ranking Selection}}{1078}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{24}{x24-840000}{QQ2-24-922}{Procedure}}{1078}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{24}{x24-841000}{QQ2-24-923}{Elitism}}{1079}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{24}{x24-842000}{QQ2-24-924}{Advantages}}{1079}\relax 
+\doTocEntry\tocsubsection{19.18}{\csname a:TocLink\endcsname{24}{x24-84300019.18}{QQ2-24-925}{Crossover Operator}}{1082}\relax 
+\doTocEntry\tocsubsubsection{19.18.1}{\csname a:TocLink\endcsname{24}{x24-84400019.18.1}{QQ2-24-926}{One-Point Crossover}}{1082}\relax 
+\doTocEntry\tocsubsection{19.19}{\csname a:TocLink\endcsname{24}{x24-84500019.19}{QQ2-24-927}{Crossover Operators in Genetic Algorithms}}{1083}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{24}{x24-846000}{QQ2-24-928}{Single-point crossover}}{1084}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{24}{x24-847000}{QQ2-24-929}{Multi-point crossover}}{1085}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{24}{x24-848000}{QQ2-24-930}{Probabilistic nature of crossover}}{1086}\relax 
+\doTocEntry\tocsubsection{19.20}{\csname a:TocLink\endcsname{24}{x24-84900019.20}{QQ2-24-931}{Mutation Operator}}{1086}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{24}{x24-850000}{QQ2-24-932}{Biological motivation}}{1087}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{24}{x24-851000}{QQ2-24-933}{Role in optimization}}{1087}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{24}{x24-852000}{QQ2-24-934}{Implementation of mutation}}{1087}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{24}{x24-853000}{QQ2-24-935}{Mutation operator formalization}}{1088}\relax 
+\doTocEntry\tocsubsection{19.21}{\csname a:TocLink\endcsname{24}{x24-85400019.21}{QQ2-24-936}{Summary of Genetic Operators and Their Probabilities}}{1088}\relax 
+\doTocEntry\tocsubsection{19.22}{\csname a:TocLink\endcsname{24}{x24-85500019.22}{QQ2-24-937}{Known Issues in Genetic Algorithms}}{1090}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{24}{x24-856000}{QQ2-24-938}{Premature Convergence}}{1090}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{24}{x24-857000}{QQ2-24-939}{Mutation Interference}}{1092}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{24}{x24-858000}{QQ2-24-940}{Deception}}{1092}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{24}{x24-859000}{QQ2-24-941}{Fitness Misinterpretation}}{1092}\relax 
+\doTocEntry\tocsubsection{19.23}{\csname a:TocLink\endcsname{24}{x24-86000019.23}{QQ2-24-942}{Convergence Criteria}}{1092}\relax 
+\doTocEntry\toclof{72}{\csname a:TocLink\endcsname{24}{x24-860001r72}{}{\ignorespaces Schematic: Illustrative GA run showing the best and mean normalized fitness over 50 generations. Flat regions motivate ``no improvement'' stopping rules, while steady separation between best and mean indicates ongoing selection pressure.}}{figure}\relax 
+\doTocEntry\tocsubsection{19.24}{\csname a:TocLink\endcsname{24}{x24-86100019.24}{QQ2-24-944}{Summary of Genetic Algorithm Workflow}}{1096}\relax 
+\doTocEntry\toclof{73}{\csname a:TocLink\endcsname{24}{x24-861009r73}{}{\ignorespaces Schematic: GA flowchart showing the iterative process: initialization leads to fitness evaluation and a termination check. If not terminated, the algorithm proceeds through selection, crossover, mutation, and replacement, which then feeds the next generation's fitness evaluation.}}{figure}\relax 
+\doTocEntry\toclot{9}{\csname a:TocLink\endcsname{24}{x24-861010r9}{}{\ignorespaces Schematic: Toy GA generation on a bounded interval. One crossover and mutation illustrate how the fitness function guides selection before the next generation.}}{table}\relax 
+\doTocEntry\tocsubsection{19.25}{\csname a:TocLink\endcsname{24}{x24-86200019.25}{QQ2-24-947}{Pseudocode Representation}}{1105}\relax 
+\doTocEntry\tocsubsection{19.26}{\csname a:TocLink\endcsname{24}{x24-86300019.26}{QQ2-24-948}{Example: GA for a Constrained Optimization Problem}}{1106}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{24}{x24-864000}{QQ2-24-949}{GA Parameters:}}{1107}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{24}{x24-865000}{QQ2-24-950}{Initialization:}}{1108}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{24}{x24-866000}{QQ2-24-951}{Fitness Evaluation:}}{1108}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{24}{x24-867000}{QQ2-24-952}{Evolutionary Cycle:}}{1108}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{24}{x24-868000}{QQ2-24-953}{Remarks:}}{1108}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{24}{x24-869000}{QQ2-24-954}{Reproducibility and fair comparison}}{1110}\relax 
+\doTocEntry\tocsubsection{19.27}{\csname a:TocLink\endcsname{24}{x24-87000019.27}{QQ2-24-955}{Genetic Algorithms: Iterative Process and Convergence}}{1111}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{24}{x24-871000}{QQ2-24-956}{Selection and Reproduction}}{1111}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{24}{x24-872000}{QQ2-24-957}{Crossover and Mutation}}{1111}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{24}{x24-873000}{QQ2-24-958}{Evolution Over Generations}}{1112}\relax 
+\doTocEntry\tocsubsection{19.28}{\csname a:TocLink\endcsname{24}{x24-87400019.28}{QQ2-24-959}{Beyond canonical GAs: real-coded strategies}}{1112}\relax 
+\doTocEntry\tocsubsection{19.29}{\csname a:TocLink\endcsname{24}{x24-87500019.29}{QQ2-24-960}{Genetic Programming (GP)}}{1113}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{24}{x24-876000}{QQ2-24-961}{Problem Setup}}{1113}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{24}{x24-877000}{QQ2-24-962}{Representation of Programs}}{1114}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{24}{x24-878000}{QQ2-24-963}{Genetic Operators in GP}}{1115}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{24}{x24-879000}{QQ2-24-964}{Fitness Evaluation}}{1115}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{24}{x24-880000}{QQ2-24-965}{Example}}{1116}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{24}{x24-881000}{QQ2-24-966}{Recursive and Modular Programs}}{1117}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{24}{x24-882000}{QQ2-24-967}{Applications}}{1117}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{24}{x24-883000}{QQ2-24-968}{Example: Robot Obstacle Avoidance}}{1117}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{24}{x24-884000}{QQ2-24-969}{Summary}}{1118}\relax 
+\doTocEntry\tocsubsection{19.30}{\csname a:TocLink\endcsname{24}{x24-88500019.30}{QQ2-24-970}{Wrapping Up Genetic Algorithms and Genetic Programming}}{1118}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{24}{x24-886000}{QQ2-24-971}{Recap of Genetic Algorithms}}{1118}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{24}{x24-887000}{QQ2-24-972}{Genetic Programming: Structure over Parameters}}{1119}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{24}{x24-888000}{QQ2-24-973}{Applications and Insights}}{1120}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{24}{x24-889000}{QQ2-24-974}{Further Topics and Extensions}}{1121}\relax 
+\doTocEntry\tocsubsection{19.31}{\csname a:TocLink\endcsname{24}{x24-89000019.31}{QQ2-24-975}{Multi-objective search and NSGA-II}}{1121}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{24}{x24-891000}{QQ2-24-976}{Metrics and variants}}{1122}\relax 
+\doTocEntry\toclof{74}{\csname a:TocLink\endcsname{24}{x24-891001r74}{}{\ignorespaces Schematic: Sample Pareto front for two objectives. NSGA-II keeps all non-dominated points (blue) while pushing dominated solutions (orange) toward the front via selection, yielding a spread of trade-offs in one run.}}{figure}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{24}{x24-892000}{QQ2-24-978}{Where we head next.}}{1129}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{24}{x24-893000}{QQ2-24-979}{References.}}{1129}\relax 
+\doTocEntry\toclikesection{}{\csname a:TocLink\endcsname{25}{x25-894000}{QQ2-25-980}{Key Takeaways}}{1130}\relax 
+\doTocEntry\tocsection{}{\csname a:TocLink\endcsname{25}{Q1-25-981}{}{Key Takeaways}}{1130}\relax 
+\doTocEntry\toclof{75}{\csname a:TocLink\endcsname{25}{x25-894020r75}{}{\ignorespaces Map of model families}}{figure}\relax 
+\doTocEntry\toclot{10}{\csname a:TocLink\endcsname{25}{x25-894021r10}{}{\ignorespaces Schematic: Big-picture view of model families across the taxonomy and learning paradigms. Each entry represents a family introduced in the book; supervision labels indicate the dominant training signal rather than strict exclusivity.}}{table}\relax 
+\doTocEntry\tocsection{A}{\csname a:TocLink\endcsname{26}{x26-895000A}{QQ2-26-984}{Linear Systems Primer}}{1155}\relax 
+\doTocEntry\toclikesubsection{}{\csname a:TocLink\endcsname{26}{x26-896000}{QQ2-26-985}{Signals and Systems}}{1155}\relax 
+\doTocEntry\toclikesubsection{}{\csname a:TocLink\endcsname{26}{x26-897000}{QQ2-26-986}{Linear Time-Invariant Systems}}{1156}\relax 
+\doTocEntry\toclikesubsection{}{\csname a:TocLink\endcsname{26}{x26-898000}{QQ2-26-987}{Impulse Response and Convolution}}{1157}\relax 
+\doTocEntry\toclikesubsection{}{\csname a:TocLink\endcsname{26}{x26-899000}{QQ2-26-988}{Frequency-Domain Representation}}{1158}\relax 
+\doTocEntry\toclikesubsection{}{\csname a:TocLink\endcsname{26}{x26-900000}{QQ2-26-989}{State-Space Models and Transfer Functions}}{1159}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{26}{x26-901000}{QQ2-26-990}{Homogeneous solution.}}{1160}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{26}{x26-902000}{QQ2-26-991}{Forced response.}}{1161}\relax 
+\doTocEntry\tocparagraph{}{\csname a:TocLink\endcsname{26}{x26-903000}{QQ2-26-992}{Transfer function.}}{1161}\relax 
+\doTocEntry\toclikesubsection{}{\csname a:TocLink\endcsname{26}{x26-904000}{QQ2-26-993}{Further Reading}}{1162}\relax 
+\doTocEntry\tocsection{B}{\csname a:TocLink\endcsname{27}{x27-905000B}{QQ2-27-994}{Kernel Methods and Support Vector Machines}}{1163}\relax 
+\doTocEntry\toclikesubsection{}{\csname a:TocLink\endcsname{27}{x27-906000}{QQ2-27-995}{Kernel trick and Gram matrices}}{1163}\relax 
+\doTocEntry\toclikesubsection{}{\csname a:TocLink\endcsname{27}{x27-907000}{QQ2-27-996}{Kernel ridge regression (KRR)}}{1164}\relax 
+\doTocEntry\toclikesubsection{}{\csname a:TocLink\endcsname{27}{x27-908000}{QQ2-27-997}{Soft-margin SVMs (primal and kernelized form)}}{1165}\relax 
+\doTocEntry\toclikesubsection{}{\csname a:TocLink\endcsname{27}{x27-909000}{QQ2-27-998}{How kernels relate to RBFNs (and when to use which)}}{1166}\relax 
+\doTocEntry\tocsection{C}{\csname a:TocLink\endcsname{28}{x28-910000C}{QQ2-28-999}{Course Logistics}}{1167}\relax 
+\doTocEntry\toclikesubsection{}{\csname a:TocLink\endcsname{28}{x28-911000}{QQ2-28-1000}{Materials}}{1167}\relax 
+\doTocEntry\toclikesubsection{}{\csname a:TocLink\endcsname{28}{x28-912000}{QQ2-28-1001}{Communication}}{1168}\relax 
+\doTocEntry\toclikesubsection{}{\csname a:TocLink\endcsname{28}{x28-913000}{QQ2-28-1002}{Assessment Overview}}{1168}\relax 
+\doTocEntry\toclikesubsection{}{\csname a:TocLink\endcsname{28}{x28-914000}{QQ2-28-1003}{Policies}}{1168}\relax 
+\doTocEntry\tocsubsection{C.1}{\csname a:TocLink\endcsname{28}{x28-915000C.1}{QQ2-28-1004}{Using this book in ECE~657}}{1168}\relax 
+\par 

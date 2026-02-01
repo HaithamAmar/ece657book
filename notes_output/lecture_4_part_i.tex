@@ -1,0 +1,889 @@
+% Chapter 7
+\section{Backpropagation Learning in Multi-Layer Perceptrons}\label{chap:backprop}
+\graphicspath{{assets/lec4/}}
+
+\begin{tcolorbox}[summarybox,title={Learning Outcomes}]
+\begin{itemize}
+    \item Derive the layerwise backpropagation recursions for arbitrary-depth MLPs.
+    \item Connect theoretical gradients to implementation details (vectorization, caching, numerical stability).
+    \item Translate training diagnostics (learning curves, early stopping) into concrete optimization policies.
+\end{itemize}
+\end{tcolorbox}
+
+Building on the two\hyp{}neuron derivation in \Cref{chap:mlp}, we now derive backpropagation as a systematic application of the chain rule to an $L$-layer network. The key idea is unchanged: compute local error terms (the \(\delta\)'s), then reuse them to obtain all weight gradients efficiently. The roadmap in \Cref{fig:roadmap} marks this chapter as the training engine for deep models.
+
+\begin{tcolorbox}[summarybox,title={Design motif}]
+Compute local error signals once, then reuse them to update every parameter efficiently. The organization (cache forward values, then sweep backward) is the algorithm.
+\end{tcolorbox}
+
+\begin{tcolorbox}[summarybox,title={Author's note: gradients move vectors, not single weights}]
+A practical MLP rarely updates one coordinate at a time; gradients are treated as full vectors so that every weight moves coherently. The backpropagation formulas derived below exist precisely to deliver those vector updates efficiently.
+\end{tcolorbox}
+
+\subsection{Context and Motivation}
+
+Recall that a single-layer perceptron has no hidden layer (just input and output), while a shallow network adds one hidden layer between them. These shallow models solve linearly separable problems but remain insufficient for more complex tasks. The multi-layer perceptron introduces multiple layers of neurons, each connected by weighted links, enabling the network to learn nonlinear decision boundaries.
+
+However, this increased complexity raises the question: \emph{How do we update the weights across multiple layers to minimize the error at the output?} Unlike the single-layer perceptron, where weight updates depend directly on the output error, in a deep network, changes in weights at one layer propagate through subsequent layers, influencing the final output in a nonlinear and intertwined manner.
+
+\subsection{Problem Setup}
+
+Consider a multi-layer perceptron with layers indexed by $l = 1, 2, \ldots, L$, where $L$ is the output layer. Each layer $l$ contains neurons indexed by $i$, and the output of neuron $i$ in layer $l$ is denoted by $a_i^{(l)}$. The input to this neuron before activation is denoted by $z_i^{(l)}$. The weights connecting neuron $i$ in layer $l-1$ to neuron $j$ in layer $l$ are denoted by $w_{ij}^{(l)}$.
+
+The forward pass through the network is given by:
+\begin{align}
+    z_j^{(l)} &= \sum_i a_i^{(l-1)} w_{ij}^{(l)} + b_j^{(l)}, \label{eq:forward_z} \\
+    a_j^{(l)} &= f\big(z_j^{(l)}\big), \label{eq:forward_a}
+\end{align}
+where $b_j^{(l)}$ is the bias term for neuron $j$ in layer $l$, and $f(\cdot)$ is the activation function, typically nonlinear (e.g., sigmoid, ReLU). \Cref{eq:forward_z} makes it explicit that we sum over every incoming neuron $i$ in layer $l-1$ to form the affine pre-activation $z_j^{(l)}$.
+
+\subsection{Loss and Objective}
+
+To keep the story linear (and aligned with \Cref{chap:mlp}), we will use a simple squared\hyp{}error objective. Let the network output be \(\mathbf{a}^{(L)}\) and let \(\mathbf{t}\) be the target (one\hyp{}hot targets for classification are fine; we do not need a separate regression/classification split yet). A standard loss is
+\begin{equation}
+    \mathcal{L} = \frac{1}{2} \sum_k \left( t_k - a_k^{(L)} \right)^2. \label{eq:error_function}
+\end{equation}
+The goal of learning is to adjust the weights \(\{w_{ij}^{(l)}\}\) to minimize \(\mathcal{L}\). Later in this chapter, we briefly note how common alternatives (notably cross\hyp{}entropy with sigmoid/softmax outputs) simplify the output\hyp{}layer error term; the backprop recursion itself does not change.
+
+\subsection{Challenges in Weight Updates}
+
+In a shallow network, weight updates can be computed directly from the output error. However, in a deep network, the output error depends on all weights in a complex way. A change in a weight in an earlier layer affects the activations of subsequent layers, ultimately influencing the output.
+
+For example, consider a weight $w_{ij}^{(l)}$ connecting neuron $i$ in layer $l-1$ to neuron $j$ in layer $l$. Changing this weight affects $z_j^{(l)}$, which affects $a_j^{(l)}$, which in turn affects all neurons in layers $l+1, l+2, \ldots, L$. Therefore, the total effect of changing $w_{ij}^{(l)}$ on the loss is a composition of many intermediate effects.
+
+\subsection{Notation for Layers and Neurons}
+
+To formalize this, we introduce the following notation:
+\begin{itemize}
+    \item $l$: layer index, with $l=0$ representing the input layer, and $l=L$ the output layer.
+    \item $i$: neuron index in layer $l-1$.
+    \item $j$: neuron index in layer $l$.
+    \item $k$: neuron index in layer $L$ (output layer).
+    \item $a_i^{(l)}$: activation of neuron $i$ in layer $l$.
+    \item $z_j^{(l)}$: weighted input to neuron $j$ in layer $l$.
+    \item $w_{ij}^{(l)}$: weight from neuron $i$ in layer $l-1$ to neuron $j$ in layer $l$.
+    \item $b_j^{(l)}$: bias of neuron $j$ in layer $l$.
+    \item $f(\cdot)$: activation function.
+\end{itemize}
+These definitions carry directly into the forward-pass recap below, where we chain the affine map and nonlinearity across layers.
+
+\subsection{Forward Pass Recap}
+
+The forward pass computes activations layer by layer:
+\begin{align}
+    z_j^{(l)} &= \sum_i a_i^{(l-1)} w_{ij}^{(l)} + b_j^{(l)}, \\
+    a_j^{(l)} &= f\big(z_j^{(l)}\big).
+\end{align}
+
+The output layer activations $a_k^{(L)}$ are compared to the
+
+\begin{tcolorbox}[summarybox,title={Mini example: two-layer backprop in practice}]
+\footnotesize
+\begin{verbatim}
+# Shapes: X in R^{B x d}, W1 in R^{d x h}, W2 in R^{h x c}
+def step(X, Y, params, eta, wd=1e-4, p_drop=0.1):
+    W1, b1, W2, b2 = params
+    B = X.shape[0]
+    # Forward pass
+    Z1 = X @ W1 + b1
+    H1 = relu(Z1)
+    mask1 = (np.random.rand(*H1.shape) > p_drop).astype(
+        H1.dtype
+    )
+    # inverted dropout
+    H1 = H1 * mask1 / (1 - p_drop)
+    Z2 = H1 @ W2 + b2
+    Yhat = softmax(Z2)
+    # Backward pass
+    delta2 = (Yhat - Y) / B            # CE output error
+    grad_W2 = H1.T @ delta2
+    grad_W2 += wd * W2              # L2 decay
+    grad_b2 = delta2.sum(axis=0)
+    delta1 = (delta2 @ W2.T) * relu_deriv(Z1)
+    # dropout backprop
+    delta1 = delta1 * mask1 / (1 - p_drop)
+    grad_W1 = X.T @ delta1
+    grad_W1 += wd * W1
+    grad_b1 = delta1.sum(axis=0)
+    # SGD step
+    return (W1 - eta * grad_W1, b1 - eta * grad_b1,
+            W2 - eta * grad_W2, b2 - eta * grad_b2)
+\end{verbatim}
+\normalsize
+The elementwise product \texttt{*} mirrors the Hadamard notation from \Crefrange{eq:forward_z}{eq:forward_a}. This miniature example bridges the algebra to vectorized code before we scale to \(L\)-layer MLPs later in the chapter.
+\end{tcolorbox}
+
+\begin{tcolorbox}[summarybox,title={Shape ledger for an $L$-layer MLP (batch size $B$)}]
+\begin{itemize}
+    \item \(A^{(l-1)}\in\mathbb{R}^{B\times n_{l-1}},\; Z^{(l)},\delta^{(l)}\in\mathbb{R}^{B\times n_l}\)
+    \item \(W^{(l)}\in\mathbb{R}^{n_{l-1}\times n_l},\; b^{(l)}\in\mathbb{R}^{n_l}\)
+    \item \(\partial L/\partial W^{(l)} = (A^{(l-1)})^\top \delta^{(l)} / B \in \mathbb{R}^{n_{l-1}\times n_l}\)
+    \item \(\partial L/\partial b^{(l)} = \mathrm{batch\_mean}(\delta^{(l)}) \in \mathbb{R}^{n_l}\)
+\end{itemize}
+Layers share this structure; convolutional/sequence models reuse the same calculus with different bookkeeping.
+\end{tcolorbox}
+
+\subsection{Backpropagation: Recursive Computation of Error Terms}
+
+Recall that our goal is to compute the gradient of the loss with respect to the weights in the network, specifically for weights connecting layer \( l \) to layer \( l+1 \). We denote the weight connecting neuron \( i \) in layer \( l \) to neuron \( j \) in layer \( l+1 \) as \( w_{ij}^{(l)} \).
+
+We will continue with the squared\hyp{}error loss from \Cref{chap:mlp}:
+\begin{equation}
+\mathcal{L} = \frac{1}{2} \sum_{k} (t_k - a_k^{(L)})^2.
+\end{equation}
+where \( t_k \) is the target output and \( a_k^{(L)} \) is the activation of output neuron \( k \). Other losses change only a few local derivatives (most notably at the output layer), but the backprop recursion and bookkeeping are the same.
+
+To update the weights using gradient descent, we need to compute
+\[
+\frac{\partial \mathcal{L}}{\partial w_{ij}^{(l)}}.
+\]
+
+\paragraph{Chain rule decomposition}
+
+By the chain rule, we have
+\begin{equation}
+\frac{\partial \mathcal{L}}{\partial w_{ij}^{(l)}} = \frac{\partial \mathcal{L}}{\partial z_j^{(l+1)}} \cdot \frac{\partial z_j^{(l+1)}}{\partial w_{ij}^{(l)}}.
+\label{eq:chain_rule_weight}
+\end{equation}
+where \( z_j^{(l+1)} \) is the weighted input to neuron \( j \) in layer \( l+1 \):
+\[
+z_j^{(l+1)} = \sum_i a_i^{(l)} w_{ij}^{(l)} + b_j^{(l+1)}.
+\]
+Here \( a_i^{(l)} \) is the activation of neuron \( i \) in layer \( l \), and \( b_j^{(l+1)} \) the bias term.
+
+Since \( z_j^{(l+1)} \) is linear in \( w_{ij}^{(l)} \), we have
+\[
+\frac{\partial z_j^{(l+1)}}{\partial w_{ij}^{(l)}} = a_i^{(l)}.
+\]
+
+Thus,
+\begin{equation}
+\frac{\partial \mathcal{L}}{\partial w_{ij}^{(l)}} = \delta_j^{(l+1)} a_i^{(l)},
+\label{eq:weight_gradient}
+\end{equation}
+where we define the \emph{error term}
+\[
+\delta_j^{(l+1)} := \frac{\partial \mathcal{L}}{\partial z_j^{(l+1)}}.
+\]
+Collecting the \(\delta_j^{(l+1)}\) for all neurons in layer \(l+1\) forms a vector \(\boldsymbol{\delta}^{(l+1)}\) with the same dimension as \(z^{(l+1)}\), ensuring the gradient \(\frac{\partial \mathcal{L}}{\partial W^{(l)}}\) has the same shape as the weight matrix.
+
+\paragraph{Interpretation of \(\delta_j^{(l+1)}\)}
+
+The term \(\delta_j^{(l+1)}\) measures how sensitive the error is to changes in the net input \( a_j^{(l+1)} \). Our task reduces to computing these \(\delta\) terms for all neurons in the network.
+
+\subsubsection{Output layer error terms}
+
+For the output layer \( L \), the activation of neuron \( k \) is
+\[
+a_k^{(L)} = f\big(z_k^{(L)}\big),
+\]
+where \(f(\cdot)\) is the activation function.
+
+The error term for output neuron \( k \) is
+\begin{align}
+\delta_k^{(L)} &= \frac{\partial \mathcal{L}}{\partial z_k^{(L)}} \\
+&= \frac{\partial \mathcal{L}}{\partial a_k^{(L)}} \frac{\partial a_k^{(L)}}{\partial z_k^{(L)}} \\
+&= \big(a_k^{(L)} - t_k\big) \, \phi'\big(z_k^{(L)}\big),
+\label{eq:delta_output}
+\end{align}
+where \(\phi'\) denotes the derivative of the activation function evaluated element-wise.
+For cross\hyp{}entropy with sigmoid/softmax output, \(\phi'\) cancels and \(\delta_k^{(L)} = a_k^{(L)}-t_k\); for MSE retain the factor above.
+
+\subsubsection{Hidden layer error terms}
+
+For a hidden neuron \( j \) in layer \( l \), the error term \(\delta_j^{(l)}\) depends on the error terms of the neurons in the next layer \( l+1 \) to which it connects. Using the chain rule,
+\begin{align}
+\delta_j^{(l)} &= \frac{\partial \mathcal{L}}{\partial z_j^{(l)}} \\
+&= \sum_{k} \frac{\partial \mathcal{L}}{\partial z_k^{(l+1)}} \frac{\partial z_k^{(l+1)}}{\partial z_j^{(l)}} \\
+&= \sum_{k} \delta_k^{(l+1)} \frac{\partial z_k^{(l+1)}}{\partial z_j^{(l)}}.
+\label{eq:delta_hidden_chain}
+\end{align}
+
+Since
+\[
+z_k^{(l+1)} = \sum_m a_m^{(l)}\,w_{mk}^{(l)} + b_k^{(l+1)},
+\]
+and \( a_j^{(l)} = \phi\big(z_j^{(l)}\big) \), we have
+\[
+\frac{\partial z_k^{(l+1)}}{\partial z_j^{(l)}} = w_{jk}^{(l)} \, \phi'\big(z_j^{(l)}\big).
+\]
+
+Substituting into \eqref{eq:delta_hidden_chain} yields
+\begin{equation}
+\delta_j^{(l)} = \phi'\big(z_j^{(l)}\big) \sum_{k} w_{jk}^{(l)} \delta_k^{(l+1)}.
+\label{eq:delta_hidden}
+\end{equation}
+
+For sigmoid activations $\phi$, the derivative simplifies to $\phi'(z_j^{(l)}) = a_j^{(l)} (1 - a_j^{(l)})$; other activations require substituting their respective derivatives in \eqref{eq:delta_hidden}.
+
+\paragraph{Summary: Backpropagation recursion}
+Backpropagation is reverse-mode automatic differentiation on the network graph. A forward pass caches intermediates; a reverse pass reuses caches to get all gradients in \(O(P)\) time (versus \(O(P^2)\) for finite differences) for \(P\) parameters. Frameworks (PyTorch/JAX/TF) automate this; the algebra below is its manual derivation.
+
+\subsection{Backpropagation Algorithm: Detailed Derivation}
+
+Recall that the goal of backpropagation is to compute the gradient of the loss with respect to each weight in the network, enabling gradient descent updates. Consider a single neuron \( k \) in the output layer with output \( o_k \) and activation \( a_k \). The target output is \( t_k \).
+
+\paragraph{Error function and its derivatives}
+
+We use the squared-error loss for a single output neuron:
+\begin{equation}
+    \mathcal{L}_{\text{SE}} = 0.5 \, (t_k - o_k)^2.
+\end{equation}
+
+Our objective is to compute \(\frac{\partial \mathcal{L}_{\text{SE}}}{\partial w_{jk}}\), where \(w_{jk}\) is the weight from neuron \(j \) in the previous layer to neuron \(k\).
+
+By the chain rule,
+\begin{equation}
+    \frac{\partial \mathcal{L}_{\text{SE}}}{\partial w_{jk}} = \frac{\partial \mathcal{L}_{\text{SE}}}{\partial o_k} \cdot \frac{\partial o_k}{\partial a_k} \cdot \frac{\partial a_k}{\partial w_{jk}}.
+    \label{eq:chain_rule}
+\end{equation}
+
+\paragraph{Step 1: Derivative of error with respect to output}
+From the squared-error definition above,
+\begin{equation}
+    \frac{\partial \mathcal{L}_{\text{SE}}}{\partial o_k} = o_k - t_k.
+    \label{eq:dE_do}
+\end{equation}
+
+\paragraph{Step 2: Derivative of output with respect to activation}
+
+Assuming the activation function \( f \) is the sigmoid,
+\[
+    o_k = f(a_k) = \frac{1}{1 + e^{-a_k}},
+\]
+its derivative is
+\begin{equation}
+    \frac{\partial o_k}{\partial a_k} = f'(a_k) = o_k (1 - o_k).
+    \label{eq:do_da}
+\end{equation}
+
+\paragraph{Step 3: Derivative of activation with respect to weight}
+
+The activation \( a_k \) is the weighted sum of inputs:
+\[
+    a_k = \sum_j w_{jk} x_j.
+\]
+Here \( x_j \) is the output from neuron \( j \) in the previous layer. Thus,
+\begin{equation}
+    \frac{\partial a_k}{\partial w_{jk}} = x_j.
+    \label{eq:da_dw}
+\end{equation}
+
+\paragraph{Putting it all together}
+
+Substituting \eqref{eq:dE_do}, \eqref{eq:do_da}, and \eqref{eq:da_dw} into \eqref{eq:chain_rule}:
+\begin{equation}
+    \frac{\partial \mathcal{L}_{\text{SE}}}{\partial w_{jk}} = (o_k - t_k) \, o_k (1 - o_k) \, x_j.
+    \label{eq:dE_dw}
+\end{equation}
+
+Define the \emph{error signal} for neuron \( k \) as
+\begin{equation}
+    \delta_k = (o_k - t_k) \, o_k (1 - o_k).
+    \label{eq:error_signal_output}
+\end{equation}
+
+Then,
+\begin{equation}
+    \frac{\partial \mathcal{L}_{\text{SE}}}{\partial w_{jk}} = \delta_k x_j.
+    \label{eq:dE_dw_delta}
+\end{equation}
+
+The gradient descent update therefore becomes
+\begin{equation}
+    \Delta w_{jk} = -\eta \, \delta_k x_j,
+    \label{eq:weight_update_output}
+\end{equation}
+where \(\eta\) is the learning rate.
+
+\subsection{Backpropagation for Hidden Layers}
+
+For neurons in hidden layers, the error signal \(\delta_j\) is computed by propagating the error backward from the next layer. Consider a hidden neuron \( j \) with pre-activation \( z_j \) and activation \( o_j = f(z_j) \). Its error signal is
+\begin{equation}
+    \delta_j = o_j (1 - o_j) \sum_k w_{jk} \delta_k,
+    \label{eq:error_signal_hidden}
+\end{equation}
+where the sum is over all neurons \( k \) in the next layer to which neuron \( j \) connects.
+
+The weight update for weights \( w_{ij} \) feeding into neuron \( j \) is then
+\begin{equation}
+    \Delta w_{ij} = -\eta \, \delta_j x_i,
+    \label{eq:weight_update_hidden}
+\end{equation}
+where \( x_i \) is the output from the previous layer neuron \( i \).
+
+\subsection{Batch and Stochastic Gradient Descent}
+
+Given a training set of \( N \) examples \(\{(x^{(n)}, t^{(n)})\}_{n=1}^N\), the weight updates can be computed in different ways:
+
+\begin{itemize}
+    \item \textbf{Batch gradient descent:} Compute the gradient over the entire dataset and update weights once per epoch:
+    \[
+        \Delta w = -\frac{\eta}{N} \sum_{n=1}^N \delta^{(n)} x^{(n)}.
+    \]
+
+    \item \textbf{Stochastic gradient descent (SGD):} Update weights after each training example using the instantaneous gradient \(-\eta \, \delta^{(n)} x^{(n)}\). Although the updates are noisy, SGD often converges faster in practice and can escape shallow local minima.
+\end{itemize}
+
+\begin{tcolorbox}[summarybox,title={Optimizer and stability notes}]
+SGD remains the backbone; momentum and Adam/AdamW from \Cref{chap:cnn} accelerate convergence. Add L2 weight decay to the gradient or decouple it (AdamW) to avoid biasing adaptive steps. For deep or ill-conditioned nets, gradient clipping can prevent explosions; for classification, pair these with cross\hyp{}entropy and the log-sum-exp stability tricks introduced alongside CNNs in \Cref{chap:cnn}. Reverse-mode AD underlies all of these updates.
+\end{tcolorbox}
+
+\begin{figure}[t]
+    \centering
+    \resizebox{\linewidth}{!}{%
+    \begin{tikzpicture}[
+        >={Stealth[round, length=2.5mm, width=1.75mm]},
+        node distance=1.2cm and 1.5cm,
+        font=\small\sffamily,
+        base/.style={draw, line width=0.9pt, rounded corners=4pt, align=center},
+        var/.style={base, circle, fill=white, draw=gray!40, minimum size=12mm, inner sep=1pt},
+        block/.style={base, rectangle, fill=cbBlue!18, draw=cbBlue!75!black, minimum height=12mm, minimum width=18mm},
+        act/.style={base, rectangle, fill=cbBlue!8, draw=cbBlue!75!black, minimum height=12mm, minimum width=18mm},
+        param/.style={base, rectangle, fill=cbGreen!18, draw=cbGreen!75!black, minimum height=10mm, minimum width=26mm},
+        loss/.style={base, rectangle, fill=cbPink!12, draw=cbPink!80!black, minimum height=12mm, minimum width=18mm},
+        fwd/.style={->, line width=1.3pt, draw=gray!55},
+        bwd/.style={->, line width=1.1pt, draw=cbOrange!85!black, dashed, rounded corners=10pt},
+        grad/.style={->, line width=1.1pt, draw=cbGreen!75!black, dashed}
+    ]
+        \node[var] (x) {$\mathbf{x}$};
+
+        \node[block, right=of x] (Z1) {$Z^{(1)}$};
+        \node[param, above=1.5cm of Z1] (W1) {$W^{(1)},\,b^{(1)}$};
+        \node[act, right=0.8cm of Z1] (A1) {$A^{(1)}$\\[-2pt]{\scriptsize $f(\cdot)$}};
+
+        \node[right=0.8cm of A1, font=\large\bfseries, text=gray!40] (dots) {$\cdots$};
+
+        \node[block, right=0.8cm of dots] (ZL) {$Z^{(L)}$};
+        \node[param, above=1.5cm of ZL] (WL) {$W^{(L)},\,b^{(L)}$};
+        \node[act, right=0.8cm of ZL] (AL) {$A^{(L)}$\\[-2pt]{\scriptsize $\sigma(\cdot)$}};
+
+        \node[loss, right=1.2cm of AL] (L) {$\mathcal{L}$};
+        \node[var, above=1.5cm of L] (t) {$t$};
+
+        % Cache box (manual corners; no fit/backgrounds/shadows libraries needed)
+        % Raise the cache-box top so the legend sits above the parameter nodes without overlap.
+        \coordinate (boxTop) at ($(W1.north)+(0,2.2cm)$);
+        \coordinate (cacheNW) at ($(Z1.west |- boxTop)+(-0.6,0)$);
+        \coordinate (cacheSE) at ($(AL.south east)+(0.6,-0.55)$);
+        % Use fill opacity so the cache box doesn't obscure the nodes (drawn after nodes).
+        \draw[draw=gray!20, dashed, rounded corners=12pt, fill=gray!5, fill opacity=0.35, draw opacity=1]
+            (cacheNW) rectangle (cacheSE);
+        \node[anchor=north east, font=\scriptsize\itshape, text=gray!60, inner sep=4pt]
+            at (cacheSE) {Forward cache};
+
+        % Legend (top-left inside cache box)
+        \node[anchor=north west, font=\scriptsize\sffamily, fill=white, draw=gray!20, rounded corners=3pt, inner sep=5pt]
+            at ($(cacheNW)+(0.25,-0.25)$) {%
+            \begin{tabular}{@{}l@{\,\,}l@{}}
+            \textcolor{gray!55}{\rule{6mm}{1.5pt}} & Forward \\
+            \textcolor{cbOrange!85!black}{\rule[2pt]{6mm}{1.5pt}} & Backprop ($\delta$) \\
+            \textcolor{cbGreen!75!black}{\rule[2pt]{6mm}{1.5pt}} & Grads ($\nabla$) \\
+            \end{tabular}
+        };
+
+        % Forward pass
+        \draw[fwd] (x) -- (Z1);
+        \draw[fwd] (W1) -- (Z1);
+        \draw[fwd] (Z1) -- (A1);
+        \draw[fwd] (A1) -- (dots);
+        \draw[fwd] (dots) -- (ZL);
+        \draw[fwd] (WL) -- (ZL);
+        \draw[fwd] (ZL) -- (AL);
+        \draw[fwd] (AL) -- (L);
+        \draw[fwd] (t) -- (L);
+
+        % Backward pass
+        \draw[bwd] (L.south) |- ++(0,-1.3) -|
+            node[pos=0.25, below, font=\scriptsize] {$\frac{\partial \mathcal{L}}{\partial A^{(L)}}$} (AL.south);
+        \draw[bwd] (AL.south) |- ++(0,-1.3) -|
+            node[pos=0.25, below, font=\scriptsize] {$\delta^{(L)}$} (ZL.south);
+        \draw[bwd] (ZL.south) |- ++(0,-1.3) -|
+            node[pos=0.5, below, font=\scriptsize, fill=white, inner sep=3pt] {chain rule via $W^\top, f'$} (Z1.south);
+        \node[font=\scriptsize, text=cbOrange!85!black, below=0.1cm of Z1.south, xshift=0.4cm, yshift=-0.5cm] {$\delta^{(1)}$};
+
+        % Gradient extraction (curved to avoid overlaps)
+        \draw[grad] (ZL.north) to[bend right=45]
+            node[midway, right, font=\tiny, text=cbGreen!75!black, align=left, xshift=2pt]
+            {$\nabla_{W^{(L)}}$\\$\nabla_{b^{(L)}}$} (WL.south);
+        \draw[grad] (Z1.north) to[bend right=45]
+            node[midway, right, font=\tiny, text=cbGreen!75!black, align=left, xshift=2pt]
+            {$\nabla_{W^{(1)}}$\\$\nabla_{b^{(1)}}$} (W1.south);
+    \end{tikzpicture}%
+    }
+    % Avoid dense inline math in captions; it wraps poorly in EPUB renderers.
+    \caption[Computational graph for backpropagation (reverse-mode AD)]{Schematic: Computational graph for a feedforward network. Backpropagation is reverse-mode AD: the forward sweep caches intermediate values; the reverse sweep propagates error signals (deltas) and accumulates gradients for weights and biases from those cached values.}
+    \label{fig:backprop-computational-graph}
+\end{figure}
+
+\begin{tcolorbox}[summarybox,title={Debugging and gradient-check checklist}]
+\begin{itemize}
+    \item \textbf{Overfit a tiny batch:} Ensure the loss can be driven near zero on a handful of samples.
+    \item \textbf{Gradient norms:} Track \(\|\nabla W^{(l)}\|\) per layer; look for dead layers (all zeros) or explosions.
+    \item \textbf{Finite-difference check:} Compare analytic gradients to numerical finite differences on a tiny network with fixed seeds; relative error should be \(<10^{-6}\).
+    \item \textbf{Shape assertions:} Verify that \(Z^{(l)},A^{(l)},\delta^{(l)}\) have the expected batch shapes and that bias broadcasts correctly.
+    \item \textbf{Layerwise sanity:} For a one-layer linear model, backprop gradients should match the closed-form linear-regression gradients.
+\end{itemize}
+\end{tcolorbox}
+
+\subsection{Backpropagation Algorithm: Brief Numerical Check}
+
+For a quick sanity check, take a tiny 2--2--1 network with sigmoid output and cross\hyp{}entropy loss. Using
+\begin{align*}
+W^{(1)}&=\begin{bmatrix}0.5&-0.3\\0.8&0.2\end{bmatrix},\quad b^{(1)}=[0.1,-0.2],\\
+W^{(2)}&=\begin{bmatrix}0.7\\-0.4\end{bmatrix},\quad b^{(2)}=0.05,\\
+\mathbf{x}&=[0.6,-1.2],\quad t=1,
+\end{align*}
+the forward pass yields
+\[
+z^{(1)}=[-0.56,-0.62],\quad
+a^{(1)}=[0.3635,0.3498],\quad
+z^{(2)}=0.1646,\quad
+a^{(2)}=0.5411,
+\]
+with loss \(\mathcal{L}\approx 0.6142\). The cross\hyp{}entropy output error is \(\delta^{(2)}=a^{(2)}-t=-0.4590\). Backpropagating gives
+\[
+\delta^{(1)}=[-0.0743,0.0418],\quad
+\nabla_{W^{(2)}}=[-0.1669,-0.1605]^\top,\quad
+\nabla_{b^{(2)}}=-0.4590,
+\]
+and
+\[
+\nabla_{W^{(1)}}=
+\begin{bmatrix}
+-0.0446&0.0251\\
+0.0892&-0.0501
+\end{bmatrix},\quad
+\nabla_{b^{(1)}}=[-0.0743,0.0418].
+\]
+Finite-difference checks on the same network match to numerical precision, validating the implementation.
+
+\paragraph{Aside: squared-error loss (alternative)}
+
+The remainder of this subsection sketches the classic squared-error backprop derivation as a separate reminder; it is \emph{not} a continuation of the cross\hyp{}entropy numerical check above.
+
+The error at the output neuron is:
+\begin{equation}
+    e = y - t,
+\end{equation}
+and the squared error is:
+\begin{equation}
+    \mathcal{L}_{\text{SE}} = \frac{1}{2} e^2.
+\end{equation}
+
+\paragraph{Backward Propagation of Error}
+
+Define the error term \(\delta_j\) for each neuron \( j \) as:
+\begin{equation}
+    \delta_j = e_j \sigma'(net_j),
+\end{equation}
+where \( e_j \) is the error at neuron \( j \), and
+\[
+\sigma'(z) = \sigma(z)(1 - \sigma(z)).
+\]
+is the derivative of the sigmoid function.
+
+For the output neuron:
+\[
+\delta_{\text{out}} = (y_{\text{out}} - t) \, y_{\text{out}} (1 - y_{\text{out}}).
+\]
+
+For hidden neurons, the error term is computed by backpropagating the weighted sum of the downstream error terms:
+\begin{equation}
+    \delta_j = y_j (1 - y_j) \sum_{k} w_{kj} \, \delta_k,
+\end{equation}
+where the sum is over neurons \( k \) in the next layer and \( w_{kj} \) denotes the weight from neuron \( j \) to neuron \( k \).
+
+\paragraph{Weight Update Rule}
+
+Weights are updated using gradient descent with momentum:
+\begin{equation}
+    \Delta w_{ij}(n) = -\eta \, \delta_j x_i + \gamma \Delta w_{ij}(n-1),
+    \label{eq:weight_update}
+\end{equation}
+where
+\begin{itemize}
+    \item \(\eta\) is the learning rate,
+    \item \(\gamma\) is the momentum coefficient (typically \(0 \leq \gamma < 1\)),
+    \item \(\Delta w_{ij}(n-1)\) is the previous weight change,
+    \item \(n\) indexes the update step (e.g., the current training example in stochastic gradient descent).
+\end{itemize}
+The leading negative sign ensures that the update follows the negative gradient direction because each \(\delta_j\) equals \(\partial \mathcal{L}_{\text{SE}} / \partial z_j\).
+
+The new weight is then:
+\[
+w_{ij}(n) = w_{ij}(n-1) + \Delta w_{ij}(n).
+\]
+
+\paragraph{Interpretation of Learning Rate and Momentum}
+
+\begin{itemize}
+    \item The \textbf{learning rate} \(\eta\) controls the step size in the weight update. A small \(\eta\) leads to slow convergence, while a large \(\eta\) can cause oscillations or divergence.
+    \item The \textbf{momentum} term \(\gamma\) helps smooth the updates by incorporating a fraction of the previous weight change, reducing oscillations and potentially accelerating convergence.
+\end{itemize}
+
+\paragraph{Step-by-Step Example}
+
+\begin{enumerate}
+    \item \textbf{Initialization:} Draw weights \( w_{ij}\sim \mathcal{N}(0,\sigma^2)\) with \(\sigma\) set by He/Xavier rules; set biases to zero and \(\Delta w_{ij}(0) = 0\).
+    \item \textbf{Feedforward:} Compute \( net_j \) and \( y_j \) for all neurons.
+    \item \textbf{Compute output error:} Calculate \( \delta_{out} \).
+    \item \textbf{Backpropagate error:} Compute \(\delta_j\) for hidden neurons.
+    \item \textbf{Update weights:} Use equation \eqref{eq:weight_update} to update all weights.
+    \item \textbf{Repeat:} Iterate over all training patterns until error \( E \) is below threshold or maximum epochs reached.
+\end{enumerate}
+
+\begin{tcolorbox}[summarybox,title={Mini\hyp{}batch backprop with explicit regularization}]
+\textbf{Inputs:} mini\hyp{}batch \(\{\mathbf{x}_b,\mathbf{t}_b\}_{b=1}^B\), learning rate \(\eta\), L2 coefficient \(\lambda\), dropout keep probability \(q=1-p\).
+\begin{enumerate}[leftmargin=*]
+    \item \textbf{Forward pass:} propagate activations layer by layer; for each hidden layer draw a dropout mask \(\mathbf{m}\sim \operatorname{Bernoulli}(q)\), apply \(\tilde{\mathbf{a}}=\mathbf{m}\odot \mathbf{a}/q\), and cache \(\mathbf{m}\) for the backward step.
+    \item \textbf{Backward pass:} compute \(\nabla_{W^{(\ell)}} \mathcal{L}\) using the cached activations/masks so that dropped units contribute zero gradient.
+    \item \textbf{Update block (per layer):}
+    \[
+        \mathbf{g}_\ell = \frac{1}{B}\nabla_{W^{(\ell)}} \mathcal{L} + \lambda W^{(\ell)}, \qquad
+        W^{(\ell)} \leftarrow W^{(\ell)} - \eta\, \mathbf{g}_\ell.
+    \]
+    Biases skip the weight-decay term. With Adam/SGD+momentum, \(\mathbf{g}_\ell\) replaces the raw gradient inside the optimizer step so L2 regularization and dropout are always enforced explicitly.
+\end{enumerate}
+\end{tcolorbox}
+
+\paragraph{Remarks}
+
+\begin{itemize}
+    \item Monitor the training error over epochs; a plateau may indicate the need to adjust learning rate or introduce regularization.
+    \item Shuffle training patterns between epochs when using SGD to avoid cyclic behaviors.
+    \item Always track validation error to detect overfitting and decide when to stop training.
+\end{itemize}
+
+\subsection{Training Procedure and Epochs in Multi-Layer Perceptrons}
+
+Recall that during training of a multi-layer perceptron (MLP), we iteratively update the weights based on each training pattern. The process for one epoch can be summarized as follows:
+
+\begin{enumerate}
+    \item Present the first input pattern to the network.
+    \item Perform a forward pass to compute the output.
+    \item Calculate the error between the actual output and the desired output.
+    \item Use backpropagation to compute the gradients and update the weights accordingly.
+    \item Repeat steps 1--4 for all training patterns.
+\end{enumerate}
+
+After completing one epoch (i.e., one full pass through all training patterns), we evaluate the overall error. If the error is greater than a predefined tolerance, we continue training for additional epochs until the error converges below the threshold or a maximum number of epochs is reached.
+
+\paragraph{Remarks:}
+\begin{itemize}
+    \item The weight updates after each pattern are typically small adjustments aimed at reducing the error.
+    \item The initial weights strongly influence the convergence behavior and final solution.
+    \item This iterative process is computationally intensive but essential for learning complex mappings.
+\end{itemize}
+
+\subsection{Role and Design of Hidden Layers}
+
+In an MLP, the architecture consists of an input layer, one or more hidden layers, and an output layer. The hidden layers are crucial because they enable the network to learn nonlinear mappings.
+
+\paragraph{Key Questions Regarding Hidden Layers:}
+\begin{itemize}
+    \item \textbf{How many hidden layers should be used?} There is no fixed rule; it depends on the complexity of the problem.
+    \item \textbf{How many neurons per hidden layer?} This choice affects the network's capacity and generalization ability.
+    \item \textbf{What activation functions to use in each layer?} Different layers can use different activation functions, such as sigmoid, ReLU, or tanh.
+\end{itemize}
+
+\paragraph{Design Considerations:}
+\begin{itemize}
+    \item \textbf{Number of neurons:} More neurons increase the capacity to learn complex functions but also increase the risk of overfitting and computational cost.
+    \item \textbf{Number of layers:} Deeper networks can represent more complex functions but are harder to train.
+    \item \textbf{Activation functions:} Choice affects gradient flow and convergence.
+\end{itemize}
+
+Ultimately, these design choices are made by the practitioner based on experimentation, domain knowledge, and validation performance.
+
+\paragraph{Trade-offs:}
+\begin{itemize}
+    \item \textbf{Too many neurons/layers:} Requires more training data to avoid overfitting; increases computational burden.
+    \item \textbf{Too few neurons/layers:} Limits the network's ability to approximate complex functions.
+\end{itemize}
+
+\subsection{Case Study: Learning the Function \texorpdfstring{\( y = x \sin x \)}{y = x sin x}}
+
+Consider the problem of training an MLP to approximate the function
+\[
+y = x \sin x.
+\]
+
+\paragraph{Setup:}
+\begin{itemize}
+    \item Generate a dataset of input-output pairs \(\{(x_i, y_i)\}\) where \(y_i = x_i \sin x_i\).
+    \item Use this dataset to train an MLP regressor.
+    \item Evaluate the network's ability to generalize by testing on inputs not seen during training.
+\end{itemize}
+
+\paragraph{Questions to Explore:}
+\begin{itemize}
+    \item How many hidden layers and neurons per layer are needed to approximate this nonlinear function well?
+    \item What activation functions yield better performance?
+    \item How does the size of the training set affect generalization?
+\end{itemize}
+
+\paragraph{Remarks:}
+\begin{itemize}
+    \item This is a regression problem, not a classification problem.
+    \item The function is nonlinear and periodic, which challenges the network's approximation capabilities.
+    \item Experimentation with different architectures and hyperparameters is essential.
+\end{itemize}
+
+As a representative example (illustrative; depends on initialization and the training recipe), a two-hidden-layer MLP with widths $[64, 32]$, ReLU activations, Adam optimization, and early stopping on a validation split can achieve mean absolute error on the order of $10^{-3}$ on held-out samples when trained on 2{,}000 uniformly spaced points in $[-3\pi, 3\pi]$.
+
+\subsection{Applications of Multi-Layer Perceptrons}
+
+Multi-layer perceptrons have found widespread applications across various domains due to their ability to approximate complex nonlinear functions. Some notable applications include:
+
+\begin{itemize}
+    \item \textbf{Signal processing:} Noise reduction, filtering, and feature extraction.
+    \item \textbf{Weather forecasting:} Modeling complex atmospheric patterns.
+    \item \textbf{Data compression:} Dimensionality reduction and encoding.
+    \item \textbf{Pattern recognition:} Handwriting recognition, face detection.
+    \item \textbf{Financial market prediction:} Time series forecasting and anomaly detection.
+    \item \textbf{Image recognition:} Object detection and classification.
+    \item \textbf{Voice recognition:} Speech-to-text and speaker identification.
+\end{itemize}
+
+\paragraph{Summary:} MLPs are versatile and powerful tools that serve as foundational building blocks in many machine learning systems.
+
+\subsection{Limitations of Multi-Layer Perceptrons}
+
+Despite their versatility, MLPs have several limitations that practitioners must be aware of:
+
+\begin{itemize}
+\item \textbf{Convergence to local minima:} Due to the non-convex nature of the loss surface, training may converge to different local minima depending on the initial weights.
+    \item \textbf{Sensitivity to initialization:} Different random initializations can lead to significantly different outcomes.
+    \item \textbf{Hyperparameter tuning:} Learning rates, momentum, and regularization require careful tuning for stable convergence.
+\end{itemize}
+
+\subsection{Conclusion of Multi-Layer Perceptron Derivations}
+
+In this final segment of the chapter, we complete the derivations and discussions related to the multi-layer perceptron (MLP) and its learning algorithm, backpropagation.
+
+Recall that the MLP consists of multiple layers of neurons, each performing an affine transformation followed by a nonlinear activation. The key to training the MLP is to minimize a loss \(\mathcal{L}\) defined over outputs and targets.
+
+\paragraph{Backpropagation Algorithm Recap}
+
+The backpropagation algorithm efficiently computes the gradient of the loss function with respect to all network parameters by applying the chain rule of calculus through the network layers. For a network with \( L \) layers, denote by:
+\[
+Z^{(l)} = A^{(l-1)}W^{(l)} + \mathbf{1}(b^{(l)})^\top,\quad A^{(l)} = \phi^{(l)}(Z^{(l)}),
+\]
+where \(W^{(l)}\) and \(b^{(l)}\) are the weights and biases of layer \( l \), \(A^{(l-1)}\) is the previous layer activation (rows are samples), and \(\phi^{(l)}\) is the activation function.
+
+The error term at layer \( l \) is defined as:
+\[
+\delta^{(l)} = \frac{\partial \mathcal{L}}{\partial Z^{(l)}}.
+\]
+
+Using the chain rule, the error terms propagate backward as:
+\begin{align}
+\delta^{(L)} &= \nabla_{A^{(L)}} \mathcal{L} \odot \phi^{(L)\prime}(Z^{(L)}), \\
+\delta^{(l-1)} &= \left(\delta^{(l)}(W^{(l)})^\top\right) \odot \phi^{(l-1)\prime}(Z^{(l-1)}), \quad l = L, \ldots, 2,
+\end{align}
+where \(\odot\) denotes element-wise multiplication and \(\phi^{(l)\prime}\) is the derivative of the activation function at layer \( l \).
+
+The gradients of the loss with respect to the parameters are then:
+\begin{align}
+\frac{\partial \mathcal{L}}{\partial W^{(l)}} &= (A^{(l-1)})^\top \delta^{(l)}, \label{eq:grad_W}\\
+\frac{\partial \mathcal{L}}{\partial b^{(l)}} &= \mathbf{1}^\top \delta^{(l)}. \label{eq:grad_b}
+\end{align}
+
+These gradients are used in gradient-based optimization methods (e.g., stochastic gradient descent) to update the parameters and minimize the loss. \Cref{fig:lec4_backprop_flow} complements the algebra by showing how cached activations (blue) line up with the backward error signals (orange) in a simple two-layer network.
+
+\begin{figure}[h]
+    \centering
+    \ifdefined\HCode
+    % EPUB/HTML: use a simplified version of the original "wide" diagram, but with
+    % fewer colors and without tiny per-edge weight labels (which rasterize poorly).
+    \begin{tikzpicture}[
+        >=Stealth,
+        font=\small\sffamily,
+        node/.style={circle, draw=black!50, line width=0.9pt, minimum size=12mm, fill=white},
+        fwd/.style={->, line width=1.4pt, draw=cbBlue!80!black},
+        bwd/.style={->, line width=1.4pt, draw=black!55, dashed},
+        lbl/.style={font=\footnotesize\sffamily, text=black!70},
+        background rectangle/.style={fill=white}, show background rectangle
+    ]
+
+        % Forward nodes (inputs -> hidden -> output)
+        % Shift right to leave a clean legend margin on the left.
+        \node[node] (x1) at (0.8,0.9) {$x_1$};
+        \node[node] (x2) at (0.8,-0.9) {$x_2$};
+        \node[node] (h1) at (2.6,0.9) {$a_1^{(1)}$};
+        \node[node] (h2) at (2.6,-0.9) {$a_2^{(1)}$};
+        \node[node] (y)  at (5.2,0) {$a^{(2)}$};
+
+        % Forward connections (no per-edge weights in EPUB)
+        \draw[fwd] (x1) -- (h1);
+        \draw[fwd] (x1) -- (h2);
+        \draw[fwd] (x2) -- (h1);
+        \draw[fwd] (x2) -- (h2);
+        \draw[fwd] (h1) -- (y);
+        \draw[fwd] (h2) -- (y);
+
+        % Backward/error signals (labels placed away from nodes to avoid overlap)
+        \node[lbl, anchor=west] (d2) at ($(y)+(0.9,1.05)$) {$\boldsymbol{\delta}^{(2)}$};
+        \node[lbl, anchor=west] (d1) at ($(y)+(0.9,-1.3)$) {$\boldsymbol{\delta}^{(1)}_1$};
+        \node[lbl, anchor=west] (d0) at ($(y)+(0.9,-2.1)$) {$\boldsymbol{\delta}^{(1)}_2$};
+
+        \draw[bwd] ($(y)+(0,0.55)$) -- (d2);
+        \draw[bwd] ($(y)+(-0.1,-0.2)$) .. controls (5.0,-0.85) and (4.6,-1.1) .. (d1);
+        \draw[bwd] ($(y)+(-0.1,-0.2)$) .. controls (5.0,-1.25) and (4.6,-1.65) .. (d0);
+
+        % No in-figure legend for EPUB: small labels tend to overlap after rasterization.
+        % The caption explains the color/linestyle mapping instead.
+    \end{tikzpicture}
+    \else
+    \begin{tikzpicture}[
+        >=Stealth,
+        font=\small\sffamily,
+        node distance=1.55cm and 2.0cm,
+        var/.style={circle, draw=gray!60, line width=0.7pt, minimum size=10mm, fill=cbBlue!12, inner sep=0pt},
+        hnode/.style={circle, draw=gray!60, line width=0.7pt, minimum size=10mm, fill=cbGreen!12, inner sep=0pt},
+        outnode/.style={circle, draw=gray!60, line width=0.7pt, minimum size=10.5mm, fill=cbPink!15, inner sep=0pt},
+        fwd/.style={->, line width=1.0pt, draw=cbBlue!80!black},
+        bwd/.style={->, line width=1.0pt, draw=cbOrange!85!black, dashed},
+        wlab/.style={font=\scriptsize, text=cbBlue!80!black},
+        dlab/.style={font=\scriptsize, text=cbOrange!85!black}
+    ]
+        \node[var] (x1) {\(x_1\)};
+        \node[var,below=0.9cm of x1] (x2) {\(x_2\)};
+        \node[hnode,right=2.1cm of x1] (h1) {\(a_1^{(1)}\)};
+        \node[hnode,below=0.9cm of h1] (h2) {\(a_2^{(1)}\)};
+        \node[outnode,right=2.2cm of h1] (y) {\(a^{(2)}\)};
+
+        \draw[fwd] (x1) -- node[above,sloped, wlab]{\(w_{11}^{(1)}\)} (h1);
+        \draw[fwd] (x1) -- node[above,sloped, wlab]{\(w_{21}^{(1)}\)} (h2);
+        \draw[fwd] (x2) -- node[below,sloped, wlab]{\(w_{12}^{(1)}\)} (h1);
+        \draw[fwd] (x2) -- node[below,sloped, wlab]{\(w_{22}^{(1)}\)} (h2);
+        \draw[fwd] (h1) -- node[above, wlab]{\(w_{1}^{(2)}\)} (y);
+        \draw[fwd] (h2) -- node[below, wlab]{\(w_{2}^{(2)}\)} (y);
+
+        \draw[bwd] (y) -- ++(0,1.2) node[right, xshift=0.1cm, dlab]{\(\delta^{(2)}\)};
+        \draw[bwd] (h1) -- ++(0,-1.2) node[right, xshift=0.1cm, dlab]{\(\delta_1^{(1)}\)};
+        \draw[bwd] (h2) -- ++(0,-1.2) node[right, xshift=0.1cm, dlab]{\(\delta_2^{(1)}\)};
+
+        % Keep legend labels *inside* the diagram bounds; otherwise rasterizers can clip them.
+        \path (current bounding box.north west) ++(2mm,-2mm)
+            node[anchor=north west, font=\scriptsize, text=cbBlue!80!black] {forward};
+        \path (current bounding box.north west) ++(2mm,-7mm)
+            node[anchor=north west, font=\scriptsize, text=cbOrange!85!black] {backward};
+    \end{tikzpicture}
+    \fi
+    % Avoid inline math in captions; it wraps poorly in some EPUB renderers.
+    \caption{Schematic: Forward (blue) and backward (orange) flows for a two-layer MLP. The cached activations and the layerwise error terms (deltas) are exactly the quantities carried along these arrows; backward signals are computed with the next-layer weights and the activation derivative.}
+    \label{fig:lec4_backprop_flow}
+\end{figure}
+
+\paragraph{Example Execution}
+
+An example was provided illustrating the forward pass computation of activations and the backward pass calculation of gradients for a simple MLP with one hidden layer. This example concretely demonstrated how the chain rule is applied layer-by-layer and how the error signals are propagated backward.
+
+\paragraph{Remarks on Convergence and Practical Considerations}
+
+While the backpropagation algorithm provides the exact gradients for the MLP, practical training involves additional considerations such as:
+\begin{itemize}
+    \item Initialization of weights to avoid vanishing or exploding gradients.
+    \item Choice of activation functions (e.g., ReLU, sigmoid, tanh) affecting gradient flow.
+    \item Regularization techniques (dropout, weight decay) to prevent overfitting.
+    \item Optimization algorithms (momentum, Adam) to accelerate convergence.
+\end{itemize}
+
+These topics will be explored in subsequent chapters; for now, we compare the canonical activation choices in one place.
+
+\paragraph{Comparing canonical nonlinearities}
+
+With the full MLP and backpropagation machinery in place, it is useful to compare the most common nonlinearities side-by-side. \Cref{fig:lec4-activations} overlays the step, sigmoid, tanh, and ReLU curves so the saturation regions and derivative behavior are visually apparent before we move on to deeper architectures.
+
+\begin{figure}[t]
+    \centering
+\begin{tikzpicture}[background rectangle/.style={fill=white}, show background rectangle]
+        \begin{groupplot}[
+            group style={group size=2 by 2, horizontal sep=1.2cm, vertical sep=1.0cm},
+            width=0.42\linewidth,
+            height=0.30\linewidth,
+            axis lines=middle,
+            xmin=-3, xmax=3,
+            samples=200,
+            tick label style={font=\scriptsize},
+            label style={font=\scriptsize},
+            title style={font=\scriptsize, align=center},
+            axis background/.style={fill=white},
+        ]
+        \nextgroupplot[
+            title={Step},
+            ymin=-0.1, ymax=1.1,
+            ytick={0,1},
+        ]
+            \addplot[cbBlue, thick, domain=-3:0] {0};
+            \addplot[cbBlue, thick, domain=0:3] {1};
+            \addplot[cbBlue, dashed, domain=-3:3] {0};
+        \nextgroupplot[
+            title={Sigmoid},
+            xmin=-4, xmax=4,
+            ymin=-0.1, ymax=1.1,
+            ytick={0,0.5,1},
+        ]
+            \addplot[cbOrange, thick, domain=-4:4] {1/(1+exp(-x))};
+            \addplot[cbOrange, dashed, domain=-4:4] {1/(1+exp(-x))*(1-1/(1+exp(-x)))};
+        \nextgroupplot[
+            title={tanh},
+            ymin=-1.1, ymax=1.1,
+            ytick={-1,0,1},
+        ]
+            \addplot[cbGreen, thick, domain=-3:3] {tanh(x)};
+            \addplot[cbGreen, dashed, domain=-3:3] {1 - tanh(x)^2};
+        \nextgroupplot[
+            title={ReLU},
+            ymin=-0.2, ymax=2.2,
+            ytick={0,1,2},
+        ]
+            \addplot[cbPink, thick, domain=-3:0] {0};
+            \addplot[cbPink, thick, domain=0:3] {x};
+            \addplot[cbPink, dashed, domain=-3:0] {0};
+            \addplot[cbPink, dashed, domain=0:3] {1};
+        \end{groupplot}
+    \ensuretikzbackgroundlayers
+\end{tikzpicture}
+    % Avoid inline math in captions; it wraps poorly in some EPUB renderers.
+    \caption{Schematic: Canonical activation functions on a common axis. Solid curves show the activation; dashed curves show its derivative.}
+    \label{fig:lec4-activations}
+\end{figure}
+
+For reference, \(\sigma'(z)=\sigma(z)\bigl(1-\sigma(z)\bigr)\), \(\tanh'(z)=1-\tanh^2(z)\), and the ReLU derivative is \(0\) for negative inputs and \(1\) for positive inputs (take \(0\) at the origin).
+
+\paragraph{Trade-offs}
+While some activation functions are inspired by biological neurons, others are chosen for mathematical convenience and training efficiency. Sigmoid and tanh saturate at large magnitude inputs, which slows gradients in deep networks. ReLU avoids saturation on the positive side but can produce ``dying ReLUs'' when biases push units negative and the gradients become zero; if many units stall, use He initialization, reduce the learning rate, or swap to a leaky ReLU with a small negative slope (e.g., 0.01).
+This closes the core backpropagation story for MLPs. Next we summarize practical stability considerations and the key takeaways that guide real training.
+
+    \begin{tcolorbox}[summarybox,title={Key takeaways}]
+    \begin{itemize}
+        \item MLP training relies on stable optimization: proper initialization, learning\hyp{}rate schedules, and normalization help.
+        \item Regularization (weight decay, dropout) reduces overfitting; validation curves guide early stopping.
+        \item Despite power, MLPs face local minima and sensitivity to hyperparameters.
+    \end{itemize}
+    \end{tcolorbox}
+
+    \begin{tcolorbox}[summarybox,title={Practical early stopping and checkpointing}]
+    \begin{itemize}
+        \item Maintain a validation split distinct from the training mini\hyp{}batches. After each epoch, record the validation loss \(L_{\text{val}}^{(e)}\).
+        \item Stop training when \(L_{\text{val}}\) has not improved for \(k\) consecutive epochs (typical patience \(k \in [5,10]\)). Optionally require a minimum relative improvement (e.g., \(0.1\%\)) to smooth noise.
+    \item Always checkpoint the parameters that achieved the best validation score and restore them before testing; averaging the last \(m\) checkpoints (``Polyak averaging'') can further stabilize performance.
+\end{itemize}
+\end{tcolorbox}
+
+\begin{tcolorbox}[summarybox,title={Exercises and lab ideas}]
+\begin{itemize}
+    \item Implement a minimal example from this chapter and visualize intermediate quantities (plots or diagnostics) to match the pseudocode.
+    \item Stress-test a key hyperparameter or design choice discussed here and report the effect on validation performance or stability.
+        \item Re-derive one core equation or update rule by hand and check it numerically against your implementation.
+    \end{itemize}
+    \end{tcolorbox}
+
+    \medskip
+    \paragraph{Where we head next.} \Cref{chap:rbf} introduces radial basis function networks, an alternative nonlinear model where the hidden layer is a (mostly) fixed basis expansion and the output layer is trained by a linear solve. It is a useful contrast to end-to-end backpropagation.
+
+    \paragraph{References.} Full citations for works mentioned in this chapter appear in the book-wide bibliography.
+    \nocite{Rumelhart1986,Haykin2009}

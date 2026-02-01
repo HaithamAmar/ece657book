@@ -1,0 +1,442 @@
+% Chapter 11
+\section{Introduction to Deep Learning and Neural Networks}\label{chap:cnn}
+\graphicspath{{assets/lec6/}{assets/lec8/}}
+
+\begin{tcolorbox}[summarybox,title={Learning Outcomes}]
+After this chapter, you should be able to:
+\begin{itemize}
+  \item Derive convolution/cross-correlation with stride and padding in 1D/2D.
+  \item Explain receptive-field growth across layers and pooling effects.
+  \item Compare loss choices for classification vs. regression and evaluation metrics.
+  \item Connect the hinge-loss/soft-margin ideas from \Cref{chap:supervised} to kernels and CNN features.
+  \item Describe practical optimizers and regularizers (BN, dropout, weight decay).
+\end{itemize}
+\end{tcolorbox}
+
+\Cref{chap:hopfield} used energy to tame recurrence and create stable memories. Here we pivot back to deep feedforward models for perception, where convolutions and pooling impose a spatial inductive bias that improves sample efficiency and robustness. The roadmap in \Cref{fig:roadmap} shows this as the deep feedforward branch.
+
+\begin{tcolorbox}[summarybox,title={Design motif}]
+Keep the same statistical learning loop from \Crefrange{chap:supervised}{chap:logistic}, but move the ``bias'' into architecture via weight sharing and locality.
+\end{tcolorbox}
+
+\begin{tcolorbox}[summarybox,title={Shape reminder}]
+Throughout this chapter we use the row-major (deep-learning) convention for batches: inputs \(X\in\mathbb{R}^{B\times d_{\text{in}}}\), weights \(W\in\mathbb{R}^{d_{\text{in}}\times d_{\text{out}}}\), and biases \(b\in\mathbb{R}^{d_{\text{out}}}\), with forward map \(Z=XW+\mathbf{1}b^\top\). When we write single-example equations, you can read them as the same convention with \(B=1\). For convolution/cross-correlation we follow the standard deep-learning tensor convention (channels and spatial axes); the same shape logic applies once the tensors are flattened into matrix form.
+\end{tcolorbox}
+
+\subsection{Historical Context and Motivation}
+
+Artificial neural networks (ANNs) have a long history dating back to the 1940s, with the seminal work of McCulloch and Pitts in 1943. Despite this early start, it took several decades before deep learning models became widely successful and practical. Neural networks experienced waves of interest, notably in the 1980s and 1990s, but it was only in the last 10--15 years that deep architectures have become dominant.
+
+Understanding why deep learning took so long to mature is crucial. Several challenges hindered progress for many years:
+
+\begin{itemize}
+    \item \textbf{Optimization hurdles:} Early neural networks were shallow (few layers) and suffered from problems such as vanishing or exploding gradients, making it hard to train deep models effectively.
+    \item \textbf{Computational resources:} Deep networks require significant computational power and memory, which were not readily available until recent advances in hardware (e.g., GPUs).
+    \item \textbf{Data availability:} Large labeled datasets, essential for training deep models, were scarce until the advent of big data.
+    \item \textbf{Algorithmic improvements:} Innovations such as better activation functions, initialization schemes, and optimization algorithms were necessary to enable deep learning.
+\end{itemize}
+
+These factors combined to delay the widespread adoption of deep learning despite its theoretical potential.
+
+\subsection{Overview of Neural Network Architectures}
+
+Before delving into deep learning, it is important to review the basic building blocks of neural networks.
+
+\subsubsection{Feedforward Neural Networks (Multi-Layer Perceptrons)}
+
+A feedforward neural network consists of an input layer, one or more hidden layers, and an output layer. Data flows in one direction from input to output without cycles.
+
+Consider a simple network with an input layer of dimension $d$ and a single hidden layer with $h$ neurons. We write a single input as a row vector
+\[
+\mathbf{x} = [x_1, x_2, \ldots, x_d],
+\]
+and the weight matrix connecting the input to the hidden layer is
+\[
+\mathbf{W} \in \mathbb{R}^{d \times h}.
+\]
+
+The pre-activation input to the hidden layer neurons is
+\begin{align}
+\mathbf{z} = \mathbf{x}\mathbf{W} + \mathbf{b}, \label{eq:preactivation}
+\end{align}
+where $\mathbf{b} \in \mathbb{R}^h$ is the bias vector.
+
+Applying a nonlinear activation function $\sigma(\cdot)$ element-wise yields the hidden layer output
+\[
+\mathbf{h} = \sigma(\mathbf{z}).
+\]
+
+The output layer then produces the final output, often via another linear transformation and activation.
+
+\paragraph{Fully Connected Layers and Feature Transformation}
+
+Each neuron in the hidden layer is connected to every input feature, making the layer \emph{fully connected}. The weights $\mathbf{W}$ serve two main purposes:
+
+\begin{itemize}
+    \item \textbf{Feature extraction:} Each neuron computes a weighted combination of input features, effectively extracting new features.
+\item \textbf{Attenuation of irrelevant inputs:} Weights with small magnitude suppress the contribution of certain input features, although genuine feature selection usually requires explicit regularization (e.g., L1 penalties) or pruning.
+\end{itemize}
+
+Thus, each layer transforms the input features into a new representation, which subsequent layers can further process.
+
+\subsection{Why Shallow Networks Are Insufficient}
+
+In theory, shallow networks with a single hidden layer are universal function approximators \citep{Cybenko1989}. However, in practice, they have several limitations:
+
+\begin{itemize}
+    \item \textbf{Large number of neurons required:} To approximate complex functions, shallow networks often need exponentially many neurons.
+    \item \textbf{Overfitting:} Large networks with many parameters tend to overfit training data, especially with limited data.
+\item \textbf{Limited expressivity:} Although universal approximators, shallow networks often require exponentially many neurons to capture rich structure, so depth provides a far more parameter-efficient representation.
+\end{itemize}
+
+Deep networks, with multiple hidden layers, can represent complex functions more compactly by learning hierarchical feature representations. This hierarchical structure is key to the success of deep learning.
+
+\subsection{Limitations of Traditional Feedforward Neural Networks}
+
+\paragraph{Requirement for large datasets}
+
+Feedforward networks typically require large amounts of labeled data to generalize well. For small datasets (e.g., Titanic survival data, movie ratings), simpler models like logistic regression or decision trees may outperform neural networks due to overfitting risks.
+
+\paragraph{High-dimensional inputs and flattening}
+
+Consider image data, which is naturally represented as a 2D matrix (or 3D tensor for color images). For example, a single-channel (grayscale) image of size $256 \times 276$ pixels can be represented as a matrix:
+\[
+X \in \mathbb{R}^{256 \times 276}.
+\]
+
+To input this into a traditional feedforward network, the image must be \textit{flattened} into a vector:
+\[
+\mathbf{x} = \mathrm{vec}(X) \in \mathbb{R}^{70,656},
+\]
+where $70,656 = 256 \times 276$ is the total number of pixels.
+
+This flattening process has two major drawbacks:
+
+\begin{itemize}
+    \item \textbf{Loss of spatial structure:} The 2D spatial relationships between pixels are ignored, which is critical for tasks like image recognition.
+    \item \textbf{High dimensionality:} The input vector becomes very large, increasing the number of parameters and computational cost, and requiring more data to train effectively.
+\end{itemize}
+
+\paragraph{Implications}
+
+These limitations motivate the development of specialized architectures, such as convolutional neural networks (CNNs), which exploit spatial locality and reduce parameter count by sharing weights.
+
+\subsection{Challenges in Training Large Fully Connected Networks}
+
+Consider a fully connected neural network where the input layer has 70,656 neurons (flattened from a $256 \times 276$ grayscale image), connected to a hidden layer with 100 neurons, which in turn connects to an output layer for classification. Although this is a simplified example, it illustrates key challenges in training large networks.
+
+\paragraph{Parameter Explosion}
+
+The number of weights between the input and hidden layer is:
+\begin{equation}
+70,656 \times 100 = 7,065,600,
+\end{equation}
+and between the hidden and output layer (assuming 4 output classes) is:
+\begin{equation}
+100 \times 4 = 400.
+\end{equation}
+
+Thus, the first layer alone requires learning just over 7 million parameters before we even consider deeper architectures. Coupled with the additional 400 output weights (plus biases), the optimization problem quickly becomes data-hungry and computationally expensive.
+
+\paragraph{Data Requirements}
+
+To reliably learn these parameters, the amount of training data must be sufficiently large. A common heuristic is that the number of training samples should be at least 10 times the number of parameters:
+\begin{equation}
+N_{\text{samples}} \geq 10 \times N_{\text{parameters}}.
+\end{equation}
+
+This rule-of-thumb is intentionally conservative and should be read as guidance rather than a hard requirement; in practice, regularization, data augmentation, and strong inductive biases often permit useful models with fewer samples.
+
+For the first layer, this implies roughly:
+\begin{equation}
+N_{\text{samples}} \gtrsim 10 \times 7,000,000 \approx 70,000,000,
+\end{equation}
+meaning on the order of seventy million labeled images. This is an impractical requirement for most projects.
+
+\paragraph{Computational and Storage Constraints}
+
+Storing and processing such a large dataset requires enormous storage and computational resources. Training on hundreds of millions of images is typically infeasible for most research groups or applications without specialized infrastructure.
+
+\paragraph{Overfitting Risk}
+
+With millions of parameters, the model has high capacity and can easily memorize the training data, leading to overfitting. This means the network may not generalize well to unseen data, as it learns to fit noise or irrelevant details rather than meaningful features.
+
+\subsection{Sparse connectivity and parameter sharing}
+
+CNNs replace dense connections with \emph{local receptive fields}. Each output unit connects to a small neighborhood of pixels, not the entire image. If a \(k \times k\) filter scans a \(H\times W\) input, the number of learned weights is \(k^2\) (per channel), not \(HW\). The same filter is reused at every spatial location, so a single set of parameters detects a pattern anywhere in the image. This parameter sharing is the key to scalability: it cuts the parameter count and preserves translation equivariance.
+
+Historically, dense MLPs on image benchmarks struggled to compete with classical pipelines because the parameter count and data requirements were prohibitive. CNNs reversed that trend by tying weights and focusing on local patterns while keeping the same gradient-based training loop, so capacity grows with depth and channel count rather than with the raw pixel grid.
+
+\subsection{Convolution and pooling mechanics}
+
+For an input feature map \(X\) and filter \(K\), the (cross-correlation) output at spatial location \((i,j)\) is
+\[
+(X * K)_{ij} = \sum_{u=0}^{k-1} \sum_{v=0}^{k-1} K_{uv}\,X_{i+u,\,j+v}.
+\]
+With stride \(s\) and padding \(p\), the output size along one axis is
+\[
+\left\lfloor \frac{n + 2p - k}{s} \right\rfloor + 1,
+\]
+so padding controls resolution while stride controls downsampling. Pooling then aggregates local neighborhoods (typically max or average) to build invariance and further reduce spatial size.
+
+Convolution itself is a linear map; the nonlinearity enters when we apply an activation after each convolutional block. Stacking these linear--nonlinear stages yields hierarchical feature detectors (edges \(\rightarrow\) textures \(\rightarrow\) parts \(\rightarrow\) objects) without abandoning the backprop training machinery.
+
+Without padding (often called \emph{valid} convolution), boundary pixels participate in fewer receptive fields and the spatial grid shrinks each layer. \emph{Same} padding chooses \(p=(k-1)/2\) for odd \(k\) to preserve spatial size when \(s=1\) and give edge pixels comparable influence. Larger strides reduce resolution and compute but can skip fine detail, so the padding/stride combination is a deliberate trade-off rather than a fixed rule.
+
+\subsubsection{Worked stride and padding example}
+
+Suppose an input is \(6\times6\) and the filter is \(3\times3\).
+\begin{itemize}
+    \item \textbf{Stride \(s=1\), valid padding (\(p=0\)).} Output size is \((6-3)/1 + 1 = 4\), so you get a \(4\times4\) feature map.
+    \item \textbf{Stride \(s=2\), valid padding.} Output size is \(\left\lfloor(6-3)/2\right\rfloor + 1 = 2\), so you get a \(2\times2\) feature map.
+    \item \textbf{Stride \(s=1\), same padding.} With \(k=3\), choose \(p=1\) so the output stays \(6\times6\).
+\end{itemize}
+The floor in the formula is important: if \((n + 2p - k)\) is not divisible by \(s\), the last partial window is dropped.
+
+\subsection{Pooling as nonparametric downsampling}
+
+Pooling reduces spatial size without learning new parameters: a max-pooling window keeps the strongest activation; average pooling keeps the mean. This is a nonparametric operation, so it can feel like ``cheating'' compared to learned filters, yet it often improves robustness by discarding small shifts and noise. Max pooling is the most common because it preserves the strongest feature response, but average and even median pooling appear in specialized settings. In modern CNNs, aggressive pooling is used sparingly; strided convolutions are a common alternative when you want learned downsampling instead of a fixed aggregation.
+
+\begin{tcolorbox}[summarybox,title={Author's note: pooling is a design choice}]
+Pooling is not ``more correct'' than strided convolutions; it is a trade-off. If you want downsampling with learned weights, use stride. If you want a fixed local summary (often more stable early in training), max pooling is a reasonable default. Avoid padding in pooling unless you need spatial alignment with a parallel branch.
+\end{tcolorbox}
+
+\begin{tcolorbox}[summarybox,title={Author's note: ``convolution'' vs.\ cross-correlation}]
+In most deep-learning libraries, the operation called ``convolution'' is technically \emph{cross-correlation}: the kernel is not flipped before sliding. The name stuck because the two operations differ only by a reversal of the kernel, and the kernel is learned anyway. What matters in practice is that the ``filter'' is a small learned weight matrix that is applied repeatedly across space (weight sharing). Learn the shapes, the stride/padding bookkeeping, and the inductive bias; the terminology is imperfect but the idea is powerful.
+\end{tcolorbox}
+
+\subsection{Channels and feature maps}
+
+Real inputs are multi-channel. An RGB image has three channels, so a \(k\times k\) filter is really \(k\times k\times C_{\text{in}}\) and produces one output map. A convolutional layer applies \(C_{\text{out}}\) such filters, yielding a volume of feature maps with shape \(H\times W\times C_{\text{out}}\). This is why ``same'' padding refers to spatial dimensions only: channel depth is set by the number of filters, not by padding.
+
+\begin{tcolorbox}[summarybox,title={Dimensionality bookkeeping example}]
+Start with an input tensor of size \(50\times50\times30\). Apply \(10\) filters of size \(3\times3\) with stride \(1\) and valid padding. The spatial size becomes \(50-3+1=48\), so the output is \(48\times48\times10\). Apply \(2\times2\) max pooling with stride \(2\): the spatial size becomes \(\left\lfloor(48-2)/2\right\rfloor + 1 = 24\), so the pooled output is \(24\times24\times10\). Flattening that volume yields \(24\cdot24\cdot10=5760\) features for a dense classifier.
+\end{tcolorbox}
+
+\subsection{Convolutional hyperparameters (what you choose up front)}
+\begin{itemize}
+    \item \textbf{Filter size} (\(k\times k\)) and \textbf{number of filters} (\(C_{\text{out}}\)).
+    \item \textbf{Stride} \(s\) and \textbf{padding} \(p\) (valid vs.\ same).
+    \item \textbf{Activation} function after each convolution.
+    \item \textbf{Pooling} type (max/average), window size, and stride (if pooling is used).
+\end{itemize}
+
+\subsection{Multi-branch convolution blocks (Inception idea)}
+One practical variant is to run multiple filter sizes in parallel (for example \(1\times1\), \(3\times3\), and \(5\times5\)) and concatenate the resulting feature maps along the channel axis. This allows the network to capture multi-scale patterns without committing to a single kernel size. When branches must line up spatially, \emph{same} padding is used to keep all outputs the same height and width; pooling branches often pad for this alignment even though pooling by itself is usually unpadded.
+
+\subsection{From feature maps to classifiers}
+
+Stacks of convolutional and pooling layers produce a hierarchy of feature maps. A common design is to flatten the final maps into a vector and pass them to a small dense classifier (often a softmax layer) that predicts the class label. Backpropagation updates both the dense weights and the shared convolutional filters, so the feature extractor and classifier are learned jointly.
+
+\subsection{Historical Context and the 2012 Breakthrough}
+
+Before 2012, neural networks were often dismissed in many academic circles due to their poor performance on large-scale problems and the dominance of other methods such as Support Vector Machines (SVMs). The sentiment was that neural networks were "fancy" but not practical or well-understood.
+
+\paragraph{SVM geometry refresher.} The classical soft-margin picture views an SVM as balancing a wide margin against slack variables \(\xi_i\) that widen the feasible tube so that mislabeled points incur linear penalties instead of rendering the optimization infeasible. The geometric intuition is to maximize the margin while tolerating limited violations. This highlights why SVMs were attractive when data were scarce; the hinge-loss curves in \Cref{chap:supervised} supply the loss-level view of the same trade-off.
+
+\paragraph{Stack depth versus receptive field.} Stacking identical \(3\times3\) filters still grows the effective receptive field: each stage wraps a thicker box around the original pixels, which explains why deep-but-narrow CNNs can capture wide spatial context without enormous kernels even when individual kernels remain small.
+
+With the architectural motivation in place, we now focus on how these models are trained and why deep optimization remains delicate.
+
+\subsection{Training Neural Networks: Gradient-Based Optimization}
+
+Training neural networks involves minimizing a loss function $\mathcal{L}$ that measures the discrepancy between the network output and the target. The parameters (weights and biases) are updated iteratively using gradient descent or its variants.
+
+For a weight $w$, the update rule is
+\begin{align}
+w \leftarrow w - \eta \frac{\partial \mathcal{L}}{\partial w}.
+\end{align}
+where $\eta$ is the learning rate.
+
+\paragraph{Backpropagation and Gradient Computation}
+
+The gradient $\frac{\partial \mathcal{L}}{\partial w}$ is computed efficiently using the backpropagation algorithm, which applies the chain rule to propagate errors backward through the network layers.
+
+\paragraph{Challenges in Deep Networks}
+
+In deep networks, gradients can vanish or explode as they propagate through many layers, making training unstable or slow. This problem was a major obstacle until solutions such as better activation functions (e.g., ReLU), normalization techniques, and initialization methods were developed.
+
+\subsection{Deep Network Optimization \mbox{Challenges}}
+
+Deep networks are difficult to optimize because the objective is highly nonconvex and the
+gradient signal can be distorted as it flows through many layers. We begin with the most
+basic pathology---vanishing and exploding gradients---and then summarize practical
+mitigations.
+
+% Chapter 11 (continued)
+
+\subsection{Vanishing and Exploding Gradients in Deep Networks}
+
+Recall from the previous discussion that when training deep neural networks, the backpropagation algorithm involves repeated multiplication of gradients through many layers. This repeated multiplication can cause gradients to either vanish (approach zero) or explode (grow exponentially large), leading to significant training difficulties.
+
+\paragraph{Mathematical intuition}
+
+Consider a deep network with $L$ layers. Let $\delta \mathbf{W}^{(\ell)} = \nabla_{\mathbf{W}^{(\ell)}} \mathcal{L}$ denote the gradient of the loss with respect to the weights at layer $\ell$. If we assume the weights are initialized identically and the derivative of the activation function is approximately constant, then the gradient at the first layer can be expressed schematically as:
+\begin{equation}
+    \delta \mathbf{W}^{(1)} \approx \left( W^{(2)} D^{(2)} \right) \left( W^{(3)} D^{(3)} \right) \cdots \left( W^{(L)} D^{(L)} \right) \delta \mathbf{W}^{(L)}.
+    \label{eq:gradient_chain}
+\end{equation}
+where $W$ represents the weight matrix and $f'$ is the derivative of the activation function.
+
+Here $W^{(\ell)}$ denotes the weight matrix connecting layers $\ell-1$ and $\ell$, while $D^{(\ell)} = \operatorname{diag}\!\big(f'(z^{(\ell)})\big)$ collects the activation derivatives at layer $\ell$. The product therefore chains together Jacobians from layers $2$ through $L$. If the spectral norm (largest singular value) of each factor \(W^{(\ell)} D^{(\ell)}\) exceeds one, then $\|\delta \mathbf{W}^{(1)}\|$ grows exponentially with $L$, causing \textbf{exploding gradients}. Conversely, norms less than one cause $\|\delta \mathbf{W}^{(1)}\|$ to shrink exponentially, leading to \textbf{vanishing gradients}.
+
+\paragraph{Consequences}
+
+\begin{itemize}
+    \item \textbf{Exploding gradients:} The gradient values become extremely large, causing numerical instability and making the network parameters diverge during training.
+    \item \textbf{Vanishing gradients:} The gradient values approach zero, especially in early layers, preventing those weights from updating effectively. This stalls learning in the initial layers, limiting the network's ability to learn hierarchical features.
+\end{itemize}
+
+\paragraph{Example: Activation function derivatives}
+
+Consider the sigmoid activation function $\sigma(x) = \frac{1}{1 + e^{-x}}$. Its derivative is:
+\[
+\sigma'(x) = \sigma(x)(1 - \sigma(x)).
+\]
+Note that $\sigma'(x)$ approaches zero when $\sigma(x)$ is near 0 or 1, i.e., when the neuron output saturates. This saturation leads to very small gradients, exacerbating the vanishing gradient problem.
+The derivative is maximized at $\sigma(x)=0.5$, where $\sigma'(x)=0.25$, so repeatedly multiplying sigmoid derivatives can shrink gradients roughly like $0.25^L$ across $L$ layers.
+
+\paragraph{Notation note.} In this chapter $\sigma(\cdot)$ always denotes the logistic sigmoid nonlinearity, whereas symbols such as $\sigma^2$ are reserved for variances in earlier statistical chapters; context (function of an argument vs. squared scalar) distinguishes them.
+
+\subsection{Strategies to Mitigate Vanishing and Exploding Gradients}
+
+\paragraph{Weight initialization}
+
+\begin{sloppypar}
+Initializing weights carefully can help maintain gradient magnitudes within a reasonable range.
+Set var $\approx\,1/n$ (fan\hyp{}in $n$).\\
+This stabilizes signals across layers. It underlies Xavier and He.
+\end{sloppypar}
+
+\paragraph{Choice of activation function}
+
+Selecting activation functions whose derivatives do not vanish easily is crucial. For example:
+
+\begin{itemize}
+    \item \textbf{ReLU (Rectified Linear Unit):} Defined as
+    \[
+    \mathrm{ReLU}(x) = \max(0, x),
+    \]
+    its derivative is 1 for positive inputs and 0 otherwise. This avoids saturation in the positive regime and helps maintain gradient flow.
+
+    \item \textbf{Leaky ReLU and variants:} These allow a small, non-zero gradient when the input is negative, further mitigating dead neurons and keeping derivatives away from exact zero.
+\end{itemize}
+
+\paragraph{Batch normalization}
+
+Batch normalization normalizes layer inputs during training, reducing the effective internal covariate shift and helping gradients maintain stable magnitudes.
+
+\paragraph{Gradient clipping}
+
+For exploding gradients, gradient clipping limits the maximum gradient norm during backpropagation, preventing excessively large updates.
+
+Taken together, these tools stabilize optimization; the figures below highlight dropout, normalization, and optimizer behavior in practice.
+
+
+\begin{figure}[t]
+    \centering
+    \includegraphics[width=0.65\linewidth]{lec6_dropout_curves}
+    \caption[Dropout effect on training/validation curves (validation flattening)]{Schematic: Dropout effect on training/validation curves. Compared to a no-dropout baseline, validation curves flatten and generalization improves.}
+    \label{fig:lec6-dropout}
+\end{figure}
+
+\paragraph{Batch normalization.} BN accelerates convergence by normalizing mini\hyp{}batch statistics and learning scale/shift parameters. \Cref{fig:lec6-bn} contrasts the pre- and post\hyp{}normalization activation distributions; whitening the distribution keeps gradients in a well-behaved range and reduces covariate shift. In deep Transformer stacks, a closely related design choice is \emph{pre-LN} versus \emph{post-LN}: modern architectures typically place layer normalization \emph{before} the residual block (pre-LN) to improve training stability on very deep networks.
+
+\begin{figure}[t]
+    \centering
+    \begin{tikzpicture}
+        \begin{groupplot}[
+            group style={group size=2 by 1, horizontal sep=1.2cm},
+            width=0.42\linewidth, height=0.34\linewidth,
+            xlabel={$x$}, ylabel={density}, xmin=-6, xmax=6, ymin=0, ymax=0.5
+        ]
+        \nextgroupplot[title={Pre-BN activations}]
+            \addplot[cbBlue, thick, samples=200, domain=-6:6] {1/sqrt(2*pi*1.5)*exp(-((x-2)^2)/(2*1.5))};
+            \addplot[cbOrange, thick, samples=200, domain=-6:6] {1/sqrt(2*pi*0.8)*exp(-((x+1)^2)/(2*0.8))};
+        \nextgroupplot[title={Post-BN (per-channel)}]
+            \addplot[cbBlue, thick, samples=200, domain=-6:6] {1/sqrt(2*pi*1.0)*exp(-(x^2)/2)}; \addlegendentry{channel 1}
+            \addplot[cbOrange, thick, samples=200, domain=-6:6] {1/sqrt(2*pi*1.0)*exp(-(x^2)/2)}; \addlegendentry{channel 2}
+        \end{groupplot}
+    \end{tikzpicture}
+    \caption{Schematic: Batch normalization transforms per-channel activations toward zero mean and unit variance prior to the learned affine re-scaling, stabilizing training.}
+    \label{fig:lec6-bn}
+\end{figure}
+
+\paragraph{Adaptive optimizers.} While vanilla SGD remains a workhorse, Adam and related methods adapt learning rates per-parameter \citep{Kingma2015}. \Cref{fig:lec6-optimizers} summarizes the typical loss trajectories; Adam converges faster initially, whereas SGD+momentum often attains a slightly lower asymptote after fine-tuning.
+
+\begin{figure}[t]
+    \centering
+    \begin{tikzpicture}
+        \begin{axis}[
+            width=0.72\linewidth, height=0.36\linewidth,
+            xlabel={epoch}, ylabel={loss}, xmin=0, xmax=60, ymin=0, ymax=1.1,
+            legend style={at={(0.5,1.05)},anchor=south,draw=none,fill=none}
+        ]
+            \addplot[cbBlue, thick, samples=120, domain=0:60] {0.2 + 0.9*exp(-x/20)}; \addlegendentry{SGD+momentum}
+            \addplot[cbOrange, thick, samples=120, domain=0:60] {0.15 + 1.0*exp(-x/10)}; \addlegendentry{Adam}
+        \end{axis}
+    \end{tikzpicture}
+    \caption{Schematic: Representative training curves for SGD with momentum versus Adam on the same CNN.}
+    \label{fig:lec6-optimizers}
+\end{figure}
+
+\begin{tcolorbox}[summarybox,title={Practical optimizer notes}]
+\textbf{Mixed precision.} Modern CNN stacks often run activations/gradients in FP16 or BF16 while keeping master weights in FP32. Frameworks such as PyTorch AMP/TF mixed precision insert dynamic loss scaling so gradients do not underflow; the reward is higher throughput and lower memory pressure on recent GPUs/TPUs.\\
+\textbf{AdamW vs.\ Adam.} Decoupled weight decay (AdamW) subtracts \(\eta\lambda W\) outside the adaptive-moment step, avoiding the ``L2-as-gradient-scaling'' behavior of classical Adam and producing more predictable regularization \citep{Loshchilov2019}. In code:
+\begin{verbatim}
+m = beta1 * m + (1-beta1) * grad
+v = beta2 * v + (1-beta2) * grad**2
+W -= eta * (m_hat / (sqrt(v_hat) + eps) + lambda * W)
+\end{verbatim}
+Use AdamW (or SGD+momentum) when you want clean weight-decay semantics; reserve plain Adam for rapid prototyping or when adaptive steps dominate regularization.
+\end{tcolorbox}
+
+\begin{tcolorbox}[summarybox,title={MLP/CNN block pseudocode (schematic)}]
+\small
+\begin{verbatim}
+function ForwardBackward(params, x, y):
+  # forward
+  caches = []
+  a = x
+  for (W, b, f) in params.layers:
+    z = W @ a + b
+    caches.append((a, z))
+    a = f(z)
+  loss, delta = params.loss(a, y)
+
+  # backward
+  grads = []
+  for (W, b, f), (a_prev, z_prev) in
+      reversed(list(zip(params.layers, caches))):
+    grads.append((delta @ a_prev.T, delta))
+    delta = (W.T @ delta) * f'(z_prev)
+
+  params.update(grads[::-1])
+  return loss
+\end{verbatim}
+\normalsize
+This omits batching, convolution strides, and optimizer detail but highlights the cache-then-backprop pattern reused throughout the deep-learning chapters.
+\end{tcolorbox}
+
+\begin{tcolorbox}[summarybox,title={Key takeaways}]
+\begin{itemize}
+    \item Convolutions introduce sparse connectivity and parameter sharing, dramatically reducing parameters vs. fully connected layers.
+    \item Padding and stride control spatial resolution; pooling aggregates features to build invariances.
+    \item Batch normalization, dropout, and optimizer choice strongly influence training stability and generalization.
+    \item Stacking small kernels expands the effective receptive field across depth.
+\end{itemize}
+\end{tcolorbox}
+
+\begin{tcolorbox}[summarybox,title={Exercises and lab ideas}]
+\begin{itemize}
+    \item Hand-compute a 1D cross-correlation with several \((n,f,s,p)\) tuples and verify the shapes and values against a small script.
+    \item Compare max-pool + stride 1 vs.\ stride-2 convolutions on a toy dataset; report accuracy and FLOPs.
+    \item Equivariance sanity check: translate an image and confirm intermediate feature maps translate accordingly.
+    \item Train two depth-10 CNNs on a tiny dataset: one plain, one with identity skips; compare convergence and accuracy.
+\end{itemize}
+\end{tcolorbox}
+
+\medskip
+\paragraph{Where we head next.} \Cref{chap:rnn} returns to sequence modeling: recurrent networks and attention mechanisms inherit many of the optimization tools discussed here, but add temporal dependencies and stateful computation.
+
+\paragraph{References.} Full citations for works mentioned in this chapter appear in the book-wide bibliography.

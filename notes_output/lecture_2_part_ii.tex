@@ -1,0 +1,532 @@
+%Chapter 4
+\section{Classification and Logistic Regression}\label{chap:logistic}
+\begin{tcolorbox}[summarybox,title={Learning Outcomes}]
+After this chapter, you should be able to:
+\begin{itemize}
+  \item Derive the logistic log\hyp{}likelihood and its gradient.
+  \item Explain the NLL (cross\hyp{}entropy) connection and convexity.
+  \item Extend to softmax regression for multiclass problems.
+\end{itemize}
+\end{tcolorbox}
+
+\Cref{chap:symbolic} illustrated one view of intelligent behavior as transformation search with explicit goal tests, while \Cref{chap:supervised} introduced the data-driven view: represent a task with data, choose a hypothesis class, minimize empirical risk under regularization, and audit performance on held-out data. This chapter extends that toolkit from regression to classification. The roadmap in \Cref{fig:roadmap} places this chapter on the core supervised path.
+
+\begin{tcolorbox}[summarybox,title={Design motif}]
+Keep the workflow, swap the likelihood: logistic regression keeps the linear score but changes the probabilistic model (Bernoulli likelihood) and the loss (negative log\hyp{}likelihood, i.e., cross\hyp{}entropy).
+\end{tcolorbox}
+
+\subsection{From regression to classification}
+Linear regression models a continuous target \(y\) and, under a Gaussian noise model, yields a closed-form solution via the normal equations (\Cref{chap:supervised}, \cref{sec:linear_regression_closed}). Classification changes the output space: \(y\) is a discrete label, and the model predicts class probabilities rather than raw responses. The ERM pipeline remains the same, but the loss becomes the negative log-likelihood (binary cross\hyp{}entropy) and optimization is typically iterative.
+
+Throughout this chapter we use \(y\in\{0,1\}\) by default, switching to \(y_{\pm1}=2y-1\) only when margin-based expressions are convenient. Predictions carry hats (e.g., \(\hat{y}\)), \(\varepsilon\) denotes noise, and \(e=y-\hat{y}\) denotes residuals. For a refresher on data splits, learning curves, and the bias--variance vocabulary, see \Cref{chap:supervised}; here we focus on the logistic-specific modeling and diagnostics.
+
+\subsection{Classification problem statement}
+
+In this chapter, we shift our attention to a fundamentally different type of problem: \emph{classification}. Unlike regression, where the output \(y\) is continuous, classification predicts a \emph{discrete label}. We will start with the binary case \(y\in\{0,1\}\), where the goal is to estimate a probability
+\[
+\pi(\mathbf{x}) = P(y=1\mid \mathbf{x}),
+\]
+and then produce a decision by thresholding \(\pi(\mathbf{x})\) (or by comparing class probabilities when there are more than two classes). For multiclass problems the label belongs to one of \(K\) classes,
+\[
+y \in \{c_1, c_2, \ldots, c_K\},
+\]
+and the goal is to estimate \(P(y=c_k\mid \mathbf{x})\) for each \(k\); we return to the softmax extension later in the chapter.
+
+\subsection{Bayes Optimal Classifier}
+
+A fundamental result in statistical pattern recognition is that the \emph{Bayes classifier} is the optimal classifier in terms of minimizing the expected classification error. The Bayes classifier assigns \(\mathbf{x}\) to the class:
+\[
+\hat{y} = \arg\max_{c_k \in \{c_1,\ldots,c_K\}} P(y = c_k \mid \mathbf{x}).
+\]
+
+Using Bayes' theorem, the posterior probability can be expressed as
+\begin{equation}
+    P(y = c_k \mid \mathbf{x}) = \frac{P(\mathbf{x} \mid y = c_k) P(y = c_k)}{P(\mathbf{x})}.
+    \label{eq:bayes_theorem}
+\end{equation}
+Here
+\begin{itemize}
+    \item \(P(\mathbf{x} \mid y = c_k)\) is the \emph{class-conditional likelihood},
+    \item \(P(y = c_k)\) is the \emph{prior probability} of class \(c_k\),
+    \item \(P(\mathbf{x}) = \sum_{j=1}^K P(\mathbf{x} \mid y = c_j) P(y = c_j)\) is the marginal likelihood of the input.
+\end{itemize}
+
+\Cref{eq:bayes_theorem} provides a principled way to compute the posterior probabilities, and thus the optimal classification rule.
+
+\paragraph{Challenges in Practice}
+
+Despite its theoretical appeal, the Bayes classifier is rarely used directly in practice because:
+\begin{itemize}
+    \item The class-conditional densities \(P(\mathbf{x} \mid y = c_k)\) are typically unknown.
+    \item The prior probabilities \(P(y = c_k)\) may also be unknown or difficult to estimate accurately.
+    \item Estimating these distributions nonparametrically or parametrically can be challenging, especially in high-dimensional spaces.
+\end{itemize}
+
+Consequently, practical classification methods often rely on approximations or alternative formulations.
+
+\paragraph{Running example: a two-cluster dataset}
+To keep the discussion concrete, we reuse a small toy dataset in \Cref{fig:lec1_dataset} consisting of two Gaussian clusters. Under a simple generative assumption (equal covariances and similar priors), \Cref{fig:lec1_bayes} visualizes the Bayes\hyp{}optimal decision boundary: it is linear in this LDA setting, while unequal covariances yield a quadratic boundary. This running example will anchor the geometric intuition (what a decision boundary looks like) before we turn to discriminative models that learn \(\pi(\mathbf{x})\) directly.
+
+    \begin{figure}[!htbp]
+        \centering
+\begin{tikzpicture}[background rectangle/.style={fill=white}, show background rectangle]
+            \begin{axis}[
+            width=0.78\linewidth,
+            height=0.5\linewidth,
+            axis equal image,
+            xmin=-3.2,xmax=3.2,
+            ymin=-2.4,ymax=2.4,
+            xlabel={$x_1$},
+            ylabel={$x_2$},
+            axis line style={gray!60},
+            tick style={gray!60},
+            legend style={at={(0.02,0.02)},anchor=south west,fill=white,draw=none,font=\scriptsize},
+            legend cell align=left,
+            grid=both,
+            minor grid style={gray!10},
+            major grid style={gray!25},
+            axis background/.style={fill=white}
+        ]
+            % covariance ellipses
+            \addplot[draw=cbBlue!80!black, fill=cbBlue!12, line width=0.8pt, domain=0:360, samples=240]
+                ({-1.7 + 0.9*cos(x) - 0.1*sin(x)},
+                 {0.2 + 0.3*cos(x) + 0.7*sin(x)});
+            \addlegendentry{Class $\mathcal C_0$ density contour}
+            \addplot[draw=cbOrange!85!black, fill=cbOrange!12, line width=0.8pt, domain=0:360, samples=240]
+                ({1.9 + 0.8*cos(x) + 0.05*sin(x)},
+                 {0.0 + 0.25*cos(x) + 0.75*sin(x)});
+            \addlegendentry{Class $\mathcal C_1$ density contour}
+
+            % samples for each class
+            \addplot+[only marks, mark=*, mark size=1.7pt, mark options={draw=white, line width=0.35pt}, color=cbBlue] coordinates {
+                (-2.2,0.6) (-2.0,0.1) (-1.8,-0.4) (-1.4,-0.2) (-1.5,0.7)
+                (-1.1,0.4) (-1.3,-0.6) (-1.9,1.0) (-2.3,-0.3) (-1.6,0.9)
+                (-1.8,0.0) (-1.4,0.3) (-1.9,0.5) (-1.2,-0.3) (-2.1,0.2)
+            };
+            \addlegendentry{Samples from $\mathcal C_0$}
+            \addplot+[only marks, mark=square*, mark size=1.7pt, mark options={draw=white, line width=0.35pt}, color=cbOrange] coordinates {
+                (1.2,0.5) (1.6,1.0) (2.0,0.7) (2.4,0.1) (2.2,-0.5)
+                (1.5,-0.6) (1.8,0.0) (2.3,0.3) (1.7,-0.8) (2.5,-0.2)
+                (1.9,1.2) (2.1,-0.9) (1.6,0.7) (2.0,-0.1) (2.4,0.6)
+            };
+            \addlegendentry{Samples from $\mathcal C_1$}
+        \end{axis}
+        \ensuretikzbackgroundlayers
+    \end{tikzpicture}
+    \caption[Schematic: Synthetic binary dataset.]{Schematic: Synthetic binary dataset built from two anisotropic Gaussian clusters; shaded ellipses hint at the underlying density while the scattered samples are reused throughout the running examples.}
+    \label{fig:lec1_dataset}
+\end{figure}
+
+\begin{figure}[!htbp]
+    \centering
+\begin{tikzpicture}[background rectangle/.style={fill=white}, show background rectangle]
+        \begin{axis}[
+            width=0.9\linewidth,
+            height=0.55\linewidth,
+            axis equal image,
+            xmin=-3,xmax=3,
+            ymin=-2.2,ymax=2.2,
+            xlabel={$x_1$},
+            ylabel={$x_2$},
+            legend style={at={(0.02,0.98)},anchor=north west,draw=none,fill=white},
+            legend cell align=left,
+            axis background/.style={fill=white}
+        ]
+            % helper paths for region shading
+            \path[name path=top] (axis cs:-3,2.2) -- (axis cs:3,2.2);
+            \path[name path=bottom] (axis cs:-3,-2.2) -- (axis cs:3,-2.2);
+            % vertical decision boundary at x = 0.15 (approx. equal posterior line)
+            \path[name path=leftedge] (axis cs:-3,-2.2) -- (axis cs:-3,2.2);
+            \path[name path=rightedge] (axis cs:3,-2.2) -- (axis cs:3,2.2);
+            \addplot[name path=decision, cbPink, ultra thick] coordinates {(0.15,-2.2) (0.15,2.2)};
+            % shade regions
+            \addplot[draw=none, fill=cbBlue!10] fill between[of=leftedge and decision];
+            \addplot[draw=none, fill=cbOrange!10] fill between[of=decision and rightedge];
+
+            % sample clouds
+            \addplot+[only marks, mark=*, mark options={scale=0.8}, color=cbBlue] coordinates {
+                (-2.2,0.6) (-2.0,0.1) (-1.8,-0.4) (-1.4,-0.2) (-1.5,0.7)
+                (-1.1,0.4) (-1.3,-0.6) (-1.9,1.0) (-2.3,-0.3) (-1.6,0.9)
+                (-1.8,0.0) (-1.4,0.3) (-1.9,0.5) (-1.2,-0.3) (-2.1,0.2)
+            };
+            \addlegendentry{$\mathcal C_0$ samples}
+            \addplot+[only marks, mark=square*, mark options={scale=0.8}, color=cbOrange] coordinates {
+                (1.2,0.5) (1.6,1.0) (2.0,0.7) (2.4,0.1) (2.2,-0.5)
+                (1.5,-0.6) (1.8,0.0) (2.3,0.3) (1.7,-0.8) (2.5,-0.2)
+                (1.9,1.2) (2.1,-0.9) (1.6,0.7) (2.0,-0.1) (2.4,0.6)
+            };
+            \addlegendentry{$\mathcal C_1$ samples}
+            \addlegendentry{decision boundary}
+        \end{axis}
+        \ensuretikzbackgroundlayers
+    \end{tikzpicture}
+    % Avoid inline math in captions; it wraps poorly in some EPUB renderers.
+    \caption{Schematic: Bayes-optimal boundary for two Gaussian classes with equal covariances and similar priors (LDA setting), which yields a linear separator. Unequal covariances produce a quadratic boundary. We place the boundary near the equal-posterior line (vertical, pink); left/right regions correspond to predicted classes R0 and R1.}
+    \label{fig:lec1_bayes}
+\end{figure}
+
+\paragraph{Naive Bayes Approximation}
+One classical workaround is the Naive Bayes classifier, which assumes that the components of \(\mathbf{x}\) are conditionally independent given the class label. Under this assumption,
+\[
+P(\mathbf{x} \mid y = c_k) = \prod_{j=1}^p P(x_j \mid y = c_k),
+\]
+making the computation and estimation of the likelihood tractable. It is important to remember that this factorization is justified only under the conditional independence assumption; when the features are strongly correlated, Naive Bayes can suffer because the assumption is violated.
+
+\subsection{Logistic Regression: A Probabilistic Discriminative Model}
+
+One widely used approach to classification, especially for binary problems, is \emph{logistic regression}. Logistic regression models the posterior probability \(P(y=1 \mid \mathbf{x})\) directly as a function of \(\mathbf{x}\), without explicitly modeling the class-conditional densities.
+
+\begin{tcolorbox}[summarybox,title={Logistic regression at a glance}]
+\textbf{Objective:} Minimize binary cross\hyp{}entropy (negative log-likelihood) between true labels \(y\in\{0,1\}\) and predicted probabilities \(\hat{p}=\sigma(\boldsymbol{\beta}^\top \tilde{\mathbf{x}})\).\\
+\textbf{Key hyperparameters:} Regularization type/strength (L2 or L1, penalty \(\lambda\); many libraries use \(C=1/\lambda\)), feature scaling, optimization settings (step size, iterations).\\
+\textbf{Defaults:} Standardize features; use L2 regularization with moderate strength; start with a 0.5 decision threshold and adjust only if class costs are asymmetric.\\
+\textbf{Common pitfalls:} Strong collinearity between features, severe class imbalance, and uncalibrated probability outputs if the model is over-regularized or trained on a biased sample.
+\end{tcolorbox}
+
+\paragraph{Binary Classification Setup}
+
+Consider the binary classification problem where \(y \in \{0,1\}\). The goal is to model the probability that the output is class 1 given the input \(\mathbf{x}\): \(P(y=1 \mid \mathbf{x}) = \pi(\mathbf{x})\).
+
+\paragraph{Linear Model for the Log-Odds}
+
+Logistic regression assumes that the \emph{log-odds} (also called the \emph{logit}) of the positive class is a linear function of the input features. Introducing the augmented feature vector \(\tilde{\mathbf{x}} = [1, x_1, \ldots, x_p]^\top\) and parameter vector \(\boldsymbol{\beta} = [\beta_0, \beta_1, \ldots, \beta_p]^\top\), we write
+\begin{equation}
+    \log \frac{\pi(\mathbf{x})}{1 - \pi(\mathbf{x})} = \boldsymbol{\beta}^\top \tilde{\mathbf{x}}.
+    \label{eq:logit_linear}
+\end{equation}
+
+This implies that the posterior probability \(\pi(\mathbf{x})\) can be written as the \emph{logistic sigmoid} function applied to the linear predictor:
+\begin{equation}
+    \pi(\mathbf{x}) = \frac{1}{1 + \exp\left(-\boldsymbol{\beta}^\top \tilde{\mathbf{x}}\right)}.
+    \label{eq:logistic_probability}
+\end{equation}
+
+\begin{tcolorbox}[summarybox,title={Author's note: why ``logistic'' and why ``regression''?}]
+The name \emph{logistic} comes from the logistic (sigmoid) link in \Cref{eq:logistic_probability}, which maps a real\hyp{}valued score to a probability in \([0,1]\). The word \emph{regression} reflects what we model linearly: the \emph{log\hyp{}odds} (logit) in \Cref{eq:logit_linear} is a linear function of the features. The model itself outputs a continuous probability; we turn that probability into a class label by thresholding (or comparing class probabilities in the multiclass extension).
+\end{tcolorbox}
+
+\subsubsection{Likelihood, loss, and gradient}\label{sec:lec2_logistic_likelihood}
+For data \(\{(\mathbf{x}_i,y_i)\}_{i=1}^N\) with \(y_i\in\{0,1\}\), define \(p_i=\pi(\mathbf{x}_i)=\sigma(\boldsymbol{\beta}^\top\tilde{\mathbf{x}}_i)\).
+Under a Bernoulli model, the likelihood factorizes as
+\begin{equation}
+    p(\mathbf{y}\mid X,\boldsymbol{\beta})=\prod_{i=1}^N p_i^{y_i}(1-p_i)^{1-y_i},
+    \label{eq:lec2_bernoulli_likelihood}
+\end{equation}
+so the log\hyp{}likelihood is
+\begin{equation}
+    \log p(\mathbf{y}\mid X,\boldsymbol{\beta})
+    =\sum_{i=1}^N \Big(y_i\log p_i + (1-y_i)\log(1-p_i)\Big).
+    \label{eq:lec2_loglik}
+\end{equation}
+Maximizing \Cref{eq:lec2_loglik} is equivalent to minimizing the negative log\hyp{}likelihood (binary cross\hyp{}entropy). With the design matrix \(X=[\tilde{\mathbf{x}}_1^\top;\ldots;\tilde{\mathbf{x}}_N^\top]\) and vector \(\mathbf{p}=(p_1,\ldots,p_N)^\top\), the gradient of the negative log\hyp{}likelihood is
+\begin{equation}
+    \nabla_{\boldsymbol{\beta}}\Big(-\log p(\mathbf{y}\mid X,\boldsymbol{\beta})\Big)
+    =X^\top(\mathbf{p}-\mathbf{y}).
+    \label{eq:lec2_logistic_grad}
+\end{equation}
+The Hessian has the form \(X^\top W X\) where \(W=\mathrm{diag}(p_i(1-p_i))\succeq 0\), which makes the objective convex and explains why second-order methods work well for moderate feature dimensions.
+
+\begin{figure}[!htbp]
+    \centering
+\begin{tikzpicture}[background rectangle/.style={fill=white}, show background rectangle]
+        \begin{groupplot}[
+            group style={group size=3 by 1, horizontal sep=1.15cm},
+            width=0.28\linewidth,
+            height=0.27\linewidth,
+            grid=both,
+            minor grid style={gray!10},
+            major grid style={gray!20},
+            tick label style={font=\scriptsize},
+            label style={font=\scriptsize},
+            title style={font=\scriptsize, align=center},
+            legend style={font=\scriptsize, draw=none, fill=white, at={(0.98,0.98)}, anchor=north east},
+            legend cell align=left,
+            axis background/.style={fill=white},
+        ]
+        \nextgroupplot[
+            title={Sigmoid},
+            xlabel={logit $z$},
+            ylabel={$p$},
+            xmin=-5.5,xmax=5.5,
+            ymin=0, ymax=1.05,
+        ]
+            \addplot[cbBlue, very thick, domain=-5.5:5.5, samples=200] {1/(1+exp(-x))};
+        \nextgroupplot[
+            title={BCE loss},
+            xlabel={logit $z$},
+            ylabel={$\mathcal L$},
+            xmin=-5.5,xmax=5.5,
+            ymin=0, ymax=6.2,
+        ]
+            \addplot[cbBlue, very thick, domain=-5.5:5.5, samples=220] {-ln(1/(1+exp(-x)))};
+            \addlegendentry{$y=1$}
+            \addplot[cbOrange, very thick, dashed, domain=-5.5:5.5, samples=220] {-ln(1-1/(1+exp(-x)))};
+            \addlegendentry{$y=0$}
+        \nextgroupplot[
+            title={L2 shrinkage},
+            xlabel={\(\lambda\)},
+            ylabel={},
+            xmin=0, xmax=5,
+            ymin=0, ymax=1.05,
+        ]
+            \addplot[cbGreen, very thick, domain=0:5, samples=120] {1/(1+0.9*x)};
+            \node[
+                font=\scriptsize\bfseries,
+                cbGreen!60!black,
+                fill=white,
+                fill opacity=0.85,
+                text opacity=1,
+                inner sep=1.2pt,
+                anchor=south east,
+                align=right
+            ] at (rel axis cs:0.96,0.08) {shrinks\\weights};
+    \end{groupplot}
+    \ensuretikzbackgroundlayers
+\end{tikzpicture}
+            % Avoid inline math in captions; it wraps poorly in some EPUB renderers.
+            \caption{Schematic: The sigmoid maps logits to probabilities (left). The binary cross\hyp{}entropy (negative log\hyp{}likelihood) penalizes confident wrong predictions sharply (middle). Regularization typically shrinks parameter norms as the penalty strength increases (right).}
+    \label{fig:lec2_sigmoid_bce}
+\end{figure}
+
+\paragraph{Optimization geometry (why iterative solvers)}
+Unlike linear regression, logistic regression does not have a closed-form solution for \(\boldsymbol{\beta}\), even though the objective is convex. In practice we therefore rely on iterative solvers (gradient methods, quasi\hyp{}Newton methods, or Newton/IRLS in moderate dimensions). \Cref{fig:lec1_gd} is a convex quadratic toy that reminds us what an optimization trajectory looks like when we minimize a smooth objective: step size and conditioning shape how quickly iterates contract toward the minimizer.
+
+\begin{figure}[!htbp]
+    \centering
+\begin{tikzpicture}[background rectangle/.style={fill=white}, show background rectangle]
+        \begin{axis}[
+            width=0.9\linewidth,
+            height=0.58\linewidth,
+            axis equal image,
+            xmin=-2.6,xmax=1.4,
+            ymin=-2.2,ymax=1.2,
+            xlabel={$w_1$},
+            ylabel={$w_2$},
+            grid=both,
+            minor grid style={gray!15},
+            major grid style={gray!30},
+            legend style={at={(0.97,0.03)},anchor=south east,draw=none,fill=white},
+            legend cell align=left,
+            axis background/.style={fill=white}
+        ]
+            % iso-contours (hand-crafted ellipses)
+            \addplot[gray!35, domain=0:360, samples=200]
+                ({-0.05 + sqrt(1.2)*cos(x) - 0.15*sin(x)},
+                 {-0.08 + 0.4*cos(x) + sqrt(0.8)*sin(x)});
+            \addplot[gray!45, domain=0:360, samples=200]
+                ({-0.05 + sqrt(1.6)*cos(x) - 0.15*sin(x)},
+                 {-0.08 + 0.4*cos(x) + sqrt(1.0)*sin(x)});
+            \addplot[gray!55, domain=0:360, samples=200]
+                ({-0.05 + sqrt(2.2)*cos(x) - 0.15*sin(x)},
+                 {-0.08 + 0.4*cos(x) + sqrt(1.3)*sin(x)});
+            \addplot[gray!65, domain=0:360, samples=200]
+                ({-0.05 + sqrt(2.9)*cos(x) - 0.15*sin(x)},
+                 {-0.08 + 0.4*cos(x) + sqrt(1.7)*sin(x)});
+            \addplot[gray!75, domain=0:360, samples=200]
+                ({-0.05 + sqrt(3.6)*cos(x) - 0.15*sin(x)},
+                 {-0.08 + 0.4*cos(x) + sqrt(2.1)*sin(x)});
+
+            % gradient-descent iterates
+            \addplot[cbPink, very thick, -{Latex[length=2.5mm]}] coordinates {
+                (-2.2,-1.8)
+                (-1.35,-0.95)
+                (-0.65,-0.35)
+                (-0.18,-0.08)
+                (-0.02,-0.01)
+            };
+            \addlegendentry{GD trajectory}
+            \addplot+[only marks, mark=*, mark options={fill=white}, color=cbPink] coordinates {
+                (-2.2,-1.8)
+                (-1.35,-0.95)
+                (-0.65,-0.35)
+                (-0.18,-0.08)
+            };
+            \node[cbPink!80!black, font=\scriptsize, anchor=south west] at (axis cs:-2.2,-1.8) {$t=0$};
+            \node[cbPink!80!black, font=\scriptsize, anchor=south west] at (axis cs:-1.35,-0.95) {$t=5$};
+            \node[cbPink!80!black, font=\scriptsize, anchor=south west] at (axis cs:-0.65,-0.35) {$t=10$};
+            \node[cbPink!80!black, font=\scriptsize, anchor=north east] at (axis cs:-0.02,-0.01) {$t\rightarrow \infty$};
+            \node[cbGreen!50!black, font=\scriptsize] at (axis cs:0.05,0.05) {minimum};
+        \end{axis}
+        \ensuretikzbackgroundlayers
+    \end{tikzpicture}
+        \caption{Schematic: Gradient-descent iterates contracting toward the minimizer of a convex quadratic cost. Ellipses are level sets; arrows show the ``steepest descent along contours'' direction.}
+        \label{fig:lec1_gd}
+    \end{figure}
+\paragraph{Geometry of the logistic surface.} The decision rule is linear in feature space even though the posterior itself is smoothly varying. \Cref{fig:lec2-logistic-boundary} depicts this duality: the white hyperplane slices the space into two half-spaces while the probability ``ramp'' shows how margins translate into calibrated confidences.
+\begin{figure}[h]
+    \centering
+    \ifdefined\HCode
+        \includegraphics[width=0.72\linewidth]{assets/lec2_part2/lec2_logistic_boundary.png}
+    \else
+        \includegraphics[width=0.72\linewidth]{assets/lec2_part2/lec2_logistic_boundary.pdf}
+    \fi
+    % Avoid inline math in captions; it wraps poorly in some EPUB renderers.
+    \caption{Schematic: Illustrative logistic-regression boundary. The dashed line marks the linear decision boundary at probability 0.5; labeled contours show how the posterior varies smoothly with margin, enabling calibrated decisions and adjustable thresholds.}
+    \label{fig:lec2-logistic-boundary}
+\end{figure}
+
+\FloatBarrier
+
+\subsection{Probabilistic Interpretation: MLE and MAP}
+
+The ERM view in \Cref{chap:supervised} treats learning as minimizing an average loss plus (optionally) a regularizer. The probabilistic view arrives at the same objective from a different direction:
+\begin{itemize}
+    \item \textbf{MLE} maximizes the data likelihood under a chosen observation model (for logistic regression: Bernoulli with \(p_i=\sigma(\boldsymbol{\beta}^\top\tilde{\mathbf{x}}_i)\)).
+    \item \textbf{MAP} maximizes the posterior, which multiplies the likelihood by a prior \(p(\boldsymbol{\beta})\). In optimization form, MAP adds a penalty \(-\log p(\boldsymbol{\beta})\), which is exactly regularization.
+\end{itemize}
+Two common priors explain the two penalties that appear most often in practice: a zero-mean Gaussian prior yields an L2 (ridge) penalty, while a Laplace prior yields an L1 (lasso) penalty. The schematic below illustrates the MLE\(\rightarrow\)MAP idea on a simple mean-estimation problem: with little data, the prior matters; with enough data, MAP approaches MLE.
+
+    \begin{figure}[!htbp]
+        \centering
+\begin{tikzpicture}[background rectangle/.style={fill=white}, show background rectangle]
+            \begin{axis}[
+                width=0.65\linewidth,
+                height=0.35\linewidth,
+            xlabel={Sample size $n$},
+            ylabel={Estimate},
+            xmin=0,xmax=50,
+            ymin=0.2,ymax=1.0,
+            legend style={at={(0.02,0.98)},anchor=north west},
+            axis background/.style={fill=white}
+        ]
+            \addplot[cbBlue, thick] table {
+                n est
+                0 0.5
+                5 0.56
+                10 0.60
+                20 0.63
+                30 0.64
+                40 0.65
+                50 0.65
+            };
+            \addlegendentry{MAP (prior $\mu_0=0.5$)}
+            \addplot[cbOrange, thick, dashed] table {
+                n est
+                0 0.5
+                5 0.58
+                10 0.62
+                20 0.66
+                30 0.69
+                40 0.71
+                50 0.72
+            };
+            \addlegendentry{MLE}
+                \draw[gray, dotted] (axis cs:0,0.7) -- node[anchor=south east, font=\scriptsize]{true mean $0.7$} (axis cs:50,0.7);
+        \end{axis}
+        \ensuretikzbackgroundlayers
+    \end{tikzpicture}
+        % Avoid inline math in captions; it wraps poorly in some EPUB renderers.
+        \caption{Schematic: MAP estimates interpolate between the prior mean and the data-driven MLE. As the sample size grows, the MAP curve approaches the true mean.}
+        \label{fig:lec1_mle_map}
+    \end{figure}
+
+\FloatBarrier
+
+\subsection{Confusion Matrices and Derived Metrics}
+
+Once we have a probabilistic classifier, we need diagnostics that quantify performance on held-out data. For multi-class prediction, the confusion matrix \(C_{ij}\) records the number of examples with true class \(i\) predicted as \(j\). From \(C\) we compute accuracy, per-class precision/recall, and aggregate metrics. \emph{Macro-averaged} precision/recall first evaluate the metric per class and then average them uniformly, whereas \emph{micro-averaged} precision/recall pool all true/false positives across classes before computing the ratio (equivalent to weighting each example equally). Visual inspection (\Cref{fig:lec1_confusion}) helps diagnose systematic errors across classes.
+
+On highly imbalanced problems accuracy and AUROC can be misleading; prefer class-balanced metrics (macro-F1) and AUPRC. \Cref{fig:lec1-roc-pr} collects ROC and PR curves on one page so you can choose operating points explicitly.
+
+\begin{figure}[!htbp]
+    \centering
+    \ifdefined\HCode
+        \includegraphics[width=0.78\linewidth]{assets/lec2_part2/lec2_roc_pr.png}
+    \else
+        \includegraphics[width=0.78\linewidth]{assets/lec2_part2/lec2_roc_pr.pdf}
+    \fi
+    % Avoid inline math in captions; it wraps poorly in some EPUB renderers.
+    \caption{Schematic: ROC and PR curves with an explicit operating point. Left: ROC curve with iso-cost lines; right: PR curve with a class-prevalence baseline and iso-F1 contours. Together they visualize threshold trade-offs and calibration quality.}
+    \label{fig:lec1-roc-pr}
+\end{figure}
+\begin{tcolorbox}[summarybox,title={Imbalance and thresholds}]
+Use class or sample weights (e.g., inverse prevalence) inside the loss, and pick thresholds via ROC/PR curves or explicit cost ratios rather than defaulting to 0.5. With symmetric priors but asymmetric costs, predict class 1 when the logit exceeds \(\log(c_{10}/c_{01})\); for rare positives, report PR-AUC alongside AUROC.
+\end{tcolorbox}
+
+    \begin{figure}[!htbp]
+        \centering
+\begin{tikzpicture}[background rectangle/.style={fill=white}, show background rectangle]
+                \begin{axis}[
+                    width=0.6\linewidth,
+                    height=0.4\linewidth,
+                view={0}{90},
+            xmin=-0.5,xmax=2.5,
+            ymin=-0.5,ymax=2.5,
+            xtick={0,1,2},
+            ytick={0,1,2},
+            xticklabels={Pred A,Pred B,Pred C},
+            yticklabels={True A,True B,True C},
+                xlabel=Predicted,
+                ylabel=True,
+                colorbar,
+                colormap/viridis,
+                nodes near coords,
+                nodes near coords align={center},
+                every node near coord/.append style={
+                    font=\scriptsize,
+                    fill=white,
+                    fill opacity=0.75,
+                    text opacity=1,
+                    inner sep=1.2pt
+                },
+                axis background/.style={fill=white}
+            ]
+            \addplot[matrix plot*, mesh/cols=3, point meta=explicit] table [meta=z] {
+                x y z
+                0 0 42
+                1 0 3
+                2 0 1
+                0 1 4
+                1 1 37
+                2 1 5
+                0 2 0
+                1 2 6
+                2 2 32
+                };
+        \end{axis}
+        \ensuretikzbackgroundlayers
+    \end{tikzpicture}
+        \caption{Schematic: Confusion matrix for a three-class classifier; diagonals dominate, indicating strong accuracy with modest confusion between classes B and C.}
+        \label{fig:lec1_confusion}
+    \end{figure}
+
+\FloatBarrier
+\begin{tcolorbox}[summarybox,title={Key takeaways}]
+\begin{itemize}
+    \item Logistic regression models class probability with a sigmoid link and maximizes a concave log\hyp{}likelihood (equivalently minimizes a convex negative log\hyp{}likelihood); there is no closed-form solution.
+    \item ROC and PR curves provide threshold\hyp{}independent evaluation; AUC summarizes performance.
+    \item Proper feature scaling and regularization improve convergence and generalization.
+\end{itemize}
+\end{tcolorbox}
+
+\begin{tcolorbox}[summarybox,title={Probability calibration}]
+Discrimination metrics (ROC/PR, AUC) say how well a classifier ranks examples but not how reliable its probabilities are. Calibration methods such as Platt scaling and temperature scaling adjust the logits so that predicted probabilities match empirical frequencies (e.g., 0.8 scores correspond to \(\approx 80\%\) positives), often measured via Expected Calibration Error (ECE) and inspected with reliability diagrams \citep{Platt1999,Guo2017}.
+\end{tcolorbox}
+
+\begin{table}[h]
+\centering
+\caption{Schematic: Handling class imbalance for logistic models (\Cref{chap:logistic} reference table).}
+\begin{tabularx}{0.98\linewidth}{@{}>{\raggedright\arraybackslash}p{0.32\linewidth} >{\raggedright\arraybackslash}X@{}}
+\toprule
+\textbf{Tactic} & \textbf{When/why} \\
+\midrule
+Stratified splits (and K-fold) & Preserve class ratios in train/validation/test to avoid optimistic validation scores. \\
+Class weighting / cost-sensitive loss & Multiply the cross\hyp{}entropy (or hinge loss) by per-class weights so minority errors matter more. Useful when collecting more data is difficult. \\
+Resampling (over/undersampling, SMOTE) & Balance the dataset prior to training. Helps tree ensembles and linear models; pair with cross-validation to avoid overfitting. Use simple baselines (logistic/SVM) as a tie-break to detect overfitting. \\
+Threshold tuning & Choose a decision threshold based on PR curves or cost ratios rather than default 0.5; report PR-AUC when positives are rare. \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\begin{tcolorbox}[summarybox,title={Exercises and lab ideas}]
+\begin{itemize}
+    \item Implement a minimal example from this chapter and visualize intermediate quantities (plots or diagnostics) to match the pseudocode.
+    \item Stress-test a key hyperparameter or design choice discussed here and report the effect on validation performance or stability.
+    \item Re-derive one core equation or update rule by hand and check it numerically against your implementation.
+\end{itemize}
+\end{tcolorbox}
+
+\medskip
+\paragraph{Where we head next.} Logistic regression still yields a linear decision boundary. \Cref{chap:perceptron} introduces biologically inspired neuron models and perceptrons as trainable building blocks; stacking nonlinearities breaks the linearity ceiling and sets up multilayer networks and backpropagation.
+
+\paragraph{References.} Full citations for works mentioned in this chapter appear in the book-wide bibliography.

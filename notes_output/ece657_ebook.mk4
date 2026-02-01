@@ -1,0 +1,15 @@
+-- Custom tex4ebook build file for `ece657_ebook.tex`.
+--
+-- Purpose: ensure bibliographic citations resolve in EPUB output.
+-- The manuscript uses `natbib` + `\bibliography{refs}`, which requires BibTeX.
+--
+-- Default tex4ebook runs multiple TeX passes but does not invoke BibTeX, which
+-- leaves citations as `??` in the generated XHTML. We run:
+--   1) TeX pass to write `.aux`
+--   2) BibTeX to generate `.bbl`
+--   3) Two TeX passes to resolve citations/crossrefs
+
+Make:htlatex()
+Make:bibtex()
+Make:htlatex()
+Make:htlatex()

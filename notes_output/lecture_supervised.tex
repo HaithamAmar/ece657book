@@ -1,0 +1,584 @@
+% Chapter 3
+\section{Supervised Learning Foundations}\label{chap:supervised}
+
+\begin{tcolorbox}[summarybox,title={Learning Outcomes}]
+\begin{itemize}
+    \item Formalize datasets, hypotheses, and empirical risk minimization (ERM) with consistent notation used in \Crefrange{chap:supervised}{chap:logistic}.
+    \item Compare common regression/classification losses and regularizers, understanding when to prefer each.
+    \item Diagnose under/overfitting with data splits, learning curves, and bias--variance reasoning; use these diagnostics to guide model selection and regularization.
+\end{itemize}
+\end{tcolorbox}
+
+\Cref{chap:symbolic} illustrated a non-statistical lens: solve problems by transformation search, with explicit goal tests. We now switch to the data-driven lens. The roadmap in \Cref{fig:roadmap} marks this as the core supervised strand.
+
+Building intelligent models is an imprecise science. If we know the relationship between the input and the output, there is no need to infer it: Celsius and Fahrenheit are linked by a simple formula, and many physical laws provide direct mappings from one quantity to another. In the problems that motivate machine learning, the mapping is unknown, messy, or only partially understood, so we settle for an approximation. That approximation might be statistical (learned from data), rule-based (encoded from experience), biologically inspired (neural computation), behavioral (fuzzy rules), or evolutionary (search over candidate solutions). In this chapter we focus on the statistical, data-driven strand: supervised learning.
+
+In this sense, supervised learning is about prediction and inference: given evidence \(\mathbf{x}\), estimate an output \(y\) that you can act on or audit. Other modeling goals exist (summarizing structure, compressing representations, discovering clusters), but supervised learning is the cleanest place to learn the mechanics of fitting models, comparing alternatives, and checking whether your success is real or just memorization.
+
+Supervised learning begins with three commitments: pick a functional form that can plausibly approximate the mapping, collect paired examples of inputs and outputs, and define a quantitative measure of ``how wrong'' a prediction is. Once those are in place, training becomes possible: we adjust the model parameters so the predictions align with the observed outputs on the examples we have.
+
+The word \emph{fitting} is meant literally. In classical curve fitting---and in practical settings like sensor calibration---we choose parameters so a predicted curve (or surface) passes near measured points. Keep the camera thread from \Cref{chap:intro} in mind: a camera system is useful because it can predict something actionable from what it senses. A simple example is exposure calibration: we collect scenes with known reference targets, measure raw sensor readouts \(\mathbf{x}\), and learn parameters that map those readouts to a correction \(y\) so the system produces consistent brightness across conditions. The same pattern repeats at higher levels (object detection scores, tracking signals, alert decisions): the details change, but the core act is the same---use paired input/output examples to fit parameters that make predictions reliable.
+
+This chapter builds the supervised-learning toolkit around that central act. We start by making the pieces explicit (data, models, and losses). Then we show what training is doing when it succeeds, and what it looks like when it fails (underfitting vs.\ overfitting). After that we formalize the standard objective (ERM) and the main ``anti-memorization'' tools (regularization and validation). Finally, we work through linear regression as the first fully transparent case study where you can see the entire pipeline end to end.
+
+\begin{tcolorbox}[summarybox,title={Design motif}]
+Data \(\rightarrow\) model \(\rightarrow\) objective \(\rightarrow\) audit. This workflow shows up repeatedly in later chapters, even when the models become deeper and the optimization less forgiving.
+\end{tcolorbox}
+
+\noindent Before we turn the ``fitting'' story into equations, let us fix the handful of symbols we will reuse for several pages. The goal is not to introduce new notation, but to keep the derivations readable while the ideas are still new.
+\begin{itemize}
+  \item Data \(X \in \mathbb{R}^{N\times d}\) with rows \(\mathbf{x}_i^\top\); targets \(y_i\in\mathbb{R}\) for regression and \(y_i \in \{0,1\}\) for binary classification. The affine map \(y_{\pm1}=2y-1\) switches to \(\{-1,+1\}\) when margin-based expressions are convenient.
+  \item Parameters \(\theta\) (model-specific), weights \(\mathbf{w}\in\mathbb{R}^d\); predictions carry hats: \(\hat{y}_i = h_\theta(\mathbf{x}_i)\), \(\hat{\mathbf{y}}=X\mathbf{w}\).
+  \item The loss \(\ell(\hat{y},y)\) is the teacher's grading rubric; the objective aggregates losses over data and adds regularization. Parameters are learned from data; hyperparameters (e.g., \(\lambda\) in regularization) are chosen by validation.
+  \item Noise uses \(\varepsilon\); residuals use \(e=y-\hat{y}\). Vectors are bold lowercase, matrices bold uppercase; scalars are italic.
+  \item Bias absorption (when used): augmented feature \(\tilde{\mathbf{x}}=[\mathbf{x};1]\) with corresponding augmented weights.
+\end{itemize}
+
+\subsection{Problem Setup and Notation}
+
+We observe a dataset \(\mathcal D = \{(\mathbf x_i, y_i)\}_{i=1}^N\) drawn i.i.d. from an unknown distribution \(\mathcal P\) on the input--output space \(\mathcal X \times \mathcal Y\). A hypothesis (model) \(h_\theta : \mathcal X \to \mathcal Y\) with parameters \(\theta\) produces predictions \(\hat{y}_i = h_\theta(\mathbf x_i)\). A pointwise loss function \(\ell(\hat{y}, y)\) measures the penalty incurred by predicting \(\hat{y}\) when the true label is \(y\).
+
+The \emph{population risk} and \emph{empirical risk} associated with \(h_\theta\) are
+\begin{align}
+R(h_\theta) &= \mathbb{E}_{(\mathbf x, y)\sim \mathcal P}\big[\ell\big(h_\theta(\mathbf x), y\big)\big], \\
+\hat R_N(h_\theta) &= \frac{1}{N} \sum_{i=1}^N \ell\big(h_\theta(\mathbf x_i), y_i\big).
+\end{align}
+Because \(\mathcal P\) is unknown, learning algorithms minimize empirical proxies of \(R(h_\theta)\). This is the formal version of the ``educated guess'' idea: we posit a model family \(h_\theta\), then use data to choose parameter values that make its predictions behave like the measured input--output pairs. In practice we do this on a \emph{training set} (the data used to fit parameters), and we reserve held-out data to check whether the fitted model is trustworthy; \Cref{sec:lec1_model_selection} makes these evaluation protocols precise.
+
+\subsection{Fitting, Overfitting, and Underfitting}
+
+Fitting is the act of choosing parameters \(\theta\) so a model's predictions match observed data. Concretely, we pick a loss \(\ell\), evaluate it on examples \((\mathbf{x}_i,y_i)\), and use an optimization method to search for parameters that make the aggregate loss small. This is what practitioners usually mean by \emph{training}.
+
+It helps to picture training as repeated adjustment under feedback. You make a prediction, measure the mistake with a loss, update parameters to reduce that mistake, and repeat. In sensor calibration, this feels familiar: if your measured output is consistently off, you change a gain or offset; if it is noisy, you adjust how aggressively you trust any one reading. Supervised learning packages that intuition into a general recipe that can be reused across problems.
+
+The goal is not to ``fit the training set'' as an end in itself. A good fit is one that holds up on new data: the fitted model should behave sensibly on inputs it has not seen. When fitting fails, it tends to fail in one of two recognizable ways.
+
+\paragraph{Underfitting.}
+The model family is too rigid for the task, the features do not contain enough information, or the optimization did not do its job. This is the student who cannot solve the practice problems before the exam: the mismatch is obvious even on the training set. The remedy is to change the representation or the hypothesis class, improve the data, or fix the optimization.
+
+\paragraph{Overfitting.}
+The model is flexible enough to match the training set by memorizing its quirks. This is the student who memorizes the worked examples so well that a small twist on the exam causes failure. Overfitting can look like success until you test on held-out data.
+
+\paragraph{What we aim for.}
+We want a well-fitted model: low training error and comparable validation/test error. The tools below are designed to keep that distinction visible: objectives (losses and regularizers), validation protocols (splits and cross-validation), and diagnostics (learning curves and bias--variance reasoning).
+
+\begin{figure}[!htbp]
+    \centering
+\begin{tikzpicture}[background rectangle/.style={fill=white}, show background rectangle]
+        \begin{axis}[
+            width=0.82\linewidth,
+            height=0.34\linewidth,
+            xlabel={Model complexity},
+            ylabel={Error on data},
+            xmin=0, xmax=10,
+            ymin=0, ymax=1.15,
+            xtick=\empty,
+            ytick=\empty,
+            axis lines=left,
+            grid=both,
+            minor grid style={gray!12},
+            major grid style={gray!25},
+            legend style={at={(0.02,0.98)},anchor=north west,draw=none,fill=white},
+            legend cell align=left,
+            axis background/.style={fill=white},
+            clip=true
+        ]
+            \addplot[cbBlue, thick, domain=0:10, samples=200] {0.95*exp(-0.35*x)+0.05};
+            \addlegendentry{Training error}
+            \addplot[cbOrange, thick, dashed, domain=0:10, samples=200] {0.18 + 0.015*(x-4.5)^2};
+            \addlegendentry{Validation error}
+
+            \draw[gray!60, dashed] (axis cs:3.2,0) -- (axis cs:3.2,1.05);
+            \draw[gray!60, dashed] (axis cs:6.2,0) -- (axis cs:6.2,1.05);
+
+            \node[font=\scriptsize, align=center, color=gray!70!black, anchor=north] at (axis description cs:0.16,0.98) {underfit\\(high bias)};
+            \node[font=\scriptsize, align=center, color=gray!70!black, anchor=north] at (axis description cs:0.50,0.98) {good fit};
+            \node[font=\scriptsize, align=center, color=gray!70!black, anchor=north] at (axis description cs:0.84,0.98) {overfit\\(high variance)};
+
+            \node[
+                font=\scriptsize,
+                color=cbOrange!80!black,
+                fill=white,
+                fill opacity=0.85,
+                text opacity=1,
+                inner sep=1.2pt,
+                anchor=south
+            ] at (axis cs:4.5,0.22) {best validation};
+        \end{axis}
+    \ensuretikzbackgroundlayers
+    \end{tikzpicture}
+    \caption{Schematic: Underfitting and overfitting as a function of model complexity. Training error typically decreases with complexity, while validation error often has a U-shape. Regularization and model selection aim to operate near the minimum of the validation curve.}
+    \label{fig:lec1_fit_regimes}
+\end{figure}
+
+\subsection{Empirical Risk Minimization and Regularization}
+
+To make the informal idea of ``fitting'' mathematically precise, we choose an objective and minimize it. The supervised-learning baseline is \emph{empirical risk minimization}: minimize the average loss on the training data.
+
+This is the first place where the chapter's opening promises become concrete. If we do not know the true input--output law, we still need a disciplined way to compare candidate models and to say whether one parameter choice is better than another. The loss plays the role of the teacher's rubric, and ERM is the simplest way to aggregate that rubric over many examples: instead of arguing about one example at a time, we ask for parameters that perform well on average across the dataset.
+
+The \emph{empirical risk minimizer} (ERM) selects
+\begin{equation}
+\hat\theta_{\text{ERM}} = \arg\min_{\theta} \; \hat R_N(h_\theta).
+\end{equation}
+To mitigate overfitting, we often add a regularizer \(\Omega(\theta)\) with strength \(\lambda \ge 0\):
+\begin{equation}
+\hat\theta_\lambda = \arg\min_{\theta} \; \hat R_N(h_\theta) + \lambda\,\Omega(\theta), \qquad \Omega(\theta) \in \{\|\theta\|_2^2,\; \|\theta\|_1,\ldots\}.
+\end{equation}
+
+\noindent Regularization is not an arbitrary penalty. It is the mathematical version of a teaching move: if a student can memorize every worked example, you change the exercises so memorization is less effective and understanding is rewarded. Regularization plays the same role. It makes some parameter settings expensive, which pushes learning toward explanations that generalize better.
+
+In supervised learning, this matters because a model can drive training loss down in ways that do not survive contact with new data. Regularization is one of the main tools we use to ``push back'' against memorization: we still fit the data, but we also express a preference for solutions that are stable, simple, or structured in ways that match the problem.
+
+\paragraph{Ridge and lasso.}
+Two penalties show up so often that they have become part of the basic vocabulary:
+\begin{itemize}
+    \item \textbf{Ridge (L2)} adds \(\|\theta\|_2^2\), which shrinks weights smoothly and stabilizes solutions when features are correlated.
+    \item \textbf{Lasso (L1)} adds \(\|\theta\|_1\), which tends to set some weights to exactly zero, yielding sparse models and a form of feature selection.
+\end{itemize}
+The difference is easiest to remember geometrically: L2 has round level sets, while L1 has corners, and corners create exact zeros.
+
+\begin{tcolorbox}[summarybox,title={Regularization: L1/L2 and scaling}]
+\begin{itemize}
+    \item \textbf{Why regularize?} Flexible models can fit training data by effectively memorizing idiosyncrasies (noise, quirks of the sample) rather than capturing stable structure. Regularization makes such memorization expensive and rewards explanations that survive on held-out data.
+    \item \textbf{L2 (ridge)} shrinks weights smoothly, is rotationally invariant, and works well when features are dense and correlated.
+    \item \textbf{L1 (lasso)} promotes sparsity, effectively performing feature selection when many coefficients should be zero.
+    \item \textbf{Why the names?} ``Ridge'' refers to the ridge-like valleys that appear in least-squares objectives under multicollinearity; the L2 penalty lifts the valley floor and stabilizes the solution. ``LASSO'' is an acronym for \emph{Least Absolute Shrinkage and Selection Operator}.
+    \item \textbf{Why L1 vs.\ L2 feels different:} the L2 penalty discourages large coefficients but rarely drives them exactly to zero, while the L1 penalty creates corners in the geometry that tend to set some coefficients to exactly zero.
+    \item \textbf{Standardization} (zero mean, unit variance) is essential before applying L1/L2/elastic-net so the penalty treats all dimensions comparably.
+    \item With an intercept term, centering \(y\) makes the algebra cleaner; ridge and lasso still apply directly once features are scaled.
+\end{itemize}
+\end{tcolorbox}
+
+\begin{figure}[h]
+    \centering
+\begin{tikzpicture}[scale=0.95, background rectangle/.style={fill=white}, show background rectangle]
+        \tikzstyle{ax}=[gray!60, -{Stealth[length=2mm]}]
+        \tikzstyle{contour}=[gray!50, thick]
+        \tikzstyle{ball}=[cbBlue!70!black, thick]
+
+        % Left: L2 ball
+        \begin{scope}[xshift=-4.4cm]
+            \draw[ax] (-1.9,0) -- (2.1,0) node[anchor=west] {$\theta_1$};
+            \draw[ax] (0,-1.9) -- (0,2.1) node[anchor=south] {$\theta_2$};
+            \draw[contour] (0.7,0.2) circle (1.35);
+            \draw[contour] (0.7,0.2) circle (0.95);
+            \draw[contour] (0.7,0.2) circle (0.55);
+            \draw[ball] (0,0) circle (1.25);
+            \fill[cbOrange!80!black] (0.88,0.88) circle (1.6pt);
+            \node[font=\scriptsize, anchor=west] at (1.05,0.95) {solution};
+            \node[font=\scriptsize, align=center] at (0,-2.35) {L2 (ridge):\\round constraint};
+        \end{scope}
+
+        % Right: L1 ball
+        \begin{scope}[xshift=4.4cm]
+            \draw[ax] (-1.9,0) -- (2.1,0) node[anchor=west] {$\theta_1$};
+            \draw[ax] (0,-1.9) -- (0,2.1) node[anchor=south] {$\theta_2$};
+            \draw[contour] (0.7,0.2) circle (1.35);
+            \draw[contour] (0.7,0.2) circle (0.95);
+            \draw[contour] (0.7,0.2) circle (0.55);
+            \draw[ball] (0,1.25) -- (1.25,0) -- (0,-1.25) -- (-1.25,0) -- cycle;
+            \fill[cbOrange!80!black] (0,1.25) circle (1.6pt);
+            \node[font=\scriptsize, anchor=west] at (0.15,1.33) {solution};
+            \node[font=\scriptsize, align=center] at (0,-2.35) {L1 (lasso):\\corners encourage zeros};
+        \end{scope}
+    \ensuretikzbackgroundlayers
+    \end{tikzpicture}
+    \caption{Schematic: Why L1 promotes sparsity. Minimizing loss subject to an L2 constraint tends to hit a smooth boundary; an L1 constraint has corners aligned with coordinate axes, so tangency often occurs at a point where some coordinates are exactly zero.}
+    \label{fig:lec1_l1_l2_geometry}
+\end{figure}
+
+\begin{figure}[!htbp]
+    \centering
+\begin{tikzpicture}[background rectangle/.style={fill=white}, show background rectangle]
+    \begin{axis}[
+        width=0.95\linewidth,
+        height=0.36\linewidth,
+        xlabel={Regularization strength $\lambda$},
+        ylabel={Coefficient value},
+        xmin=0, xmax=5,
+        ymin=-1.1, ymax=1.1,
+        legend style={at={(0.985,0.03)},anchor=south east,draw=none,fill=white,fill opacity=0.85,text opacity=1},
+            grid=both,
+            minor grid style={gray!12},
+            major grid style={gray!25},
+            axis background/.style={fill=white}
+        ]
+            \addplot[cbBlue, thick, domain=0:5, samples=200] {max(0, 1 - 0.35*x)};
+            \addlegendentry{$\beta_1$ (shrinks)}
+            \addplot[cbOrange, thick, dashed, domain=0:5, samples=200] {max(0, 0.7 - 0.45*x)};
+            \addlegendentry{$\beta_2$ (hits zero)}
+            \addplot[cbGreen, thick, dash dot, domain=0:5, samples=200] {-max(0, 0.9 - 0.55*x)};
+            \addlegendentry{$\beta_3$ (hits zero)}
+        \end{axis}
+    \ensuretikzbackgroundlayers
+\end{tikzpicture}
+    % Avoid inline math in captions; it wraps poorly in some EPUB renderers.
+    \caption{Schematic: A typical lasso path as the regularization strength increases. Coefficients shrink, and some become exactly zero, yielding sparse models.}
+    \label{fig:lec1_lasso_path}
+\end{figure}
+
+\subsection{Elastic-net paths and cross-validation}
+Pure L1 or L2 penalties rarely dominate modern workflows; the \emph{elastic net} mixes them to balance sparsity and stability:
+\begin{equation}
+    \hat{\theta}_{\alpha,\lambda} = \arg\min_{\theta} \hat{R}_N(h_\theta) + \lambda\Big(\alpha \|\theta\|_1 + \tfrac{1-\alpha}{2} \|\theta\|_2^2\Big), \qquad \alpha \in [0,1].
+\end{equation}
+Setting \(\alpha=1\) recovers the lasso, \(\alpha=0\) yields ridge, and intermediate values trace a solution path that tends to group correlated features while still pruning irrelevant ones. In practice we standardize the features once, draw a logarithmic grid of \(\lambda\) values, and run \(K\)-fold cross-validation for each pair \((\alpha,\lambda)\). The ``one-standard-error'' rule selects the largest \(\lambda\) whose validation error is within one standard error of the minimum. It gives a stable operating point and avoids over-interpreting tiny validation differences.
+
+\subsection{Common Loss Functions}
+
+Loss functions make the teacher signal quantitative: they decide what counts as a small mistake, what counts as a large one, and which kinds of errors matter most.
+For binary classification with labels \(y \in \{-1, +1\}\) and margin \(z = y\,f(\mathbf x)\), two standard losses are
+\begin{align}
+\ell_{\text{hinge}}(y,z) &= \max\bigl(0, 1 - z\bigr), &
+\ell_{\text{logistic}}(y,z) &= \log\bigl(1 + e^{-z}\bigr).
+\end{align}
+Here \(y\in\{-1,+1\}\); when labels are instead coded as \(y\in\{0,1\}\) (common in probability-of-class formulations), the margin expression uses \(y_{\pm1}=2y-1\) to map between codings.
+\Cref{fig:lec1_class_losses} visualizes these curves together with the squared hinge so you can match the algebra to the margin geometry.
+For regression with residual \(e = y - \hat{y}\), we frequently use
+\begin{align}
+    \ell_{\text{sq}}(e) &= \tfrac{1}{2} e^2, &
+    \ell_{\text{abs}}(e) &= |e|.
+\end{align}
+The Huber loss interpolates between these: it is quadratic when \(|e| \le \delta\) and linear beyond that threshold (here the plot uses \(\delta=1\)), reducing sensitivity to outliers while remaining smooth around the origin.
+
+\begin{table}[!htbp]
+\centering
+\caption{Schematic: Common losses and typical use (reference for \Crefrange{chap:supervised}{chap:perceptron}).}
+\begin{tabular}{@{}>{\raggedright\arraybackslash}p{0.22\linewidth} >{\raggedright\arraybackslash}p{0.25\linewidth} >{\raggedright\arraybackslash}p{0.4\linewidth}@{}}
+\toprule
+\textbf{Loss} & \textbf{Convex?} & \textbf{Typical use} \\
+\midrule
+Squared error $\tfrac{1}{2}e^2$ & Yes & Regression when Gaussian noise is plausible; differentiable everywhere. \\
+Absolute error $|e|$ & Yes & Robust regression with Laplacian noise assumptions; non-differentiable at 0. \\
+Huber (quadratic $\rightarrow$ linear) & Yes & Regression when moderate outliers are present; smooth near zero. \\
+Logistic (binary cross\hyp{}entropy) & Yes & Probabilistic classification; pairs naturally with sigmoid. \\
+Hinge / squared hinge & Yes & Margin-based classifiers (SVMs, large-margin perceptrons). \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{figure}[!htbp]
+    \centering
+\begin{tikzpicture}[background rectangle/.style={fill=white}, show background rectangle]
+        \begin{axis}[
+            width=0.75\linewidth,
+            height=0.35\linewidth,
+            xlabel={Margin $z$},
+            ylabel={Loss},
+            xmin=-3, xmax=3,
+            ymin=0, ymax=2.5,
+            legend style={at={(0.03,0.97)},anchor=north west},
+            samples=300,
+            grid=both,
+            minor grid style={gray!15},
+            major grid style={gray!30},
+            axis background/.style={fill=white}
+        ]
+            \addplot[cbBlue, thick, domain=-3:3, samples=300]{ (x <= 1 ? max(0,1-x) : 0) };
+            \addlegendentry{Hinge}
+            \addplot[cbOrange, thick, domain=-3:3, samples=300]{ ln(1 + exp(-x)) };
+            \addlegendentry{Logistic}
+            \addplot[cbGreen, thick, dashed, domain=-3:3, samples=300]{ (x <= 1 ? max(0,1-x)^2 : 0) };
+            \addlegendentry{Squared hinge}
+        \end{axis}
+    \ensuretikzbackgroundlayers
+\end{tikzpicture}
+    % Avoid inline math in captions; it wraps poorly in some EPUB renderers.
+    \caption{Schematic: Classification losses as functions of the signed margin z.}
+    \label{fig:lec1_class_losses}
+\end{figure}
+
+\begin{figure}[!htbp]
+    \centering
+\begin{tikzpicture}[background rectangle/.style={fill=white}, show background rectangle]
+        \begin{axis}[
+            width=0.75\linewidth,
+            height=0.35\linewidth,
+            xlabel={Error $e$},
+            ylabel={Loss},
+            xmin=-3, xmax=3,
+            ymin=0, ymax=5,
+            legend style={at={(0.02,0.98)},anchor=north west},
+            samples=300,
+            grid=both,
+            minor grid style={gray!15},
+            major grid style={gray!30},
+            axis background/.style={fill=white}
+        ]
+            \addplot[cbBlue, thick, domain=-3:3, samples=300]{0.5*x^2};
+            \addlegendentry{Squared}
+            \addplot[cbOrange, thick, domain=-3:3, samples=300]{abs(x)};
+            \addlegendentry{Absolute}
+            \addplot[cbGreen, thick, dashed, domain=-3:3, samples=300]{ (abs(x) <= 1 ? 0.5*x^2 : abs(x) - 0.5) };
+            \addlegendentry{Huber}
+        \end{axis}
+    \ensuretikzbackgroundlayers
+    \end{tikzpicture}
+    \caption{Schematic: Regression losses versus prediction error. The Huber loss transitions from quadratic to linear to reduce sensitivity to outliers.}
+    \label{fig:lec1_reg_losses}
+\end{figure}
+
+\FloatBarrier
+
+\subsection{Model Selection, Splits, and Learning Curves}\label{sec:lec1_model_selection}
+
+Up to this point, we have defined what it means to fit: choose a model family, pick an objective (loss plus any regularizer), and tune parameters to reduce that objective on observed examples. The next question is how to choose among competing model families, hyperparameters, and training procedures without fooling ourselves. Model selection is the discipline of making those choices using validation data, while keeping one final dataset split untouched so that the reported performance remains honest.
+
+In other words, this is where the chapter's ``audit'' step becomes operational: we decide what to trust by checking performance on data the model has not been allowed to fit.
+
+Practical workflows allocate data into training, validation, and test portions. Training data are used to fit parameters; validation data guide choices such as hyperparameters and model families; and the test set provides an unbiased audit once those choices are fixed. The key habit is the separation of roles: training is where you allow the model to ``learn'' (and potentially overfit), validation is where you decide what kind of learning you trust, and the test set is the final audit.
+
+\begin{tcolorbox}[summarybox,title={Proper scoring rules and calibration},breakable]
+\small
+\begin{itemize}
+    \item \textbf{Log loss (cross\hyp{}entropy)} and the \textbf{Brier score} are \emph{proper} scoring rules: in expectation, they are minimized by predicting the true class probability.
+    \item \textbf{Brier} is squared error in probability space; it penalizes confident mistakes less harshly than log loss and is often paired with reliability diagrams.
+    \item \textbf{Log loss} heavily punishes overconfident errors (loss \(\to \infty\) as predicted probability \(\to 0\) on the true class), so it is a natural objective when probabilities will be thresholded downstream.
+    \item \textbf{Practical tip:} train with log loss, but monitor both log loss and Brier score on validation data to catch calibration issues early.
+\end{itemize}
+\normalsize
+\end{tcolorbox}
+
+\begin{figure}[h]
+    \centering
+\begin{tikzpicture}[x=0.9\linewidth,y=1.0cm, font=\scriptsize, background rectangle/.style={fill=white}, show background rectangle]
+        \def\barheight{0.6}
+        \def\train{0.7}
+        \def\val{0.15}
+        \def\test{0.15}
+        \path[rounded corners=2pt, draw=gray!60, line width=0.6pt] (0,0) rectangle (1,\barheight);
+        \path[rounded corners=2pt, fill=cbBlue!25] (0,0) rectangle (\train,\barheight);
+        \path[fill=cbOrange!30] (\train,0) rectangle (\train+\val,\barheight);
+        \path[rounded corners=2pt, fill=cbGreen!25] (\train+\val,0) rectangle (1,\barheight);
+        \draw[gray!60, line width=0.6pt, rounded corners=2pt] (0,0) rectangle (1,\barheight);
+        \draw[gray!50, line width=0.5pt] (\train,0) -- (\train,\barheight);
+        \draw[gray!50, line width=0.5pt] (\train+\val,0) -- (\train+\val,\barheight);
+        \node[align=center] at (\train/2,0.5*\barheight) {Train\\70\%};
+        \node[align=center] at (\train+\val/2,0.5*\barheight) {Validation\\15\%};
+        \node[align=center] at (1-\test/2,0.5*\barheight) {Test\\15\%};
+        \draw[cbGray, -{Stealth[length=2.2mm]}, line width=0.8pt] (0,-0.38) -- node[below, text=cbGray, yshift=-2pt]{Shuffle, then split once or use $K$-fold CV} (1,-0.38);
+    \ensuretikzbackgroundlayers
+    \end{tikzpicture}
+    \caption{Schematic: Dataset partitioning into training, validation, and test segments. Any resampling scheme should preserve disjoint evaluation data; when classes are imbalanced, shuffle within strata so each split reflects the overall class mix.}
+    \label{fig:lec1_splits}
+\end{figure}
+
+To make the workflow concrete, \Cref{fig:lec1_pipeline} summarizes the standard ERM pipeline from dataset to model selection.
+
+\begin{figure}[h]
+    \centering
+\begin{tikzpicture}[scale=0.90, transform shape, node distance=0.60cm, every node/.style={font=\scriptsize}, background rectangle/.style={fill=white}, show background rectangle]
+    \tikzstyle{block}=[draw, rounded corners, fill=gray!10, minimum width=1.46cm, minimum height=0.85cm, align=center]
+    \node[block] (data) {Dataset\\$\mathcal{D}$};
+    \node[block, right=of data] (split) {Stratified\\train/val/test\\split};
+    \node[block, right=of split] (train) {Train model\\(ERM + regularizer)};
+        \node[block, right=of train] (val) {Validate / tune\\hyperparameters};
+        \node[block, right=of val] (test) {Frozen model\\tested once\\{\scriptsize(best model only)}};
+        \draw[->, thick] (data) -- (split);
+        \draw[->, thick] (split) -- (train);
+        \draw[->, thick] (train) -- (val);
+        \draw[->, thick] (val) -- (test);
+        \draw[->, thick, bend right=40] (train.south) to node[below, font=\scriptsize]{hyperparameter update} (val.south);
+    \ensuretikzbackgroundlayers
+    \end{tikzpicture}
+    \caption{Schematic: Mini ERM pipeline (split once, iterate train/validate, then test only the best model on the held-out set).}
+    \label{fig:lec1_pipeline}
+\end{figure}
+
+Learning curves plot training and validation error against the number of training examples, revealing underfitting or overfitting regimes.
+
+\begin{figure}[h]
+    \centering
+\begin{tikzpicture}[background rectangle/.style={fill=white}, show background rectangle]
+        \begin{axis}[
+            width=0.7\linewidth,
+            height=0.35\linewidth,
+            xlabel={Training examples},
+            ylabel={Loss / metric},
+            xmin=0, xmax=100,
+            ymin=0, ymax=0.5,
+            legend style={at={(0.5,1.02)},anchor=south,legend columns=2},
+            grid=both,
+            minor grid style={gray!15},
+            major grid style={gray!30},
+            axis background/.style={fill=white}
+        ]
+            \addplot[cbBlue, thick, smooth, mark=*, mark repeat=2, mark options={fill=cbBlue}] table {
+                n err
+                5 0.45
+                10 0.38
+                20 0.30
+                40 0.22
+                60 0.18
+                80 0.16
+                100 0.15
+            };
+            \addlegendentry{Training error}
+            \addplot[cbOrange, thick, dashed, smooth, mark=square*, mark repeat=2, mark options={fill=cbOrange}] table {
+                n err
+                5 0.46
+                10 0.42
+                20 0.36
+                40 0.30
+                60 0.27
+                80 0.25
+                100 0.24
+            };
+            \addlegendentry{Validation error}
+            % Patience band
+            \addplot[fill=cbOrange!20, opacity=0.3, draw=none] coordinates {(55,0) (75,0) (75,0.5) (55,0.5)} -- cycle;
+            \node[anchor=south east, font=\scriptsize, color=cbOrange!80!black] at (axis cs:72,0.48) {patience window};
+        \end{axis}
+\ensuretikzbackgroundlayers
+\end{tikzpicture}
+    \caption{Schematic: Learning curves reveal under/overfitting: the validation curve flattens while additional data continue to decrease training error only marginally. A shaded patience window marks when early stopping would halt if no validation improvement occurs.}
+    \label{fig:lec1_learning_curves}
+\end{figure}
+
+\begin{tcolorbox}[summarybox,title={Data-leakage checklist}]
+\begin{itemize}
+    \item Split data before any preprocessing or feature selection.
+    \item Fit scalers/imputers/dimensionality-reduction transforms on the training fold only; reuse fitted parameters on validation/test (or within each CV fold via pipelines).
+    \item Respect temporal order for time-series; avoid target/future-derived features.
+    \item Wrap preprocessing + model in a pipeline for cross-validation so transformers refit inside each fold.
+\end{itemize}
+\end{tcolorbox}
+
+\begin{tcolorbox}[summarybox,title={Bias--variance at a glance}]
+\begin{itemize}
+    \item \textbf{High bias (underfit):} train and validation errors both plateau high and together; add capacity/features or reduce regularization.
+    \item \textbf{High variance (overfit):} train error low, validation error high/diverging; add data, strengthen regularization, or use early stopping.
+    \item \textbf{Well fit:} train/validation track closely and decrease or level off at low error; further gains require better data or priors.
+\end{itemize}
+\end{tcolorbox}
+
+\noindent Learning curves explain \emph{why} the train/validation split is useful: they show whether more data, more capacity, or more regularization is the lever that actually moves the validation error. Once you can read these curves, a natural next question is what happens as we scale up data and model size. The aside below summarizes two modern empirical patterns that are best treated as guidance, not as a recipe.
+
+\begin{tcolorbox}[summarybox,title={Aside: scaling laws and double descent}]
+The simplest story is the classical bias--variance picture: as model capacity grows, training error falls, and validation error often has a U-shape. In modern overparameterized models, that picture can be incomplete. You may see \emph{double descent}: after the classical U-shape, error can decrease again once model size exceeds the interpolation threshold \citep{Belkin2019}. You may also hear \emph{scaling laws}: in some regimes, validation loss decreases roughly as a power law of compute, data, and model size \citep{Kaplan2020,Hoffmann2022}.
+
+Treat both as diagnostics rather than guarantees. Use them to decide whether to collect more data, shrink or expand a model, or regularize more aggressively, but still make final choices by comparing validation curves. Do not chase the interpolation peak as a goal.
+\end{tcolorbox}
+
+\begin{figure}[t]
+    \centering
+    \includegraphics[width=0.78\linewidth]{assets/lec1/lec1_reliability_double}
+    \caption[Calibration and capacity diagnostics (reliability and double descent)]{Schematic: Calibration and capacity diagnostics. Left: reliability diagram with binned predicted probabilities vs. empirical accuracy; Expected Calibration Error (ECE) measures deviation from the diagonal. Right: illustrative double-descent risk vs. model size (log-scale on the x-axis); dashed line sketches a scaling-law trend used to choose capacity/regularization.}
+    \label{fig:lec1-calibration-double-descent}
+\end{figure}
+
+Regularization trades model complexity for generalization; \Cref{fig:lec1_ridge} depicts the effect of ridge penalties on the weight norm.
+
+\begin{figure}[h]
+    \centering
+\begin{tikzpicture}[background rectangle/.style={fill=white}, show background rectangle]
+        \begin{axis}[
+            width=0.7\linewidth,
+            height=0.35\linewidth,
+            xlabel={$\lambda$},
+            ylabel={$\|\theta\|_2$},
+            xmin=0, xmax=5,
+            ymin=0, ymax=1.1,
+            samples=200,
+            axis background/.style={fill=white}
+        ]
+            \addplot[cbBlue, thick, domain=0:5] {1/(1+0.5*x)};
+        \end{axis}
+    \ensuretikzbackgroundlayers
+    \end{tikzpicture}
+    % Avoid inline math in captions; it wraps poorly in some EPUB renderers.
+    \caption{Schematic: Ridge regularization shrinks parameter norms as the penalty strength increases.}
+    \label{fig:lec1_ridge}
+\end{figure}
+
+\subsection{Linear regression: a first full case study}\label{sec:linear_regression_closed}
+
+Up to this point, the supervised-learning pipeline has been described in abstract terms: a dataset, a hypothesis class, an objective, and an audit. Linear regression is where those pieces become concrete enough that you can see every moving part at once.
+
+\noindent A useful habit, before you commit to any model family, is to ask whether there is any signal to model in the first place. If the relationship were deterministic (like Celsius \(\leftrightarrow\) Fahrenheit), there would be nothing to learn. In supervised learning we assume the relationship is statistical: the same input can map to different outputs because of noise, missing variables, or genuine uncertainty. For simple problems, a scatter plot and a correlation coefficient can reveal whether a linear trend is even plausible. For high-dimensional data, analogous sanity checks (feature scaling, collinearity) help you decide whether linear regression is a sensible starting point or merely a baseline.
+
+\noindent In this section, the coefficients \(\boldsymbol{\beta}\) are the knobs we turn. ``Learning'' means using training pairs \((X,\mathbf{y})\) to estimate \(\boldsymbol{\beta}\) so predictions match observed targets as well as they can under the chosen objective. Because least squares is a convex, closed-form problem, repeating the fit with the same data returns the same solution (up to numerical tolerance). That transparency is exactly why linear regression is worth treating carefully: it makes the ideas of losses, optimization, regularization, and validation feel concrete before we move on to models where the same pipeline is less visible.
+
+\paragraph{Model.}
+Given inputs \(\mathbf{x}_i\in\mathbb{R}^d\) and continuous targets \(y_i\in\mathbb{R}\), the linear model predicts
+\begin{equation}
+    \hat{\mathbf{y}} = X\boldsymbol{\beta}, \qquad X\in\mathbb{R}^{N\times d}.
+    \label{eq:linear_model}
+\end{equation}
+Equivalently, \(\hat{y}_i = \mathbf{x}_i^\top \boldsymbol{\beta}\) for each data point. The vector \(\boldsymbol{\beta}\) is the set of adjustable parameters: \emph{fitting} the model means choosing \(\boldsymbol{\beta}\) so that predictions align with observed outputs. The residual \(\mathbf{e}=\mathbf{y}-\hat{\mathbf{y}}\) captures what the model fails to explain on the data at hand.
+
+\paragraph{A noise model (why squared error shows up).}
+A common way to formalize ``measurement scatter'' is to write
+\begin{equation}
+    y_i = \mathbf{x}_i^\top\boldsymbol{\beta} + \varepsilon_i,
+    \qquad \varepsilon_i \sim \mathcal{N}(0,\sigma^2),
+\end{equation}
+where \(\varepsilon_i\) is observation noise (sensor noise, unmodeled effects, annotation noise, etc.). Under this assumption,
+\begin{equation}
+    p(y_i\mid \mathbf{x}_i,\boldsymbol{\beta})=\mathcal{N}(\mathbf{x}_i^\top\boldsymbol{\beta},\sigma^2),
+\end{equation}
+and (assuming i.i.d.\ observations) the likelihood factorizes:
+\begin{equation}
+    p(\mathbf{y}\mid X,\boldsymbol{\beta})=\prod_{i=1}^N p(y_i\mid \mathbf{x}_i,\boldsymbol{\beta}).
+\end{equation}
+Maximizing the (log) likelihood is equivalent to minimizing the negative log-likelihood, and for Gaussian noise that becomes (up to constants and a scale factor \(1/(2\sigma^2)\)) the familiar sum of squared errors:
+\begin{equation}
+    -\log p(\mathbf{y}\mid X,\boldsymbol{\beta})
+    = \frac{1}{2\sigma^2}\sum_{i=1}^N (y_i-\mathbf{x}_i^\top\boldsymbol{\beta})^2 + \text{const}.
+\end{equation}
+This is the simplest example of a recurring theme: if you propose an ``educated guess'' model for how data are generated, training often becomes ``minimize a loss''.
+
+\paragraph{Objective.}
+To fit \(\boldsymbol{\beta}\), we need a grading rubric. Squared error is the standard starting point because it is smooth and strongly penalizes large mistakes:
+\begin{equation}
+    L(\boldsymbol{\beta}) = \tfrac{1}{2}\|\mathbf{y}-X\boldsymbol{\beta}\|_2^2.
+\end{equation}
+The gradient is simple,
+\begin{equation}
+    \nabla_{\boldsymbol{\beta}}L(\boldsymbol{\beta}) = X^\top(X\boldsymbol{\beta}-\mathbf{y}),
+\end{equation}
+so gradient descent is explicit: \(\boldsymbol{\beta}\leftarrow \boldsymbol{\beta}-\eta X^\top(X\boldsymbol{\beta}-\mathbf{y})\). This same loop reappears later when the model is no longer linear and the loss is no longer quadratic.
+
+\paragraph{Closed form and geometry.}
+Least squares is convex and satisfies the normal equations:
+\begin{equation}
+    X^\top X\,\hat{\boldsymbol{\beta}} = X^\top \mathbf{y}.
+\end{equation}
+When \(X^\top X\) is invertible, the solution can be written explicitly as
+\begin{equation}
+    \hat{\boldsymbol{\beta}} = (X^\top X)^{-1}X^\top \mathbf{y}.
+\end{equation}
+Geometrically, the prediction \(\hat{\mathbf{y}}\) is the orthogonal projection of \(\mathbf{y}\) onto the column space of \(X\). In code, solve the linear system (QR/SVD) rather than forming \((X^\top X)^{-1}\) explicitly; collinearity can make \(X^\top X\) poorly conditioned even when the mathematics is correct.
+
+\paragraph{Where overfitting enters.}
+With raw features, a linear model may underfit; with aggressive feature expansions (polynomials, splines, kernels, learned features), the same least-squares machinery can overfit. This is where the earlier tools matter. Regularization (ridge, lasso, elastic net) makes memorization harder; validation selects hyperparameters; learning curves diagnose whether error is limited by bias, variance, or data.
+
+\paragraph{Ridge and lasso in one line.}
+Ridge adds \(\lambda\|\boldsymbol{\beta}\|_2^2\) to the objective, shrinking coefficients and stabilizing solutions when features are correlated; lasso uses \(\|\boldsymbol{\beta}\|_1\) and tends to drive some coefficients to exactly zero. The ridge shrinkage behavior is visualized in \Cref{fig:lec1_ridge}.
+
+\medskip
+\noindent The discipline of supervised learning is reusable across models: define a dataset and a hypothesis class, choose an objective (loss plus regularizer), optimize it, and then audit generalization with clean train/validation/test separation. In \Cref{chap:logistic}, we apply this toolkit to classification, where the loss becomes a Bernoulli negative log-likelihood (cross\hyp{}entropy) and the evaluation tools expand (confusion matrices, ROC/PR curves, and calibration).
+
+\begin{tcolorbox}[summarybox,title={Key takeaways}]
+\begin{itemize}
+    \item Supervised learning chooses a hypothesis class and fits parameters by minimizing empirical risk, then audits generalization on held-out data.
+    \item Overfitting is a training success but a deployment failure; regularization and validation protocols are the practical defenses.
+    \item Learning curves and bias--variance reasoning are diagnostics: they help decide whether to add data, change capacity, or adjust regularization.
+\end{itemize}
+\end{tcolorbox}
+
+\begin{tcolorbox}[summarybox,title={Exercises and lab ideas}]
+\begin{itemize}
+    \item Implement linear regression with ridge regularization using both (i) a closed-form solve (QR/SVD) and (ii) gradient descent; compare validation curves as \(\lambda\) varies.
+    \item Create a controlled overfitting experiment: increase polynomial feature degree or add noisy features, then use learning curves (\Cref{fig:lec1_learning_curves}) to diagnose bias vs.\ variance and decide how much regularization is needed.
+    \item Demonstrate a leakage failure mode by fitting preprocessing on the full dataset (incorrect) versus on the training split only (correct); report the difference in test error.
+\end{itemize}
+\end{tcolorbox}
+
+\medskip
+\paragraph{Where we head next.} In \Cref{chap:logistic}, we shift from continuous targets to discrete labels: the model predicts class probabilities, the loss becomes cross\hyp{}entropy, and the evaluation toolkit expands (confusion matrices, ROC/PR curves, and threshold selection).
+
+\paragraph{References.} Full citations for works mentioned in this chapter appear in the book-wide bibliography.
+
+\FloatBarrier

@@ -1,0 +1,636 @@
+\begin{thebibliography}{105}
+\providecommand{\natexlab}[1]{#1}
+\providecommand{\url}[1]{\texttt{#1}}
+\expandafter\ifx\csname urlstyle\endcsname\relax
+  \providecommand{\doi}[1]{doi: #1}\else
+  \providecommand{\doi}{doi: \begingroup \urlstyle{rm}\Url}\fi
+
+\bibitem[Amit et~al.(1985)Amit, Gutfreund, and
+  Sompolinsky]{AmitGutfreundSompolinsky1985}
+Daniel~J. Amit, Hanoch Gutfreund, and Haim Sompolinsky.
+\newblock Storing infinite numbers of patterns in a spin-glass model of neural
+  networks.
+\newblock \emph{Physical Review Letters}, 55\penalty0 (14):\penalty0
+  1530--1533, 1985.
+
+\bibitem[Amodei et~al.(2016)Amodei, Olah, Steinhardt, Christiano, Schulman, and
+  Man{\'e}]{Amodei2016}
+Dario Amodei, Chris Olah, Jacob Steinhardt, Paul Christiano, John Schulman, and
+  Dan Man{\'e}.
+\newblock Concrete problems in {AI} safety.
+\newblock \emph{arXiv preprint arXiv:1606.06565}, 2016.
+
+\bibitem[Arkin(1998)]{Arkin1998}
+Ronald~C. Arkin.
+\newblock \emph{Behavior-Based Robotics}.
+\newblock MIT Press, 1998.
+
+\bibitem[Ba et~al.(2016)Ba, Kiros, and Hinton]{Ba2016}
+Jimmy~Lei Ba, Jamie~Ryan Kiros, and Geoffrey~E. Hinton.
+\newblock Layer normalization, 2016.
+\newblock arXiv:1607.06450.
+
+\bibitem[Bandler and Kohout(1980)]{BandlerKohout1980}
+Wyllis Bandler and Ladislav~J. Kohout.
+\newblock Semantics of implication operators and fuzzy relational products.
+\newblock \emph{International Journal of Man-Machine Studies}, 12\penalty0
+  (1):\penalty0 89--116, 1980.
+
+\bibitem[Belkin et~al.(2019)Belkin, Hsu, Ma, and Mandal]{Belkin2019}
+Mikhail Belkin, Daniel Hsu, Siyuan Ma, and Soumik Mandal.
+\newblock Reconciling modern machine-learning practice and the classical
+  bias--variance trade-off.
+\newblock \emph{Proceedings of the National Academy of Sciences}, 116\penalty0
+  (32):\penalty0 15849--15854, 2019.
+
+\bibitem[Bengio et~al.(2015)Bengio, Vinyals, Jaitly, and Shazeer]{Bengio2015}
+Samy Bengio, Oriol Vinyals, Navdeep Jaitly, and Noam Shazeer.
+\newblock Scheduled sampling for sequence prediction with recurrent neural
+  networks.
+\newblock In \emph{Advances in Neural Information Processing Systems},
+  volume~28, 2015.
+
+\bibitem[Bengio et~al.(1994)Bengio, Simard, and Frasconi]{Bengio1994}
+Yoshua Bengio, Patrice Simard, and Paolo Frasconi.
+\newblock Learning long-term dependencies with gradient descent is difficult.
+\newblock \emph{IEEE Transactions on Neural Networks}, 5\penalty0 (2):\penalty0
+  157--166, 1994.
+\newblock \doi{10.1109/72.279181}.
+
+\bibitem[Bishop(1995)]{Bishop1995}
+Christopher~M. Bishop.
+\newblock \emph{Neural Networks for Pattern Recognition}.
+\newblock Oxford University Press, 1995.
+
+\bibitem[Bolukbasi et~al.(2016)Bolukbasi, Chang, Zou, Saligrama, and
+  Kalai]{Bolukbasi2016}
+Tolga Bolukbasi, Kai{-}Wei Chang, James Zou, Venkatesh Saligrama, and Adam
+  Kalai.
+\newblock Man is to computer programmer as woman is to homemaker? debiasing
+  word embeddings.
+\newblock In \emph{Advances in Neural Information Processing Systems},
+  volume~29, pages 4349--4357, 2016.
+
+\bibitem[Bronstein(2005)]{Bronstein2005}
+Manuel Bronstein.
+\newblock \emph{Symbolic Integration I: Transcendental Functions}.
+\newblock Springer, 2nd ed., 2005.
+
+\bibitem[Brooks(1986)]{Brooks1986}
+Rodney~A. Brooks.
+\newblock A robust layered control system for a mobile robot.
+\newblock \emph{IEEE Journal on Robotics and Automation}, 2\penalty0
+  (1):\penalty0 14--23, 1986.
+
+\bibitem[Chen(1999)]{Chen1999LinearSystemTheoryDesign}
+Chi{-}Tsong Chen.
+\newblock \emph{Linear System Theory and Design}.
+\newblock Oxford University Press, 3rd ed., 1999.
+
+\bibitem[Cho et~al.(2014)Cho, van Merri{\"e}nboer, Bahdanau, and
+  Bengio]{Cho2014}
+Kyunghyun Cho, Bart van Merri{\"e}nboer, Dzmitry Bahdanau, and Yoshua Bengio.
+\newblock On the properties of neural machine translation: Encoder--decoder
+  approaches.
+\newblock In \emph{EMNLP}, pages 103--111, 2014.
+
+\bibitem[Cortes and Vapnik(1995)]{Cortes1995}
+Corinna Cortes and Vladimir Vapnik.
+\newblock Support-vector networks.
+\newblock \emph{Machine Learning}, 20\penalty0 (3):\penalty0 273--297, 1995.
+
+\bibitem[Cottrell and Fort(1986)]{CottrellFort1986}
+M.~Cottrell and J.~C. Fort.
+\newblock A stochastic model of retinotopy: A self organizing process.
+\newblock \emph{Biological Cybernetics}, 53\penalty0 (6):\penalty0 405--411,
+  1986.
+
+\bibitem[Cox and Raja(2011)]{CoxRaja2011}
+Michael~T. Cox and A.~Raja.
+\newblock Metareasoning: A manifesto.
+\newblock \emph{AI Magazine}, 32\penalty0 (1):\penalty0 39--54, 2011.
+
+\bibitem[Cybenko(1989)]{Cybenko1989}
+George Cybenko.
+\newblock Approximation by superpositions of a sigmoidal function.
+\newblock \emph{Mathematics of Control, Signals, and Systems}, 2\penalty0
+  (4):\penalty0 303--314, 1989.
+
+\bibitem[Dao et~al.(2022)Dao, Fu, Ermon, Rudra, and
+  R{\'e}]{Dao2022FlashAttention}
+Tri Dao, Daniel~Y. Fu, Stefano Ermon, Atri Rudra, and Christopher R{\'e}.
+\newblock Flashattention: Fast and memory-efficient exact attention with
+  {IO}-awareness.
+\newblock In \emph{Advances in Neural Information Processing Systems}, 2022.
+
+\bibitem[Deb(2001)]{Deb2001Book}
+Kalyanmoy Deb.
+\newblock \emph{Multi-Objective Optimization Using Evolutionary Algorithms}.
+\newblock Wiley, 2001.
+
+\bibitem[Deb and Agrawal(1995)]{DebAgrawal1995}
+Kalyanmoy Deb and Ram~Bhushan Agrawal.
+\newblock Simulated binary crossover for continuous search space.
+\newblock In \emph{Complex Systems}, volume~9, pages 115--148, 1995.
+
+\bibitem[Deb et~al.(2002)Deb, Pratap, Agarwal, and Meyarivan]{Deb2002}
+Kalyanmoy Deb, Amrit Pratap, Sameer Agarwal, and T.~Meyarivan.
+\newblock A fast and elitist multiobjective genetic algorithm: {NSGA-II}.
+\newblock \emph{IEEE Trans. Evolutionary Computation}, 6\penalty0 (2):\penalty0
+  182--197, 2002.
+
+\bibitem[Dettmers et~al.(2023)Dettmers, Belkada, and
+  Zettlemoyer]{Dettmers2023QLoRA}
+Tim Dettmers, Younes Belkada, and Luke Zettlemoyer.
+\newblock {QLoRA}: Efficient finetuning of quantized {LLMs}.
+\newblock In \emph{Advances in Neural Information Processing Systems}, 2023.
+
+\bibitem[Devlin et~al.(2019)Devlin, Chang, Lee, and Toutanova]{Devlin2019}
+Jacob Devlin, Ming-Wei Chang, Kenton Lee, and Kristina Toutanova.
+\newblock Bert: Pre-training of deep bidirectional transformers for language
+  understanding.
+\newblock In \emph{Proceedings of NAACL-HLT}, pages 4171--4186, 2019.
+
+\bibitem[Dosovitskiy et~al.(2021)Dosovitskiy, Beyer, Kolesnikov,
+  et~al.]{Dosovitskiy2021}
+Alexey Dosovitskiy, Lucas Beyer, Alexander Kolesnikov, et~al.
+\newblock An image is worth 16x16 words: Transformers for image recognition at
+  scale.
+\newblock In \emph{International Conference on Learning Representations}, 2021.
+
+\bibitem[Dubois and Prade(1980)]{DuboisPrade1980}
+Didier Dubois and Henri Prade.
+\newblock \emph{Fuzzy Sets and Systems: Theory and Applications}.
+\newblock Academic Press, 1980.
+
+\bibitem[Dubois and Prade(1988)]{Dubois1988}
+Didier Dubois and Henri Prade.
+\newblock \emph{Possibility Theory: An Approach to Computerized Processing of
+  Uncertainty}.
+\newblock Plenum Press, 1988.
+
+\bibitem[Duda et~al.(2001)Duda, Hart, and Stork]{DudaHartStork2001}
+Richard~O. Duda, Peter~E. Hart, and David~G. Stork.
+\newblock \emph{Pattern Classification}.
+\newblock Wiley, 2nd ed., 2001.
+
+\bibitem[Elman(1990)]{Elman1990}
+Jeffrey~L. Elman.
+\newblock Finding structure in time.
+\newblock \emph{Cognitive Science}, 14:\penalty0 179--211, 1990.
+
+\bibitem[Erwin et~al.(1992)Erwin, Obermayer, and
+  Schulten]{ErwinObermayerSchulten1992}
+E.~Erwin, K.~Obermayer, and K.~Schulten.
+\newblock Self-organizing maps: Ordering, convergence properties and energy
+  functions.
+\newblock \emph{Biological Cybernetics}, 67\penalty0 (1):\penalty0 47--55,
+  1992.
+
+\bibitem[Fritzke(1994)]{Fritzke1994GrowingNeuralGas}
+Bernd Fritzke.
+\newblock A growing neural gas network learns topologies.
+\newblock In \emph{Advances in Neural Information Processing Systems},
+  volume~7, pages 625--632, 1994.
+
+\bibitem[Gal and Ghahramani(2016)]{Gal2016}
+Yarin Gal and Zoubin Ghahramani.
+\newblock A theoretically grounded application of dropout in recurrent neural
+  networks.
+\newblock In \emph{Advances in Neural Information Processing Systems},
+  volume~29, 2016.
+
+\bibitem[Gers et~al.(2000)Gers, Schmidhuber, and Cummins]{Gers2000}
+Felix~A. Gers, J{\"u}rgen Schmidhuber, and Fred Cummins.
+\newblock Learning to forget: Continual prediction with {LSTM}.
+\newblock \emph{Neural Computation}, 12\penalty0 (10):\penalty0 2451--2471,
+  2000.
+\newblock \doi{10.1162/089976600300015015}.
+
+\bibitem[Goldberg(1989)]{Goldberg1989}
+David~E. Goldberg.
+\newblock \emph{Genetic Algorithms in Search, Optimization, and Machine
+  Learning}.
+\newblock Addison-Wesley, 1989.
+
+\bibitem[Goodfellow et~al.(2016)Goodfellow, Bengio, and
+  Courville]{Goodfellow2016}
+Ian Goodfellow, Yoshua Bengio, and Aaron Courville.
+\newblock \emph{Deep Learning}.
+\newblock MIT Press, 2016.
+
+\bibitem[Gu et~al.(2023)Gu, Johnson, and Dao]{Gu2023Mamba}
+Albert Gu, Isys Johnson, and Tri Dao.
+\newblock Mamba: Linear-time sequence modeling with selective state spaces.
+\newblock \emph{arXiv preprint arXiv:2312.00752}, 2023.
+
+\bibitem[Guo et~al.(2017)Guo, Pleiss, Sun, and Weinberger]{Guo2017}
+Chuan Guo, Geoff Pleiss, Yu~Sun, and Kilian~Q. Weinberger.
+\newblock On calibration of modern neural networks.
+\newblock In \emph{Proceedings of the 34th International Conference on Machine
+  Learning}, 2017.
+
+\bibitem[Hansen and Ostermeier(2001)]{Hansen2001}
+Nikolaus Hansen and Andreas Ostermeier.
+\newblock Completely derandomized self-adaptation in evolution strategies.
+\newblock \emph{Evolutionary Computation}, 9\penalty0 (2):\penalty0 159--195,
+  2001.
+
+\bibitem[Hastie et~al.(2009)Hastie, Tibshirani, and
+  Friedman]{HastieTibshiraniFriedman2009}
+Trevor Hastie, Robert Tibshirani, and Jerome Friedman.
+\newblock \emph{The Elements of Statistical Learning}.
+\newblock Springer, 2nd ed., 2009.
+
+\bibitem[Haykin(2009)]{Haykin2009}
+Simon Haykin.
+\newblock \emph{Neural Networks and Learning Machines}.
+\newblock Pearson, 3rd ed., 2009.
+
+\bibitem[Haykin(2013)]{Haykin2013AdaptiveFilterTheory}
+Simon Haykin.
+\newblock \emph{Adaptive Filter Theory}.
+\newblock Pearson, 5th ed., 2013.
+
+\bibitem[Herrera and Lozano(2008)]{Herrera2008}
+Francisco Herrera and Manuel Lozano.
+\newblock \emph{Fuzzy Evolutionary Computation}.
+\newblock Springer, 2008.
+
+\bibitem[Hill(1998)]{Hill1998}
+Donald~R. Hill.
+\newblock \emph{Studies in Medieval Islamic Technology}.
+\newblock Routledge, 1998.
+
+\bibitem[Hochreiter and Schmidhuber(1997)]{Hochreiter1997}
+Sepp Hochreiter and J{\"u}rgen Schmidhuber.
+\newblock Long short-term memory.
+\newblock \emph{Neural Computation}, 9\penalty0 (8):\penalty0 1735--1780, 1997.
+
+\bibitem[Hoffmann et~al.(2022)Hoffmann, Borgeaud, Mensch, et~al.]{Hoffmann2022}
+Jordan Hoffmann, Sebastian Borgeaud, Arthur Mensch, et~al.
+\newblock Training compute-optimal large language models.
+\newblock In \emph{arXiv preprint arXiv:2203.15556}, 2022.
+
+\bibitem[Holland(1975)]{Holland1975}
+John~H. Holland.
+\newblock \emph{Adaptation in Natural and Artificial Systems}.
+\newblock University of Michigan Press, 1975.
+
+\bibitem[Hopfield(1982)]{Hopfield1982}
+John~J. Hopfield.
+\newblock Neural networks and physical systems with emergent collective
+  computational abilities.
+\newblock \emph{Proceedings of the National Academy of Sciences}, 79\penalty0
+  (8):\penalty0 2554--2558, 1982.
+
+\bibitem[Hu et~al.(2022)Hu, Shen, Wallis, Allen-Zhu, Li, Wang, Wang, and
+  Chen]{Hu2022LoRA}
+Edward~J. Hu, Yelong Shen, Phillip Wallis, Zeyuan Allen-Zhu, Yuanzhi Li, Shean
+  Wang, Lu~Wang, and Weizhu Chen.
+\newblock {LoRA}: Low-rank adaptation of large language models.
+\newblock In \emph{International Conference on Learning Representations}, 2022.
+
+\bibitem[{IEEE Global Initiative on Ethics of Autonomous and Intelligent
+  Systems}(2019)]{IEEEEthicallyAligned2019}
+{IEEE Global Initiative on Ethics of Autonomous and Intelligent Systems}.
+\newblock Ethically aligned design.
+\newblock 1st ed.\ white paper, 2019.
+\newblock IEEE Standards Association.
+
+\bibitem[Ishibuchi and Nakashima(2007)]{Ishibuchi2007}
+Hisao Ishibuchi and Tomohiro Nakashima.
+\newblock \emph{Fuzzy Multiobjective Optimization: Evolutionary and Genetic
+  Algorithms}.
+\newblock Springer, 2007.
+
+\bibitem[Jang(1993)]{Jang1993}
+Jyh-Shing~Roger Jang.
+\newblock {ANFIS}: Adaptive-network-based fuzzy inference system.
+\newblock \emph{IEEE Transactions on Systems, Man, and Cybernetics},
+  23\penalty0 (3):\penalty0 665--685, 1993.
+\newblock \doi{10.1109/21.256541}.
+
+\bibitem[Jong(2006)]{DeJong2006}
+Kenneth A.~De Jong.
+\newblock \emph{Evolutionary Computation: A Unified Approach}.
+\newblock MIT Press, 2006.
+
+\bibitem[Jurafsky and Martin(2023)]{JurafskyMartin2023}
+Daniel Jurafsky and James~H. Martin.
+\newblock Speech and language processing, 2023.
+\newblock Draft (3rd ed.), chapters available online.
+
+\bibitem[Kailath(1980)]{Kailath1980}
+Thomas Kailath.
+\newblock \emph{Linear Systems}.
+\newblock Prentice Hall, 1980.
+
+\bibitem[Kaplan et~al.(2020)Kaplan, McCandlish, Henighan, et~al.]{Kaplan2020}
+Jared Kaplan, Sam McCandlish, Tom Henighan, et~al.
+\newblock Scaling laws for neural language models.
+\newblock In \emph{arXiv preprint arXiv:2001.08361}, 2020.
+
+\bibitem[Kingma and Ba(2015)]{Kingma2015}
+Diederik~P. Kingma and Jimmy Ba.
+\newblock Adam: A method for stochastic optimization.
+\newblock \emph{Proc. ICLR}, 2015.
+
+\bibitem[Klement et~al.(2000)Klement, Mesiar, and Pap]{Klement2000}
+Erich~P. Klement, Radko Mesiar, and Endre Pap.
+\newblock \emph{Triangular Norms}.
+\newblock Trends in Logic. Springer, 2000.
+
+\bibitem[Klir and Yuan(1995)]{KlirYuan1995}
+George~J. Klir and Bo~Yuan.
+\newblock \emph{Fuzzy Sets and Fuzzy Logic: Theory and Applications}.
+\newblock Prentice Hall, 1995.
+
+\bibitem[Kohonen(1982)]{Kohonen1982}
+Teuvo Kohonen.
+\newblock Self-organized formation of topologically correct feature maps.
+\newblock \emph{Biological Cybernetics}, 43\penalty0 (1):\penalty0 59--69,
+  1982.
+
+\bibitem[Kohonen(2001)]{Kohonen2001}
+Teuvo Kohonen.
+\newblock \emph{Self-Organizing Maps}.
+\newblock Springer, 3rd ed., 2001.
+
+\bibitem[Koza(1992)]{Koza1992}
+John~R. Koza.
+\newblock \emph{Genetic Programming: On the Programming of Computers by Means
+  of Natural Selection}.
+\newblock MIT Press, 1992.
+
+\bibitem[Krizhevsky et~al.(2012)Krizhevsky, Sutskever, and
+  Hinton]{Krizhevsky2012}
+Alex Krizhevsky, Ilya Sutskever, and Geoffrey~E. Hinton.
+\newblock Imagenet classification with deep convolutional neural networks.
+\newblock \emph{Advances in Neural Information Processing Systems},
+  25:\penalty0 1097--1105, 2012.
+
+\bibitem[Krotov and Hopfield(2016)]{Krotov2016}
+Dmitry Krotov and John~J. Hopfield.
+\newblock Dense associative memory for pattern recognition.
+\newblock \emph{Advances in Neural Information Processing Systems}, 29, 2016.
+
+\bibitem[Krotov and Hopfield(2020)]{Krotov2020}
+Dmitry Krotov and John~J. Hopfield.
+\newblock Large associative memory problem in neurobiology and machine
+  learning.
+\newblock \emph{Journal of Statistical Mechanics: Theory and Experiment}, page
+  034003, 2020.
+
+\bibitem[Krueger et~al.(2017)Krueger, Maharaj, Tiedemann, et~al.]{Krueger2016}
+David Krueger, Tegan Maharaj, J{\"o}rg Tiedemann, et~al.
+\newblock Zoneout: Regularizing rnns by randomly preserving hidden activations.
+\newblock In \emph{International Conference on Learning Representations}, 2017.
+
+\bibitem[Levy and Goldberg(2014)]{LevyGoldberg2014}
+Omer Levy and Yoav Goldberg.
+\newblock Neural word embedding as implicit matrix factorization.
+\newblock In \emph{Advances in Neural Information Processing Systems}, 2014.
+
+\bibitem[Loshchilov and Hutter(2019)]{Loshchilov2019}
+Ilya Loshchilov and Frank Hutter.
+\newblock Decoupled weight decay regularization.
+\newblock \emph{Proc. ICLR}, 2019.
+
+\bibitem[MacQueen(1967)]{MacQueen1967}
+J.~B. MacQueen.
+\newblock Some methods for classification and analysis of multivariate
+  observations.
+\newblock In \emph{Proc. Fifth Berkeley Symposium on Mathematical Statistics
+  and Probability}, pages 281--297, 1967.
+
+\bibitem[Mamdani and Assilian(1975)]{Mamdani1975}
+Ebrahim~H. Mamdani and Sedrak Assilian.
+\newblock An experiment in linguistic synthesis with a fuzzy logic controller.
+\newblock \emph{International Journal of Man-Machine Studies}, 7\penalty0
+  (1):\penalty0 1--13, 1975.
+
+\bibitem[Martinetz et~al.(1993)Martinetz, Berkovich, and
+  Schulten]{MartinetzBerkovichSchulten1993}
+T.~M. Martinetz, S.~G. Berkovich, and K.~J. Schulten.
+\newblock Neural-gas network for vector quantization and its application to
+  time-series prediction.
+\newblock \emph{IEEE Transactions on Neural Networks}, 4\penalty0 (4):\penalty0
+  558--569, 1993.
+
+\bibitem[McCulloch and Pitts(1943)]{McCullochPitts1943}
+Warren~S. McCulloch and Walter Pitts.
+\newblock A logical calculus of the ideas immanent in nervous activity.
+\newblock \emph{The Bulletin of Mathematical Biophysics}, 5\penalty0
+  (4):\penalty0 115--133, 1943.
+
+\bibitem[McEliece et~al.(1987)McEliece, Posner, Rodemich, and
+  Venkatesh]{McEliece1987}
+Robert~J. McEliece, Edward~C. Posner, Eugene~R. Rodemich, and Santosh~S.
+  Venkatesh.
+\newblock The capacity of the hopfield associative memory.
+\newblock \emph{IEEE Transactions on Information Theory}, 33\penalty0
+  (4):\penalty0 461--482, 1987.
+
+\bibitem[Micchelli(1986)]{Micchelli1986}
+Charles~A. Micchelli.
+\newblock Interpolation of scattered data: Distance matrices and conditionally
+  positive definite functions.
+\newblock \emph{Constructive Approximation}, 2\penalty0 (1):\penalty0 11--22,
+  1986.
+
+\bibitem[Mikolov et~al.(2010)Mikolov, Karafi{\'a}t, Burget, {\v C}ernock{\'y},
+  and Khudanpur]{Mikolov2010}
+Tomas Mikolov, Martin Karafi{\'a}t, Lukas Burget, Jan {\v C}ernock{\'y}, and
+  Sanjeev Khudanpur.
+\newblock Recurrent neural network based language model.
+\newblock In \emph{Proc. Interspeech}, 2010.
+
+\bibitem[Mikolov et~al.(2013)Mikolov, Chen, Corrado, and Dean]{Mikolov2013}
+Tomas Mikolov, Kai Chen, Greg Corrado, and Jeffrey Dean.
+\newblock Efficient estimation of word representations in vector space.
+\newblock In \emph{Proceedings of ICLR}, 2013.
+\newblock arXiv:1301.3781.
+
+\bibitem[Mitchell(1998)]{Mitchell1998}
+Melanie Mitchell.
+\newblock \emph{An Introduction to Genetic Algorithms}.
+\newblock MIT Press, 1998.
+
+\bibitem[Ogata(2010)]{Ogata2010}
+Katsuhiko Ogata.
+\newblock \emph{Modern Control Engineering}.
+\newblock Prentice Hall, 5th ed., 2010.
+
+\bibitem[Park and Sandberg(1991)]{ParkSandberg1991}
+Jihun Park and Irene~W. Sandberg.
+\newblock Universal approximation using radial-basis-function networks.
+\newblock \emph{Neural Computation}, 3\penalty0 (2):\penalty0 246--257, 1991.
+
+\bibitem[Pennington et~al.(2014)Pennington, Socher, and
+  Manning]{Pennington2014}
+Jeffrey Pennington, Richard Socher, and Christopher~D. Manning.
+\newblock Glove: Global vectors for word representation.
+\newblock In \emph{Proceedings of EMNLP}, pages 1532--1543, 2014.
+
+\bibitem[Platt(1999)]{Platt1999}
+John~C. Platt.
+\newblock Probabilistic outputs for support vector machines and comparisons to
+  regularized likelihood methods.
+\newblock In Alexander~J. Smola, Peter Bartlett, Bernhard Sch{\"o}lkopf, and
+  Dale Schuurmans, editors, \emph{Advances in Large Margin Classifiers}, pages
+  61--74. MIT Press, 1999.
+
+\bibitem[Poggio and Girosi(1990)]{PoggioGirosi1990}
+Tomaso Poggio and Federico Girosi.
+\newblock Networks for approximation and learning.
+\newblock \emph{Proceedings of the IEEE}, 78\penalty0 (9):\penalty0 1481--1497,
+  1990.
+
+\bibitem[Poole and Mackworth(2017)]{PooleMackworth2017}
+David Poole and Alan Mackworth.
+\newblock \emph{Artificial Intelligence: Foundations of Computational Agents}.
+\newblock Cambridge University Press, 2nd ed., 2017.
+
+\bibitem[Press and Wolf(2017)]{Press2016}
+Ofir Press and Lior Wolf.
+\newblock Using the output embedding to improve language models.
+\newblock In \emph{Conference of the European Chapter of the Association for
+  Computational Linguistics}, pages 157--163, 2017.
+
+\bibitem[Press et~al.(2022)Press, Smith, and Lewis]{Press2022ALiBi}
+Ofir Press, Noah~A. Smith, and Mike Lewis.
+\newblock Train short, test long: Attention with linear biases enables input
+  length extrapolation.
+\newblock In \emph{Proceedings of NeurIPS}, 2022.
+
+\bibitem[Ramsauer et~al.(2021)Ramsauer, Sch{\"a}fl, Lehner, Seidl, Widrich,
+  Adler, Gruber, Holzleitner, Pavlovic, Sandve, Deiseroth, and
+  Hochreiter]{Ramsauer2021}
+Hubert Ramsauer, Bernhard Sch{\"a}fl, Johannes Lehner, Philipp Seidl, Michael
+  Widrich, Thomas Adler, Lukas Gruber, Markus Holzleitner, Milena Pavlovic,
+  Michael Sandve, Viktor Deiseroth, and Sepp Hochreiter.
+\newblock Hopfield networks is all you need.
+\newblock \emph{International Conference on Learning Representations}, 2021.
+
+\bibitem[Risch(1969)]{Risch1969}
+Robert~H. Risch.
+\newblock The problem of integration in finite terms.
+\newblock \emph{Transactions of the American Mathematical Society},
+  139:\penalty0 167--189, 1969.
+
+\bibitem[Rosenblatt(1958)]{Rosenblatt1958}
+Frank Rosenblatt.
+\newblock The perceptron: A probabilistic model for information storage and
+  organization in the brain.
+\newblock \emph{Psychological Review}, 65\penalty0 (6):\penalty0 386--408,
+  1958.
+
+\bibitem[Rumelhart et~al.(1986)Rumelhart, Hinton, and Williams]{Rumelhart1986}
+David~E. Rumelhart, Geoffrey~E. Hinton, and Ronald~J. Williams.
+\newblock Learning representations by back-propagating errors.
+\newblock \emph{Nature}, 323\penalty0 (6088):\penalty0 533--536, 1986.
+
+\bibitem[Russell and Norvig(2021)]{RussellNorvig2021}
+Stuart~J. Russell and Peter Norvig.
+\newblock \emph{Artificial Intelligence: A Modern Approach}.
+\newblock Pearson, 4th ed., 2021.
+
+\bibitem[Schreier and Scharf(2010)]{SchreierScharf2010}
+Peter~J. Schreier and Louis~L. Scharf.
+\newblock \emph{Statistical Signal Processing of Complex-Valued Data: The
+  Theory of Improper and Noncircular Signals}.
+\newblock Cambridge University Press, 2010.
+
+\bibitem[Semeniuta et~al.(2016)Semeniuta, Severyn, and Barth]{Semeniuta2016}
+Stanislau Semeniuta, Aliaksei Severyn, and Erhardt Barth.
+\newblock Recurrent dropout without memory loss.
+\newblock In \emph{COLING}, pages 1757--1766, 2016.
+
+\bibitem[Shazeer et~al.(2017)Shazeer, Mirhoseini, Maziarz, Davis, Le, Hinton,
+  and Dean]{Shazeer2017MoE}
+Noam Shazeer, Azalia Mirhoseini, Krzysztof Maziarz, Andy Davis, Quoc~V. Le,
+  Geoffrey~E. Hinton, and Jeff Dean.
+\newblock Outrageously large neural networks: The sparsely-gated
+  mixture-of-experts layer.
+\newblock In \emph{International Conference on Learning Representations}, 2017.
+
+\bibitem[Storn and Price(1997)]{Storn1997}
+Rainer Storn and Kenneth Price.
+\newblock {Differential Evolution} -- a simple and efficient heuristic for
+  global optimization over continuous spaces.
+\newblock \emph{Journal of Global Optimization}, 11\penalty0 (4):\penalty0
+  341--359, 1997.
+
+\bibitem[Su et~al.(2021)Su, Lu, Pan, Wen, and Liu]{Su2021RoPE}
+Jianlin Su, Yu~Lu, Shengfeng Pan, Bo~Wen, and Yunfeng Liu.
+\newblock Roformer: Enhanced transformer with rotary position embedding.
+\newblock In \emph{Proceedings of ACL}, 2021.
+\newblock arXiv:2104.09864.
+
+\bibitem[Takagi and Sugeno(1985)]{TakagiSugeno1985}
+Tomohiro Takagi and Michio Sugeno.
+\newblock Fuzzy identification of systems and its applications to modeling and
+  control.
+\newblock \emph{IEEE Transactions on Systems, Man, and Cybernetics},
+  15\penalty0 (1):\penalty0 116--132, 1985.
+
+\bibitem[Vaswani et~al.(2017)Vaswani, Shazeer, Parmar, Uszkoreit, Jones, Gomez,
+  Łukasz Kaiser, and Polosukhin]{Vaswani2017}
+Ashish Vaswani, Noam Shazeer, Niki Parmar, Jakob Uszkoreit, Llion Jones,
+  Aidan~N. Gomez, Łukasz Kaiser, and Illia Polosukhin.
+\newblock Attention is all you need.
+\newblock In \emph{Advances in Neural Information Processing Systems},
+  volume~30, 2017.
+
+\bibitem[Widrow and Hoff(1960)]{WidrowHoff1960}
+Bernard Widrow and Marcian~E. Hoff.
+\newblock Adaptive switching circuits.
+\newblock In \emph{1960 IRE WESCON Convention Record}, volume~4, pages 96--104,
+  1960.
+
+\bibitem[Widrow and Stearns(1985)]{WidrowStearns1985}
+Bernard Widrow and Samuel~D. Stearns.
+\newblock \emph{Adaptive Signal Processing}.
+\newblock Prentice Hall, 1985.
+
+\bibitem[Willshaw and {von der Malsburg}(1976)]{WillshawVonDerMalsburg1976}
+David Willshaw and C.~{von der Malsburg}.
+\newblock How patterned neural connections can be set up by self-organization.
+\newblock \emph{Proceedings of the Royal Society of London. Series B.
+  Biological Sciences}, 194\penalty0 (1117):\penalty0 431--445, 1976.
+
+\bibitem[Yen and Langari(1999)]{YenLangari1999}
+John Yen and Reza Langari.
+\newblock \emph{Fuzzy Logic: Intelligence, Control, and Information}.
+\newblock Prentice Hall, 1999.
+
+\bibitem[Zadeh(1965)]{Zadeh1965}
+Lotfi~A. Zadeh.
+\newblock Fuzzy sets.
+\newblock \emph{Information and Control}, 8\penalty0 (3):\penalty0 338--353,
+  1965.
+
+\bibitem[Zadeh(1975)]{Zadeh1975}
+Lotfi~A. Zadeh.
+\newblock The concept of a linguistic variable and its application to
+  approximate reasoning.
+\newblock \emph{Information Sciences}, 8\penalty0 (3):\penalty0 199--249, 1975.
+
+\bibitem[Zadeh(1994)]{Zadeh1994}
+Lotfi~A. Zadeh.
+\newblock Fuzzy logic, neural networks, and soft computing.
+\newblock \emph{Communications of the ACM}, 37\penalty0 (3):\penalty0 77--84,
+  1994.
+
+\bibitem[Zadeh(1997)]{Zadeh1997}
+Lotfi~A. Zadeh.
+\newblock What is soft computing?
+\newblock \emph{Soft Computing}, 1:\penalty0 1--2, 1997.
+
+\bibitem[Zitzler et~al.(2002)Zitzler, Laumanns, and Thiele]{Zitzler2002}
+Eckart Zitzler, Marco Laumanns, and Lothar Thiele.
+\newblock Spea2: Improving the strength pareto evolutionary algorithm.
+\newblock \emph{Technical Report 103}, 2002.
+
+\end{thebibliography}

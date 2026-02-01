@@ -1,0 +1,522 @@
+% Chapter 10
+\section{Hopfield Networks: Introduction and Context}\label{chap:hopfield}
+
+\begin{tcolorbox}[summarybox,title={Learning Outcomes}]
+\begin{itemize}
+    \item Interpret Hopfield networks as energy-minimizing recurrent systems and derive their asynchronous update rule.
+    \item Quantify capacity, recall dynamics, and pitfalls (spurious memories, bias encodings) using simple analytical bounds.
+    \item Relate Hopfield updates to modern energy-based models and attention mechanisms to build intuition for later chapters.
+\end{itemize}
+\end{tcolorbox}
+
+\Cref{chap:som} focused on self-organizing maps and unsupervised feature maps; we now transition to another unsupervised/energy-based model: the \emph{Hopfield network}, a recurrent system that stores patterns as attractors. The roadmap in \Cref{fig:roadmap} marks this as the energy-based branch.
+
+\begin{tcolorbox}[summarybox,title={Design motif}]
+Constrain recurrence so the dynamics become a descent process: symmetric weights and an energy function turn ``feedback'' into ``stable memory.''
+\end{tcolorbox}
+
+\subsection{From Feedforward to Recurrent Neural Networks}
+
+Recall that feedforward neural networks are characterized by a unidirectional flow of information: inputs propagate through successive layers until reaching the output layer. The weights are typically updated via backpropagation, which relies on the chain rule to propagate error gradients backward through the network. Despite their success, feedforward networks do not capture the recurrent, feedback-driven dynamics observed in biological neural systems.
+
+In contrast, \emph{recurrent neural networks} allow cycles in their connectivity graph. This means that the state of a neuron at a given time can influence not only downstream neurons but also itself or upstream neurons through feedback loops. Such cyclic connections enable the network to maintain internal states and exhibit temporal dynamics, which are essential for tasks involving sequences and memory.
+
+\paragraph{Challenges with General Recurrent Networks}
+
+However, the general topology of recurrent networks introduces significant challenges:
+
+\begin{itemize}
+    \item \textbf{Unstable dynamics:} Without careful design, recurrent networks may fail to settle into stable states, instead exhibiting chaotic or oscillatory behavior.
+    \item \textbf{Dependence on initial conditions:} The final state of the network can be highly sensitive to the initial state, making the network's behavior unpredictable.
+    \item \textbf{Training difficulties:} Backpropagation through time and other training methods can be computationally expensive and prone to vanishing or exploding gradients.
+\end{itemize}
+
+These issues historically limited the practical use of recurrent networks, leading to a preference for feedforward architectures in many applications.
+
+\begin{tcolorbox}[summarybox,title={Author's note: stabilizing recurrence}]
+General recurrent networks can behave unpredictably because feedback can create cycles that oscillate or amplify small differences. Hopfield's key move was to restrict the architecture so the dynamics become a descent process: symmetric weights and no self-loops allow the network to be assigned an energy function that decreases under asynchronous updates. That single design choice turns ``recurrent'' from ``chaotic'' into ``stable memory.''
+\end{tcolorbox}
+
+\subsection{Hopfield's Breakthrough (1982)}
+
+In 1982, John Hopfield introduced a special class of recurrent networks that overcame many of these challenges by imposing specific constraints on the network architecture and weights \citep{Hopfield1982}. The key insights were:
+
+\begin{itemize}
+    \item \textbf{Symmetric weights:} The connection weights between neurons are \emph{bidirectional} and symmetric, i.e.,
+    \begin{equation}
+        w_{ij} = w_{ji} \quad \forall i,j,
+    \end{equation}
+    where \(w_{ij}\) is the weight from neuron \(j\) to neuron \(i\).
+
+    \item \textbf{No self-connections:} Neurons do not have self-feedback loops, so
+    \begin{equation}
+        w_{ii} = 0 \quad \forall i.
+    \end{equation}
+
+    \item \textbf{Binary neuron states:} Each neuron \(i\) has a state \(s_i \in \{+1, -1\}\), representing \emph{on} or \emph{off} states, rather than continuous activations.
+
+    \item \textbf{Energy-based formulation:} The network dynamics can be described by an energy function \(E(\mathbf{s})\) that decreases monotonically as the network updates its states, guaranteeing convergence to a stable fixed point.
+\end{itemize}
+
+These constraints ensure that the network evolves toward local minima of the energy function, providing a natural mechanism for associative memory and pattern completion.
+
+\subsection{Network Architecture and Dynamics}
+
+Consider a Hopfield network with \(N\) neurons. The state vector is \(\mathbf{s} = (s_1, s_2, \ldots, s_N)^T\), where each \(s_i \in \{+1, -1\}\). The symmetric weight matrix \(\mathbf{W} = [w_{ij}]\) satisfies \(w_{ij} = w_{ji}\) and \(w_{ii} = 0\).
+Throughout this discussion \(w_{ij}\) denotes the weight applied to state \(s_j\) when computing the input to neuron \(i\), so column indices correspond to presynaptic neurons.
+
+The \emph{local field} or \emph{input energy} to neuron \(i\) is defined as
+\begin{equation}
+    h_i(t) = \sum_{j=1}^N w_{ij} s_j(t).
+\end{equation}
+The scalar \(h_i(t)\) therefore represents the total input (or \emph{local field}) accumulated at neuron \(i\) before thresholding during iteration \(t\).
+
+The neuron updates its state according to the sign of \(h_i(t)\) relative to a threshold \(\theta_i\):
+\begin{equation}
+    s_i(t+1) =
+    \begin{cases}
+        +1, & h_i(t) \geq \theta_i, \\
+        -1, & h_i(t) < \theta_i,
+    \end{cases}
+    \label{eq:hopfield_update_rule}
+\end{equation}
+
+Typically, thresholds \(\theta_i\) are set to zero or learned as part of the model.
+
+\paragraph{Interpretation:} The neuron "fires" (state \(+1\)) if the weighted sum of inputs exceeds the threshold; otherwise, it remains "off" (state \(-1\)). This binary update rule contrasts with the continuous activation functions used in feedforward networks.
+
+\subsection{Encoding conventions}
+
+Two binary encodings are common. We primarily use \(s_i \in \{-1,+1\}\) because it simplifies the energy function, but many software libraries work with \(x_i \in \{0,1\}\). Define \(s = 2x - 1\) and \(x = (s+1)/2\); then
+\[
+E_{\pm1}(\mathbf{s}) = -\frac{1}{2}\sum_{i\neq j} w_{ij} s_i s_j + \sum_i \theta_i s_i
+\]
+and
+\[
+E_{01}(\mathbf{x}) = -\frac{1}{2}\sum_{i\neq j} w'_{ij} x_i x_j + \sum_i \theta'_i x_i + \text{const},
+\]
+with \(w'_{ij}=4w_{ij}\) and \(\theta'_i = 2\theta_i + 2\sum_{j\neq i} w_{ij}\) under the sign convention in \(E_{\pm1}\). The additive constant does not affect which states minimize the energy or the update dynamics. This table summarizes the correspondence:
+
+\begin{center}
+\begin{tabular}{@{}p{0.32\linewidth}p{0.28\linewidth}p{0.28\linewidth}@{}}
+\toprule
+ & \(\{-1,+1\}\) encoding & \(\{0,1\}\) encoding \\
+\midrule
+State variable & \(s_i \in \{-1,+1\}\) & \(x_i = (s_i+1)/2\) \\
+Energy & \(E_{\pm1}(\mathbf{s})\) & \(E_{01}(\mathbf{x}) = E_{\pm1}(2\mathbf{x}-\mathbf{1})\) \\
+Update rule & \(s_i \leftarrow \operatorname{sign}(h_i - \theta_i)\) & \(x_i \leftarrow \mathbf{1}[h'_i - \theta'_i > 0]\) \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+Whenever an equation later in the chapter uses \(s_i\) you can translate it to \(x_i\) via this affine mapping; we call out both forms only when the distinction matters. As a concrete example, the pattern \(x=[1,0,1,0]\) in the \(\{0,1\}\) encoding maps to \(s=2x-1=[+1,-1,+1,-1]\); conversely \(s=[-1,+1,+1]\) corresponds to \(x=[0,1,1]\).
+
+\subsection{Energy Function and Stability}
+
+Hopfield defined an energy function \(E: \{-1, +1\}^N \to \mathbb{R}\) associated with the network state \(\mathbf{s}\):
+\begin{equation}
+    E(\mathbf{s}) = -\frac{1}{2} \sum_{i=1}^N \sum_{j=1}^N w_{ij} s_i s_j + \sum_{i=1}^N \theta_i s_i.
+    \label{eq:hopfield_energy_general}
+\end{equation}
+Because the weights are symmetric and satisfy \(w_{ii}=0\), the double sum may equivalently be written as \(\sum_{i<j} w_{ij} s_i s_j\); the \(\tfrac{1}{2}\) factor explicitly prevents counting each unordered pair twice, so removing it would scale the energy by two. Thresholds \(\theta_i\) act like biases; many texts write the second term as \(-\sum_i b_i s_i\) with \(b_i = \theta_i\).
+% Chapter 10 (continued)
+
+\subsection{Hopfield Network States and Energy Function}
+
+Recall that in Hopfield networks, the state of each neuron is typically binary, either \(\pm 1\) or \(0/1\). The network is characterized by symmetric weights \(w_{ij}\) between neurons and possibly thresholds \(\theta_i\). The energy function \(E\) of the network is defined to capture the "stability" of a given state vector \(\mathbf{s} = (s_1, s_2, \ldots, s_N)\).
+
+\paragraph{Energy function for \(\pm 1\) states:}
+When states are bipolar, \(s_i \in \{-1, +1\}\), and thresholds are zero, the energy is given by
+\begin{equation}
+    E = -\frac{1}{2} \sum_{i=1}^N \sum_{j=1}^N w_{ij} s_i s_j.
+    \label{eq:energy_bipolar}
+\end{equation}
+If thresholds \(\theta_i\) are nonzero, the energy generalizes to
+\begin{equation}
+    E = -\frac{1}{2} \sum_{i=1}^N \sum_{j=1}^N w_{ij} s_i s_j + \sum_{i=1}^N \theta_i s_i.
+    \label{eq:energy_bipolar_threshold}
+\end{equation}
+
+\paragraph{Energy function for \(\{0,1\}\) states:}
+When neuron states take values in \(\{0,1\}\), we denote them by \(x_i\) to avoid overloading \(s_i\). Recenter via \(s_i = 2x_i - 1\), so that \(s_i \in \{-1,+1\}\). Substituting this into \eqref{eq:energy_bipolar_threshold} yields an equivalent expression written directly in terms of the \(\{0,1\}\) variables:
+\begin{equation}
+    E = -\frac{1}{2} \sum_{i=1}^N \sum_{j=1}^N w_{ij} (2x_i - 1)(2x_j - 1) + \sum_{i=1}^N \theta_i (2x_i - 1).
+    \label{eq:energy_binary}
+\end{equation}
+Some references drop the \(\tfrac{1}{2}\) factor when working with \(\{0,1\}\) states, but doing so merely rescales the energy because symmetry still causes every pair \((i,j)\) to appear twice; we retain the factor to avoid double counting.
+The recentering view also clarifies that the dynamical behavior is the same under either encoding. One simply interprets \(0\) and \(1\) as the inactive/active states instead of \(-1\) and \(+1\).
+
+\subsection{Energy Minimization and Stable States}
+
+The fundamental goal in Hopfield networks is to find a state \(\mathbf{s}\) that minimizes the energy \(E\). Such states correspond to stable equilibria or attractors of the network dynamics.
+
+\paragraph{State update dynamics:}
+The network updates neuron states according to
+\begin{equation}
+    s_i(t+1) = \operatorname{sign}\left(\sum_{j=1}^N w_{ij} s_j(t) - \theta_i \right),
+\end{equation}
+where \(\operatorname{sign}(\cdot)\) returns \(+1\) for positive inputs and \(-1\) otherwise (or applies the corresponding threshold for \(\{0,1\}\) encodings).
+
+\begin{tcolorbox}[summarybox,title={Asynchronous Hopfield update (pseudo-code)}]
+\begin{enumerate}
+    \item Initialize \(\mathbf{s}\) (e.g., noisy probe), set max sweeps \(T\).
+    \item For \(t=1,\dots,T\):
+    \begin{enumerate}
+        \item Pick a neuron index \(i\) (random order or cyclic sweep).
+        \item Compute \(h_i = \sum_j w_{ij} s_j - \theta_i\).
+        \item Update \(s_i \leftarrow \operatorname{sign}(h_i)\).
+    \end{enumerate}
+    \item Stop early if a full sweep causes no flips; else continue.
+\end{enumerate}
+Each single-neuron update satisfies \(\Delta E \le 0\) by \eqref{eq:deltaE}, so the loop converges to a local minimum of \eqref{eq:energy_function}.
+\end{tcolorbox}
+
+When neurons are updated \emph{asynchronously} (one at a time) in any order, each step is guaranteed not to increase the energy \(E\), ensuring convergence to a local minimum. Random or cyclic update orders satisfy the classic convergence conditions (any single flip obeys \(\Delta E \le 0\) by \Cref{eq:deltaE}). Synchronous updates of all neurons, by contrast, can oscillate and are discussed in more detail in \Cref{sec:hopfield_async_vs_sync}.
+
+\subsection{Example: Energy Calculation and State Updates}
+
+Consider a Hopfield network with three neurons, bipolar states \(s_i \in \{-1,+1\}\), zero thresholds, and the symmetric weight matrix
+\[
+W = \begin{bmatrix}
+0 & 3 & -4 \\
+3 & 0 & 2 \\
+-4 & 2 & 0
+\end{bmatrix}.
+\]
+
+Let the initial state be \(\mathbf{s} = (1,\,1,\,-1)\). Using the energy definition with the \(\frac{1}{2}\) factor to avoid double counting, we obtain
+\begin{align}
+    E(\mathbf{s}) &= -\frac{1}{2} \sum_{i=1}^3 \sum_{j=1}^3 w_{ij} s_i s_j \nonumber \\
+    &= -\frac{1}{2} \Big[ 2 \cdot 3 \cdot (1)(1) + 2 \cdot (-4) \cdot (1)(-1) + 2 \cdot 2 \cdot (1)(-1) \Big] = -5.
+\end{align}
+
+\paragraph{State update attempts:}
+Flip each neuron in turn and recompute the energy:
+
+\begin{itemize}
+    \item Flip \(s_1\) to \(-1\): \(E(-1,1,-1) = 9\) (energy increases).
+    \item Flip \(s_2\) to \(-1\): \(E(1,-1,-1) = -3\) (energy increases toward zero).
+    \item Flip \(s_3\) to \(+1\): \(E(1,1,1) = -1\) (energy increases).
+\end{itemize}
+
+For clarity, \Cref{tab:hopfield-deltaE} reports the energy change for each single flip relative to the current state.
+\begin{table}[h]
+    \centering
+    \begin{tabular}{lccc}
+        \toprule
+        Flip & New state & \(\Delta E\) & Accept? \\
+        \midrule
+        \(s_1 \leftarrow -1\) & \((-1,\,1,\,-1)\) & \(+14\) & No \\
+        \(s_2 \leftarrow -1\) & \((1,\,-1,\,-1)\) & \(+2\) & No \\
+        \(s_3 \leftarrow +1\) & \((1,\,1,\,1)\) & \(+4\) & No \\
+        \bottomrule
+    \end{tabular}
+    % Avoid inline math in captions; it wraps poorly in some EPUB renderers.
+    \caption{Schematic: Single-neuron flips from (1, 1, -1); all raise the energy, so the state is a local minimum.}
+    \label{tab:hopfield-deltaE}
+\end{table}
+
+Because every single-neuron flip raises the energy, the state \((1,1,-1)\) is a stable local minimum for this network.
+If the network is perturbed slightly (for instance, by flipping \(s_3\) to \(+1\) to create the noisy pattern \((1,1,1)\)), asynchronous updates follow the gradient of decreasing energy and drive the system back to the stored memory \((1,1,-1)\). This illustrates how Hopfield networks perform content-addressable recall; the staircase energy trajectory in \Cref{fig:hopfield-energy-descent} makes the monotone descent concrete.
+
+\begin{figure}[t]
+    \centering
+    \begin{tikzpicture}
+        \begin{axis}[
+            width=0.72\linewidth,
+            height=4.2cm,
+            ymin=-6.5, ymax=0.5,
+            ytick={-6,-4,-2,0},
+            symbolic x coords={s0,s1,s2},
+            xticklabels={$\,\mathbf{s}^{(0)}$,$\,\mathbf{s}^{(1)}$,$\,\mathbf{s}^{(2)}$},
+            xtick=data,
+            xlabel={Update step},
+            ylabel={$E(\mathbf{s})$},
+            axis lines=left,
+            enlarge x limits=0.1
+        ]
+            \addplot+[cbBlue, thick, mark=*, mark size=2pt] coordinates {(s0,-1) (s1,-3) (s2,-5)};
+            \addplot[cbPink, -{Latex[length=2mm]}, thick] coordinates {(s0,-1) (s1,-3)};
+            \addplot[cbPink, -{Latex[length=2mm]}, thick] coordinates {(s1,-3) (s2,-5)};
+            \node[cbPink, font=\scriptsize, anchor=west] at (rel axis cs:0.45,0.6) {asynchronous single-neuron flips};
+            \node[cbBlue, font=\scriptsize, anchor=south west] at (axis cs:s0,-1) {noisy start $\mathbf{s}^{(0)}$};
+        \end{axis}
+    \end{tikzpicture}
+    % Avoid inline math in captions; it wraps poorly in some EPUB renderers.
+    \caption{Schematic: Hopfield energy decreases monotonically under asynchronous updates. Starting from a noisy probe state s(0), successive single-neuron flips move downhill until the stored memory s(2) is recovered.}
+    \label{fig:hopfield-energy-descent}
+\end{figure}
+
+% Chapter 10 (continued)
+
+\subsection{Energy Function and Convergence of Hopfield Networks}
+
+Recall that the Hopfield network is characterized by the energy in \eqref{eq:hopfield_energy_general}, repeated here for convenience:
+\begin{equation}
+    E(\mathbf{s}) = -\frac{1}{2} \sum_{i=1}^N \sum_{j=1}^N w_{ij} s_i s_j + \sum_{i=1}^N \theta_i s_i,
+    \label{eq:energy_function}
+\end{equation}
+where \( w_{ij} \) are the symmetric weights (\( w_{ij} = w_{ji} \)) and \( \theta_i \) are the thresholds for each neuron.
+
+\paragraph{Goal:} Show that asynchronous updates of neuron states always decrease (or leave unchanged) the energy \( E \), guaranteeing convergence to a local minimum.
+
+\subsubsection{Energy Change Upon Updating a Single Neuron}
+
+Consider updating neuron \( i \) from old state \( s_i^{\text{old}} \) to new state \( s_i^{\text{new}} \). All other neuron states \( s_j \) for \( j \neq i \) remain fixed. The change in energy is
+\begin{equation}
+    \Delta E = E_{\text{new}} - E_{\text{old}}.
+\end{equation}
+
+Using \eqref{eq:energy_function}, write out the energies explicitly:
+\begin{align}
+    E_{\text{old}} &= -\frac{1}{2} \sum_{k=1}^N \sum_{l=1}^N w_{kl} s_k^{\text{old}} s_l^{\text{old}} + \sum_{k=1}^N \theta_k s_k^{\text{old}}, \\
+    E_{\text{new}} &= -\frac{1}{2} \sum_{k=1}^N \sum_{l=1}^N w_{kl} s_k^{\text{new}} s_l^{\text{new}} + \sum_{k=1}^N \theta_k s_k^{\text{new}}.
+\end{align}
+
+Since only \( s_i \) changes, and weights are symmetric with zero diagonal \( w_{ii} = 0 \), the difference simplifies to
+\begin{align}
+    \Delta E &= E_{\text{new}} - E_{\text{old}} \nonumber \\
+    &= -\frac{1}{2} \sum_{j=1}^N \left( w_{ij} s_i^{\text{new}} s_j + w_{ji} s_j s_i^{\text{new}} \right) + \theta_i s_i^{\text{new}} \nonumber \\
+    &\quad + \frac{1}{2} \sum_{j=1}^N \left( w_{ij} s_i^{\text{old}} s_j + w_{ji} s_j s_i^{\text{old}} \right) - \theta_i s_i^{\text{old}} \nonumber \\
+    &= - \sum_{j=1}^N w_{ij} s_j \left( s_i^{\text{new}} - s_i^{\text{old}} \right) + \theta_i \left( s_i^{\text{new}} - s_i^{\text{old}} \right) \nonumber \\
+    &= - \left( s_i^{\text{new}} - s_i^{\text{old}} \right) \left( \sum_{j=1}^N w_{ij} s_j - \theta_i \right).
+    \label{eq:deltaE}
+\end{align}
+
+Define the \emph{local field} \( h_i \) at neuron \( i \) as
+\begin{equation}
+    h_i = \sum_{j=1}^N w_{ij} s_j - \theta_i.
+    \label{eq:local_field}
+\end{equation}
+
+Then,
+\[
+    \Delta E = - (s_i^{\text{new}} - s_i^{\text{old}}) h_i.
+\]
+
+\paragraph{Numeric check (single flip).} With two neurons, weights \(w_{12}=w_{21}=1\), thresholds \( \theta_i=0\), and current state \((s_1,s_2) = (1,-1)\), the local field at neuron 1 is \(h_1 = 1\cdot (-1) = -1\). The update rule sets \(s_1^{\text{new}} = \operatorname{sign}(h_1) = -1\), so \(s_1^{\text{new}} - s_1^{\text{old}} = -2\) and \(\Delta E = -(-2)(-1) = -2 < 0\), confirming the energy drop predicted by \eqref{eq:deltaE}.
+\begin{tcolorbox}[summarybox,title={Modern Hopfield views and attention}]
+Recent work \citep{Krotov2016,Krotov2020,Ramsauer2021} revisits Hopfield networks as dense
+associative memories with continuous states and softmax interactions that are closely related to
+Transformer attention. In this view the stored patterns play the role of keys and values, the
+current state or query probes the landscape, and the update rule resembles a softmax-weighted
+average over memories, minimizing an energy of the form \(\log \sum_\mu \exp(\beta \mathbf{s}^\top \mathbf{m}^\mu)\) with inverse temperature \(\beta\). While this book does not develop the full modern Hopfield formalism,
+it is helpful to remember that the energy function in \eqref{eq:energy_function} already
+anticipates ideas that reappear in the attention mechanisms of \Cref{chap:transformers}.
+\end{tcolorbox}
+
+\paragraph{Continuous Hopfield / dense associative memory.} Modern extensions replace the binary sign activation with a smooth, often softmax-like update that keeps neuron states continuous. Storing \(P\) real-valued patterns \(\{\mathbf{m}^\mu\}\), the update becomes
+\[
+\mathbf{s}^{(t+1)} = \operatorname{softmax}\!\left(\beta M^\top \mathbf{s}^{(t)}\right) M,
+\]
+where \(M\) stacks the memory vectors and \(\beta\) controls sharpness. This view unifies classical Hopfield dynamics, associative memories used in few-shot meta-learning, and attention heads in Transformers: all minimize a convex energy \(\log \sum_\mu \exp(\beta \mathbf{s}^\top \mathbf{m}^\mu)\) and pull the state toward a convex combination of stored patterns. Continuous updates are differentiable (enabling end-to-end training), offer higher storage capacity via richer nonlinearities, and connect directly to ``dense associative memory'' results in the modern literature.
+
+\subsubsection{Update Rule and Energy Decrease}
+
+The neuron update rule is
+\begin{equation}
+    s_i^{\text{new}} = \text{sign}(h_i) = \begin{cases}
+    +1 & h_i > 0, \\
+    -1 & h_i < 0.
+    \end{cases}
+    \label{eq:update_rule}
+\end{equation}
+
+Note that \( s_i^{\text{new}} \in \{ -1, +1 \} \), and \( s_i^{\text{old}} \in \{ -1, +1 \} \).
+
+Consider two cases:
+
+\begin{itemize}
+    \item \textbf{Case 1:} \( s_i^{\text{new}} = s_i^{\text{old}} \). Then \( \Delta E = 0 \), so the network state is unchanged.
+    \item \textbf{Case 2:} \( s_i^{\text{new}} \neq s_i^{\text{old}} \). Substituting into \eqref{eq:update_rule} gives
+    \begin{equation*}
+            \Delta E = -2 \left( \sum_{j=1}^N w_{ij} \; s_j - \theta_i \right) (s_i^{\text{new}} - s_i^{\text{old}}).
+    \end{equation*}
+    Because the update chooses the sign of \( s_i^{\text{new}} \) to agree with the bracketed term, \( \Delta E \le 0 \), ensuring the energy never increases.
+\end{itemize}
+% Chapter 10: Hopfield Network Weight Update and Capacity
+
+\subsection{Asynchronous vs. Synchronous Updates in Hopfield Networks}
+\label{sec:hopfield_async_vs_sync}
+
+Recall from the previous discussion that the Hopfield network energy function decreases monotonically with each asynchronous update of a single neuron state. This guarantees convergence to a local minimum of the energy landscape. In contrast, fully synchronous updates (flipping all neurons at once) can lead to oscillations or short cycles rather than convergence, which is why the classical convergence proofs assume asynchronous updates.
+
+\paragraph{Why asynchronous updates?}
+Suppose we attempt to update multiple neuron states simultaneously (synchronously). Consider a simple example with two neurons having states \( s_1, s_2 \in \{+1, -1\} \) and weights \( w_{12} = w_{21} = 10 \). The energy function is:
+\[
+E = -\frac{1}{2} \sum_{i,j} w_{ij} s_i s_j.
+\]
+
+If both neurons are updated simultaneously, the energy can oscillate rather than decrease monotonically. For instance:
+\begin{itemize}
+    \item Current state: \( s_1 = +1, s_2 = +1 \), energy \( E = -20 \).
+    \item Flip both states simultaneously to \( s_1 = -1, s_2 = -1 \), energy \( E = -20 \).
+    \item Flip back to \( s_1 = +1, s_2 = +1 \), energy \( E = -20 \).
+\end{itemize}
+This leads to oscillations without convergence.
+
+\paragraph{Conclusion:}
+To ensure convergence, updates must be \emph{asynchronous} and sequential, updating one neuron at a time and respecting an update order. Revisiting states before all others have been updated can cause instability.
+
+\subsection{Storage Capacity of Hopfield Networks}
+
+A key question is: \emph{How many memories can a Hopfield network reliably store and recall?}
+
+\paragraph{Classical result:}
+For a network of \( n \) neurons, the number of random patterns \( p \) that can be stored with low error is approximately
+\[
+p \approx 0.138\, n,
+\]
+which is a small fraction of the total number of neurons \citep{McEliece1987}. This means the storage capacity scales linearly but with a small proportionality constant; both \(\mathbf{\xi}^\mu\) and its complement \(-\mathbf{\xi}^\mu\) are fixed points, and odd mixtures of stored patterns become spurious states as \(p/n\) grows.
+
+\paragraph{Inefficiency:}
+This low capacity is why Hopfield networks are not used as practical storage devices despite their associative memory properties.
+
+\paragraph{Stochastic updates (bridge to Boltzmann machines).} A stochastic variant replaces the hard sign in \eqref{eq:update_rule} with probabilistic flips (e.g., Gibbs sampling). With symmetric weights this defines a Boltzmann distribution whose energy matches \eqref{eq:energy_function}, linking Hopfield recall to the Boltzmann/energy-based models that underlie modern probabilistic neural networks.
+
+\subsection{Improving Storage Capacity via Weight Updates}
+
+Is it possible to improve the storage capacity by modifying the weight update rule?
+
+\paragraph{Idea:}
+Instead of fixing weights and updating states, can we update weights based on stored patterns to better encode memories?
+
+\paragraph{Hebbian learning rule:}
+Given \( p \) stored patterns \(\{\mathbf{b}^1, \mathbf{b}^2, \ldots, \mathbf{b}^p\}\), each \(\mathbf{b}^\mu = (b_1^\mu, b_2^\mu, \ldots, b_n^\mu)\) with \( b_i^\mu \in \{+1, -1\} \), the weights are set by:
+\begin{equation}
+w_{ij} = \frac{1}{n} \sum_{\mu=1}^p b_i^\mu b_j^\mu, \quad w_{ii} = 0.
+\label{eq:hebbian_weights}
+\end{equation}
+
+This is the classical Hebbian learning rule for Hopfield networks.
+
+\paragraph{Properties:}
+\begin{itemize}
+    \item The diagonal terms \( w_{ii} \) are set to zero to avoid self-feedback.
+    \item The factor \( \frac{1}{n} \) normalizes the weights.
+    \item The weights encode correlations between neuron activations across stored patterns.
+\end{itemize}
+
+\paragraph{Effect on capacity:}
+Using this weight update rule, the network can store on the order of \( 0.138 n \) random patterns reliably, which is an improvement over naive storage but still limited.
+
+\subsection{Example: Weight Calculation for a Single Pattern}
+
+Consider a fundamental memory pattern:
+\[
+\mathbf{b} = (1, 1, 1, -1),
+\]
+with no thresholds (\( \theta_i = 0 \)).
+
+\paragraph{Step 1: Compute outer product}
+Form the matrix \( \mathbf{B} = \mathbf{b} \mathbf{b}^\top \). Each entry \(B_{ij} = b_i b_j\) captures the pairwise correlation between neurons \(i\) and \(j\).
+
+\paragraph{Step 2: Remove diagonal terms}
+Zero the diagonal entries to obtain the weight matrix \( \mathbf{W} \) with \(w_{ii} = 0\). The off-diagonal values remain the same as in \(\mathbf{B}\), encoding the pairwise interactions required to store the memory pattern.
+
+\subsection{Finalizing the Hopfield Network Derivation and Discussion}
+
+Recall from previous parts that the Hopfield network is a fully connected recurrent neural network designed to store and retrieve binary memory patterns \(\mathbf{\xi}^\mu \in \{-1, +1\}^N\), \(\mu = 1, \ldots, P\), where \(N\) is the number of neurons and \(P\) the number of stored patterns.
+
+The weight matrix \(\mathbf{W} = [w_{ij}]\) is typically constructed using the Hebbian learning rule:
+\begin{align}
+    w_{ij} = \frac{1}{N} \sum_{\mu=1}^P \xi_i^\mu \xi_j^\mu, \quad w_{ii} = 0,
+\end{align}
+where the diagonal weights are set to zero to avoid self-feedback.
+
+\paragraph{Energy Function and Convergence}
+
+The network dynamics evolve asynchronously or synchronously according to the update rule:
+\begin{align}
+    s_i(t+1) = \mathrm{sign}\left(\sum_{j=1}^N w_{ij} s_j(t)\right),
+    \label{eq:hopfield_update}
+\end{align}
+where \(s_i(t) \in \{-1, +1\}\) is the state of neuron \(i\) at time \(t\).
+
+The Hopfield network is equipped with an energy function:
+\begin{align}
+    E(\mathbf{s}) = -\frac{1}{2} \sum_{i,j=1}^N w_{ij} s_i s_j,
+    \label{eq:hopfield_energy}
+\end{align}
+which monotonically decreases (or remains constant) with each asynchronous update, guaranteeing convergence to a local minimum of \(E\).
+
+\paragraph{Memory Retrieval and Basins of Attraction}
+
+The stored patterns \(\{\mathbf{\xi}^\mu\}\) correspond to local minima of the energy landscape. Starting from an initial state \(\mathbf{s}(0)\) that is a noisy or partial version of a stored pattern, the network dynamics converge to the closest attractor, ideally retrieving the original memory or its complement \(-\mathbf{\xi}^\mu\).
+
+For example, if the initial state is corrupted, the network will iteratively update states to reduce energy until it reaches a stable point:
+\[
+\mathbf{s}(\infty) \in \{\mathbf{\xi}^\mu, -\mathbf{\xi}^\mu\}.
+\]
+
+\paragraph{Limitations: Capacity and Classification}
+
+Despite its elegant memory retrieval properties, the Hopfield network has significant limitations:
+
+\begin{itemize}
+    \item \textbf{Storage Capacity:} The maximum number of patterns \(P_{\max}\) that can be reliably stored and retrieved scales approximately as \(0.138 N\) for large \(N\). Beyond this, spurious minima and retrieval errors increase dramatically.
+
+    \item \textbf{Spurious States:} The network may converge to spurious attractors that are not stored memories, especially when the number of stored patterns is large or when the input is heavily corrupted.
+
+    \item \textbf{Classification Difficulty:} Using Hopfield networks for classification (e.g., digit recognition) is problematic. Since the network converges to the nearest energy minimum, a corrupted input pattern may converge to a wrong stored pattern or its complement. There is no guarantee that the minimum energy state corresponds to the correct class.
+\item \textbf{When not to use:} Large patterns and heavy loading (\(P/N\)) create a glassy energy landscape, scaling is quadratic in the number of units, and low capacity makes Hopfield networks ill-suited for high-dimensional discriminative tasks compared with the ERM models from \Cref{chap:logistic} or deep models in \Cref{chap:transformers}.
+\end{itemize}
+
+\paragraph{Example: Memory Recovery}
+
+Consider a Hopfield network with \(N=4\) neurons and a single stored pattern \(\mathbf{\xi} = [-1, -1, 1, -1]^T\). The weight matrix constructed via \eqref{eq:hebbian_weights} is
+\[
+\mathbf{W} = \frac{1}{4} \mathbf{\xi} \mathbf{\xi}^\top, \qquad w_{ii} = 0,
+\]
+which numerically becomes a single symmetric matrix
+\[
+\mathbf{W} = \frac{1}{4}
+\begin{pmatrix}
+0 & 1 & -1 & 1 \\
+1 & 0 & -1 & 1 \\
+-1 & -1 & 0 & -1 \\
+1 & 1 & -1 & 0
+\end{pmatrix}.
+\]
+The off-diagonal entries are therefore the scaled products of pattern components (e.g., $w_{12}=w_{21}=0.25$ and $w_{13}=w_{31}=-0.25$).
+Thus every off-diagonal weight is simply the scaled product of the corresponding pattern entries, e.g., $w_{12}=w_{21}=0.25$, $w_{13}=w_{31}=-0.25$, and so on.
+
+Starting from an initial state \(\mathbf{s}(0) = [-1, -1, 1, 1]^T\) (with zero thresholds \(\theta_i = 0\)), we apply the familiar asynchronous sign update
+\[
+    s_i \leftarrow \operatorname{sign}\Big( \sum_{j=1}^N w_{ij} s_j - \theta_i \Big)
+\]
+one neuron at a time, i.e., neuron $i$ is set to $+1$ whenever the weighted sum exceeds its threshold and to $-1$ otherwise. Because each update reduces the Lyapunov energy $E = -\tfrac{1}{2}\sum_{i=1}^N\sum_{j=1}^N w_{ij} s_i s_j + \sum_{i=1}^N \theta_i s_i$ from \eqref{eq:energy_function}, the trajectory converges to \(\mathbf{\xi}\) or its complement \(-\mathbf{\xi}\), demonstrating successful memory retrieval despite the initial corruption. The appearance of \(-\mathbf{\xi}\) as a fixed point is expected: the energy only depends on products $s_i s_j$, so negating all bits leaves every term unchanged.
+
+\paragraph{Spurious attractors}
+
+Beyond the intended memories \(\{\pm \mathbf{\xi}^\mu\}\), Hopfield networks can converge to \emph{spurious attractors}: stable states formed by mixtures of stored patterns. These unintended minima become increasingly common as the loading factor \(P/N\) grows (here \(P\) denotes the number of stored patterns); for random patterns the practical capacity is roughly \(0.138\,N\). The possibility of converging to a spurious state, or to the complemented memory rather than the original, explains why Hopfield networks are better viewed as associative memories than as discriminative classifiers.
+
+\paragraph{Historical and Practical Significance}
+
+The Hopfield network was revolutionary in demonstrating that artificial neural networks can model associative memory and converge to stable states corresponding to stored memories. It laid foundational concepts for energy-based models and inspired subsequent developments in neural computation.
+
+However, its practical use is limited by low storage capacity and sensitivity to noise. Modern networks and learning algorithms have since extended these ideas to more scalable and robust architectures.
+
+\paragraph{Connections to other chapters.} Hopfield networks sit between prototype-based maps and energy-based attention mechanisms. \Cref{chap:som} and \Cref{chap:transformers} provide those contexts. Their Lyapunov-style energy descent mirrors the validation-driven convergence checks from \Cref{chap:supervised}. Their symmetric recurrent structure also offers a counterpoint to the feedforward ERM models in \Crefrange{chap:logistic}{chap:backprop}.
+
+\begin{tcolorbox}[summarybox,title={Key takeaways}]
+\begin{itemize}
+    \item Hopfield networks store binary patterns as attractors in an energy landscape defined by symmetric weights.
+    \item Asynchronous updates monotonically reduce the Lyapunov energy, ensuring convergence to a fixed point.
+    \item Capacity is limited and spurious attractors appear as the load \(P/N\) grows; treat Hopfield nets primarily as associative memories.
+\end{itemize}
+\end{tcolorbox}
+
+\begin{tcolorbox}[summarybox,title={Exercises and lab ideas}]
+\begin{itemize}
+    \item Implement a minimal example from this chapter and visualize intermediate quantities (plots or diagnostics) to match the pseudocode.
+    \item Stress-test a key hyperparameter or design choice discussed here and report the effect on validation performance or stability.
+    \item Re-derive one core equation or update rule by hand and check it numerically against your implementation.
+\end{itemize}
+\end{tcolorbox}
+
+\medskip
+\paragraph{Where we head next.} \Cref{chap:cnn} pivots from associative memory dynamics to deep feedforward architectures for perception, where convolution and pooling build hierarchical features. The optimization discipline carries over unchanged: the ERM toolkit from \Cref{chap:supervised} and the training mechanics from \Crefrange{chap:mlp}{chap:backprop} remain central. We return to recurrence and attention in \Cref{chap:rnn} and \Cref{chap:transformers}.
+
+\paragraph{References.} Full citations for works mentioned in this chapter appear in the book-wide bibliography.
+\nocite{Hopfield1982,AmitGutfreundSompolinsky1985}

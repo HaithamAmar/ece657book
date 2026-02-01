@@ -1,0 +1,467 @@
+% Chapter 5
+\section{Introduction to Neural Networks}\label{chap:perceptron}
+\begin{tcolorbox}[summarybox,title={Learning Outcomes}]
+After this chapter, you should be able to:
+\begin{itemize}
+  \item Describe the core ingredients of neural networks (architecture, activations, learning).
+  \item Explain how multilayer perceptrons learn via gradient\hyp{}based training.
+  \item Identify common pitfalls (saturation, poor initialization) and basic remedies.
+\end{itemize}
+\end{tcolorbox}
+
+\Cref{chap:logistic} established linear and logistic models as strong baselines, but their decision boundaries are linear in the original feature space. We now shift from the statistical lens to a biological one: neurons as simple units whose collective behavior yields nonlinear decision boundaries. This chapter introduces neuron models, perceptrons, activation functions, and the first learning rules (perceptron and Adaline). The roadmap in \Cref{fig:roadmap} marks this as the start of the neural strand.
+
+\begin{tcolorbox}[summarybox,title={Design motif}]
+Biology as engineering abstraction: start with simple units, make the update rule explicit, and use geometry to build intuition before the algebra gets deep.
+\end{tcolorbox}
+
+\subsection{Biological Inspiration}
+
+Human intelligence is often characterized by behaviors that resemble cognitive processes such as learning, reasoning, and decision-making. To replicate such intelligent behavior artificially, it is natural to look towards the biological systems that exhibit these capabilities. The human brain, composed of billions of interconnected neurons, serves as a primary source of inspiration.
+
+\paragraph{Neurons and Neural Activity}
+
+A biological neuron can be conceptualized as a processing unit that receives multiple input signals, integrates them, and produces an output signal if certain conditions are met. The key components of a neuron include:
+
+\begin{itemize}
+    \item \textbf{Dendrites:} Receive incoming signals from other neurons.
+    \item \textbf{Cell body (soma):} Integrates incoming signals.
+    \item \textbf{Axon:} Transmits the output signal to other neurons.
+    \item \textbf{Synapses:} Junctions where signals are transmitted between neurons.
+\end{itemize}
+
+Signals arriving at the dendrites are often chemical in nature and can excite or inhibit the neuron. When the combined input exceeds a certain threshold, the neuron "fires," sending an electrical impulse down the axon to connected neurons. This firing is not simply binary; the strength and timing of signals can influence the neuron's response.
+
+\paragraph{Complexities and Unknowns}
+
+Despite extensive research, many aspects of neural function remain poorly understood, including:
+
+\begin{itemize}
+    \item How signals arriving at different dendrites simultaneously interact.
+    \item The effect of signal timing and frequency on neuron firing.
+    \item The mechanisms of cooperation and competition among neurons.
+    \item How neural activity culminates in complex behaviors.
+\end{itemize}
+
+These uncertainties highlight the challenges in directly modeling biological neurons and motivate the development of simplified artificial models.
+
+\subsection{From Biological to Artificial Neural Networks}
+
+Artificial neural networks (ANNs) are computational models inspired by the structure and function of biological neural systems. The goal is to create systems that can process information, learn from data, and perform tasks that require intelligence.
+
+\paragraph{Key Features of Artificial Neural Networks}
+
+To design an ANN that captures essential aspects of biological neural processing, several features must be considered:
+
+\begin{enumerate}
+    \item \textbf{Architecture:} The arrangement and connectivity of neurons within the network. This includes the number of layers, the pattern of connections (e.g., feedforward, recurrent), and the flow of information.
+
+    \item \textbf{Signal Propagation:} How input signals are transmitted through the network, transformed by neurons, and produce outputs.
+
+    \item \textbf{Learning Mechanism:} The method by which the network adjusts its parameters (e.g., weights) based on data to improve performance. This involves capturing and retaining knowledge from experience.
+
+    \item \textbf{Activation Dynamics:} The rules governing neuron activation, including how neurons decide to fire based on inputs, the degree of activation, and inhibition mechanisms.
+\end{enumerate}
+
+\paragraph{Historical Context}
+
+The concept of artificial neural networks dates back to the early 1940s, with pioneering work that attempted to mathematically model neuron behavior. Over the past eight decades, ANNs have evolved significantly, leading to a variety of architectures and learning algorithms. This evolution reflects ongoing efforts to better approximate biological intelligence and to address practical challenges in computation and learning.
+
+\subsection{Outline of Neural Network Study}
+
+This chapter introduces perceptrons and common activation functions. \Cref{chap:mlp} then develops multilayer perceptrons and the backpropagation machinery needed to train them; \Cref{chap:rnn} returns to sequence models with recurrent connections.
+
+Formal definitions of the perceptron neuron model (activation functions, weighted sums, and thresholds) follow in \Cref{sec:perceptron}. Refer back to the biological narrative above when interpreting the abstractions.
+
+% Chapter 5 (continued)
+
+\subsection{Neural Network Architectures}
+
+Neural networks can be broadly categorized based on the flow of information through their structure. Understanding these architectures is crucial for designing and analyzing neural models that mimic biological neural systems.
+
+\paragraph{Feedforward Neural Networks}
+
+Feedforward neural networks (FNNs) are characterized by a unidirectional flow of information from input to output layers without any cycles or loops. The information propagates forward through successive layers of neurons, each layer transforming the input received from the previous layer.
+
+Conceptually, this can be thought of as a cascade of neuron activations where each neuron receives input signals, processes them, and passes the output to the next layer. This architecture aligns with the idea that sensory information in biological systems is processed in a hierarchical manner.
+
+Mathematically, if we denote the input vector as \(\mathbf{x}\), the output of layer \(l\) as \(\mathbf{a}^{(l)}\), and the weight matrix connecting layer \(l-1\) to layer \(l\) as \(\mathbf{W}^{(l)}\), the feedforward operation is given by:
+\begin{align}
+    \mathbf{z}^{(l)} &= \mathbf{a}^{(l-1)} \mathbf{W}^{(l)} + \mathbf{b}^{(l)} \\
+    \mathbf{a}^{(l)} &= f(\mathbf{z}^{(l)}).
+    \label{eq:feedforward}
+\end{align}
+where \(\mathbf{b}^{(l)}\) is the bias vector and \(f(\cdot)\) is the activation function applied element-wise.
+\paragraph{Shapes and convention.} We use the row-major (deep-learning) convention. A single example is a row vector \(\mathbf{a}^{(l)}\in\mathbb{R}^{1\times n_l}\), a mini\hyp{}batch stacks examples by rows \(A^{(l)}\in\mathbb{R}^{B\times n_l}\), and weights map features by right multiplication \(W^{(l)}\in\mathbb{R}^{n_{l-1}\times n_l}\). Biases \(b^{(l)}\in\mathbb{R}^{n_l}\) broadcast across the batch: \(Z^{(l)}=A^{(l-1)}W^{(l)}+\mathbf{1}(b^{(l)})^\top\). We reserve \(\phi(\cdot)\) for kernel feature maps (Appendix~\ref{app:kernels}).
+
+\paragraph{Recurrent Neural Networks}
+
+In contrast, recurrent neural networks (RNNs) allow information to flow in cycles, enabling feedback connections. This means that the network's state at a given time depends not only on the current input but also on previous states, effectively creating a form of memory.
+
+The recurrent architecture is more flexible and biologically plausible since neurons can influence each other bidirectionally and inputs/outputs can be introduced or sampled at various points in the network. This allows modeling of temporal sequences and dynamic behaviors. A simple recurrent update is
+\[
+\mathbf{h}_t = f(\mathbf{x}_t \mathbf{W}_{xh} + \mathbf{h}_{t-1} \mathbf{W}_{hh} + \mathbf{b}_h), \qquad
+\mathbf{y}_t = \mathbf{h}_t \mathbf{W}_{hy} + \mathbf{b}_y,
+\]
+with the full treatment deferred to \Cref{chap:rnn}.
+
+\subsection{Activation Functions}
+
+Activation functions determine how the input to a neuron is transformed into an output signal, effectively controlling the neuron's excitation level. They play a critical role in enabling neural networks to model complex, nonlinear relationships.
+
+\paragraph{Biological Motivation}
+
+In biological neurons, excitation occurs when the combined chemical signals exceed a certain threshold, triggering an action potential (a "fire"). Similarly, artificial neurons use activation functions to decide whether to activate (fire) based on their input.
+
+\paragraph{Common Activation Functions}
+Activation functions map the aggregated input \(z\) to a neuron's output \(y=f(z)\); they inject nonlinearity and control gradient flow during learning. Different choices trade off biological plausibility, numerical stability, and ease of optimization.
+
+\begin{itemize}
+    \item \textbf{Step Function (Heaviside)}:
+    \[
+        f(x) = \begin{cases}
+            1 & x > 0 \\
+            0 & x \leq 0
+        \end{cases}
+    \]
+    Models a binary firing behavior but is not differentiable, limiting its use in gradient-based learning.
+
+    \item \textbf{Sign Function}:
+    \[
+        f(x) = \begin{cases}
+            1 & x > 0 \\
+            0 & x = 0 \\
+            -1 & x < 0
+        \end{cases}
+    \]
+        Allows for inhibitory (negative) outputs, mimicking excitatory and inhibitory neuron behavior. We adopt the convention \(f(0)=0\); some authors either leave \(\mathrm{sign}(0)\) undefined or set it to \(+1\), so it is helpful to state the choice explicitly.
+
+    \item \textbf{Linear Function}:
+    \[
+        f(x) = x
+    \]
+    Useful in some contexts but cannot model nonlinearities alone.
+
+    \item \textbf{Sigmoid Function}:
+    \[
+        f(x) = \frac{1}{1 + e^{-x}}
+    \]
+        Smoothly maps inputs to \((0,1)\), differentiable, and historically popular. Because sigmoid outputs saturate near \(0\) and \(1\), gradients can become small in deep stacks; later chapters discuss practical workarounds and alternatives.
+
+    \item \textbf{Hyperbolic Tangent (tanh)}:
+    \[
+        f(x) = \tanh(x) = \frac{e^{x} - e^{-x}}{e^{x} + e^{-x}}
+    \]
+    Maps inputs to \((-1,1)\), zero-centered, often preferred over sigmoid.
+
+    \item \textbf{ReLU (Rectified Linear Unit)}:
+    \[
+        f(x) = \max(0, x)
+    \]
+        Computationally efficient and helps mitigate vanishing gradient problems.
+
+\end{itemize}
+
+\begin{tcolorbox}[summarybox,title={Notation note: activations and thresholds}]
+In this chapter we use \(f(\cdot)\) as a generic placeholder for an activation function; when we need the logistic sigmoid specifically we write \(\sigma(\cdot)\). Elsewhere in the book, \(\phi(\cdot)\) denotes a kernel feature map. For thresholded functions we adopt \(H(0)=1\) (Heaviside) and \(\mathrm{sgn}(0)=0\) by convention. These choices do not affect continuous models but keep examples consistent.
+\end{tcolorbox}
+
+\subsection{Learning Paradigms in Neural Networks}
+
+When building a neural network, whether feedforward or recurrent, the fundamental process involves producing an output, comparing it with a target, and then adjusting the network parameters based on the error. This iterative process is the essence of \emph{learning}. We distinguish several learning paradigms depending on the availability and nature of the target information:
+
+\paragraph{Supervised Learning}
+In supervised learning, the network is provided with input-output pairs. The network produces an output for a given input, compares it to the known target output, computes an error, and updates its parameters to reduce this error. This requires labeled data and is the most common learning paradigm in practice.
+
+\paragraph{Unsupervised Learning}
+In unsupervised learning, there is no explicit target output. The network must discover patterns or structure in the input data by itself. This often involves competition among different patterns, where some patterns become dominant and reinforce themselves, while others are suppressed. The network evolves until it reaches an equilibrium state where the learned representations stabilize.
+Beyond competitive learning, unsupervised methods encompass clustering, density estimation, dimensionality reduction, autoencoders, and modern self-supervised objectives---any setting where structure is inferred directly from the inputs.
+
+\paragraph{Reinforcement Learning}
+Reinforcement learning (RL) models learning from interaction with feedback. An agent with policy \(\pi(a\mid s)\) selects actions, collects rewards, and updates \(\pi\) to improve expected return. Full RL treatments appear later; here the point is that not all learning is supervised, and neural-network controllers are common in modern RL.
+
+\subsection{Fundamentals of Artificial Neural Networks}
+
+The foundational model of artificial neural networks dates back to McCulloch and Pitts (1943), who proposed a simple neuron model capturing essential features of biological neurons.
+
+\paragraph{McCulloch-Pitts Neuron Model}
+
+Consider a single neuron with multiple binary inputs \( x_i \in \{0,1\} \), \( i=1, \ldots, n \). Each input is associated with a weight \( w_i \), which can be positive (excitatory) or negative (inhibitory). The neuron computes a weighted sum of its inputs:
+
+\begin{align}
+    S = \sum_{i=1}^n w_i x_i.
+    \label{eq:weighted_sum}
+\end{align}
+
+The output \( y \) of the neuron is determined by comparing \( S \) to a threshold \(\theta\):
+
+\begin{align}
+    y =
+    \begin{cases}
+        1, & \text{if } S \geq \theta, \\
+        0, & \text{otherwise}.
+    \end{cases}
+    \label{eq:threshold_output}
+\end{align}
+
+Key characteristics of this model include:
+
+\begin{itemize}
+    \item \textbf{Binary inputs:} Inputs are either active (1) or inactive (0).
+    \item \textbf{Excitatory and inhibitory weights:} Weights \( w_i > 0 \) excite the neuron, while \( w_i < 0 \) inhibit it.
+    \item \textbf{Thresholding:} The neuron fires (outputs 1) only if the weighted sum exceeds the threshold.
+\end{itemize}
+
+\paragraph{Interpretation}
+
+This simple neuron can be viewed as a linear classifier that partitions the input space into two regions separated by the hyperplane defined by the equation
+
+\begin{align}
+    \sum_{i=1}^n w_i x_i = \theta.
+\end{align}
+
+The learning task reduces to finding appropriate weights \( w_i \) and threshold \(\theta\) that correctly classify inputs.
+
+\paragraph{Excitation and Inhibition}
+
+The neuron can be excited or inhibited depending on the sign and magnitude of the weights. For example:
+
+\begin{itemize}
+    \item If all \( w_i > 0 \), the neuron is purely excitatory.
+    \item If some \( w_i < 0 \), those inputs inhibit the neuron.
+    \item The balance of excitation and inhibition determines the neuron's response.
+\end{itemize}
+In biological circuits inhibition is carried by specialized interneurons, whereas here a negative weight is an abstract shortcut; the sign simply indicates whether an input pushes the weighted sum above or below the threshold. Artificial neurons are function approximators; similarity to biology is inspirational, not mechanistic.
+
+\paragraph{Learning Objective}
+
+In this model, learning can be interpreted as adjusting the weights \( w_i \) and threshold \(\theta\) to achieve desired input-output mappings. The challenge is to find these parameters such that the neuron outputs 1 for inputs belonging to a certain class and 0 otherwise.
+
+\subsection{Mathematical Formulation of the Neuron Output}
+
+To summarize, the neuron output is given by
+
+\begin{align}
+    y = f\left( \sum_{i=1}^n w_i x_i - \theta \right),
+    \label{eq:neuron_output}
+\end{align}
+
+where \( f(\cdot) \) is the activation function, which in the McCulloch-Pitts model is a Heaviside step function:
+
+\begin{align}
+    f(z) =
+    \begin{cases}
+        1, & z \geq 0, \\
+        0, & z < 0.
+    \end{cases}
+\end{align}
+We explicitly set \(f(0)=1\); other texts sometimes use \(f(0)=\tfrac{1}{2}\), so documenting the convention avoids confusion when comparing derivations. It is also common to absorb the threshold into an augmented weight vector by defining \(x_0 = 1\) and \(w_0 = -\theta\), yielding a pure inner product \(\mathbf{w}^\top \mathbf{x}\) that we will reuse in the perceptron section.
+
+This model laid the groundwork for later developments in neural networks, including the introduction of differentiable nonlinearities that enable gradient-based learning.
+
+\subsection{McCulloch-Pitts neuron: examples and limits}
+
+Recall that the McCulloch-Pitts (MP) neuron model is defined by a weighted sum of binary inputs compared against a threshold to produce a binary output. Formally, for inputs \(x_i \in \{0,1\}\) and weights \(w_i\), the neuron output \(y\) is given by
+\begin{align}
+    y = \begin{cases}
+    1 & \text{if } \sum_{i=1}^n w_i x_i \geq \theta, \\
+    0 & \text{otherwise},
+    \end{cases}
+    \label{eq:mp-neuron}
+\end{align}
+where \(\theta\) is the threshold.
+
+\paragraph{Example: AND and OR gates}
+
+- For an AND gate with inputs \(x_1, x_2\), set weights \(w_1 = w_2 = 1\) and threshold \(\theta = 2\). The output is 1 only if both inputs are 1, matching the AND truth table.
+
+- For an OR gate, keep weights \(w_1 = w_2 = 1\) but set \(\theta = 1\). The output is 1 if at least one input is 1, matching the OR truth table.
+
+This demonstrates how the MP neuron can implement simple logical functions by appropriate choice of weights and threshold.
+
+\paragraph{Limitations of the MP model}
+
+Despite its conceptual simplicity, the MP neuron has significant limitations:
+
+\begin{itemize}
+    \item \textbf{No learning mechanism:} The weights and threshold must be manually assigned or guessed. There is no algorithmic way to adjust parameters based on data.
+    \item \textbf{Limited computational power:} The MP neuron can only represent linearly separable functions. Complex patterns requiring nonlinear decision boundaries cannot be modeled.
+    \item \textbf{Binary inputs and outputs:} The model is restricted to binary signals, limiting its applicability to real-valued data.
+\end{itemize}
+
+These limitations motivated the development of more sophisticated neuron models and learning algorithms.
+
+\subsection{From MP Neuron to Perceptron and Beyond}
+\label{sec:perceptron}
+
+The MP neuron laid the groundwork for subsequent models that introduced learning capabilities and continuous-valued inputs and outputs.
+
+\paragraph{Perceptron model}
+
+The perceptron, introduced by Rosenblatt in 1958, extends the MP neuron by incorporating a learning algorithm to adjust weights based on training data. The perceptron output is
+\begin{align}
+    y = \begin{cases}
+    1 & \text{if } \mathbf{w}^\top \mathbf{x} + b \geq 0, \\
+    0 & \text{otherwise},
+    \end{cases}
+    \label{eq:perceptron}
+\end{align}
+where \(\mathbf{x}\) is the input vector, \(\mathbf{w}\) the weight vector, and \(b\) the bias (threshold).
+\begin{tcolorbox}[summarybox,title={Targets and encodings}]
+We switch between labels in \texttt{\{0,1\}} (probability view) and labels in \texttt{\{-1,+1\}} (margin view).
+Convert with \texttt{y\_pm = 2*y01 - 1} and \texttt{y01 = (y\_pm + 1)/2}.
+Perceptron updates below use the \texttt{\{-1,+1\}} encoding.
+\end{tcolorbox}
+
+The perceptron learning rule iteratively updates weights to reduce classification errors, enabling the model to learn from data rather than relying on manual parameter selection. With labels \(y_i\in\{-1,+1\}\), a mistake triggers \( \mathbf{w}\leftarrow \mathbf{w} + \eta y_i \mathbf{x}_i\) and \( b\leftarrow b + \eta y_i\). The induced separating hyperplane and signed distance are illustrated in \cref{fig:lec3-perceptron-geometry}.
+
+\paragraph{Perceptron update from the signed margin.} Let \(d_i = y_i(\mathbf{w}^\top \mathbf{x}_i + b)\) be the signed margin. If \(d_i \ge 0\) the example is correctly classified; if \(d_i < 0\) the example is misclassified. A common perceptron criterion is
+\[
+J(\mathbf{w},b) = - \sum_{i \in \mathcal{M}} d_i = - \sum_{i \in \mathcal{M}} y_i (\mathbf{w}^\top \mathbf{x}_i + b),
+\]
+where \(\mathcal{M}\) is the set of misclassified examples. Taking a gradient step on \(J\) yields
+\[
+\mathbf{w} \leftarrow \mathbf{w} + \eta y_i \mathbf{x}_i,\qquad
+b \leftarrow b + \eta y_i,
+\]
+which is exactly the perceptron update. In augmented form, set \(x_0=1\) and \(w_0=b\), and the update becomes \(\mathbf{w} \leftarrow \mathbf{w} + \eta y_i \mathbf{x}_i\). Geometrically, each mistake nudges the hyperplane so the signed distance \(d_i\) increases.
+
+\paragraph{Perceptron convergence theorem.} If a training set is linearly separable with margin \(\gamma > 0\), the perceptron learning algorithm is guaranteed to find a separating hyperplane after at most \((R/\gamma)^2\) updates, where \(R\) bounds the input norms. Rescaling features changes \(R\) and \(\gamma\), so standardizing inputs tightens the bound. When the data are not separable the algorithm can cycle forever; \Cref{sec:mlp-limitations} (and \Cref{chap:mlp}) therefore emphasize feature scaling, bias terms, and the move to differentiable multilayer models to handle nonlinear problems.
+
+\begin{tcolorbox}[summarybox,title={Perceptron convergence theorem (proof sketch)}]
+Assume there exists a unit vector \(\mathbf{w}^\star\) such that \(y_i\,\mathbf{w}^\star\!\cdot\!\mathbf{x}_i \ge \gamma\) for all \(i\) and that \(\|\mathbf{x}_i\|\le R\).
+Let w(t) denote the perceptron weights after t mistakes. Each mistake updates:
+\[
+\mathbf{w}^{(t+1)} = \mathbf{w}^{(t)} + y_i \mathbf{x}_i.
+\]
+\begin{enumerate}
+    \item \textbf{Progress along the separator.} The inner product with w* grows by at least gamma each mistake:
+    \[
+    \begin{aligned}
+    \mathbf{w}^{(t+1)} \cdot \mathbf{w}^\star
+    &= \mathbf{w}^{(t)} \cdot \mathbf{w}^\star + y_i\,\mathbf{x}_i \cdot \mathbf{w}^\star \\
+    &\ge \mathbf{w}^{(t)} \cdot \mathbf{w}^\star + \gamma.
+    \end{aligned}
+    \]
+    Thus after T mistakes, the dot product with w* is at least T*gamma.
+    \item \textbf{Bounding the norm.} The squared norm grows slowly:
+    \[
+    \begin{aligned}
+    \|\mathbf{w}^{(t+1)}\|^2
+    &= \|\mathbf{w}^{(t)}\|^2 + \| \mathbf{x}_i\|^2 + 2 y_i \mathbf{x}_i \cdot \mathbf{w}^{(t)} \\
+    &\le \|\mathbf{w}^{(t)}\|^2 + R^2,
+    \end{aligned}
+    \]
+    because the mistake condition implies \(y_i \mathbf{x}_i \cdot \mathbf{w}^{(t)} \le 0\). Inductively, \(\|\mathbf{w}^{(T)}\|^2 \le TR^2\).
+    \item \textbf{Combine via Cauchy--Schwarz.}
+    \[
+    \begin{aligned}
+    T\gamma
+    &\le \mathbf{w}^{(T)} \cdot \mathbf{w}^\star \\
+    &\le \|\mathbf{w}^{(T)}\| \|\mathbf{w}^\star\|
+    \le \sqrt{T}\,R,
+    \end{aligned}
+    \]
+    which implies \(T \le (R/\gamma)^2\).
+\end{enumerate}
+Therefore the perceptron halts after finitely many mistakes on separable data. If the data are not separable, some \(\gamma > 0\) cannot be found, and the above argument no longer applies; hence the need for multilayer networks.
+\end{tcolorbox}
+
+\begin{tcolorbox}[summarybox,title={Common perceptron pitfalls}]
+\begin{itemize}
+    \item \textbf{Feature scaling:} Large-magnitude features dominate updates; standardize inputs first.
+    \item \textbf{Random seed sensitivity:} Different initial weights can lead to drastically different separating hyperplanes.
+    \item \textbf{Non-separable data:} Without slack variables or kernels the perceptron will not converge; diagnose this before training indefinitely. XOR is the canonical counterexample.
+\end{itemize}
+\end{tcolorbox}
+
+\begin{figure}[t]
+    \centering
+    \begin{tikzpicture}
+        \begin{axis}[
+            axis lines=middle,
+            axis line style={gray!70},
+            xmin=-3.2, xmax=3.2,
+            ymin=-3.0, ymax=3.0,
+            width=0.64\linewidth,
+            height=0.5\linewidth,
+            xtick={-2,0,2},
+            ytick={-2,0,2},
+            clip=false,
+            ticklabel style={font=\scriptsize, gray!70},
+            grid=both,
+            minor grid style={gray!10},
+            major grid style={gray!20},
+            legend style={font=\scriptsize, draw=none, fill=none, at={(0.02,0.98)}, anchor=north west}
+        ]
+            \addplot[thick, gray!80] coordinates {(-3.2,2.1) (3.2,-2.1)}
+                node[pos=0.82, rotate=-45, anchor=south west, font=\scriptsize, text=gray!70]
+                {$\mathbf{w}^\top\mathbf{x}+b=0$};
+            \addplot[dashed, gray!60] coordinates {(-3.2,2.9) (3.2,-1.3)};
+            \addplot[dashed, gray!60] coordinates {(-3.2,1.3) (3.2,-2.9)};
+            \node[anchor=south east, font=\scriptsize, gray!70] at (axis cs:3.1,-2.15) {$C{=}1$};
+
+            \addplot[only marks, mark=*, mark size=1.8pt, mark options={draw=white, line width=0.4pt}, color=cbBlue]
+                coordinates {(-1.2,1.5) (-0.8,2.1) (-2,1.3)};
+            \addlegendentry{Class $+1$}
+            \addplot[only marks, mark=triangle*, mark size=2.1pt, mark options={draw=white, line width=0.4pt}, color=cbOrange]
+                coordinates {(1.4,-1.3) (2.2,-0.6) (0.9,-2.1)};
+            \addlegendentry{Class $-1$}
+
+            \addplot[thick, cbPink, -{Stealth[length=2.2mm]}] coordinates {(0.6,-0.3) (0.15,0.2)};
+            \node[cbBlue!70!black, font=\scriptsize] at (0.85,0.3) {$d(\mathbf{x},\mathcal{H})$};
+        \end{axis}
+    \end{tikzpicture}
+    % Avoid inline math in captions; it wraps poorly in some EPUB renderers.
+    \caption{Schematic: Perceptron geometry. Points on either side of the separating hyperplane receive different labels, and the signed distance to the boundary controls both the class prediction and the magnitude of the update during learning. Compare to \Cref{fig:lec2-logistic-boundary} in \Cref{chap:logistic}: both share a linear separator, but logistic smooths the boundary into calibrated probabilities.}
+    \label{fig:lec3-perceptron-geometry}
+\end{figure}
+
+\paragraph{Adaline model}
+
+The Adaptive Linear Neuron (Adaline), developed in the 1960s, further improves on the perceptron by using a linear activation function and minimizing a continuous error function (mean squared error). This allows the use of gradient descent for training, leading to more stable convergence.
+
+\paragraph{Adaline weight update (derivation)}
+Adaline uses a linear output \(y = \mathbf{w}^\top \mathbf{x} + b\) and the squared error
+\[
+E = \tfrac{1}{2}(t-y)^2.
+\]
+The gradient is \(\partial E / \partial \mathbf{w} = -(t-y)\mathbf{x}\) and \(\partial E/\partial b = -(t-y)\), so the update is
+\[
+\mathbf{w} \leftarrow \mathbf{w} + \eta (t-y)\mathbf{x}, \qquad
+b \leftarrow b + \eta (t-y).
+\]
+Unlike the perceptron, Adaline updates on every example and scales the step by the residual \(t-y\); this is the first explicit appearance of gradient-based weight optimization in the neural narrative.
+
+The perceptron and Adaline models are limited to linearly separable problems. To overcome this, multilayer perceptrons (MLPs) with hidden layers were introduced; \Cref{chap:mlp} and \Cref{chap:backprop} develop the mechanics in full.
+
+\begin{tcolorbox}[summarybox,title={Perceptron vs.\ logistic regression}]
+Linear score \(s(\mathbf{x})=\mathbf{w}^\top\mathbf{x}+b\). The perceptron predicts \(\mathbb{1}[s\ge 0]\) and updates \(\mathbf{w}\leftarrow \mathbf{w}+\eta y_i\mathbf{x}_i\) (and \(b\leftarrow b+\eta y_i\)) only on mistakes, with \(y_i\in\{-1,+1\}\). Logistic regression predicts \(\sigma(s)\), minimizes cross\hyp{}entropy \(-\sum_i y_i\log\sigma(s_i)+(1-y_i)\log(1-\sigma(s_i))\), and steps by \(\sum_i(\sigma(s_i)-y_i)\mathbf{x}_i\). Prefer logistic when calibrated probabilities and smooth optimization are needed (\Cref{chap:logistic}).
+\end{tcolorbox}
+
+\begin{tcolorbox}[summarybox,title={Author's note: what a single perceptron cannot express}]
+A single perceptron makes one global, all-or-none decision: one hyperplane, one threshold, one set of weights shared across every example. That simplicity is the point of the model, but it also explains its limitations. Many real problems require \emph{communities} of units that specialize: different hidden units respond to different regions, features, or patterns, and their combined vote produces a flexible decision surface. Multi-layer networks do not just add parameters; they add internal structure that lets different parts of the model ``care about'' different parts of the data.
+\end{tcolorbox}
+
+\begin{tcolorbox}[summarybox,title={Key takeaways}]
+\begin{itemize}
+    \item The perceptron and Adaline turn threshold units into trainable classifiers by updating weights from data.
+    \item Geometry (hyperplanes and signed distance) explains predictions and update magnitude.
+    \item Logistic regression keeps the same linear score but learns calibrated probabilities via a smooth loss (\Cref{chap:logistic}).
+    \item Nonlinear tasks (e.g., XOR) require multilayer networks and backpropagation (\Crefrange{chap:mlp}{chap:backprop}).
+\end{itemize}
+\end{tcolorbox}
+
+\begin{tcolorbox}[summarybox,title={Exercises and lab ideas}]
+\begin{itemize}
+    \item Implement a minimal example from this chapter and visualize intermediate quantities (plots or diagnostics) to match the pseudocode.
+    \item Stress-test a key hyperparameter or design choice discussed here and report the effect on validation performance or stability.
+    \item Re-derive one core equation or update rule by hand and check it numerically against your implementation.
+\end{itemize}
+\end{tcolorbox}
+
+\medskip
+\paragraph{Where we head next.} Perceptrons are intentionally simple: hard thresholds and uniform updates. Seeing both what they can do (linear separation) and what they cannot do (nonlinear tasks such as XOR) clarifies why multilayer networks are needed. \Cref{chap:mlp} builds directly on the perceptron/Adaline story by chaining units into the smallest multi\hyp{}layer network, defining a performance (loss) function, and then asking the key question: \emph{how should weights change to improve performance?} That question forces the chain rule and motivates smooth activations. \Cref{chap:backprop} then generalizes the same bookkeeping to arbitrary depth and turns the derivation into an efficient training algorithm.
+
+\paragraph{References.} Full citations for works mentioned in this chapter appear in the book-wide bibliography.
+\nocite{McCullochPitts1943,Rosenblatt1958,WidrowHoff1960,Rumelhart1986}

@@ -1,0 +1,48 @@
+# Editorial / publishing style guide (machine-readable)
+
+[dialect]
+# One of: "canadian", "american", "british"
+target = "american"
+
+[[spelling]]
+name = "colour"
+variants = ["color", "colors", "colored", "coloring", "colour", "colours", "coloured", "colouring"]
+preferred = ["color", "colors", "colored", "coloring"]
+
+[[spelling]]
+name = "centre"
+variants = ["center", "centers", "centered", "centering", "centre", "centres", "centred", "centring"]
+preferred = ["center", "centers", "centered", "centering"]
+
+[[spelling]]
+name = "optimise"
+variants = ["optimize", "optimizes", "optimized", "optimizing", "optimise", "optimises", "optimised", "optimising"]
+# Common Canadian academic preference is `-ize`; adjust if you prefer `-ise`.
+preferred = ["optimize", "optimizes", "optimized", "optimizing"]
+
+[[spelling]]
+name = "modelling"
+variants = ["modeling", "modeled", "modeler", "modelling", "modelled", "modeller"]
+# Canadian usage varies; pick one and be consistent.
+preferred = ["modeling", "modeled"]
+
+[punctuation]
+oxford_comma = "prefer"
+dash_style = "tex" # use `--`/`---` in prose; avoid " - "
+
+[lint]
+include_globs = ["*.tex", "*.md"]
+exclude_globs = [
+  "build/**",
+  "artifacts/**",
+  "scripts/node_modules/**",
+  "upload/**",
+  "review/**",
+  "*.aux",
+  "*.bbl",
+  "*.blg",
+  "*.log",
+  "*.lof",
+  "*.lot",
+  "*.toc",
+]

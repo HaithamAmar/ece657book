@@ -1,0 +1,917 @@
+\part{Introduction to Soft Computing and Intelligent Systems}
+\author{ECE 657 \\Prof.Haitham Amar}
+\frame[c]{\partpage}
+
+\frame<beamer>{
+  \frametitle{Outline}
+  \tableofcontents
+}
+
+%%%%%%%%%%%%%%%%%%%%%%%%% New frame %%%%%%%%%%%%%%%%%%%%%%%%%
+
+\section{Course Admin}
+
+
+\begin{frame} \frametitle{Introduction to Soft Computing and Intelligent Systems}
+  \begin{itemize}
+    \item Instructor: Haitham Amar- hamar@uwaterloo.ca
+    \item Material: learn.uwaterloo.ca
+    \item Lectures:In-Person format.
+     \begin{itemize}
+    \item Thursday from 5:30 pm- 8:20 pm, E7 4043
+      \end{itemize}
+   \item TA: Md Milon Islam- m46islam@uwaterloo.ca
+    \item TA: Islam Mohamed Nasr - immnasr@uwaterloo.ca
+    \item TA Office Hours: email the TAs to arrange time for that week
+  \end{itemize}
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%% New frame %%%%%%%%%%%%%%%%%%%%%%%%%
+
+\subsection{Announcements}
+\begin{frame} \frametitle{Announcements}
+  \begin{itemize}
+    \item Registering/Waiting List- No Auditing of this course
+    \item Log on to learn.uwaterloo.ca
+      \begin{itemize}
+        \item enable email notifications
+        \item use the message boards, let me know if you want specific groups or categories, I can create them
+        \item talk to each other
+      \end{itemize}
+  \end{itemize}
+\end{frame}
+%%%%%%%%%%%%%%%%%%%%%%%%% New frame %%%%%%%%%%%%%%%%%%%%%%%%%
+
+\subsection{Evaluation}
+\begin{frame} \frametitle{Work load and Evaluation- Subject to change}
+  \begin{itemize}
+      \item Assignments 40\%
+            \begin{itemize}
+\item Assignments will be provided on a biweekly to tri-weekly basis. Students are highly encouraged to work and solve them
+\item The assignments are going to require group effort. Please join a group ASAP.
+    \end{itemize}
+\item Exams 60\%
+\begin{itemize}
+\item Final Exam  60\%: Format (In-Person)
+\end{itemize}
+
+\end{itemize}
+\end{frame}
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%% New frame %%%%%%%%%%%%%%%%%%%%%%%%%
+
+%\begin{frame} \frametitle{Work load and Evaluation- Subject to change}
+%  \begin{itemize}
+%  \item Two Exams
+%    \item First Exam  25\%: Format (On Learn)
+%    \item Second Exam  25\%: Format (On Learn)
+%\end{itemize}
+%\end{frame}
+%%%%%%%%%%%%%%%%%%%%%%%%% New frame %%%%%%%%%%%%%%%%%%%%%%%%%
+
+%\begin{frame} \frametitle{Literature review Analysis}
+%  \begin{itemize}
+%    \item Carry out an end-to-end data analysis project.
+%
+%    \item Groups: The Literature review Analysis should be worked on in groups of 2-3 people. Some can do on their own but you need to come to me and make a strong case for it.
+%    \item Detailed description: see project description on LEARN.
+%    \item \alert{Turnitin option will be turned on by default for the report to check report originality. You can opt out of this option. However, other originality checking methods will be deployed.}
+%  \end{itemize}
+%\end{frame}
+
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%% New frame %%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+
+
+\begin{frame} \frametitle{Required Background}
+  \begin{itemize}
+    \item ECE 650 or equivalent is strongly recommended.
+      \item Math and Linear Algebra : sets, matrices, transpose, cross product, dot product, matrix multiplication, solving system of linear equations
+      \item Programming :
+        \begin{itemize}
+          \item You should be comfortable programming in some language, not large software applications but lots of calculations, plotting, etc.
+        \end{itemize}
+
+      \item Probability and Statistics : (not required, we will define or review these, but it would help)
+        \begin{itemize}
+          \item definition of probability, Subjective probability, information, entropy, \ldots
+        \end{itemize}
+  \end{itemize}
+\end{frame}
+%%%%%%%%%%%%%%%%%%%%%%%%% New frame %%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{frame} \frametitle{Computing Resources}
+  \begin{itemize}
+    \item Course Website:
+      \begin{itemize}
+        \item My personal website- https://uwaterloo.ca/scholar/hamar
+        \item See \textbf{Computing Resources} page on website with tips on servers/systems you can use on campus.
+      \end{itemize}
+    \item Sharcnet/Compute Canada
+      \begin{itemize}
+        \item research students could have supervisor sponsor them to use Sharcnet, no cost.
+      \end{itemize}
+    \item If you find useful resources, add to them the resources discussion forum on LEARN.
+  \end{itemize}
+\end{frame}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%% New frame %%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+\begin{frame} \frametitle{Other Tools and Resources}
+  \begin{itemize}
+      \item Mendeley.com Community - online resource for academic papers. Course Group join and post your own papers or comments.% (https://www.mendeley.com/community/fb96334c-a81c-3f85-8f10-0acf493c1423/)
+      \note[item]{Not required, content for course will refer to text books and slides. But for projects you'll want to go beyond that.}
+  \item Kaggle Competition - \alert{\uline{https://www.kaggle.com/datasets}}
+  \item Cloud Services - free to use for single user, single machine smaller runs.
+    \begin{itemize}
+    \item These have everything we'll cover in this course, we'll learn how to use them, why they are used, to allow you to go beyond them
+    %\item Google Cloud - credits will be available for groups for projects, more information later. Use it wisely though.
+    \item Amazon Web Services (AWS)
+    \item Azure Tools - Microsoft
+    \end{itemize}
+  \end{itemize}
+\end{frame}
+%%%%%%%%%%%%%%%%%%%%%%%%% New frame %%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{frame} \frametitle{Tools for Data Management and Analysis}
+  \begin{itemize}
+    \item \textbf{Only} one tool for this course
+    \item python (The de facto programming choice for data scientists)
+      \begin{itemize}
+        \item numpy, scipy, scikit-learn \note[item]{The coders, apps, startups, Google etc.}
+        \item Lots of resources online, communities, modules, new code tools all the time.
+      \end{itemize}
+  \end{itemize}
+\end{frame}
+%%%%%%%%%%%%%%%%%%%%%%%%% New frame %%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{frame} \frametitle{Course Scope and Structure}
+  \begin{itemize}
+  \item The course is useful for graduate students in virtually all areas of engineering, particularly for those dealing with complex systems or processes.
+  \item A background in two or more of the following areas should be useful: fuzzy logic, artificial neural networks, machine learning, AI, system's optimization, nonlinear mapping, calculus of variation, differential calculus, statistical analysis, advanced algebra, game theory.
+
+%    \item The course has two halves:
+%     \begin{itemize}
+%         \item The first part is the lectures provided in the class introducing various subjects and concepts
+%         \item The second part is to be provided by the students in their presentations
+%     \end{itemize}
+%     \item Therefore, the course assumes and expects from the students high research standards.
+     \end{itemize}
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%% New frame %%%%%%%%%%%%%%%%%%%%%%%%%
+
+\section{Intelligent Systems}
+
+\frame{
+  \frametitle{Artificial Intelligence}
+  \begin{block}{Definition: }
+   Algorithms enabled by constraints, exposed by representations that support models, and targeted at thinking, perception, and action.
+  \end{block}
+
+ \begin{block}{}
+   Without loss of generality, an intelligent system is one that generate hypotheses and test them.
+ \end{block}
+}
+
+%%%%%%%%%%%%%%%%%%%%%%%%% New frame %%%%%%%%%%%%%%%%%%%%%%%%%
+
+\frame{
+  \frametitle{Intelligent Systems: What Are They?}
+  \begin{block}{Definition: }
+    Intelligent systems are artificial entities involving a mix of software and hardware which have a capacity to acquire and apply knowledge in an "intelligent" manner and have the capabilities of perception, reasoning, learning, and making inferences (or, decisions) from incomplete information.
+  \end{block}
+}
+
+%%%%%%%%%%%%%%%%%%%%%%%%% New frame %%%%%%%%%%%%%%%%%%%%%%%%%
+
+\frame{
+  \frametitle{Intelligent Systems: History }
+
+  \begin{itemize}
+\item Al-Jazari's Automata: $12^{th}$ century-- He  described 100 mechanical devices one of which was a humanoid automata.
+\item Formal Reasoning: $Circa 13^{th}$ century
+\item First mechanical computer: $19^{th}$ century-- Charles Babbage
+\item First program:  Ada Lovelace-- She wrote, in the $19^{th}$ century, set of notes that completely detail a method for calculating Bernoulli numbers
+\end{itemize}
+}
+
+%%%%%%%%%%%%%%%%%%%%%%%%% New frame %%%%%%%%%%%%%%%%%%%%%%%%%
+
+\frame{
+  \frametitle{Intelligent Systems: History (Cont.) }
+
+  \begin{itemize}
+\item The Turing Test: 1950.
+\item Machine Learning algorithms: started at the mid $20^{th}$
+\item James Robert Slagle: A symbolic integration program
+\item Mycine:  a backward chaining expert system that used artificial intelligence to identify bacteria causing severe infections-- Circa 1970
+\item Deep Blue of IBM
+\item Deep Learning: Lots of cool and practical applications,
+\end{itemize}
+\newline
+For example, https://player.vimeo.com/video/192179726?color=cc0000&title=0&byline=0&portrait=0&player_id=192179726
+}
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%% New frame %%%%%%%%%%%%%%%%%%%%%%%%%
+
+\frame{
+  \frametitle{Intelligent Systems: Features}
+  \begin{block}{Features}
+    A feature that is indispensable in these systems is the generation of outputs, based on some inputs and the nature of the system itself. The inputs to a system may include information as well as tangible items, and the outputs may include decisions as well as physical products.
+  \end{block}
+}
+
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\frame{
+  \frametitle{Intelligent Systems: Capabilities}
+  It is commonly accepted that an intelligent system possesses one or more of the following characteristics and capabilities:
+  \begin{block}{Capabilities}
+ Sensory perception; Pattern recognition; Learning and knowledge acquisition; Inference from incomplete information; Inference from qualitative or approximate information; Ability to deal with unfamiliar situations; Adaptability to new, yet related situations (through expectational knowledge); Inductive reasoning.
+  \end{block}
+}
+%%%%%%%%%%%%%%%%%%%%%%%%% New frame %%%%%%%%%%%%%%%%%%%%%%%%%
+
+\frame{
+ \frametitle{Example}
+A typical input variable is identified for each of the following examples of dynamic systems:
+  \begin{itemize}
+  \item Human body: neuroelectric pulses
+  \item Company: information
+\item Power plant: fuel rate
+\item Automobile: steering wheel movement
+\item Robot: voltage to joint motor
+  \end{itemize}
+}
+
+%%%%%%%%%%%%%%%%%%%%%%%%% New frame %%%%%%%%%%%%%%%%%%%%%%%%%
+
+\frame{
+ \frametitle{Example (Cont.)}
+Possible output variables for each of these systems are:
+  \begin{itemize}
+  \item Human body: Muscle contraction, body movements
+  \item   Company: Decisions, finished products
+  \item Power plant: Electric power, pollution rate
+  \item Automobile: Front wheel turn, direction of heading
+  \item Robot: Joint motions, effector motion
+  \end{itemize}
+}
+
+%%%%%%%%%%%%%%%%%%%%%%%%% New frame %%%%%%%%%%%%%%%%%%%%%%%%%
+
+\frame{
+  \frametitle{Intelligent Machines}
+  \begin{block}{Definition}
+An intelligent machine is a machine that can exhibit one or more intelligent characteristics of a human. As much as neurons themselves in a brain are not intelligent but certain behaviors that are affected by those neurons are, the physical elements of a machine are not intelligent but the machine can be programmed to behave in an intelligent manner.
+  \end{block}
+
+   \begin{block}{}
+An intelligent machine embodies machine intelligence. An intelligent machine, however, may take a broader meaning than an intelligent computer.
+ \end{block}
+}
+
+%%%%%%%%%%%%%%%%%%%%%%%%% New frame %%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+\frame{\frametitle{Intelligent Machines: Architecture}
+  \centerline{\includegraphics[height=6.8cm]{Figures/Intelligent_Machine}}
+
+}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%% New frame %%%%%%%%%%%%%%%%%%%%%%%%%
+
+%\section{Intelligent Systems}
+%%%%%%%%%%%%%%%%%%%%%%%%% New frame %%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+\frame{\frametitle{Intelligent Machines: Schematics and Modules}
+  \centerline{\includegraphics[height=6.8cm]{Figures/Intelligent_Machine_1}}
+
+}
+%%%%%%%%%%%%%%%%%%%%%%%%% New frame %%%%%%%%%%%%%%%%%%%%%%%%%
+
+\frame{
+  \frametitle{What is an intelligent System}
+  If a system solves the following problem, is it intelligent?
+  \begin{equation*}
+\int_{ }^{ } \frac{-5 x^4}{(1-x^{2})^{\frac{5}{2}}} dx
+\end{equation*}
+Let's see if this is true?
+}
+%%%%%%%%%%%%%%%%%%%%%%%%% New frame %%%%%%%%%%%%%%%%%%%%%%%%%
+
+\frame{
+  \frametitle{What is an intelligent System}
+  Safe transformations:
+  \begin{itemize}
+\item $\int_{ }^{ } c f(x) dx  = c \int_{ }^{ } f(x) dx$
+\item $\int_{ }^{ } \Sum f(x) dx  = \Sum \int_{ }^{ } f(x) dx$
+\item $\int_{ }^{ } - f(x) dx  = - \int_{ }^{ } f(x) dx$
+\item \int_{ }^{ } \frac{P(x)}{Q(x)} dx \to \text{Divide}
+
+\end{itemize}
+}
+%%%%%%%%%%%%%%%%%%%%%%%%% New frame %%%%%%%%%%%%%%%%%%%%%%%%%
+
+%%%%%%%%%%%%%%%%%%%%%%%%% New frame %%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%% New frame %%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%% New frame %%%%%%%%%%%%%%%%%%%%%%%%%
+\frame{
+  \frametitle{What is an intelligent System}
+  Heuristic  transformations:
+   \begin{itemize}
+ \item  A) f(sin x, cos x, tan x, cot x, sec x, cosec x)
+\begin{itemize}
+\item  g(sin x, cos x)
+  \item   g(tan x, cosec x)
+ \item    g(cot x , sec x)
+\end{itemize}
+
+
+\item B) $ \int_{ }^{ }  f(\text{tan x}) dx =  \int_{ }^{ } \frac{f(y)}{1 + y} dy  $
+\item c) Use roles such as  $ \text{sin}^2x +  \text{cos}^2x =1  $
+\begin{itemize}
+\item $ 1 - x^2 \to x = \text{sin y } $
+\item $ 1 + x^2 \to x = \text{tan y} $
+\end{itemize}
+
+
+\end{itemize}
+}
+%%%%%%%%%%%%%%%%%%%%%%%%% New frame %%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%% New frame %%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%% New frame %%%%%%%%%%%%%%%%%%%%%%%%%
+\frame{
+  \frametitle{What is an intelligent System}
+  To solve this problem, you need to :
+  \begin{itemize}
+\item Define your goal(s).
+\item Define the possible transformations.
+\begin{itemize}
+\item Safe transformations.
+\item heuristic transformations.
+\end{itemize}
+\item Use goal trees to proceed with the solution.
+\begin{itemize}
+\item What is a Goal Tree?
+\end{itemize}
+\item When in doubt, use functional composition depth as a way of choosing the best path.
+\begin{itemize}
+\item What is a functional composition depth?
+\end{itemize}
+\end{itemize}
+
+}
+%%%%%%%%%%%%%%%%%%%%%%%%% New frame %%%%%%%%%%%%%%%%%%%%%%%%%
+\frame{
+\frametitle{Intelligent Systems and Machine Learning}
+
+  \begin{block}{ }
+Intelligent systems use artificial intelligence and machine learning. This helps machines to ``learn'' in much the same way humans do. This is now possible because of ubiquitous data in the modern world, including the ability to store it and communicate it at high speeds.
+\end{block}
+
+  \centerline{\includegraphics[height=3.8cm]{Figures/AI_ML_DL}}
+
+}
+
+\frame{
+\frametitle{Inspirations }
+
+\begin{itemize}
+\item Models of Problem Solving
+\item Models of Learning
+\item Neural Nets
+\item Experts Based systems
+\item Evolutionary-like systems
+\end{itemize}
+
+}
+
+
+
+\frame{
+\frametitle{What do we want to do? }
+
+\begin{itemize}
+\item Have machines behave like humans
+\item Perform intelligence sequences of decision making
+\item Do in a fast and efficient way
+\item etc.
+\end{itemize}
+
+}
+
+
+\frame{
+ \frametitle{Where to Start?}
+\begin{itemize}
+\item Work with Machine learning algorithms
+\end{itemize}
+\begin{figure}[h]
+\includegraphics[scale=0.4]{structural_typestree.pdf}
+\end{figure}
+
+}
+
+
+\begin{frame} \frametitle{Descriptive versus Inferential Analysis}
+  \begin{itemize}
+    \item We have data (samples). This data is a sample of a population (more than just the measured or observed sample).
+     \item \textbf{Inferential Analysis (predictive)} is the type of analysis that can describe measures over the population of data. That is observed and unobserved. Fuzzy inference systems use human reasoning to allow for the prediction to happen.
+    \item \textbf{Descriptive Analysis} is the type of analysis and measures that seek to describe and summarize the data, the available samples. We can not in general use it for interpretation of unobserved data.
+     \end{itemize}
+\end{frame}
+
+
+
+\begin{frame} \frametitle{Major Categories of Predictive modeling}
+  \begin{itemize}
+    \item Regression: Map inputs to an output $\in$ $\mathbb{R}$
+     \item Classification: Map inputs to a categorical output     \end{itemize}
+\end{frame}
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%% New frame %%%%%%%%%%%%%%%%%%%%%%%%%
+%\begin{frame} \frametitle{Fuzzy Inference Systems}
+%There are multiple challenges with using an FIS for inferencing
+%  \begin{itemize}
+%    \item How do we know that the rules we have encompass all possible scenarios
+%    \item Even if all rules are decided on and encoded, there is a big chance that the solution will turn out to be slow for a second to second processing
+%    \item However, human reasoning can not be easily abandoned
+%     \end{itemize}
+%\end{frame}
+%%%%%%%%%%%%%%%%%%%%%%%%%% New frame %%%%%%%%%%%%%%%%%%%%%%%%%
+%\begin{frame} \frametitle{Possible solution}
+%
+%  \begin{itemize}
+%    \item Use the fuzzy inference system to compute the output of different input values covering all possible fuzzy sets and different relations
+%   \item The input data and the output data can be used as training data for other ML algorithms
+%    \item Since the output is continuous, regression models can be used to substitute for the FIS
+%     \end{itemize}
+%\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%% New frame %%%%%%%%%%%%%%%%%%%%%%%%%
+
+\section{Example: Linear Regression models}
+
+\frame{\frametitle{ Simple Linear Regression}
+ %\texttt{\\>This is Courier font.}
+ Simple linear regression is a statistical method that allows us to summarize and study relationships between two continuous (quantitative) variables:
+\begin{itemize}
+    \item One variable, denoted $X$, is regarded as the \textbf{predictor}
+   % \pause
+    \item The other variable, denoted $Y$, is regarded as the
+    \textbf{response}
+\end{itemize}
+Different types of relationships between two variables (you can generalize these definitions to any arbitrary set  variables):
+%\pause
+\begin{itemize}
+    \item deterministic (or functional) relationships: when there is a mathematical function that defines y based on x. For example, the relation between Fahrenheit and Celsius degrees
+    \begin{align}
+        \text{Cels}=\frac{5}{9}\text{Fahr}-32
+    \end{align}
+\end{itemize}
+
+}
+
+\frame{ \frametitle{Simple Linear Regression}
+\begin{itemize}
+\item Statistical relationships : when there is not mathematical formula (function) that relates y to x.
+%\pause
+\item Example for statistical relation: Consider a data set in which
+     the Mort variable is the mortality due to
+     skin cancer (number of deaths per 10
+     million people) and the lat variable is
+     the latitude of the center of each state.
+     We consider Mort as y, response, and lat
+     as x, predictor.
+
+\end{itemize}
+}
+
+
+\frame{\frametitle{Simple Linear Regression}
+\begin{itemize}
+    \item In the case where we are dealing with statistical relation, we need to use statistical methods to estimate a mathematical relation that best fit the data set (can describe the data set in an efficient way)
+\item Let $(x_{1},Y_{1}),(x_{2},Y_{2}),\cdots,(x_{n},Y_{n})$ be the sample that we observe by conducting an experiment. We define the covariance of Y and x to be
+\begin{align}
+    \text{Cov}=\frac{1}{n-1}\sum_{i=1}^{n}(X_{i}-\bar{X})(Y_{i}-\bar{Y})
+\end{align}
+\end{itemize}
+}
+
+\frame{\frametitle{Simple Linear Regression}
+Next we use the Correlation definition as follows
+\begin{align}
+    \text{Cor}(X,Y)=\frac{\text{Cov}(X,Y)}{S_{x}S_{y}}
+\end{align}
+where $S_{x}$ and $S_{y}$ are the estimates of standard deviations for the $X$ observations and $Y$ observations, respectively.
+}
+\frame{\frametitle{Simple Linear Regression}
+\begin{itemize}
+    \item Fact:
+    \begin{align}
+        -1\leq \text{Cor}(X,Y)\leq1
+    \end{align}
+    \item In general, we have two types of statistical relations:
+\begin{enumerate}
+    \item Linear relation: If Cor(Y,X) is close to 1, it means that we have a positive linear relation (The slop is positive). If Cor(Y,X) is close to -1, it means that we have a negative linear relation.
+\item Non-linear relation: If Cor(Y,X) is close to zero, it means that we do not have any linear relation.
+
+\end{enumerate}
+\end{itemize}
+}
+
+\frame{\frametitle{Simple Linear Regression}
+Example of Linear Relation (decreasing): cor(y,x)=-0.81
+\begin{figure}[h]
+\includegraphics[scale=0.4]{reg1}
+\end{figure}
+ }
+\frame{\frametitle{Simple Linear Regression}
+Example of Linear Relation (increasing): cor(y,x)=0.824
+\begin{figure}[h]
+\includegraphics[scale=0.4]{reg2}
+\end{figure}
+ }
+
+
+ \frame{\frametitle{Simple Linear Regression}
+Example of None-Linear Relation: cor(y,x)=0.002
+\begin{figure}[h]
+\includegraphics[scale=0.4]{reg3}
+\end{figure}
+ }
+
+
+
+\frame{\frametitle{Simple Linear Regression}
+\begin{itemize}
+    \item Suppose we conduct an experiment and in this experiment we have two variables, y and x. Suppose that y depends on x and y has a linear relation with x (cor(x,y) is close to 1 or -1).  Since y has a linear relation with x, we can find an equation of a line that can describe our data set.
+\item The line that can describe our data set in the most efficient way is called linear regression line or model. If the line is describing the relation between two variables (y and x), it is called simple linear regression model or line.
+
+\end{itemize}
+
+}
+
+ \frame{\frametitle{Simple Linear Regression}
+Best Fit:
+\begin{figure}[h]
+\includegraphics[scale=0.4]{reg4}
+\end{figure}
+ }
+
+
+\frame{\frametitle{Simple Linear Regression}
+How to find the best fitted line?
+\begin{itemize}
+    \item Suppose
+\begin{enumerate}
+    \item $y_{i}$=denotes the observed response for experimental unit $i$
+    \item $x_{i}$=denotes the predictor value for experimental unit $i$
+\end{enumerate}
+\item We are looking for a line $\hat{y}_{i}=\beta_{0}+\beta_{1}x_{i}$, such that
+\begin{align}
+    Q=\sum_{i=1}^{n}(y_{i}-\hat{y}_{i})^{2}
+\end{align}
+is minimum where $\hat{y}_{i}$ denotes the predicted response
+\end{itemize}
+
+
+
+
+
+}
+
+\frame{\frametitle{Simple Linear Regression}
+
+\begin{figure}[h]
+\includegraphics[scale=0.7]{reg5}
+\end{figure}
+}
+
+\frame{\frametitle{Theory of Linear Regression}
+\begin{itemize}
+    \item Maximum Likelihood and Model Estimation
+    \item Assume the probability of observing data X and Y, given that there is some true relationship $Ex[y]=\beta_{1}X+\beta_{0}$ is given by Gaussian distribution.
+    \begin{equation*}
+        p(y|x,\theta)=\mathcal{N}(\beta^{T}x,\sigma^{2})
+    \end{equation*}
+    This is a good assumption since the sum of arbitrary random variables tends toward a Gaussian by the central limit theorem.
+
+\end{itemize}
+}
+\frame{\frametitle{Maximum Likelihood Estimate (MLE)}
+  \begin{itemize}
+    \item Assumes that the samples are from a specific distribution with some unknown parameter(s).
+    \item \textbf{Likelihood} is the probability that the samples observed come from the given distribution. $L(\theta|X)=p(X|\theta)$
+    \item We can estimate the parameter $\theta$ by maximizing the likelihood function.
+  \end{itemize}
+}
+
+
+\frame{\frametitle{Maximum Likelihood Estimate (MLE)}
+  Given a known distribution $f(x_i,\theta)$\\
+  Given the sample $x=\{x_1,\cdots,x_n\}$ \\
+  The likelihood can be formulated
+  \begin{equation*}
+    L(\theta|x_1,\ldots,x_n) = \prod_{i=1}^n f(x_i|\theta)
+  \end{equation*}
+  \note[item]{This formulation of the join probability assumes the individual probabilities are independent, which allows us to mulitply them. Show description of bayes and likelihood?}
+}
+
+\begin{frame} \frametitle{Maximum Likelihood Estimate (MLE)}
+  \begin{itemize}
+    \item MLE=The value of parameter $\theta$ that maximizes likelihood $L$ is the estimate
+    \item This can be obtained by finding the derivative of the log-likelihood with respect to the parameter $\theta$ and equating the resulting formula to zero.
+    \item Note: if there are multiple parameters, then you can maximize each one separately or attempt to find a multi-dimensional maxima.
+      \begin{itemize}
+        \item since $\max L$ is the same as $\max \log L$ we can use
+          \begin{align*}
+            \ell &= \log L = \log \prod_{i=1}^n f(x_i|\theta)\\
+            &= \sum_{i=1}^n \log f(x_i|\theta)
+          \end{align*}
+      \end{itemize}
+  \end{itemize}
+\end{frame}
+
+}
+\frame{\frametitle{Theory of Linear Regression}
+\begin{itemize}
+\item The PDF for Multivariate normal distribution(dimension=n)
+\begin{align}
+    \mathcal{N}(x|\mu,\Sigma)=\frac{1}{(2\pi)^{\frac{n}{2}}|\Sigma|^{\frac{1}{2}}}\text{exp}\left(-\frac{1}{2}(x-\mu)\Sigma^{-1}(x-\mu)^{T}\right)
+\end{align}
+\item hence:
+    \begin{align}
+        P(y=y_{i}|x=x_{i})\sim \exp^{-\left(\frac{y_{i}-\beta_{1}X_{i}-\beta_{0}}{2\sigma}\right)^{2}}
+    \end{align}
+\end{itemize}
+
+}
+
+\frame{\frametitle{Theory of Linear Regression}
+\begin{itemize}
+\item The simplest method to find the parameters of the statistical model is based on the Maximum Likelihood Estimate:
+\begin{align}
+    \hat{\theta}=\arg\max_{\theta}\text{log}p(\mathcal{D}|\theta)
+\end{align}
+where $\mathcal{D}$, denotes the training set.
+\item Also, we can write(assuming training examples are i.i.d)
+\begin{align}
+    p(\mathcal{D}|\theta)=\prod_{i=1}^{n}p(y_{i}|x_{i},\theta)\sim\prod_{i=1}^{n}\exp^{-\left(\frac{y_{i}-\beta_{1}X_{i}-\beta_{0}}{2\sigma}\right)^{2}}
+\end{align}
+
+
+
+
+\end{itemize}
+
+}
+
+\frame{\frametitle{Theory of Linear Regression}
+\begin{itemize}
+    \item We use the multiplication rule of probability theory to find the total probability (likelihood) of the observed data set under this assumption
+    \item Note that the linear model does not constrain $X$ to take on continuous values.
+\end{itemize}
+
+}
+\frame{\frametitle{Theory of Linear Regression}
+\begin{itemize}
+    \item However, we do not know, a priori, what the values of $\beta_{1}$ and $\beta_{0}$ are. We choose the values that make our observations maximally likely.
+    \item Since the log of the probability is a monotonically increasing function, we can maximize the log of the probability, or minimize the negative square error:
+    \begin{align}
+        -\text{Log}(P(\mathcal{D}|\theta))\sim\underbrace{\sum_{i=1}^{n}\left(\frac{y_{i}-\beta_{1}x_{i}-\beta_{0}}{2\sigma}\right)^{2}}_{{\color{red}Square \ error}}
+    \end{align}
+\end{itemize}
+}
+
+\frame{\frametitle{Theory of Linear Regression}
+We can do this by setting the derivative of the square error with respect to the coefficient $\beta_{0}$ and $\beta_{1}$ equal to zero.
+\begin{align}
+    &\frac{\partial}{\partial \beta_{1}}\sum_{i=1}^{n}\left(\frac{y_{i}-\beta_{1}X_{i}-\beta_{0}}{2\sigma}\right)^{2}=0 \\
+    & \frac{\partial}{\partial \beta_{0}}\sum_{i=1}^{n}\left(\frac{y_{i}-\beta_{1}X_{i}-\beta_{0}}{2\sigma}\right)^{2}=0
+\end{align}
+{\color{red}Note that the derivative is defined as long as $\beta_{0}$ and $\beta_{1}$ can take on continuous values.}
+}
+
+
+
+\frame{\frametitle{Simple Linear Regression}
+\begin{itemize}
+    \item Example: We have a data set on 48 diamond rings
+      containing price in Singapore dollars and size of diamond
+      in carats. The correlation between caret and price is 0.98.
+      As you can see below, there is a linear relation in
+      this data set.
+\end{itemize}
+\begin{figure}[h]
+\includegraphics[scale=0.4]{reg6}
+\end{figure}
+}
+\frame{\frametitle{Simple Linear Regression}
+
+\begin{figure}[h]
+\includegraphics[scale=0.4]{reg7}
+\end{figure}
+The equation of the line is expressed as follows
+\begin{align}
+    \text{{\color{red}Predicted Price}}=3721*\text{{\color{blue}Carat}}-259.6
+\end{align}
+
+}
+
+\frame{\frametitle{Multivariable regression}
+\begin{itemize}
+\item Now assume instead of having one variable as predictor we have a set of variables such as $\left\{ X_{0},X_{1},\cdots,X_{n}\right\}$. Then the regression model is
+\begin{align}
+    Y=\beta_{0}+\beta_{1}X_{1}+\cdots+\beta_{n}X_{n}
+\end{align}
+
+The we call a multivariable regression model.
+\item The method to find the best fitted multivariable regression is similar to simple regression. In other words, we need to minimize the distance between the predicted values and the actual values.
+\end{itemize}
+
+
+}
+\frame{\frametitle{Multivariable regression}
+\begin{itemize}
+\item In this case we want to minimize
+\begin{align}
+\sum_{i=1}^{n}(y_{i}-\beta^{T}x_{i})^{2}=[Y-X\beta]^{T}[Y-X\beta]
+\end{align}
+\item The solution to such minimization is as follows
+\begin{align}
+    \beta=\left(X^{T}X\right)^{-1}X^{T}Y
+\end{align}
+    \item Example: We have a data set in which there are 3
+      variables describing different features of cherry
+      trees:
+      \begin{enumerate}
+          \item Girth: tree diameter in inches (denoted x1)
+\item Height: tree height in feet (x2).
+\item Volume: volume of the tree in cubic feet. (y)
+
+      \end{enumerate}
+Let Y=volume and the predictors be Girth and
+Height.
+
+\end{itemize}
+
+}
+
+\frame{\frametitle{Multivariable regression}
+
+\begin{figure}[h]
+\includegraphics[scale=0.4]{reg8}
+\end{figure}
+The regression equation for the plane is as follows:
+\begin{align}
+     \text{{\color{red}Predicted Volume}}=4.7*\text{{\color{blue}Girth}}+0.33*\text{{\color{blue}Height}}-57.98
+\end{align}
+}
+
+
+\frame{\frametitle{Classification}
+
+\begin{itemize}
+\item In machine learning, pattern recognition is the assignment of some sort of output value (or label) to a given input value (or instance), according to some specific algorithm.
+\item Classification is the problem of identifying to which of a set of categories a new observation belongs, on the basis of a training set of data containing observations whose category membership is known.
+\item Both Regression and Classification are aimed at finding a function $h$ which maps data $X$ to feature $y$. In regression, $y$ is a continuous variable.
+\item In classification, y is a discrete variable (categorical variable).
+\item In linear regression, data is modeled using a linear function, and unknown parameters are estimated from the data.
+
+\end{itemize}
+}
+
+
+\frame{\frametitle{Logistic Regression}
+
+\begin{itemize}
+\item In statistics, logistic regression (sometimes called the logistic model or logit model) predicts the probability of an event by fitting a logit link to data \citep{HastieTibshiraniFriedman2009}.
+It's a form of regression that allows the prediction of discrete variables by a mix of continuous and discrete predictors.
+\item Addresses the same questions that discriminant function analysis and multiple regression do but with no distributional assumptions on the predictors (the predictors do not have to be normally distributed, linearly related or have equal variance in each group)
+\item Binary logistic regression is a type of regression analysis where the dependent variable is a dummy variable: coded 1-positive and 0 negative.
+\end{itemize}
+}
+
+\frame{\frametitle{Logistic Regression}
+\begin{itemize}
+\item We can define a function
+\begin{equation*}
+p(y_i = 1|X=x_i) = \frac{e^{\beta_1 x_i + \beta_0}}{1+ e^{\beta_1 x_i + \beta_0}}
+\end{equation*}
+\begin{equation*}
+p(y_i |X=x_i) = (\frac{e^{\beta_1 x_i + \beta_0}}{1+ e^{\beta_1 x_i + \beta_0}})^{y_i} (1- \frac{e^{\beta_1 x_i + \beta_0}}{1+ e^{\beta_1 x_i + \beta_0}})^{1- y_i}
+\end{equation*}
+\begin{figure}[h]
+\includegraphics[scale=0.6]{logit}
+\end{figure}
+\item It looks similar to a step function, but we have relaxed it so that we have a smooth curve, and can therefore take the derivative.
+\end{itemize}
+}
+
+
+
+\frame{\frametitle{Logistic Regression}
+
+Since the model is probabilistic.
+\begin{itemize}
+\item This means that the output has to be able to provide us with probabilistic output
+\item The output has to be between 0 and 1.
+\item This allows to have two possible of outputs
+\begin{enumerate}
+\item Categorical or binary
+\begin{itemize}
+\item Threshold based output. If the probability is > 0.5 then the output is 1
+\item If the probability is <0.5, then the output is 0
+\end{itemize}
+
+\item Probabilistic output. The outcome is produced in a shape of probabilities of it either being 0 or 1
+
+
+\end{enumerate}
+
+\end{itemize}
+}
+
+
+\frame{\frametitle{Logistic Regression}
+\begin{figure}[h]
+\includegraphics[scale=0.65]{logitvsregr}
+\end{figure}
+
+}
+
+\frame{\frametitle{Logistic Regression: Mathematical Theory}
+\begin{equation*}
+p(y_i |X=x_i) = (\frac{e^{\beta_1 x_i + \beta_0}}{1+ e^{\beta_1 x_i + \beta_0}})^{y_i}
+(\frac{1}{1+ e^{\beta_1 x_i + \beta_0}})^{1- y_i}
+\end{equation*}
+Using MLE, we can get the function parameters such that
+\begin{dmath*}
+ \mathcal{L}(\beta) = \sum y_i [(\beta_1 x_i + \beta_0)x_i - log(1+e^{\beta_1 x_i + \beta_0})] + (1-y_i) [-log (1+e^{\beta_1 x_i + \beta_0})]
+\end{dmath*}
+\begin{equation*}
+ \mathcal{L}(\beta) = \sum y_i (\beta_1 x_i + \beta_0) - log(1+e^{\beta_1 x_i + \beta_0})
+\end{equation*}
+\begin{equation*}
+\frac{\partial  \mathcal{L}}{\partial \beta}= \sum y_i x_{i}^T -  \frac{e^{\beta_1 x_i + \beta_0}}{1+ e^{\beta_1 x_i + \beta_0}} x_{i}^T
+\end{equation*}
+\begin{equation*}
+\frac{\partial  \mathcal{L}}{\partial \beta} =\sum (y_i  -  \frac{e^{\beta_1 x_i + \beta_0}}{1+ e^{\beta_1 x_i + \beta_0}}) x_{i}^T
+\end{equation*}
+How to solve for $\beta$?
+}
+
+
+
+\frame{\frametitle{Logistic Regression: Mathematical Theory}
+Let's use Newton- Raphson method
+\begin{equation*}
+p(y_i |X=x_i) = (\frac{e^{\beta_1 x_i + \beta_0}}{1+ e^{\beta_1 x_i + \beta_0}})^{y_i} (\frac{1}{1+ e^{\beta_1 x_i + \beta_0}})^{1- y_i}
+\end{equation*}
+\begin{equation*}
+p_{(y_i=1)} =  \frac{e^{\beta_1 x_i + \beta_0}}{1+ e^{\beta_1 x_i + \beta_0}}
+\end{equation*}
+\begin{equation*}
+\beta^T x_i = \beta_1 x_i + \beta_0
+\end{equation*}
+\begin{equation*}
+\frac{\partial  \mathcal{L}}{\partial \beta} = \sum_{i}^n (y_i - p_{(y_i=1)}) x_i
+\end{equation*}
+\begin{equation*}
+\frac{\partial  \mathcal{L}}{\partial \beta} = X^T(y-P)
+\end{equation*}
+\begin{equation*}
+\frac{\partial  \mathcal{L}^2}{\partial \beta \partial \beta^T} = \sum_{i}^n - p_{(y_i=1)} (1 - p_{(y_i=1)}) x_i x_{i}
+\end{equation*}
+\begin{equation*}
+\frac{\partial  \mathcal{L}^2}{\partial \beta \partial \beta^T} = X^T P(1-P)X
+\end{equation*}
+
+}
+
+
+\frame{\frametitle{Logistic Regression: Mathematical Theory}
+Let's use Newton- Raphson method
+\begin{equation*}
+\beta^{new} = \beta^{old} - \frac{\frac{\partial  \mathcal{L}}{\partial \beta}}{\frac{\partial  \mathcal{L}^2}{\partial \beta \partial \beta^T}}
+\end{equation*}
+}

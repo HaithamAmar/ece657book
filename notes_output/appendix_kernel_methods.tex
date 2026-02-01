@@ -1,0 +1,46 @@
+\section{Kernel Methods and Support Vector Machines}\label{app:kernels}
+
+This appendix is a concise reference for the ``kernel/SVM'' thread that appears throughout the book (hinge losses in \Cref{chap:supervised}, RBF feature maps in \Cref{chap:rbf}, and the geometry of margins). The goal is not to be exhaustive, but to make the notation and the relationship between explicit (finite) feature maps and implicit (kernel) feature maps unambiguous.
+
+\subsection*{Kernel trick and Gram matrices}
+
+Let \(\phi:\mathbb{R}^d\rightarrow\mathcal{H}\) be a (possibly high-dimensional) feature map into an inner-product space \(\mathcal{H}\). A \emph{kernel} is a symmetric, positive semidefinite function
+\[
+k(\mathbf{x},\mathbf{z}) \triangleq \langle \phi(\mathbf{x}),\phi(\mathbf{z})\rangle_{\mathcal{H}}.
+\]
+Given training points \(\{\mathbf{x}_i\}_{i=1}^N\), the \emph{Gram matrix} \(K\in\mathbb{R}^{N\times N}\) has entries \(K_{ij}=k(\mathbf{x}_i,\mathbf{x}_j)\); by construction, \(K\) is symmetric and positive semidefinite.
+
+\subsection*{Kernel ridge regression (KRR)}
+
+Kernel ridge regression fits a function of the form
+\[
+f(\mathbf{x})=\sum_{i=1}^N \alpha_i\, k(\mathbf{x}_i,\mathbf{x}),
+\]
+where the coefficient vector \(\boldsymbol{\alpha}\in\mathbb{R}^N\) solves
+\begin{equation}
+    (K+\lambda I)\boldsymbol{\alpha}=\mathbf{y}.
+    \label{eq:krr}
+\end{equation}
+Here \(\lambda>0\) regularizes the solution and stabilizes the linear system when \(K\) is ill-conditioned. This is the fully kernelized analogue of ridge regression in a finite design matrix \(\Phi\). \Cref{chap:rbf}'s dual viewpoint shows that a primal RBF network with centers at all data points (\(M=N\)) recovers this same predictor under an RBF kernel.
+
+\subsection*{Soft-margin SVMs (primal and kernelized form)}
+
+For binary labels \(y_i\in\{-1,+1\}\), the (linear) soft-margin SVM solves \citep{Cortes1995}
+\begin{align}
+    \min_{\mathbf{w},b,\boldsymbol{\xi}} \quad & \frac{1}{2}\|\mathbf{w}\|_2^2 + C\sum_{i=1}^N \xi_i \\
+    \text{s.t.}\quad & y_i(\mathbf{w}^\top \mathbf{x}_i + b)\ge 1-\xi_i,\quad \xi_i\ge 0.
+\end{align}
+The parameter \(C>0\) trades margin size against slack violations. The decision function is \(f(\mathbf{x})=\mathbf{w}^\top\mathbf{x}+b\), with classification by \(\mathrm{sign}(f(\mathbf{x}))\). In the kernelized form, \(\mathbf{w}\) is never formed explicitly; instead,
+\begin{equation}
+    f(\mathbf{x})=\sum_{i=1}^N \alpha_i y_i\, k(\mathbf{x}_i,\mathbf{x}) + b,
+    \label{eq:svm_kernel_decision}
+\end{equation}
+where many coefficients \(\alpha_i\) become zero (only \emph{support vectors} remain).
+
+\subsection*{How kernels relate to RBFNs (and when to use which)}
+
+\begin{itemize}
+    \item \textbf{RBFN (explicit features):} choose \(M\ll N\) centers and widths, build \(\Phi\in\mathbb{R}^{N\times M}\), and solve a regularized linear system in \(M\) unknowns. This is efficient when you can afford explicit features and want direct control over locality and model size.
+    \item \textbf{Kernel method (implicit features):} work directly with \(K\in\mathbb{R}^{N\times N}\), which corresponds to an implicit feature map of potentially very high dimension. This is attractive for small-to-medium \(N\) when the kernel encodes a useful inductive bias, but training and storage scale poorly with \(N\) unless approximations are used.
+    \item \textbf{Nystr\"om / low-rank approximations:} choose \(M\) landmark points and project into a rank-\(M\) space, recovering an explicit finite basis that connects the kernel view back to the RBFN picture in \Cref{chap:rbf}.
+\end{itemize}

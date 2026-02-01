@@ -1,0 +1,441 @@
+% Chapter 1
+\section{About This Book}\label{chap:intro}
+
+\begin{tcolorbox}[summarybox,title={Learning Outcomes}]
+After this chapter, you should be able to:
+\begin{itemize}
+    \item Explain what this book means by an \emph{intelligent system} (and how that differs from an \emph{intelligent machine}).
+    \item Place modern AI ideas in a brief historical context (logic, computation, and learning).
+    \item Use the book's organizing lenses (system components, levels of intelligence) to interpret later chapters.
+    \item Navigate the book structure and reading paths using the roadmap figure.
+\end{itemize}
+\end{tcolorbox}
+
+Intelligent systems are engineered artifacts that perceive, reason, and act under constraints. This chapter introduces the working vocabulary used throughout the book---historical context, core definitions, and recurring design themes. The roadmap in \Cref{fig:roadmap} anchors the strand sequence and reading paths.
+
+\begin{tcolorbox}[summarybox,title={Design motif}]
+We treat ``intelligence'' operationally: specify what a system represents, what actions it can take, and how it checks itself against objectives and constraints.
+\end{tcolorbox}
+
+\subsection{Historical Foundations of Intelligent Systems}
+
+A brief historical sketch helps place intelligent systems within a longer tradition that runs from early mechanical devices, through symbolic logic and computation, to modern machine learning.
+
+\paragraph{Mechanical Automata and Scholastic Logic}
+
+In the 12th--13th centuries, engineers such as Al-Jazari designed programmable water clocks and mechanical automata whose gears, cams, and valves executed fixed sequences of actions. Although these devices lacked learning or internal models, they embodied the idea that artifacts could sense (via floats and levers), transform signals mechanically, and act on their environment. In parallel, medieval scholars such as Ibn~S\={\i}n\={a} and Thomas Aquinas refined Aristotelian syllogistic logic, systematizing patterns of valid inference even though a fully symbolic notation did not yet exist.
+
+\paragraph{The Mechanical Computer and Early Programming}
+
+In the 19th century, Charles Babbage designed the mechanical computer now known as the \emph{Analytical Engine}. Ada Lovelace is often cited as one of the first programmers; her notes on the Analytical Engine include an algorithm for computing Bernoulli numbers and helped establish programming as a discipline.
+
+An important (and still practical) lesson from this era is the ``garbage in, garbage out'' principle: if incorrect input is provided to a computational system, the output will also be incorrect. In modern terms, this is a reminder that data quality and validation are part of the intelligence pipeline, not an afterthought.
+
+\paragraph{Mathematical Logic and Formal Reasoning}
+
+The symbolic formalism used in modern AI emerged in the 19th and early 20th centuries. Works by George Boole (1847), Gottlob Frege (1879), Giuseppe Peano (1889), and later Bertrand Russell and Alfred North Whitehead (1910--1913) introduced algebraic and predicate-calculus notations that underpin automated reasoning. Formal inference rules such as:
+
+\begin{align}
+\text{If } A = B \text{ and } B = C, \text{ then } A = C.
+\end{align}
+
+This exemplifies the transitivity of equality---an example of a valid inference rule operating on equality relations---and provides a basis for reasoning systems that manipulate symbols according to formal rules.
+
+\paragraph{The Turing Test and the Birth of AI}
+
+The mid-20th century marked a pivotal moment with Alan Turing's proposal of the \emph{Turing Test} in 1950. This test was designed to assess a machine's ability to exhibit intelligent behavior indistinguishable from that of a human. The Turing Test shifted the focus from mechanical computation to the broader question of machine intelligence.
+
+\paragraph{Early Machine Learning and Symbolic AI}
+
+Following the Turing Test, research into machine learning and symbolic AI accelerated. In the 1950s, the perceptron model was introduced as an early neural network capable of binary classification. Around the same time, James Slagle developed an early influential AI program: a symbolic integration system capable of performing calculus operations symbolically rather than numerically. This line of work anticipated themes later formalized in decision procedures for elementary integration \citep{Risch1969} and demonstrated that machines could manipulate abstract symbols to solve problems, a core idea in symbolic AI.
+
+\paragraph{Summary of Key Historical Milestones}
+
+\begin{itemize}
+    \item \textbf{12th--13th Centuries:} Mechanical automata (e.g., Al-Jazari) and scholastic refinements of syllogistic logic.
+    \item \textbf{19th Century:} Charles Babbage's Analytical Engine and Ada Lovelace's pioneering programming notes; Boole and contemporaries formalize symbolic logic.
+    \item \textbf{Early 20th Century:} Frege, Peano, Russell, and Whitehead develop predicate calculus and logicist foundations.
+    \item \textbf{1950:} Alan Turing's Turing Test frames the question of machine intelligence.
+    \item \textbf{1950s:} Development of early machine learning models (perceptrons) and symbolic AI programs (e.g., Slagle's integration system).
+\end{itemize}
+
+This historical arc sets the stage for contemporary intelligent systems: programmable artifacts whose behavior is grounded in formal models, implemented on digital hardware, and increasingly trained or tuned from data. The sections that follow make the working definitions and modeling assumptions explicit.
+
+% Examination and assessment policy details removed from Chapter 1; see Appendix: Course Logistics if needed.
+
+% \subsection{Course Recommendations}
+
+% \paragraph{Concurrent Courses}
+% \begin{itemize}
+%     \item It is not necessary to take ECE657 concurrently with related courses such as ECE570.
+%     \item Taking both simultaneously may lead to cognitive overload or confusion because ECE570 covers overlapping supervised-learning algorithms (e.g., SVMs, AdaBoost, kernel PCA) but uses a statistics-first notation---probabilistic modeling and statistical learning theory are introduced before systems considerations---and larger Kaggle-style projects, whereas ECE657 emphasizes systems thinking and hybrid intelligent architectures.
+%     \item The chapters are designed to be self-contained, so scheduling can be adapted to your offering.
+% \end{itemize}
+
+% \paragraph{Independent Study}
+% \begin{itemize}
+%     \item Students are encouraged to engage in individual reading and exploration beyond the chapter materials.
+%     \item This will help deepen understanding and prepare for assignments and exams.
+% \end{itemize}
+
+% A week-by-week topic plan may be provided separately; readers can review it to anticipate upcoming discussions when available.
+
+\subsection{Defining Artificial Intelligence and Intelligent Systems}
+
+Artificial Intelligence (AI) is often misunderstood as merely a collection of popular applications such as image recognition or voice detection. However, these are just subsets of a much broader field. Instead of defining AI by its famous applications, it is more accurate to view AI as a body of collective algorithms, research, and engineering practice aimed at enabling machines to perceive their environment, perform inference, and take purposeful actions.
+
+\paragraph{Core Definition of AI}
+
+Following the agent-centric view of \citet{RussellNorvig2021}, artificial intelligence studies
+computational agents that map percepts to actions through algorithms operating over explicit
+representations (state graphs, feature vectors, logical predicates, or probabilistic models)
+subject to domain constraints (physical limits, safety rules, resource budgets). See also
+\citet{PooleMackworth2017} for a complementary treatment focused on agent architectures.
+Each model we study is evaluated on whether its assumptions support competent \emph{perception}
+(information acquisition), \emph{reasoning and decision-making} (information processing), and
+\emph{action} (environment intervention), where a \emph{percept} denotes the data received at a
+decision epoch (a discrete sensing-and-decision instant; e.g., sensor readings, feature vectors, linguistic tokens) and an \emph{action} denotes the
+command issued to the environment or downstream system.
+
+Many model-based systems generate hypotheses and test them, yet the field also includes purely
+reactive controllers (e.g., subsumption architectures in behavior-based robotics or PID loops)
+that optimize behavior without explicit hypothesis testing.
+Classic behavior-based robotics research \citep{Brooks1986,Arkin1998} treats such controllers as
+intelligent agents. They satisfy the perception--action cycle even in the absence of symbolic
+reasoning. We flag them as boundary cases: they remain control-theoretic constructs, yet they
+highlight the continuum between classical control and adaptive AI systems. Throughout this book we discuss both deliberative reasoning (planning, inference, search) and
+reflexive intelligence (engineered feedback loops that achieve goals without symbolic reasoning),
+and we try to make clear which lens is being used in a given chapter.
+
+For now, if we adopt a value-centric view of AI, we can characterize intelligent systems by the kinds of questions they help us answer. In practice, three capabilities dominate:
+\begin{itemize}
+    \item Explaining the past,
+    \item Understanding the present, and
+    \item Predicting the future.
+\end{itemize}
+Framed this way, the parallel with human intelligence becomes explicit: both artificial systems and humans are judged by how well they can reconstruct what has happened, make sense of what is happening, and anticipate what is likely to happen next. For example, humans use memory and narrative to explain past events, situational awareness to understand ongoing interactions, and mental models to predict likely outcomes. Analytic systems that perform root-cause analysis in power grids or credit-risk models in finance primarily \emph{explain the past}; monitoring systems such as anomaly detectors and online recommendation engines focus on \emph{understanding the present}; time-series forecasters and large language models that predict the next token or utterance instantiate the \emph{predicting the future} role. Modern AI architectures often blend these roles, but keeping the three questions in mind provides a useful lens for interpreting model behavior.
+
+To connect this value-centric lens to concrete designs, we now make more precise what we mean by an intelligent system and how a design begins with a clearly stated problem and representation.
+
+\subsection{Intelligent Systems}\label{par:intelligent-systems}
+
+An \emph{intelligent system} is an artificial entity composed of both software and hardware components that:
+\begin{itemize}
+    \item Acquire, store, and apply knowledge,
+    \item Perceive and interpret environmental data to maintain situational awareness,
+    \item Make decisions and act based on incomplete or imperfect information.
+\end{itemize}
+
+In contrast, an \emph{intelligent machine} is usually a single embodied device (for example, a robot arm on a factory line) whose sensing, reasoning, and actuation are co-located. Intelligent systems can comprise multiple cooperating machines plus cloud services; intelligent machines are one concrete realization within that broader system-of-systems view.
+
+This working definition is consistent with those used in cyber-physical systems literature and the
+IEEE Standards Association's descriptions of intelligent agents, emphasizing perception, cognition,
+and action as the three pillars of autonomy.%
+\footnote{Compare with the IEEE Global Initiative on Ethics of Autonomous and Intelligent Systems, \emph{Ethically Aligned Design}, 1st ed., 2019.}
+
+Here, ``knowledge'' encompasses encoded data sets, learned model parameters, rule bases, and
+semantic ontologies that the system can query or update during operation. The hardware enables
+interaction with the environment (e.g., sensors, actuators), while the software performs reasoning
+and decision-making.
+
+\subsubsection{From value-centric questions to concrete designs}
+
+The three value-centric questions (``explain the past, understand the present, predict the future'') only become actionable once a designer fixes a problem statement, a representation, and the constraints under which the system operates. Rather than treating these as separate case studies, we fold them into a compact design checklist that we reuse whenever it helps structure a design discussion:
+\begin{enumerate}
+    \item \textbf{Problem definition.} State the task in operational terms. Example: ``Detect stop signs quickly enough to enable safe braking.'' The definition should tell us which of the three value-centric roles dominates (here: understanding the present, plus explaining why braking events occur).
+    \item \textbf{Representation.} Decide how the world will be encoded numerically. Stop-sign detection uses camera images (matrices of intensities) plus metadata such as lane boundaries or GPS position; a financial recommender might rely on structured tabular data.
+    \item \textbf{Objectives and constraints.} Specify the metric to optimize (e.g., minimize false negatives) and the hard constraints (minimum stopping distance, latency budgets, regulatory rules). Practical implementations refine these with regions of interest, masking, or sensor fusion (LiDAR + camera) so the classifier only runs where a stop sign could plausibly appear.
+\end{enumerate}
+
+These three ingredients determine what the intelligent system must sense, infer, and control. Once they are in place we can reason about the interacting components that implement the perception $\rightarrow$ reasoning $\rightarrow$ action loop.
+
+\subsubsection{Components of AI Systems: Thinking, Perception, and Action}
+
+AI systems can be decomposed into three interrelated components:
+
+\begin{description}
+\item[Perception:] How the system senses and interprets environmental data, extracting features or state estimates.
+\item[Reasoning and Decision-Making:] How the system combines models and control policies with learned value functions to plan actions or react in real time.
+\item[Action:] How the system executes decisions to affect the environment.
+\end{description}
+
+\paragraph{Example: Autonomous Vehicle}
+
+\begin{itemize}
+    \item \textbf{Perception:} Camera captures images, which are converted into numerical arrays.
+    \item \textbf{Thinking:} Algorithms classify objects (e.g., stop signs, pedestrians) and predict future states.
+    \item \textbf{Action:} Vehicle control systems adjust steering, acceleration, or braking accordingly.
+\end{itemize}
+
+\subsection{Case Study: AI-Enabled Camera as an Intelligent System}
+
+The design checklist above becomes concrete when we dissect a deployed system. Consider a networked camera that detects humans and escalates alarms in an industrial plant.
+
+\begin{tcolorbox}[summarybox,title={Checklist instantiated for the camera system}]
+\begin{description}[style=nextline]
+    \item[Problem + value role] Detect humans entering restricted zones (understand the present) and log footage for later audits (explain the past).
+    \item[Representation] Images are streamed as \(H\times W\times 3\) tensors; regions of interest and background models are maintained to suppress noise.
+    \item[Objectives/constraints] Maintain $<200$\,ms end-to-end latency and $<1\%$ false negatives; respect privacy/retention policies.
+    \item[Hardware (perception/action)] CMOS sensor, on-board DSP/accelerator, motorized pan/tilt for re-targeting.
+    \item[Software (reasoning)] YOLOv8-style detector fine-tuned on site-specific data, fused with Kalman filters for track smoothing and MPC logic that commands the pan/tilt actuator or triggers alerts.
+    \item[Integration] Edge inference handles immediate reactions; metadata is sent to a cloud analytics service that enriches logs and retrains models (predicting the future by anticipating recurrent intrusion times).
+\end{description}
+\end{tcolorbox}
+
+This decomposition highlights the same three pillars---perception, reasoning, and action---while adding the operational nuance (latency budgets, privacy constraints) that graduate-level systems must address. Many later chapters discuss building blocks that could be used in such a pipeline: convolutional networks (\Cref{chap:cnn}) for visual detection, recurrent models (\Cref{chap:rnn}) for temporal smoothing and sequence prediction, supervised learning and calibration (\Crefrange{chap:supervised}{chap:logistic}) for reliable scoring and threshold selection, fuzzy controllers (\Crefrange{chap:fuzzysets}{chap:fuzzyinference}) for rule-based escalation policies, and evolutionary algorithms (\Cref{chap:evo}) for tuning design choices such as placement, thresholds, or hyperparameters.
+
+An intelligent system is therefore not just the hardware or the software alone, but the \emph{system of components} working together to perceive, reason, and act under explicit objectives.
+
+\subsection{Levels and Architectures of Intelligent Systems}
+
+Having introduced working definitions and concrete examples, we now summarize capabilities and architectural patterns that reappear across the book.
+
+\paragraph{What Constitutes Intelligence in Systems?}
+
+Intelligence in systems is often characterized by the ability to:
+
+\begin{itemize}
+    \item \textbf{Perceive} and interpret inputs from the environment.
+    \item \textbf{Reason} and make decisions based on available information.
+    \item \textbf{Learn} from experience to improve performance.
+    \item \textbf{Act} autonomously to achieve goals.
+\end{itemize}
+
+These capabilities can be realized in various architectures, ranging from connectionist models (e.g., neural networks) to symbolic systems and hybrid approaches.
+
+\paragraph{Levels of Intelligence (as an organizing lens)}
+
+Intelligence is not necessarily binary (intelligent vs.\ non-intelligent); rather, deployed systems combine different degrees of reactivity, deliberation, and adaptation. For the purposes of this book we use a four-layer shorthand---reactive systems (level 1), deliberative planners (level 2), adaptive learners (level 3), and meta-cognitive agents that reason about their own policies (level 4)---as an informal organizing lens rather than a strict hierarchy. It is compatible with domain-specific taxonomies (e.g., SAE Levels~0--5 for automated driving). The closing Key Takeaways return to it with representative algorithms from later chapters.
+
+\paragraph{Connectionist vs.\ agent-based/decentralized approaches}
+
+Two broad paradigms in intelligent system design are:
+
+\begin{itemize}
+    \item \textbf{Connectionist Models:} Systems structured as interconnected processing units (e.g., neural networks) with defined input-output stages.
+    \item \textbf{Agent-based or decentralized systems:} Collections of agents or modules that operate semi-independently, often with only local communication, such as swarm intelligence or evolutionary algorithms.
+\end{itemize}
+
+Both approaches have merits and limitations, and hybrid models often combine elements of each.
+
+\paragraph{Example: Swarm Intelligence}
+
+Swarm systems consist of multiple agents solving subproblems independently but collectively achieving a global objective. Each agent follows simple rules without a global world model, yet the emergent behavior can be intelligent. This contrasts with monolithic systems possessing explicit internal representations.
+
+Swarm intelligence can be formalized via decentralized update laws of the form $x_i(t+1) = f\big(x_i(t),\{x_j(t)\}_{j \in \mathcal{N}_i}\big)$, where each agent $i$ interacts only with its neighborhood $\mathcal{N}_i$. Similar update patterns appear again in \Cref{chap:evo}, but we do not focus on stability proofs in this book.
+
+\paragraph{Examples of Input and Output Variables in Dynamic Systems}
+
+To ground these ideas, consider input/output sketches from systems readers often encounter in labs or industry. Each pairs raw sensory cues with actuator or decision outputs.
+
+\begin{itemize}
+    \item \textbf{Autonomous quadrotor:}
+    \begin{itemize}
+        \item \emph{Inputs:} Inertial measurement unit (IMU) rates, barometer/altimeter, camera or LiDAR features, GPS fixes.
+        \item \emph{Outputs:} Motor thrust commands and attitude setpoints that regulate yaw/pitch/roll and track waypoints.
+    \end{itemize}
+
+    \item \textbf{Smart microgrid:}
+    \begin{itemize}
+        \item \emph{Inputs:} Load forecasts, solar/wind availability, electricity prices, state-of-charge estimates for batteries.
+        \item \emph{Outputs:} Dispatch setpoints (generator outputs, battery charge/discharge, demand-response signals) that balance stability, cost, and emissions.
+    \end{itemize}
+
+    \item \textbf{Building HVAC controller:}
+    \begin{itemize}
+        \item \emph{Inputs:} Zone temperature/CO\textsubscript{2}/humidity sensors, occupancy estimates, outdoor weather feeds.
+        \item \emph{Outputs:} Fan speeds, damper positions, valve openings, heat-pump setpoints---tunable levers to meet comfort and energy targets.
+    \end{itemize}
+
+    \item \textbf{Robot-assisted surgery:}
+    \begin{itemize}
+        \item \emph{Inputs:} Endoscopic vision, force/torque sensing at instruments, surgeon console commands.
+        \item \emph{Outputs:} Precise tool trajectories, force limits, and safety interlocks that respect tissue constraints.
+    \end{itemize}
+\end{itemize}
+
+These vignettes echo a common pattern: intelligent systems fuse heterogeneous sensors to produce calibrated control or decision signals under safety, comfort, or performance constraints.
+
+\begin{tcolorbox}[perspectivebox,title={Emotions as Utility Signals}]
+From a design perspective, emotions can be viewed abstractly as changes in an agent's internal utility or value function: positive affect corresponds to utility gains, negative affect to losses, and social emotions to comparisons between agents' utilities. Artificial systems can mimic this by modulating learning rates, exploration pressure, or safety margins in response to internal ``frustration'' or ``satisfaction'' signals without presupposing rich phenomenology. This book treats this view strictly as a modeling device for embedding motivational signals into controllers; affective computing and cognitive science work with much richer state representations than we use here.
+\end{tcolorbox}
+
+\paragraph{Key Characteristics of Intelligent Systems}
+
+Building on the examples above, we summarize the essential capabilities that characterize an intelligent system:
+
+\begin{enumerate}
+    \item \textbf{Sensory Perception:} The system must be able to receive and interpret inputs from its environment, which may be in various forms such as numerical data, images, sounds, or tactile signals.
+
+    \item \textbf{Pattern Recognition and Learning:} The system should identify patterns within the input data, including hidden or subtle features, and improve its performance over time by learning from experience.
+
+    \item \textbf{Knowledge Retention:} Acquired knowledge must be stored and utilized for future decision-making.
+
+    \item \textbf{Inference from Incomplete Information:} The system should be capable of drawing conclusions and making decisions even when presented with partial or approximate data.
+
+    \item \textbf{Adaptability:} It must handle unfamiliar or novel situations by generalizing from prior knowledge and adapting its behavior accordingly.
+
+    \item \textbf{Inductive Reasoning:} The system should be able to generalize patterns from observed examples---i.e., infer general rules or hypotheses from specific data instances (e.g., learn a classifier from labeled data). This differs from applying pre-written conditional logic; induction discovers the rules, whereas conditional statements merely execute them.
+\end{enumerate}
+
+\paragraph{Intelligent Systems as Decision Makers}
+
+At the core, intelligent systems perform a mapping from inputs to outputs, where the outputs represent decisions or actions influenced by the system's internal understanding or model of the environment. Formally, if we denote the input vector by $\mathbf{x} \in \mathcal{X}$ and the output vector by $\mathbf{y} \in \mathcal{Y}$, then an intelligent system implements a function
+\begin{equation}
+    \mathbf{y} = f(\mathbf{x}; \theta),
+    \label{eq:intelligent_mapping}
+\end{equation}
+where $\theta$ represents internal parameters or knowledge that may evolve over time through learning. This abstraction is shared by the diverse examples seen so far: they all ingest data, transform it through a parameterized mapping, and emit decisions or control signals. In this book we primarily use the system-level language (mapping under constraints), and we use ``machine'' when embodiment and actuation are the point. Because the chapter alternates between these viewpoints, we briefly clarify terminology and the limits of the language we use.
+
+\subsection{Intelligent Systems and Intelligent Machines}
+
+\paragraph{Terminology Clarification}
+
+\begin{itemize}
+\item \textbf{Intelligent System:} A computational system (encompassing its hardware, software, and data interfaces) that perceives its environment, processes information, and acts autonomously or semi-autonomously (with limited human oversight or shared control).
+
+    \item \textbf{Intelligent Machine:} A physical instantiation of an intelligent system, often embodied as a robot or automated device.
+\end{itemize}
+
+The terms are related but not identical; intelligent machines are a subset of intelligent systems, typically emphasizing the physical embodiment.
+
+\paragraph{Behavior, Not Components}
+
+The word \emph{intelligent} is inevitably anthropocentric: in practice, we judge intelligence through observed behavior and performance under constraints. Motors, sensors, and circuits are enabling components, but they are not ``intelligent'' on their own. Intelligence emerges from how the full system processes inputs, maintains state, and selects actions.
+
+Intelligence is also not synonymous with optimality. Many deployed systems are approximate, noisy, or biased, yet they can still be meaningfully analyzed and improved as goal-directed agents. In this book, ``intelligent'' is therefore used in an engineering sense: a system that maps percepts to actions with a design intent, and that can be evaluated against explicit objectives and constraints.
+
+\paragraph{Examples}
+
+Robots developed by Boston Dynamics (e.g., quadrupeds) illustrate how feedback control, state estimation, and trajectory planning can produce behaviors that humans interpret as intelligent (balance recovery, robust locomotion, disturbance rejection) even though the system has no intrinsic understanding or feelings. Voice-activated assistants and robots provide a second common example: they appear intelligent because they can condition actions on language inputs, maintain limited context, and complete tasks that align with user intent.
+
+\paragraph{Consciousness and Intelligence}
+
+While machines can exhibit intelligent behaviors, the question of whether they possess consciousness or self-awareness remains open and is a subject of ongoing research and philosophical debate.
+
+In this book we treat consciousness operationally:\\
+we focus on meta-cognition (self\hyp{}monitoring of one's own decision process) rather than phenomenal awareness. This keeps the discussion tied to observable, designable behaviors rather than philosophical claims.
+
+\begin{tcolorbox}[perspectivebox,title={Author's note: ``subject of its own thought''}]
+\emph{Strong} machine intelligence, in my view, means a system can make itself the subject of its own thought. It keeps self-models (confidence monitors, policy auditors, explanation traces) to critique and revise its reasoning, not just its predictions.\\
+The rest of this book uses the simpler four-layer taxonomy (reactive~$\rightarrow$ deliberative~$\rightarrow$ adaptive~$\rightarrow$ meta-cognitive), but the ``subject of its own thought'' view motivates why Level~4 systems need special care in design and governance.
+\end{tcolorbox}
+
+\subsection{Levels, Meta-cognition, and Safety}\label{subsec:levels}
+
+This book uses levels of intelligence as an organizing lens rather than a formal taxonomy. The four levels introduced above (reactive, deliberative, adaptive, and meta-cognitive) are meant to clarify what a system can do, what it must represent, and what kinds of failures are plausible. For a working definition of AI and intelligent systems, see \Cref{par:intelligent-systems}.
+
+\paragraph{Meta-cognition (Operational View)}
+
+In this book, meta-cognition refers to a controller's ability to monitor, assess, and revise its own reasoning policies. In practice this can look like confidence monitors, audits of decision traces, and bounded self-correction loops rather than unconstrained self-modification.
+
+\paragraph{Implications and Risks}
+
+If a system can improve its own utility autonomously and rapidly, it may induce competitive dynamics in which improving one utility degrades another's. This occurs in multi-agent settings (competing organizations or robots) and in multi-objective optimization when safety objectives conflict with performance. These scenarios motivate conservative design and governance, especially as systems move from adaptive learning to self-monitoring and policy revision.
+
+\paragraph{Designing Safe Intelligent Systems}
+
+One practical mitigation is to build systems that:
+\begin{itemize}
+    \item Keep auditable records of their decisions and updates.
+    \item Perform self-inspection and error analysis.
+    \item Backtrack and self-correct within explicit, designer-defined bounds.
+\end{itemize}
+
+\noindent Such systems can improve without uncontrolled self-modification: policy updates are gated by testable criteria, and any self-editing of code or reward functions proceeds only through approved interfaces.
+
+\bigskip
+\noindent\textbf{Reader's guide.} The remainder of this chapter is practical: who the book is for, how chapters fit together, and how to navigate recurring structure. Notation and reading conventions are collected in the front matter (see \emph{Notation and Conventions}).
+
+\subsection{Audience, Prerequisites, and Scope}
+
+This material has been rewritten to stand on its own as a book. It surveys the design and analysis of intelligent systems along two main strands:
+\begin{itemize}
+    \item data\hyp{}driven models for prediction and decision making (linear models, kernels, deep
+    networks, sequence models, Transformers);
+    \item soft\hyp{}computing and search methods (self\hyp{}organizing maps, fuzzy systems, evolutionary and
+    genetic algorithms).
+\end{itemize}
+The emphasis is on breadth with enough mathematical depth that you can relate ideas across chapters rather than treating each technique in isolation.
+
+The book also maintains a deliberate dual emphasis: representation learning with neural and kernelized models on one hand, and soft\hyp{}computing approaches (fuzzy systems and evolutionary optimization) on the other. This balance keeps robustness, interpretability, and optimization themes all in view rather than treating deep networks in isolation.
+
+The assumed background is undergraduate calculus and linear algebra (vectors, matrices, eigenvalues) and basic probability and statistics. No prior dedicated AI or machine\hyp{}learning course is assumed: key ideas such as losses, optimization, gradient descent, backpropagation, kernels, fuzzy operators, and evolutionary operators are introduced from first principles when they first appear. Familiarity with signals and systems, and with linear time-invariant (LTI) models in particular, is helpful for the sequence-modeling and control-oriented parts of the book; Appendix~\ref{app:linear_systems} (\emph{Linear Systems Primer}) provides a concise refresher.
+
+\subsection{Roadmap and Reading Paths}
+\begin{figure}[!b]
+    \centering
+    \captionsetup{width=.65\linewidth}
+    \resizebox{.9\linewidth}{!}{%
+    \begin{tikzpicture}[>=Stealth, node distance=1.6cm and 1.8cm]
+        \tikzstyle{block}=[draw, rounded corners, align=center, minimum width=2.6cm, minimum height=0.8cm, fill=gray!5]
+        % Main chain
+        \node[block] (reg) {Linear\\Regression};
+        \node[block, right=of reg] (log) {Logistic\\Regression};
+        \node[block, right=of log] (mlp) {MLP\\(Backprop)};
+        \node[block, right=of mlp] (cnn) {CNN\\(Conv/Pool)};
+        \node[block, right=of cnn] (rnn) {RNN\\(BPTT)};
+        % Branch: SOM -> Fuzzy
+        \node[block, below=1.2cm of mlp] (som) {SOM\\(Competitive)};
+        \node[block, right=of som] (fuzzy) {Fuzzy Sets\\\& Inference};
+        % Parallel: Optimization -> GA/GP
+        \node[block, above=1.2cm of mlp] (opt) {Optimization\\(GD/Reg)};
+        \node[block, right=of opt] (ga) {Evolutionary\\(GA/GP)};
+        % Arrows main
+        \draw[->] (reg) -- (log);
+        \draw[->] (log) -- (mlp);
+        \draw[->] (mlp) -- (cnn);
+        \draw[->] (cnn) -- (rnn);
+        % Arrows branches
+        \draw[->] (mlp) -- (som);
+        \draw[->] (som) -- (fuzzy);
+        \draw[->] (opt) -- (ga);
+        % Cross-links (light)
+        \draw[->, gray!60] (mlp) to[bend left=15] (ga);
+        \draw[->, gray!60] (fuzzy) to[bend right=20] (rnn);
+    \end{tikzpicture}%
+    }
+    \captionsetup{justification=raggedright}
+    \caption{Schematic: Roadmap (core supervised path; SOM/fuzzy; optimization/evolutionary).}
+    \label{fig:roadmap}
+\end{figure}
+
+\Cref{fig:roadmap} summarizes the narrative arc of the book: a core supervised path (linear and logistic regression to MLPs to CNNs to RNNs), a branch through competitive learning and fuzzy inference for rule-based reasoning, and a parallel thread on optimization culminating in evolutionary computing. Early on, \Cref{chap:symbolic} provides a complementary symbolic-search perspective so we can contrast ``intelligence via transformations'' with ERM-based modeling. Chapters cross-reference one another so you can skim the path most relevant to your project and return for foundational refreshers as needed.
+
+Readers arrive with different goals. The roadmap is intentionally a dependency graph rather than a single linear track; the following paths are common starting points:
+\begin{enumerate}
+    \item \textbf{ML-focused path:} \Crefrange{chap:supervised}{chap:logistic} $\rightarrow$ \Crefrange{chap:mlp}{chap:backprop} $\rightarrow$ \Crefrange{chap:cnn}{chap:transformers} $\rightarrow$ \Cref{chap:nlp}.
+    \item \textbf{Control/systems path:} \Crefrange{chap:intro}{chap:supervised} $\rightarrow$ \Cref{chap:hopfield} $\rightarrow$ \Crefrange{chap:softcomp}{chap:fuzzyinference} $\rightarrow$ \Cref{chap:evo}.
+    \item \textbf{Soft-computing path:} \Crefrange{chap:intro}{chap:supervised} $\rightarrow$ \Crefrange{chap:softcomp}{chap:fuzzyinference} with optional detours to \Cref{chap:mlp} and \Cref{chap:evo}.
+\end{enumerate}
+
+\subsection{Using and Navigating This Book}
+\begin{itemize}\sloppy
+    \item \textbf{Before each chapter:} skim the Learning Outcomes and check where it sits on the Roadmap.
+    \item \textbf{While reading:} follow cross-referenced figures\slash equations and pause at the short checkpoints and worked examples.
+    \item \textbf{After each chapter:} review the Summary and Common Pitfalls; revisit the pseudocode and attempt the Exercises.
+    \item \textbf{Keep the front matter close:} the Notation and Conventions section defines symbols reused throughout the book; cross-references point back to it when conventions matter.
+\end{itemize}
+
+\noindent\textbf{Conventions and reading aids.} The front matter summarizes notation and common conventions, and it also includes a short guide to reading figures and recurring box styles.
+
+\medskip
+\begin{tcolorbox}[summarybox,title={Key takeaways}]
+\begin{itemize}
+    \item Intelligent systems integrate perception, decision, and action; we study both model\hyp{}based and control\hyp{}based realizations.
+    \item The system--machine distinction is mostly about embodiment: intelligent machines are physical instances of intelligent systems.
+    \item ``Levels'' are an organizing lens, and meta\hyp{}cognition is treated operationally (self\hyp{}monitoring and bounded self\hyp{}correction), not philosophically.
+\end{itemize}
+\end{tcolorbox}
+
+\begin{tcolorbox}[summarybox,title={Exercises and lab ideas}]
+\begin{itemize}
+    \item Pick one engineered system you know (e.g., a recommender, a robot, a control loop) and identify its \emph{percepts}, \emph{internal representation}, and \emph{actions}.
+    \item For one section of this chapter, rewrite the core definition in your own words and list one concrete failure mode the definition helps you anticipate.
+    \item Use \Cref{fig:roadmap} to choose a reading path and write down which two chapters you will skim first (and why).
+\end{itemize}
+\end{tcolorbox}
+
+\paragraph{Where we head next.} To make the abstract vocabulary of ``intelligence'' concrete, we start with a deliberately small case study: symbolic integration as transformation search (\Cref{chap:symbolic}). It is a crisp example of a system that decomposes a problem, applies safe rules, branches heuristically, backtracks, and certifies progress or failure with residual checks---capabilities that reappear later, often in data\hyp{}driven form.
+
+\paragraph{References.} Full citations for works mentioned in this chapter appear in the book-wide bibliography.

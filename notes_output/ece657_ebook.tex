@@ -1,0 +1,221 @@
+% Ebook (EPUB) entrypoint for Modern Intelligent Systems.
+% Source-of-truth content stays in the individual lecture_*.tex files.
+%
+% Build with:
+%   ./scripts/build_ebook.sh
+\documentclass[11pt]{article}
+
+% Ebook note:
+% - Avoid fixed trim sizes / mirrored margins (those are for print PDFs).
+% - Keep hyperref metadata and internal links for EPUB navigation.
+
+\usepackage{amsmath, amssymb, amsthm}
+\usepackage{physics}
+\usepackage{siunitx}
+\usepackage{hyperref}
+\usepackage{cleveref}
+\crefname{section}{Chapter}{Chapters}
+\Crefname{section}{Chapter}{Chapters}
+\crefname{subsection}{Section}{Sections}
+\Crefname{subsection}{Section}{Sections}
+\crefname{subsubsection}{Section}{Sections}
+\Crefname{subsubsection}{Section}{Sections}
+\crefname{figure}{Figure}{Figures}
+\Crefname{figure}{Figure}{Figures}
+\crefname{table}{Table}{Tables}
+\Crefname{table}{Table}{Tables}
+\crefname{equation}{Equation}{Equations}
+\Crefname{equation}{Equation}{Equations}
+\usepackage{hyphenat} % for \hyp to keep hyphenated terms unbroken
+\ifdefined\HCode
+  % TeX4ht doesn't love discretionary hyphenation in moving arguments (captions,
+  % bookmarks). For EPUB, prefer a plain hyphen.
+  \renewcommand{\hyp}{-}
+\fi
+\usepackage{enumitem}
+\setlist{itemsep=0.25em, topsep=0.25em}
+\usepackage{graphicx}
+\ifdefined\HCode
+  % Prefer raster images for EPUB; readers do not reliably support embedded PDFs.
+  % Keep `.pdf` as a fallback for TeX-only runs.
+  \DeclareGraphicsExtensions{.png,.jpg,.jpeg,.svg,.pdf}
+\fi
+% TeX4ht/tex4ebook doesn't reliably support `adjustbox` hooks; for EPUB builds we
+% replace it with a minimal wrapper that preserves alignment catcodes (e.g., `&`
+% inside tabulars) by not tokenizing the body as a macro argument.
+\ifdefined\HCode
+  \newenvironment{adjustbox}[1]{\begingroup}{\endgroup}
+\else
+  \usepackage{adjustbox}
+\fi
+\usepackage[font=small,labelfont=bf]{caption}
+\usepackage{subcaption}
+\captionsetup{justification=centering,singlelinecheck=false}
+\captionsetup[figure]{width=0.9\linewidth}
+\ifdefined\HCode
+  % TeX4ht runs `latex` (DVI mode) and has been observed to hang with `microtype`
+  % enabled on some TeX Live installs. Microtypography is irrelevant for EPUB
+  % output, so skip it under TeX4ht.
+\else
+  \usepackage{microtype}
+\fi
+\usepackage{setspace}
+\setstretch{1.15}
+\usepackage{titlesec}
+\titlespacing*{\section}{0pt}{*3}{*1.5}
+\titlespacing*{\subsection}{0pt}{*2}{*1}
+\titlespacing*{\subsubsection}{0pt}{*1.5}{*0.8}
+\usepackage{placeins}
+\usepackage{xcolor}
+\usepackage{bookmark}
+\usepackage{booktabs}
+\usepackage{tabularx}
+\usepackage{tikz}
+\usetikzlibrary{positioning,arrows.meta,decorations.pathreplacing,calc,shapes.geometric,matrix,backgrounds}
+\pgfdeclarelayer{background}
+\usepackage{pgfplots}
+\usepackage[authoryear]{natbib}
+\usepackage[most]{tcolorbox}
+\makeatletter
+\AtBeginDocument{%
+  \@ifundefined{pgf@layer@tcb@back}{%
+    \pgfsetlayers{background,main}%
+  }{%
+    \pgfsetlayers{background,tcb@back,main,tcb@front}%
+  }%
+}%
+\newcommand{\ensuretikzbackgroundlayers}{%
+  \@ifundefined{pgf@layer@tcb@back}{%
+    \pgfsetlayers{background,main}%
+  }{%
+    \pgfsetlayers{background,tcb@back,main,tcb@front}%
+  }%
+}%
+\makeatother
+\usepgfplotslibrary{groupplots,fillbetween}
+\pgfplotsset{compat=1.18}
+
+% TeX4ht makes `<` and `>` active; that can explode TeX memory when these
+% characters appear in math (e.g., $z<0$, $z>0$) or in TikZ arrow specs.
+% Define robust active-character handlers that behave like ordinary relations in
+% math mode and literal characters in text mode.
+\ifdefined\HCode
+  \begingroup\catcode`\<=\active
+  \gdef<{\ifmmode\mathrel{\char`<}\else\char`<\fi}%
+  \endgroup
+  \begingroup\catcode`\>=\active
+  \gdef>{\ifmmode\mathrel{\char`>}\else\char`>\fi}%
+  \endgroup
+  % TeX4ht is more reliable with `$...$` than `\(...\)` in some moving
+  % arguments (captions, bookmarks). Make `\(...\)` behave like `$...$`.
+  \let\(\$
+  \let\)\$
+\fi
+
+% In reflowable ebooks, a separate List of Figures/Tables usually adds little
+% value, but it triggers heavy ``moving argument'' machinery during conversion.
+% Skip writing figure/table entries to `.lof`/`.lot` to improve TeX4ht stability.
+\makeatletter
+\ifdefined\HCode
+  \let\ebook@orig@addcontentsline\addcontentsline
+  \expandafter\def\csname ebook@skip@lof\endcsname{}
+  \expandafter\def\csname ebook@skip@lot\endcsname{}
+  \renewcommand{\addcontentsline}[3]{%
+    \ifcsname ebook@skip@#1\endcsname
+    \else
+      \ebook@orig@addcontentsline{#1}{#2}{#3}%
+    \fi
+  }%
+\fi
+\makeatother
+
+% NOTE: TeX4ht can make `<`/`>` active for HTML tags; if we hit a TikZ figure
+% that uses arrow specs like `<-`, we can add a targeted workaround. Keeping the
+% preamble minimal improves overall conversion stability.
+
+% Avoid vertically stretched pages when content is sparse
+\raggedbottom
+\emergencystretch=2em
+
+% Equation numbering by section
+\numberwithin{equation}{section}
+
+% Summary / pitfall box styles (used throughout the manuscript)
+\tcbset{summarybox/.style={colback=gray!5,colframe=gray!40,boxrule=0.4pt,arc=1mm,left=2mm,right=2mm,top=1mm,bottom=1mm,fonttitle=\bfseries,title=Summary,before upper=\raggedright}}
+\tcbset{pitfallbox/.style={colback=red!3,colframe=red!40,boxrule=0.4pt,arc=1mm,left=2mm,right=2mm,top=1mm,bottom=1mm,fonttitle=\bfseries,title=Pitfall,before upper=\raggedright}}
+\tcbset{perspectivebox/.style={colback=blue!3,colframe=blue!40,boxrule=0.4pt,arc=1mm,left=2mm,right=2mm,top=1mm,bottom=1mm,fonttitle=\bfseries,title=Perspective,before upper=\raggedright}}
+
+% Global plot styling for consistency across figures
+\pgfplotsset{every axis/.append style={
+    tick label style={font=\scriptsize},
+    label style={font=\small},
+    legend style={font=\scriptsize, fill=none, draw=none},
+    line width=0.9pt,
+    grid=both,
+    grid style={gray!15}
+}}
+\definecolor{cbBlue}{RGB}{0,114,178}
+\definecolor{cbOrange}{RGB}{230,159,0}
+\definecolor{cbGreen}{RGB}{0,158,115}
+\definecolor{cbPink}{RGB}{213,94,0}
+\definecolor{cbGray}{gray}{0.45}
+\pgfplotscreateplotcyclelist{cbPalette}{%
+    {cbBlue, mark=*, mark options={scale=0.6,solid}},
+    {cbOrange, mark=square*, mark options={scale=0.6,solid}},
+    {cbGreen, mark=triangle*, mark options={scale=0.6,solid}},
+    {cbPink, mark=diamond*, mark options={scale=0.6,solid}}
+}
+\pgfplotsset{cycle list name=cbPalette}
+
+\makeatletter
+\newcommand{\chapnum}[2]{%
+  \@ifundefined{r@#1}{#2}{\ref{#1}}}
+\newcommand{\ChapterRef}[2]{Chapter~\chapnum{#1}{#2}}
+\newcommand{\ChaptersRef}[4]{Chapters~\chapnum{#1}{#2}--\chapnum{#3}{#4}}
+\newcommand{\ChapterOnly}[2]{\chapnum{#1}{#2}}
+\makeatother
+
+\setcounter{secnumdepth}3
+\setcounter{tocdepth}2
+
+\makeatletter
+% Ebook conversion is sensitive to TOC layout; still, 3-digit page numbers can
+% cause collisions in PDF previews. Keep TOC widths slightly looser.
+\renewcommand\@pnumwidth{3em}
+\renewcommand\@tocrmarg{4em}
+\renewcommand*\l@subsection{\@dottedtocline{2}{1.5em}{3.2em}}
+\renewcommand*\l@subsubsection{\@dottedtocline{3}{3.8em}{4.2em}}
+\makeatother
+
+\title{Modern Intelligent Systems: A Graduate Companion\\\large Neural Networks, Fuzzy Logic, and Evolutionary Optimization}
+\author{Haitham Amar}
+\date{First edition, 2026}
+\hypersetup{
+    pdftitle={Modern Intelligent Systems: A Graduate Companion},
+    pdfauthor={Haitham Amar},
+    hidelinks
+}
+
+\begin{document}
+\maketitle
+\input{copyright.tex}
+\tableofcontents
+
+% Preface (course provenance allowed here; logistics remain in Appendix C)
+\input{preface.tex}
+
+% Acknowledgments
+\input{acknowledgments.tex}
+
+% Notation / Glossary
+\input{notation.tex}
+
+\input{book_chapters.tex}
+
+\input{key_takeaways.tex}
+
+\input{book_bibliography.tex}
+
+\input{book_appendices.tex}
+
+\end{document}

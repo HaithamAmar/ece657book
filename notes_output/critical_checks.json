@@ -1,0 +1,16 @@
+{
+  "pdf_pages": [57, 74, 75, 77, 79, 134, 136, 239, 240, 241, 260, 261, 262, 336, 385],
+  "epub_keywords": [
+    "Figure\u00a022",
+    "Confusion matrix",
+    "ROC and PR curves",
+    "Bayes-optimal boundary",
+    "Perceptron convergence theorem",
+    "Forward/backward pseudocode",
+    "Mini example: two-layer backprop",
+    "Vanilla RNN cell",
+    "Multi-Head Attention",
+    "Attention masks",
+    "Flat region"
+  ]
+}

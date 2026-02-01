@@ -1,0 +1,88 @@
+\section*{Notation and Conventions}
+\addcontentsline{toc}{section}{Notation and Conventions}
+
+\begingroup
+\small
+\setlength{\tabcolsep}{4pt}
+\renewcommand{\arraystretch}{0.92}
+\begin{center}
+\begin{tabular}{@{}ll@{}}
+\toprule
+\textbf{Symbol} & \textbf{Description} \\
+\midrule
+$\mathbf{x} \in \mathbb{R}^n$ & Input vector (features) \\
+$y \in \mathbb{R}$ & Regression target (continuous) \\
+$y \in \{0,1\}$ & Binary class label (Bernoulli outcome) \\
+$\hat{y}$ & Model prediction \\
+$\mathcal{D}$ & Dataset or feasible domain \\
+$\mathcal{L}$ & Loss function (objective) \\
+$\sigma(\cdot)$ & Sigmoid function $1/(1+e^{-z})$ \\
+$\tanh(\cdot)$ & Hyperbolic tangent activation \\
+$\mathrm{ReLU}(z)$ & $\max(0,z)$ activation \\
+$\mathbf{W},\mathbf{b}$ & Weights and biases (parameters) \\
+$h_t, c_t$ & Hidden and cell states (RNN/LSTM) \\
+$n$ & Sequence length (tokens) \\
+$d_{\text{model}}$ & Model (embedding) width \\
+$h$ & Number of attention heads \\
+$d_k, d_v$ & Per-head key/query and value widths \\
+$\mathbf{Q},\mathbf{K},\mathbf{V}$ & Query, key, value matrices \\
+$\mathbf{W}_i^Q,\mathbf{W}_i^K,\mathbf{W}_i^V$ & Per-head projection matrices \\
+$\mathbf{W}^O$ & Output projection after concatenating heads \\
+KV cache & Stored past keys/values for decoding \\
+$\mu_A(x)$ & Membership of $x$ in fuzzy set $A$ \\
+$T,S$ & t\hyp{}norm (AND) and s\hyp{}norm (OR) \\
+$\operatorname{softmax}(\cdot)$ & Normalized exponential mapping \\
+$\|\cdot\|_2$ & Euclidean norm \\
+$\nabla$ & Gradient operator \\
+$\eta$ & Learning rate \\
+$\lambda$ & Regularization strength \\
+$k$ & Number of clusters/classes/neighbors (context-dependent) \\
+$\mathbb{E}[\cdot]$ & Expectation \\
+$\operatorname{Var}[\cdot]$ & Variance \\
+ $\operatorname{diag}(\cdot)$ & Diagonal matrix formed from a vector \\
+ $\odot$ & Hadamard (elementwise) product \\
+ $\phi(\cdot)$ & Feature map; in kernels, $k(\mathbf{x},\mathbf{z})=\phi(\mathbf{x})^\top\phi(\mathbf{z})$ \\
+ $\mathbf{1}$, $\mathbf{I}$ & All-ones vector and identity matrix \\
+\bottomrule
+\end{tabular}
+\end{center}
+\endgroup
+
+\vspace{0.5em}
+This section collects book-wide notation, conventions, and a few reading aids. Symbols may be locally redefined within a chapter when explicitly stated. Where symbols are overloaded (e.g., $\sigma$ as sigmoid vs.\ standard deviation), the local meaning is made explicit in context.
+
+\subsection*{Conventions}
+
+Throughout the book we follow a consistent notational style:
+\begin{itemize}
+    \item Bold lowercase (\(\mathbf{x}, \mathbf{w}\)) denote vectors; bold uppercase (\(\mathbf{W}, \mathbf{X}\)) denote matrices; plain roman symbols (\(x,y,\sigma\)) denote scalars.
+    \item Random variables are written in uppercase (\(X,Y\)) when needed, with lowercase (\(x,y\)) for their realizations.
+    \item Transpose is always indicated by the superscript \(\cdot^\top\), as in \(\mathbf{W}^\top\mathbf{x}\); we avoid bare \(T\) to reduce ambiguity.
+    \item The logistic sigmoid is written as \(\sigma(z)=1/(1+e^{-z})\); the same letter \(\sigma\) without an argument (e.g., \(\sigma^2\)) denotes a standard deviation. The intended meaning is clear from whether an argument is present. In fuzzy chapters, \(\mu_A(x)\) denotes membership rather than a mean; context and arguments disambiguate overloaded symbols.
+    \item Embedding matrices are written in bold (\(\mathbf{E}, \mathbf{W}, \mathbf{U}\)) and should not be confused with the expectation operator \(\mathbb{E}[\cdot]\); when expectations appear, they are always typeset with the blackboard bold \(\mathbb{E}\). We use row embeddings by convention: a one-hot row vector \(\mathbf{x}\in\{0,1\}^{1\times |V|}\) selects a row via \(\mathbf{x}\mathbf{E}\in\mathbb{R}^{1\times d}\).
+    \item Feature maps in kernel methods are written as \(\phi(\cdot)\); we reserve \(\varphi(\cdot)\) for radial-basis kernels. When probability density functions are needed, we write them as \(p(\cdot)\) (or \(p_X(\cdot)\) when the variable must be explicit). The corresponding design matrix \(\Phi\) collects feature-map evaluations on data.
+\end{itemize}
+These conventions are occasionally restated in local ``Notation note'' boxes where multiple meanings could collide (e.g., in chapters on statistics or recurrent networks). As a practical guide: row vectors are written as \(1\times n\) objects, column vectors as \(n\times 1\); a \emph{design matrix} collects one data point per row (features in columns), so data matrices are row-major \(N\times d\).
+
+\subsection*{Reading Aids}
+
+\begin{tcolorbox}[summarybox,title={How to read the visuals}]
+\begin{itemize}\sloppy
+    \item \textbf{Legends and icons:} Every figure caption states what each color or line style represents (safe vs.\ heuristic transformations, training vs.\ validation curves, etc.).
+    \item \textbf{Tables and references:} Table captions mention the chapter(s) they support so you can quickly jump back when a later chapter references them.
+\end{itemize}
+\end{tcolorbox}
+
+\begin{tcolorbox}[summarybox,title={Editorial heuristics: four recurring questions}]
+Each chapter has been edited with four recurring questions in mind:
+\begin{itemize}\sloppy
+    \item What is the core scientific idea, and how does it relate to earlier material?
+    \item Which methodological cautions should a practitioner keep close at hand?
+    \item How do the accompanying figures or derivations anchor those ideas visually?
+    \item Where does the topic sit within the broader landscape of intelligent systems?
+\end{itemize}
+\end{tcolorbox}
+
+\begin{tcolorbox}[summarybox,title={Author's note: intuition before algebra}]
+The math that follows is intentionally tight, but the spirit of this book is to keep the \emph{reason} for each tool front and center. When I introduce a method, I start from the question an engineer would actually be wrestling with and then introduce the equations needed to make it precise. Read each chapter with that heuristic in mind: first ask what story the technique lets you tell, then check that the derivations honor that story.
+\end{tcolorbox}

@@ -1,0 +1,101 @@
+\section{Linear Systems Primer}\label{app:linear_systems}
+
+This appendix collects basic material on signals, linear time-invariant (LTI) systems, and state-space models. It serves as a reference for the dynamical viewpoints used in later chapters (e.g., Hopfield networks, RNNs, and control-oriented fuzzy systems).
+
+\subsection*{Signals and Systems}
+
+A \emph{signal} is a mapping from an index set (typically time or space) into a set of values that encode a physical or abstract quantity. Formally, a continuous-time \emph{scalar} signal is a function \(x : \mathbb{R} \to \mathbb{R}\) (or \(\mathbb{C}\)), while a continuous-time \emph{vector} signal is \(x : \mathbb{R} \to \mathbb{R}^n\) (or \(\mathbb{C}^n\)). Discrete-time signals are defined analogously on \(\mathbb{Z}\). Signals may be deterministic, stochastic, scalar, or vector-valued depending on the context.
+
+A \emph{system} is an operator \( \mathcal{T} \) that maps an input signal space \( \mathcal{X} \) to an output signal space \( \mathcal{Y} \), i.e., \(y = \mathcal{T}\{x\}\). Systems are characterized by properties such as linearity, time-invariance, causality, and stability; determining which of these properties hold tells us which analytical tools (Fourier analysis, state-space models, etc.) are applicable.
+
+\subsection*{Linear Time-Invariant Systems}
+
+LTI systems are a central class of models. They satisfy:
+\begin{itemize}
+    \item \textbf{Linearity:} For any inputs \(x_1(t)\), \(x_2(t)\) and scalars \(a_1, a_2\),
+    \[
+    \mathcal{S}[a_1 x_1(t) + a_2 x_2(t)] = a_1 \mathcal{S}[x_1(t)] + a_2 \mathcal{S}[x_2(t)].
+    \]
+    \item \textbf{Time-invariance:} If the input is shifted in time by \(\tau\), the output is shifted by the same amount:
+    \[
+    \mathcal{S}[x(t - \tau)] = y(t - \tau),
+    \]
+    where \(y(t) = \mathcal{S}[x(t)]\).
+\end{itemize}
+
+\subsection*{Impulse Response and Convolution}
+
+The behavior of an LTI system is completely characterized by its \emph{impulse response} \(h(t)\), defined as the output when the input is a Dirac delta function \(\delta(t)\):
+\[
+h(t) = \mathcal{S}[\delta(t)].
+\]
+
+For any input \(x(t)\), the output \(y(t)\) is given by the convolution integral
+\begin{equation}
+    y(t) = (x * h)(t) = \int_{-\infty}^\infty x(\tau)\, h(t - \tau) \, d\tau.
+\end{equation}
+In discrete time the integral is replaced by a sum over integer indices.
+
+\subsection*{Frequency-Domain Representation}
+
+The Fourier transform is a standard tool for analysing signals and LTI systems in the frequency domain. For a signal \(x(t)\), the Fourier transform \(X(f)\) is
+\[
+X(f) = \int_{-\infty}^\infty x(t)\, e^{-j 2 \pi f t} \, dt.
+\]
+Under suitable regularity conditions, convolution in time corresponds to multiplication in frequency:
+\[
+Y(f) = H(f) X(f),
+\]
+where \(H(f)\) is the transform of \(h(t)\).
+
+\subsection*{State-Space Models and Transfer Functions}
+
+Many dynamical systems in this book are expressed in continuous-time state-space form:
+\begin{align}
+    \frac{d\mathbf{x}(t)}{dt} &= \mathbf{A}\mathbf{x}(t) + \mathbf{B}\mathbf{u}(t), \label{eq:state_space}\\
+    \mathbf{y}(t) &= \mathbf{C}\mathbf{x}(t) + \mathbf{D}\mathbf{u}(t),
+\end{align}
+where \(\mathbf{x}(t) \in \mathbb{R}^n\) is the state, \(\mathbf{u}(t) \in \mathbb{R}^m\) the input, and \(\mathbf{y}(t) \in \mathbb{R}^p\) the output.
+
+\paragraph{Homogeneous solution.}
+For the zero-input system, the state evolves as
+\begin{equation}
+    \mathbf{x}(t) = e^{\mathbf{A}t} \mathbf{x}(0),
+\end{equation}
+where \(e^{\mathbf{A}t}\) is the matrix exponential
+\begin{equation}
+    e^{\mathbf{A}t} = \sum_{k=0}^\infty \frac{(\mathbf{A}t)^k}{k!}.
+\end{equation}
+Key properties include \(e^{\mathbf{A}0} = \mathbf{I}\) and \(\tfrac{d}{dt} e^{\mathbf{A}t} = \mathbf{A} e^{\mathbf{A}t} = e^{\mathbf{A}t} \mathbf{A}\). If \(\mathbf{A}\) is diagonalizable, \(e^{\mathbf{A}t}\) can be computed efficiently via eigen-decomposition.
+
+\paragraph{Forced response.}
+With input \(\mathbf{u}(t)\), the solution is
+\begin{equation}
+    \mathbf{x}(t) = e^{\mathbf{A}t} \mathbf{x}(0) + \int_0^t e^{\mathbf{A}(t-\tau)} \mathbf{B} \mathbf{u}(\tau) \, d\tau, \label{eq:state_solution}
+\end{equation}
+which mirrors the convolution expression for LTI systems: the kernel \(e^{\mathbf{A}(t-\tau)}\) plays the role of a matrix-valued impulse response.
+
+\paragraph{Transfer function.}
+Taking the Laplace transform of \eqref{eq:state_space} with zero initial conditions yields
+\begin{align}
+    s \mathbf{X}(s) &= \mathbf{A} \mathbf{X}(s) + \mathbf{B} \mathbf{U}(s), \\
+    \mathbf{Y}(s) &= \mathbf{C} \mathbf{X}(s) + \mathbf{D} \mathbf{U}(s).
+\end{align}
+Solving for \(\mathbf{X}(s)\) gives
+\begin{equation}
+    \mathbf{X}(s) = (s \mathbf{I} - \mathbf{A})^{-1} \mathbf{B} \mathbf{U}(s),
+\end{equation}
+and substituting into the output equation produces the transfer function matrix
+\begin{equation}
+    \mathbf{G}(s) = \mathbf{C} (s \mathbf{I} - \mathbf{A})^{-1} \mathbf{B} + \mathbf{D}. \label{eq:transfer_function}
+\end{equation}
+This compactly describes the input--output behavior of the LTI system in the Laplace domain.
+
+\subsection*{Further Reading}
+
+\begin{itemize}
+    \item Kailath, T. (1980). \emph{Linear Systems}. Prentice Hall.
+    \item Chen, C.-T. (1999). \emph{Linear System Theory and Design}. Oxford University Press.
+    \item Ogata, K. (2010). \emph{Modern Control Engineering}. Prentice Hall.
+\end{itemize}
+\nocite{Kailath1980,Chen1999LinearSystemTheoryDesign,Ogata2010}

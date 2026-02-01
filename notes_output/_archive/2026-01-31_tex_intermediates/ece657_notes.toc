@@ -1,0 +1,894 @@
+\contentsline {section}{Preface}{3}{Doc-Start}%
+\contentsline {section}{Acknowledgments}{5}{Doc-Start}%
+\contentsline {section}{Notation and Conventions}{27}{Doc-Start}%
+\contentsline {section}{\numberline {1}About This Book}{30}{section.1}%
+\contentsline {subsection}{\numberline {1.1}Historical Foundations of Intelligent Systems}{30}{subsection.1.1}%
+\contentsline {paragraph}{Mechanical Automata and Scholastic Logic}{30}{subsection.1.1}%
+\contentsline {paragraph}{The Mechanical Computer and Early Programming}{31}{subsection.1.1}%
+\contentsline {paragraph}{Mathematical Logic and Formal Reasoning}{31}{subsection.1.1}%
+\contentsline {paragraph}{The Turing Test and the Birth of AI}{31}{equation.1.1}%
+\contentsline {paragraph}{Early Machine Learning and Symbolic AI}{31}{equation.1.1}%
+\contentsline {paragraph}{Summary of Key Historical Milestones}{32}{equation.1.1}%
+\contentsline {subsection}{\numberline {1.2}Defining Artificial Intelligence and Intelligent Systems}{32}{subsection.1.2}%
+\contentsline {paragraph}{Core Definition of AI}{33}{subsection.1.2}%
+\contentsline {subsection}{\numberline {1.3}Intelligent Systems}{34}{subsection.1.3}%
+\contentsline {subsubsection}{\numberline {1.3.1}From value-centric questions to concrete designs}{35}{subsubsection.1.3.1}%
+\contentsline {subsubsection}{\numberline {1.3.2}Components of AI Systems: Thinking, Perception, and Action}{35}{subsubsection.1.3.2}%
+\contentsline {paragraph}{Example: Autonomous Vehicle}{36}{subsubsection.1.3.2}%
+\contentsline {subsection}{\numberline {1.4}Case Study: AI-Enabled Camera as an Intelligent System}{36}{subsection.1.4}%
+\contentsline {subsection}{\numberline {1.5}Levels and Architectures of Intelligent Systems}{38}{subsection.1.5}%
+\contentsline {paragraph}{What Constitutes Intelligence in Systems?}{38}{subsection.1.5}%
+\contentsline {paragraph}{Levels of Intelligence (as an organizing lens)}{38}{subsection.1.5}%
+\contentsline {paragraph}{Connectionist vs.\ agent-based/decentralized approaches}{38}{subsection.1.5}%
+\contentsline {paragraph}{Example: Swarm Intelligence}{39}{subsection.1.5}%
+\contentsline {paragraph}{Examples of Input and Output Variables in Dynamic Systems}{39}{subsection.1.5}%
+\contentsline {paragraph}{Key Characteristics of Intelligent Systems}{40}{subsection.1.5}%
+\contentsline {paragraph}{Intelligent Systems as Decision Makers}{41}{Item.9}%
+\contentsline {subsection}{\numberline {1.6}Intelligent Systems and Intelligent Machines}{41}{subsection.1.6}%
+\contentsline {paragraph}{Terminology Clarification}{41}{subsection.1.6}%
+\contentsline {paragraph}{Behavior, Not Components}{42}{subsection.1.6}%
+\contentsline {paragraph}{Examples}{42}{subsection.1.6}%
+\contentsline {paragraph}{Consciousness and Intelligence}{42}{subsection.1.6}%
+\contentsline {subsection}{\numberline {1.7}Levels, Meta-cognition, and Safety}{43}{subsection.1.7}%
+\contentsline {paragraph}{Meta-cognition (Operational View)}{43}{subsection.1.7}%
+\contentsline {paragraph}{Implications and Risks}{43}{subsection.1.7}%
+\contentsline {paragraph}{Designing Safe Intelligent Systems}{43}{subsection.1.7}%
+\contentsline {subsection}{\numberline {1.8}Audience, Prerequisites, and Scope}{44}{subsection.1.8}%
+\contentsline {subsection}{\numberline {1.9}Roadmap and Reading Paths}{45}{subsection.1.9}%
+\contentsline {subsection}{\numberline {1.10}Using and Navigating This Book}{45}{subsection.1.10}%
+\contentsline {paragraph}{Where we head next.}{46}{subsection.1.10}%
+\contentsline {paragraph}{References.}{47}{subsection.1.10}%
+\contentsline {section}{\numberline {2}Symbolic Integration and Problem-Solving Strategies}{47}{section.2}%
+\contentsline {subsection}{\numberline {2.1}Context and Motivation}{48}{subsection.2.1}%
+\contentsline {subsection}{\numberline {2.2}Problem Decomposition and Transformation}{49}{subsection.2.2}%
+\contentsline {paragraph}{Safe Transformations}{49}{subsection.2.2}%
+\contentsline {paragraph}{Example: Applying Safe Transformations}{50}{subsection.2.2}%
+\contentsline {subsection}{\numberline {2.3}Limitations of Safe Transformations}{50}{subsection.2.3}%
+\contentsline {subsection}{\numberline {2.4}Heuristic Transformations}{50}{subsection.2.4}%
+\contentsline {paragraph}{Definition}{50}{subsection.2.4}%
+\contentsline {paragraph}{Example: Trigonometric Heuristics}{51}{subsection.2.4}%
+\contentsline {paragraph}{Heuristics as a Form of Intelligence}{51}{subsection.2.4}%
+\contentsline {subsection}{\numberline {2.5}Summary of the Approach}{51}{subsection.2.5}%
+\contentsline {paragraph}{Cost heuristic.}{52}{Item.16}%
+\contentsline {subsection}{\numberline {2.6}Heuristic Transformations: Revisiting the Integral with \(1 - x^2\)}{52}{subsection.2.6}%
+\contentsline {paragraph}{Step 1: Substitution and Differential}{53}{equation.2.1}%
+\contentsline {paragraph}{Step 2: Choosing the Next Transformation}{53}{equation.2.2}%
+\contentsline {paragraph}{Step 3: Functional Composition and Path Selection}{54}{equation.2.2}%
+\contentsline {paragraph}{Two safe options from here}{54}{equation.2.2}%
+\contentsline {paragraph}{Back-substitution and check}{54}{equation.2.2}%
+\contentsline {paragraph}{Pattern rule}{55}{equation.2.2}%
+\contentsline {subsection}{\numberline {2.7}Example: Solving an Integral via Transformation Trees}{55}{subsection.2.7}%
+\contentsline {subsection}{\numberline {2.8}Transformation Trees and Search Strategies}{55}{subsection.2.8}%
+\contentsline {paragraph}{Definition:}{55}{subsection.2.8}%
+\contentsline {paragraph}{Example:}{55}{figure.caption.2}%
+\contentsline {paragraph}{Safe vs. Heuristic Transformations:}{56}{figure.caption.2}%
+\contentsline {paragraph}{Backtracking:}{56}{figure.caption.2}%
+\contentsline {subsection}{\numberline {2.9}Algorithmic Outline for Symbolic Problem Solving}{57}{subsection.2.9}%
+\contentsline {paragraph}{Note:}{57}{Item.23}%
+\contentsline {paragraph}{Residual test implementation.}{59}{Item.23}%
+\contentsline {paragraph}{Worked example: Beta template vs.\ numeric fallback}{60}{table.caption.3}%
+\contentsline {paragraph}{Failure path with certified numeric residual.}{61}{table.caption.3}%
+\contentsline {subsection}{\numberline {2.10}Discussion: What this example illustrates}{61}{subsection.2.10}%
+\contentsline {paragraph}{Where we head next.}{63}{subsection.2.10}%
+\contentsline {paragraph}{References.}{63}{subsection.2.10}%
+\contentsline {section}{\numberline {3}Supervised Learning Foundations}{63}{section.3}%
+\contentsline {subsection}{\numberline {3.1}Problem Setup and Notation}{65}{subsection.3.1}%
+\contentsline {subsection}{\numberline {3.2}Fitting, Overfitting, and Underfitting}{66}{subsection.3.2}%
+\contentsline {paragraph}{Underfitting.}{66}{subsection.3.2}%
+\contentsline {paragraph}{Overfitting.}{67}{subsection.3.2}%
+\contentsline {paragraph}{What we aim for.}{67}{subsection.3.2}%
+\contentsline {subsection}{\numberline {3.3}Empirical Risk Minimization and Regularization}{67}{subsection.3.3}%
+\contentsline {paragraph}{Ridge and lasso.}{68}{equation.3.4}%
+\contentsline {subsection}{\numberline {3.4}Elastic-net paths and cross-validation}{69}{subsection.3.4}%
+\contentsline {subsection}{\numberline {3.5}Common Loss Functions}{71}{subsection.3.5}%
+\contentsline {subsection}{\numberline {3.6}Model Selection, Splits, and Learning Curves}{73}{subsection.3.6}%
+\contentsline {subsection}{\numberline {3.7}Linear regression: a first full case study}{76}{subsection.3.7}%
+\contentsline {paragraph}{Model.}{77}{subsection.3.7}%
+\contentsline {paragraph}{A noise model (why squared error shows up).}{78}{equation.3.8}%
+\contentsline {paragraph}{Objective.}{78}{equation.3.12}%
+\contentsline {paragraph}{Closed form and geometry.}{79}{equation.3.14}%
+\contentsline {paragraph}{Where overfitting enters.}{79}{equation.3.16}%
+\contentsline {paragraph}{Ridge and lasso in one line.}{79}{equation.3.16}%
+\contentsline {paragraph}{Where we head next.}{80}{equation.3.16}%
+\contentsline {paragraph}{References.}{80}{equation.3.16}%
+\contentsline {section}{\numberline {4}Classification and Logistic Regression}{81}{section.4}%
+\contentsline {subsection}{\numberline {4.1}From regression to classification}{81}{subsection.4.1}%
+\contentsline {subsection}{\numberline {4.2}Classification problem statement}{82}{subsection.4.2}%
+\contentsline {subsection}{\numberline {4.3}Bayes Optimal Classifier}{82}{subsection.4.3}%
+\contentsline {paragraph}{Challenges in Practice}{83}{equation.4.1}%
+\contentsline {paragraph}{Running example: a two-cluster dataset}{83}{equation.4.1}%
+\contentsline {paragraph}{Naive Bayes Approximation}{83}{figure.caption.16}%
+\contentsline {subsection}{\numberline {4.4}Logistic Regression: A Probabilistic Discriminative Model}{85}{subsection.4.4}%
+\contentsline {paragraph}{Binary Classification Setup}{85}{subsection.4.4}%
+\contentsline {paragraph}{Linear Model for the Log-Odds}{85}{subsection.4.4}%
+\contentsline {subsubsection}{\numberline {4.4.1}Likelihood, loss, and gradient}{86}{subsubsection.4.4.1}%
+\contentsline {paragraph}{Optimization geometry (why iterative solvers)}{86}{figure.caption.17}%
+\contentsline {paragraph}{Geometry of the logistic surface.}{88}{figure.caption.18}%
+\contentsline {subsection}{\numberline {4.5}Probabilistic Interpretation: MLE and MAP}{88}{subsection.4.5}%
+\contentsline {subsection}{\numberline {4.6}Confusion Matrices and Derived Metrics}{89}{subsection.4.6}%
+\contentsline {paragraph}{Where we head next.}{92}{table.caption.23}%
+\contentsline {paragraph}{References.}{92}{table.caption.23}%
+\contentsline {section}{\numberline {5}Introduction to Neural Networks}{92}{section.5}%
+\contentsline {subsection}{\numberline {5.1}Biological Inspiration}{93}{subsection.5.1}%
+\contentsline {paragraph}{Neurons and Neural Activity}{93}{subsection.5.1}%
+\contentsline {paragraph}{Complexities and Unknowns}{93}{subsection.5.1}%
+\contentsline {subsection}{\numberline {5.2}From Biological to Artificial Neural Networks}{94}{subsection.5.2}%
+\contentsline {paragraph}{Key Features of Artificial Neural Networks}{94}{subsection.5.2}%
+\contentsline {paragraph}{Historical Context}{94}{Item.27}%
+\contentsline {subsection}{\numberline {5.3}Outline of Neural Network Study}{95}{subsection.5.3}%
+\contentsline {subsection}{\numberline {5.4}Neural Network Architectures}{95}{subsection.5.4}%
+\contentsline {paragraph}{Feedforward Neural Networks}{95}{subsection.5.4}%
+\contentsline {paragraph}{Shapes and convention.}{96}{equation.5.2}%
+\contentsline {paragraph}{Recurrent Neural Networks}{96}{equation.5.2}%
+\contentsline {subsection}{\numberline {5.5}Activation Functions}{96}{subsection.5.5}%
+\contentsline {paragraph}{Biological Motivation}{96}{subsection.5.5}%
+\contentsline {paragraph}{Common Activation Functions}{96}{subsection.5.5}%
+\contentsline {subsection}{\numberline {5.6}Learning Paradigms in Neural Networks}{98}{subsection.5.6}%
+\contentsline {paragraph}{Supervised Learning}{98}{subsection.5.6}%
+\contentsline {paragraph}{Unsupervised Learning}{98}{subsection.5.6}%
+\contentsline {paragraph}{Reinforcement Learning}{99}{subsection.5.6}%
+\contentsline {subsection}{\numberline {5.7}Fundamentals of Artificial Neural Networks}{99}{subsection.5.7}%
+\contentsline {paragraph}{McCulloch-Pitts Neuron Model}{99}{subsection.5.7}%
+\contentsline {paragraph}{Interpretation}{100}{equation.5.4}%
+\contentsline {paragraph}{Excitation and Inhibition}{100}{equation.5.5}%
+\contentsline {paragraph}{Learning Objective}{100}{equation.5.5}%
+\contentsline {subsection}{\numberline {5.8}Mathematical Formulation of the Neuron Output}{100}{subsection.5.8}%
+\contentsline {subsection}{\numberline {5.9}McCulloch-Pitts neuron: examples and limits}{101}{subsection.5.9}%
+\contentsline {paragraph}{Example: AND and OR gates}{101}{equation.5.8}%
+\contentsline {paragraph}{Limitations of the MP model}{102}{equation.5.8}%
+\contentsline {subsection}{\numberline {5.10}From MP Neuron to Perceptron and Beyond}{102}{subsection.5.10}%
+\contentsline {paragraph}{Perceptron model}{102}{subsection.5.10}%
+\contentsline {paragraph}{Perceptron update from the signed margin.}{103}{equation.5.9}%
+\contentsline {paragraph}{Perceptron convergence theorem.}{103}{equation.5.9}%
+\contentsline {paragraph}{Adaline model}{105}{figure.caption.24}%
+\contentsline {paragraph}{Adaline weight update (derivation)}{105}{figure.caption.24}%
+\contentsline {paragraph}{Where we head next.}{107}{figure.caption.24}%
+\contentsline {paragraph}{References.}{107}{figure.caption.24}%
+\contentsline {section}{\numberline {6}Multi-Layer Perceptrons: Challenges and Foundations}{108}{section.6}%
+\contentsline {subsection}{\numberline {6.1}From a single unit to the smallest network}{109}{subsection.6.1}%
+\contentsline {paragraph}{Function estimation as the unifying view.}{109}{subsection.6.1}%
+\contentsline {paragraph}{From one unit to a chain of units.}{109}{subsection.6.1}%
+\contentsline {paragraph}{Bias as a learned threshold.}{111}{figure.caption.25}%
+\contentsline {subsection}{\numberline {6.2}Performance: what are we trying to improve?}{111}{subsection.6.2}%
+\contentsline {paragraph}{Why a square?}{111}{equation.6.4}%
+\contentsline {paragraph}{A geometric intuition.}{111}{equation.6.4}%
+\contentsline {subsection}{\numberline {6.3}Gradient descent: how do weights move?}{112}{subsection.6.3}%
+\contentsline {paragraph}{Step size is a design choice.}{112}{equation.6.6}%
+\contentsline {subsection}{\numberline {6.4}Why hard thresholds block learning}{112}{subsection.6.4}%
+\contentsline {paragraph}{Absorbing the threshold.}{113}{subsection.6.4}%
+\contentsline {subsection}{\numberline {6.5}Differentiable activations and the sigmoid trick}{113}{subsection.6.5}%
+\contentsline {paragraph}{Derivation sketch.}{114}{equation.6.8}%
+\contentsline {subsection}{\numberline {6.6}Deriving weight updates for the two\hyp {}neuron network}{114}{subsection.6.6}%
+\contentsline {paragraph}{Second layer.}{115}{subsection.6.6}%
+\contentsline {paragraph}{First layer.}{115}{equation.6.10}%
+\contentsline {paragraph}{Error terms (backprop view).}{115}{equation.6.13}%
+\contentsline {subsection}{\numberline {6.7}From two neurons to multi\hyp {}layer networks}{116}{subsection.6.7}%
+\contentsline {subsection}{\numberline {6.8}Summary}{117}{subsection.6.8}%
+\contentsline {paragraph}{Where we head next.}{118}{subsection.6.8}%
+\contentsline {paragraph}{References.}{118}{subsection.6.8}%
+\contentsline {section}{\numberline {7}Backpropagation Learning in Multi-Layer Perceptrons}{118}{section.7}%
+\contentsline {subsection}{\numberline {7.1}Context and Motivation}{119}{subsection.7.1}%
+\contentsline {subsection}{\numberline {7.2}Problem Setup}{119}{subsection.7.2}%
+\contentsline {subsection}{\numberline {7.3}Loss and Objective}{119}{subsection.7.3}%
+\contentsline {subsection}{\numberline {7.4}Challenges in Weight Updates}{120}{subsection.7.4}%
+\contentsline {subsection}{\numberline {7.5}Notation for Layers and Neurons}{120}{subsection.7.5}%
+\contentsline {subsection}{\numberline {7.6}Forward Pass Recap}{121}{subsection.7.6}%
+\contentsline {subsection}{\numberline {7.7}Backpropagation: Recursive Computation of Error Terms}{123}{subsection.7.7}%
+\contentsline {paragraph}{Chain rule decomposition}{123}{equation.7.6}%
+\contentsline {paragraph}{Interpretation of \(\delta _j^{(l+1)}\)}{124}{equation.7.8}%
+\contentsline {subsubsection}{\numberline {7.7.1}Output layer error terms}{124}{subsubsection.7.7.1}%
+\contentsline {subsubsection}{\numberline {7.7.2}Hidden layer error terms}{125}{subsubsection.7.7.2}%
+\contentsline {paragraph}{Summary: Backpropagation recursion}{126}{equation.7.15}%
+\contentsline {subsection}{\numberline {7.8}Backpropagation Algorithm: Detailed Derivation}{126}{subsection.7.8}%
+\contentsline {paragraph}{Error function and its derivatives}{126}{subsection.7.8}%
+\contentsline {paragraph}{Step 1: Derivative of error with respect to output}{126}{equation.7.17}%
+\contentsline {paragraph}{Step 2: Derivative of output with respect to activation}{126}{equation.7.18}%
+\contentsline {paragraph}{Step 3: Derivative of activation with respect to weight}{127}{equation.7.19}%
+\contentsline {paragraph}{Putting it all together}{127}{equation.7.20}%
+\contentsline {subsection}{\numberline {7.9}Backpropagation for Hidden Layers}{127}{subsection.7.9}%
+\contentsline {subsection}{\numberline {7.10}Batch and Stochastic Gradient Descent}{128}{subsection.7.10}%
+\contentsline {subsection}{\numberline {7.11}Backpropagation Algorithm: Brief Numerical Check}{130}{subsection.7.11}%
+\contentsline {paragraph}{Aside: squared-error loss (alternative)}{130}{subsection.7.11}%
+\contentsline {paragraph}{Backward Propagation of Error}{131}{equation.7.28}%
+\contentsline {paragraph}{Weight Update Rule}{131}{equation.7.30}%
+\contentsline {paragraph}{Interpretation of Learning Rate and Momentum}{132}{equation.7.31}%
+\contentsline {paragraph}{Step-by-Step Example}{132}{equation.7.31}%
+\contentsline {paragraph}{Remarks}{133}{Item.39}%
+\contentsline {subsection}{\numberline {7.12}Training Procedure and Epochs in Multi-Layer Perceptrons}{133}{subsection.7.12}%
+\contentsline {paragraph}{Remarks:}{134}{Item.44}%
+\contentsline {subsection}{\numberline {7.13}Role and Design of Hidden Layers}{134}{subsection.7.13}%
+\contentsline {paragraph}{Key Questions Regarding Hidden Layers:}{134}{subsection.7.13}%
+\contentsline {paragraph}{Design Considerations:}{135}{subsection.7.13}%
+\contentsline {paragraph}{Trade-offs:}{135}{subsection.7.13}%
+\contentsline {subsection}{\numberline {7.14}Case Study: Learning the Function \( y = x \sin x \)}{135}{subsection.7.14}%
+\contentsline {paragraph}{Setup:}{135}{subsection.7.14}%
+\contentsline {paragraph}{Questions to Explore:}{135}{subsection.7.14}%
+\contentsline {paragraph}{Remarks:}{136}{subsection.7.14}%
+\contentsline {subsection}{\numberline {7.15}Applications of Multi-Layer Perceptrons}{136}{subsection.7.15}%
+\contentsline {paragraph}{Summary:}{136}{subsection.7.15}%
+\contentsline {subsection}{\numberline {7.16}Limitations of Multi-Layer Perceptrons}{137}{subsection.7.16}%
+\contentsline {subsection}{\numberline {7.17}Conclusion of Multi-Layer Perceptron Derivations}{137}{subsection.7.17}%
+\contentsline {paragraph}{Backpropagation Algorithm Recap}{137}{subsection.7.17}%
+\contentsline {paragraph}{Example Execution}{138}{figure.caption.29}%
+\contentsline {paragraph}{Remarks on Convergence and Practical Considerations}{139}{figure.caption.29}%
+\contentsline {paragraph}{Comparing canonical nonlinearities}{139}{figure.caption.29}%
+\contentsline {paragraph}{Trade-offs}{139}{figure.caption.30}%
+\contentsline {paragraph}{Where we head next.}{141}{figure.caption.30}%
+\contentsline {paragraph}{References.}{141}{figure.caption.30}%
+\contentsline {section}{\numberline {8}Radial Basis Function Networks (RBFNs)}{142}{section.8}%
+\contentsline {subsection}{\numberline {8.1}Overview and Motivation}{142}{subsection.8.1}%
+\contentsline {subsection}{\numberline {8.2}Architecture of RBFNs}{143}{subsection.8.2}%
+\contentsline {paragraph}{A picture to keep in mind}{144}{figure.caption.32}%
+\contentsline {subsubsection}{\numberline {8.2.1}Mathematical Formulation}{145}{subsubsection.8.2.1}%
+\contentsline {paragraph}{Interpretation:}{146}{equation.8.1}%
+\contentsline {subsection}{\numberline {8.3}Radial Basis Functions}{146}{subsection.8.3}%
+\contentsline {paragraph}{Normalized RBFs.}{146}{equation.8.2}%
+\contentsline {subsection}{\numberline {8.4}Key Properties and Advantages}{147}{subsection.8.4}%
+\contentsline {paragraph}{Curse of dimensionality.}{148}{subsection.8.4}%
+\contentsline {subsection}{\numberline {8.5}Transforming Nonlinearly Separable Data into Linearly Separable Space}{148}{subsection.8.5}%
+\contentsline {paragraph}{Example Setup:}{148}{subsection.8.5}%
+\contentsline {paragraph}{Assumptions:}{148}{subsection.8.5}%
+\contentsline {paragraph}{Transformation Results:}{148}{subsection.8.5}%
+\contentsline {subsection}{\numberline {8.6}Finding the Optimal Weight Vector \(\mathbf {w}\)}{149}{subsection.8.6}%
+\contentsline {paragraph}{Normal Equations for the Weights:}{149}{equation.8.3}%
+\contentsline {paragraph}{Conditioning and capacity.}{149}{equation.8.4}%
+\contentsline {subsection}{\numberline {8.7}The Role of the Transformation Function \(g(\cdot )\)}{149}{subsection.8.7}%
+\contentsline {paragraph}{Choosing \(g(\cdot )\):}{150}{subsection.8.7}%
+\contentsline {subsection}{\numberline {8.8}Examples of Kernel Functions}{150}{subsection.8.8}%
+\contentsline {paragraph}{1. Inverse Distance Function:}{150}{subsection.8.8}%
+\contentsline {paragraph}{2. Gaussian Radial Basis Function:}{150}{subsection.8.8}%
+\contentsline {subsection}{\numberline {8.9}Interpretation of the Width Parameter \(\sigma \)}{150}{subsection.8.9}%
+\contentsline {subsection}{\numberline {8.10}Effect of \(\sigma \) on Classification Boundaries}{151}{subsection.8.10}%
+\contentsline {paragraph}{Notation note.}{151}{subsection.8.10}%
+\contentsline {subsection}{\numberline {8.11}Radial Basis Function Networks: Parameter Estimation and Training}{151}{subsection.8.11}%
+\contentsline {paragraph}{Finding the Centers \(\mathbf {v}_i\):}{151}{subsection.8.11}%
+\contentsline {paragraph}{Determining the Spread Parameters \(\sigma _i\):}{152}{subsection.8.11}%
+\contentsline {paragraph}{Training the Output Weights \( w_i \):}{152}{subsection.8.11}%
+\contentsline {paragraph}{Iterative Optimization of \(\sigma _i\) and \( w_i \):}{154}{figure.caption.35}%
+\contentsline {paragraph}{Summary of the Training Algorithm:}{154}{Item.51}%
+\contentsline {paragraph}{Worked toy (classification, XOR-like).}{155}{Item.55}%
+\contentsline {subsection}{\numberline {8.12}Remarks on Radial Basis Function Networks}{155}{subsection.8.12}%
+\contentsline {paragraph}{Advantages:}{155}{subsection.8.12}%
+\contentsline {paragraph}{Disadvantages:}{157}{subsection.8.12}%
+\contentsline {paragraph}{Sidebar: why include Wiener filtering here?}{157}{subsection.8.12}%
+\contentsline {subsection}{\numberline {8.13}Interpretation and Properties of the Wiener Filter}{158}{subsection.8.13}%
+\contentsline {paragraph}{Interpretation:}{158}{subsection.8.13}%
+\contentsline {paragraph}{Properties:}{158}{subsection.8.13}%
+\contentsline {subsection}{\numberline {8.14}Extension: Frequency-Domain Wiener Filter}{158}{subsection.8.14}%
+\contentsline {subsection}{\numberline {8.15}Closing Remarks on Adaptive Filtering}{158}{subsection.8.15}%
+\contentsline {subsection}{\numberline {8.16}Preview: Unsupervised and Localized Learning}{159}{subsection.8.16}%
+\contentsline {paragraph}{Where we head next.}{160}{subsection.8.16}%
+\contentsline {paragraph}{References.}{160}{subsection.8.16}%
+\contentsline {section}{\numberline {9}Introduction to Self-Organizing Networks\\and Unsupervised Learning}{160}{section.9}%
+\contentsline {subsection}{\numberline {9.1}Overview of Self-Organizing Networks}{161}{subsection.9.1}%
+\contentsline {subsection}{\numberline {9.2}Clustering: Identifying Similarities and Dissimilarities}{163}{subsection.9.2}%
+\contentsline {paragraph}{Example:}{163}{subsection.9.2}%
+\contentsline {paragraph}{K-means Clustering:}{163}{subsection.9.2}%
+\contentsline {subsection}{\numberline {9.3}Dimensionality Reduction: Simplifying High-Dimensional Data}{164}{subsection.9.3}%
+\contentsline {paragraph}{Example:}{164}{subsection.9.3}%
+\contentsline {paragraph}{Challenges:}{164}{figure.caption.38}%
+\contentsline {paragraph}{Common Techniques:}{164}{figure.caption.38}%
+\contentsline {subsection}{\numberline {9.4}Dimensionality Reduction and Feature Mapping}{165}{subsection.9.4}%
+\contentsline {subsection}{\numberline {9.5}Self-Organizing Maps (SOMs): Introduction}{166}{subsection.9.5}%
+\contentsline {paragraph}{Historical Context}{167}{subsection.9.5}%
+\contentsline {paragraph}{Basic Architecture}{167}{subsection.9.5}%
+\contentsline {paragraph}{Key Concept: Topographic Mapping}{168}{subsection.9.5}%
+\contentsline {subsection}{\numberline {9.6}Conceptual Description of SOM Operation}{168}{subsection.9.6}%
+\contentsline {subsection}{\numberline {9.7}Mathematical Formulation of SOM}{169}{subsection.9.7}%
+\contentsline {paragraph}{Best Matching Unit (BMU)}{169}{subsection.9.7}%
+\contentsline {paragraph}{Neighborhood Function}{169}{subsection.9.7}%
+\contentsline {subsection}{\numberline {9.8}Kohonen Self-Organizing Maps (SOMs): Network Architecture and Operation}{170}{subsection.9.8}%
+\contentsline {paragraph}{Network Structure}{170}{subsection.9.8}%
+\contentsline {paragraph}{Mapping and Competition}{171}{subsection.9.8}%
+\contentsline {paragraph}{Weight Update Rule}{171}{equation.9.6}%
+\contentsline {subsection}{\numberline {9.9}Example: SOM with a \(3 \times 3\) Output Map and 4-Dimensional Input}{171}{subsection.9.9}%
+\contentsline {paragraph}{Feedforward Computation}{172}{subsection.9.9}%
+\contentsline {paragraph}{Weight Initialization and Update}{172}{equation.9.9}%
+\contentsline {paragraph}{Illustration}{172}{equation.9.9}%
+\contentsline {subsection}{\numberline {9.10}Key Properties of Kohonen SOMs}{173}{subsection.9.10}%
+\contentsline {subsection}{\numberline {9.11}Winner-Takes-All Learning and Weight Update Rules}{173}{subsection.9.11}%
+\contentsline {paragraph}{Discriminant Function and Similarity Measures}{173}{subsection.9.11}%
+\contentsline {paragraph}{Weight Update Rule}{174}{subsection.9.11}%
+\contentsline {paragraph}{Learning Rate Schedule}{174}{equation.9.11}%
+\contentsline {paragraph}{Summary of the Competitive Learning Algorithm}{175}{equation.9.11}%
+\contentsline {subsection}{\numberline {9.12}Numerical Example of Competitive Learning}{175}{subsection.9.12}%
+\contentsline {paragraph}{Initial Weights}{175}{subsection.9.12}%
+\contentsline {subsection}{\numberline {9.13}Winner-Takes-All Learning Recap}{176}{subsection.9.13}%
+\contentsline {paragraph}{Practical considerations}{176}{equation.9.13}%
+\contentsline {subsection}{\numberline {9.14}Regularization and Monitoring During SOM Training}{176}{subsection.9.14}%
+\contentsline {paragraph}{Bias--variance view.}{177}{subsection.9.14}%
+\contentsline {paragraph}{Loss-landscape smoothing.}{177}{figure.caption.40}%
+\contentsline {paragraph}{Quantization vs. information preservation.}{177}{figure.caption.41}%
+\contentsline {paragraph}{Quantization vs. topographic error.}{178}{figure.caption.42}%
+\contentsline {paragraph}{Stopping criteria.}{179}{figure.caption.42}%
+\contentsline {subsection}{\numberline {9.15}Limitations of Winner-Takes-All and Motivation for Cooperation}{180}{subsection.9.15}%
+\contentsline {subsection}{\numberline {9.16}Cooperation in Competitive Learning}{181}{subsection.9.16}%
+\contentsline {paragraph}{Neighborhood Concept}{181}{subsection.9.16}%
+\contentsline {paragraph}{Weight Update with Neighborhood Cooperation}{181}{subsection.9.16}%
+\contentsline {paragraph}{Gaussian Neighborhood Function}{182}{equation.9.14}%
+\contentsline {paragraph}{Interpretation}{183}{equation.9.15}%
+\contentsline {subsection}{\numberline {9.17}Example: Neighborhood Update Illustration}{183}{subsection.9.17}%
+\contentsline {subsection}{\numberline {9.18}Summary of Cooperative Competitive Learning Algorithm}{184}{subsection.9.18}%
+\contentsline {subsection}{\numberline {9.19}Wrapping Up the Kohonen Self-Organizing Map (SOM) Derivations}{184}{subsection.9.19}%
+\contentsline {paragraph}{Neighborhood Function and Its Role}{185}{equation.9.16}%
+\contentsline {paragraph}{Time-Dependent Parameters}{185}{equation.9.17}%
+\contentsline {paragraph}{Summary of the Six Learning Steps}{185}{equation.9.19}%
+\contentsline {paragraph}{Stages vs. Steps}{187}{Item.86}%
+\contentsline {subsection}{\numberline {9.20}Applications of Kohonen Self-Organizing Maps}{187}{subsection.9.20}%
+\contentsline {paragraph}{Relation to k-means and modern variants}{187}{subsection.9.20}%
+\contentsline {paragraph}{Complexity and out-of-sample mapping.}{188}{subsection.9.20}%
+\contentsline {paragraph}{Theory link to other chapters.}{188}{subsection.9.20}%
+\contentsline {paragraph}{Quality measures and magnification.}{188}{subsection.9.20}%
+\contentsline {paragraph}{Where we head next.}{189}{subsection.9.20}%
+\contentsline {paragraph}{References.}{189}{subsection.9.20}%
+\contentsline {section}{\numberline {10}Hopfield Networks: Introduction and Context}{190}{section.10}%
+\contentsline {subsection}{\numberline {10.1}From Feedforward to Recurrent Neural Networks}{190}{subsection.10.1}%
+\contentsline {paragraph}{Challenges with General Recurrent Networks}{191}{subsection.10.1}%
+\contentsline {subsection}{\numberline {10.2}Hopfield's Breakthrough (1982)}{191}{subsection.10.2}%
+\contentsline {subsection}{\numberline {10.3}Network Architecture and Dynamics}{192}{subsection.10.3}%
+\contentsline {paragraph}{Interpretation:}{192}{equation.10.4}%
+\contentsline {subsection}{\numberline {10.4}Encoding conventions}{193}{subsection.10.4}%
+\contentsline {subsection}{\numberline {10.5}Energy Function and Stability}{193}{subsection.10.5}%
+\contentsline {subsection}{\numberline {10.6}Hopfield Network States and Energy Function}{194}{subsection.10.6}%
+\contentsline {paragraph}{Energy function for \(\pm 1\) states:}{194}{subsection.10.6}%
+\contentsline {paragraph}{Energy function for \(\{0,1\}\) states:}{194}{equation.10.7}%
+\contentsline {subsection}{\numberline {10.7}Energy Minimization and Stable States}{195}{subsection.10.7}%
+\contentsline {paragraph}{State update dynamics:}{195}{subsection.10.7}%
+\contentsline {subsection}{\numberline {10.8}Example: Energy Calculation and State Updates}{196}{subsection.10.8}%
+\contentsline {paragraph}{State update attempts:}{196}{equation.10.10}%
+\contentsline {subsection}{\numberline {10.9}Energy Function and Convergence of Hopfield Networks}{197}{subsection.10.9}%
+\contentsline {paragraph}{Goal:}{197}{equation.10.11}%
+\contentsline {subsubsection}{\numberline {10.9.1}Energy Change Upon Updating a Single Neuron}{197}{subsubsection.10.9.1}%
+\contentsline {paragraph}{Numeric check (single flip).}{198}{equation.10.16}%
+\contentsline {paragraph}{Continuous Hopfield / dense associative memory.}{199}{equation.10.16}%
+\contentsline {subsubsection}{\numberline {10.9.2}Update Rule and Energy Decrease}{199}{subsubsection.10.9.2}%
+\contentsline {subsection}{\numberline {10.10}Asynchronous vs. Synchronous Updates in Hopfield Networks}{200}{subsection.10.10}%
+\contentsline {paragraph}{Why asynchronous updates?}{200}{subsection.10.10}%
+\contentsline {paragraph}{Conclusion:}{200}{subsection.10.10}%
+\contentsline {subsection}{\numberline {10.11}Storage Capacity of Hopfield Networks}{201}{subsection.10.11}%
+\contentsline {paragraph}{Classical result:}{201}{subsection.10.11}%
+\contentsline {paragraph}{Inefficiency:}{201}{subsection.10.11}%
+\contentsline {paragraph}{Stochastic updates (bridge to Boltzmann machines).}{201}{subsection.10.11}%
+\contentsline {subsection}{\numberline {10.12}Improving Storage Capacity via Weight Updates}{201}{subsection.10.12}%
+\contentsline {paragraph}{Idea:}{201}{subsection.10.12}%
+\contentsline {paragraph}{Hebbian learning rule:}{202}{subsection.10.12}%
+\contentsline {paragraph}{Properties:}{202}{equation.10.18}%
+\contentsline {paragraph}{Effect on capacity:}{202}{equation.10.18}%
+\contentsline {subsection}{\numberline {10.13}Example: Weight Calculation for a Single Pattern}{202}{subsection.10.13}%
+\contentsline {paragraph}{Step 1: Compute outer product}{202}{subsection.10.13}%
+\contentsline {paragraph}{Step 2: Remove diagonal terms}{202}{subsection.10.13}%
+\contentsline {subsection}{\numberline {10.14}Finalizing the Hopfield Network Derivation and Discussion}{203}{subsection.10.14}%
+\contentsline {paragraph}{Energy Function and Convergence}{203}{equation.10.19}%
+\contentsline {paragraph}{Memory Retrieval and Basins of Attraction}{203}{equation.10.21}%
+\contentsline {paragraph}{Limitations: Capacity and Classification}{204}{equation.10.21}%
+\contentsline {paragraph}{Example: Memory Recovery}{204}{equation.10.21}%
+\contentsline {paragraph}{Spurious attractors}{205}{equation.10.21}%
+\contentsline {paragraph}{Historical and Practical Significance}{205}{equation.10.21}%
+\contentsline {paragraph}{Connections to other chapters.}{206}{equation.10.21}%
+\contentsline {paragraph}{Where we head next.}{206}{equation.10.21}%
+\contentsline {paragraph}{References.}{207}{equation.10.21}%
+\contentsline {section}{\numberline {11}Introduction to Deep Learning and Neural Networks}{207}{section.11}%
+\contentsline {subsection}{\numberline {11.1}Historical Context and Motivation}{208}{subsection.11.1}%
+\contentsline {subsection}{\numberline {11.2}Overview of Neural Network Architectures}{209}{subsection.11.2}%
+\contentsline {subsubsection}{\numberline {11.2.1}Feedforward Neural Networks (Multi-Layer Perceptrons)}{209}{subsubsection.11.2.1}%
+\contentsline {paragraph}{Fully Connected Layers and Feature Transformation}{209}{equation.11.1}%
+\contentsline {subsection}{\numberline {11.3}Why Shallow Networks Are Insufficient}{210}{subsection.11.3}%
+\contentsline {subsection}{\numberline {11.4}Training Neural Networks: Gradient-Based Optimization}{210}{subsection.11.4}%
+\contentsline {paragraph}{Backpropagation and Gradient Computation}{210}{equation.11.2}%
+\contentsline {paragraph}{Challenges in Deep Networks}{211}{equation.11.2}%
+\contentsline {subsection}{\numberline {11.5}Deep Network Optimization Challenges}{211}{subsection.11.5}%
+\contentsline {subsection}{\numberline {11.6}Vanishing and Exploding Gradients in Deep Networks}{211}{subsection.11.6}%
+\contentsline {paragraph}{Mathematical intuition}{211}{subsection.11.6}%
+\contentsline {paragraph}{Consequences}{211}{equation.11.3}%
+\contentsline {paragraph}{Example: Activation function derivatives}{212}{equation.11.3}%
+\contentsline {paragraph}{Notation note.}{212}{equation.11.3}%
+\contentsline {subsection}{\numberline {11.7}Strategies to Mitigate Vanishing and Exploding Gradients}{212}{subsection.11.7}%
+\contentsline {paragraph}{Weight initialization}{212}{subsection.11.7}%
+\contentsline {paragraph}{Choice of activation function}{212}{subsection.11.7}%
+\contentsline {paragraph}{Batch normalization}{213}{subsection.11.7}%
+\contentsline {paragraph}{Gradient clipping}{213}{subsection.11.7}%
+\contentsline {subsection}{\numberline {11.8}Limitations of Traditional Feedforward Neural Networks}{213}{subsection.11.8}%
+\contentsline {paragraph}{Requirement for large datasets}{213}{subsection.11.8}%
+\contentsline {paragraph}{High-dimensional inputs and flattening}{213}{subsection.11.8}%
+\contentsline {paragraph}{Implications}{214}{subsection.11.8}%
+\contentsline {subsection}{\numberline {11.9}Challenges in Training Large Fully Connected Networks}{214}{subsection.11.9}%
+\contentsline {paragraph}{Parameter Explosion}{214}{subsection.11.9}%
+\contentsline {paragraph}{Data Requirements}{214}{equation.11.5}%
+\contentsline {paragraph}{Computational and Storage Constraints}{215}{equation.11.7}%
+\contentsline {paragraph}{Overfitting Risk}{215}{equation.11.7}%
+\contentsline {subsection}{\numberline {11.10}Sparse connectivity and parameter sharing}{215}{subsection.11.10}%
+\contentsline {subsection}{\numberline {11.11}Convolution and pooling mechanics}{216}{subsection.11.11}%
+\contentsline {subsection}{\numberline {11.12}From feature maps to classifiers}{216}{subsection.11.12}%
+\contentsline {subsection}{\numberline {11.13}Historical Context and the 2012 Breakthrough}{216}{subsection.11.13}%
+\contentsline {paragraph}{SVM geometry refresher.}{216}{subsection.11.13}%
+\contentsline {paragraph}{Stack depth versus receptive field.}{217}{subsection.11.13}%
+\contentsline {paragraph}{Batch normalization.}{217}{figure.caption.50}%
+\contentsline {paragraph}{Adaptive optimizers.}{217}{figure.caption.51}%
+\contentsline {paragraph}{Where we head next.}{220}{figure.caption.52}%
+\contentsline {paragraph}{References.}{220}{figure.caption.52}%
+\contentsline {section}{\numberline {12}Introduction to Recurrent Neural Networks}{221}{section.12}%
+\contentsline {subsection}{\numberline {12.1}Quick recap: padding in CNNs}{221}{subsection.12.1}%
+\contentsline {subsection}{\numberline {12.2}Autoencoders and latent representations}{222}{subsection.12.2}%
+\contentsline {paragraph}{Code--math dictionary.}{223}{subsection.12.2}%
+\contentsline {subsection}{\numberline {12.3}Motivation for Recurrent Neural Networks}{224}{subsection.12.3}%
+\contentsline {subsection}{\numberline {12.4}Key Idea: State and Memory in RNNs}{224}{subsection.12.4}%
+\contentsline {paragraph}{Interpretation:}{225}{equation.12.2}%
+\contentsline {subsection}{\numberline {12.5}Comparison with Feedforward Networks}{225}{subsection.12.5}%
+\contentsline {paragraph}{Summary:}{225}{equation.12.3}%
+\contentsline {subsection}{\numberline {12.6}Outline of this chapter}{225}{subsection.12.6}%
+\contentsline {subsection}{\numberline {12.7}Recap: Feedforward Building Blocks}{226}{subsection.12.7}%
+\contentsline {subsection}{\numberline {12.8}Limitations of Feedforward Neural Networks for Sequential Data}{227}{subsection.12.8}%
+\contentsline {paragraph}{Example: Language Modeling}{228}{subsection.12.8}%
+\contentsline {paragraph}{Example: Predictive Text and Autocomplete}{228}{subsection.12.8}%
+\contentsline {paragraph}{Example: Stock Price Prediction}{228}{subsection.12.8}%
+\contentsline {paragraph}{Challenges with Variable-Length Inputs}{228}{subsection.12.8}%
+\contentsline {subsection}{\numberline {12.9}Recurrent Neural Networks (RNNs)}{228}{subsection.12.9}%
+\contentsline {paragraph}{Key Idea}{229}{subsection.12.9}%
+\contentsline {paragraph}{Comparison to Feedforward Networks}{229}{equation.12.5}%
+\contentsline {paragraph}{Historical Note: Hopfield Networks}{230}{equation.12.5}%
+\contentsline {subsection}{\numberline {12.10}Input--output configurations and mathematical formulation}{230}{subsection.12.10}%
+\contentsline {subsection}{\numberline {12.11}Recurrent Neural Networks: Historical Context and Motivation}{231}{subsection.12.11}%
+\contentsline {subsection}{\numberline {12.12}The 1986 Breakthrough: Backpropagation and Trainable Multi-Layer Networks}{232}{subsection.12.12}%
+\contentsline {subsection}{\numberline {12.13}State Dynamics in Recurrent Neural Networks}{232}{subsection.12.13}%
+\contentsline {paragraph}{Interpretation}{232}{equation.12.10}%
+\contentsline {subsection}{\numberline {12.14}Unfolding the Recurrent Neural Network}{233}{subsection.12.14}%
+\contentsline {paragraph}{Process}{233}{subsection.12.14}%
+\contentsline {paragraph}{Significance}{233}{subsection.12.14}%
+\contentsline {subsection}{\numberline {12.15}Mathematical Formulation of a Simple RNN Cell}{233}{subsection.12.15}%
+\contentsline {subsection}{\numberline {12.16}Recurrent Neural Network (RNN) Unfolding and Parameter Sharing}{234}{subsection.12.16}%
+\contentsline {paragraph}{Unfolding the RNN}{234}{subsection.12.16}%
+\contentsline {paragraph}{Parameter Sharing}{234}{subsection.12.16}%
+\contentsline {subsection}{\numberline {12.17}Mathematical Formulation of the RNN}{234}{subsection.12.17}%
+\contentsline {paragraph}{Interpretation}{235}{equation.12.15}%
+\contentsline {paragraph}{Reusability of the Hidden State}{235}{equation.12.15}%
+\contentsline {subsection}{\numberline {12.18}Generalized Notation}{235}{subsection.12.18}%
+\contentsline {subsection}{\numberline {12.19}Recurrent Neural Network (RNN) Architectures and Loss Computation}{236}{subsection.12.19}%
+\contentsline {paragraph}{Forward and Backward Passes in RNNs}{236}{equation.12.18}%
+\contentsline {paragraph}{Vanishing and Exploding Gradients}{237}{figure.caption.56}%
+\contentsline {paragraph}{Parameter Updates}{238}{figure.caption.57}%
+\contentsline {subsection}{\numberline {12.20}Stabilizing Recurrent Training}{239}{subsection.12.20}%
+\contentsline {paragraph}{Gradient clipping.}{239}{subsection.12.20}%
+\contentsline {paragraph}{Dropout in RNNs.}{239}{subsection.12.20}%
+\contentsline {paragraph}{Teacher forcing and scheduled sampling.}{239}{figure.caption.58}%
+\contentsline {paragraph}{Gated cells.}{240}{figure.caption.59}%
+\contentsline {paragraph}{Attention mechanisms.}{242}{figure.caption.61}%
+\contentsline {subsection}{\numberline {12.21}RNN Input-Output Configurations}{243}{subsection.12.21}%
+\contentsline {subsection}{\numberline {12.22}Representing Words for RNN Inputs}{244}{subsection.12.22}%
+\contentsline {paragraph}{Vocabulary Size and Word Representation}{244}{subsection.12.22}%
+\contentsline {paragraph}{One-Hot Encoding}{244}{subsection.12.22}%
+\contentsline {paragraph}{Limitations of One-Hot Encoding}{245}{subsection.12.22}%
+\contentsline {subsection}{\numberline {12.23}Example: Sentiment Analysis with RNNs}{245}{subsection.12.23}%
+\contentsline {subsection}{\numberline {12.24}Limitations of One-Hot Encoding in Natural Language Processing}{245}{subsection.12.24}%
+\contentsline {paragraph}{Example:}{245}{subsection.12.24}%
+\contentsline {paragraph}{Document similarity:}{246}{subsection.12.24}%
+\contentsline {paragraph}{Summary:}{246}{subsection.12.24}%
+\contentsline {subsection}{\numberline {12.25}Feature-Based Word Representations}{246}{subsection.12.25}%
+\contentsline {paragraph}{Example:}{246}{subsection.12.25}%
+\contentsline {paragraph}{Notes:}{247}{subsection.12.25}%
+\contentsline {paragraph}{Advantages:}{247}{subsection.12.25}%
+\contentsline {paragraph}{Limitations:}{248}{subsection.12.25}%
+\contentsline {subsection}{\numberline {12.26}Towards Distributed Word Representations}{248}{subsection.12.26}%
+\contentsline {paragraph}{Key idea:}{248}{subsection.12.26}%
+\contentsline {paragraph}{Methods to obtain distributed representations}{248}{subsection.12.26}%
+\contentsline {subsection}{\numberline {12.27}Semantic Relationships in Word Embeddings}{248}{subsection.12.27}%
+\contentsline {paragraph}{Subword tokenization and OOV handling.}{248}{subsection.12.27}%
+\contentsline {paragraph}{Example: Gender and Royalty Analogies}{249}{subsection.12.27}%
+\contentsline {paragraph}{Empirical Validation}{249}{equation.12.20}%
+\contentsline {paragraph}{Geographical and Cultural Clustering}{249}{equation.12.20}%
+\contentsline {subsection}{\numberline {12.28}Feature-Based Representation vs. One-Hot Encoding}{251}{subsection.12.28}%
+\contentsline {paragraph}{One-Hot Encoding}{251}{subsection.12.28}%
+\contentsline {paragraph}{Feature-Based Embeddings}{251}{subsection.12.28}%
+\contentsline {paragraph}{Context Window Convention}{251}{subsection.12.28}%
+\contentsline {subsection}{\numberline {12.29}Open Questions: Feature Discovery and Representation}{252}{subsection.12.29}%
+\contentsline {paragraph}{Self-supervised learning of embeddings}{252}{Item.97}%
+\contentsline {paragraph}{Summary}{252}{Item.97}%
+\contentsline {subsection}{\numberline {12.30}Wrapping Up the Derivations}{253}{subsection.12.30}%
+\contentsline {paragraph}{Training Objective}{254}{equation.12.23}%
+\contentsline {paragraph}{Self-supervised nature of language modeling}{254}{equation.12.24}%
+\contentsline {paragraph}{Feature Representations}{254}{equation.12.24}%
+\contentsline {paragraph}{Summary of the Modeling Pipeline}{255}{equation.12.25}%
+\contentsline {paragraph}{Notation note.}{255}{Item.103}%
+\contentsline {paragraph}{Where we head next.}{256}{Item.103}%
+\contentsline {paragraph}{References.}{256}{Item.103}%
+\contentsline {section}{\numberline {13}Transformers: Attention-Based Sequence Modeling}{257}{section.13}%
+\contentsline {subsection}{\numberline {13.1}Why transformers after RNNs?}{258}{subsection.13.1}%
+\contentsline {subsection}{\numberline {13.2}Scaled Dot-Product Attention}{258}{subsection.13.2}%
+\contentsline {subsection}{\numberline {13.3}Multi-Head Attention (MHA)}{259}{subsection.13.3}%
+\contentsline {paragraph}{Micro attention example (2 tokens, causal mask).}{259}{figure.caption.65}%
+\contentsline {subsection}{\numberline {13.4}Positional Information}{260}{subsection.13.4}%
+\contentsline {subsection}{\numberline {13.5}Masks and Training Objectives}{261}{subsection.13.5}%
+\contentsline {subsection}{\numberline {13.6}Encoder/Decoder Stacks and Stabilizers}{261}{subsection.13.6}%
+\contentsline {paragraph}{Code--math dictionary.}{262}{equation.13.5}%
+\contentsline {subsection}{\numberline {13.7}Long Contexts and Efficient Attention}{262}{subsection.13.7}%
+\contentsline {subsection}{\numberline {13.8}Fine-Tuning and Parameter-Efficient Adaptation}{263}{subsection.13.8}%
+\contentsline {subsection}{\numberline {13.9}Decoding and Evaluation}{263}{subsection.13.9}%
+\contentsline {paragraph}{When to use which.}{263}{subsection.13.9}%
+\contentsline {subsection}{\numberline {13.10}Alignment (Brief)}{263}{subsection.13.10}%
+\contentsline {subsection}{\numberline {13.11}Advanced attention and efficiency notes (2024 snapshot)}{264}{subsection.13.11}%
+\contentsline {subsection}{\numberline {13.12}RNNs vs. Transformers: When and Why}{265}{subsection.13.12}%
+\contentsline {paragraph}{Where we head next.}{266}{subsection.13.12}%
+\contentsline {paragraph}{References.}{267}{subsection.13.12}%
+\contentsline {section}{\numberline {14}Neural Network Applications in Natural Language Processing}{267}{section.14}%
+\contentsline {subsection}{\numberline {14.1}Context and Motivation}{267}{subsection.14.1}%
+\contentsline {subsection}{\numberline {14.2}Problem Statement}{268}{subsection.14.2}%
+\contentsline {subsection}{\numberline {14.3}Key Insight: Distributional Hypothesis}{268}{subsection.14.3}%
+\contentsline {paragraph}{Example:}{268}{subsection.14.3}%
+\contentsline {subsection}{\numberline {14.4}Contextual Meaning and Feature Extraction}{269}{subsection.14.4}%
+\contentsline {subsection}{\numberline {14.5}Word2Vec: Two Architectures}{269}{subsection.14.5}%
+\contentsline {subsubsection}{\numberline {14.5.1}Continuous Bag of Words (CBOW)}{270}{subsubsection.14.5.1}%
+\contentsline {paragraph}{Example:}{270}{subsubsection.14.5.1}%
+\contentsline {subsubsection}{\numberline {14.5.2}skip-gram}{270}{subsubsection.14.5.2}%
+\contentsline {subsection}{\numberline {14.6}Mathematical Formulation of CBOW}{271}{subsection.14.6}%
+\contentsline {subsection}{\numberline {14.7}Neural Network Architecture for Word Embeddings}{271}{subsection.14.7}%
+\contentsline {paragraph}{Input Representation}{271}{subsection.14.7}%
+\contentsline {paragraph}{Network Structure}{271}{subsection.14.7}%
+\contentsline {paragraph}{Forward Pass}{271}{subsection.14.7}%
+\contentsline {paragraph}{Output Layer}{272}{equation.14.1}%
+\contentsline {paragraph}{Training Objective}{272}{equation.14.3}%
+\contentsline {paragraph}{Backpropagation and Weight Updates}{272}{equation.14.4}%
+\contentsline {subsection}{\numberline {14.8}Context window and sequential input}{272}{subsection.14.8}%
+\contentsline {paragraph}{Input Sequence Processing}{273}{subsection.14.8}%
+\contentsline {paragraph}{Dimensionality and Sparsity}{273}{subsection.14.8}%
+\contentsline {subsection}{\numberline {14.9}Interpretation of the Weight Matrix \(W\)}{273}{subsection.14.9}%
+\contentsline {subsection}{\numberline {14.10}Word Embeddings: Continuous Bag of Words (CBOW) and skip-gram models}{273}{subsection.14.10}%
+\contentsline {subsubsection}{\numberline {14.10.1}Continuous Bag of Words (CBOW)}{273}{subsubsection.14.10.1}%
+\contentsline {paragraph}{Key Insight:}{274}{equation.14.6}%
+\contentsline {subsubsection}{\numberline {14.10.2}skip-gram model}{275}{subsubsection.14.10.2}%
+\contentsline {paragraph}{Training Objective:}{275}{equation.14.9}%
+\contentsline {paragraph}{Interpretation:}{275}{equation.14.9}%
+\contentsline {subsubsection}{\numberline {14.10.3}Computational Challenges: Softmax Normalization}{275}{subsubsection.14.10.3}%
+\contentsline {paragraph}{Approximate Solutions:}{276}{equation.14.10}%
+\contentsline {subsection}{\numberline {14.11}Efficient Training of Word Embeddings: Hierarchical Softmax and Negative Sampling}{276}{subsection.14.11}%
+\contentsline {paragraph}{1. Hierarchical Softmax}{277}{subsection.14.11}%
+\contentsline {paragraph}{2. Negative Sampling}{277}{subsection.14.11}%
+\contentsline {paragraph}{Example:}{277}{subsection.14.11}%
+\contentsline {paragraph}{Training Objective with Negative Sampling}{277}{subsection.14.11}%
+\contentsline {paragraph}{Tiny worked example (skip-gram with \(k=2\)).}{278}{equation.14.12}%
+\contentsline {paragraph}{Interpretation:}{278}{equation.14.12}%
+\contentsline {paragraph}{Backpropagation:}{279}{equation.14.12}%
+\contentsline {paragraph}{Connection to PMI (Levy \& Goldberg).}{279}{equation.14.12}%
+\contentsline {subsection}{\numberline {14.12}Local Context vs. Global Matrix Factorization Approaches}{279}{subsection.14.12}%
+\contentsline {paragraph}{1. Local Context Window Methods}{279}{subsection.14.12}%
+\contentsline {paragraph}{2. Global Matrix Factorization Methods}{279}{subsection.14.12}%
+\contentsline {paragraph}{Example: Co-occurrence Matrix}{280}{subsection.14.12}%
+\contentsline {subsection}{\numberline {14.13}Global Word Vector Representations via Co-occurrence Statistics}{280}{subsection.14.13}%
+\contentsline {paragraph}{Setup:}{280}{subsection.14.13}%
+\contentsline {paragraph}{Notation:}{280}{subsection.14.13}%
+\contentsline {paragraph}{Goal:}{280}{subsection.14.13}%
+\contentsline {paragraph}{Visualization.}{281}{subsection.14.13}%
+\contentsline {subsubsection}{\numberline {14.13.1}Modeling Co-occurrence Probabilities}{281}{subsubsection.14.13.1}%
+\contentsline {paragraph}{Relating to word vectors:}{282}{equation.14.13}%
+\contentsline {paragraph}{Derivation:}{282}{equation.14.15}%
+\contentsline {subsubsection}{\numberline {14.13.2}Optimization Objective}{283}{subsubsection.14.13.2}%
+\contentsline {paragraph}{Why weighting?}{283}{equation.14.18}%
+\contentsline {subsubsection}{\numberline {14.13.3}Interpretation and Remarks}{283}{subsubsection.14.13.3}%
+\contentsline {subsection}{\numberline {14.14}Finalizing the Word Embedding Derivations}{283}{subsection.14.14}%
+\contentsline {paragraph}{Symmetry and Bias Terms}{284}{equation.14.20}%
+\contentsline {paragraph}{Objective Function and Optimization}{284}{equation.14.21}%
+\contentsline {paragraph}{Singular Value Decomposition (SVD) Connection}{285}{equation.14.23}%
+\contentsline {paragraph}{Interpretation and Limitations}{285}{equation.14.24}%
+\contentsline {subsection}{\numberline {14.15}Bias in Natural Language Processing}{285}{subsection.14.15}%
+\contentsline {paragraph}{Sources of Bias}{286}{subsection.14.15}%
+\contentsline {paragraph}{Impact on Embeddings}{286}{subsection.14.15}%
+\contentsline {paragraph}{Debiasing Techniques}{286}{subsection.14.15}%
+\contentsline {paragraph}{Cross-Lingual Challenges}{286}{subsection.14.15}%
+\contentsline {subsection}{\numberline {14.16}Responsible deployment checklist (appendix)}{287}{subsection.14.16}%
+\contentsline {subsection}{\numberline {14.17}Contextual embeddings and transformers}{288}{subsection.14.17}%
+\contentsline {paragraph}{Where we head next.}{289}{subsection.14.17}%
+\contentsline {paragraph}{References.}{289}{subsection.14.17}%
+\contentsline {section}{\numberline {15}Introduction to Soft Computing}{289}{section.15}%
+\contentsline {subsection}{\numberline {15.1}Hard Computing: The Classical Paradigm}{290}{subsection.15.1}%
+\contentsline {subsection}{\numberline {15.2}Soft Computing: Motivation and Definition}{291}{subsection.15.2}%
+\contentsline {subsection}{\numberline {15.3}Why Soft Computing?}{292}{subsection.15.3}%
+\contentsline {subsection}{\numberline {15.4}Relationship Between Hard and Soft Computing}{292}{subsection.15.4}%
+\contentsline {subsection}{\numberline {15.5}Overview of Soft Computing Constituents}{292}{subsection.15.5}%
+\contentsline {subsection}{\numberline {15.6}Distinguishing Imprecision, Uncertainty, and Fuzziness}{293}{subsection.15.6}%
+\contentsline {subsection}{\numberline {15.7}Soft Computing: Motivation and Overview}{294}{subsection.15.7}%
+\contentsline {subsection}{\numberline {15.8}Fuzzy Logic: Capturing Human Knowledge Linguistically}{295}{subsection.15.8}%
+\contentsline {paragraph}{Fuzzy Rules and Approximate Reasoning}{296}{subsection.15.8}%
+\contentsline {paragraph}{Advantages over Traditional Systems}{296}{equation.15.2}%
+\contentsline {subsection}{\numberline {15.9}Comparison with Other Soft Computing Paradigms}{296}{subsection.15.9}%
+\contentsline {paragraph}{Neural Networks}{296}{subsection.15.9}%
+\contentsline {paragraph}{Genetic Algorithms}{297}{equation.15.3}%
+\contentsline {paragraph}{Probabilistic Reasoning}{297}{equation.15.3}%
+\contentsline {subsection}{\numberline {15.10}Zadeh's Insight and the Birth of Fuzzy Logic}{297}{subsection.15.10}%
+\contentsline {subsection}{\numberline {15.11}Challenges in Fuzzy Logic Systems}{298}{subsection.15.11}%
+\contentsline {subsection}{\numberline {15.12}Mathematical Languages as Foundations for Fuzzy Logic}{298}{subsection.15.12}%
+\contentsline {subsubsection}{\numberline {15.12.1}Relational Algebra}{298}{subsubsection.15.12.1}%
+\contentsline {subsubsection}{\numberline {15.12.2}Boolean Algebra}{299}{subsubsection.15.12.2}%
+\contentsline {subsubsection}{\numberline {15.12.3}Predicate Algebra}{299}{subsubsection.15.12.3}%
+\contentsline {subsubsection}{\numberline {15.12.4}Propositional Calculus}{300}{subsubsection.15.12.4}%
+\contentsline {paragraph}{Modus Ponens}{300}{equation.15.9}%
+\contentsline {paragraph}{Modus Tollens}{300}{equation.15.10}%
+\contentsline {paragraph}{Hypothetical Syllogism}{301}{equation.15.11}%
+\contentsline {subsection}{\numberline {15.13}Fuzzy Logic as a New Mathematical Language}{301}{subsection.15.13}%
+\contentsline {subsection}{\numberline {15.14}Fuzzy Logic: Motivation and Intuition}{301}{subsection.15.14}%
+\contentsline {paragraph}{Fuzzy truth values}{301}{subsection.15.14}%
+\contentsline {paragraph}{Why fuzzy logic?}{301}{subsection.15.14}%
+\contentsline {subsection}{\numberline {15.15}From Crisp Sets to Fuzzy Sets}{302}{subsection.15.15}%
+\contentsline {paragraph}{Crisp sets}{302}{subsection.15.15}%
+\contentsline {paragraph}{Example:}{302}{subsection.15.15}%
+\contentsline {paragraph}{Fuzzy sets}{302}{subsection.15.15}%
+\contentsline {paragraph}{Thermostat at a glance.}{303}{subsection.15.15}%
+\contentsline {subsection}{\numberline {15.16}Wrapping Up Fuzzy Sets and Fuzzy Logic}{303}{subsection.15.16}%
+\contentsline {paragraph}{Fuzzy Sets Recap}{304}{subsection.15.16}%
+\contentsline {paragraph}{Universe of Discourse}{304}{subsection.15.16}%
+\contentsline {paragraph}{Fuzziness and Degrees of Truth}{304}{subsection.15.16}%
+\contentsline {paragraph}{Example: Height Classification}{304}{subsection.15.16}%
+\contentsline {paragraph}{Fuzzy Actions and Control}{304}{subsection.15.16}%
+\contentsline {paragraph}{Next Steps: Membership Functions and Fuzzy Inference Systems}{305}{subsection.15.16}%
+\contentsline {paragraph}{Where we head next.}{305}{subsection.15.16}%
+\contentsline {paragraph}{References.}{306}{subsection.15.16}%
+\contentsline {section}{\numberline {16}Fuzzy Sets and Membership Functions: Foundations and Representations}{306}{section.16}%
+\contentsline {subsection}{\numberline {16.1}Recap: Fuzzy Sets and the Universe of Discourse}{307}{subsection.16.1}%
+\contentsline {subsection}{\numberline {16.2}Membership Functions: Definition and Interpretation}{307}{subsection.16.2}%
+\contentsline {paragraph}{Example:}{308}{subsection.16.2}%
+\contentsline {paragraph}{Mathematical Representation:}{308}{subsection.16.2}%
+\contentsline {subsection}{\numberline {16.3}Discrete vs. Continuous Universes of Discourse}{308}{subsection.16.3}%
+\contentsline {subsubsection}{\numberline {16.3.1}Discrete Universe}{308}{subsubsection.16.3.1}%
+\contentsline {paragraph}{Example:}{308}{equation.16.3}%
+\contentsline {subsubsection}{\numberline {16.3.2}Continuous Universe}{308}{subsubsection.16.3.2}%
+\contentsline {paragraph}{Interpretation:}{309}{equation.16.4}%
+\contentsline {paragraph}{Example:}{309}{equation.16.4}%
+\contentsline {subsection}{\numberline {16.4}Crisp Sets versus Fuzzy Sets}{309}{subsection.16.4}%
+\contentsline {subsection}{\numberline {16.5}Membership Functions in Fuzzy Sets}{309}{subsection.16.5}%
+\contentsline {paragraph}{Triangular Membership Function}{310}{subsection.16.5}%
+\contentsline {paragraph}{Trapezoidal Membership Function}{310}{equation.16.6}%
+\contentsline {paragraph}{Gaussian Membership Function}{310}{equation.16.7}%
+\contentsline {paragraph}{Generalized Bell Membership Function}{311}{equation.16.8}%
+\contentsline {subsection}{\numberline {16.6}Comparison of Membership Functions}{311}{subsection.16.6}%
+\contentsline {paragraph}{Example: Grading System as Fuzzy Sets}{311}{subsection.16.6}%
+\contentsline {subsection}{\numberline {16.7}Example: Overlapping weight labels}{313}{subsection.16.7}%
+\contentsline {paragraph}{Quick plotting snippet.}{313}{figure.caption.71}%
+\contentsline {subsection}{\numberline {16.8}Fuzzy Sets: Core Concepts and Terminology}{314}{subsection.16.8}%
+\contentsline {paragraph}{Support Set}{314}{subsection.16.8}%
+\contentsline {paragraph}{Core Set}{314}{equation.16.10}%
+\contentsline {paragraph}{Normality}{315}{equation.16.11}%
+\contentsline {paragraph}{Crossover Points}{315}{equation.16.11}%
+\contentsline {paragraph}{Open and Closed Fuzzy Sets}{315}{equation.16.12}%
+\contentsline {subsection}{\numberline {16.9}Probability vs. Possibility}{315}{subsection.16.9}%
+\contentsline {subsection}{\numberline {16.10}Fuzzy Set Operations}{316}{subsection.16.10}%
+\contentsline {paragraph}{Union}{316}{subsection.16.10}%
+\contentsline {paragraph}{Intersection}{317}{equation.16.13}%
+\contentsline {paragraph}{Complement}{317}{equation.16.14}%
+\contentsline {paragraph}{Remarks}{317}{equation.16.15}%
+\contentsline {paragraph}{Reminder on basic operators}{318}{equation.16.17}%
+\contentsline {subsection}{\numberline {16.11}Graphical Interpretation}{318}{subsection.16.11}%
+\contentsline {subsection}{\numberline {16.12}Additional Fuzzy Set Operations}{318}{subsection.16.12}%
+\contentsline {paragraph}{Algebraic Product}{318}{subsection.16.12}%
+\contentsline {paragraph}{Scalar Multiplication}{318}{equation.16.18}%
+\contentsline {paragraph}{Algebraic Sum}{318}{equation.16.19}%
+\contentsline {paragraph}{Difference}{319}{equation.16.20}%
+\contentsline {paragraph}{Bounded Difference}{319}{equation.16.21}%
+\contentsline {paragraph}{Remarks:}{319}{equation.16.22}%
+\contentsline {subsection}{\numberline {16.13}Example: Union and Intersection of Fuzzy Sets}{319}{subsection.16.13}%
+\contentsline {subsection}{\numberline {16.14}Cartesian Product of Fuzzy Sets}{319}{subsection.16.14}%
+\contentsline {paragraph}{Definition:}{319}{subsection.16.14}%
+\contentsline {paragraph}{Example:}{320}{equation.16.23}%
+\contentsline {subsection}{\numberline {16.15}Properties of Fuzzy Set Operations}{320}{subsection.16.15}%
+\contentsline {paragraph}{Commutativity:}{320}{subsection.16.15}%
+\contentsline {paragraph}{Associativity:}{320}{equation.16.25}%
+\contentsline {paragraph}{Distributivity:}{320}{equation.16.27}%
+\contentsline {paragraph}{Identity Elements:}{321}{equation.16.29}%
+\contentsline {paragraph}{Involution:}{321}{equation.16.31}%
+\contentsline {paragraph}{De Morgan's Laws:}{321}{equation.16.32}%
+\contentsline {subsection}{\numberline {16.16}Fuzzy Set Operators}{321}{subsection.16.16}%
+\contentsline {paragraph}{Examples of Operators:}{321}{subsection.16.16}%
+\contentsline {subsection}{\numberline {16.17}Complement Operators in Fuzzy Logic}{322}{subsection.16.17}%
+\contentsline {paragraph}{Standard Complement}{322}{subsection.16.17}%
+\contentsline {paragraph}{Parameterized Complement Operators}{322}{subsection.16.17}%
+\contentsline {paragraph}{Properties of Complement Operators}{322}{figure.caption.72}%
+\contentsline {subsection}{\numberline {16.18}Triangular norms (t\hyp {}norms)}{323}{subsection.16.18}%
+\contentsline {paragraph}{Motivation}{323}{subsection.16.18}%
+\contentsline {paragraph}{Definition}{323}{subsection.16.18}%
+\contentsline {paragraph}{Examples of t\hyp {}norms}{324}{Item.111}%
+\contentsline {paragraph}{Interpretation}{324}{Item.111}%
+\contentsline {subsection}{\numberline {16.19}Triangular conorms (t\hyp {}conorms / s\hyp {}norms)}{325}{subsection.16.19}%
+\contentsline {paragraph}{Definition}{325}{subsection.16.19}%
+\contentsline {subsection}{\numberline {16.20}T-Norms and S-Norms: Complementarity and Properties}{325}{subsection.16.20}%
+\contentsline {subsection}{\numberline {16.21}Examples of common t\hyp {}norm/s\hyp {}norm pairs}{326}{subsection.16.21}%
+\contentsline {subsection}{\numberline {16.22}Fuzzy Set Inclusion and Subset Relations}{326}{subsection.16.22}%
+\contentsline {paragraph}{Definition (Fuzzy Subset).}{327}{subsection.16.22}%
+\contentsline {paragraph}{Interpretation:}{327}{subsection.16.22}%
+\contentsline {subsection}{\numberline {16.23}Degree of Inclusion}{327}{subsection.16.23}%
+\contentsline {subsection}{\numberline {16.24}Set Operations and Inclusion Properties}{327}{subsection.16.24}%
+\contentsline {subsection}{\numberline {16.25}Grades of Inclusion and Equality in Fuzzy Sets}{328}{subsection.16.25}%
+\contentsline {paragraph}{Grade of Inclusion}{328}{subsection.16.25}%
+\contentsline {paragraph}{Example}{329}{equation.16.36}%
+\contentsline {paragraph}{Grade of Equality}{329}{equation.16.36}%
+\contentsline {subsection}{\numberline {16.26}Dilation and Contraction of Fuzzy Sets}{329}{subsection.16.26}%
+\contentsline {paragraph}{Motivation}{329}{subsection.16.26}%
+\contentsline {paragraph}{Definitions}{330}{subsection.16.26}%
+\contentsline {paragraph}{Properties}{330}{equation.16.39}%
+\contentsline {subsection}{\numberline {16.27}Closure of Membership Function Derivations}{330}{subsection.16.27}%
+\contentsline {subsubsection}{\numberline {16.27.1}Generating New Membership Functions via Set Operations}{331}{subsubsection.16.27.1}%
+\contentsline {paragraph}{Dilation (Expansion)}{331}{subsubsection.16.27.1}%
+\contentsline {paragraph}{Contraction (Narrowing)}{331}{subsubsection.16.27.1}%
+\contentsline {paragraph}{Complement}{331}{subsubsection.16.27.1}%
+\contentsline {paragraph}{Intersection}{331}{subsubsection.16.27.1}%
+\contentsline {paragraph}{Union}{332}{subsubsection.16.27.1}%
+\contentsline {subsubsection}{\numberline {16.27.2}Examples of Constructed Membership Functions}{332}{subsubsection.16.27.2}%
+\contentsline {paragraph}{Remark on Normality}{332}{subsubsection.16.27.2}%
+\contentsline {subsection}{\numberline {16.28}Implications for Fuzzy Inference Systems}{332}{subsection.16.28}%
+\contentsline {subsection}{\numberline {16.29}Worked Example: Mamdani Fuzzy Inference (End-to-End)}{334}{subsection.16.29}%
+\contentsline {paragraph}{Universes and membership functions}{334}{subsection.16.29}%
+\contentsline {paragraph}{Rule base}{334}{subsection.16.29}%
+\contentsline {paragraph}{Fuzzify input and compute firing strengths}{334}{Item.118}%
+\contentsline {paragraph}{Defuzzification (centroid)}{335}{Item.118}%
+\contentsline {paragraph}{Where we head next.}{337}{figure.caption.74}%
+\contentsline {paragraph}{References.}{337}{figure.caption.74}%
+\contentsline {section}{\numberline {17}Fuzzy Set Transformations Between Related Universes}{337}{section.17}%
+\contentsline {subsection}{\numberline {17.1}Context and Motivation}{338}{subsection.17.1}%
+\contentsline {paragraph}{Notation.}{338}{subsection.17.1}%
+\contentsline {subsection}{\numberline {17.2}Problem Statement}{339}{subsection.17.2}%
+\contentsline {subsection}{\numberline {17.3}Intuition and Challenges}{339}{subsection.17.3}%
+\contentsline {subsection}{\numberline {17.4}Formal Definition of the Transformed Membership Function}{339}{subsection.17.4}%
+\contentsline {paragraph}{Remarks:}{340}{equation.17.1}%
+\contentsline {subsection}{\numberline {17.5}Interpretation}{340}{subsection.17.5}%
+\contentsline {subsection}{\numberline {17.6}Example Setup}{340}{subsection.17.6}%
+\contentsline {subsection}{\numberline {17.7}Transformation of Fuzzy Sets Between Universes}{341}{subsection.17.7}%
+\contentsline {paragraph}{Example: Mapping via \( y = x^2 \)}{341}{subsection.17.7}%
+\contentsline {paragraph}{Visual intuition.}{342}{subsection.17.7}%
+\contentsline {paragraph}{Extension to Multiple Fuzzy Sets}{342}{figure.caption.75}%
+\contentsline {paragraph}{Computing Membership Values in \( Y \)}{343}{figure.caption.75}%
+\contentsline {subsection}{\numberline {17.8}Extension Principle Recap and Projection Operations}{344}{subsection.17.8}%
+\contentsline {subsection}{\numberline {17.9}Projection of Fuzzy Relations}{345}{subsection.17.9}%
+\contentsline {paragraph}{Cartesian Product of Fuzzy Sets}{345}{subsection.17.9}%
+\contentsline {paragraph}{Example}{346}{table.caption.77}%
+\contentsline {paragraph}{Projection of Fuzzy Relations}{347}{table.caption.77}%
+\contentsline {paragraph}{Definition (Projection onto $X$).}{347}{table.caption.77}%
+\contentsline {paragraph}{Definition (Projection onto $Y$).}{347}{equation.17.5}%
+\contentsline {paragraph}{Total Projection}{347}{equation.17.6}%
+\contentsline {paragraph}{Interpretation}{347}{equation.17.7}%
+\contentsline {paragraph}{Example (continued)}{347}{figure.caption.78}%
+\contentsline {subsection}{\numberline {17.10}Dimensional Extension and Projection in Fuzzy Set Operations}{348}{subsection.17.10}%
+\contentsline {paragraph}{Cylindrical Extension}{348}{subsection.17.10}%
+\contentsline {paragraph}{Projection}{349}{equation.17.8}%
+\contentsline {paragraph}{Example}{349}{equation.17.8}%
+\contentsline {subsection}{\numberline {17.11}Fuzzy Inference via Composition of Relations}{349}{subsection.17.11}%
+\contentsline {paragraph}{Setup}{349}{subsection.17.11}%
+\contentsline {paragraph}{Composition of Fuzzy Relations}{349}{subsection.17.11}%
+\contentsline {paragraph}{Interpretation}{350}{equation.17.9}%
+\contentsline {paragraph}{Dimensional Considerations}{350}{equation.17.9}%
+\contentsline {paragraph}{Example}{350}{equation.17.9}%
+\contentsline {subsection}{\numberline {17.12}Recap and Motivation}{351}{subsection.17.12}%
+\contentsline {subsection}{\numberline {17.13}Generalization of Fuzzy Relation Composition}{351}{subsection.17.13}%
+\contentsline {paragraph}{Max--min Composition:}{352}{equation.17.10}%
+\contentsline {subsection}{\numberline {17.14}Example Calculation of Composition}{352}{subsection.17.14}%
+\contentsline {subsection}{\numberline {17.15}Properties of Fuzzy Relation Composition}{352}{subsection.17.15}%
+\contentsline {subsection}{\numberline {17.16}Alternative Composition Operators}{353}{subsection.17.16}%
+\contentsline {paragraph}{Where we head next.}{354}{subsection.17.16}%
+\contentsline {paragraph}{References.}{354}{subsection.17.16}%
+\contentsline {section}{\numberline {18}Fuzzy Inference Systems: Rule Composition and Output Calculation}{355}{section.18}%
+\contentsline {subsection}{\numberline {18.1}Context and Motivation}{356}{subsection.18.1}%
+\contentsline {subsection}{\numberline {18.2}Rule Antecedent Composition}{356}{subsection.18.2}%
+\contentsline {paragraph}{Membership values of antecedents:}{356}{subsection.18.2}%
+\contentsline {paragraph}{Aggregation operator:}{356}{equation.18.1}%
+\contentsline {subsection}{\numberline {18.3}Rule Consequent and Output Fuzzy Set}{357}{subsection.18.3}%
+\contentsline {paragraph}{Implication operator:}{357}{subsection.18.3}%
+\contentsline {subsection}{\numberline {18.4}Aggregation of Multiple Rules}{358}{subsection.18.4}%
+\contentsline {paragraph}{Other aggregations}{358}{equation.18.6}%
+\contentsline {subsection}{\numberline {18.5}Summary of the Fuzzy Inference Process}{358}{subsection.18.5}%
+\contentsline {paragraph}{Other defuzzifiers}{359}{equation.18.7}%
+\contentsline {paragraph}{Zero-mass fallback}{359}{equation.18.7}%
+\contentsline {paragraph}{Computation note}{359}{equation.18.7}%
+\contentsline {subsection}{\numberline {18.6}Mamdani vs.\ Sugeno/Takagi--Sugeno systems}{361}{subsection.18.6}%
+\contentsline {paragraph}{Where we head next.}{362}{subsection.18.6}%
+\contentsline {paragraph}{References.}{362}{subsection.18.6}%
+\contentsline {section}{\numberline {19}Introduction to Evolutionary Computing}{363}{section.19}%
+\contentsline {subsection}{\numberline {19.1}Context and Motivation}{363}{subsection.19.1}%
+\contentsline {subsection}{\numberline {19.2}Philosophical and Historical Background}{364}{subsection.19.2}%
+\contentsline {paragraph}{Key Insight:}{364}{subsection.19.2}%
+\contentsline {subsection}{\numberline {19.3}Problem Setting: Optimization}{364}{subsection.19.3}%
+\contentsline {paragraph}{Challenges:}{365}{equation.19.1}%
+\contentsline {subsection}{\numberline {19.4}Illustrative Example}{365}{subsection.19.4}%
+\contentsline {paragraph}{Goal:}{365}{subsection.19.4}%
+\contentsline {subsection}{\numberline {19.5}Why Not Brute Force?}{365}{subsection.19.5}%
+\contentsline {subsection}{\numberline {19.6}Summary}{366}{subsection.19.6}%
+\contentsline {subsection}{\numberline {19.7}Challenges in Continuous Optimization and Motivation for Evolutionary Computing}{366}{subsection.19.7}%
+\contentsline {paragraph}{Issues with Traditional Methods}{366}{subsection.19.7}%
+\contentsline {subsection}{\numberline {19.8}Introduction to Evolutionary Computing}{367}{subsection.19.8}%
+\contentsline {paragraph}{Key Idea}{367}{subsection.19.8}%
+\contentsline {paragraph}{Genetic Algorithms (GAs)}{367}{subsection.19.8}%
+\contentsline {subsection}{\numberline {19.9}Biological Inspiration: Evolutionary Concepts}{367}{subsection.19.9}%
+\contentsline {paragraph}{Chromosomes and Genes}{367}{subsection.19.9}%
+\contentsline {paragraph}{Cell Division: Mitosis vs. Meiosis}{367}{subsection.19.9}%
+\contentsline {paragraph}{Genetic Recombination and Variation}{368}{subsection.19.9}%
+\contentsline {paragraph}{Inheritance and Heredity}{368}{subsection.19.9}%
+\contentsline {subsection}{\numberline {19.10}Implications for Genetic Algorithms}{368}{subsection.19.10}%
+\contentsline {subsection}{\numberline {19.11}Summary of Biological Mechanisms Modeled in GAs}{369}{subsection.19.11}%
+\contentsline {subsection}{\numberline {19.12}Genetic Algorithms: Modeling Chromosomes}{370}{subsection.19.12}%
+\contentsline {paragraph}{Chromosomes as Information Carriers}{370}{subsection.19.12}%
+\contentsline {paragraph}{Inheritance and Crossover}{370}{subsection.19.12}%
+\contentsline {paragraph}{Modeling the Genetic Operations}{371}{figure.caption.79}%
+\contentsline {paragraph}{Fitness and Selection}{371}{equation.19.2}%
+\contentsline {paragraph}{Probabilistic Survival and Evolution}{372}{equation.19.2}%
+\contentsline {subsection}{\numberline {19.13}Mapping Genetic Algorithms to Optimization Problems}{372}{subsection.19.13}%
+\contentsline {paragraph}{Key GA Components in Optimization Terms}{372}{subsection.19.13}%
+\contentsline {paragraph}{Fitness as Objective Function Proxy}{373}{subsection.19.13}%
+\contentsline {subsection}{\numberline {19.14}Encoding in Genetic Algorithms}{373}{subsection.19.14}%
+\contentsline {paragraph}{Genotype and Phenotype}{373}{subsection.19.14}%
+\contentsline {subsubsection}{\numberline {19.14.1}Common Encoding Schemes}{374}{subsubsection.19.14.1}%
+\contentsline {paragraph}{1. Binary Encoding}{374}{subsubsection.19.14.1}%
+\contentsline {paragraph}{2. Floating-Point Encoding}{374}{subsubsection.19.14.1}%
+\contentsline {paragraph}{3. Gray Coding}{374}{subsubsection.19.14.1}%
+\contentsline {subsubsection}{\numberline {19.14.2}Example: Binary Encoding of Parameters}{374}{subsubsection.19.14.2}%
+\contentsline {subsubsection}{\numberline {19.14.3}Example Problem: Minimization with Constraints}{375}{subsubsection.19.14.3}%
+\contentsline {paragraph}{Encoding Strategy}{375}{subsubsection.19.14.3}%
+\contentsline {paragraph}{Decoding}{375}{subsubsection.19.14.3}%
+\contentsline {paragraph}{Fitness Evaluation}{375}{subsubsection.19.14.3}%
+\contentsline {subsection}{\numberline {19.15}Population Initialization and Size}{376}{subsection.19.15}%
+\contentsline {paragraph}{Population Size}{376}{subsection.19.15}%
+\contentsline {paragraph}{Example}{376}{subsection.19.15}%
+\contentsline {subsection}{\numberline {19.16}Genetic Operators}{376}{subsection.19.16}%
+\contentsline {subsubsection}{\numberline {19.16.1}Selection}{376}{subsubsection.19.16.1}%
+\contentsline {paragraph}{Common Methods}{376}{subsubsection.19.16.1}%
+\contentsline {subsubsection}{\numberline {19.16.2}Crossover}{376}{subsubsection.19.16.2}%
+\contentsline {paragraph}{Binary Crossover}{376}{subsubsection.19.16.2}%
+\contentsline {subsection}{\numberline {19.17}Selection in Genetic Algorithms}{377}{subsection.19.17}%
+\contentsline {subsubsection}{\numberline {19.17.1}Fitness and Selection Probability}{377}{subsubsection.19.17.1}%
+\contentsline {paragraph}{Roulette Wheel Selection}{377}{equation.19.3}%
+\contentsline {paragraph}{Example}{378}{equation.19.3}%
+\contentsline {subsubsection}{\numberline {19.17.2}Ranking Selection}{378}{subsubsection.19.17.2}%
+\contentsline {paragraph}{Procedure}{378}{subsubsection.19.17.2}%
+\contentsline {paragraph}{Elitism}{379}{equation.19.4}%
+\contentsline {paragraph}{Advantages}{379}{equation.19.4}%
+\contentsline {subsection}{\numberline {19.18}Crossover Operator}{379}{subsection.19.18}%
+\contentsline {subsubsection}{\numberline {19.18.1}One-Point Crossover}{379}{subsubsection.19.18.1}%
+\contentsline {subsection}{\numberline {19.19}Crossover Operators in Genetic Algorithms}{380}{subsection.19.19}%
+\contentsline {paragraph}{Single-point crossover}{380}{subsection.19.19}%
+\contentsline {paragraph}{Multi-point crossover}{380}{subsection.19.19}%
+\contentsline {paragraph}{Probabilistic nature of crossover}{381}{subsection.19.19}%
+\contentsline {subsection}{\numberline {19.20}Mutation Operator}{381}{subsection.19.20}%
+\contentsline {paragraph}{Biological motivation}{381}{subsection.19.20}%
+\contentsline {paragraph}{Role in optimization}{381}{subsection.19.20}%
+\contentsline {paragraph}{Implementation of mutation}{381}{subsection.19.20}%
+\contentsline {paragraph}{Mutation operator formalization}{382}{subsection.19.20}%
+\contentsline {subsection}{\numberline {19.21}Summary of Genetic Operators and Their Probabilities}{382}{subsection.19.21}%
+\contentsline {subsection}{\numberline {19.22}Known Issues in Genetic Algorithms}{382}{subsection.19.22}%
+\contentsline {paragraph}{Premature Convergence}{382}{subsection.19.22}%
+\contentsline {paragraph}{Mutation Interference}{383}{subsection.19.22}%
+\contentsline {paragraph}{Deception}{383}{subsection.19.22}%
+\contentsline {paragraph}{Fitness Misinterpretation}{383}{subsection.19.22}%
+\contentsline {subsection}{\numberline {19.23}Convergence Criteria}{383}{subsection.19.23}%
+\contentsline {subsection}{\numberline {19.24}Summary of Genetic Algorithm Workflow}{384}{subsection.19.24}%
+\contentsline {subsection}{\numberline {19.25}Pseudocode Representation}{386}{subsection.19.25}%
+\contentsline {subsection}{\numberline {19.26}Example: GA for a Constrained Optimization Problem}{386}{subsection.19.26}%
+\contentsline {paragraph}{GA Parameters:}{387}{subsection.19.26}%
+\contentsline {paragraph}{Initialization:}{387}{subsection.19.26}%
+\contentsline {paragraph}{Fitness Evaluation:}{387}{subsection.19.26}%
+\contentsline {paragraph}{Evolutionary Cycle:}{387}{subsection.19.26}%
+\contentsline {paragraph}{Remarks:}{387}{subsection.19.26}%
+\contentsline {paragraph}{Reproducibility and fair comparison}{389}{subsection.19.26}%
+\contentsline {subsection}{\numberline {19.27}Genetic Algorithms: Iterative Process and Convergence}{389}{subsection.19.27}%
+\contentsline {paragraph}{Selection and Reproduction}{390}{subsection.19.27}%
+\contentsline {paragraph}{Crossover and Mutation}{390}{subsection.19.27}%
+\contentsline {paragraph}{Evolution Over Generations}{390}{subsection.19.27}%
+\contentsline {subsection}{\numberline {19.28}Beyond canonical GAs: real-coded strategies}{390}{subsection.19.28}%
+\contentsline {subsection}{\numberline {19.29}Genetic Programming (GP)}{391}{subsection.19.29}%
+\contentsline {paragraph}{Problem Setup}{391}{subsection.19.29}%
+\contentsline {paragraph}{Representation of Programs}{391}{subsection.19.29}%
+\contentsline {paragraph}{Genetic Operators in GP}{392}{subsection.19.29}%
+\contentsline {paragraph}{Fitness Evaluation}{392}{subsection.19.29}%
+\contentsline {paragraph}{Example}{392}{subsection.19.29}%
+\contentsline {paragraph}{Recursive and Modular Programs}{392}{subsection.19.29}%
+\contentsline {paragraph}{Applications}{393}{subsection.19.29}%
+\contentsline {paragraph}{Example: Robot Obstacle Avoidance}{393}{subsection.19.29}%
+\contentsline {paragraph}{Summary}{393}{subsection.19.29}%
+\contentsline {subsection}{\numberline {19.30}Wrapping Up Genetic Algorithms and Genetic Programming}{393}{subsection.19.30}%
+\contentsline {paragraph}{Recap of Genetic Algorithms}{393}{subsection.19.30}%
+\contentsline {paragraph}{Genetic Programming: Structure over Parameters}{394}{subsection.19.30}%
+\contentsline {paragraph}{Applications and Insights}{394}{subsection.19.30}%
+\contentsline {paragraph}{Further Topics and Extensions}{394}{subsection.19.30}%
+\contentsline {subsection}{\numberline {19.31}Multi-objective search and NSGA-II}{395}{subsection.19.31}%
+\contentsline {paragraph}{Metrics and variants}{395}{subsection.19.31}%
+\contentsline {paragraph}{Where we head next.}{397}{figure.caption.83}%
+\contentsline {paragraph}{References.}{397}{figure.caption.83}%
+\contentsline {section}{Key Takeaways}{398}{figure.caption.83}%
+\contentsline {section}{\numberline {A}Linear Systems Primer}{413}{appendix.A}%
+\contentsline {paragraph}{Homogeneous solution.}{415}{equation.A.3}%
+\contentsline {paragraph}{Forced response.}{415}{equation.A.5}%
+\contentsline {paragraph}{Transfer function.}{415}{equation.A.6}%
+\contentsline {section}{\numberline {B}Kernel Methods and Support Vector Machines}{416}{appendix.B}%
+\contentsline {section}{\numberline {C}Course Logistics}{418}{appendix.C}%
+\contentsline {subsection}{\numberline {C.1}Using this book in ECE\nobreakspace {}657}{418}{subsection.C.1}%

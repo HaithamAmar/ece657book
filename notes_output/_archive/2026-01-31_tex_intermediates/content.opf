@@ -1,0 +1,292 @@
+<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://www.idpf.org/2007/opf"
+unique-identifier="dcidid" version="3.0">
+  <metadata xmlns:dc="http://purl.org/dc/elements/1.1/"
+  xmlns:opf="http://www.idpf.org/2007/opf">
+    <dc:title>Modern Intelligent Systems: A Graduate Companion
+    <br class="newline" />Neural Networks, Fuzzy Logic, and
+    Evolutionary Optimization</dc:title>
+    <dc:language>en-US</dc:language>
+    <dc:identifier id="dcidid">
+    http://example.com/ece657_ebook</dc:identifier>
+    <dc:creator>Haitham Amar</dc:creator>
+    <dc:date>2026-01-25T20:13:00Z</dc:date>
+    <meta property="dcterms:modified">2026-01-25T20:13:00Z</meta>
+  </metadata>
+  <manifest>
+    <item id="ncx" href="ece657_ebook.ncx"
+    media-type="application/x-dtbncx+xml" />
+    <item id="stylesheet" href="ece657_ebook.css"
+    media-type="text/css" />
+    <item id="file1" href="ece657_ebook.xhtml"
+    media-type="application/xhtml+xml" />
+    <item id="file2" properties="nav mathml"
+    href="ece657_ebookli1.xhtml"
+    media-type="application/xhtml+xml" />
+    <item id="file3" href="ece657_ebookli2.xhtml"
+    media-type="application/xhtml+xml" />
+    <item id="file4" href="ece657_ebookli3.xhtml"
+    media-type="application/xhtml+xml" />
+    <item id="file5" properties="mathml"
+    href="ece657_ebookli4.xhtml"
+    media-type="application/xhtml+xml" />
+    <item id="file6" properties="mathml"
+    href="ece657_ebookse1.xhtml"
+    media-type="application/xhtml+xml" />
+    <item id="file7" properties="mathml"
+    href="ece657_ebookse2.xhtml"
+    media-type="application/xhtml+xml" />
+    <item id="file8" properties="mathml"
+    href="ece657_ebookse3.xhtml"
+    media-type="application/xhtml+xml" />
+    <item id="file9" properties="mathml"
+    href="ece657_ebookse4.xhtml"
+    media-type="application/xhtml+xml" />
+    <item id="file10" properties="mathml"
+    href="ece657_ebookse5.xhtml"
+    media-type="application/xhtml+xml" />
+    <item id="file11" properties="mathml"
+    href="ece657_ebookse6.xhtml"
+    media-type="application/xhtml+xml" />
+    <item id="file12" properties="mathml"
+    href="ece657_ebookse7.xhtml"
+    media-type="application/xhtml+xml" />
+    <item id="file13" properties="mathml"
+    href="ece657_ebookse8.xhtml"
+    media-type="application/xhtml+xml" />
+    <item id="file14" properties="mathml"
+    href="ece657_ebookse9.xhtml"
+    media-type="application/xhtml+xml" />
+    <item id="file15" properties="mathml"
+    href="ece657_ebookse10.xhtml"
+    media-type="application/xhtml+xml" />
+    <item id="file16" properties="mathml"
+    href="ece657_ebookse11.xhtml"
+    media-type="application/xhtml+xml" />
+    <item id="file17" properties="mathml"
+    href="ece657_ebookse12.xhtml"
+    media-type="application/xhtml+xml" />
+    <item id="file18" properties="mathml"
+    href="ece657_ebookse13.xhtml"
+    media-type="application/xhtml+xml" />
+    <item id="file19" properties="mathml"
+    href="ece657_ebookse14.xhtml"
+    media-type="application/xhtml+xml" />
+    <item id="file20" properties="mathml"
+    href="ece657_ebookse15.xhtml"
+    media-type="application/xhtml+xml" />
+    <item id="file21" properties="mathml"
+    href="ece657_ebookse16.xhtml"
+    media-type="application/xhtml+xml" />
+    <item id="file22" properties="mathml"
+    href="ece657_ebookse17.xhtml"
+    media-type="application/xhtml+xml" />
+    <item id="file23" properties="mathml"
+    href="ece657_ebookse18.xhtml"
+    media-type="application/xhtml+xml" />
+    <item id="file24" properties="mathml"
+    href="ece657_ebookse19.xhtml"
+    media-type="application/xhtml+xml" />
+    <item id="file25" properties="mathml"
+    href="ece657_ebookli5.xhtml"
+    media-type="application/xhtml+xml" />
+    <item id="file26" href="ece657_ebookli6.xhtml"
+    media-type="application/xhtml+xml" />
+    <item id="file27" properties="mathml"
+    href="ece657_ebookse20.xhtml"
+    media-type="application/xhtml+xml" />
+    <item id="file28" properties="mathml"
+    href="ece657_ebookse21.xhtml"
+    media-type="application/xhtml+xml" />
+    <item id="file29" properties="mathml"
+    href="ece657_ebookse22.xhtml"
+    media-type="application/xhtml+xml" />
+    <item id='assets-lec1lec1_reliability_double_png'
+    href='assets/lec1/lec1_reliability_double.png'
+    media-type='image/png' />
+    <item id='assets-lec2_part2lec2_logistic_boundary_png'
+    href='assets/lec2_part2/lec2_logistic_boundary.png'
+    media-type='image/png' />
+    <item id='assets-lec2_part2lec2_roc_pr_png'
+    href='assets/lec2_part2/lec2_roc_pr.png'
+    media-type='image/png' />
+    <item id='assets-lec6lec6_dropout_curves_png'
+    href='assets/lec6/lec6_dropout_curves.png'
+    media-type='image/png' />
+    <item id='assets-lec7lec7_vanish_explode_png'
+    href='assets/lec7/lec7_vanish_explode.png'
+    media-type='image/png' />
+    <item id='assets-lec14lec14_embeddings_clusters_png'
+    href='assets/lec14/lec14_embeddings_clusters.png'
+    media-type='image/png' />
+    <item id='assets-lec14lec14_analogy_geometry_png'
+    href='assets/lec14/lec14_analogy_geometry.png'
+    media-type='image/png' />
+    <item id='assets-lec16lec16_fuzzy_and_png'
+    href='assets/lec16/lec16_fuzzy_and.png'
+    media-type='image/png' />
+    <item id='assets-lec19lec19_pareto_png'
+    href='assets/lec19/lec19_pareto.png' media-type='image/png' />
+    <item id='ece657_ebook0x_svg' href='ece657_ebook0x.svg'
+    media-type='image/svg+xml' />
+    <item id='ece657_ebook1x_svg' href='ece657_ebook1x.svg'
+    media-type='image/svg+xml' />
+    <item id='ece657_ebook2x_svg' href='ece657_ebook2x.svg'
+    media-type='image/svg+xml' />
+    <item id='ece657_ebook3x_svg' href='ece657_ebook3x.svg'
+    media-type='image/svg+xml' />
+    <item id='ece657_ebook4x_svg' href='ece657_ebook4x.svg'
+    media-type='image/svg+xml' />
+    <item id='ece657_ebook5x_svg' href='ece657_ebook5x.svg'
+    media-type='image/svg+xml' />
+    <item id='ece657_ebook6x_svg' href='ece657_ebook6x.svg'
+    media-type='image/svg+xml' />
+    <item id='ece657_ebook7x_svg' href='ece657_ebook7x.svg'
+    media-type='image/svg+xml' />
+    <item id='ece657_ebook8x_svg' href='ece657_ebook8x.svg'
+    media-type='image/svg+xml' />
+    <item id='ece657_ebook9x_svg' href='ece657_ebook9x.svg'
+    media-type='image/svg+xml' />
+    <item id='ece657_ebook10x_svg' href='ece657_ebook10x.svg'
+    media-type='image/svg+xml' />
+    <item id='ece657_ebook11x_svg' href='ece657_ebook11x.svg'
+    media-type='image/svg+xml' />
+    <item id='ece657_ebook12x_svg' href='ece657_ebook12x.svg'
+    media-type='image/svg+xml' />
+    <item id='ece657_ebook13x_svg' href='ece657_ebook13x.svg'
+    media-type='image/svg+xml' />
+    <item id='ece657_ebook14x_svg' href='ece657_ebook14x.svg'
+    media-type='image/svg+xml' />
+    <item id='ece657_ebook15x_svg' href='ece657_ebook15x.svg'
+    media-type='image/svg+xml' />
+    <item id='ece657_ebook16x_svg' href='ece657_ebook16x.svg'
+    media-type='image/svg+xml' />
+    <item id='ece657_ebook17x_svg' href='ece657_ebook17x.svg'
+    media-type='image/svg+xml' />
+    <item id='ece657_ebook18x_svg' href='ece657_ebook18x.svg'
+    media-type='image/svg+xml' />
+    <item id='ece657_ebook19x_svg' href='ece657_ebook19x.svg'
+    media-type='image/svg+xml' />
+    <item id='ece657_ebook20x_svg' href='ece657_ebook20x.svg'
+    media-type='image/svg+xml' />
+    <item id='ece657_ebook21x_svg' href='ece657_ebook21x.svg'
+    media-type='image/svg+xml' />
+    <item id='ece657_ebook22x_svg' href='ece657_ebook22x.svg'
+    media-type='image/svg+xml' />
+    <item id='ece657_ebook23x_svg' href='ece657_ebook23x.svg'
+    media-type='image/svg+xml' />
+    <item id='ece657_ebook24x_svg' href='ece657_ebook24x.svg'
+    media-type='image/svg+xml' />
+    <item id='ece657_ebook25x_svg' href='ece657_ebook25x.svg'
+    media-type='image/svg+xml' />
+    <item id='ece657_ebook26x_svg' href='ece657_ebook26x.svg'
+    media-type='image/svg+xml' />
+    <item id='ece657_ebook27x_svg' href='ece657_ebook27x.svg'
+    media-type='image/svg+xml' />
+    <item id='ece657_ebook28x_svg' href='ece657_ebook28x.svg'
+    media-type='image/svg+xml' />
+    <item id='ece657_ebook29x_svg' href='ece657_ebook29x.svg'
+    media-type='image/svg+xml' />
+    <item id='ece657_ebook30x_svg' href='ece657_ebook30x.svg'
+    media-type='image/svg+xml' />
+    <item id='ece657_ebook31x_svg' href='ece657_ebook31x.svg'
+    media-type='image/svg+xml' />
+    <item id='ece657_ebook32x_svg' href='ece657_ebook32x.svg'
+    media-type='image/svg+xml' />
+    <item id='ece657_ebook33x_svg' href='ece657_ebook33x.svg'
+    media-type='image/svg+xml' />
+    <item id='ece657_ebook34x_svg' href='ece657_ebook34x.svg'
+    media-type='image/svg+xml' />
+    <item id='ece657_ebook35x_svg' href='ece657_ebook35x.svg'
+    media-type='image/svg+xml' />
+    <item id='ece657_ebook36x_svg' href='ece657_ebook36x.svg'
+    media-type='image/svg+xml' />
+    <item id='ece657_ebook37x_svg' href='ece657_ebook37x.svg'
+    media-type='image/svg+xml' />
+    <item id='ece657_ebook38x_svg' href='ece657_ebook38x.svg'
+    media-type='image/svg+xml' />
+    <item id='ece657_ebook39x_svg' href='ece657_ebook39x.svg'
+    media-type='image/svg+xml' />
+    <item id='ece657_ebook40x_svg' href='ece657_ebook40x.svg'
+    media-type='image/svg+xml' />
+    <item id='ece657_ebook41x_svg' href='ece657_ebook41x.svg'
+    media-type='image/svg+xml' />
+    <item id='ece657_ebook42x_svg' href='ece657_ebook42x.svg'
+    media-type='image/svg+xml' />
+    <item id='ece657_ebook43x_svg' href='ece657_ebook43x.svg'
+    media-type='image/svg+xml' />
+    <item id='ece657_ebook44x_svg' href='ece657_ebook44x.svg'
+    media-type='image/svg+xml' />
+    <item id='ece657_ebook45x_svg' href='ece657_ebook45x.svg'
+    media-type='image/svg+xml' />
+    <item id='ece657_ebook46x_svg' href='ece657_ebook46x.svg'
+    media-type='image/svg+xml' />
+    <item id='ece657_ebook47x_svg' href='ece657_ebook47x.svg'
+    media-type='image/svg+xml' />
+    <item id='ece657_ebook48x_svg' href='ece657_ebook48x.svg'
+    media-type='image/svg+xml' />
+    <item id='ece657_ebook49x_svg' href='ece657_ebook49x.svg'
+    media-type='image/svg+xml' />
+    <item id='ece657_ebook50x_svg' href='ece657_ebook50x.svg'
+    media-type='image/svg+xml' />
+    <item id='ece657_ebook51x_svg' href='ece657_ebook51x.svg'
+    media-type='image/svg+xml' />
+    <item id='ece657_ebook52x_svg' href='ece657_ebook52x.svg'
+    media-type='image/svg+xml' />
+    <item id='ece657_ebook53x_svg' href='ece657_ebook53x.svg'
+    media-type='image/svg+xml' />
+    <item id='ece657_ebook54x_svg' href='ece657_ebook54x.svg'
+    media-type='image/svg+xml' />
+    <item id='ece657_ebook55x_svg' href='ece657_ebook55x.svg'
+    media-type='image/svg+xml' />
+    <item id='ece657_ebook56x_svg' href='ece657_ebook56x.svg'
+    media-type='image/svg+xml' />
+    <item id='ece657_ebook57x_svg' href='ece657_ebook57x.svg'
+    media-type='image/svg+xml' />
+    <item id='ece657_ebook58x_svg' href='ece657_ebook58x.svg'
+    media-type='image/svg+xml' />
+    <item id='ece657_ebook59x_svg' href='ece657_ebook59x.svg'
+    media-type='image/svg+xml' />
+    <item id='ece657_ebook60x_svg' href='ece657_ebook60x.svg'
+    media-type='image/svg+xml' />
+    <item id='ece657_ebook61x_svg' href='ece657_ebook61x.svg'
+    media-type='image/svg+xml' />
+    <item id='ece657_ebook62x_svg' href='ece657_ebook62x.svg'
+    media-type='image/svg+xml' />
+    <item id='ece657_ebook63x_svg' href='ece657_ebook63x.svg'
+    media-type='image/svg+xml' />
+    <item id='ece657_ebook64x_svg' href='ece657_ebook64x.svg'
+    media-type='image/svg+xml' />
+  </manifest>
+  <spine toc="ncx">
+    <itemref idref="file1" />
+    <itemref idref="file2" />
+    <itemref idref="file3" />
+    <itemref idref="file4" />
+    <itemref idref="file5" />
+    <itemref idref="file6" />
+    <itemref idref="file7" />
+    <itemref idref="file8" />
+    <itemref idref="file9" />
+    <itemref idref="file10" />
+    <itemref idref="file11" />
+    <itemref idref="file12" />
+    <itemref idref="file13" />
+    <itemref idref="file14" />
+    <itemref idref="file15" />
+    <itemref idref="file16" />
+    <itemref idref="file17" />
+    <itemref idref="file18" />
+    <itemref idref="file19" />
+    <itemref idref="file20" />
+    <itemref idref="file21" />
+    <itemref idref="file22" />
+    <itemref idref="file23" />
+    <itemref idref="file24" />
+    <itemref idref="file25" />
+    <itemref idref="file26" />
+    <itemref idref="file27" />
+    <itemref idref="file28" />
+    <itemref idref="file29" />
+  </spine>
+</package>

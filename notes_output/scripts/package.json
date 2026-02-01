@@ -1,0 +1,9 @@
+{
+  "name": "ece657-ebook-tools",
+  "private": true,
+  "description": "Local tooling for EPUB post-processing",
+  "license": "UNLICENSED",
+  "dependencies": {
+    "mathjax-full": "^3.2.2"
+  }
+}

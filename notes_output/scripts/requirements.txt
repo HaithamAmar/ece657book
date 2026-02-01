@@ -1,0 +1,3 @@
+# Python dependencies for `notes_output/scripts/*.py`.
+# Prefer `/usr/bin/python3` compatibility on macOS.
+Pillow>=10
