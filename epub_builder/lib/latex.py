@@ -288,6 +288,10 @@ def rewrite_crossrefs(text: str, *, aux_numbers: dict[str, str]) -> str:
         # Pandoc does not understand cleveref's \Crefrange macro and will
         # silently drop it. Rewrite into fixed-number hyperlinks based on the
         # PDF's `.aux` numbering.
+        if a.startswith("app:") and b.startswith("app:"):
+            na = aux_numbers.get(a, "?")
+            nb = aux_numbers.get(b, "?")
+            return f"Appendices~\\hyperlink{{{a}}}{{{na}}}–\\hyperlink{{{b}}}{{{nb}}}"
         if a.startswith("chap:") and b.startswith("chap:"):
             na = aux_numbers.get(a, "?")
             nb = aux_numbers.get(b, "?")
@@ -334,6 +338,11 @@ def rewrite_crossrefs(text: str, *, aux_numbers: dict[str, str]) -> str:
         labels = [s.strip() for s in raw.split(",") if s.strip()]
         if not labels:
             return m.group(0)
+        if all(l.startswith("app:") for l in labels):
+            if len(labels) == 1:
+                # Appendices are lettered in the PDF (A/B/C); keep that in EPUB.
+                return _hyperlink_noun_number(labels[0], noun="Appendix", aux_numbers=aux_numbers)
+            return "Appendices~" + _join_hyper_numbers(labels, aux_numbers=aux_numbers)
         if all(l.startswith("chap:") for l in labels):
             if len(labels) == 1:
                 return _hyperlink_noun_number(labels[0], noun="Chapter", aux_numbers=aux_numbers)
@@ -357,6 +366,8 @@ def rewrite_crossrefs(text: str, *, aux_numbers: dict[str, str]) -> str:
         for lab in labels:
             if lab.startswith("eq:"):
                 rendered.append(f"\\hyperref[{lab}]{{({aux_numbers.get(lab,'?')})}}")
+            elif lab.startswith("app:"):
+                rendered.append(_hyperlink_noun_number(lab, noun="Appendix", aux_numbers=aux_numbers))
             elif lab.startswith("chap:"):
                 rendered.append(_hyperlink_noun_number(lab, noun="Chapter", aux_numbers=aux_numbers))
             elif lab.startswith("fig:"):
@@ -391,7 +402,13 @@ def rewrite_crossrefs(text: str, *, aux_numbers: dict[str, str]) -> str:
         out.append(text[last:start])
         before = text[max(0, start - 16) : start]
         before_wide = text[max(0, start - 48) : start]
-        if lab.startswith("chap:"):
+        if lab.startswith("app:"):
+            # If prose already says "Appendix", keep only the letter/number as link text.
+            if re.search(r"(Appendix|Appendices)[\\s~]*$", before) or ("Appendices" in before_wide) or ("Appendix" in before_wide):
+                out.append(_hyperlink_phrase(lab, aux_numbers.get(lab, "?")))
+            else:
+                out.append(_hyperlink_noun_number(lab, noun="Appendix", aux_numbers=aux_numbers))
+        elif lab.startswith("chap:"):
             if re.search(r"(Chapter|Chapters)[\\s~]*$", before) or ("Chapters" in before_wide):
                 out.append(_hyperlink_phrase(lab, aux_numbers.get(lab, "?")))
             else:
@@ -608,6 +625,28 @@ def prefix_caption_numbers(text: str, *, aux_numbers: dict[str, str]) -> str:
     buf = _scan_env(text, env="figure", label_prefix="fig:", noun="Figure")
     buf = _scan_env(buf, env="table", label_prefix="tab:", noun="Table")
     return buf
+
+
+def promote_displaystyle_math(text: str) -> str:
+    """
+    Convert `\\(\\displaystyle ...\\)` that is likely meant as display math into
+    `\\[ ... \\]` so Pandoc emits block MathML and long expressions don't get
+    clipped in reflowable EPUB layouts.
+
+    Heuristic: promote when content is long or includes integral symbols.
+    """
+    pat = re.compile(r"\\\(\s*\\displaystyle\s*(.*?)\\\)", flags=re.DOTALL)
+
+    def _sub(m: re.Match[str]) -> str:
+        inner = m.group(1).strip()
+        if "\\int" not in inner and len(inner) < 80:
+            return m.group(0)
+        return "\\[\n" + inner + "\n\\]"
+
+    out = pat.sub(_sub, text)
+    # Remove forced linebreaks immediately before promoted display math.
+    out = re.sub(r"\\\\\s*\n\s*\\\[", r"\n\\[", out)
+    return out
 
 
 def add_visible_equation_numbers(text: str, *, aux_numbers: dict[str, str]) -> str:

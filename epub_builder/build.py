@@ -22,6 +22,7 @@ from lib.latex import (
     prefix_numbered_headings,
     prefix_caption_numbers,
     add_visible_equation_numbers,
+    promote_displaystyle_math,
     transform_tcolorbox_to_quote,
     extract_tikz_blocks,
     replace_tikz_blocks_with_images,
@@ -267,6 +268,7 @@ def build(*, variant: str, clean: bool, skip_validate: bool) -> Path:
     doc_body = rasterize_pdf_includegraphics(
         doc_body, repo_root=p.repo_root, notes_output_dir=p.notes_output, media_dir=p.media, dpi=asset_dpi
     )
+    doc_body = promote_displaystyle_math(doc_body)
     doc_body = prefix_caption_numbers(doc_body, aux_numbers=aux_numbers)
     doc_body = add_visible_equation_numbers(doc_body, aux_numbers=aux_numbers)
     if strict_figures:

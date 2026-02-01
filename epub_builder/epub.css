@@ -32,6 +32,16 @@ figcaption {
 /* Equations */
 math {
   font-size: 1em;
+  max-width: 100%;
+}
+
+/* Prevent long MathML from clipping off-screen; allow horizontal scroll when needed. */
+math[display="block"] {
+  display: block;
+  overflow-x: auto;
+  overflow-y: hidden;
+  -webkit-overflow-scrolling: touch;
+  padding-bottom: 0.15em;
 }
 
 /* Pandoc renders our LaTeX flushright as a div.flushright */
