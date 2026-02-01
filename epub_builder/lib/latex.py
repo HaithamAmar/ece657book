@@ -279,6 +279,56 @@ def rewrite_crossrefs(text: str, *, aux_numbers: dict[str, str]) -> str:
       hyperlinked numbers using `.aux` data.
     """
 
+    def _rewrite_crefrange(m: re.Match[str]) -> str:
+        a = m.group(1).strip()
+        b = m.group(2).strip()
+        if not a or not b:
+            return m.group(0)
+
+        # Pandoc does not understand cleveref's \Crefrange macro and will
+        # silently drop it. Rewrite into fixed-number hyperlinks based on the
+        # PDF's `.aux` numbering.
+        if a.startswith("chap:") and b.startswith("chap:"):
+            na = aux_numbers.get(a, "?")
+            nb = aux_numbers.get(b, "?")
+            return f"Chapters~\\hyperlink{{{a}}}{{{na}}}–\\hyperlink{{{b}}}{{{nb}}}"
+        if a.startswith("sec:") and b.startswith("sec:"):
+            na = aux_numbers.get(a, "?")
+            nb = aux_numbers.get(b, "?")
+            return f"Sections~\\hyperlink{{{a}}}{{{na}}}–\\hyperlink{{{b}}}{{{nb}}}"
+        if a.startswith("fig:") and b.startswith("fig:"):
+            na = aux_numbers.get(a, "?")
+            nb = aux_numbers.get(b, "?")
+            return f"Figures~\\hyperlink{{{a}}}{{{na}}}–\\hyperlink{{{b}}}{{{nb}}}"
+        if a.startswith("tab:") and b.startswith("tab:"):
+            na = aux_numbers.get(a, "?")
+            nb = aux_numbers.get(b, "?")
+            return f"Tables~\\hyperlink{{{a}}}{{{na}}}–\\hyperlink{{{b}}}{{{nb}}}"
+        if a.startswith("eq:") and b.startswith("eq:"):
+            na = aux_numbers.get(a, "?")
+            nb = aux_numbers.get(b, "?")
+            return f"\\hyperref[{a}]{{({na})}}–\\hyperref[{b}]{{({nb})}}"
+
+        # Mixed-type range: fall back to two readable endpoints.
+        def _render_one(lab: str) -> str:
+            if lab.startswith("chap:"):
+                return _hyperlink_noun_number(lab, noun="Chapter", aux_numbers=aux_numbers)
+            if lab.startswith("sec:"):
+                return _hyperlink_noun_number(lab, noun="Section", aux_numbers=aux_numbers)
+            if lab.startswith("fig:"):
+                return _hyperlink_noun_number(lab, noun="Figure", aux_numbers=aux_numbers)
+            if lab.startswith("tab:"):
+                return _hyperlink_noun_number(lab, noun="Table", aux_numbers=aux_numbers)
+            if lab.startswith("eq:"):
+                return f"\\hyperref[{lab}]{{({aux_numbers.get(lab,'?')})}}"
+            return f"\\ref{{{lab}}}"
+
+        return _render_one(a) + "–" + _render_one(b)
+
+    # Handle \Crefrange{...}{...} / \crefrange{...}{...} early (before \Cref),
+    # otherwise Pandoc will drop the macro entirely.
+    text = re.sub(r"\\[cC]refrange\{([^}]+)\}\{([^}]+)\}", _rewrite_crefrange, text)
+
     def _rewrite_cref(m: re.Match[str]) -> str:
         raw = m.group(1)
         labels = [s.strip() for s in raw.split(",") if s.strip()]
