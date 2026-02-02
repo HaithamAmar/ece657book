@@ -1154,7 +1154,10 @@ SOM training iteratively repeats the following six steps:
     \item Repeat until convergence or max epochs:
     \begin{enumerate}
         \item Assign each \(\mathbf{x}_n\) to its BMU \(c_n\).
-        \item For each neuron \(j\), update \(\displaystyle \mathbf{w}_j \leftarrow \frac{\sum_n h_{j,c_n}(t)\,\mathbf{x}_n}{\sum_n h_{j,c_n}(t)}\).
+        \item For each neuron \(j\), update
+        \[
+        \mathbf{w}_j \leftarrow \frac{\sum_n h_{j,c_n}(t)\,\mathbf{x}_n}{\sum_n h_{j,c_n}(t)}.
+        \]
         \item Decay \(\alpha(t),\sigma(t)\).
     \end{enumerate}
 \end{enumerate}

@@ -24,6 +24,7 @@ change exists.
 
 - **Rule:** every numbered display-math environment (especially `\begin{align}` / `\begin{equation}`) must contain at least one `\label{eq:...}`.
 - **Why:** Pandoc’s MathML output has no native equation numbers; our EPUB pipeline renders numbers only for labeled equations using the LaTeX `.aux` file.
+- **Guardrail:** `notes_output/scripts/check_equations.py` enforces this and rejects common footguns like `$$...$$` or `equation*` blocks that still contain `\label{eq:...}`.
 - **Practice:** if a multi-line `align` block is just a derivation (not referenced), it may remain unlabeled *only if* it is converted to `align*`.
 - **Note:** we permit “non-semantic” auto-labels in sources (e.g., `\label{eq:auto:lecture_8_part_i:3}`) when an `align` block is unreferenced but we still want its number visible in EPUB for reader trust and PDF/EPUB parity.
 - **Citations:** production builds must contain no unresolved citations (no `[?]` markers). The structural verifier enforces this, and the aux compile reuses `notes_output/ece657_notes.bbl` when available to reduce citation drift.

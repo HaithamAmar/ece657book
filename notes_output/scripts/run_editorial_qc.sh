@@ -14,7 +14,10 @@ echo "[2/5] Checking citations/BibTeX hygiene…"
 echo "[3/5] Checking cross-reference/label hygiene…"
 /usr/bin/python3 scripts/check_crossrefs.py
 
-echo "[4/5] Running automated publishing QC…"
+echo "[4/6] Checking equation hygiene…"
+/usr/bin/python3 scripts/check_equations.py
+
+echo "[5/6] Running automated publishing QC…"
 /usr/bin/python3 scripts/publish_qc.py \
   --root "${ROOT_DIR}" \
   --pdf ece657_notes.pdf \
@@ -22,5 +25,5 @@ echo "[4/5] Running automated publishing QC…"
   --style editorial_style.toml \
   --out artifacts/qc/publish_qc_report.md || true
 
-echo "[5/5] Wrote report:"
+echo "[6/6] Wrote report:"
 echo "  ${ROOT_DIR}/artifacts/qc/publish_qc_report.md"

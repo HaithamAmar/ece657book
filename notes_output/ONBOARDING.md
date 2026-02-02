@@ -20,6 +20,8 @@ Structure & logic
   - `notes_output/CITATION_POLICY.md`
 - Cross-reference policy + label hygiene:
   - Enforced by `notes_output/scripts/check_crossrefs.py` (run via `notes_output/scripts/run_editorial_qc.sh`).
+- Equation policy + numbering hygiene (EPUB):
+  - Enforced by `notes_output/scripts/check_equations.py` (run via `notes_output/scripts/run_editorial_qc.sh`).
 - Table policy + latest table audit:
   - `notes_output/EPUB_TABLES.md`
   - `notes_output/EPUB_TABLES_AUDIT.md`
