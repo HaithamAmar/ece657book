@@ -59,6 +59,30 @@ class TestLatexTransforms(unittest.TestCase):
         out = prefix_caption_numbers(s, aux_numbers=aux)
         self.assertIn("Figure 1.", out)
 
+    def test_rewrite_crefrange_chapters(self) -> None:
+        from lib.latex import rewrite_crossrefs
+
+        aux = {"chap:a": "1", "chap:b": "4"}
+        s = r"See \Crefrange{chap:a}{chap:b}."
+        out = rewrite_crossrefs(s, aux_numbers=aux)
+        self.assertIn(r"Chapters~\hyperlink{chap:a}{1}–\hyperlink{chap:b}{4}", out)
+
+    def test_rewrite_crefrange_appendices(self) -> None:
+        from lib.latex import rewrite_crossrefs
+
+        aux = {"app:a": "A", "app:c": "C"}
+        s = r"See \Crefrange{app:a}{app:c}."
+        out = rewrite_crossrefs(s, aux_numbers=aux)
+        self.assertIn(r"Appendices~\hyperlink{app:a}{A}–\hyperlink{app:c}{C}", out)
+
+    def test_promote_long_inline_math(self) -> None:
+        from lib.latex import promote_long_inline_math
+
+        s = r"Inline: \\( a + " + "b+" * 120 + r"c \\)"
+        out = promote_long_inline_math(s)
+        self.assertIn(r"\[", out)
+        self.assertIn(r"\]", out)
+
 
 if __name__ == '__main__':
     unittest.main()

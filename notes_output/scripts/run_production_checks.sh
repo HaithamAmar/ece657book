@@ -67,6 +67,15 @@ PY
 echo "[3/3] EPUBCheck (required for production)…"
 EPUBCHECK_OUT="${ROOT_DIR}/artifacts/release_checks/epubcheck"
 mkdir -p "${EPUBCHECK_OUT}"
+
+echo "Structural verify (EPUB)…"
+/usr/bin/python3 "${REPO_ROOT}/epub_builder/scripts/verify_epub_structure.py" \
+  --epub "${REPO_ROOT}/epub_builder/dist/ece657_ebook_apple.epub" \
+  --aux "${REPO_ROOT}/epub_builder/artifacts/tmp/aux/ece657_notes_epub_aux.aux"
+/usr/bin/python3 "${REPO_ROOT}/epub_builder/scripts/verify_epub_structure.py" \
+  --epub "${REPO_ROOT}/epub_builder/dist/ece657_ebook_kindle.epub" \
+  --aux "${REPO_ROOT}/epub_builder/artifacts/tmp/aux/ece657_notes_epub_aux.aux"
+
 bash "${ROOT_DIR}/scripts/run_epubcheck.sh" --out "${EPUBCHECK_OUT}" \
   "${REPO_ROOT}/epub_builder/dist/ece657_ebook_kindle.epub" \
   "${REPO_ROOT}/epub_builder/dist/ece657_ebook_apple.epub"
