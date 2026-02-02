@@ -208,7 +208,14 @@ From a cost perspective, Path 1 is cheaper and more direct, so the system priori
 \paragraph{Two safe options from here}
 \begin{itemize}
   \item \textbf{(a) Substitution \(u=\tan y\).} Since \(\sec^4 y\,dy = \sec^2 y\,(\sec^2 y\,dy)\) and \(\sec^2 y = 1 + \tan^2 y\), set \(u=\tan y\), \(du=\sec^2 y\,dy\):\\
-\(\displaystyle 4 \int \sec^4 y\,dy = 4 \int (1+u^2)\,du = 4\left(u + \tfrac{u^3}{3}\right)+C = 4\left(\tan y + \tfrac{\tan^3 y}{3}\right)+C.\)
+  \[
+  \begin{aligned}
+  4 \int \sec^4 y\,dy
+    &= 4 \int (1+u^2)\,du \\
+    &= 4\left(u + \tfrac{u^3}{3}\right)+C \\
+    &= 4\left(\tan y + \tfrac{\tan^3 y}{3}\right)+C.
+  \end{aligned}
+  \]
   \item \textbf{(b) Reduction formula.} For even \(n>1\),
   \[
     \int \sec^{n} y \, dy = \frac{\sec^{n-2} y \tan y}{n-1} + \frac{n-2}{n-1} \int \sec^{n-2} y \, dy.

@@ -500,6 +500,7 @@ where row \(j\) contains the initial weight vector \(\mathbf{w}_j(0)\) for neuro
 Recall from the previous discussion that in the Winner-Takes-All (WTA) learning scheme, for each input vector \(\mathbf{x}\), we compute the similarity (or distance) between \(\mathbf{x}\) and each neuron's weight vector \(\mathbf{w}_j\). The neuron \(c\) with the minimum distance (or maximum similarity) is declared the winner:
 \begin{align}
 c = \arg \min_j \|\mathbf{x} - \mathbf{w}_j\|_2^2.
+    \label{eq:auto:lecture_5_part_i:1}
 \end{align}
 
 Only the weights of the winning neuron are updated according to:
@@ -1089,6 +1090,7 @@ We conclude our derivation and discussion of the Kohonen Self-Organizing Map (SO
 Recall the weight update rule for neuron \( j \) at time step \( t \):
 \begin{align}
     \Delta \mathbf{w}_j(t) = \alpha(t) \, h_{j,c}(t) \left[ \mathbf{x}(t) - \mathbf{w}_j(t) \right].
+    \label{eq:auto:lecture_5_part_i:2}
 \end{align}
 where:
 \begin{itemize}

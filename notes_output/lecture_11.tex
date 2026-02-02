@@ -258,6 +258,7 @@ These mechanisms can be visualized by considering crossover as splicing two pare
 Let \(\mathbf{p}_1\) and \(\mathbf{p}_2\) be parent chromosomes. The offspring chromosome \(\mathbf{o}\) is formed by combining segments from \(\mathbf{p}_1\) and \(\mathbf{p}_2\) according to a crossover pattern \( \mathbf{x} \), and then applying mutation \( \mathbf{m} \):
 \begin{align}
     \mathbf{o} = \text{Mutate} \big( \text{Crossover}(\mathbf{p}_1, \mathbf{p}_2, \mathbf{x}) \big).
+    \label{eq:auto:lecture_11:1}
 \end{align}
 
 The crossover operator selects which genes come from which parent, often modeled by a binary mask \( \mathbf{x} \in \{0,1\}^L \), where

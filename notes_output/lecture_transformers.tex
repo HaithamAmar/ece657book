@@ -50,6 +50,7 @@ Multiple heads attend in parallel after learned linear projections:
 \begin{align}
     \mathrm{head}_i &= \operatorname{Attn}(\mathbf{Q}\mathbf{W}_i^Q,\, \mathbf{K}\mathbf{W}_i^K,\, \mathbf{V}\mathbf{W}_i^V),\\
     \operatorname{MHA}(\mathbf{Q},\mathbf{K},\mathbf{V}) &= [\mathrm{head}_1;\ldots;\mathrm{head}_h]\, \mathbf{W}^O,
+    \label{eq:auto:lecture_transformers:1}
 \end{align}
 with \(\mathbf{W}_i^Q \in \mathbb{R}^{d_{\text{model}} \times d_k}\), \(\mathbf{W}_i^K \in \mathbb{R}^{d_{\text{model}} \times d_k}\), \(\mathbf{W}_i^V \in \mathbb{R}^{d_{\text{model}} \times d_v}\), and output projection \(\mathbf{W}^O\). \Cref{fig:lec13_transformer_block} bundles scaled dot-product attention, multi-head concatenation, and the residual pre-LN block so the entire signal path is visible at a glance.
 
@@ -276,6 +277,7 @@ Each block uses residual connections and layer normalization:
 \begin{align}
 \mathbf{H}' &= \operatorname{LayerNorm}(\mathbf{H} + \operatorname{MHA}(\mathbf{H},\mathbf{H},\mathbf{H})),\\
 \mathbf{H}_{\text{out}} &= \operatorname{LayerNorm}(\mathbf{H}' + \operatorname{FFN}(\mathbf{H}')).
+    \label{eq:auto:lecture_transformers:2}
 \end{align}
 The feed-forward sublayer (FFN) is position-wise, typically two linear layers with a nonlinearity (e.g., GELU). Dropout and label smoothing are common.
 

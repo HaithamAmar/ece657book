@@ -79,6 +79,7 @@ The forward pass computes activations layer by layer:
 \begin{align}
     z_j^{(l)} &= \sum_i a_i^{(l-1)} w_{ij}^{(l)} + b_j^{(l)}, \\
     a_j^{(l)} &= f\big(z_j^{(l)}\big).
+    \label{eq:auto:lecture_4_part_i:1}
 \end{align}
 
 The output layer activations $a_k^{(L)}$ are compared to the
@@ -706,6 +707,7 @@ Using the chain rule, the error terms propagate backward as:
 \begin{align}
 \delta^{(L)} &= \nabla_{A^{(L)}} \mathcal{L} \odot \phi^{(L)\prime}(Z^{(L)}), \\
 \delta^{(l-1)} &= \left(\delta^{(l)}(W^{(l)})^\top\right) \odot \phi^{(l-1)\prime}(Z^{(l-1)}), \quad l = L, \ldots, 2,
+    \label{eq:auto:lecture_4_part_i:2}
 \end{align}
 where \(\odot\) denotes element-wise multiplication and \(\phi^{(l)\prime}\) is the derivative of the activation function at layer \( l \).
 

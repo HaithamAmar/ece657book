@@ -227,6 +227,7 @@ The CBOW model computes the average of the embeddings of the context words using
 
 \begin{align}
 \mathbf{h} = \frac{1}{2c} \sum_{\substack{-c \leq j \leq c \\ j \neq 0}} \mathbf{x}_{t+j}\mathbf{W}
+    \label{eq:auto:lecture_8_part_i:1}
 \end{align}
 
 where \( \mathbf{x}_{t+j} \) is the one-hot vector for the context word at position \( t+j \), and \(c\) denotes the \emph{half-window} size (there are \(2c\) context words around \(w_t\) when the document is long enough).
@@ -252,12 +253,14 @@ The skip-gram model reverses the CBOW objective: it uses the current word to pre
 
 \begin{align}
 \prod_{\substack{-c \leq j \leq c \\ j \neq 0}} P(w_{t+j} \mid w_t)
+    \label{eq:auto:lecture_8_part_i:2}
 \end{align}
 
 The input is the one-hot vector \( \mathbf{x}_t \) representing the center word, which is projected into the embedding space via the same input embedding matrix \( \mathbf{W} \in \mathbb{R}^{V \times d} \):
 
 \begin{align}
 \mathbf{h} = \mathbf{x}_t\mathbf{W}
+    \label{eq:auto:lecture_8_part_i:3}
 \end{align}
 
 Each context word \( w_{t+j} \) is predicted by applying a softmax over the output vectors (again using the output-embedding matrix \(\mathbf{W}_{\text{out}}\)):
@@ -280,6 +283,7 @@ Both CBOW and skip-gram models require computing the softmax normalization over 
 
 \begin{align}
 Z = \sum_{w=1}^V \exp(\mathbf{h}\,\mathbf{u}_w)
+    \label{eq:auto:lecture_8_part_i:4}
 \end{align}
 
 \begin{tcolorbox}[summarybox,title={Recipe: skip-gram with negative sampling}]

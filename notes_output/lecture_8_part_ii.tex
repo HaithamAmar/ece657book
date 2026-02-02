@@ -267,6 +267,7 @@ Relational algebra is a formal language used primarily in database theory to man
 \begin{align}
 A \cup B &= \{ x \mid x \in A \text{ or } x \in B \}, \\
 A \cap B &= \{ x \mid x \in A \text{ and } x \in B \}.
+    \label{eq:auto:lecture_8_part_ii:1}
 \end{align}
 
 The third canonical operator is the set difference
@@ -286,6 +287,7 @@ Boolean algebra is the algebraic structure underlying classical logic and digita
 A \vee B &= 1 \quad \text{if } A=1 \text{ or } B=1, \\
 A \wedge B &= 1 \quad \text{if } A=1 \text{ and } B=1, \\
 A \oplus B &= 1 \quad \text{if } A \neq B.
+    \label{eq:auto:lecture_8_part_ii:2}
 \end{align}
 Conversely, \(A \vee B = 0\) only when both inputs are 0, and \(A \wedge B = 0\) unless both inputs equal 1; the XOR operator returns 0 exactly when both operands share the same truth value.
 
@@ -319,6 +321,7 @@ Propositional calculus (or propositional logic) deals with propositions and thei
 
 \begin{align}
 P \implies Q, \quad P \quad \Rightarrow \quad Q,
+    \label{eq:auto:lecture_8_part_ii:3}
 \end{align}
 
 where $P$ and $Q$ are propositions, and $\implies$ denotes implication.
@@ -335,6 +338,7 @@ Symbolically,
 
 \begin{align}
 P \implies Q, \quad P \quad \vdash \quad Q.
+    \label{eq:auto:lecture_8_part_ii:4}
 \end{align}
 
 This rule affirms the consequent by affirming the antecedent.
@@ -351,6 +355,7 @@ Symbolically,
 
 \begin{align}
 P \implies Q, \quad \neg Q \quad \vdash \quad \neg P.
+    \label{eq:auto:lecture_8_part_ii:5}
 \end{align}
 
 This rule denies the antecedent by denying the consequent. However, as noted, this inference can sometimes be risky or invalid in practical scenarios due to exceptions or additional factors.
@@ -367,6 +372,7 @@ Symbolically,
 
 \begin{align}
 P \implies Q, \quad Q \implies R \quad \vdash \quad P \implies R.
+    \label{eq:auto:lecture_8_part_ii:6}
 \end{align}
 
 This transitive property of implication allows chaining of logical statements.

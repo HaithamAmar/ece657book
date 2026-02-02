@@ -29,6 +29,7 @@ For binary labels \(y_i\in\{-1,+1\}\), the (linear) soft-margin SVM solves \cite
 \begin{align}
     \min_{\mathbf{w},b,\boldsymbol{\xi}} \quad & \frac{1}{2}\|\mathbf{w}\|_2^2 + C\sum_{i=1}^N \xi_i \\
     \text{s.t.}\quad & y_i(\mathbf{w}^\top \mathbf{x}_i + b)\ge 1-\xi_i,\quad \xi_i\ge 0.
+    \label{eq:auto:appendix_kernel_methods:1}
 \end{align}
 The parameter \(C>0\) trades margin size against slack violations. The decision function is \(f(\mathbf{x})=\mathbf{w}^\top\mathbf{x}+b\), with classification by \(\mathrm{sign}(f(\mathbf{x}))\). In the kernelized form, \(\mathbf{w}\) is never formed explicitly; instead,
 \begin{equation}

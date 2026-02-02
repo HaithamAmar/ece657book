@@ -20,6 +20,13 @@ change exists.
 - EPUB navigation TOC depth is capped at **2** (chapters + sections). Subsubsections are intentionally excluded to avoid clutter on e-readers.
 - Starred headings (`\\section*`, `\\subsection*`) are reserved for front/end matter; within numbered chapters, prefer numbered headings or demote short “bridge” headings to `\\paragraph{...}` so they do not appear as unnumbered TOC entries.
 
+## Equation labeling policy (EPUB)
+
+- **Rule:** every numbered display-math environment (especially `\begin{align}` / `\begin{equation}`) must contain at least one `\label{eq:...}`.
+- **Why:** Pandoc’s MathML output has no native equation numbers; our EPUB pipeline renders numbers only for labeled equations using the LaTeX `.aux` file.
+- **Practice:** if a multi-line `align` block is just a derivation (not referenced), it may remain unlabeled *only if* it is converted to `align*`.
+- **Note:** we permit “non-semantic” auto-labels in sources (e.g., `\label{eq:auto:lecture_8_part_i:3}`) when an `align` block is unreferenced but we still want its number visible in EPUB for reader trust and PDF/EPUB parity.
+
 ## Current required outputs
 
 - Apple: `epub_builder/dist/ece657_ebook_apple.epub`

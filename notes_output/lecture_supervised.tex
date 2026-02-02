@@ -43,6 +43,7 @@ The \emph{population risk} and \emph{empirical risk} associated with \(h_\theta\
 \begin{align}
 R(h_\theta) &= \mathbb{E}_{(\mathbf x, y)\sim \mathcal P}\big[\ell\big(h_\theta(\mathbf x), y\big)\big], \\
 \hat R_N(h_\theta) &= \frac{1}{N} \sum_{i=1}^N \ell\big(h_\theta(\mathbf x_i), y_i\big).
+    \label{eq:auto:lecture_supervised:1}
 \end{align}
 Because \(\mathcal P\) is unknown, learning algorithms minimize empirical proxies of \(R(h_\theta)\). This is the formal version of the ``educated guess'' idea: we posit a model family \(h_\theta\), then use data to choose parameter values that make its predictions behave like the measured input--output pairs. In practice we do this on a \emph{training set} (the data used to fit parameters), and we reserve held-out data to check whether the fitted model is trustworthy; \Cref{sec:lec1_model_selection} makes these evaluation protocols precise.
 
@@ -240,6 +241,7 @@ For binary classification with labels \(y \in \{-1, +1\}\) and margin \(z = y\,f
 \begin{align}
 \ell_{\text{hinge}}(y,z) &= \max\bigl(0, 1 - z\bigr), &
 \ell_{\text{logistic}}(y,z) &= \log\bigl(1 + e^{-z}\bigr).
+    \label{eq:auto:lecture_supervised:2}
 \end{align}
 Here \(y\in\{-1,+1\}\); when labels are instead coded as \(y\in\{0,1\}\) (common in probability-of-class formulations), the margin expression uses \(y_{\pm1}=2y-1\) to map between codings.
 \Cref{fig:lec1_class_losses} visualizes these curves together with the squared hinge so you can match the algebra to the margin geometry.
@@ -247,6 +249,7 @@ For regression with residual \(e = y - \hat{y}\), we frequently use
 \begin{align}
     \ell_{\text{sq}}(e) &= \tfrac{1}{2} e^2, &
     \ell_{\text{abs}}(e) &= |e|.
+    \label{eq:auto:lecture_supervised:3}
 \end{align}
 The Huber loss interpolates between these: it is quadratic when \(|e| \le \delta\) and linear beyond that threshold (here the plot uses \(\delta=1\)), reducing sensitivity to outliers while remaining smooth around the origin.
 

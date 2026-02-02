@@ -225,6 +225,7 @@ This simple neuron can be viewed as a linear classifier that partitions the inpu
 
 \begin{align}
     \sum_{i=1}^n w_i x_i = \theta.
+    \label{eq:auto:lecture_3_part_i:1}
 \end{align}
 
 The learning task reduces to finding appropriate weights \( w_i \) and threshold \(\theta\) that correctly classify inputs.
@@ -262,6 +263,7 @@ where \( f(\cdot) \) is the activation function, which in the McCulloch-Pitts mo
         1, & z \geq 0, \\
         0, & z < 0.
     \end{cases}
+    \label{eq:auto:lecture_3_part_i:2}
 \end{align}
 We explicitly set \(f(0)=1\); other texts sometimes use \(f(0)=\tfrac{1}{2}\), so documenting the convention avoids confusion when comparing derivations. It is also common to absorb the threshold into an augmented weight vector by defining \(x_0 = 1\) and \(w_0 = -\theta\), yielding a pure inner product \(\mathbf{w}^\top \mathbf{x}\) that we will reuse in the perceptron section.
 

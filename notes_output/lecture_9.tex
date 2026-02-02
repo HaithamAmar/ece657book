@@ -417,6 +417,7 @@ These operations satisfy properties analogous to classical set theory but adapte
 \begin{align}
     \mu_{(A \cap B)^c}(x) &= \mu_{A^c \cup B^c}(x) = \max\big(1-\mu_A(x),\,1-\mu_B(x)\big), \\
     \mu_{(A \cup B)^c}(x) &= \mu_{A^c \cap B^c}(x) = \min\big(1-\mu_A(x),\,1-\mu_B(x)\big).
+    \label{eq:auto:lecture_9:1}
 \end{align}
 Throughout the book we adopt $\wedge=\min$ and $\vee=\max$ as the default t-/s\hyp{}norm pair with the standard complement \(1-\mu\) (the De Morgan triple used again in \Cref{chap:fuzzyinference} unless noted otherwise); alternative norms appear later in operator tables.
 % Chapter 16 (continued)
@@ -522,24 +523,28 @@ The fuzzy set operations (union, intersection, complement) satisfy several impor
 \begin{align}
     \mu_{A \cap B}(x) &= \mu_{B \cap A}(x), \\
     \mu_{A \cup B}(x) &= \mu_{B \cup A}(x).
+    \label{eq:auto:lecture_9:2}
 \end{align}
 
 \paragraph{Associativity:}
 \begin{align}
     \mu_{(A \cap B) \cap C}(x) &= \mu_{A \cap (B \cap C)}(x), \\
     \mu_{(A \cup B) \cup C}(x) &= \mu_{A \cup (B \cup C)}(x).
+    \label{eq:auto:lecture_9:3}
 \end{align}
 
 \paragraph{Distributivity:}
 \begin{align}
     \mu_{A \cup (B \cap C)}(x) &= \mu_{(A \cup B) \cap (A \cup C)}(x), \\
     \mu_{A \cap (B \cup C)}(x) &= \mu_{(A \cap B) \cup (A \cap C)}(x).
+    \label{eq:auto:lecture_9:4}
 \end{align}
 
 \paragraph{Identity Elements:}
 \begin{align}
     \mu_{A \cup \emptyset}(x) &= \mu_A(x), \\
     \mu_{A \cap X}(x) &= \mu_A(x),
+    \label{eq:auto:lecture_9:5}
 \end{align}
 where $\emptyset$ is the empty fuzzy set with membership zero everywhere, and $X$ is the universal fuzzy set with membership one everywhere.
 

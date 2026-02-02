@@ -485,7 +485,8 @@ Different types of relationships between two variables (you can generalize these
     \item deterministic (or functional) relationships: when there is a mathematical function that defines y based on x. For example, the relation between Fahrenheit and Celsius degrees
     \begin{align}
         \text{Cels}=\frac{5}{9}\text{Fahr}-32
-    \end{align}
+    \label{eq:auto:fl-intro:1}
+\end{align}
 \end{itemize}
 
 }
@@ -512,6 +513,7 @@ Different types of relationships between two variables (you can generalize these
 \item Let $(x_{1},Y_{1}),(x_{2},Y_{2}),\cdots,(x_{n},Y_{n})$ be the sample that we observe by conducting an experiment. We define the covariance of Y and x to be
 \begin{align}
     \text{Cov}=\frac{1}{n-1}\sum_{i=1}^{n}(X_{i}-\bar{X})(Y_{i}-\bar{Y})
+    \label{eq:auto:fl-intro:2}
 \end{align}
 \end{itemize}
 }
@@ -520,6 +522,7 @@ Different types of relationships between two variables (you can generalize these
 Next we use the Correlation definition as follows
 \begin{align}
     \text{Cor}(X,Y)=\frac{\text{Cov}(X,Y)}{S_{x}S_{y}}
+    \label{eq:auto:fl-intro:3}
 \end{align}
 where $S_{x}$ and $S_{y}$ are the estimates of standard deviations for the $X$ observations and $Y$ observations, respectively.
 }
@@ -528,7 +531,8 @@ where $S_{x}$ and $S_{y}$ are the estimates of standard deviations for the $X$ o
     \item Fact:
     \begin{align}
         -1\leq \text{Cor}(X,Y)\leq1
-    \end{align}
+    \label{eq:auto:fl-intro:4}
+\end{align}
     \item In general, we have two types of statistical relations:
 \begin{enumerate}
     \item Linear relation: If Cor(Y,X) is close to 1, it means that we have a positive linear relation (The slop is positive). If Cor(Y,X) is close to -1, it means that we have a negative linear relation.
@@ -589,6 +593,7 @@ How to find the best fitted line?
 \item We are looking for a line $\hat{y}_{i}=\beta_{0}+\beta_{1}x_{i}$, such that
 \begin{align}
     Q=\sum_{i=1}^{n}(y_{i}-\hat{y}_{i})^{2}
+    \label{eq:auto:fl-intro:5}
 \end{align}
 is minimum where $\hat{y}_{i}$ denotes the predicted response
 \end{itemize}
@@ -657,11 +662,13 @@ is minimum where $\hat{y}_{i}$ denotes the predicted response
 \item The PDF for Multivariate normal distribution(dimension=n)
 \begin{align}
     \mathcal{N}(x|\mu,\Sigma)=\frac{1}{(2\pi)^{\frac{n}{2}}|\Sigma|^{\frac{1}{2}}}\text{exp}\left(-\frac{1}{2}(x-\mu)\Sigma^{-1}(x-\mu)^{T}\right)
+    \label{eq:auto:fl-intro:6}
 \end{align}
 \item hence:
     \begin{align}
         P(y=y_{i}|x=x_{i})\sim \exp^{-\left(\frac{y_{i}-\beta_{1}X_{i}-\beta_{0}}{2\sigma}\right)^{2}}
-    \end{align}
+    \label{eq:auto:fl-intro:7}
+\end{align}
 \end{itemize}
 
 }
@@ -671,11 +678,13 @@ is minimum where $\hat{y}_{i}$ denotes the predicted response
 \item The simplest method to find the parameters of the statistical model is based on the Maximum Likelihood Estimate:
 \begin{align}
     \hat{\theta}=\arg\max_{\theta}\text{log}p(\mathcal{D}|\theta)
+    \label{eq:auto:fl-intro:8}
 \end{align}
 where $\mathcal{D}$, denotes the training set.
 \item Also, we can write(assuming training examples are i.i.d)
 \begin{align}
     p(\mathcal{D}|\theta)=\prod_{i=1}^{n}p(y_{i}|x_{i},\theta)\sim\prod_{i=1}^{n}\exp^{-\left(\frac{y_{i}-\beta_{1}X_{i}-\beta_{0}}{2\sigma}\right)^{2}}
+    \label{eq:auto:fl-intro:9}
 \end{align}
 
 
@@ -698,7 +707,8 @@ where $\mathcal{D}$, denotes the training set.
     \item Since the log of the probability is a monotonically increasing function, we can maximize the log of the probability, or minimize the negative square error:
     \begin{align}
         -\text{Log}(P(\mathcal{D}|\theta))\sim\underbrace{\sum_{i=1}^{n}\left(\frac{y_{i}-\beta_{1}x_{i}-\beta_{0}}{2\sigma}\right)^{2}}_{{\color{red}Square \ error}}
-    \end{align}
+    \label{eq:auto:fl-intro:10}
+\end{align}
 \end{itemize}
 }
 
@@ -707,6 +717,7 @@ We can do this by setting the derivative of the square error with respect to the
 \begin{align}
     &\frac{\partial}{\partial \beta_{1}}\sum_{i=1}^{n}\left(\frac{y_{i}-\beta_{1}X_{i}-\beta_{0}}{2\sigma}\right)^{2}=0 \\
     & \frac{\partial}{\partial \beta_{0}}\sum_{i=1}^{n}\left(\frac{y_{i}-\beta_{1}X_{i}-\beta_{0}}{2\sigma}\right)^{2}=0
+    \label{eq:auto:fl-intro:11}
 \end{align}
 {\color{red}Note that the derivative is defined as long as $\beta_{0}$ and $\beta_{1}$ can take on continuous values.}
 }
@@ -733,6 +744,7 @@ We can do this by setting the derivative of the square error with respect to the
 The equation of the line is expressed as follows
 \begin{align}
     \text{{\color{red}Predicted Price}}=3721*\text{{\color{blue}Carat}}-259.6
+    \label{eq:auto:fl-intro:12}
 \end{align}
 
 }
@@ -742,6 +754,7 @@ The equation of the line is expressed as follows
 \item Now assume instead of having one variable as predictor we have a set of variables such as $\left\{ X_{0},X_{1},\cdots,X_{n}\right\}$. Then the regression model is
 \begin{align}
     Y=\beta_{0}+\beta_{1}X_{1}+\cdots+\beta_{n}X_{n}
+    \label{eq:auto:fl-intro:13}
 \end{align}
 
 The we call a multivariable regression model.
@@ -755,10 +768,12 @@ The we call a multivariable regression model.
 \item In this case we want to minimize
 \begin{align}
 \sum_{i=1}^{n}(y_{i}-\beta^{T}x_{i})^{2}=[Y-X\beta]^{T}[Y-X\beta]
+    \label{eq:auto:fl-intro:14}
 \end{align}
 \item The solution to such minimization is as follows
 \begin{align}
     \beta=\left(X^{T}X\right)^{-1}X^{T}Y
+    \label{eq:auto:fl-intro:15}
 \end{align}
     \item Example: We have a data set in which there are 3
       variables describing different features of cherry
@@ -784,6 +799,7 @@ Height.
 The regression equation for the plane is as follows:
 \begin{align}
      \text{{\color{red}Predicted Volume}}=4.7*\text{{\color{blue}Girth}}+0.33*\text{{\color{blue}Height}}-57.98
+     \label{eq:auto:fl-intro:16}
 \end{align}
 }
 
