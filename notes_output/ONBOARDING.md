@@ -11,6 +11,7 @@ Structure & logic
   4. **Chapters 11–13** (`lecture_6.tex`, `lecture_7.tex`, `lecture_transformers.tex`): deep learning refreshers, RNNs (incl. LSTM/GRU), and Transformers.
   5. **Chapters 14–19** (`lecture_8_part_i.tex` … `lecture_11.tex`): NLP applications, soft computing and fuzzy systems, and evolutionary computing, closing with broader reflections. Chapters reuse the “recurring questions” motif: core idea, caution, visual anchor, and broader context.
 - Print output is `ece657_notes.pdf`; reflowable ebook output is an EPUB built from `ece657_ebook.tex` (see “Reflowable ebook (Kindle/Apple)” below). For publishing checks, use the generated regression bundle under `notes_output/artifacts/release_checks/` (built by `bash notes_output/scripts/run_release_checks.sh`).
+- Production-quality plan (what to do next, in priority order): `notes_output/PRODUCTION_ROADMAP.md`.
 - Terminology (publishing consistency): prefer “book” in prose (avoid “these notes” / “opening material” phrasing inside numbered chapters). Assume **no companion resources** exist; do not promise slides/bundles/code/solutions, and avoid phrasing like “provided with your copy”.
 
 Original lecture transcript reference

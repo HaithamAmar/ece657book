@@ -49,6 +49,12 @@ class Paths:
     tikz_logs: Path
 
 
+@dataclass(frozen=True)
+class AuxInfo:
+    numbers: dict[str, str]
+    aux_path: Path
+
+
 def _run(cmd: list[str], *, cwd: Path | None = None, env: dict[str, str] | None = None) -> None:
     proc = subprocess.run(cmd, cwd=cwd, env=env, check=False, text=True)
     if proc.returncode != 0:
@@ -103,7 +109,7 @@ def _paths() -> Paths:
         tikz_logs=tikz_logs,
     )
 
-def _build_aux_numbers(*, p: Paths) -> dict[str, str]:
+def _build_aux_info(*, p: Paths) -> AuxInfo:
     """
     Best-effort: compile `notes_output/ece657_notes.tex` into a temp output dir
     so `.aux` reflects the current sources (including newly added labels). If
@@ -112,7 +118,7 @@ def _build_aux_numbers(*, p: Paths) -> dict[str, str]:
     aux_fallback = p.notes_output / "ece657_notes.aux"
     tex = p.notes_output / "ece657_notes.tex"
     if not tex.exists():
-        return load_aux_label_numbers(aux_path=aux_fallback)
+        return AuxInfo(numbers=load_aux_label_numbers(aux_path=aux_fallback), aux_path=aux_fallback)
 
     aux_out_dir = p.artifacts / "tmp" / "aux"
     aux_out_dir.mkdir(parents=True, exist_ok=True)
@@ -135,14 +141,113 @@ def _build_aux_numbers(*, p: Paths) -> dict[str, str]:
                 cwd=p.notes_output,
             )
     except SystemExit:
-        return load_aux_label_numbers(aux_path=aux_fallback)
+        return AuxInfo(numbers=load_aux_label_numbers(aux_path=aux_fallback), aux_path=aux_fallback)
 
     if aux_out.exists():
-        return load_aux_label_numbers(aux_path=aux_out)
-    return load_aux_label_numbers(aux_path=aux_fallback)
+        return AuxInfo(numbers=load_aux_label_numbers(aux_path=aux_out), aux_path=aux_out)
+    return AuxInfo(numbers=load_aux_label_numbers(aux_path=aux_fallback), aux_path=aux_fallback)
 
 
-def _verify_epub_figures(epub_path: Path) -> None:
+def _extract_aux_labels(aux_path: Path, *, prefix: str) -> list[str]:
+    """
+    Extract label names from a LaTeX .aux file via \\newlabel{...}{...}.
+    """
+    try:
+        s = aux_path.read_text(encoding="utf-8", errors="ignore")
+    except OSError:
+        return []
+    pat = re.compile(r"\\newlabel\{(" + re.escape(prefix) + r"[^}]+)\}\{")
+    labs = sorted(set(m.group(1) for m in pat.finditer(s)))
+    # Exclude cleveref helper labels like `fig:...@cref` and similar.
+    labs = [l for l in labs if "@" not in l]
+    return labs
+
+
+def _sips_dimensions(path: Path) -> tuple[int, int] | None:
+    """
+    Use macOS `sips` to read image dimensions for common formats.
+    """
+    if shutil.which("sips") is None:
+        return None
+    proc = subprocess.run(
+        ["sips", "-g", "pixelWidth", "-g", "pixelHeight", str(path)],
+        stdout=subprocess.PIPE,
+        stderr=subprocess.DEVNULL,
+        text=True,
+        check=False,
+    )
+    if proc.returncode != 0:
+        return None
+    w = h = None
+    for line in proc.stdout.splitlines():
+        line = line.strip()
+        if line.startswith("pixelWidth:"):
+            try:
+                w = int(line.split(":", 1)[1].strip())
+            except ValueError:
+                w = None
+        if line.startswith("pixelHeight:"):
+            try:
+                h = int(line.split(":", 1)[1].strip())
+            except ValueError:
+                h = None
+    if w and h and w > 0 and h > 0:
+        return (w, h)
+    return None
+
+
+def _prepare_cover_for_epub(*, cover_path: Path, out_dir: Path) -> Path:
+    """
+    Ensure the cover is large enough and in a Kindle/Apple-friendly format.
+
+    Strategy:
+    - Convert to JPEG (quality ~92) for size efficiency.
+    - Upscale to at least 2560px wide if smaller (maintain aspect).
+    """
+    out_dir.mkdir(parents=True, exist_ok=True)
+    out_jpg = out_dir / "cover.jpg"
+
+    if shutil.which("sips") is None:
+        return cover_path
+
+    dims = _sips_dimensions(cover_path) or _png_dimensions(cover_path)
+    if dims is None:
+        # Fall back: at least convert format if possible.
+        _run(["sips", "-s", "format", "jpeg", "-s", "formatOptions", "92", str(cover_path), "--out", str(out_jpg)])
+        return out_jpg
+
+    width, height = dims
+    target_w = 2560
+
+    # If aspect is far from 1:1.6, don't resample; just convert.
+    aspect = (height / width) if width else 0.0
+    if not (1.55 <= aspect <= 1.65):
+        _run(["sips", "-s", "format", "jpeg", "-s", "formatOptions", "92", str(cover_path), "--out", str(out_jpg)])
+        return out_jpg
+
+    if width < target_w:
+        _run(
+            [
+                "sips",
+                "-s",
+                "format",
+                "jpeg",
+                "-s",
+                "formatOptions",
+                "92",
+                "--resampleWidth",
+                str(target_w),
+                str(cover_path),
+                "--out",
+                str(out_jpg),
+            ]
+        )
+    else:
+        _run(["sips", "-s", "format", "jpeg", "-s", "formatOptions", "92", str(cover_path), "--out", str(out_jpg)])
+    return out_jpg
+
+
+def _verify_epub_figures(epub_path: Path, *, expected_fig_labels: list[str] | None = None) -> None:
     """
     Best-effort sanity check that EPUB figure blocks actually contain renderable
     content (typically <img>). This guards against the "caption shows but image
@@ -204,6 +309,28 @@ def _verify_epub_figures(epub_path: Path) -> None:
                 except KeyError:
                     bad.append(f"{name}: missing image file in EPUB zip: {zp}")
 
+        if expected_fig_labels:
+            # Strong guarantee: every fig: label in the build aux must appear as
+            # a renderable figure block in the EPUB.
+            all_xhtml = {n: z.read(n).decode("utf-8", errors="ignore") for n in xhtmls}
+            for lab in expected_fig_labels:
+                found = False
+                for name, s in all_xhtml.items():
+                    # Prefer <figure id="fig:..."> because that's what Pandoc emits.
+                    m = re.search(
+                        r'<figure\b[^>]*\bid="' + re.escape(lab) + r'"[^>]*>.*?</figure>',
+                        s,
+                        flags=re.DOTALL,
+                    )
+                    if not m:
+                        continue
+                    block = m.group(0)
+                    if "<img" in block or "<svg" in block or "<math" in block:
+                        found = True
+                        break
+                if not found:
+                    bad.append(f"missing labeled figure: {lab}")
+
         if bad:
             raise SystemExit("EPUB figure verification failed:\n- " + "\n- ".join(bad[:60]))
 
@@ -239,7 +366,8 @@ def build(*, variant: str, clean: bool, skip_validate: bool) -> Path:
     raw_flat = select_ifdefined_hcode_branch(raw_flat)
     doc_body = strip_document_environment(raw_flat)
 
-    aux_numbers = _build_aux_numbers(p=p)
+    aux_info = _build_aux_info(p=p)
+    aux_numbers = aux_info.numbers
     doc_body = inject_equation_targets(doc_body)
     doc_body = rewrite_crossrefs(doc_body, aux_numbers=aux_numbers)
     doc_body = prefix_chapter_sections(doc_body, aux_numbers=aux_numbers)
@@ -363,7 +491,7 @@ def build(*, variant: str, clean: bool, skip_validate: bool) -> Path:
         "--mathml",
         "--css",
         str(css_path),
-        *(["--epub-cover-image", str(cover_path)] if cover_path else []),
+        *(["--epub-cover-image", str(_prepare_cover_for_epub(cover_path=cover_path, out_dir=p.artifacts / "tmp" / "cover"))] if cover_path else []),
         "--resource-path",
         str(p.media) + ":" + str(p.repo_root) + ":" + str(p.notes_output),
         "--output",
@@ -375,7 +503,8 @@ def build(*, variant: str, clean: bool, skip_validate: bool) -> Path:
 
     postprocess_epub_minimal(out_epub)
     if strict_figures:
-        _verify_epub_figures(out_epub)
+        expected = _extract_aux_labels(aux_info.aux_path, prefix="fig:")
+        _verify_epub_figures(out_epub, expected_fig_labels=expected)
     if not skip_validate:
         run_epubcheck(out_epub, out_dir=p.artifacts / "epubcheck")
     return out_epub

@@ -9,6 +9,7 @@ change exists.
 - Source LaTeX lives in `notes_output/`.
 - EPUBs are built via the isolated Pandoc-based pipeline in `epub_builder/`.
 - Targets: Apple Books and Kindle (EPUB3 variants).
+- For the broader “publish-grade” backlog and editorial standards, see `notes_output/PRODUCTION_ROADMAP.md`.
 
 ## Current required outputs
 
@@ -18,6 +19,7 @@ change exists.
 ## Critical invariants (publish-grade)
 
 1. **No missing figures**: the build must fail if any figure is missing (including TikZ failures).
+   - Implementation: after building the EPUB, the builder checks that every `fig:` label present in the build `.aux` exists as a corresponding `<figure id="fig:...">` in the EPUB and that it contains renderable content (typically `<img>`).
 2. **Reference continuity**: cross-references (Chapter/Figure/Table/Section/Appendix/Equation) must be readable and numbered consistently with the PDF.
    - Headings that should be numbered must have explicit `\\label{sec:...}` anchors in the LaTeX sources. Use `python3 epub_builder/scripts/add_missing_heading_labels.py` to fill in missing subsection/subsubsection labels (idempotent).
    - Equation numbers in EPUB are only shown for labeled equations. Use `python3 epub_builder/scripts/add_missing_equation_labels.py` to fill in missing `\\label{eq:...}` for `equation` environments (idempotent).
@@ -25,6 +27,17 @@ change exists.
 4. **No clipping**: long display math must not be cut off; allow scrolling as a last resort.
 
 ## Automated checks (run before every release)
+
+### Prereqs (for QC scripts)
+
+Some QC scripts use Playwright (headless Chromium) and basic image analysis deps.
+If a script errors with “missing dependency”, install once into `epub_builder/.venv`:
+
+```bash
+python3 -m venv epub_builder/.venv
+epub_builder/.venv/bin/pip install playwright pillow numpy opencv-python
+epub_builder/.venv/bin/python -m playwright install chromium
+```
 
 ### 1) Clean rebuild (both variants)
 
@@ -36,6 +49,7 @@ python3 epub_builder/build.py --variant both --clean
 
 - Current cover source is configured in `notes_output/book_metadata.json` under `cover_image`.
 - Prefer the higher-resolution `notes_output/BookCover.png` (1600×2560) over `notes_output/BookCover_1024x1536.png`.
+ - Build behavior: the EPUB builder converts the cover to JPEG and upscales to at least 2560px wide (when smaller) for better thumbnails on high-DPI devices.
  - If Finder/Quick Look (macOS) shows a generic EPUB thumbnail, the builder postprocesses the EPUB to:
    - add an EPUB2-style `meta name="cover"` entry in the OPF
    - emit an `<img>`-based `cover.xhtml` (instead of an SVG wrapper), which is more widely thumbnail-compatible.
@@ -58,6 +72,7 @@ Repeat for Kindle by swapping `--epub`.
 Notes:
 - The Pandoc builder generates `epub_builder/artifacts/tmp/aux/ece657_notes_epub_aux.aux` on every build; prefer it for EPUB QC so section/equation numbering matches the exact sources used to build the EPUB.
 - If you are doing PDF-only regression checks, you can use `notes_output/ece657_notes.aux` instead (produced by the PDF toolchain).
+- The aux compile is run only to extract numbering and does **not** run BibTeX; ignore “undefined citations” / missing `.bbl` warnings in `ece657_notes_epub_aux.log`.
 
 ### 3) Image resolution audit (EPUB media)
 

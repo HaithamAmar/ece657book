@@ -48,6 +48,12 @@ def _preamble() -> str:
 }
 \pgfplotsset{cycle list name=cbPalette}
 
+% Make thin line-art readable on high-DPI ebook readers.
+\tikzset{
+    every picture/.append style={line width=0.8pt},
+    every node/.append style={inner sep=3pt},
+}
+
 % SOM helper functions (used in lecture_5_part_i.tex figures)
 \pgfmathdeclarefunction{somindex}{2}{%
     \pgfmathsetmacro{\da}{(#1-0.2)^2 + (#2-0.2)^2}%
