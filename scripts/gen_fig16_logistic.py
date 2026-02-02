@@ -2,11 +2,10 @@ import numpy as np
 import matplotlib.pyplot as plt
 from pathlib import Path
 
+from figure_style import apply_style
+
 np.random.seed(3)
-plt.rcParams.update({
-    "font.family": "serif",
-    "font.size": 11,
-})
+apply_style(font_size=11)
 
 # synthetic 2D data
 n = 14

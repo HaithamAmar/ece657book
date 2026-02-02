@@ -2,17 +2,20 @@ import matplotlib.pyplot as plt
 import numpy as np
 from pathlib import Path
 
-plt.rcParams.update({
-    "figure.figsize": (7.0, 3.2),
-    "font.size": 11,
-    "axes.titlesize": 13,
-    "axes.labelsize": 12,
-    "legend.fontsize": 10,
-    "xtick.labelsize": 10,
-    "ytick.labelsize": 10,
-    "lines.linewidth": 1.4,
-    "font.family": "serif",
-})
+from figure_style import apply_style
+
+apply_style(
+    font_size=11,
+    axes_labelsize=12,
+    axes_titlesize=13,
+    linewidth=1.4,
+    extra_rc={
+        "figure.figsize": (7.0, 3.2),
+        "legend.fontsize": 10,
+        "xtick.labelsize": 10,
+        "ytick.labelsize": 10,
+    },
+)
 
 out_path = Path(__file__).resolve().parents[1] / "assets" / "lec1"
 out_path.mkdir(parents=True, exist_ok=True)

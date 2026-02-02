@@ -2,15 +2,18 @@ import numpy as np
 import matplotlib.pyplot as plt
 from pathlib import Path
 
-plt.rcParams.update({
-    "figure.figsize": (4.0, 2.6),
-    "font.size": 10,
-    "axes.labelsize": 11,
-    "axes.titlesize": 11,
-    "xtick.labelsize": 9,
-    "ytick.labelsize": 9,
-    "font.family": "serif",
-})
+from figure_style import apply_style
+
+apply_style(
+    font_size=10,
+    axes_labelsize=11,
+    axes_titlesize=11,
+    extra_rc={
+        "figure.figsize": (4.0, 2.6),
+        "xtick.labelsize": 9,
+        "ytick.labelsize": 9,
+    },
+)
 
 cb_green = "#1b9e77"
 cb_orange = "#d95f02"

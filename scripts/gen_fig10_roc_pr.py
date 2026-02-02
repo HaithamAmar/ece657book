@@ -2,15 +2,18 @@ import numpy as np
 import matplotlib.pyplot as plt
 from pathlib import Path
 
-plt.rcParams.update({
-    "font.family": "serif",
-    "font.size": 11,
-    "axes.labelsize": 12,
-    "axes.titlesize": 13,
-    "xtick.labelsize": 10,
-    "ytick.labelsize": 10,
-    "lines.linewidth": 1.6,
-})
+from figure_style import apply_style
+
+apply_style(
+    font_size=11,
+    axes_labelsize=12,
+    axes_titlesize=13,
+    linewidth=1.6,
+    extra_rc={
+        "xtick.labelsize": 10,
+        "ytick.labelsize": 10,
+    },
+)
 
 # synthetic ROC curve
 fpr = np.linspace(0, 1, 200)

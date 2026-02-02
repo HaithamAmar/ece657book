@@ -2,14 +2,9 @@ import matplotlib.pyplot as plt
 from matplotlib.patches import Rectangle, Circle
 from pathlib import Path
 
+from figure_style import apply_style
 
-plt.rcParams.update(
-    {
-        "font.family": "serif",
-        "font.size": 11,
-        "axes.axisbelow": True,
-    }
-)
+apply_style(font_size=11, extra_rc={"axes.axisbelow": True})
 
 out_dir = Path(__file__).resolve().parents[1] / "assets" / "lec7"
 out_dir.mkdir(parents=True, exist_ok=True)
@@ -178,4 +173,3 @@ if __name__ == "__main__":
     fig_lstm()
     fig_gru()
     print(f"Saved LSTM/GRU cell diagrams to {out_dir}")
-

@@ -12,17 +12,11 @@ import matplotlib.pyplot as plt
 from matplotlib.patches import Ellipse
 from pathlib import Path
 
+from figure_style import apply_style
+
 
 def main() -> None:
-    # Global styling tuned for print
-    plt.rcParams.update(
-        {
-            "font.family": "serif",
-            "font.size": 13,
-            "axes.labelsize": 14,
-            "axes.titlesize": 14,
-        }
-    )
+    apply_style(font_size=13, axes_labelsize=14, axes_titlesize=14)
 
     out_dir = Path(__file__).resolve().parents[1] / "assets" / "lec14"
     out_dir.mkdir(parents=True, exist_ok=True)

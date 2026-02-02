@@ -3,8 +3,9 @@ import matplotlib.pyplot as plt
 from matplotlib.patches import FancyBboxPatch
 from pathlib import Path
 
-# Consistent, print-friendly style
-plt.rcParams.update({"font.family": "serif", "font.size": 12})
+from figure_style import apply_style
+
+apply_style(font_size=12)
 
 points = {
     "king": (-3.2, 2.3),

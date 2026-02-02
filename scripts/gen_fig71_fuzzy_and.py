@@ -2,13 +2,16 @@ import numpy as np
 import matplotlib.pyplot as plt
 from pathlib import Path
 
-plt.rcParams.update({
-    "font.family": "serif",
-    "font.size": 11,
-    "axes.labelsize": 12,
-    "xtick.labelsize": 10,
-    "ytick.labelsize": 10,
-})
+from figure_style import apply_style
+
+apply_style(
+    font_size=11,
+    axes_labelsize=12,
+    extra_rc={
+        "xtick.labelsize": 10,
+        "ytick.labelsize": 10,
+    },
+)
 
 a = np.linspace(0, 1, 200)
 b = np.linspace(0, 1, 200)

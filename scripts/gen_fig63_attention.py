@@ -2,14 +2,17 @@ import numpy as np
 import matplotlib.pyplot as plt
 from pathlib import Path
 
-plt.rcParams.update({
-    "figure.figsize": (4.6, 3.0),
-    "font.size": 11,
-    "axes.labelsize": 12,
-    "xtick.labelsize": 10,
-    "ytick.labelsize": 10,
-    "font.family": "serif",
-})
+from figure_style import apply_style
+
+apply_style(
+    font_size=11,
+    axes_labelsize=12,
+    extra_rc={
+        "figure.figsize": (4.6, 3.0),
+        "xtick.labelsize": 10,
+        "ytick.labelsize": 10,
+    },
+)
 
 out_dir = Path(__file__).resolve().parents[1] / "assets" / "lec13"
 out_dir.mkdir(parents=True, exist_ok=True)
