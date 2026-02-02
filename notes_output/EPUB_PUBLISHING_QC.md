@@ -10,6 +10,10 @@ change exists.
 - EPUBs are built via the isolated Pandoc-based pipeline in `epub_builder/`.
 - Targets: Apple Books and Kindle (EPUB3 variants).
 - For the broader “publish-grade” backlog and editorial standards, see `notes_output/PRODUCTION_ROADMAP.md`.
+- For operator docs (fresh machine + release procedure), see:
+  - `notes_output/SETUP_CHECKLIST.md`
+  - `notes_output/RELEASE_PLAYBOOK.md`
+  - `notes_output/TEST_MATRIX.md`
 
 ## Current required outputs
 

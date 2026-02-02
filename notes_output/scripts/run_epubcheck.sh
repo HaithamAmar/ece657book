@@ -53,8 +53,10 @@ while [[ $# -gt 0 ]]; do
 done
 
 if [[ ${#EPUBS[@]} -eq 0 ]]; then
-  EPUBS+=("${ROOT_DIR}/artifacts/ebook/ece657_ebook_kindle.epub")
-  EPUBS+=("${ROOT_DIR}/artifacts/ebook/ece657_ebook_apple.epub")
+  # Default to the Pandoc-based builder outputs (repo-root /epub_builder/dist).
+  REPO_ROOT="$(cd "${ROOT_DIR}/.." && pwd)"
+  EPUBS+=("${REPO_ROOT}/epub_builder/dist/ece657_ebook_kindle.epub")
+  EPUBS+=("${REPO_ROOT}/epub_builder/dist/ece657_ebook_apple.epub")
 fi
 
 mkdir -p "${OUT_DIR}"
@@ -126,4 +128,3 @@ for epub in "${EPUBS[@]}"; do
 done
 
 exit $status
-

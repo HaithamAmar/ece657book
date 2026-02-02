@@ -8,6 +8,65 @@ from pathlib import Path
 import zipfile
 
 
+def _strip_mathml_from_nav(nav: str) -> str:
+    """
+    EPUBCheck is strict about MathML inside nav.xhtml (TOC). Replace any MathML
+    blocks with a plain-text fallback taken from the x-tex annotation when
+    available.
+    """
+
+    def _replace_math(m: re.Match[str]) -> str:
+        block = m.group(0)
+        ann = re.search(r'<annotation[^>]*encoding="application/x-tex"[^>]*>([\s\S]*?)</annotation>', block)
+        if ann:
+            text = re.sub(r"\s+", " ", ann.group(1)).strip()
+            return text
+        return ""
+
+    return re.sub(r"<math\b[\s\S]*?</math>", _replace_math, nav)
+
+def _strip_empty_spans_from_nav(nav: str) -> str:
+    """
+    Pandoc can emit empty anchor spans (e.g., from \\hypertarget) inside heading
+    text, and then copy them into nav.xhtml. EPUBCheck rejects empty <span>
+    elements inside <nav>.
+    """
+    nav2 = re.sub(r"<span\b[^>]*/>", "", nav)
+    nav2 = re.sub(r"<span\b[^>]*>\s*</span>", "", nav2)
+    return nav2
+
+
+def _id_to_xhtml_map(text_dir: Path) -> dict[str, str]:
+    """
+    Build a mapping from element id -> xhtml filename (e.g., 'fig:roadmap' -> 'ch005.xhtml').
+    """
+    mapping: dict[str, str] = {}
+    for xhtml in sorted(text_dir.glob("*.xhtml")):
+        s = xhtml.read_text(encoding="utf-8", errors="ignore")
+        for m in re.finditer(r'\bid="([^"]+)"', s):
+            lab = m.group(1)
+            # Keep first occurrence; duplicate ids are invalid anyway.
+            mapping.setdefault(lab, xhtml.name)
+    return mapping
+
+
+def _rewrite_cross_file_fragment_links(xhtml_text: str, *, current_xhtml: str, id_map: dict[str, str]) -> str:
+    """
+    Pandoc emits href="#fig:..." for figure ids, but EPUB splits content across
+    multiple XHTML files. Rewrite to href="chXXX.xhtml#fig:..." when the id lives
+    in a different file.
+    """
+
+    def _sub(m: re.Match[str]) -> str:
+        frag = m.group(1)
+        target = id_map.get(frag)
+        if not target or target == current_xhtml:
+            return m.group(0)
+        return f'href="{target}#{frag}"'
+
+    return re.sub(r'href="#([^"]+)"', _sub, xhtml_text)
+
+
 def postprocess_epub_minimal(epub_path: Path) -> None:
     if not epub_path.exists():
         raise FileNotFoundError(epub_path)
@@ -26,6 +85,7 @@ def postprocess_epub_minimal(epub_path: Path) -> None:
 
         opf_path = tmp / "EPUB" / "content.opf"
         cover_xhtml = tmp / "EPUB" / "text" / "cover.xhtml"
+        nav_xhtml = tmp / "EPUB" / "nav.xhtml"
         if not opf_path.exists() or not cover_xhtml.exists():
             return
 
@@ -50,7 +110,7 @@ def postprocess_epub_minimal(epub_path: Path) -> None:
             if 'name="cover"' not in opf:
                 def _add_cover_meta(m: re.Match[str]) -> str:
                     md = m.group(0)
-                    insert = f'  <meta name="cover" content="{cover_id}" />\\n'
+                    insert = f'  <meta name="cover" content="{cover_id}" />\n'
                     if "</metadata>" in md:
                         return md.replace("</metadata>", insert + "</metadata>", 1)
                     return md
@@ -58,22 +118,45 @@ def postprocess_epub_minimal(epub_path: Path) -> None:
                 opf = re.sub(r"<metadata[\s\S]*?</metadata>", _add_cover_meta, opf, count=1)
                 opf_path.write_text(opf, encoding="utf-8")
 
+            # Pandoc can mark cover.xhtml with properties="svg" when it uses an
+            # SVG wrapper. We rewrite cover.xhtml to a plain <img>, so remove
+            # that property for EPUBCheck compliance.
+            opf2 = re.sub(
+                r'(<item\b[^>]*\bid="cover_xhtml"[^>]*?)\s+properties="[^"]*\bsvg\b[^"]*"(.*?)\s*/>',
+                r"\1\2 />",
+                opf,
+                flags=re.IGNORECASE,
+            )
+            if opf2 != opf:
+                opf = opf2
+                opf_path.write_text(opf, encoding="utf-8")
+
             # Rewrite cover.xhtml to a simple <img> cover page for better compatibility.
             # cover_href is relative to OPF; cover.xhtml lives under EPUB/text/.
             # Pandoc uses href like "media/file74.png".
             img_src = "../" + cover_href
-            cover_doc = f'''<?xml version="1.0" encoding="UTF-8"?>\n<!DOCTYPE html>\n<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">\n<head>\n  <meta charset="utf-8" />\n  <title>Cover</title>\n  <style>\n    body {{ margin: 0; padding: 0; }}\n    #cover {{ text-align: center; }}\n    #cover img {{ max-width: 100%; height: auto; }}\n  </style>\n  <link rel="stylesheet" type="text/css" href="../styles/stylesheet1.css" />\n</head>\n<body id="cover">\n  <div id="cover">\n    <img alt="Cover" src="{img_src}" />\n  </div>\n</body>\n</html>\n'''
+            cover_doc = f'''<?xml version="1.0" encoding="UTF-8"?>\n<!DOCTYPE html>\n<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">\n<head>\n  <meta charset="utf-8" />\n  <title>Cover</title>\n  <style>\n    body {{ margin: 0; padding: 0; }}\n    body#cover {{ text-align: center; }}\n    .cover img {{ max-width: 100%; height: auto; }}\n  </style>\n  <link rel="stylesheet" type="text/css" href="../styles/stylesheet1.css" />\n</head>\n<body id="cover">\n  <div class="cover">\n    <img alt="Cover" src="{img_src}" />\n  </div>\n</body>\n</html>\n'''
             cover_xhtml.write_text(cover_doc, encoding="utf-8")
 
-        # Wrap block MathML in <div class="math-block"> for scrollable overflow.
+        # Remove MathML from nav.xhtml (TOC) for EPUBCheck compliance.
+        if nav_xhtml.exists():
+            nav = nav_xhtml.read_text(encoding="utf-8", errors="ignore")
+            nav2 = _strip_mathml_from_nav(nav)
+            nav2 = _strip_empty_spans_from_nav(nav2)
+            if nav2 != nav:
+                nav_xhtml.write_text(nav2, encoding="utf-8")
+
+        # Wrap block MathML in a container for scrollable overflow.
         text_dir = tmp / "EPUB" / "text"
         if text_dir.exists():
+            id_map = _id_to_xhtml_map(text_dir)
             for xhtml in sorted(text_dir.glob("*.xhtml")):
                 s = xhtml.read_text(encoding="utf-8", errors="ignore")
+                s = _rewrite_cross_file_fragment_links(s, current_xhtml=xhtml.name, id_map=id_map)
                 # Non-greedy match on individual MathML blocks.
                 s2 = re.sub(
                     r'(<math\b[^>]*\bdisplay="block"[^>]*>[\s\S]*?</math>)',
-                    r'<div class="math-block">\1</div>',
+                    r'<span class="math-block">\1</span>',
                     s,
                 )
                 if s2 != s:

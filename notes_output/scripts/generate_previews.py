@@ -82,21 +82,48 @@ def _extract_epub_targets(epub: Path, out_dir: Path, keywords: list[str]) -> dic
         with zipfile.ZipFile(epub) as z:
             z.extractall(tmp_dir)
 
-        oebps = tmp_dir / "OEBPS"
-        if not oebps.exists():
-            candidates = list(tmp_dir.rglob("OEBPS"))
-            if len(candidates) != 1:
-                raise FileNotFoundError("Could not locate OEBPS in extracted EPUB.")
-            oebps = candidates[0]
+        # Support both TeX4ht-style EPUBs (OEBPS/) and Pandoc-style EPUBs (EPUB/).
+        content_root: Path | None = None
+        xhtml_root: Path | None = None
 
-        xhtml_files = sorted(oebps.glob("*.xhtml"))
+        oebps = tmp_dir / "OEBPS"
+        if oebps.exists():
+            content_root = oebps
+            xhtml_root = oebps
+        else:
+            candidates = list(tmp_dir.rglob("OEBPS"))
+            if len(candidates) == 1:
+                content_root = candidates[0]
+                xhtml_root = candidates[0]
+
+        if content_root is None:
+            epub3 = tmp_dir / "EPUB"
+            if epub3.exists():
+                content_root = epub3
+                if (epub3 / "text").exists():
+                    xhtml_root = epub3 / "text"
+                else:
+                    xhtml_root = epub3
+            else:
+                candidates = list(tmp_dir.rglob("EPUB"))
+                if len(candidates) == 1:
+                    content_root = candidates[0]
+                    if (content_root / "text").exists():
+                        xhtml_root = content_root / "text"
+                    else:
+                        xhtml_root = content_root
+
+        if content_root is None or xhtml_root is None:
+            raise FileNotFoundError("Could not locate OEBPS/ or EPUB/ in extracted EPUB.")
+
+        xhtml_files = sorted(xhtml_root.glob("*.xhtml"))
         for xf in xhtml_files:
             text = xf.read_text(encoding="utf-8", errors="replace")
             hit = [k for k in keywords if k in text]
             if not hit:
                 continue
 
-            rel = xf.relative_to(oebps).as_posix()
+            rel = xf.relative_to(xhtml_root).as_posix()
             entry = matches.setdefault(rel, {"keywords": hit, "images": [], "pre_txt": []})
 
             # Copy referenced images.
@@ -105,7 +132,15 @@ def _extract_epub_targets(epub: Path, out_dir: Path, keywords: list[str]) -> dic
                 src = m[0] or m[1]
                 img_srcs.add(src)
             for src in sorted(img_srcs):
-                img_path = oebps / src
+                # Resolve relative to the XHTML file location (works for both
+                # `OEBPS/foo.png` and `EPUB/text/../media/file0.png`).
+                img_path = (xf.parent / src).resolve()
+                try:
+                    img_path.relative_to(content_root.resolve())
+                except Exception:
+                    # If src resolution escaped the content root, fall back to
+                    # resolving from the content root itself.
+                    img_path = (content_root / src).resolve()
                 if not img_path.exists() or img_path.is_dir():
                     continue
                 out_path = epub_dir / src.replace("/", "__")

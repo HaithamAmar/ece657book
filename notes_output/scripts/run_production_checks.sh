@@ -2,6 +2,7 @@
 set -euo pipefail
 
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+REPO_ROOT="$(cd "${ROOT_DIR}/.." && pwd)"
 
 cd "${ROOT_DIR}"
 
@@ -66,7 +67,9 @@ PY
 echo "[3/3] EPUBCheck (required for production)…"
 EPUBCHECK_OUT="${ROOT_DIR}/artifacts/release_checks/epubcheck"
 mkdir -p "${EPUBCHECK_OUT}"
-bash "${ROOT_DIR}/scripts/run_epubcheck.sh" --out "${EPUBCHECK_OUT}"
+bash "${ROOT_DIR}/scripts/run_epubcheck.sh" --out "${EPUBCHECK_OUT}" \
+  "${REPO_ROOT}/epub_builder/dist/ece657_ebook_kindle.epub" \
+  "${REPO_ROOT}/epub_builder/dist/ece657_ebook_apple.epub"
 
 echo "Wrote:"
 echo "  ${ROOT_DIR}/artifacts/release_checks/report.txt"
