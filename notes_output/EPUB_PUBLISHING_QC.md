@@ -29,6 +29,9 @@ change exists.
    - Equation numbers in EPUB are only shown for labeled equations. Use `python3 epub_builder/scripts/add_missing_equation_labels.py` to fill in missing `\\label{eq:...}` for `equation` environments (idempotent).
 3. **High-resolution figures**: images must be crisp on high-density displays; prefer vector→high-DPI rasterization when necessary.
 4. **No clipping**: long display math must not be cut off; allow scrolling as a last resort.
+5. **Readable tables**: tables must never shrink to microscopic text on narrow screens.
+   - Implementation: the EPUB builder wraps every HTML `<table>` in `<div class="table-wrap">` and enables horizontal scrolling in `epub_builder/epub.css`.
+   - If a table is still unusable with scrolling, it must be redesigned at the LaTeX source level (split/convert to prose), not “fixed” by hardcoding sizes.
 
 ## Automated checks (run before every release)
 
@@ -102,6 +105,21 @@ epub_builder/.venv/bin/python epub_builder/scripts/audit_epub_layout.py \
   --viewport-w 1000 \
   --viewport-h 1400
 ```
+
+### 5) Table audit (EPUB)
+
+Lists every table (caption + column estimate) to help identify “must redesign” offenders.
+
+```bash
+stamp=$(date +%Y%m%d_%H%M%S)
+python3 epub_builder/scripts/audit_epub_tables.py \
+  --epub epub_builder/dist/ece657_ebook_apple.epub \
+  --out-json epub_builder/artifacts/qc/epub_table_audit_${stamp}.json \
+  --out-md notes_output/EPUB_TABLES_AUDIT.md \
+  --flag-cols 5
+```
+
+Policy and remediation guidance live in `notes_output/EPUB_TABLES.md`.
 
 ## Known issues fixed (and why)
 

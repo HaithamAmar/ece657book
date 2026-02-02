@@ -66,6 +66,25 @@ def _rewrite_cross_file_fragment_links(xhtml_text: str, *, current_xhtml: str, i
 
     return re.sub(r'href="#([^"]+)"', _sub, xhtml_text)
 
+def _wrap_tables(html: str) -> str:
+    """
+    Wrap HTML tables in a scroll container so wide tables remain readable on
+    small screens (instead of shrinking to microscopic text).
+    """
+    if "<table" not in html:
+        return html
+
+    def _sub(m: re.Match[str]) -> str:
+        block = m.group(0)
+        # Avoid double-wrapping.
+        if re.search(r'<div\s+class="table-wrap"\s*>[\s\S]*?<table\b', block):
+            return block
+        return f'<div class="table-wrap">{block}</div>'
+
+    # Only wrap full table blocks; tables are block-level and should not be
+    # inside <p> in Pandoc output.
+    return re.sub(r"(<table\b[\s\S]*?</table>)", _sub, html)
+
 
 def postprocess_epub_minimal(epub_path: Path) -> None:
     if not epub_path.exists():
@@ -151,15 +170,17 @@ def postprocess_epub_minimal(epub_path: Path) -> None:
         if text_dir.exists():
             id_map = _id_to_xhtml_map(text_dir)
             for xhtml in sorted(text_dir.glob("*.xhtml")):
-                s = xhtml.read_text(encoding="utf-8", errors="ignore")
+                orig = xhtml.read_text(encoding="utf-8", errors="ignore")
+                s = orig
                 s = _rewrite_cross_file_fragment_links(s, current_xhtml=xhtml.name, id_map=id_map)
+                s = _wrap_tables(s)
                 # Non-greedy match on individual MathML blocks.
                 s2 = re.sub(
                     r'(<math\b[^>]*\bdisplay="block"[^>]*>[\s\S]*?</math>)',
                     r'<span class="math-block">\1</span>',
                     s,
                 )
-                if s2 != s:
+                if s2 != orig:
                     xhtml.write_text(s2, encoding="utf-8")
 
         # Repack EPUB: `mimetype` must be first and uncompressed.

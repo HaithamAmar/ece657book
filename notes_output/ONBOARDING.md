@@ -16,6 +16,9 @@ Structure & logic
   - `notes_output/SETUP_CHECKLIST.md`
   - `notes_output/RELEASE_PLAYBOOK.md`
   - `notes_output/TEST_MATRIX.md`
+- Table policy + latest table audit:
+  - `notes_output/EPUB_TABLES.md`
+  - `notes_output/EPUB_TABLES_AUDIT.md`
 - Terminology (publishing consistency): prefer “book” in prose (avoid “these notes” / “opening material” phrasing inside numbered chapters). Assume **no companion resources** exist; do not promise slides/bundles/code/solutions, and avoid phrasing like “provided with your copy”.
 
 Original lecture transcript reference

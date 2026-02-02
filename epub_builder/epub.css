@@ -93,6 +93,15 @@ pre, code {
 }
 
 /* Tables: avoid ultra-narrow columns in readers that honor colgroup widths */
+.table-wrap {
+  display: block;
+  max-width: 100%;
+  overflow-x: auto;
+  overflow-y: hidden;
+  -webkit-overflow-scrolling: touch;
+  margin: 1em 0;
+}
+
 table {
   /* Keep tables compact; readers may otherwise stretch columns to full width. */
   width: auto !important;

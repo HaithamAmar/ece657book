@@ -1,0 +1,34 @@
+# EPUB table audit
+- EPUB: `/Users/Haitham.Amar/Documents/ece657Book/epub_builder/dist/ece657_ebook_apple.epub`
+- Tables found: 19
+- Flag threshold: >= 5 columns
+
+## Tables (by file order)
+- `ch004.xhtml` table#1: cols=2 — (no caption)
+- `ch006.xhtml` table#1: cols=3 — Schematic: Transformation toolkit (safe vs. heuristic). Preconditions keep domains/branches explicit (e.g., restrictions like “x in (-1,1)” for square-root expressions); principal branches unless noted.
+  - style: `width:22%;`
+- `ch007.xhtml` table#1: cols=3 — Schematic: Common losses and typical use (reference for Chapters 3–5).
+  - style: `width:87%;`
+- `ch008.xhtml` table#1: cols=2 — Schematic: Handling class imbalance for logistic models (Chapter 4 reference table).
+  - style: `width:32%;`
+- `ch014.xhtml` table#1: cols=3 — (no caption)
+  - style: `width:88%;`
+- `ch014.xhtml` table#2: cols=4 — Table 4. Schematic: Single-neuron flips from (1, 1, -1); all raise the energy, so the state is a local minimum.
+- `ch016.xhtml` table#1: cols=9 **FLAG: wide** — (no caption)
+- `ch017.xhtml` table#1: cols=3 — (no caption)
+  - style: `width:92%;`
+- `ch019.xhtml` table#1: cols=3 — Table 5. Schematic: Fuzzy vs. probabilistic reasoning at a glance.
+  - style: `width:91%;`
+- `ch019.xhtml` table#2: cols=3 — Table 6. Schematic: Boolean operators vs. fuzzy operators at a glance.
+  - style: `width:91%;`
+- `ch020.xhtml` table#1: cols=4 — Table 7. Schematic: Typical operator choices in fuzzy inference and their qualitative effects. Here the t-norm implements fuzzy AND, the s-norm implements fuzzy OR, and the implication shapes consequents.
+- `ch021.xhtml` table#1: cols=3 — Table 8. Schematic: Popular t-norms and their typical roles.
+  - style: `width:53%;`
+- `ch021.xhtml` table#2: cols=4 — (no caption)
+- `ch021.xhtml` table#3: cols=1 — (no caption)
+- `ch021.xhtml` table#4: cols=1 — (no caption)
+- `ch023.xhtml` table#1: cols=2 — (no caption)
+- `ch023.xhtml` table#2: cols=4 — Table 9. Schematic: Toy GA generation on a bounded interval. One crossover and mutation illustrate how the fitness function guides selection before the next generation.
+  - style: `width:34%;`
+- `ch023.xhtml` table#3: cols=2 — (no caption)
+- `ch024.xhtml` table#1: cols=4 — Table 10. Schematic: Big-picture view of model families across the taxonomy and learning paradigms. Each entry represents a family introduced in the book; supervision labels indicate the dominant training signal rather than strict exclusivity.
