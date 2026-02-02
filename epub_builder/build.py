@@ -489,6 +489,8 @@ def build(*, variant: str, clean: bool, skip_validate: bool) -> Path:
         "--to=epub3",
         "--standalone",
         "--mathml",
+        "--toc-depth",
+        "2",
         "--css",
         str(css_path),
         *(["--epub-cover-image", str(_prepare_cover_for_epub(cover_path=cover_path, out_dir=p.artifacts / "tmp" / "cover"))] if cover_path else []),

@@ -15,6 +15,11 @@ change exists.
   - `notes_output/RELEASE_PLAYBOOK.md`
   - `notes_output/TEST_MATRIX.md`
 
+## TOC and heading policy (EPUB)
+
+- EPUB navigation TOC depth is capped at **2** (chapters + sections). Subsubsections are intentionally excluded to avoid clutter on e-readers.
+- Starred headings (`\\section*`, `\\subsection*`) are reserved for front/end matter; within numbered chapters, prefer numbered headings or demote short “bridge” headings to `\\paragraph{...}` so they do not appear as unnumbered TOC entries.
+
 ## Current required outputs
 
 - Apple: `epub_builder/dist/ece657_ebook_apple.epub`
