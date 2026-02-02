@@ -334,8 +334,8 @@ Nothing essential changes for deeper networks; we simply apply the same chain ru
 \end{equation}
 where $\circ$ denotes element\hyp{}wise multiplication. This recursion is the heart of backpropagation, which we derive and operationalize in \Cref{chap:backprop}.
 
-\begin{tcolorbox}[summarybox,title={Author's note: what Chapter 7 adds}]
-Conceptually, nothing new happens when you go from two neurons to many layers: it is still the chain rule and the same local derivatives. What changes is the \emph{organization}: we run a forward pass that caches intermediate values, then a backward pass that reuses those caches to compute all gradients efficiently (and stably) for an entire batch. Chapter 7 turns the recursion into an implementable algorithm and shows the standard bookkeeping.
+\begin{tcolorbox}[summarybox,title={Author's note: what backprop adds}]
+Conceptually, nothing new happens when you go from two neurons to many layers: it is still the chain rule and the same local derivatives. What changes is the \emph{organization}: we run a forward pass that caches intermediate values, then a backward pass that reuses those caches to compute all gradients efficiently (and stably) for an entire batch. The next chapter turns the recursion into an implementable algorithm and shows the standard bookkeeping.
 \end{tcolorbox}
 
 \subsection{Summary}

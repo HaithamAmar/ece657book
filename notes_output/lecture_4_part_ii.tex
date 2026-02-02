@@ -29,7 +29,7 @@ An RBFN is a special category of feedforward neural network characterized by the
 
 This architecture contrasts with MLPs, which can have multiple hidden layers and trainable weights on all connections.
 
-The RBFN was originally developed as a method to model nonlinear static processes by mapping data from a lower-dimensional input space to a higher-dimensional feature space. The key idea is that data which are \emph{not linearly separable} in the original input space can become \emph{linearly separable} after a suitable nonlinear transformation into a higher-dimensional space. This concept is closely related to the kernel trick used in support vector machines (SVMs); Appendix~\ref{app:kernels} collects the classical kernel/SVM viewpoint in one place.
+The RBFN was originally developed as a method to model nonlinear static processes by mapping data from a lower-dimensional input space to a higher-dimensional feature space. The key idea is that data which are \emph{not linearly separable} in the original input space can become \emph{linearly separable} after a suitable nonlinear transformation into a higher-dimensional space. This concept is closely related to the kernel trick used in support vector machines (SVMs); \Cref{app:kernels} collects the classical kernel/SVM viewpoint in one place.
 
 \Cref{chap:supervised} frames this as a bias--variance tuning problem (choose capacity, regularization, and diagnostics via learning curves). Kernel methods such as kernel ridge regression and SVMs interpret the same trade-off through an RBF kernel matrix; here we keep the bases explicit, then connect to the dual/kernel view later in the chapter.
 
@@ -342,7 +342,7 @@ which serve as localized similarity measures to each centroid \(v_i\). When \(\s
     \label{fig:rbf_sigma_sweep}
 \end{figure}
 
-\paragraph{Notation note.} In this chapter we write radial basis functions as \(\varphi_i(\cdot)\) and use \(\Phi\) for the associated design matrix. When we need a generic kernel feature map, we use \(\phi(\cdot)\) (consistent with Appendix~\ref{app:kernels}); when probability density functions are needed, we write them as \(p(\cdot)\). This avoids overloading a single symbol.
+\paragraph{Notation note.} In this chapter we write radial basis functions as \(\varphi_i(\cdot)\) and use \(\Phi\) for the associated design matrix. When we need a generic kernel feature map, we use \(\phi(\cdot)\) (consistent with \Cref{app:kernels}); when probability density functions are needed, we write them as \(p(\cdot)\). This avoids overloading a single symbol.
 
 % Chapter 8
 

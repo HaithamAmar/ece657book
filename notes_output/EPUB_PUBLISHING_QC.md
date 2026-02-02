@@ -27,6 +27,7 @@ change exists.
 - **Practice:** if a multi-line `align` block is just a derivation (not referenced), it may remain unlabeled *only if* it is converted to `align*`.
 - **Note:** we permit “non-semantic” auto-labels in sources (e.g., `\label{eq:auto:lecture_8_part_i:3}`) when an `align` block is unreferenced but we still want its number visible in EPUB for reader trust and PDF/EPUB parity.
 - **Citations:** production builds must contain no unresolved citations (no `[?]` markers). The structural verifier enforces this, and the aux compile reuses `notes_output/ece657_notes.bbl` when available to reduce citation drift.
+- **Crossrefs:** LaTeX sources must not use `\ref{chap:...}` / `\ref{fig:...}` / `\ref{tab:...}` / `\ref{sec:...}` / `\ref{app:...}` / `\ref{eq:...}`. Use `\Cref/\cref` for chapters/sections/figures/tables/appendices and `\eqref` for equations. The editorial QC runs `notes_output/scripts/check_crossrefs.py`.
 
 ## Current required outputs
 

@@ -18,6 +18,8 @@ Structure & logic
   - `notes_output/TEST_MATRIX.md`
 - Citation policy + bib hygiene:
   - `notes_output/CITATION_POLICY.md`
+- Cross-reference policy + label hygiene:
+  - Enforced by `notes_output/scripts/check_crossrefs.py` (run via `notes_output/scripts/run_editorial_qc.sh`).
 - Table policy + latest table audit:
   - `notes_output/EPUB_TABLES.md`
   - `notes_output/EPUB_TABLES_AUDIT.md`
