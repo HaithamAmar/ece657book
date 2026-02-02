@@ -16,6 +16,8 @@ Structure & logic
   - `notes_output/SETUP_CHECKLIST.md`
   - `notes_output/RELEASE_PLAYBOOK.md`
   - `notes_output/TEST_MATRIX.md`
+- Citation policy + bib hygiene:
+  - `notes_output/CITATION_POLICY.md`
 - Table policy + latest table audit:
   - `notes_output/EPUB_TABLES.md`
   - `notes_output/EPUB_TABLES_AUDIT.md`
