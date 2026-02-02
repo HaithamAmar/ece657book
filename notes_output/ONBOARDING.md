@@ -19,6 +19,8 @@ Structure & logic
 - Table policy + latest table audit:
   - `notes_output/EPUB_TABLES.md`
   - `notes_output/EPUB_TABLES_AUDIT.md`
+- Terminology concordance (book voice + consistency):
+  - `notes_output/TERMINOLOGY.md`
 - Terminology (publishing consistency): prefer “book” in prose (avoid “these notes” / “opening material” phrasing inside numbered chapters). Assume **no companion resources** exist; do not promise slides/bundles/code/solutions, and avoid phrasing like “provided with your copy”.
 
 Original lecture transcript reference

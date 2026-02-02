@@ -118,6 +118,11 @@ def verify_epub(epub_path: Path, *, aux_path: Path | None = None) -> list[Issue]
             if "<table" in s and '<div class="table-wrap">' not in s:
                 issues.append(Issue(name, 'contains <table> without <div class="table-wrap"> wrapper'))
 
+            # Unresolved citations are unacceptable for publishing.
+            # Many LaTeX/BibTeX toolchains render missing citations as `[?]`.
+            if "[?]" in s:
+                issues.append(Issue(name, 'contains unresolved citation marker "[?]"'))
+
         # Ensure each fig: label from aux exists as a <figure id="..."> with renderable content.
         if aux_path is not None and aux_path.exists():
             fig_labels = _extract_aux_labels(aux_path, prefix="fig:")

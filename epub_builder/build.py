@@ -124,6 +124,15 @@ def _build_aux_info(*, p: Paths) -> AuxInfo:
     aux_out_dir.mkdir(parents=True, exist_ok=True)
     jobname = "ece657_notes_epub_aux"
     aux_out = aux_out_dir / f"{jobname}.aux"
+    # Citations are not required for `.aux` numbering, but unresolved citations
+    # can leak as `[?]` into intermediate outputs and make debugging noisy.
+    # Reuse the most recent PDF build's `.bbl` when available.
+    src_bbl = p.notes_output / "ece657_notes.bbl"
+    if src_bbl.exists():
+        try:
+            shutil.copyfile(src_bbl, aux_out_dir / f"{jobname}.bbl")
+        except OSError:
+            pass
 
     try:
         for _ in range(2):
