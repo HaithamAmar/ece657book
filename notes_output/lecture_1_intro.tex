@@ -18,6 +18,7 @@ We treat ``intelligence'' operationally: specify what a system represents, what 
 \end{tcolorbox}
 
 \subsection{Historical Foundations of Intelligent Systems}
+\label{sec:intro_historical_foundations_of_intelligent_systems}
 
 A brief historical sketch helps place intelligent systems within a longer tradition that runs from early mechanical devices, through symbolic logic and computation, to modern machine learning.
 
@@ -81,6 +82,7 @@ This historical arc sets the stage for contemporary intelligent systems: program
 % A week-by-week topic plan may be provided separately; readers can review it to anticipate upcoming discussions when available.
 
 \subsection{Defining Artificial Intelligence and Intelligent Systems}
+\label{sec:intro_defining_artificial_intelligence_and_intelligent_systems}
 
 Artificial Intelligence (AI) is often misunderstood as merely a collection of popular applications such as image recognition or voice detection. However, these are just subsets of a much broader field. Instead of defining AI by its famous applications, it is more accurate to view AI as a body of collective algorithms, research, and engineering practice aimed at enabling machines to perceive their environment, perform inference, and take purposeful actions.
 
@@ -139,6 +141,7 @@ interaction with the environment (e.g., sensors, actuators), while the software 
 and decision-making.
 
 \subsubsection{From value-centric questions to concrete designs}
+\label{sec:intro_from_value_centric_questions_to_concrete_designs_sub}
 
 The three value-centric questions (``explain the past, understand the present, predict the future'') only become actionable once a designer fixes a problem statement, a representation, and the constraints under which the system operates. Rather than treating these as separate case studies, we fold them into a compact design checklist that we reuse whenever it helps structure a design discussion:
 \begin{enumerate}
@@ -150,6 +153,7 @@ The three value-centric questions (``explain the past, understand the present, p
 These three ingredients determine what the intelligent system must sense, infer, and control. Once they are in place we can reason about the interacting components that implement the perception $\rightarrow$ reasoning $\rightarrow$ action loop.
 
 \subsubsection{Components of AI Systems: Thinking, Perception, and Action}
+\label{sec:intro_components_of_ai_systems_thinking_perception_and_action_sub}
 
 AI systems can be decomposed into three interrelated components:
 
@@ -168,6 +172,7 @@ AI systems can be decomposed into three interrelated components:
 \end{itemize}
 
 \subsection{Case Study: AI-Enabled Camera as an Intelligent System}
+\label{sec:intro_case_study_ai_enabled_camera_as_an_intelligent_system}
 
 The design checklist above becomes concrete when we dissect a deployed system. Consider a networked camera that detects humans and escalates alarms in an industrial plant.
 
@@ -187,6 +192,7 @@ This decomposition highlights the same three pillars---perception, reasoning, an
 An intelligent system is therefore not just the hardware or the software alone, but the \emph{system of components} working together to perceive, reason, and act under explicit objectives.
 
 \subsection{Levels and Architectures of Intelligent Systems}
+\label{sec:intro_levels_and_architectures_of_intelligent_systems}
 
 Having introduced working definitions and concrete examples, we now summarize capabilities and architectural patterns that reappear across the book.
 
@@ -288,6 +294,7 @@ At the core, intelligent systems perform a mapping from inputs to outputs, where
 where $\theta$ represents internal parameters or knowledge that may evolve over time through learning. This abstraction is shared by the diverse examples seen so far: they all ingest data, transform it through a parameterized mapping, and emit decisions or control signals. In this book we primarily use the system-level language (mapping under constraints), and we use ``machine'' when embodiment and actuation are the point. Because the chapter alternates between these viewpoints, we briefly clarify terminology and the limits of the language we use.
 
 \subsection{Intelligent Systems and Intelligent Machines}
+\label{sec:intro_intelligent_systems_and_intelligent_machines}
 
 \paragraph{Terminology Clarification}
 
@@ -348,6 +355,7 @@ One practical mitigation is to build systems that:
 \noindent\textbf{Reader's guide.} The remainder of this chapter is practical: who the book is for, how chapters fit together, and how to navigate recurring structure. Notation and reading conventions are collected in the front matter (see \emph{Notation and Conventions}).
 
 \subsection{Audience, Prerequisites, and Scope}
+\label{sec:intro_audience_prerequisites_and_scope}
 
 This material has been rewritten to stand on its own as a book. It surveys the design and analysis of intelligent systems along two main strands:
 \begin{itemize}
@@ -363,6 +371,7 @@ The book also maintains a deliberate dual emphasis: representation learning with
 The assumed background is undergraduate calculus and linear algebra (vectors, matrices, eigenvalues) and basic probability and statistics. No prior dedicated AI or machine\hyp{}learning course is assumed: key ideas such as losses, optimization, gradient descent, backpropagation, kernels, fuzzy operators, and evolutionary operators are introduced from first principles when they first appear. Familiarity with signals and systems, and with linear time-invariant (LTI) models in particular, is helpful for the sequence-modeling and control-oriented parts of the book; Appendix~\ref{app:linear_systems} (\emph{Linear Systems Primer}) provides a concise refresher.
 
 \subsection{Roadmap and Reading Paths}
+\label{sec:intro_roadmap_and_reading_paths}
 \begin{figure}[!b]
     \centering
     \captionsetup{width=.65\linewidth}
@@ -410,6 +419,7 @@ Readers arrive with different goals. The roadmap is intentionally a dependency g
 \end{enumerate}
 
 \subsection{Using and Navigating This Book}
+\label{sec:intro_using_and_navigating_this_book}
 \begin{itemize}\sloppy
     \item \textbf{Before each chapter:} skim the Learning Outcomes and check where it sits on the Roadmap.
     \item \textbf{While reading:} follow cross-referenced figures\slash equations and pause at the short checkpoints and worked examples.

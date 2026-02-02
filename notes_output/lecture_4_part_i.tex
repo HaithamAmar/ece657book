@@ -21,12 +21,14 @@ A practical MLP rarely updates one coordinate at a time; gradients are treated a
 \end{tcolorbox}
 
 \subsection{Context and Motivation}
+\label{sec:backprop_context_and_motivation}
 
 Recall that a single-layer perceptron has no hidden layer (just input and output), while a shallow network adds one hidden layer between them. These shallow models solve linearly separable problems but remain insufficient for more complex tasks. The multi-layer perceptron introduces multiple layers of neurons, each connected by weighted links, enabling the network to learn nonlinear decision boundaries.
 
 However, this increased complexity raises the question: \emph{How do we update the weights across multiple layers to minimize the error at the output?} Unlike the single-layer perceptron, where weight updates depend directly on the output error, in a deep network, changes in weights at one layer propagate through subsequent layers, influencing the final output in a nonlinear and intertwined manner.
 
 \subsection{Problem Setup}
+\label{sec:backprop_problem_setup}
 
 Consider a multi-layer perceptron with layers indexed by $l = 1, 2, \ldots, L$, where $L$ is the output layer. Each layer $l$ contains neurons indexed by $i$, and the output of neuron $i$ in layer $l$ is denoted by $a_i^{(l)}$. The input to this neuron before activation is denoted by $z_i^{(l)}$. The weights connecting neuron $i$ in layer $l-1$ to neuron $j$ in layer $l$ are denoted by $w_{ij}^{(l)}$.
 
@@ -38,6 +40,7 @@ The forward pass through the network is given by:
 where $b_j^{(l)}$ is the bias term for neuron $j$ in layer $l$, and $f(\cdot)$ is the activation function, typically nonlinear (e.g., sigmoid, ReLU). \Cref{eq:forward_z} makes it explicit that we sum over every incoming neuron $i$ in layer $l-1$ to form the affine pre-activation $z_j^{(l)}$.
 
 \subsection{Loss and Objective}
+\label{sec:backprop_loss_and_objective}
 
 To keep the story linear (and aligned with \Cref{chap:mlp}), we will use a simple squared\hyp{}error objective. Let the network output be \(\mathbf{a}^{(L)}\) and let \(\mathbf{t}\) be the target (one\hyp{}hot targets for classification are fine; we do not need a separate regression/classification split yet). A standard loss is
 \begin{equation}
@@ -46,12 +49,14 @@ To keep the story linear (and aligned with \Cref{chap:mlp}), we will use a simpl
 The goal of learning is to adjust the weights \(\{w_{ij}^{(l)}\}\) to minimize \(\mathcal{L}\). Later in this chapter, we briefly note how common alternatives (notably cross\hyp{}entropy with sigmoid/softmax outputs) simplify the output\hyp{}layer error term; the backprop recursion itself does not change.
 
 \subsection{Challenges in Weight Updates}
+\label{sec:backprop_challenges_in_weight_updates}
 
 In a shallow network, weight updates can be computed directly from the output error. However, in a deep network, the output error depends on all weights in a complex way. A change in a weight in an earlier layer affects the activations of subsequent layers, ultimately influencing the output.
 
 For example, consider a weight $w_{ij}^{(l)}$ connecting neuron $i$ in layer $l-1$ to neuron $j$ in layer $l$. Changing this weight affects $z_j^{(l)}$, which affects $a_j^{(l)}$, which in turn affects all neurons in layers $l+1, l+2, \ldots, L$. Therefore, the total effect of changing $w_{ij}^{(l)}$ on the loss is a composition of many intermediate effects.
 
 \subsection{Notation for Layers and Neurons}
+\label{sec:backprop_notation_for_layers_and_neurons}
 
 To formalize this, we introduce the following notation:
 \begin{itemize}
@@ -68,6 +73,7 @@ To formalize this, we introduce the following notation:
 These definitions carry directly into the forward-pass recap below, where we chain the affine map and nonlinearity across layers.
 
 \subsection{Forward Pass Recap}
+\label{sec:backprop_forward_pass_recap}
 
 The forward pass computes activations layer by layer:
 \begin{align}
@@ -124,12 +130,14 @@ Layers share this structure; convolutional/sequence models reuse the same calcul
 \end{tcolorbox}
 
 \subsection{Backpropagation: Recursive Computation of Error Terms}
+\label{sec:backprop_backpropagation_recursive_computation_of_error_terms}
 
 Recall that our goal is to compute the gradient of the loss with respect to the weights in the network, specifically for weights connecting layer \( l \) to layer \( l+1 \). We denote the weight connecting neuron \( i \) in layer \( l \) to neuron \( j \) in layer \( l+1 \) as \( w_{ij}^{(l)} \).
 
 We will continue with the squared\hyp{}error loss from \Cref{chap:mlp}:
 \begin{equation}
 \mathcal{L} = \frac{1}{2} \sum_{k} (t_k - a_k^{(L)})^2.
+\label{eq:auto_backprop_4c440b0502}
 \end{equation}
 where \( t_k \) is the target output and \( a_k^{(L)} \) is the activation of output neuron \( k \). Other losses change only a few local derivatives (most notably at the output layer), but the backprop recursion and bookkeeping are the same.
 
@@ -172,6 +180,7 @@ Collecting the \(\delta_j^{(l+1)}\) for all neurons in layer \(l+1\) forms a vec
 The term \(\delta_j^{(l+1)}\) measures how sensitive the error is to changes in the net input \( a_j^{(l+1)} \). Our task reduces to computing these \(\delta\) terms for all neurons in the network.
 
 \subsubsection{Output layer error terms}
+\label{sec:backprop_output_layer_error_terms_sub}
 
 For the output layer \( L \), the activation of neuron \( k \) is
 \[
@@ -190,6 +199,7 @@ where \(\phi'\) denotes the derivative of the activation function evaluated elem
 For cross\hyp{}entropy with sigmoid/softmax output, \(\phi'\) cancels and \(\delta_k^{(L)} = a_k^{(L)}-t_k\); for MSE retain the factor above.
 
 \subsubsection{Hidden layer error terms}
+\label{sec:backprop_hidden_layer_error_terms_sub}
 
 For a hidden neuron \( j \) in layer \( l \), the error term \(\delta_j^{(l)}\) depends on the error terms of the neurons in the next layer \( l+1 \) to which it connects. Using the chain rule,
 \begin{align}
@@ -220,6 +230,7 @@ For sigmoid activations $\phi$, the derivative simplifies to $\phi'(z_j^{(l)}) =
 Backpropagation is reverse-mode automatic differentiation on the network graph. A forward pass caches intermediates; a reverse pass reuses caches to get all gradients in \(O(P)\) time (versus \(O(P^2)\) for finite differences) for \(P\) parameters. Frameworks (PyTorch/JAX/TF) automate this; the algebra below is its manual derivation.
 
 \subsection{Backpropagation Algorithm: Detailed Derivation}
+\label{sec:backprop_backpropagation_algorithm_detailed_derivation}
 
 Recall that the goal of backpropagation is to compute the gradient of the loss with respect to each weight in the network, enabling gradient descent updates. Consider a single neuron \( k \) in the output layer with output \( o_k \) and activation \( a_k \). The target output is \( t_k \).
 
@@ -228,6 +239,7 @@ Recall that the goal of backpropagation is to compute the gradient of the loss w
 We use the squared-error loss for a single output neuron:
 \begin{equation}
     \mathcal{L}_{\text{SE}} = 0.5 \, (t_k - o_k)^2.
+\label{eq:auto_backprop_6569a13e6f}
 \end{equation}
 
 Our objective is to compute \(\frac{\partial \mathcal{L}_{\text{SE}}}{\partial w_{jk}}\), where \(w_{jk}\) is the weight from neuron \(j \) in the previous layer to neuron \(k\).
@@ -297,6 +309,7 @@ The gradient descent update therefore becomes
 where \(\eta\) is the learning rate.
 
 \subsection{Backpropagation for Hidden Layers}
+\label{sec:backprop_backpropagation_for_hidden_layers}
 
 For neurons in hidden layers, the error signal \(\delta_j\) is computed by propagating the error backward from the next layer. Consider a hidden neuron \( j \) with pre-activation \( z_j \) and activation \( o_j = f(z_j) \). Its error signal is
 \begin{equation}
@@ -313,6 +326,7 @@ The weight update for weights \( w_{ij} \) feeding into neuron \( j \) is then
 where \( x_i \) is the output from the previous layer neuron \( i \).
 
 \subsection{Batch and Stochastic Gradient Descent}
+\label{sec:backprop_batch_and_stochastic_gradient_descent}
 
 Given a training set of \( N \) examples \(\{(x^{(n)}, t^{(n)})\}_{n=1}^N\), the weight updates can be computed in different ways:
 
@@ -427,6 +441,7 @@ SGD remains the backbone; momentum and Adam/AdamW from \Cref{chap:cnn} accelerat
 \end{tcolorbox}
 
 \subsection{Backpropagation Algorithm: Brief Numerical Check}
+\label{sec:backprop_backpropagation_algorithm_brief_numerical_check}
 
 For a quick sanity check, take a tiny 2--2--1 network with sigmoid output and cross\hyp{}entropy loss. Using
 \begin{align*}
@@ -465,10 +480,12 @@ The remainder of this subsection sketches the classic squared-error backprop der
 The error at the output neuron is:
 \begin{equation}
     e = y - t,
+\label{eq:auto_backprop_b55302fe32}
 \end{equation}
 and the squared error is:
 \begin{equation}
     \mathcal{L}_{\text{SE}} = \frac{1}{2} e^2.
+\label{eq:auto_backprop_7c0067d4dd}
 \end{equation}
 
 \paragraph{Backward Propagation of Error}
@@ -476,6 +493,7 @@ and the squared error is:
 Define the error term \(\delta_j\) for each neuron \( j \) as:
 \begin{equation}
     \delta_j = e_j \sigma'(net_j),
+\label{eq:auto_backprop_88f14b071c}
 \end{equation}
 where \( e_j \) is the error at neuron \( j \), and
 \[
@@ -491,6 +509,7 @@ For the output neuron:
 For hidden neurons, the error term is computed by backpropagating the weighted sum of the downstream error terms:
 \begin{equation}
     \delta_j = y_j (1 - y_j) \sum_{k} w_{kj} \, \delta_k,
+\label{eq:auto_backprop_1f3342dea6}
 \end{equation}
 where the sum is over neurons \( k \) in the next layer and \( w_{kj} \) denotes the weight from neuron \( j \) to neuron \( k \).
 
@@ -556,6 +575,7 @@ w_{ij}(n) = w_{ij}(n-1) + \Delta w_{ij}(n).
 \end{itemize}
 
 \subsection{Training Procedure and Epochs in Multi-Layer Perceptrons}
+\label{sec:backprop_training_procedure_and_epochs_in_multi_layer_perceptrons}
 
 Recall that during training of a multi-layer perceptron (MLP), we iteratively update the weights based on each training pattern. The process for one epoch can be summarized as follows:
 
@@ -577,6 +597,7 @@ After completing one epoch (i.e., one full pass through all training patterns), 
 \end{itemize}
 
 \subsection{Role and Design of Hidden Layers}
+\label{sec:backprop_role_and_design_of_hidden_layers}
 
 In an MLP, the architecture consists of an input layer, one or more hidden layers, and an output layer. The hidden layers are crucial because they enable the network to learn nonlinear mappings.
 
@@ -603,6 +624,7 @@ Ultimately, these design choices are made by the practitioner based on experimen
 \end{itemize}
 
 \subsection{Case Study: Learning the Function \texorpdfstring{\( y = x \sin x \)}{y = x sin x}}
+\label{sec:backprop_case_study_learning_the_function_y_x_x_y_x_sin_x}
 
 Consider the problem of training an MLP to approximate the function
 \[
@@ -633,6 +655,7 @@ y = x \sin x.
 As a representative example (illustrative; depends on initialization and the training recipe), a two-hidden-layer MLP with widths $[64, 32]$, ReLU activations, Adam optimization, and early stopping on a validation split can achieve mean absolute error on the order of $10^{-3}$ on held-out samples when trained on 2{,}000 uniformly spaced points in $[-3\pi, 3\pi]$.
 
 \subsection{Applications of Multi-Layer Perceptrons}
+\label{sec:backprop_applications_of_multi_layer_perceptrons}
 
 Multi-layer perceptrons have found widespread applications across various domains due to their ability to approximate complex nonlinear functions. Some notable applications include:
 
@@ -649,6 +672,7 @@ Multi-layer perceptrons have found widespread applications across various domain
 \paragraph{Summary:} MLPs are versatile and powerful tools that serve as foundational building blocks in many machine learning systems.
 
 \subsection{Limitations of Multi-Layer Perceptrons}
+\label{sec:backprop_limitations_of_multi_layer_perceptrons}
 
 Despite their versatility, MLPs have several limitations that practitioners must be aware of:
 
@@ -659,6 +683,7 @@ Despite their versatility, MLPs have several limitations that practitioners must
 \end{itemize}
 
 \subsection{Conclusion of Multi-Layer Perceptron Derivations}
+\label{sec:backprop_conclusion_of_multi_layer_perceptron_derivations}
 
 In this final segment of the chapter, we complete the derivations and discussions related to the multi-layer perceptron (MLP) and its learning algorithm, backpropagation.
 

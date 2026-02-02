@@ -17,6 +17,7 @@ When gradients are unavailable or the landscape is rugged, treat design as searc
 \end{tcolorbox}
 
 \subsection{Context and Motivation}
+\label{sec:evo_context_and_motivation}
 
 Throughout this book, we have explored several complementary methodologies for building intelligent systems:
 
@@ -29,6 +30,7 @@ Throughout this book, we have explored several complementary methodologies for b
 Evolutionary computing adopts a distinct perspective by mimicking the process of natural evolution to tackle complex optimization problems. Readers coming directly from \Cref{chap:fuzzyinference} should read this chapter as the ``search'' complement to the previous ``rule-based'' chapter: here we improve candidate solutions by selection and variation rather than by gradients or explicit rule composition.
 
 \subsection{Philosophical and Historical Background}
+\label{sec:evo_philosophical_and_historical_background}
 
 Evolutionary computing traces its roots back to the 1950s and 1960s, contemporaneous with early developments in neural networks. It is important to recognize that evolutionary algorithms are not direct scientific models of biological evolution; rather, they are inspired by a simplified, abstracted view of evolutionary principles such as selection, mutation, and reproduction.
 
@@ -39,6 +41,7 @@ Evolutionary algorithms borrow the language of biology to provide a disciplined 
 \end{tcolorbox}
 
 \subsection{Problem Setting: Optimization}
+\label{sec:evo_problem_setting_optimization}
 
 Consider an optimization problem where the goal is to find an input vector \( \mathbf{x} \in \mathbb{R}^n \) that minimizes (or maximizes) a given objective function \( f: \mathbb{R}^n \to \mathbb{R} \). Formally, we want to solve
 
@@ -58,12 +61,14 @@ where \(\mathcal{D} \subseteq \mathbb{R}^n\) is the feasible domain incorporatin
 \end{itemize}
 
 \subsection{Illustrative Example}
+\label{sec:evo_illustrative_example}
 
 Imagine a function \( f \) with multiple peaks and valleys (local maxima and minima). The global minimum is the lowest valley, but many local minima exist that can trap naive optimization methods.
 
 \paragraph{Goal:} Instead of guaranteeing the global optimum, evolutionary computing aims to find a \emph{good enough} solution---one that is sufficiently close to optimal and found within a reasonable computational budget.
 
 \subsection{Why Not Brute Force?}
+\label{sec:evo_why_not_brute_force}
 
 While brute force search guarantees finding the global optimum by evaluating all possible candidates, it is often infeasible due to:
 
@@ -75,6 +80,7 @@ While brute force search guarantees finding the global optimum by evaluating all
 For example, in control systems, one might want to tune parameters to regulate temperature or pressure optimally. Waiting for a brute force search to complete could be unacceptable, whereas a near-optimal solution found quickly is valuable.
 
 \subsection{Summary}
+\label{sec:evo_summary}
 
 Evolutionary computing provides a framework to address complex optimization problems by mimicking evolutionary processes. It embraces the notion of \emph{approximate} solutions that are computationally feasible and practically useful.
 
@@ -83,6 +89,7 @@ The sections that follow develop the core components of evolutionary algorithms:
 This ``rugged landscape'' picture is a useful mental model when you later interpret convergence traces, premature stagnation, and diversity metrics in population-based search.
 
 \subsection{Challenges in Continuous Optimization and Motivation for Evolutionary Computing}
+\label{sec:evo_challenges_in_continuous_optimization_and_motivation_for_evolutionary_computing}
 
 In many continuous optimization problems, the objective function may be undefined or discontinuous in certain regions of the domain. For example, consider a function with singularities or points where the function value is not defined (akin to division by zero). Such characteristics pose significant challenges for classical optimization methods such as gradient descent or hill climbing, which rely on smoothness and continuity to navigate the search space effectively.
 
@@ -97,6 +104,7 @@ In many continuous optimization problems, the objective function may be undefine
 Given these challenges, deterministic approaches may be infeasible or computationally expensive. Instead, we can tolerate approximate solutions and employ heuristic or metaheuristic methods that explore the search space more flexibly. This motivates the use of \emph{evolutionary computing} methods.
 
 \subsection{Introduction to Evolutionary Computing}
+\label{sec:evo_introduction_to_evolutionary_computing}
 
 Evolutionary computing (EC) is a class of algorithms inspired by the process of natural evolution. These algorithms are designed to iteratively improve candidate solutions to optimization problems by mimicking mechanisms such as selection, reproduction, and mutation observed in biological evolution.
 
@@ -107,6 +115,7 @@ The goal is to design an algorithm that can solve parameter estimation or optimi
 One of the most well-known evolutionary algorithms is the Genetic Algorithm (GA). GAs attempt to \emph{naively mimic} the process of biological evolution, albeit with a simplified and abstracted model of genetic mechanisms.
 
 \subsection{Biological Inspiration: Evolutionary Concepts}
+\label{sec:evo_biological_inspiration_evolutionary_concepts}
 
 To understand GAs, we briefly review relevant biological concepts:
 
@@ -129,6 +138,7 @@ Recombination increases genetic diversity.
 The offspring's chromosomes are a mixture of the parents' genetic material, but not a simple half-and-half split. Instead, genes from multiple previous generations contribute to the genetic makeup, introducing variability and enabling adaptation over time.
 
 \subsection{Implications for Genetic Algorithms}
+\label{sec:evo_implications_for_genetic_algorithms}
 
 The biological processes suggest several principles that GAs incorporate:
 
@@ -143,6 +153,7 @@ The biological processes suggest several principles that GAs incorporate:
 The stochastic nature of these operations allows GAs to explore complex, multimodal landscapes and handle problems where deterministic methods struggle.
 
 \subsection{Summary of Biological Mechanisms Modeled in GAs}
+\label{sec:evo_summary_of_biological_mechanisms_modeled_in_gas}
 
 \begin{center}
 \begin{tabularx}{0.86\linewidth}{@{}l >{\raggedright\arraybackslash}X@{}}
@@ -170,6 +181,7 @@ Budget dictates population size and diversity mechanisms. If evaluations are che
 \end{tcolorbox}
 
 \subsection{Genetic Algorithms: Modeling Chromosomes}
+\label{sec:evo_genetic_algorithms_modeling_chromosomes}
 
 In the previous discussion, we introduced the concept of diversity in genetic algorithms (GAs) and the probabilistic nature of evolutionary processes. We now delve deeper into modeling chromosomes and the mechanisms of genetic inheritance, crossover, and mutation, drawing parallels to optimization problems.
 
@@ -279,6 +291,7 @@ P_s(\mathbf{c}) \approx \frac{f(\mathbf{c})}{\sum_{\mathbf{c}'} f(\mathbf{c}')}.
 Over multiple generations, this leads to the propagation of fitter chromosomes and the gradual improvement of the population.
 
 \subsection{Mapping Genetic Algorithms to Optimization Problems}
+\label{sec:evo_mapping_genetic_algorithms_to_optimization_problems}
 
 Genetic algorithms can be viewed as heuristic optimization methods. To formalize this analogy, consider the components of an optimization problem:
 
@@ -317,6 +330,7 @@ This relationship allows GAs to explore the solution space stochastically, balan
 % Continuing Chapter 19 notes on Genetic Algorithms and Encoding
 
 \subsection{Encoding in Genetic Algorithms}
+\label{sec:evo_encoding_in_genetic_algorithms}
 
 Recall that encoding is the process of representing the parameters of an optimization problem as a genotype, typically a string of symbols (often binary digits), which can be manipulated by genetic operators such as crossover and mutation.
 
@@ -329,6 +343,7 @@ Recall that encoding is the process of representing the parameters of an optimiz
 The goal is to design an encoding scheme that allows efficient exploration of the search space while respecting constraints and enabling effective genetic operations.
 
 \subsubsection{Common Encoding Schemes}
+\label{sec:evo_common_encoding_schemes_sub}
 
 \paragraph{1. Binary Encoding}
 Each parameter is represented as a binary string of fixed length. For example, if a parameter \( x_i \) is to be represented with precision \( p \), the length of the binary string is chosen accordingly.
@@ -356,6 +371,7 @@ A binary encoding where consecutive numbers differ by only one bit, reducing the
 \end{itemize}
 
 \subsubsection{Example: Binary Encoding of Parameters}
+\label{sec:evo_example_binary_encoding_of_parameters_sub}
 
 Suppose we want to encode four parameters \( x_1, x_2, x_3, x_4 \) each represented by a binary string of length \( l_i \). The genotype is the concatenation of these binary strings:
 
@@ -374,6 +390,7 @@ For example, a genotype might look like:
 Each substring is decoded to a decimal or real value according to the encoding scheme.
 
 \subsubsection{Example Problem: Minimization with Constraints}
+\label{sec:evo_example_problem_minimization_with_constraints_sub}
 
 Consider the problem:
 \[
@@ -402,6 +419,7 @@ If the decoded value is zero, it is invalid due to division by zero, so such gen
 The fitness function corresponds to the objective function \( f(x) \), possibly with penalties for constraint violations.
 
 \subsection{Population Initialization and Size}
+\label{sec:evo_population_initialization_and_size}
 
 Once encoding is decided, the initial population is generated by randomly sampling genotypes within the feasible space.
 
@@ -416,10 +434,12 @@ Once encoding is decided, the initial population is generated by randomly sampli
 For the problem above, a population of 50 individuals with 4-bit genotypes representing \( x \in [1,15] \) can be initialized by randomly generating 50 binary strings of length 4.
 
 \subsection{Genetic Operators}
+\label{sec:evo_genetic_operators}
 
 After initialization, genetic operators are applied to evolve the population.
 
 \subsubsection{Selection}
+\label{sec:evo_selection_sub}
 
 Selection chooses individuals for reproduction based on fitness.
 
@@ -431,6 +451,7 @@ Selection chooses individuals for reproduction based on fitness.
 \end{itemize}
 
 \subsubsection{Crossover}
+\label{sec:evo_crossover_sub}
 
 Crossover combines parts of two parent genotypes to produce offspring.
 
@@ -444,10 +465,12 @@ Crossover combines parts of two parent genotypes to produce offspring.
 % Chapter 19 (continued)
 
 \subsection{Selection in Genetic Algorithms}
+\label{sec:evo_selection_in_genetic_algorithms}
 
 After encoding candidate solutions as chromosomes (e.g., binary strings), the next step in a genetic algorithm (GA) is \emph{selection}, which determines which chromosomes will be chosen to reproduce and form the next generation. The goal is to favor chromosomes with higher fitness, thereby guiding the search toward better solutions.
 
 \subsubsection{Fitness and Selection Probability}
+\label{sec:evo_fitness_and_selection_probability_sub}
 
 Given a population of $N$ chromosomes, each chromosome $i$ has an associated fitness value $f_i$. The fitness function quantifies the quality of the solution represented by the chromosome.
 
@@ -482,6 +505,7 @@ p = [0.10, 0.20, 0.05, 0.15, 0.50].
 Chromosome 5 has a 50\% chance of selection, making it likely to be chosen multiple times.
 
 \subsubsection{Ranking Selection}
+\label{sec:evo_ranking_selection_sub}
 
 When fitness values are close or vary widely, roulette wheel selection may not perform well. For example, if fitness values are very close, selection probabilities become nearly uniform, reducing selection pressure. Conversely, if one chromosome dominates, diversity may be lost prematurely.
 
@@ -524,10 +548,12 @@ Ranking selection can be combined with \emph{elitism}, where the best chromosome
 \end{tcolorbox}
 
 \subsection{Crossover Operator}
+\label{sec:evo_crossover_operator}
 
 After selection, the \emph{crossover} operator generates new offspring chromosomes by recombining parts of two parent chromosomes. This mimics biological reproduction and promotes exploration of the solution space.
 
 \subsubsection{One-Point Crossover}
+\label{sec:evo_one_point_crossover_sub}
 
 Consider two parent chromosomes represented as binary strings of length $L$:
 \[
@@ -551,6 +577,7 @@ One-point crossover proceeds as follows:
 This operator allows mixing of genetic
 
 \subsection{Crossover Operators in Genetic Algorithms}
+\label{sec:evo_crossover_operators_in_genetic_algorithms}
 
 In genetic algorithms, \emph{crossover} is a fundamental operator used to combine the genetic information of two parent chromosomes to produce new offspring. The intuition behind crossover is to exchange segments of parent chromosomes to explore new regions of the solution space.
 
@@ -579,6 +606,7 @@ Offspring can be generated by swapping segment 2 between parents, or by other co
 \paragraph{Probabilistic nature of crossover} requires assigning a \emph{crossover probability} \(p_c\), which governs how often crossover is applied during reproduction. Typically, \(p_c\) is set between 0.6 and 0.9, balancing exploration and exploitation.
 
 \subsection{Mutation Operator}
+\label{sec:evo_mutation_operator}
 
 Mutation introduces random alterations to individual chromosomes, mimicking biological mutations. It serves to maintain genetic diversity within the population and helps the algorithm escape local optima.
 
@@ -601,6 +629,7 @@ x_i' = \begin{cases}
 \]
 
 \subsection{Summary of Genetic Operators and Their Probabilities}
+\label{sec:evo_summary_of_genetic_operators_and_their_probabilities}
 
 The three main genetic operators in a genetic algorithm are:
 
@@ -624,6 +653,7 @@ Tuning these probabilities is critical for balancing exploration and exploitatio
 % Chapter 19 (continued)
 
 \subsection{Known Issues in Genetic Algorithms}
+\label{sec:evo_known_issues_in_genetic_algorithms}
 
 While genetic algorithms (GAs) provide a powerful heuristic framework for optimization, several well-known issues can affect their performance and reliability:
 
@@ -648,6 +678,7 @@ Deception refers to situations where the encoding or representation of solutions
 Since selection is driven by fitness values, any inaccuracies or misleading fitness evaluations can cause the GA to make poor decisions about which individuals to propagate. This can arise from noisy fitness functions, poorly designed objective functions, or deceptive encodings.
 
 \subsection{Convergence Criteria}
+\label{sec:evo_convergence_criteria}
 
 Determining when to stop the GA is a critical practical consideration. Common convergence criteria include:
 
@@ -711,6 +742,7 @@ In practice, a combination of these criteria is often used. For example, one mig
 \end{figure}
 
 \subsection{Summary of Genetic Algorithm Workflow}
+\label{sec:evo_summary_of_genetic_algorithm_workflow}
 
 To summarize the GA process:
 
@@ -812,6 +844,7 @@ Mutation (flip one bit) & \(\,0110_2 \to 0111_2\) & 0.4375 & -0.02 \\
 \end{tcolorbox}
 
 \subsection{Pseudocode Representation}
+\label{sec:evo_pseudocode_representation}
 
 The GA can be expressed in pseudocode as follows:
 
@@ -831,6 +864,7 @@ Return best chromosome found
 \end{verbatim}
 
 \subsection{Example: GA for a Constrained Optimization Problem}
+\label{sec:evo_example_ga_for_a_constrained_optimization_problem}
 
 Consider the problem of minimizing the function:
 \[
@@ -891,6 +925,7 @@ Penalty terms are easy to implement, repair operators exploit domain knowledge, 
 % End of Chapter 19 (continued)
 
 \subsection{Genetic Algorithms: Iterative Process and Convergence}
+\label{sec:evo_genetic_algorithms_iterative_process_and_convergence}
 
 Recall that in genetic algorithms (GAs), we start with an initial population of candidate solutions, each represented by a chromosome encoding a potential solution vector. The fitness of each candidate is evaluated by plugging the encoded values into the objective function. Based on these fitness values, selection probabilities are assigned, favoring candidates with higher fitness (for maximization problems) or lower fitness (for minimization problems).
 
@@ -914,6 +949,7 @@ By iterating the cycle of selection, crossover, and mutation over multiple gener
 In practice, after a sufficient number of generations (e.g., 16 in the example), the algorithm often converges to a solution with the highest fitness value found so far. While this is not guaranteed to be the global optimum, it often provides a very good approximation.
 
 \subsection{Beyond canonical GAs: real-coded strategies}
+\label{sec:evo_beyond_canonical_gas_real_coded_strategies}
 
 Bit-string encodings are ideal for combinatorial search, yet most engineering problems have continuous decision variables. Two mature real-coded families are now standard tools:
 
@@ -925,6 +961,7 @@ Bit-string encodings are ideal for combinatorial search, yet most engineering pr
 Both algorithms plug into the same evaluation loop shown earlier and can reuse the constraint-handling policies in the preceding box. In practice many teams prototype with DE (fast, few knobs) and switch to CMA-ES when the problem demands higher precision or adaptive covariance modeling.
 
 \subsection{Genetic Programming (GP)}
+\label{sec:evo_genetic_programming_gp}
 
 Genetic programming extends the principles of genetic algorithms to the evolution of computer programs or symbolic expressions rather than fixed-length parameter vectors.
 
@@ -1003,6 +1040,7 @@ Consider evolving a program that controls a robot's movement based on sensor inp
 Genetic programming generalizes genetic
 
 \subsection{Wrapping Up Genetic Algorithms and Genetic Programming}
+\label{sec:evo_wrapping_up_genetic_algorithms_and_genetic_programming}
 
 In this final segment of the chapter, we conclude our discussion on genetic algorithms (GAs) and genetic programming (GP), emphasizing their conceptual foundations, practical implications, and the distinctions between them.
 
@@ -1059,6 +1097,7 @@ While this chapter provided a concise overview, the field of evolutionary comput
 Readers are encouraged to explore these topics through further reading and research; the short primer below highlights the most widely used multi-objective GA.
 
 \subsection{Multi-objective search and NSGA-II}
+\label{sec:evo_multi_objective_search_and_nsga_ii}
 When two or more objectives conflict, we seek a set of Pareto-optimal solutions rather than a single best point. The Non-dominated Sorting Genetic Algorithm II (NSGA-II) sorts each generation into Pareto fronts: rank-1 individuals are non-dominated, rank-2 are dominated only by rank-1, etc. Replacement preserves all members of the best fronts and uses crowding distance to maintain diversity along the trade-off curve. NSGA-II's combination of elitist survival and \(O(N \log N)\) non-dominated sorting makes it the default baseline for multi-objective evolutionary optimization \citep{Deb2002}.
 \paragraph{Metrics and variants} Hypervolume (area/volume dominated by the front with respect to a reference point) is a common scalar indicator; report it alongside the spread of solutions \citep{Zitzler2002}. MOEA/D decomposes objectives into weighted subproblems; SPEA2/IBEA are popular alternatives. Always plot the Pareto set and budget-matched hypervolume traces when comparing algorithms.
 

@@ -33,6 +33,7 @@ Alternative t-/s\hyp{}norms or complements are called out explicitly when they a
 \end{tcolorbox}
 
 \subsection{Recap: Fuzzy Sets and the Universe of Discourse}
+\label{sec:fuzzysets_recap_fuzzy_sets_and_the_universe_of_discourse}
 
 Recall that a \emph{fuzzy set} \( A \) in a universe of discourse \( X \) is characterized by a \emph{membership function} \(\mu_A : X \to [0,1]\). This membership function assigns to each element \( x \in X \) a degree of membership \(\mu_A(x)\), which quantifies the extent to which \( x \) belongs to the fuzzy set \( A \).
 
@@ -45,6 +46,7 @@ Recall that a \emph{fuzzy set} \( A \) in a universe of discourse \( X \) is cha
 This contrasts with classical (crisp) sets, where membership is binary (either 0 or 1).
 
 \subsection{Membership Functions: Definition and Interpretation}
+\label{sec:fuzzysets_membership_functions_definition_and_interpretation}
 
 A \emph{membership function} \(\mu_A(x)\) maps each element \( x \) in the universe \( X \) to a membership grade in the interval \([0,1]\). The shape and parameters of \(\mu_A\) encode the fuzziness or uncertainty associated with the concept represented by \( A \).
 
@@ -53,6 +55,7 @@ A \emph{membership function} \(\mu_A(x)\) maps each element \( x \) in the unive
 \paragraph{Mathematical Representation:} For each \( x \in X \),
 \begin{equation}
     \mu_A(x) \in [0,1].
+\label{eq:auto_fuzzysets_13bb7d7cc1}
 \end{equation}
 
 The fuzzy set \( A \) can be represented as the collection of ordered pairs:
@@ -62,14 +65,17 @@ The fuzzy set \( A \) can be represented as the collection of ordered pairs:
 \end{equation}
 
 \subsection{Discrete vs. Continuous Universes of Discourse}
+\label{sec:fuzzysets_discrete_vs_continuous_universes_of_discourse}
 
 The universe \( X \) can be either discrete or continuous, which affects how fuzzy sets and membership functions are represented.
 
 \subsubsection{Discrete Universe}
+\label{sec:fuzzysets_discrete_universe_sub}
 
 When \( X = \{ x_1, x_2, \ldots, x_n \} \) is finite or countable, the fuzzy set \( A \) is represented as a finite collection of ordered pairs:
 \begin{equation}
     A = \{ (x_1, \mu_A(x_1)), (x_2, \mu_A(x_2)), \ldots, (x_n, \mu_A(x_n)) \}.
+\label{eq:auto_fuzzysets_c35ca1378f}
 \end{equation}
 
 Typically, membership values equal to zero are omitted for brevity, since they indicate no membership.
@@ -84,6 +90,7 @@ A = \{ (2, 0.1), (3, 0.3), (4, 0.7) \}.
 \]
 
 \subsubsection{Continuous Universe}
+\label{sec:fuzzysets_continuous_universe_sub}
 
 When \( X \subseteq \mathbb{R} \) is continuous (e.g., an interval), the fuzzy set \( A \) is described by a membership function \(\mu_A(x)\) defined for all \( x \in X \). The representation is functional rather than enumerative:
 \begin{equation}
@@ -102,6 +109,7 @@ where the notation \(\int \mu_A(x) / x\) denotes the continuous collection of pa
 This function assigns membership 1 at \( x = c \), decreasing linearly to zero at \( x = c \pm w \).
 
 \subsection{Crisp Sets versus Fuzzy Sets}
+\label{sec:fuzzysets_crisp_sets_versus_fuzzy_sets}
 
 Crisp (classical) sets assign membership values in the binary set \(\{0,1\}\), so each element either belongs to the set or it does not. In contrast, fuzzy sets allow intermediate membership values, enabling gradual transitions between full inclusion and full exclusion. Understanding this contrast highlights why membership functions are central to fuzzy logic.
 \begin{tcolorbox}[title={Imprecision vs. Fuzziness (recap)}, colback=gray!5,colframe=gray!40,boxrule=0.4pt]
@@ -109,6 +117,7 @@ As discussed in \cref{sec:imprecision-fuzziness}, \textbf{imprecision} concerns 
 \end{tcolorbox}
 
 \subsection{Membership Functions in Fuzzy Sets}
+\label{sec:fuzzysets_membership_functions_in_fuzzy_sets}
 
 Recall that a fuzzy set \( A \) on a universe \( X \) is characterized by a membership function \(\mu_A : X \to [0,1]\) which assigns to each element \( x \in X \) a degree of membership \(\mu_A(x)\) indicating the extent to which \( x \) belongs to \( A \).
 
@@ -160,6 +169,7 @@ Another flexible membership function is the generalized bell function, defined b
 This function allows control over the width and slope of the membership curve, interpolating between shapes similar to triangular and Gaussian functions.
 
 \subsection{Comparison of Membership Functions}
+\label{sec:fuzzysets_comparison_of_membership_functions}
 
 \begin{itemize}
     \item \textbf{Triangular and Trapezoidal:} These are piecewise linear, computationally inexpensive, and easy to interpret. However, they are not differentiable at the vertices, which can be a limitation in gradient-based learning.
@@ -312,18 +322,21 @@ plt.legend(); plt.show()
 \end{verbatim}
 
 \subsection{Fuzzy Sets: Core Concepts and Terminology}
+\label{sec:fuzzysets_fuzzy_sets_core_concepts_and_terminology}
 
 Recall that a \emph{fuzzy set} \( A \) on a universe \( X \) is characterized by a membership function \(\mu_A : X \to [0,1]\), where \(\mu_A(x)\) quantifies the degree to which element \( x \) belongs to \( A \). Unlike crisp sets, where membership is binary (0 or 1), fuzzy sets allow partial membership.
 
 \paragraph{Support Set} The \emph{support} of a fuzzy set \( A \) is the set of all elements with nonzero membership:
 \begin{equation}
     \mathrm{supp}(A) = \{ x \in X \mid \mu_A(x) > 0 \}.
+\label{eq:auto_fuzzysets_4ef37cdc50}
 \end{equation}
 This set captures all elements that belong to \( A \) to some degree.
 
 \paragraph{Core Set} The \emph{core} of \( A \) is the set of elements fully belonging to \( A \):
 \begin{equation}
     \mathrm{core}(A) = \{ x \in X \mid \mu_A(x) = 1 \}.
+\label{eq:auto_fuzzysets_459fd72830}
 \end{equation}
 The core set generalizes the notion of crisp membership to fuzzy sets.
 
@@ -332,6 +345,7 @@ The core set generalizes the notion of crisp membership to fuzzy sets.
 \paragraph{Crossover Points} For many membership functions, especially triangular or trapezoidal shapes, the \emph{crossover points} \( c^-_A \) and \( c^+_A \) are defined as the points where the membership function crosses the value \( 0.5 \):
 \begin{equation}
     \mu_A(c^-_A) = \mu_A(c^+_A) = 0.5.
+\label{eq:auto_fuzzysets_17a14afb75}
 \end{equation}
 These points are useful for interpreting the "core region" and the "fuzzy boundary" of the set.
 
@@ -343,6 +357,7 @@ These points are useful for interpreting the "core region" and the "fuzzy bounda
 These distinctions help in modeling asymmetric uncertainties or preferences.
 
 \subsection{Probability vs. Possibility}
+\label{sec:fuzzysets_probability_vs_possibility}
 
 It is crucial to distinguish between \emph{probability} and \emph{possibility} when interpreting membership functions:
 
@@ -367,6 +382,7 @@ Thus, membership functions in fuzzy sets represent \emph{possibility} rather tha
 \end{tcolorbox}
 
 \subsection{Fuzzy Set Operations}
+\label{sec:fuzzysets_fuzzy_set_operations}
 
 Fuzzy logic introduces operations on fuzzy sets that generalize classical set operations but operate on membership functions. Let \( A \) and \( B \) be fuzzy sets on \( X \) with membership functions \(\mu_A\) and \(\mu_B\).
 
@@ -410,10 +426,12 @@ Throughout the book we adopt $\wedge=\min$ and $\vee=\max$ as the default t-/s\h
 \Crefrange{eq:fuzzy_union}{eq:fuzzy_complement} already define the max/min/standard-complement pair that we use by default. Rather than restate them, we emphasise their practical role: unions aggregate rule consequents, intersections combine antecedents, and complements capture linguistic negations. The thermostat example later in the chapter uses these defaults unless stated otherwise.
 
 \subsection{Graphical Interpretation}
+\label{sec:fuzzysets_graphical_interpretation}
 
 For continuous universes, the union and intersection membership functions can be visualized as the pointwise maximum and minimum of the two membership curves, respectively. The complement is obtained by reflecting the membership function about the horizontal line \(\mu = 0.5\): every membership degree \(m\) is mapped to \(1-m\).
 
 \subsection{Additional Fuzzy Set Operations}
+\label{sec:fuzzysets_additional_fuzzy_set_operations}
 
 Beyond the basic operations, several other algebraic operations are defined on fuzzy sets:
 
@@ -462,10 +480,12 @@ An alternative definition of difference is the bounded difference:
 \end{itemize}
 
 \subsection{Example: Union and Intersection of Fuzzy Sets}
+\label{sec:fuzzysets_example_union_and_intersection_of_fuzzy_sets}
 
 Consider two fuzzy sets
 
 \subsection{Cartesian Product of Fuzzy Sets}
+\label{sec:fuzzysets_cartesian_product_of_fuzzy_sets}
 
 Recall that fuzzy sets are characterized by membership functions assigning to each element a membership grade in $[0,1]$. When dealing with two fuzzy sets $A$ and $B$ defined on universes $X$ and $Y$ respectively, the \emph{Cartesian product} $A \times B$ is a fuzzy relation on the product space $X \times Y$.
 
@@ -494,6 +514,7 @@ x_3 & \min(0.4, 0.6) = 0.4 & \min(0.4, 0.8) = 0.4 & \min(0.4, 1.0) = 0.4
 Note that the Cartesian product lifts the fuzzy sets from one-dimensional membership functions to a two-dimensional fuzzy relation.
 
 \subsection{Properties of Fuzzy Set Operations}
+\label{sec:fuzzysets_properties_of_fuzzy_set_operations}
 
 The fuzzy set operations (union, intersection, complement) satisfy several important algebraic properties analogous to classical set theory, but defined in terms of membership functions.
 
@@ -525,6 +546,7 @@ where $\emptyset$ is the empty fuzzy set with membership zero everywhere, and $X
 \paragraph{Involution:}
 \begin{equation}
     \mu_{(A^c)^c}(x) = \mu_A(x),
+\label{eq:auto_fuzzysets_39167e7aef}
 \end{equation}
 In operator notation this reads \(C(C(\mu_A(x))) = \mu_A(x)\): applying the complement twice recovers the original membership degree. For the standard fuzzy complement \(C(\mu_A(x)) = 1 - \mu_A(x)\), involution is just the identity
 \[
@@ -539,6 +561,7 @@ With the standard complement \(A^c\) and the max/min operators in \Crefrange{eq:
 These properties ensure that fuzzy set operations behave in a consistent and algebraically sound manner, enabling the extension of classical set theory to fuzzy logic.
 
 \subsection{Fuzzy Set Operators}
+\label{sec:fuzzysets_fuzzy_set_operators}
 
 While operations such as union, intersection, and complement define how to combine or modify fuzzy sets, \emph{operators} formalize the logic or rules by which these combinations occur. Operators are mappings that take one or more fuzzy sets and produce another fuzzy set, often encapsulating specific logical or algebraic behavior.
 
@@ -550,6 +573,7 @@ While operations such as union, intersection, and complement define how to combi
 % Chapter 16 (continued)
 
 \subsection{Complement Operators in Fuzzy Logic}
+\label{sec:fuzzysets_complement_operators_in_fuzzy_logic}
 
 In classical logic, the complement of a proposition \( A \) is simply \( 1 - \mu_A(x) \), where \(\mu_A(x)\) is the membership function of \( A \). However, in fuzzy logic, this complement operation can be generalized to allow more flexible modeling of uncertainty and partial membership.
 
@@ -561,12 +585,14 @@ the standard fuzzy negation \(C(\mu)=1-\mu\), so \(\mu_{A^c}(x)=1-\mu_A(x)\) as 
 To generalize the complement, choose a negation operator \(C_p:[0,1]\to[0,1]\) and apply it pointwise: \(\mu_{C_p(A)}(x)=C_p(\mu_A(x))\). One common (Sugeno-type) family is
 \begin{equation}
     C_p(\mu) = \frac{1 - \mu}{1 + p \mu}, \qquad p \ge 0,
+\label{eq:auto_fuzzysets_dc1115a9e1}
 \end{equation}
 which reduces to the standard complement when \(p=0\).
 
 Another simple family is a power-law negation:
 \begin{equation}
     C_p(\mu) = (1 - \mu)^{p}, \qquad p > 0,
+\label{eq:auto_fuzzysets_c976938164}
 \end{equation}
 which recovers the standard complement when \(p=1\) and adjusts the steepness for other \(p\).
 
@@ -594,7 +620,9 @@ A commonly desired set of properties for a complement operator \( C \) is:
 
 The standard complement satisfies all three. Parameterized complements typically satisfy the first two, while involution may be relaxed to gain extra modeling flexibility; one should check involution explicitly if it is required by a particular application.
 
-\subsection{Triangular norms (t\hyp{}norms)}
+\subsection{Triangular norms (t\hyp{}
+\label{sec:fuzzysets_triangular_norms_t}norms)}
+\label{sec:fuzzysets_triangular_norms_t_sec_fuzzysets_triangular_norms_t_norms}
 
 \paragraph{Motivation}
 In fuzzy logic, the logical \texttt{AND} operation is generalized by \emph{triangular norms} (t\hyp{}norms). These are binary operators that combine membership values while preserving certain desirable properties analogous to intersection in classical set theory.
@@ -649,7 +677,9 @@ Each t\hyp{}norm captures different semantics of conjunction in fuzzy logic.
 \paragraph{Interpretation}
 The t\hyp{}norm generalizes the classical intersection operator to fuzzy sets by ensuring the output membership value remains within \([0,1]\) and respects the ordering and boundary conditions expected of an intersection.
 
-\subsection{Triangular conorms (t\hyp{}conorms / s\hyp{}norms)}
+\subsection{Triangular conorms (t\hyp{}
+\label{sec:fuzzysets_triangular_conorms_t}conorms / s\hyp{}norms)}
+\label{sec:fuzzysets_triangular_conorms_t_sec_fuzzysets_triangular_conorms_t_conorms_s_norms}
 
 \paragraph{Definition}
 The dual concept to t\hyp{}norms is the \textbf{triangular conorm} (t\hyp{}conorm), also called an \emph{s\hyp{}norm}, which generalizes the logical \texttt{OR} operation. A t\hyp{}conorm \( S: [0,1]^2 \to [0,1] \) satisfies:
@@ -678,6 +708,7 @@ These axioms mirror those of t\hyp{}norms but with \(1\) as the neutral element 
 Note that the algebraic sum explicitly enforces \(S_{\text{sum}}(x,y)=x+y-xy \leq 1\) for all \(x,y \in [0,1]\).
 
 \subsection{T-Norms and S-Norms: Complementarity and Properties}
+\label{sec:fuzzysets_t_norms_and_s_norms_complementarity_and_properties}
 
 Recall that a \emph{t\hyp{}norm} is a binary operator \( T: [0,1]^2 \to [0,1] \) modeling the fuzzy intersection, and an \emph{s\hyp{}norm} (or t\hyp{}conorm) \( S: [0,1]^2 \to [0,1] \) models the fuzzy union. These operators satisfy certain axioms such as commutativity, associativity, monotonicity, and boundary conditions:
 \[
@@ -705,7 +736,9 @@ S(\mu_A(x), \mu_B(x)) = 1 - T(1 - \mu_A(x), 1 - \mu_B(x)).
 
 This duality ensures that the fuzzy intersection and union are consistent with respect to complementation, generalizing classical De Morgan's laws.
 
-\subsection{Examples of common t\hyp{}norm/s\hyp{}norm pairs}
+\subsection{Examples of common t\hyp{}
+\label{sec:fuzzysets_examples_of_common_t}norm/s\hyp{}norm pairs}
+\label{sec:fuzzysets_examples_of_common_t_sec_fuzzysets_examples_of_common_t_norm_s_norm_pairs}
 
 Several standard t\hyp{}norms and their corresponding s\hyp{}norms are widely used:
 
@@ -729,6 +762,7 @@ Several standard t\hyp{}norms and their corresponding s\hyp{}norms are widely us
 Each of these pairs satisfies the complementarity relation \eqref{eq:tnorm-snorm-complement}.
 
 \subsection{Fuzzy Set Inclusion and Subset Relations}
+\label{sec:fuzzysets_fuzzy_set_inclusion_and_subset_relations}
 
 In classical set theory, \(A \subseteq B\) means every element of \(A\) is also in \(B\). For fuzzy sets, the notion of subset is generalized via membership functions.
 
@@ -744,6 +778,7 @@ If the inequality is strict for at least one \(x\), i.e., \(\mu_A(x) < \mu_B(x)\
 \paragraph{Interpretation:} Since membership functions represent degrees of belonging, the subset relation is graded rather than binary. This leads naturally to the concept of \emph{degree of inclusion}.
 
 \subsection{Degree of Inclusion}
+\label{sec:fuzzysets_degree_of_inclusion}
 
 Because fuzzy membership values lie in \([0,1]\), the subset relation can be quantified by a scalar measure indicating \emph{how much} \(A\) is included in \(B\).
 
@@ -754,6 +789,7 @@ For practical work we often use an \emph{aggregate} measure:
 for discrete universes (integrals for continuous, assuming finite mass). It summarizes how much of the mass of \(A\) lies inside \(B\)'s support. A \emph{pointwise} alternative relies on an implicator \(I\) and defines \(\mathrm{Inc}(A,B)=\inf_x I(\mu_A(x),\mu_B(x))\) (see below); implicator-based grades avoid division by small \(\mu_B\) and behave well when \(B\) has zeros. Both constructions satisfy \(0 \leq \mathrm{incl}(A,B) \leq 1\), where 1 means \(A\) is fully included in \(B\).
 
 \subsection{Set Operations and Inclusion Properties}
+\label{sec:fuzzysets_set_operations_and_inclusion_properties}
 
 Given fuzzy sets $A$, $B$, and $C$, the following properties hold for the standard t\hyp{}norm and s\hyp{}norm operations:
 
@@ -772,6 +808,7 @@ Given fuzzy sets $A$, $B$, and $C$, the following properties hold for the standa
     \(\mu_{B^c}(x) = 1-\mu_B(x) \leq 1-\mu_A(x) = \mu_{A^c}(x)\).
 \end{itemize}
 \subsection{Grades of Inclusion and Equality in Fuzzy Sets}
+\label{sec:fuzzysets_grades_of_inclusion_and_equality_in_fuzzy_sets}
 
 Recall that in classical set theory, the notion of subset and equality is crisp: a set \( A \) is a subset of \( B \) if every element of \( A \) is also in \( B \), and \( A = B \) if they contain exactly the same elements. In fuzzy set theory, these notions are generalized via \emph{grades} of inclusion and equality, which quantify the degree to which one fuzzy set is included in or equal to another.
 
@@ -829,6 +866,7 @@ with \( T \) a \( t \)-norm, so that exact agreement receives unit credit while 
 This definition allows for a graded notion of equality, reflecting the fuzzy nature of the sets.
 
 \subsection{Dilation and Contraction of Fuzzy Sets}
+\label{sec:fuzzysets_dilation_and_contraction_of_fuzzy_sets}
 
 \paragraph{Motivation}
 
@@ -860,10 +898,12 @@ Note that:
 % Chapter 16: Closure and Final Remarks on Membership Functions and Fuzzy Set Operations
 
 \subsection{Closure of Membership Function Derivations}
+\label{sec:fuzzysets_closure_of_membership_function_derivations}
 
 In this chapter, we finalize the discussion on how to generate new membership functions from existing ones using fuzzy set operations. Recall that membership functions represent fuzzy sets and encode the degree of membership of elements in a universe of discourse. The ability to manipulate these membership functions algebraically is fundamental to fuzzy logic and fuzzy inference systems.
 
 \subsubsection{Generating New Membership Functions via Set Operations}
+\label{sec:fuzzysets_generating_new_membership_functions_via_set_operations_sub}
 
 Given two membership functions, for example, \(\mu_{\text{young}}(x)\) and \(\mu_{\text{old}}(x)\), defined over the same universe \(X\), we can construct new membership functions by applying the following operations:
 
@@ -902,6 +942,7 @@ The union corresponds to the maximum:
 \]
 
 \subsubsection{Examples of Constructed Membership Functions}
+\label{sec:fuzzysets_examples_of_constructed_membership_functions_sub}
 
 Using these operations, we can create nuanced fuzzy sets:
 
@@ -930,6 +971,7 @@ Using these operations, we can create nuanced fuzzy sets:
 Note that some constructed membership functions may not be \emph{normal}, i.e., their maximum membership degree may be less than 1. This reflects the inherent fuzziness and partial membership in linguistic concepts.
 
 \subsection{Implications for Fuzzy Inference Systems}
+\label{sec:fuzzysets_implications_for_fuzzy_inference_systems}
 
 The ability to generate new membership functions from a small set of base functions (e.g., \(\mu_{\text{young}}\) and \(\mu_{\text{old}}\)) is powerful. It allows us to encode complex human knowledge and linguistic nuances into fuzzy sets, which can then be used in fuzzy inference systems.
 
@@ -970,6 +1012,7 @@ t\hyp{}norm \(T(a,b)\) & s\hyp{}norm \(S(a,b)\) & Implication \(\Rightarrow\) & 
 \end{table}
 
 \subsection{Worked Example: Mamdani Fuzzy Inference (End-to-End)}
+\label{sec:fuzzysets_worked_example_mamdani_fuzzy_inference_end_to_end}
 
 We illustrate a complete Mamdani pipeline with one antecedent (temperature) and one consequent (fan speed).
 

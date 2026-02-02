@@ -24,6 +24,7 @@ The Risch algorithm \citep{Risch1969} decides whether an elementary antiderivati
 \end{tcolorbox}
 
 \subsection{Context and Motivation}
+\label{sec:symbolic_context_and_motivation}
 
 Consider the task of solving an integral of the form
 \[
@@ -38,6 +39,7 @@ These are straightforward and can be solved by direct lookup or simple substitut
 However, many integrals encountered in practice do not match any entry in standard integral tables, nor do they succumb easily to elementary techniques. The integration-by-transformation view treats this as a search problem: propose meaning-preserving rewrites, backtrack when a branch gets harder, and verify candidates mechanically by differentiation.
 
 \subsection{Problem Decomposition and Transformation}
+\label{sec:symbolic_problem_decomposition_and_transformation}
 
 A key insight in tackling complex integrals is to \emph{reduce} the problem into manageable subproblems. This involves applying \emph{transformations} to rewrite the integral into a form that is either directly solvable or closer to known forms.
 
@@ -70,10 +72,12 @@ Suppose we have an integral of the form
 where \(a, b, c\) are constants. A safe transformation might be to factor out the constant \(a\) and then consider substitutions or binomial expansions that reduce the powers to known integrals (e.g., Beta-function evaluations when \(b\) and \(c\) are integers).
 
 \subsection{Limitations of Safe Transformations}
+\label{sec:symbolic_limitations_of_safe_transformations}
 
 After exhaustively applying all safe transformations, we may still encounter integrals that do not match any known solvable form. At this point, the system must decide whether the problem is solvable by known methods or if alternative strategies are necessary.
 
 \subsection{Heuristic Transformations}
+\label{sec:symbolic_heuristic_transformations}
 
 When safe transformations fail to yield a solution, we turn to \emph{heuristic transformations}, which are not guaranteed to succeed but often provide a path forward. These heuristics are based on experience, pattern recognition, and mathematical intuition.
 
@@ -116,6 +120,7 @@ The use of heuristic transformations reflects a form of mathematical intelligenc
 
 
 \subsection{Summary of the Approach}
+\label{sec:symbolic_summary_of_the_approach}
 
 The overall strategy for symbolic integration can be summarized as follows:
 
@@ -130,6 +135,7 @@ The overall strategy for symbolic integration can be summarized as follows:
 % Part A worked example (continued)
 
 \subsection{Heuristic Transformations: Revisiting the Integral with \texorpdfstring{\(1 - x^2\)}{1 - x squared}}
+\label{sec:symbolic_heuristic_transformations_revisiting_the_integral_with_1_x_2_1_x_squared}
 
 Recall the integral under consideration:
 \begin{equation}
@@ -223,10 +229,12 @@ For integrals of the form \(\int (1 - x^2)^{-k-1/2} dx\), the substitution \(x=\
 % Part A worked example (continued)
 
 \subsection{Example: Solving an Integral via Transformation Trees}
+\label{sec:symbolic_example_solving_an_integral_via_transformation_trees}
 
 The worked integral above shows how the search explored multiple branches (e.g., \(x=\sin y\) vs.\ \(x=\tanh u\)) while respecting the declared domain. Heuristic branches that do not fit the domain are pruned; competing safe branches (substitution vs.\ reduction) converge to the same antiderivative. The key insight is that solving integrals can be viewed as traversing a \emph{decision tree} of transformations, with goal tests supplied by residual checks and domain conditions.
 
 \subsection{Transformation Trees and Search Strategies}
+\label{sec:symbolic_transformation_trees_and_search_strategies}
 
 \paragraph{Definition:} A \textbf{transformation tree} is a conceptual structure representing all possible sequences of transformations applied to an expression in an attempt to solve or simplify it.
 
@@ -439,6 +447,7 @@ The worked integral above shows how the search explored multiple branches (e.g.,
 In practice this corresponds to pushing serialized expression trees (i.e., deep copies of the tree structure together with any transformation metadata) onto a stack so they can be reinstated after unsuccessful exploratory steps.
 
 \subsection{Algorithmic Outline for Symbolic Problem Solving}
+\label{sec:symbolic_algorithmic_outline_for_symbolic_problem_solving}
 
 The general algorithm for solving symbolic problems such as integrals can be summarized as follows:
 
@@ -545,6 +554,7 @@ fails the template check after all safe moves. The solver therefore (i) records 
 is attached to the report along with the failed transformation history, making it explicit that no elementary antiderivative was located within the allotted budget even though a numerically reliable answer exists.
 
 \subsection{Discussion: What this example illustrates}
+\label{sec:symbolic_discussion_what_this_example_illustrates}
 
 Under the operational framing in \Cref{chap:intro}, the integrator exhibits several ingredients associated with intelligent problem solving: it maintains an explicit state (the current expression), chooses actions (transformations), manages contingencies (branching and backtracking), and verifies results with a crisp goal test (differentiate and check the residual). At the same time, it is limited: it does not learn new transformations from data, and its effectiveness depends on a human-designed library of moves and heuristics.
 

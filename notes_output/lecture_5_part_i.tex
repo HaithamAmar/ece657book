@@ -32,6 +32,7 @@ A useful way to picture SOMs is as two coupled ``sheets'': an input space and a 
 \end{tcolorbox}
 
 \subsection{Overview of Self-Organizing Networks}
+\label{sec:som_overview_of_self_organizing_networks}
 
 Self-organizing networks are a class of neural networks designed to discover inherent structures in input data by organizing neurons in a way that reflects the statistical properties of the data. The most prominent example is the \emph{Self-Organizing Map} (SOM), introduced by Teuvo Kohonen. SOMs are widely used for tasks such as clustering, visualization, and dimensionality reduction.
 
@@ -88,6 +89,7 @@ The neighborhood influence is usually controlled by a kernel (often Gaussian) wh
 Before delving into the mathematical formulation and algorithmic details of SOMs, it is important to review two foundational concepts that underpin their operation: \emph{clustering} and \emph{dimensionality reduction}.
 
 \subsection{Clustering: Identifying Similarities and Dissimilarities}
+\label{sec:som_clustering_identifying_similarities_and_dissimilarities}
 
 Clustering is the process of grouping a set of objects such that objects within the same group (cluster) are more similar to each other than to those in other groups. Formally, given a dataset $\mathcal{X} = \{\mathbf{x}_1, \mathbf{x}_2, \ldots, \mathbf{x}_N\}$ where each $\mathbf{x}_i \in \mathbb{R}^d$ is represented by a feature vector, the goal is to partition the data into $K$ clusters $\{C_1, C_2, \ldots, C_K\}$ such that:
 \begin{itemize}
@@ -104,11 +106,13 @@ In the classical formulation used here (e.g., for K-means), the clusters form a 
     \item For each data point $\mathbf{x}_i$, assign it to the cluster with the nearest centroid:
     \begin{equation}
         c_i = \arg\min_{k} \|\mathbf{x}_i - \mathbf{v}_k\|_2,
+        \label{eq:auto_som_a96d59060d}
     \end{equation}
     where $\|\cdot\|_2$ denotes the Euclidean norm.
     \item Update each centroid as the mean of all points assigned to it:
     \begin{equation}
         \mathbf{v}_k = \frac{1}{|C_k|} \sum_{\mathbf{x}_i \in C_k} \mathbf{x}_i,
+        \label{eq:auto_som_5cd43ad14e}
     \end{equation}
     where $|C_k|$ is the number of points in cluster $C_k$.
     \item Repeat steps 2 and 3 until convergence (i.e., cluster assignments no longer change significantly).
@@ -117,6 +121,7 @@ In the classical formulation used here (e.g., for K-means), the clusters form a 
 K-means is an unsupervised learning method because it does not require labeled data; it discovers clusters purely based on feature similarity.
 
 \subsection{Dimensionality Reduction: Simplifying High-Dimensional Data}
+\label{sec:som_dimensionality_reduction_simplifying_high_dimensional_data}
 
 Dimensionality reduction refers to techniques that transform high-dimensional data into a lower-dimensional representation while preserving important structural properties, such as pairwise distances, variance, or neighborhood relationships. This is crucial for:
 \begin{itemize}
@@ -167,6 +172,7 @@ Dimensionality reduction refers to techniques that transform high-dimensional da
 % Chapter 9 (continued)
 
 \subsection{Dimensionality Reduction and Feature Mapping}
+\label{sec:som_dimensionality_reduction_and_feature_mapping}
 
 Recall from the previous discussion that dimensionality reduction aims to map a high-dimensional feature space into a lower-dimensional representation while preserving as much information as possible. This is crucial in many applications such as image processing, speech recognition, and pattern analysis, where the original data may have many correlated or redundant features yet the geometric relationships (distances, variance directions, neighborhoods) must remain meaningful.
 
@@ -180,6 +186,7 @@ f : \mathbb{R}^n \rightarrow \mathbb{R}^m, \quad m < n,
 such that the new feature vector \(\mathbf{y} = f(\mathbf{x})\) retains the salient structure of \(\mathbf{x}\), for example by approximately preserving pairwise distances, nearest neighbors, or dominant variance directions. Modern algorithms discover these combinations automatically from data, often in an unsupervised manner (PCA, t-SNE, SOM). Supervised (e.g., Linear Discriminant Analysis) and semi-supervised variants also exist, where label information guides \(f\), rather than relying on manual feature selection. For instance, PCA derives \(f\) analytically via eigen-decomposition of the covariance matrix, whereas t-SNE and SOM learn \(f\) iteratively from data.
 
 \subsection{Self-Organizing Maps (SOMs): Introduction}
+\label{sec:som_self_organizing_maps_soms_introduction}
 
 Self-Organizing Maps (SOMs), also known as Kohonen maps, provide a powerful approach to unsupervised learning that combines clustering and dimensionality reduction. Unlike supervised neural networks, SOMs learn without explicit target outputs or labels. Instead, they discover the underlying structure of the input data by organizing neurons in a topological map.
 
@@ -214,6 +221,7 @@ Formally, if \(\mathcal{N}_\epsilon(\mathbf{x}) = \{\mathbf{z} \, | \, \|\mathbf
 For example, two inputs \(\mathbf{x}_1\) and \(\mathbf{x}_2\) that are close in \(\mathbb{R}^n\) will select best matching units whose lattice locations \(\mathbf{r}_i\) and \(\mathbf{r}_j\) are neighbors on the output grid. This spatial organization is what makes SOMs particularly useful for visualization and clustering.
 
 \subsection{Conceptual Description of SOM Operation}
+\label{sec:som_conceptual_description_of_som_operation}
 
 \begin{enumerate}
     \item \textbf{Initialization:} The weight vectors \(\mathbf{w}_i\) are initialized, often randomly or by sampling from the input space.
@@ -238,6 +246,7 @@ Here \(\|\cdot\|_2\) denotes the Euclidean norm unless explicitly stated otherwi
 This iterative process causes the map to self-organize, with neurons specializing to represent clusters or features of the input space.
 
 \subsection{Mathematical Formulation of SOM}
+\label{sec:som_mathematical_formulation_of_som}
 
 Let the input space be \(\mathcal{X} \subseteq \mathbb{R}^n\), and the output map be a lattice of neurons indexed by \(i\), each with weight vector \(\mathbf{w}_i \in \mathbb{R}^n\).
 
@@ -282,6 +291,7 @@ where $\mathbf{r}_i$ denotes the lattice coordinates of neuron $i$ and $\sigma(t
 % Chapter 9 (continued)
 
 \subsection{Kohonen Self-Organizing Maps (SOMs): Network Architecture and Operation}
+\label{sec:som_kohonen_self_organizing_maps_soms_network_architecture_and_operation}
 
 Building on the inspiration from perceptrons, Kohonen Self-Organizing Maps (SOMs) introduce a distinctive neural network architecture designed for unsupervised learning and feature mapping. Unlike classical supervised networks, SOMs aim to discover the underlying structure of the input data by organizing neurons in a fixed, usually low-dimensional, lattice.
 
@@ -319,6 +329,7 @@ This update rule ensures that the winning neuron and its neighbors move closer t
 Intuitively, simultaneous adaptation of the BMU and its nearby units keeps neighboring weight vectors in similar regions of the input space, so the lattice retains the ordering of the data manifold.
 
 \subsection{Example: SOM with a \texorpdfstring{\(3 \times 3\)}{3x3} Output Map and 4-Dimensional Input}
+\label{sec:som_example_som_with_a_3_3_3x3_output_map_and_4_dimensional_input}
 
 Consider a SOM with the following specifications:
 \begin{itemize}
@@ -365,6 +376,7 @@ The lattice coordinates \(\mathbf{r}_i \in \mathbb{Z}^2\) introduced for the nei
 SOM training is typically stochastic: each input triggers an update, so the map continuously refines prototypes as data arrive. Batch variants exist, but online updates capture streaming data and mirror Kohonen's original algorithm. Initialization also affects convergence; besides random sampling, practical systems often initialize weights along leading principal components to align the lattice orientation with the data manifold.
 
 \subsection{Key Properties of Kohonen SOMs}
+\label{sec:som_key_properties_of_kohonen_soms}
 
 \begin{itemize}
     \item \textbf{Fixed output dimension:} The lattice size is a design choice specified a priori and does not automatically scale with the input dimension.
@@ -374,6 +386,7 @@ SOM training is typically stochastic: each input triggers an update, so the map 
 % Chapter 9 (continued)
 
 \subsection{Winner-Takes-All Learning and Weight Update Rules}
+\label{sec:som_winner_takes_all_learning_and_weight_update_rules}
 
 Recall that in competitive learning networks, the neuron with the highest discriminant value for a given input \(\mathbf{x}\) is declared the \emph{winner}. This subsection analyzes the classical \emph{winner-takes-all} (WTA) principle in which only the winning neuron updates its weights, while all others remain unchanged. In the SOM setting discussed earlier, a softened variant is used in which the winner and its lattice neighbors update together.
 
@@ -453,6 +466,7 @@ Practitioners often start with \(\alpha(0)\) in the range \(0.05\)--\(0.5\) and 
 \end{enumerate}
 
 \subsection{Numerical Example of Competitive Learning}
+\label{sec:som_numerical_example_of_competitive_learning}
 
 Consider a simple example with:
 
@@ -481,6 +495,7 @@ where row \(j\) contains the initial weight vector \(\mathbf{w}_j(0)\) for neuro
 % Chapter 9 (continued)
 
 \subsection{Winner-Takes-All Learning Recap}
+\label{sec:som_winner_takes_all_learning_recap}
 
 Recall from the previous discussion that in the Winner-Takes-All (WTA) learning scheme, for each input vector \(\mathbf{x}\), we compute the similarity (or distance) between \(\mathbf{x}\) and each neuron's weight vector \(\mathbf{w}_j\). The neuron \(c\) with the minimum distance (or maximum similarity) is declared the winner:
 \begin{align}
@@ -500,6 +515,7 @@ This process is repeated for each input in the training set, and multiple epochs
 \paragraph{Practical considerations} In both SOMs and WTA networks, input vectors are commonly normalized (e.g., zero mean and unit variance) so that distance comparisons are meaningful. Training is typically terminated when weight changes fall below a small threshold or after a prescribed number of epochs.
 
 \subsection{Regularization and Monitoring During SOM Training}
+\label{sec:som_regularization_and_monitoring_during_som_training}
 
 Even though SOMs are inherently unsupervised, their training dynamics still benefit from the same regularization heuristics used in supervised settings. Two complementary diagnostics are especially useful in practice.
 
@@ -687,6 +703,7 @@ Most modern SOM libraries expose both modes, so choose the update rule that matc
 \end{tcolorbox}
 
 \subsection{Limitations of Winner-Takes-All and Motivation for Cooperation}
+\label{sec:som_limitations_of_winner_takes_all_and_motivation_for_cooperation}
 
 While WTA is simple and effective for clustering, it has some limitations:
 \begin{itemize}
@@ -1032,6 +1049,7 @@ This function ensures that neurons closer to the winner receive larger updates, 
 The cooperative update encourages neighboring neurons to become sensitive to similar inputs, thereby preserving topological relationships in the input space. This is the key principle behind Self-Organizing Maps (SOMs).
 
 \subsection{Example: Neighborhood Update Illustration}
+\label{sec:som_example_neighborhood_update_illustration}
 
 Suppose the output neurons are arranged in a 2D lattice as shown schematically in \Cref{fig:som_neighborhood}, where each neuron is indexed by its grid coordinates. For an input \(\mathbf{x}\), neuron \(c\) wins. The neighborhood \(\mathcal{N}(c)\) might include neurons within a radius \(\sigma\) around \(c\).
 
@@ -1055,6 +1073,7 @@ Suppose the output neurons are arranged in a 2D lattice as shown schematically i
 Each neuron \(j\) in \(\mathcal{N}(c)\) updates its weight vector according to \eqref{eq:coop_weight_update}, with the magnitude of update modulated by \(h_{j c}(t)\).
 
 \subsection{Summary of Cooperative Competitive Learning Algorithm}
+\label{sec:som_summary_of_cooperative_competitive_learning_algorithm}
 
 \begin{enumerate}
     \item Present an input vector and identify the winning neuron using the discriminant function.
@@ -1063,6 +1082,7 @@ Each neuron \(j\) in \(\mathcal{N}(c)\) updates its weight vector according to \
     \item Repeat for all inputs until the map stabilizes or a maximum number of epochs is reached.
 \end{enumerate}
 \subsection{Wrapping Up the Kohonen Self-Organizing Map (SOM) Derivations}
+\label{sec:som_wrapping_up_the_kohonen_self_organizing_map_som_derivations}
 
 We conclude our derivation and discussion of the Kohonen Self-Organizing Map (SOM) learning algorithm by summarizing the key components and their evolution during training.
 
@@ -1158,6 +1178,7 @@ It is important to distinguish between the \emph{three stages} of SOM learning a
 \end{itemize}
 
 \subsection{Applications of Kohonen Self-Organizing Maps}
+\label{sec:som_applications_of_kohonen_self_organizing_maps}
 
 Kohonen SOMs are widely used for:
 

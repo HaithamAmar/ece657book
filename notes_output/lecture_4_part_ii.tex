@@ -16,6 +16,7 @@ Make the nonlinearity explicit: use a fixed (or lightly tuned) basis expansion i
 \end{tcolorbox}
 
 \subsection{Overview and Motivation}
+\label{sec:rbf_overview_and_motivation}
 
 An RBFN is a special category of feedforward neural network characterized by the following properties:
 
@@ -37,6 +38,7 @@ The hidden layer of an RBF network is easiest to understand when its centers are
 \end{tcolorbox}
 
 \subsection{Architecture of RBFNs}
+\label{sec:rbf_architecture_of_rbfns}
 
 The RBFN consists of three layers:
 
@@ -159,6 +161,7 @@ Once you have the architecture in mind, it helps to visualize what the hidden la
 The key distinction is that the input-to-hidden layer connections do not have trainable weights; instead, the hidden layer units themselves perform nonlinear transformations of the input.
 
 \subsubsection{Mathematical Formulation}
+\label{sec:rbf_mathematical_formulation_sub}
 
 Let the input vector be \(\mathbf{x} \in \mathbb{R}^n\). The hidden layer computes the vector
 \[
@@ -180,6 +183,7 @@ where \(\mathbf{W} \in \mathbb{R}^{M \times K}\) is the weight matrix connecting
 \paragraph{Interpretation:} The hidden layer maps the input \(\mathbf{x}\) into a new feature space via nonlinear functions \(G_i\), and the output layer performs a linear combination of these features to produce the final output.
 
 \subsection{Radial Basis Functions}
+\label{sec:rbf_radial_basis_functions}
 
 The functions \(G_i(\mathbf{x})\) are typically chosen to be radially symmetric functions centered at \(\mathbf{c}_i\), such as Gaussian functions:
 \begin{align}
@@ -192,6 +196,7 @@ Other choices of radial basis functions are possible, but the Gaussian is the mo
 \paragraph{Normalized RBFs.} Some texts normalize the hidden responses as \(\tilde{G}_i(\mathbf{x}) = G_i(\mathbf{x})/\sum_j G_j(\mathbf{x})\) to smooth predictions when center density is uneven; the linear readout then uses \(\tilde{\mathbf{G}}(\mathbf{x})\) in place of \(\mathbf{G}(\mathbf{x})\).
 
 \subsection{Key Properties and Advantages}
+\label{sec:rbf_key_properties_and_advantages}
 
 \begin{itemize}
     \item \textbf{Nonlinear transformation without weights:} The input-to-hidden layer mapping is fixed by the choice of centers \(\{\mathbf{c}_i\}\) and widths \(\{\sigma_i\}\), not by trainable weights.
@@ -204,6 +209,7 @@ Other choices of radial basis functions are possible, but the Gaussian is the mo
 % Chapter 8 (continued)
 
 \subsection{Transforming Nonlinearly Separable Data into Linearly Separable Space}
+\label{sec:rbf_transforming_nonlinearly_separable_data_into_linearly_separable_space}
 
 Recall from the previous discussion that certain datasets are not linearly separable in their original input space. However, by applying nonlinear transformations, we can map the data into a new feature space where linear separation becomes possible.
 
@@ -230,6 +236,7 @@ g_i(\mathbf{x}) = \exp\left(-\frac{\|\mathbf{x} - \mathbf{v}_i\|^2}{2\sigma^2}\r
 Applying the transformation to the inputs yields new points in the \(g_1\)-\(g_2\) space. For example, the input \(\mathbf{x} = (0,0)\) maps to \((g_1,g_2) = (1, e^{-1})\), and \(\mathbf{x} = (1,1)\) maps to \((e^{-1}, 1)\). This transformation often results in the classes becoming linearly separable in the $g_1$--$g_2$ plane; plotting the four transformed points reveals that samples from different classes occupy opposite corners of the square, allowing a single linear decision boundary to separate them.
 
 \subsection{Finding the Optimal Weight Vector \texorpdfstring{\(\mathbf{w}\)}{w}}
+\label{sec:rbf_finding_the_optimal_weight_vector_w_w}
 
 Given the transformed data \(\mathbf{g}(\mathbf{x})\) and desired outputs \(\mathbf{d}\), we want to find \(\mathbf{w}\) that minimizes the squared error between the predicted output and the target. Let \(\Phi\in\mathbb{R}^{N\times M}\) be the design matrix with entries \(\Phi_{ji}=\varphi_i(\mathbf{x}_j)=G_i(\mathbf{x}_j)\). The model predicts \(\hat{\mathbf{d}}=\Phi\mathbf{w}\), and the least-squares objective is
 \begin{equation}
@@ -248,6 +255,7 @@ When \(\Phi^\top\Phi\) is well conditioned, the closed-form solution is \(\mathb
 \paragraph{Conditioning and capacity.} When \(M\) is large and Gaussians overlap heavily, \(\Phi^\top\Phi\) can become ill-conditioned. Ridge regularization (adding \(\lambda I\)) stabilizes the solve and controls variance, mirroring the bias--variance trade-off from \Cref{chap:supervised}. Choosing \(M\), \(\sigma\), and \(\lambda\) together is essential for good generalization; \Cref{chap:supervised}'s learning-curve diagnostics apply directly, and kernel methods (e.g., kernel ridge regression or SVMs) interpret the same trade-off via RBF kernels.
 
 \subsection{The Role of the Transformation Function \texorpdfstring{\(g(\cdot)\)}{g(.)}}
+\label{sec:rbf_the_role_of_the_transformation_function_g_g}
 
 The design matrix \(\Phi\) is constructed by applying a nonlinear transformation \(g(\cdot)\) to the input data points relative to a set of centroids \(\{\mathbf{v}_i\}\). Each element of \(\Phi\) is typically defined as:
 \[
@@ -264,6 +272,7 @@ Two parameters characterize \(g(\cdot)\):
 \paragraph{Choosing \(g(\cdot)\):} The choice of \(g(\cdot)\) is crucial. It defines how the input space is mapped into the feature space where linear separation is possible. A common rule-of-thumb for Gaussian widths is to set \(\sigma\) so that neighboring centers at average spacing \(\bar{r}\) overlap with height \(\exp(-\bar{r}^2/(2\sigma^2))\approx 0.5\)--0.7; too small \(\sigma\) fragments the boundary, too large washes out locality.
 
 \subsection{Examples of Kernel Functions}
+\label{sec:rbf_examples_of_kernel_functions}
 
 \paragraph{1. Inverse Distance Function:}
 \[
@@ -282,6 +291,7 @@ An RBF unit is called \emph{radial} because its response depends primarily on di
 \end{tcolorbox}
 
 \subsection{Interpretation of the Width Parameter \texorpdfstring{\(\sigma\)}{sigma}}
+\label{sec:rbf_interpretation_of_the_width_parameter_sigma}
 
 The parameter \(\sigma\) controls the spread of the basis function. Conceptually, increasing \(\sigma\) broadens the Gaussian bell, while decreasing \(\sigma\) produces a narrow spike around the centroid.
 
@@ -297,6 +307,7 @@ Choosing \(\sigma\) appropriately is critical for the network's performance:
 \end{itemize}
 
 \subsection{Effect of \texorpdfstring{\(\sigma\)}{sigma} on Classification Boundaries}
+\label{sec:rbf_effect_of_sigma_on_classification_boundaries}
 
 Consider a one-dimensional dataset with two classes (e.g., red and blue points). Projecting a sample \(x\) through the Gaussian basis functions produces feature activations
 \[
@@ -336,6 +347,7 @@ which serve as localized similarity measures to each centroid \(v_i\). When \(\s
 % Chapter 8
 
 \subsection{Radial Basis Function Networks: Parameter Estimation and Training}
+\label{sec:rbf_radial_basis_function_networks_parameter_estimation_and_training}
 
 Recall that in Radial Basis Function (RBF) networks, the hidden layer neurons compute outputs based on radial basis functions centered at certain points \( \mathbf{v}_i \) with spread parameters \( \sigma_i \). The output is a linear combination of these nonlinear transformations. The key challenge is to determine the parameters:
 \[
@@ -537,6 +549,7 @@ Choose \(M=4\) centers at the data and set a global \(\sigma\) from the mean int
     \end{figure}
 
 \subsection{Remarks on Radial Basis Function Networks}
+\label{sec:rbf_remarks_on_radial_basis_function_networks}
 
 \paragraph{Advantages:}
 \begin{itemize}
@@ -596,6 +609,7 @@ Assuming \(\mathbf{R}\) is invertible, the optimal filter coefficients are
 This completes the derivation of the Wiener filter solution.
 
 \subsection{Interpretation and Properties of the Wiener Filter}
+\label{sec:rbf_interpretation_and_properties_of_the_wiener_filter}
 
 \paragraph{Interpretation:} The Wiener filter can be viewed as the linear estimator that projects the desired signal \(d(t)\) onto the subspace spanned by the input vector \(\mathbf{x}(t)\) in the least-squares sense.
 
@@ -607,6 +621,7 @@ This completes the derivation of the Wiener filter solution.
 \end{itemize}
 
 \subsection{Extension: Frequency-Domain Wiener Filter}
+\label{sec:rbf_extension_frequency_domain_wiener_filter}
 
 For stationary processes, the Wiener filter can be equivalently expressed in the frequency domain. Let \(S_{xx}(\omega)\) and \(S_{dx}(\omega)\) denote the power spectral density (PSD) of the input and the cross-PSD between desired and input signals, respectively. Then the frequency response of the Wiener filter is
 \begin{equation}
@@ -617,10 +632,12 @@ H(\omega) = \frac{S_{dx}(\omega)}{S_{xx}(\omega)}.
 This expression provides insight into the filter's behavior as a frequency-selective operator that emphasizes frequencies where the desired signal and input are strongly correlated.
 
 \subsection{Closing Remarks on Adaptive Filtering}
+\label{sec:rbf_closing_remarks_on_adaptive_filtering}
 
 While the Wiener filter provides a closed-form solution, in practice the statistics \(\mathbf{R}\) and \(\mathbf{p}\) are often unknown or time-varying. This motivates adaptive filtering algorithms such as LMS and RLS, which iteratively approximate \(\mathbf{w}^\star\) using observed data.
 
 \subsection{Preview: Unsupervised and Localized Learning}
+\label{sec:rbf_preview_unsupervised_and_localized_learning}
 
 In \Cref{chap:som}, we move from supervised RBF models to unsupervised, self-organizing methods. Self-organizing maps (SOMs) and Hopfield-style associative memory discover structure in data (clusters, manifolds) without labeled targets, complementing the supervised architectures covered so far.
 

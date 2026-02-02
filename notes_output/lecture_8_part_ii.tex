@@ -21,10 +21,12 @@ When precision is costly or ill-defined, make the vagueness explicit and keep th
 \end{tcolorbox}
 
 \subsection{Hard Computing: The Classical Paradigm}
+\label{sec:softcomp_hard_computing_the_classical_paradigm}
 
 Hard computing refers to the classical approach to computation where the goal is to produce precise, unambiguous, and mathematically exact outputs. This paradigm assumes that the relationships between inputs and outputs can be modeled accurately using well-defined mathematical equations. For example, Einstein's mass-energy equivalence formula,
 \begin{equation}
 E = mc^2,
+\label{eq:auto_softcomp_35ca93a64c}
 \end{equation}
 is a precise, unambiguous, and exact mathematical expression.
 
@@ -44,6 +46,7 @@ However, this approach is often inadequate for many real-world problems because:
 These limitations motivate the need for alternative computational frameworks that can tolerate and exploit imprecision and uncertainty.
 
 \subsection{Soft Computing: Motivation and Definition}
+\label{sec:softcomp_soft_computing_motivation_and_definition}
 
 Soft computing, introduced by \citet{Zadeh1994,Zadeh1997} after his 1965 fuzzy sets paper, is a computational paradigm designed to handle problems where precision and certainty are either impossible or prohibitively expensive to obtain. Unlike hard computing, soft computing tolerates \emph{imprecision}, \emph{uncertainty}, and \emph{approximate reasoning} to achieve solutions that are:
 \begin{itemize}
@@ -62,6 +65,7 @@ Formally, soft computing is not a single homogeneous methodology but rather a \e
 These components often overlap and complement each other in practical applications. In this book, probabilistic modeling is treated in the statistical strand (\Crefrange{chap:supervised}{chap:logistic}); the soft-computing block focuses on fuzzy systems and evolutionary search, with neuro-fuzzy hybrids serving as the bridge back to the neural chapters.
 
 \subsection{Why Soft Computing?}
+\label{sec:softcomp_why_soft_computing}
 
 The key insight behind soft computing is to exploit the \emph{tolerance for imprecision and uncertainty} inherent in many real-world problems. Consider the example of handwritten digit recognition using a convolutional neural network (CNN):
 
@@ -77,6 +81,7 @@ The key insight behind soft computing is to exploit the \emph{tolerance for impr
 This output is \emph{not precise} in the classical sense; it expresses uncertainty and partial belief. The system tolerates this imprecision and still makes a decision based on the highest probability, demonstrating robustness and flexibility.
 
 \subsection{Relationship Between Hard and Soft Computing}
+\label{sec:softcomp_relationship_between_hard_and_soft_computing}
 
 We can conceptualize the landscape of computing as follows:
 \begin{itemize}
@@ -87,6 +92,7 @@ We can conceptualize the landscape of computing as follows:
 There is some overlap, especially in optimization problems, which can be approached via either paradigm depending on the context and requirements.
 
 \subsection{Overview of Soft Computing Constituents}
+\label{sec:softcomp_overview_of_soft_computing_constituents}
 
 \begin{description}
     \item[Fuzzy Logic:] Deals with \emph{fuzziness} or vagueness, allowing partial membership in sets and approximate reasoning. It is particularly useful when information is incomplete or linguistic in nature.
@@ -118,6 +124,7 @@ For example, reading $24.5^\circ$C from a thermometer with $\pm 1^\circ$C resolu
 % Chapter 15 (continued)
 
 \subsection{Soft Computing: Motivation and Overview}
+\label{sec:softcomp_soft_computing_motivation_and_overview}
 
 Soft computing is not a monolithic framework but rather a coalition of distinct methods unified by a common goal: to exploit tolerance for imprecision, uncertainty, and partial truth to achieve tractability, robustness, and low solution cost. Unlike traditional hard computing, which demands exact inputs and produces precise outputs, soft computing embraces the inherent vagueness of many real-world problems, particularly those involving human reasoning and perception. The constituents mirror the probabilistic and connectionist tools from \Crefrange{chap:supervised}{chap:nlp} but favour interpretability and rule-based reasoning:
 \begin{itemize}
@@ -162,6 +169,7 @@ NOT & \(1-a\) & complement \(1-a\) \\
 \FloatBarrier
 
 \subsection{Fuzzy Logic: Capturing Human Knowledge Linguistically}
+\label{sec:softcomp_fuzzy_logic_capturing_human_knowledge_linguistically}
 
 One of the most compelling aspects of fuzzy logic is its ability to represent human knowledge and experience in a linguistic form that machines can process. Consider the everyday reasoning:
 
@@ -176,6 +184,7 @@ This statement involves vague concepts such as ``late,'' ``congested,'' and ``wi
 A fuzzy rule typically has the form:
 \begin{equation}
     \text{IF } A \text{ AND } B \text{ THEN } C,
+\label{eq:auto_softcomp_faadf52146}
 \end{equation}
 where $A$, $B$, and $C$ are fuzzy propositions characterized by membership functions rather than crisp sets.
 
@@ -199,12 +208,14 @@ Traditional rule-based systems or statistical models require precise numerical i
 \end{itemize}
 
 \subsection{Comparison with Other Soft Computing Paradigms}
+\label{sec:softcomp_comparison_with_other_soft_computing_paradigms}
 
 \paragraph{Neural Networks}
 
 Neural networks model complex nonlinear relationships by learning from data. They transform input features $\mathbf{x} \in \mathbb{R}^n$ into new feature spaces through weighted sums and nonlinear activations:
 \begin{equation}
     \mathbf{h} = \sigma(\mathbf{W}^\top \mathbf{x} + \mathbf{b}),
+\label{eq:auto_softcomp_8725b12d97}
 \end{equation}
 where $\mathbf{W} \in \mathbb{R}^{n \times m}$ maps the $n$-dimensional input into an $m$-dimensional hidden space, $\mathbf{b} \in \mathbb{R}^m$ is the bias vector, and $\sigma(\cdot)$ is a nonlinear activation function applied elementwise.
 
@@ -219,6 +230,7 @@ Genetic algorithms simulate evolutionary processes to optimize solutions by iter
 Probabilistic methods model uncertainty explicitly using probability distributions and Bayesian inference. They require knowledge or estimation of underlying distributions, which may be difficult in many practical scenarios, but approximate inference schemes (e.g., Monte Carlo sampling, variational methods) can mitigate this requirement when exact distributions are unavailable.
 
 \subsection{Zadeh's Insight and the Birth of Fuzzy Logic}
+\label{sec:softcomp_zadeh_s_insight_and_the_birth_of_fuzzy_logic}
 
 Lotfi Zadeh, in the late 1960s, observed that classical statistics and probability theory demand precise knowledge of distributions and exact calculations, which is often unrealistic for human decision-making. Humans rely on approximate, linguistic knowledge rather than exact numerical data.
 
@@ -232,6 +244,7 @@ Zadeh's key insight was to develop a mathematical framework that could:
 This approach revolutionized how we model uncertainty and reasoning in artificial intelligence and control systems.
 
 \subsection{Challenges in Fuzzy Logic Systems}
+\label{sec:softcomp_challenges_in_fuzzy_logic_systems}
 
 Despite its advantages, fuzzy logic faces several challenges:
 \begin{itemize}
@@ -242,10 +255,12 @@ Despite its advantages, fuzzy logic faces several challenges:
 % Chapter 15 (continued)
 
 \subsection{Mathematical Languages as Foundations for Fuzzy Logic}
+\label{sec:softcomp_mathematical_languages_as_foundations_for_fuzzy_logic}
 
 Recall that the motivation behind fuzzy logic was to develop a mathematical and linguistic framework capable of handling imprecision and uncertainty in a principled way. To achieve this, Lotfi Zadeh drew inspiration from several well-established mathematical languages, each with its own syntax, semantics, and rules of inference. Understanding these languages helps us appreciate how fuzzy logic extends and generalizes classical logic to accommodate vagueness.
 
 \subsubsection{Relational Algebra}
+\label{sec:softcomp_relational_algebra_sub}
 
 Relational algebra is a formal language used primarily in database theory to manipulate sets and relations. It provides operators such as union ($\cup$), intersection ($\cap$), and set difference ($\setminus$) that operate on sets:
 
@@ -263,6 +278,7 @@ which removes from \(A\) any elements that also belong to \(B\). For instance, i
 These operators have well-defined meanings and predictable outputs, making relational algebra a precise language for reasoning about collections of elements. The vocabulary is limited but sufficient for set-theoretic operations.
 
 \subsubsection{Boolean Algebra}
+\label{sec:softcomp_boolean_algebra_sub}
 
 Boolean algebra is the algebraic structure underlying classical logic and digital circuits. It operates on binary variables taking values in $\{0,1\}$, with logical operators such as \texttt{AND} ($\wedge$), \texttt{OR} ($\vee$), and \texttt{XOR} ($\oplus$):
 
@@ -276,6 +292,7 @@ Conversely, \(A \vee B = 0\) only when both inputs are 0, and \(A \wedge B = 0\)
 Boolean algebra provides a crisp, binary framework where propositions are either true or false, with no intermediate values. This crispness is a limitation when modeling real-world phenomena involving gradations of truth.
 
 \subsubsection{Predicate Algebra}
+\label{sec:softcomp_predicate_algebra_sub}
 
 Predicate algebra extends Boolean algebra by incorporating quantifiers and variables, allowing statements about properties of elements in a domain. For example, a predicate statement might be:
 
@@ -296,6 +313,7 @@ meaning "For any rabbit $x$ and any tortoise $y$, $x$ is faster than $y$."
 Predicate algebra thus provides a linguistic and symbolic framework to express complex relationships and properties.
 
 \subsubsection{Propositional Calculus}
+\label{sec:softcomp_propositional_calculus_sub}
 
 Propositional calculus (or propositional logic) deals with propositions and their logical connectives. It focuses on the relationships between propositions without internal structure. The basic form involves premises and conclusions, such as:
 
@@ -354,12 +372,14 @@ P \implies Q, \quad Q \implies R \quad \vdash \quad P \implies R.
 This transitive property of implication allows chaining of logical statements.
 
 \subsection{Fuzzy Logic as a New Mathematical Language}
+\label{sec:softcomp_fuzzy_logic_as_a_new_mathematical_language}
 
 Zadeh's insight was to synthesize these classical mathematical languages into a new framework that could handle degrees of truth rather than binary true/false values. Fuzzy logic generalizes Boolean algebra by allowing truth values to range continuously over the interval $[0,1]$, representing partial truth
 
 % Chapter 15 (continued)
 
 \subsection{Fuzzy Logic: Motivation and Intuition}
+\label{sec:softcomp_fuzzy_logic_motivation_and_intuition}
 
 Recall that classical (crisp) logic deals with binary truth values: a proposition is either true (1) or false (0). For example, the question ``Was the exam easy?'' can be answered crisply as ``Yes'' or ``No.'' However, many real-world situations are not so black-and-white. Often, we want to express uncertainty or partial truth, such as ``The exam was somewhat easy,'' or ``The exam was easy to a certain degree.''
 
@@ -375,6 +395,7 @@ This flexibility captures the inherent vagueness in many human concepts and perc
 \end{itemize}
 
 \subsection{From Crisp Sets to Fuzzy Sets}
+\label{sec:softcomp_from_crisp_sets_to_fuzzy_sets}
 
 \paragraph{Crisp sets} are classical sets where an element either belongs or does not belong to the set. Formally, for a universe \(X\), a crisp set \(A \subseteq X\) is characterized by its \emph{characteristic function}:
 \[
@@ -424,6 +445,7 @@ Consider the linguistic labels \texttt{Small}, \texttt{Medium}, and \texttt{Larg
 % Chapter 15: Conclusion and Closure
 
 \subsection{Wrapping Up Fuzzy Sets and Fuzzy Logic}
+\label{sec:softcomp_wrapping_up_fuzzy_sets_and_fuzzy_logic}
 
 In this final part of the chapter, we conclude our introduction to fuzzy sets and fuzzy logic by summarizing key concepts and clarifying the open points from the previous discussion.
 

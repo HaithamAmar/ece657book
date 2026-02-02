@@ -23,6 +23,7 @@ Local linguistic rules become a global behavior only after you commit to concret
 \end{tcolorbox}
 
 \subsection{Context and Motivation}
+\label{sec:fuzzyinference_context_and_motivation}
 
 Recall that a fuzzy inference system maps crisp inputs to fuzzy outputs by applying a set of fuzzy rules. Each rule typically has the form:
 
@@ -39,6 +40,7 @@ These rules are not immutable physical laws; they are codified experience. We re
 The key challenge is to systematically combine the antecedent fuzzy sets and then infer the output fuzzy set for each rule, before aggregating all rules to produce a final output.
 
 \subsection{Rule Antecedent Composition}
+\label{sec:fuzzyinference_rule_antecedent_composition}
 
 Given a rule with $n$ antecedents, each associated with a fuzzy set $A_i$ and an input value $x_i$, the degree to which the rule is activated (also called the \emph{firing strength}) is computed by combining the membership values of each antecedent condition.
 
@@ -46,6 +48,7 @@ Given a rule with $n$ antecedents, each associated with a fuzzy set $A_i$ and an
 
 \begin{equation}
 \mu_{A_i}(x_i) \in [0,1]
+\label{eq:auto_fuzzyinference_57eb8c12c9}
 \end{equation}
 
 \paragraph{Aggregation operator:} The combined antecedent membership is obtained by applying a fuzzy logical operator, typically the \emph{minimum} (intersection) or the \emph{product} operator:
@@ -58,6 +61,7 @@ Given a rule with $n$ antecedents, each associated with a fuzzy set $A_i$ and an
 This value quantifies the degree to which the entire antecedent condition is satisfied by the input vector $\mathbf{x} = (x_1, \ldots, x_n)$. More generally, any t\hyp{}norm $T$ can be used in place of the min or product, provided it satisfies the standard properties (commutativity, associativity, monotonicity, and $T(a,1)=a$); the chosen t\hyp{}norm shapes how strictly the rule demands simultaneous satisfaction of all antecedents.
 
 \subsection{Rule Consequent and Output Fuzzy Set}
+\label{sec:fuzzyinference_rule_consequent_and_output_fuzzy_set}
 
 Once the antecedent firing strength $\alpha$ is computed, it is used to modify the consequent fuzzy set $B$. The consequent fuzzy set is typically defined by its membership function $\mu_B(y)$ over the output universe.
 
@@ -82,6 +86,7 @@ Mamdani uses min-implication (clipping), Larsen uses product-implication (scalin
 \end{tcolorbox}
 
 \subsection{Aggregation of Multiple Rules}
+\label{sec:fuzzyinference_aggregation_of_multiple_rules}
 
 When multiple rules are present, each produces an output fuzzy set $B'_j$ with membership function $\mu_{B'_j}(y)$, where $j$ indexes the rules. These are aggregated to form a combined output fuzzy set:
 
@@ -94,6 +99,7 @@ The \emph{max} operator corresponds to the fuzzy union of the individual rule ou
 \paragraph{Other aggregations} Algebraic sum or bounded sum (\Cref{tab:tnorms}) are used when max is too brittle; they can over-saturate when many rules fire, so start with max unless smooth blending is required.
 
 \subsection{Summary of the Fuzzy Inference Process}
+\label{sec:fuzzyinference_summary_of_the_fuzzy_inference_process}
 
 To summarize, the fuzzy inference process for a given input vector $\mathbf{x}$ proceeds as follows:
 
@@ -161,6 +167,7 @@ Defaults: \(T=\min\) or product; \(S=\max\); centroid defuzzification. Non-singl
 \end{tcolorbox}
 
 \subsection{Mamdani vs.\ Sugeno/Takagi--Sugeno systems}
+\label{sec:fuzzyinference_mamdani_vs_sugeno_takagi_sugeno_systems}
 
 Mamdani-style inference (scaled fuzzy consequents, centroid defuzzification) excels when linguistic interpretability is a priority and when rule consequents must remain human-readable.\\
 Sugeno/Takagi--Sugeno (TSK) systems replace fuzzy consequents with crisp functions such as affine models,

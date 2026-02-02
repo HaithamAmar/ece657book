@@ -33,6 +33,7 @@ h(t) = \mathcal{S}[\delta(t)].
 For any input \(x(t)\), the output \(y(t)\) is given by the convolution integral
 \begin{equation}
     y(t) = (x * h)(t) = \int_{-\infty}^\infty x(\tau)\, h(t - \tau) \, d\tau.
+\label{eq:auto_linear_systems_e82e0d9d81}
 \end{equation}
 In discrete time the integral is replaced by a sum over integer indices.
 
@@ -61,10 +62,12 @@ where \(\mathbf{x}(t) \in \mathbb{R}^n\) is the state, \(\mathbf{u}(t) \in \math
 For the zero-input system, the state evolves as
 \begin{equation}
     \mathbf{x}(t) = e^{\mathbf{A}t} \mathbf{x}(0),
+\label{eq:auto_linear_systems_9700189641}
 \end{equation}
 where \(e^{\mathbf{A}t}\) is the matrix exponential
 \begin{equation}
     e^{\mathbf{A}t} = \sum_{k=0}^\infty \frac{(\mathbf{A}t)^k}{k!}.
+\label{eq:auto_linear_systems_5fa49e4df6}
 \end{equation}
 Key properties include \(e^{\mathbf{A}0} = \mathbf{I}\) and \(\tfrac{d}{dt} e^{\mathbf{A}t} = \mathbf{A} e^{\mathbf{A}t} = e^{\mathbf{A}t} \mathbf{A}\). If \(\mathbf{A}\) is diagonalizable, \(e^{\mathbf{A}t}\) can be computed efficiently via eigen-decomposition.
 
@@ -84,6 +87,7 @@ Taking the Laplace transform of \eqref{eq:state_space} with zero initial conditi
 Solving for \(\mathbf{X}(s)\) gives
 \begin{equation}
     \mathbf{X}(s) = (s \mathbf{I} - \mathbf{A})^{-1} \mathbf{B} \mathbf{U}(s),
+\label{eq:auto_linear_systems_a73226ef59}
 \end{equation}
 and substituting into the output equation produces the transfer function matrix
 \begin{equation}

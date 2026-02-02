@@ -17,6 +17,7 @@ Representation learning as a contract between data and objective---when you trai
 \end{tcolorbox}
 
 \subsection{Context and Motivation}
+\label{sec:nlp_context_and_motivation}
 
 In this chapter, we conclude our discussion on neural networks by focusing on their applications in natural language processing (NLP). Previously, we introduced the concept of representing words as inputs to a neural network, typically encoded as one-hot vectors, and obtaining as output a feature representation of these words. This feature representation captures semantic and syntactic properties of words in a continuous vector space.
 
@@ -27,6 +28,7 @@ A classic example illustrating the power of such representations is the analogy:
 This demonstrates that vector arithmetic on word embeddings can capture meaningful relationships between words. The goal is to find a vector space embedding where semantic similarity corresponds to geometric closeness.
 
 \subsection{Problem Statement}
+\label{sec:nlp_problem_statement}
 
 Given a vocabulary (corpus) of approximately 10,000 words, we want to learn a mapping from each word to a dense vector representation in a feature space of dimension \(d\), where \(d\) is typically between 200 and 500. Formally, if the vocabulary size is \(V\), each word \(w_i\) is initially represented as a one-hot vector \(\mathbf{x}_i \in \mathbb{R}^V\), where
 \[
@@ -43,6 +45,7 @@ f: \{1, \ldots, V\} \to \mathbb{R}^d,
 such that semantic and syntactic properties of words are preserved in the embedding space.
 
 \subsection{Key Insight: Distributional Hypothesis}
+\label{sec:nlp_key_insight_distributional_hypothesis}
 
 The foundational linguistic principle underlying word embeddings is the \emph{distributional hypothesis}, often summarized by the phrase:
 \begin{quote}
@@ -58,6 +61,7 @@ This idea, attributed to the linguist John Robert Firth, states that the meaning
 By explicitly examining the surrounding words (context windows of a few tokens to the left and right), we can infer the intended meaning: instances co-occurring with evaluative adjectives like ``good'' teach the ``intensifier'' sense, whereas contexts rich in nouns like ``image'' teach the ``aesthetic'' sense.
 
 \subsection{Contextual Meaning and Feature Extraction}
+\label{sec:nlp_contextual_meaning_and_feature_extraction}
 
 Words appear in many different contexts, and by aggregating information from these contexts, we can infer intrinsic features of the word. For example, the contexts in which \emph{pretty} appears with \emph{good} or \emph{image} help us understand its different senses.
 
@@ -68,6 +72,7 @@ A natural student question is: if embeddings represent ``features,'' who decides
 \end{tcolorbox}
 
 \subsection{Word2Vec: Two Architectures}
+\label{sec:nlp_word2vec_two_architectures}
 
 The Word2Vec framework, introduced by \citet{Mikolov2013}, operationalizes the distributional hypothesis through two main architectures:
 
@@ -79,6 +84,7 @@ The Word2Vec framework, introduced by \citet{Mikolov2013}, operationalizes the d
 Both architectures learn word embeddings as a byproduct of solving these prediction tasks.
 
 \subsubsection{Continuous Bag of Words (CBOW)}
+\label{sec:nlp_continuous_bag_of_words_cbow_sub}
 
 In CBOW, the model takes as input the context words surrounding a target word and tries to predict the target word itself. Formally, given a sequence of words \(\{w_1, w_2, \ldots, w_T\}\), and a context window size \(n\), the context for word \(w_t\) is
 \[
@@ -98,6 +104,7 @@ where the context words \(\mathcal{C}_t\) are represented as one-hot vectors and
 If we want to learn the embedding for the word \emph{automatic}, the context might be \(\{\text{to}, \text{buy}, \text{an}, \text{car}\}\). The CBOW model uses these context words to predict \emph{automatic}.
 
 \subsubsection{skip-gram}
+\label{sec:nlp_skip_gram_sub}
 
 Conversely, the skip-gram model takes the target word as input and tries to predict each of the context words. It maximizes
 \[
@@ -110,12 +117,14 @@ In practice we maximize the sum of log-probabilities
 This approach tends to perform better on infrequent words and captures more detailed semantic relationships.
 
 \subsection{Mathematical Formulation of CBOW}
+\label{sec:nlp_mathematical_formulation_of_cbow}
 
 Let the vocabulary size be \(V\), and embedding dimension be \(d\). Define the embedding matrix \(\mathbf{W} \in \mathbb{R}^{V \times d}\), where the \(i\)-th row \(\mathbf{v}_i\) is the embedding vector for word \(w_i\). \emph{Convention: we treat embeddings as \textbf{rows}; one-hot words index rows via $\mathbf{x}\mathbf{W}$ (row lookup).}
 
 % Chapter 14 (continued)
 
 \subsection{Neural Network Architecture for Word Embeddings}
+\label{sec:nlp_neural_network_architecture_for_word_embeddings}
 
 Consider a corpus with vocabulary size \( V = 10,000 \) words. Our goal is to learn a dense vector representation (embedding) for each word in this vocabulary. We denote the dimensionality of the embedding space as \( d = 300 \).
 
@@ -173,6 +182,7 @@ The target output \(\mathbf{y}\) is also a one-hot vector corresponding to the w
 During training, the weights \(\mathbf{W}\) and \(\mathbf{W}_{\text{out}}\) are updated via backpropagation to minimize \(\mathcal{L}\). This process adjusts the embeddings in \(\mathbf{W}\) so that words appearing in similar contexts have similar vector representations.
 
 \subsection{Context window and sequential input}
+\label{sec:nlp_context_window_and_sequential_input}
 
 Suppose we use a context window of size 4 words surrounding the target word. For example, to predict the word ``automatic'' in the phrase ``to buy an automatic car,'' the context words are
 \[
@@ -195,16 +205,19 @@ The hidden representations \(\mathbf{h}^{(i)}\) for each context word can be com
 Note that the input vectors \(\mathbf{x}_{t+j}\) are extremely sparse (one-hot), and the embedding matrix \(\mathbf{W}\) is large (\(10{,}000 \times 300\), for example). However, the multiplication \(\mathbf{x}_{t+j}\mathbf{W}\) is efficient because it selects a single row of \(\mathbf{W}\) per input word.
 
 \subsection{Interpretation of the Weight Matrix \texorpdfstring{\(W\)}{W}}
+\label{sec:nlp_interpretation_of_the_weight_matrix_w_w}
 
 The matrix \(\mathbf{W}\) can be interpreted as a lookup table: the \(i\)-th row is the embedding for word \(w_i\), and \(\mathbf{x}\mathbf{W}\) (with one-hot \(\mathbf{x}\)) selects that row directly.
 
 % Chapter 14 (continued)
 
 \subsection{Word Embeddings: Continuous Bag of Words (CBOW) and skip-gram models}
+\label{sec:nlp_word_embeddings_continuous_bag_of_words_cbow_and_skip_gram_models}
 
 Recall from the previous discussion that word embeddings are dense vector representations of words learned from large corpora, capturing semantic and syntactic properties. Two foundational models for learning such embeddings are the Continuous Bag of Words (CBOW) and skip-gram models, both introduced in the Word2Vec framework.
 
 \subsubsection{Continuous Bag of Words (CBOW)}
+\label{sec:nlp_continuous_bag_of_words_cbow_sub_2}
 
 In CBOW, the objective is to predict a target word given its surrounding context words. Formally, given a sequence of words \( w_1, w_2, \ldots, w_T \), and a context window of size \( c \), the model predicts the word \( w_t \) based on the context words \( \{ w_{t-c}, \ldots, w_{t-1}, w_{t+1}, \ldots, w_{t+c} \} \).
 
@@ -233,6 +246,7 @@ Training proceeds by maximizing the log-likelihood over the corpus, adjusting th
 \paragraph{Key Insight:} Because the input vectors are one-hot encoded, the multiplication \( \mathbf{x}_{t+j}\mathbf{W} \) simply selects the \emph{row} of $\mathbf{W}$ corresponding to the context word \( w_{t+j} \). This makes the embedding matrix \( \mathbf{W} \) a lookup table of word features.
 
 \subsubsection{skip-gram model}
+\label{sec:nlp_skip_gram_model_sub}
 
 The skip-gram model reverses the CBOW objective: it uses the current word to predict its surrounding context words. Given a center word \( w_t \), the model aims to maximize the probability of each context word \( w_{t+j} \) within a window \( c \):
 
@@ -260,6 +274,7 @@ where \( \mathbf{u}_w \) are the output vectors as before.
 \paragraph{Interpretation:} The skip-gram model learns embeddings such that words appearing in similar contexts have similar vector representations.
 
 \subsubsection{Computational Challenges: Softmax Normalization}
+\label{sec:nlp_computational_challenges_softmax_normalization_sub}
 
 Both CBOW and skip-gram models require computing the softmax normalization over the entire vocabulary \( V \), which can be very large (e.g., \( V = 10,000 \) or more). The denominator in equations \eqref{eq:cbow-softmax} and \eqref{eq:skipgram-softmax} involves summing exponentials over all vocabulary words:
 
@@ -282,6 +297,7 @@ This is computationally expensive, especially when training on large corpora.
     \item \textbf{Negative sampling:} replace the full softmax with \(k\) binary logistic losses against sampled ``noise'' words.
 \end{itemize}
 \subsection{Efficient Training of Word Embeddings: Hierarchical Softmax and Negative Sampling}
+\label{sec:nlp_efficient_training_of_word_embeddings_hierarchical_softmax_and_negative_sampling}
 
 Recall from the previous discussion that computing the full softmax over a large vocabulary is computationally expensive. Specifically, given an input word, calculating the probability distribution over all possible output words in the vocabulary requires a normalization over potentially millions of terms, which is prohibitive in practice.
 
@@ -340,6 +356,7 @@ Gradients push \(\mathbf{v}_{\text{brick}}\) closer to \(\mathbf{v}'_{\text{hous
 This connection helps explain why SGNS and GloVe often yield similar geometric regularities despite different training objectives: both methods recover statistics of co-occurrence up to monotone transformations and weighting.
 
 \subsection{Local Context vs. Global Matrix Factorization Approaches}
+\label{sec:nlp_local_context_vs_global_matrix_factorization_approaches}
 
 Word embedding methods can be broadly categorized into two classes based on how they utilize context information:
 
@@ -373,6 +390,7 @@ X_{ij} = \text{number of times word } i \text{ appears in the context of word } 
 This matrix is \emph{sparse} and \emph{large} (especially when $V$ runs into the hundreds of thousands), so storing it explicitly or factorizing it naively can be computationally expensive.
 
 \subsection{Global Word Vector Representations via Co-occurrence Statistics}
+\label{sec:nlp_global_word_vector_representations_via_co_occurrence_statistics}
 
 Recall that our goal is to obtain a global vector representation for words, capturing semantic relationships beyond simple one-hot encodings. Instead of encoding words individually, we leverage \emph{co-occurrence} statistics of word pairs within a corpus to build richer embeddings.
 
@@ -398,6 +416,7 @@ Recall that our goal is to obtain a global vector representation for words, capt
 \end{figure}
 
 \subsubsection{Modeling Co-occurrence Probabilities}
+\label{sec:nlp_modeling_co_occurrence_probabilities_sub}
 
 We start by considering the conditional probability of observing a context word \( w_k \) given a target word \( w_i \):
 \begin{equation}
@@ -440,10 +459,12 @@ where \( b_i \) and \( b_k \) are bias terms associated with words \( w_i \) and
 This equation suggests that the log co-occurrence counts can be approximated by a bilinear form plus biases.
 
 \subsubsection{Optimization Objective}
+\label{sec:nlp_optimization_objective_sub}
 
 Given the corpus co-occurrence matrix \( X = [X_{ik}] \), our goal is to find word vectors \( \mathbf{v}_i \), \( \mathbf{u}_k \) and biases \( b_i, b_k \) that minimize the reconstruction error:
 \begin{equation}
     J = \sum_{i,k} f(X_{ik}) \left( \mathbf{v}_i\,\mathbf{u}_k + b_i + b_k - \log X_{ik} \right)^2,
+\label{eq:auto_nlp_be1df77f53}
 \end{equation}
 where \( f \) is a weighting function that controls the influence of each co-occurrence pair.
 
@@ -464,8 +485,10 @@ A typical choice for \( f \) is:
 where \( \alpha \in (0,1) \) and \( x_{\max} \) is a cutoff parameter.
 
 \subsubsection{Interpretation and Remarks}
+\label{sec:nlp_interpretation_and_remarks_sub}
 
 \subsection{Finalizing the Word Embedding Derivations}
+\label{sec:nlp_finalizing_the_word_embedding_derivations}
 
 In the previous sections, we explored the formulation of word embeddings through co-occurrence statistics and matrix factorization approaches. We now conclude the derivations and clarify the role of bias terms and optimization strategies.
 
@@ -526,6 +549,7 @@ we obtain embeddings that approximate the log co-occurrence matrix in a least-sq
 While SVD provides a closed-form solution, it does not explicitly model the bias terms \( b_i, b_k \) or the weighting function \( f(x) \). Those additional degrees of freedom allow gradient-based methods such as GloVe to better match empirical co-occurrence ratios. Biases soak up unigram frequency effects while the weighting function prevents very noisy counts from dominating the fit.
 
 \subsection{Bias in Natural Language Processing}
+\label{sec:nlp_bias_in_natural_language_processing}
 
 An important consideration in word embedding models is the presence of bias inherited from the training corpora. Since embeddings are learned from co-occurrence patterns in text, they reflect the statistical properties of the language data, including cultural and societal biases.
 
@@ -568,6 +592,7 @@ Embedding spaces faithfully capture geometry (analogies, clusters) precisely bec
 \end{tcolorbox}
 
 \subsection{Responsible deployment checklist (appendix)}
+\label{sec:nlp_responsible_deployment_checklist_appendix}
 \begin{itemize}
     \item \textbf{Purpose and consent.} Document the use-case, decision stakes, and where humans remain in the loop; distinguish exploratory prototypes from production decision aids.
     \item \textbf{Data lineage and licensing.} Track licenses for each corpus (newswire, Common Crawl, proprietary logs) and state whether downstream users may redistribute the embeddings or derived models.
@@ -577,6 +602,7 @@ Embedding spaces faithfully capture geometry (analogies, clusters) precisely bec
 \end{itemize}
 
 \subsection{Contextual embeddings and transformers}
+\label{sec:nlp_contextual_embeddings_and_transformers}
 
 Static embeddings assign a single vector per word type, so polysemous words such as ``bank'' cannot adapt to their context. Transformer-based language models (e.g., BERT; \citealp{Devlin2019}) compute token representations conditioned on the entire sentence via multi-head self-attention, allowing each occurrence to carry a context-specific vector. The techniques developed in this chapter remain useful for lightweight models and as initialization, but modern NLP pipelines increasingly fine-tune contextual models to capture sentence-level nuance.
 

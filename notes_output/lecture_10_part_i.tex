@@ -25,6 +25,7 @@ Preserve meaning while changing representation: the extension principle is a dis
 \end{tcolorbox}
 
 \subsection{Context and Motivation}
+\label{sec:fuzzyrelations_context_and_motivation}
 
 Previously, we studied operations such as \emph{dilation} and \emph{contraction} on fuzzy sets within a single universe of discourse. For example, given a fuzzy set representing the concept \textit{young}, we can generate related fuzzy sets like \textit{less young} or \textit{too old} by applying these operations. By combining these fuzzy sets, we can express nuanced concepts such as \textit{not too young} or \textit{not too old} within the same universe.
 
@@ -41,6 +42,7 @@ In such cases, the new universe is a function of the original universe, and we w
 
 
 \subsection{Problem Statement}
+\label{sec:fuzzyrelations_problem_statement}
 
 Let \( X \) and \( Y \) be two universes of discourse, with a known mapping function
 \[
@@ -57,6 +59,7 @@ The key questions are:
 % Operator defaults are stated once at the top of this chapter (see the "Operator defaults in this trilogy" box).
 
 \subsection{Intuition and Challenges}
+\label{sec:fuzzyrelations_intuition_and_challenges}
 
 It is tempting to define \(\mu_B(y) = \mu_A(x)\) where \( y = f(x) \), but this is generally insufficient because:
 
@@ -69,6 +72,7 @@ It is tempting to define \(\mu_B(y) = \mu_A(x)\) where \( y = f(x) \), but this 
 Therefore, we need a principled method to aggregate membership values from all preimages of \( y \) under \( f \).
 
 \subsection{Formal Definition of the Transformed Membership Function}
+\label{sec:fuzzyrelations_formal_definition_of_the_transformed_membership_function}
 
 Given the fuzzy set \( A \subseteq X \) with membership function \(\mu_A\), and the mapping \( y = f(x) \), the membership function \(\mu_B\) of the fuzzy set \( B \subseteq Y \) is defined by
 \begin{equation}
@@ -86,6 +90,7 @@ The strongest pre-image membership determines the membership of \(y\). When the 
 \end{itemize}
 
 \subsection{Interpretation}
+\label{sec:fuzzyrelations_interpretation}
 
 \Cref{eq:membership-transform} states that the membership degree of \( y \) in \( B \) is the supremum over all membership degrees of \( x \) in \( A \) such that \( f(x) = y \). For single-input mappings no additional combination is necessary; when multiple fuzzy inputs are involved we first combine their memberships with a chosen T-norm (cf. \Cref{eq:extension-two-var}) and then take the supremum. Intuitively, this means:
 
@@ -96,10 +101,12 @@ The strongest pre-image membership determines the membership of \(y\). When the 
 This approach preserves the logical interpretation of membership values and respects the structure of the mapping \( f \).
 
 \subsection{Example Setup}
+\label{sec:fuzzyrelations_example_setup}
 
 Consider the universe \( X = \mathbb{R} \) and the fuzzy set \( A \)
 
 \subsection{Transformation of Fuzzy Sets Between Universes}
+\label{sec:fuzzyrelations_transformation_of_fuzzy_sets_between_universes}
 
 We continue our discussion on fuzzy set transformations, focusing on mapping fuzzy sets from one universe to another via a function \( y = f(x) \).
 
@@ -235,6 +242,7 @@ Taking the supremum over all contributing pairs gives
 % Chapter 17 Part I (continued)
 
 \subsection{Extension Principle Recap and Projection Operations}
+\label{sec:fuzzyrelations_extension_principle_recap_and_projection_operations}
 
 Recall from the previous discussion that the \emph{extension principle} allows us to extend a fuzzy set defined on one universe to another universe via a known function. For example, if we have a fuzzy set \( A \subseteq X \) and a function \( f: X \to Y \), then the image fuzzy set \( B = f(A) \subseteq Y \) is defined by
 \begin{equation}
@@ -308,6 +316,7 @@ For discrete universes the extension principle costs \(O(|X|)\) per \(y\) (or \(
 \end{figure}
 
 \subsection{Projection of Fuzzy Relations}
+\label{sec:fuzzyrelations_projection_of_fuzzy_relations}
 
 Now, consider the case where we have a fuzzy relation \( R \subseteq X \times Y \), where \( X \) and \( Y \) are universes of discourse. The fuzzy relation \( R \) is characterized by a membership function
 \[
@@ -320,6 +329,7 @@ This relation can be viewed as a fuzzy set on the Cartesian product \( X \times 
 Given fuzzy sets \( A \subseteq X \) and \( B \subseteq Y \) with membership functions \( \mu_A \) and \( \mu_B \), their Cartesian product \( R = A \times B \) is defined by
 \begin{equation}
     \mu_R(x,y) = T(\mu_A(x), \mu_B(y)),
+\label{eq:auto_fuzzyrelations_41c4751ec2}
 \end{equation}
 where \( T \) is a chosen t\hyp{}norm, commonly the minimum operator:
 \[
@@ -448,6 +458,7 @@ and
 % Chapter 17 Part I (continued)
 
 \subsection{Dimensional Extension and Projection in Fuzzy Set Operations}
+\label{sec:fuzzyrelations_dimensional_extension_and_projection_in_fuzzy_set_operations}
 
 In practical fuzzy set operations, it is common to encounter sets defined over different universes of discourse with differing dimensions. For example, consider the union of two fuzzy sets where one is defined over a one-dimensional universe \(X\), and the other over a two-dimensional universe \(X \times Y\). To perform set operations such as union or intersection, the dimensions must be compatible.
 
@@ -476,6 +487,7 @@ Consider a fuzzy set \(A\) on \(X = \{x_1, x_2\}\) with membership values \(\mu_
 Thus, the membership values are replicated along the \(Y\)-axis. In practice this extension step is often paired with projections to reconcile relation dimensions before composing rules and, later, to marginalize the inferred relation back onto the universe of interest.
 
 \subsection{Fuzzy Inference via Composition of Relations}
+\label{sec:fuzzyrelations_fuzzy_inference_via_composition_of_relations}
 
 The ultimate goal of building fuzzy logic systems is to perform \emph{inference}, i.e., to compose fuzzy rules to generate predictions or decisions. This involves combining fuzzy relations that represent knowledge or rules.
 
@@ -551,12 +563,14 @@ Swap \(\min\) for another \(T\) (product, \L{}ukasiewicz) and \(\max\) for the c
 % Chapter 17 Part I: Closure of Composition and Fuzzy Relation Operations
 
 \subsection{Recap and Motivation}
+\label{sec:fuzzyrelations_recap_and_motivation}
 
 Earlier in this chapter, we introduced fuzzy relations and their compositions, focusing on max--min composition as a fundamental operation. We saw how fuzzy relations can represent uncertain or imprecise mappings between sets, and how compositions allow chaining these relations to infer new relationships.
 
 The goal of this final part is to wrap up the derivations related to fuzzy relation composition, clarify the generalization of these operations, and highlight key properties that enable their effective use in fuzzy inference systems.
 
 \subsection{Generalization of Fuzzy Relation Composition}
+\label{sec:fuzzyrelations_generalization_of_fuzzy_relation_composition}
 
 Suppose we have two fuzzy relations:
 \[
@@ -583,6 +597,7 @@ and the supremum is replaced by maximum:
 This operation generalizes the classical composition of crisp relations to fuzzy sets.
 
 \subsection{Example Calculation of Composition}
+\label{sec:fuzzyrelations_example_calculation_of_composition}
 
 Consider discrete sets \(X = \{x_1, x_2\}\), \(Y = \{y_1, y_2\}\), and \(Z = \{z_1, z_2\}\), with membership values:
 
@@ -613,6 +628,7 @@ Similarly, for \(\mu_R(x_1, z_2)\):
 This process continues for all pairs \((x_i, z_j)\) to form the composed relation matrix.
 
 \subsection{Properties of Fuzzy Relation Composition}
+\label{sec:fuzzyrelations_properties_of_fuzzy_relation_composition}
 
 The composition operation inherits several important algebraic properties, analogous to classical relations:
 
@@ -639,6 +655,7 @@ The composition operation inherits several important algebraic properties, analo
 \end{itemize}
 
 \subsection{Alternative Composition Operators}
+\label{sec:fuzzyrelations_alternative_composition_operators}
 
 While max--min is standard, other t\hyp{}norms and t\hyp{}conorms can be used to define composition:
 

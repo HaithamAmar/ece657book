@@ -24,6 +24,7 @@ Throughout this chapter we use the row-major (deep-learning) convention for batc
 \end{tcolorbox}
 
 \subsection{Historical Context and Motivation}
+\label{sec:cnn_historical_context_and_motivation}
 
 Artificial neural networks (ANNs) have a long history dating back to the 1940s, with the seminal work of McCulloch and Pitts in 1943. Despite this early start, it took several decades before deep learning models became widely successful and practical. Neural networks experienced waves of interest, notably in the 1980s and 1990s, but it was only in the last 10--15 years that deep architectures have become dominant.
 
@@ -39,10 +40,12 @@ Understanding why deep learning took so long to mature is crucial. Several chall
 These factors combined to delay the widespread adoption of deep learning despite its theoretical potential.
 
 \subsection{Overview of Neural Network Architectures}
+\label{sec:cnn_overview_of_neural_network_architectures}
 
 Before delving into deep learning, it is important to review the basic building blocks of neural networks.
 
 \subsubsection{Feedforward Neural Networks (Multi-Layer Perceptrons)}
+\label{sec:cnn_feedforward_neural_networks_multi_layer_perceptrons_sub}
 
 A feedforward neural network consists of an input layer, one or more hidden layers, and an output layer. Data flows in one direction from input to output without cycles.
 
@@ -80,6 +83,7 @@ Each neuron in the hidden layer is connected to every input feature, making the 
 Thus, each layer transforms the input features into a new representation, which subsequent layers can further process.
 
 \subsection{Why Shallow Networks Are Insufficient}
+\label{sec:cnn_why_shallow_networks_are_insufficient}
 
 In theory, shallow networks with a single hidden layer are universal function approximators \citep{Cybenko1989}. However, in practice, they have several limitations:
 
@@ -92,6 +96,7 @@ In theory, shallow networks with a single hidden layer are universal function ap
 Deep networks, with multiple hidden layers, can represent complex functions more compactly by learning hierarchical feature representations. This hierarchical structure is key to the success of deep learning.
 
 \subsection{Limitations of Traditional Feedforward Neural Networks}
+\label{sec:cnn_limitations_of_traditional_feedforward_neural_networks}
 
 \paragraph{Requirement for large datasets}
 
@@ -122,6 +127,7 @@ This flattening process has two major drawbacks:
 These limitations motivate the development of specialized architectures, such as convolutional neural networks (CNNs), which exploit spatial locality and reduce parameter count by sharing weights.
 
 \subsection{Challenges in Training Large Fully Connected Networks}
+\label{sec:cnn_challenges_in_training_large_fully_connected_networks}
 
 Consider a fully connected neural network where the input layer has 70,656 neurons (flattened from a $256 \times 276$ grayscale image), connected to a hidden layer with 100 neurons, which in turn connects to an output layer for classification. Although this is a simplified example, it illustrates key challenges in training large networks.
 
@@ -130,10 +136,12 @@ Consider a fully connected neural network where the input layer has 70,656 neuro
 The number of weights between the input and hidden layer is:
 \begin{equation}
 70,656 \times 100 = 7,065,600,
+\label{eq:auto_cnn_ed5e022844}
 \end{equation}
 and between the hidden and output layer (assuming 4 output classes) is:
 \begin{equation}
 100 \times 4 = 400.
+\label{eq:auto_cnn_9b56be8916}
 \end{equation}
 
 Thus, the first layer alone requires learning just over 7 million parameters before we even consider deeper architectures. Coupled with the additional 400 output weights (plus biases), the optimization problem quickly becomes data-hungry and computationally expensive.
@@ -143,6 +151,7 @@ Thus, the first layer alone requires learning just over 7 million parameters bef
 To reliably learn these parameters, the amount of training data must be sufficiently large. A common heuristic is that the number of training samples should be at least 10 times the number of parameters:
 \begin{equation}
 N_{\text{samples}} \geq 10 \times N_{\text{parameters}}.
+\label{eq:auto_cnn_acca81a25c}
 \end{equation}
 
 This rule-of-thumb is intentionally conservative and should be read as guidance rather than a hard requirement; in practice, regularization, data augmentation, and strong inductive biases often permit useful models with fewer samples.
@@ -150,6 +159,7 @@ This rule-of-thumb is intentionally conservative and should be read as guidance 
 For the first layer, this implies roughly:
 \begin{equation}
 N_{\text{samples}} \gtrsim 10 \times 7,000,000 \approx 70,000,000,
+\label{eq:auto_cnn_a651e49be4}
 \end{equation}
 meaning on the order of seventy million labeled images. This is an impractical requirement for most projects.
 
@@ -162,12 +172,14 @@ Storing and processing such a large dataset requires enormous storage and comput
 With millions of parameters, the model has high capacity and can easily memorize the training data, leading to overfitting. This means the network may not generalize well to unseen data, as it learns to fit noise or irrelevant details rather than meaningful features.
 
 \subsection{Sparse connectivity and parameter sharing}
+\label{sec:cnn_sparse_connectivity_and_parameter_sharing}
 
 CNNs replace dense connections with \emph{local receptive fields}. Each output unit connects to a small neighborhood of pixels, not the entire image. If a \(k \times k\) filter scans a \(H\times W\) input, the number of learned weights is \(k^2\) (per channel), not \(HW\). The same filter is reused at every spatial location, so a single set of parameters detects a pattern anywhere in the image. This parameter sharing is the key to scalability: it cuts the parameter count and preserves translation equivariance.
 
 Historically, dense MLPs on image benchmarks struggled to compete with classical pipelines because the parameter count and data requirements were prohibitive. CNNs reversed that trend by tying weights and focusing on local patterns while keeping the same gradient-based training loop, so capacity grows with depth and channel count rather than with the raw pixel grid.
 
 \subsection{Convolution and pooling mechanics}
+\label{sec:cnn_convolution_and_pooling_mechanics}
 
 For an input feature map \(X\) and filter \(K\), the (cross-correlation) output at spatial location \((i,j)\) is
 \[
@@ -184,6 +196,7 @@ Convolution itself is a linear map; the nonlinearity enters when we apply an act
 Without padding (often called \emph{valid} convolution), boundary pixels participate in fewer receptive fields and the spatial grid shrinks each layer. \emph{Same} padding chooses \(p=(k-1)/2\) for odd \(k\) to preserve spatial size when \(s=1\) and give edge pixels comparable influence. Larger strides reduce resolution and compute but can skip fine detail, so the padding/stride combination is a deliberate trade-off rather than a fixed rule.
 
 \subsubsection{Worked stride and padding example}
+\label{sec:cnn_worked_stride_and_padding_example_sub}
 
 Suppose an input is \(6\times6\) and the filter is \(3\times3\).
 \begin{itemize}
@@ -194,6 +207,7 @@ Suppose an input is \(6\times6\) and the filter is \(3\times3\).
 The floor in the formula is important: if \((n + 2p - k)\) is not divisible by \(s\), the last partial window is dropped.
 
 \subsection{Pooling as nonparametric downsampling}
+\label{sec:cnn_pooling_as_nonparametric_downsampling}
 
 Pooling reduces spatial size without learning new parameters: a max-pooling window keeps the strongest activation; average pooling keeps the mean. This is a nonparametric operation, so it can feel like ``cheating'' compared to learned filters, yet it often improves robustness by discarding small shifts and noise. Max pooling is the most common because it preserves the strongest feature response, but average and even median pooling appear in specialized settings. In modern CNNs, aggressive pooling is used sparingly; strided convolutions are a common alternative when you want learned downsampling instead of a fixed aggregation.
 
@@ -206,6 +220,7 @@ In most deep-learning libraries, the operation called ``convolution'' is technic
 \end{tcolorbox}
 
 \subsection{Channels and feature maps}
+\label{sec:cnn_channels_and_feature_maps}
 
 Real inputs are multi-channel. An RGB image has three channels, so a \(k\times k\) filter is really \(k\times k\times C_{\text{in}}\) and produces one output map. A convolutional layer applies \(C_{\text{out}}\) such filters, yielding a volume of feature maps with shape \(H\times W\times C_{\text{out}}\). This is why ``same'' padding refers to spatial dimensions only: channel depth is set by the number of filters, not by padding.
 
@@ -214,6 +229,7 @@ Start with an input tensor of size \(50\times50\times30\). Apply \(10\) filters 
 \end{tcolorbox}
 
 \subsection{Convolutional hyperparameters (what you choose up front)}
+\label{sec:cnn_convolutional_hyperparameters_what_you_choose_up_front}
 \begin{itemize}
     \item \textbf{Filter size} (\(k\times k\)) and \textbf{number of filters} (\(C_{\text{out}}\)).
     \item \textbf{Stride} \(s\) and \textbf{padding} \(p\) (valid vs.\ same).
@@ -222,13 +238,16 @@ Start with an input tensor of size \(50\times50\times30\). Apply \(10\) filters 
 \end{itemize}
 
 \subsection{Multi-branch convolution blocks (Inception idea)}
+\label{sec:cnn_multi_branch_convolution_blocks_inception_idea}
 One practical variant is to run multiple filter sizes in parallel (for example \(1\times1\), \(3\times3\), and \(5\times5\)) and concatenate the resulting feature maps along the channel axis. This allows the network to capture multi-scale patterns without committing to a single kernel size. When branches must line up spatially, \emph{same} padding is used to keep all outputs the same height and width; pooling branches often pad for this alignment even though pooling by itself is usually unpadded.
 
 \subsection{From feature maps to classifiers}
+\label{sec:cnn_from_feature_maps_to_classifiers}
 
 Stacks of convolutional and pooling layers produce a hierarchy of feature maps. A common design is to flatten the final maps into a vector and pass them to a small dense classifier (often a softmax layer) that predicts the class label. Backpropagation updates both the dense weights and the shared convolutional filters, so the feature extractor and classifier are learned jointly.
 
 \subsection{Historical Context and the 2012 Breakthrough}
+\label{sec:cnn_historical_context_and_the_2012_breakthrough}
 
 Before 2012, neural networks were often dismissed in many academic circles due to their poor performance on large-scale problems and the dominance of other methods such as Support Vector Machines (SVMs). The sentiment was that neural networks were "fancy" but not practical or well-understood.
 
@@ -239,6 +258,7 @@ Before 2012, neural networks were often dismissed in many academic circles due t
 With the architectural motivation in place, we now focus on how these models are trained and why deep optimization remains delicate.
 
 \subsection{Training Neural Networks: Gradient-Based Optimization}
+\label{sec:cnn_training_neural_networks_gradient_based_optimization}
 
 Training neural networks involves minimizing a loss function $\mathcal{L}$ that measures the discrepancy between the network output and the target. The parameters (weights and biases) are updated iteratively using gradient descent or its variants.
 
@@ -256,7 +276,9 @@ The gradient $\frac{\partial \mathcal{L}}{\partial w}$ is computed efficiently u
 
 In deep networks, gradients can vanish or explode as they propagate through many layers, making training unstable or slow. This problem was a major obstacle until solutions such as better activation functions (e.g., ReLU), normalization techniques, and initialization methods were developed.
 
-\subsection{Deep Network Optimization \mbox{Challenges}}
+\subsection{Deep Network Optimization \mbox{Challenges}
+\label{sec:cnn_deep_network_optimization_challenges}}
+\label{sec:cnn_deep_network_optimization_challenges_sec_cnn_deep_network_optimization_challenges}
 
 Deep networks are difficult to optimize because the objective is highly nonconvex and the
 gradient signal can be distorted as it flows through many layers. We begin with the most
@@ -266,6 +288,7 @@ mitigations.
 % Chapter 11 (continued)
 
 \subsection{Vanishing and Exploding Gradients in Deep Networks}
+\label{sec:cnn_vanishing_and_exploding_gradients_in_deep_networks}
 
 Recall from the previous discussion that when training deep neural networks, the backpropagation algorithm involves repeated multiplication of gradients through many layers. This repeated multiplication can cause gradients to either vanish (approach zero) or explode (grow exponentially large), leading to significant training difficulties.
 
@@ -299,6 +322,7 @@ The derivative is maximized at $\sigma(x)=0.5$, where $\sigma'(x)=0.25$, so repe
 \paragraph{Notation note.} In this chapter $\sigma(\cdot)$ always denotes the logistic sigmoid nonlinearity, whereas symbols such as $\sigma^2$ are reserved for variances in earlier statistical chapters; context (function of an argument vs. squared scalar) distinguishes them.
 
 \subsection{Strategies to Mitigate Vanishing and Exploding Gradients}
+\label{sec:cnn_strategies_to_mitigate_vanishing_and_exploding_gradients}
 
 \paragraph{Weight initialization}
 

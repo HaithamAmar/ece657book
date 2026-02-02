@@ -19,6 +19,8 @@ change exists.
 
 1. **No missing figures**: the build must fail if any figure is missing (including TikZ failures).
 2. **Reference continuity**: cross-references (Chapter/Figure/Table/Section/Appendix/Equation) must be readable and numbered consistently with the PDF.
+   - Headings that should be numbered must have explicit `\\label{sec:...}` anchors in the LaTeX sources. Use `python3 epub_builder/scripts/add_missing_heading_labels.py` to fill in missing subsection/subsubsection labels (idempotent).
+   - Equation numbers in EPUB are only shown for labeled equations. Use `python3 epub_builder/scripts/add_missing_equation_labels.py` to fill in missing `\\label{eq:...}` for `equation` environments (idempotent).
 3. **High-resolution figures**: images must be crisp on high-density displays; prefer vector→high-DPI rasterization when necessary.
 4. **No clipping**: long display math must not be cut off; allow scrolling as a last resort.
 
@@ -34,6 +36,9 @@ python3 epub_builder/build.py --variant both --clean
 
 - Current cover source is configured in `notes_output/book_metadata.json` under `cover_image`.
 - Prefer the higher-resolution `notes_output/BookCover.png` (1600×2560) over `notes_output/BookCover_1024x1536.png`.
+ - If Finder/Quick Look (macOS) shows a generic EPUB thumbnail, the builder postprocesses the EPUB to:
+   - add an EPUB2-style `meta name="cover"` entry in the OPF
+   - emit an `<img>`-based `cover.xhtml` (instead of an SVG wrapper), which is more widely thumbnail-compatible.
 
 ### 2) Regression screenshots: PDF vs EPUB (figures/tables/equations)
 
@@ -43,12 +48,16 @@ Produces side-by-side images keyed by `.aux` labels.
 epub_builder/.venv/bin/python epub_builder/scripts/qc_epub_vs_pdf.py \
   --epub epub_builder/dist/ece657_ebook_apple.epub \
   --pdf notes_output/ece657_notes.pdf \
-  --aux notes_output/ece657_notes.aux \
+  --aux epub_builder/artifacts/tmp/aux/ece657_notes_epub_aux.aux \
   --out epub_builder/artifacts/qc/pdf_vs_epub_$(date +%Y%m%d_%H%M%S)_apple \
   --max-eq 0
 ```
 
 Repeat for Kindle by swapping `--epub`.
+
+Notes:
+- The Pandoc builder generates `epub_builder/artifacts/tmp/aux/ece657_notes_epub_aux.aux` on every build; prefer it for EPUB QC so section/equation numbering matches the exact sources used to build the EPUB.
+- If you are doing PDF-only regression checks, you can use `notes_output/ece657_notes.aux` instead (produced by the PDF toolchain).
 
 ### 3) Image resolution audit (EPUB media)
 

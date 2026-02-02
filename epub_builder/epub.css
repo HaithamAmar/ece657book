@@ -44,6 +44,13 @@ math[display="block"] {
   padding-bottom: 0.15em;
 }
 
+/* Some readers ignore overflow on <math>; wrap block math in a div for safety. */
+.math-block {
+  overflow-x: auto;
+  overflow-y: hidden;
+  -webkit-overflow-scrolling: touch;
+}
+
 /* Pandoc renders our LaTeX flushright as a div.flushright */
 .flushright {
   text-align: right;

@@ -16,11 +16,13 @@ Keep the workflow, swap the likelihood: logistic regression keeps the linear sco
 \end{tcolorbox}
 
 \subsection{From regression to classification}
+\label{sec:logistic_from_regression_to_classification}
 Linear regression models a continuous target \(y\) and, under a Gaussian noise model, yields a closed-form solution via the normal equations (\Cref{chap:supervised}, \cref{sec:linear_regression_closed}). Classification changes the output space: \(y\) is a discrete label, and the model predicts class probabilities rather than raw responses. The ERM pipeline remains the same, but the loss becomes the negative log-likelihood (binary cross\hyp{}entropy) and optimization is typically iterative.
 
 Throughout this chapter we use \(y\in\{0,1\}\) by default, switching to \(y_{\pm1}=2y-1\) only when margin-based expressions are convenient. Predictions carry hats (e.g., \(\hat{y}\)), \(\varepsilon\) denotes noise, and \(e=y-\hat{y}\) denotes residuals. For a refresher on data splits, learning curves, and the bias--variance vocabulary, see \Cref{chap:supervised}; here we focus on the logistic-specific modeling and diagnostics.
 
 \subsection{Classification problem statement}
+\label{sec:logistic_classification_problem_statement}
 
 In this chapter, we shift our attention to a fundamentally different type of problem: \emph{classification}. Unlike regression, where the output \(y\) is continuous, classification predicts a \emph{discrete label}. We will start with the binary case \(y\in\{0,1\}\), where the goal is to estimate a probability
 \[
@@ -33,6 +35,7 @@ y \in \{c_1, c_2, \ldots, c_K\},
 and the goal is to estimate \(P(y=c_k\mid \mathbf{x})\) for each \(k\); we return to the softmax extension later in the chapter.
 
 \subsection{Bayes Optimal Classifier}
+\label{sec:logistic_bayes_optimal_classifier}
 
 A fundamental result in statistical pattern recognition is that the \emph{Bayes classifier} is the optimal classifier in terms of minimizing the expected classification error. The Bayes classifier assigns \(\mathbf{x}\) to the class:
 \[
@@ -173,6 +176,7 @@ P(\mathbf{x} \mid y = c_k) = \prod_{j=1}^p P(x_j \mid y = c_k),
 making the computation and estimation of the likelihood tractable. It is important to remember that this factorization is justified only under the conditional independence assumption; when the features are strongly correlated, Naive Bayes can suffer because the assumption is violated.
 
 \subsection{Logistic Regression: A Probabilistic Discriminative Model}
+\label{sec:logistic_logistic_regression_a_probabilistic_discriminative_model}
 
 One widely used approach to classification, especially for binary problems, is \emph{logistic regression}. Logistic regression models the posterior probability \(P(y=1 \mid \mathbf{x})\) directly as a function of \(\mathbf{x}\), without explicitly modeling the class-conditional densities.
 
@@ -368,6 +372,7 @@ Unlike linear regression, logistic regression does not have a closed-form soluti
 \FloatBarrier
 
 \subsection{Probabilistic Interpretation: MLE and MAP}
+\label{sec:logistic_probabilistic_interpretation_mle_and_map}
 
 The ERM view in \Cref{chap:supervised} treats learning as minimizing an average loss plus (optionally) a regularizer. The probabilistic view arrives at the same objective from a different direction:
 \begin{itemize}
@@ -423,6 +428,7 @@ Two common priors explain the two penalties that appear most often in practice: 
 \FloatBarrier
 
 \subsection{Confusion Matrices and Derived Metrics}
+\label{sec:logistic_confusion_matrices_and_derived_metrics}
 
 Once we have a probabilistic classifier, we need diagnostics that quantify performance on held-out data. For multi-class prediction, the confusion matrix \(C_{ij}\) records the number of examples with true class \(i\) predicted as \(j\). From \(C\) we compute accuracy, per-class precision/recall, and aggregate metrics. \emph{Macro-averaged} precision/recall first evaluate the metric per class and then average them uniformly, whereas \emph{micro-averaged} precision/recall pool all true/false positives across classes before computing the ratio (equivalent to weighting each example equally). Visual inspection (\Cref{fig:lec1_confusion}) helps diagnose systematic errors across classes.
 

@@ -497,8 +497,8 @@ def prefix_chapter_sections(text: str, *, aux_numbers: dict[str, str]) -> str:
     Convert `\\section{Title}\\label{chap:foo}` into `\\section{Chapter N: Title}...`
     using chapter numbers parsed from `ece657_notes.aux`.
     """
-    # Match common pattern where the chapter label immediately follows the section.
-    pat = re.compile(r"\\section\{([^}]*)\}\s*\\label\{(chap:[^}]+)\}")
+    # Match common pattern where the chapter/appendix label immediately follows the section.
+    pat = re.compile(r"\\section\{([^}]*)\}\s*\\label\{((?:chap|app):[^}]+)\}")
 
     def _sub(m: re.Match[str]) -> str:
         title = m.group(1).strip()
@@ -506,12 +506,138 @@ def prefix_chapter_sections(text: str, *, aux_numbers: dict[str, str]) -> str:
         num = aux_numbers.get(lab)
         if not num:
             return m.group(0)
-        # Avoid double-prefixing if the title already starts with "Chapter".
-        if title.lower().startswith("chapter "):
+        if lab.startswith("chap:"):
+            # Avoid double-prefixing if the title already starts with "Chapter".
+            if title.lower().startswith("chapter "):
+                return m.group(0)
+            return f"\\section{{Chapter {num}: {title}}}\\label{{{lab}}}"
+        # Appendices are lettered (A/B/C).
+        if title.lower().startswith("appendix "):
             return m.group(0)
-        return f"\\section{{Chapter {num}: {title}}}\\label{{{lab}}}"
+        return f"\\section{{Appendix {num}: {title}}}\\label{{{lab}}}"
 
     return pat.sub(_sub, text)
+
+def number_unlabeled_headings(text: str, *, aux_numbers: dict[str, str]) -> str:
+    """
+    Ensure subsection/subsubsection numbering is consistent even when headings
+    are not labeled.
+
+    Pandoc will not preserve LaTeX counters for unlabeled headings in the way we
+    need for a publish-grade EPUB. We therefore apply LaTeX-style counters
+    deterministically in preprocessing, but only once we're inside the numbered
+    body (after the first `chap:` or `app:` section).
+    """
+
+    def _starts_with_number(title: str) -> bool:
+        t = title.strip()
+        # 4.2, 4.2.1, A.1, C.1.2, etc.
+        return bool(re.match(r"^(?:[A-Z]|\d+)(?:\.\d+){1,3}\b", t))
+
+    def _scan_cmd(s: str, start: int, cmd: str) -> tuple[int, int, str, str] | None:
+        """
+        Return (cmd_start, after_title_end, opt_arg, title) for \\cmd{title}
+        handling optional [..] and brace-matched title. Returns None if parsing fails.
+        """
+        if not s.startswith("\\" + cmd, start):
+            return None
+        i = start + 1 + len(cmd)
+        # starred headings are intentionally unnumbered
+        if i < len(s) and s[i] == "*":
+            return None
+        # skip whitespace
+        while i < len(s) and s[i].isspace():
+            i += 1
+        opt = ""
+        if i < len(s) and s[i] == "[":
+            j = s.find("]", i + 1)
+            if j == -1:
+                return None
+            opt = s[i : j + 1]
+            i = j + 1
+            while i < len(s) and s[i].isspace():
+                i += 1
+        if i >= len(s) or s[i] != "{":
+            return None
+        j = _find_matching_brace(s, i)
+        if j is None:
+            return None
+        title = s[i + 1 : j]
+        return start, j + 1, opt, title
+
+    # Counters
+    current_major: str | None = None
+    current_kind: str | None = None  # 'chap' or 'app'
+    sub = 0
+    subsub = 0
+    enabled = False
+
+    out: list[str] = []
+    i = 0
+    while i < len(text):
+        # Find next heading command among section/subsection/subsubsection.
+        next_pos = -1
+        next_cmd = ""
+        for cmd in ("section", "subsection", "subsubsection"):
+            p = text.find("\\" + cmd, i)
+            if p != -1 and (next_pos == -1 or p < next_pos):
+                next_pos = p
+                next_cmd = cmd
+        if next_pos == -1:
+            out.append(text[i:])
+            break
+
+        out.append(text[i:next_pos])
+        parsed = _scan_cmd(text, next_pos, next_cmd)
+        if parsed is None:
+            # leave untouched (likely starred or malformed)
+            out.append(text[next_pos : next_pos + len(next_cmd) + 1])
+            i = next_pos + len(next_cmd) + 1
+            continue
+        cmd_start, after_title, opt, title = parsed
+
+        # Look ahead for an immediate label: \label{...}
+        rest = text[after_title:]
+        m_lab = re.match(r"\s*\\label\{([^}]+)\}", rest)
+        lab = m_lab.group(1).strip() if m_lab else None
+
+        if next_cmd == "section":
+            sub = 0
+            subsub = 0
+            if lab and (lab.startswith("chap:") or lab.startswith("app:")):
+                current_kind = "chap" if lab.startswith("chap:") else "app"
+                current_major = aux_numbers.get(lab)
+                if current_major:
+                    enabled = True
+            out.append(text[cmd_start:after_title])
+            i = after_title
+            continue
+
+        # Only number subsections within numbered body.
+        if not enabled or not current_major or not current_kind:
+            out.append(text[cmd_start:after_title])
+            i = after_title
+            continue
+
+        if next_cmd == "subsection":
+            sub += 1
+            subsub = 0
+            num = aux_numbers.get(lab) if lab else f"{current_major}.{sub}"
+        else:
+            subsub += 1
+            num = aux_numbers.get(lab) if lab else f"{current_major}.{sub}.{subsub}"
+
+        if _starts_with_number(title):
+            out.append(text[cmd_start:after_title])
+            i = after_title
+            continue
+
+        new_title = f"{num} {title.strip()}"
+        # Reconstruct command preserving optional short title.
+        out.append(f"\\{next_cmd}{opt}{{{new_title}}}")
+        i = after_title
+
+    return "".join(out)
 
 
 def prefix_numbered_headings(text: str, *, aux_numbers: dict[str, str]) -> str:
@@ -521,28 +647,98 @@ def prefix_numbered_headings(text: str, *, aux_numbers: dict[str, str]) -> str:
     Example:
       \\subsection{Title}\\label{sec:foo} -> \\subsection{4.2 Title}\\label{sec:foo}
     """
-    pats = [
-        re.compile(r"\\subsection\{([^}]*)\}\s*\\label\{([^}]+)\}"),
-        re.compile(r"\\subsubsection\{([^}]*)\}\s*\\label\{([^}]+)\}"),
-    ]
+    def _find_matching_bracket(s: str, start: int) -> int | None:
+        if start < 0 or start >= len(s) or s[start] != "[":
+            return None
+        depth = 0
+        i = start
+        while i < len(s):
+            ch = s[i]
+            if ch == "[":
+                depth += 1
+            elif ch == "]":
+                depth -= 1
+                if depth == 0:
+                    return i
+            i += 1
+        return None
 
-    def _apply(pat: re.Pattern[str], tag: str, text_in: str) -> str:
-        def _sub(m: re.Match[str]) -> str:
-            title = m.group(1).strip()
-            lab = m.group(2).strip()
-            num = aux_numbers.get(lab)
-            if not num:
-                return m.group(0)
-            if title.startswith(num):
-                return m.group(0)
-            return f"\\{tag}{{{num} {title}}}\\label{{{lab}}}"
+    def _starts_with_number(title: str) -> bool:
+        t = title.strip()
+        return bool(re.match(r"^[A-Za-z0-9]+(?:\\.[A-Za-z0-9]+)*\\s", t))
 
-        return pat.sub(_sub, text_in)
+    out: list[str] = []
+    i = 0
+    while i < len(text):
+        m = re.search(r"\\(subsection|subsubsection)\b", text[i:])
+        if not m:
+            out.append(text[i:])
+            break
+        cmd = m.group(1)
+        cmd_start = i + m.start()
+        j = i + m.end()
 
-    out = text
-    out = _apply(pats[0], "subsection", out)
-    out = _apply(pats[1], "subsubsection", out)
-    return out
+        # Skip starred variants.
+        if j < len(text) and text[j] == "*":
+            out.append(text[i : j + 1])
+            i = j + 1
+            continue
+
+        # Optional short title [...]
+        opt = ""
+        if j < len(text) and text[j] == "[":
+            j_end = _find_matching_bracket(text, j)
+            if j_end is None:
+                out.append(text[i : j + 1])
+                i = j + 1
+                continue
+            opt = text[j : j_end + 1]
+            j = j_end + 1
+
+        # Required title {...} (brace-matched, supports nested braces).
+        while j < len(text) and text[j].isspace():
+            j += 1
+        if j >= len(text) or text[j] != "{":
+            out.append(text[i : j + 1])
+            i = j + 1
+            continue
+        t_end = _find_matching_brace(text, j)
+        if t_end is None:
+            out.append(text[i:])
+            break
+        title = text[j + 1 : t_end]
+        after_title = t_end + 1
+
+        # Look for an immediate label after whitespace.
+        k = after_title
+        while k < len(text) and text[k].isspace():
+            k += 1
+        if not text.startswith("\\label{", k):
+            out.append(text[i:after_title])
+            i = after_title
+            continue
+        lab_start = k + len("\\label{")
+        lab_end = text.find("}", lab_start)
+        if lab_end == -1:
+            out.append(text[i:after_title])
+            i = after_title
+            continue
+        lab = text[lab_start:lab_end].strip()
+        after_label = lab_end + 1
+
+        num = aux_numbers.get(lab)
+        if not num or _starts_with_number(title) or title.lstrip().startswith(num):
+            out.append(text[i:after_label])
+            i = after_label
+            continue
+
+        ws = text[after_title:k]
+        new_title = f"{num} {title.strip()}"
+        out.append(text[i:cmd_start])
+        out.append(f"\\{cmd}{opt}{{{new_title}}}{ws}\\label{{{lab}}}")
+        i = after_label
+
+    return "".join(out)
 
 
 def _find_matching_brace(s: str, start: int) -> int | None:
@@ -645,6 +841,27 @@ def promote_displaystyle_math(text: str) -> str:
 
     out = pat.sub(_sub, text)
     # Remove forced linebreaks immediately before promoted display math.
+    out = re.sub(r"\\\\\s*\n\s*\\\[", r"\n\\[", out)
+    return out
+
+def promote_long_inline_math(text: str) -> str:
+    """
+    Promote long inline math `\\(...\\)` to display math `\\[...\\]` to avoid
+    reader-specific inline MathML clipping.
+    """
+    pat = re.compile(r"\\\(\s*(?!\\displaystyle)(.*?)\\\)", flags=re.DOTALL)
+    heavy = ("\\frac", "\\int", "\\sum", "\\prod", "\\begin{", "\\left", "\\right", "=")
+
+    def _sub(m: re.Match[str]) -> str:
+        inner = m.group(1).strip()
+        if len(inner) < 120 and not any(h in inner for h in heavy):
+            return m.group(0)
+        # Avoid promoting truly tiny inline symbols even if they contain '='.
+        if len(inner) < 80 and inner.count("=") <= 1 and "\\int" not in inner and "\\frac" not in inner:
+            return m.group(0)
+        return "\\[\n" + inner + "\n\\]"
+
+    out = pat.sub(_sub, text)
     out = re.sub(r"\\\\\s*\n\s*\\\[", r"\n\\[", out)
     return out
 

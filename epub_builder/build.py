@@ -23,6 +23,7 @@ from lib.latex import (
     prefix_caption_numbers,
     add_visible_equation_numbers,
     promote_displaystyle_math,
+    promote_long_inline_math,
     transform_tcolorbox_to_quote,
     extract_tikz_blocks,
     replace_tikz_blocks_with_images,
@@ -48,8 +49,8 @@ class Paths:
     tikz_logs: Path
 
 
-def _run(cmd: list[str], *, cwd: Path | None = None) -> None:
-    proc = subprocess.run(cmd, cwd=cwd, check=False, text=True)
+def _run(cmd: list[str], *, cwd: Path | None = None, env: dict[str, str] | None = None) -> None:
+    proc = subprocess.run(cmd, cwd=cwd, env=env, check=False, text=True)
     if proc.returncode != 0:
         raise SystemExit(proc.returncode)
 
@@ -101,6 +102,44 @@ def _paths() -> Paths:
         media=media,
         tikz_logs=tikz_logs,
     )
+
+def _build_aux_numbers(*, p: Paths) -> dict[str, str]:
+    """
+    Best-effort: compile `notes_output/ece657_notes.tex` into a temp output dir
+    so `.aux` reflects the current sources (including newly added labels). If
+    compilation fails, fall back to `notes_output/ece657_notes.aux`.
+    """
+    aux_fallback = p.notes_output / "ece657_notes.aux"
+    tex = p.notes_output / "ece657_notes.tex"
+    if not tex.exists():
+        return load_aux_label_numbers(aux_path=aux_fallback)
+
+    aux_out_dir = p.artifacts / "tmp" / "aux"
+    aux_out_dir.mkdir(parents=True, exist_ok=True)
+    jobname = "ece657_notes_epub_aux"
+    aux_out = aux_out_dir / f"{jobname}.aux"
+
+    try:
+        for _ in range(2):
+            _run(
+                [
+                    "pdflatex",
+                    "-interaction=nonstopmode",
+                    "-halt-on-error",
+                    "-jobname",
+                    jobname,
+                    "-output-directory",
+                    str(aux_out_dir),
+                    str(tex.name),
+                ],
+                cwd=p.notes_output,
+            )
+    except SystemExit:
+        return load_aux_label_numbers(aux_path=aux_fallback)
+
+    if aux_out.exists():
+        return load_aux_label_numbers(aux_path=aux_out)
+    return load_aux_label_numbers(aux_path=aux_fallback)
 
 
 def _verify_epub_figures(epub_path: Path) -> None:
@@ -200,7 +239,7 @@ def build(*, variant: str, clean: bool, skip_validate: bool) -> Path:
     raw_flat = select_ifdefined_hcode_branch(raw_flat)
     doc_body = strip_document_environment(raw_flat)
 
-    aux_numbers = load_aux_label_numbers(aux_path=p.notes_output / "ece657_notes.aux")
+    aux_numbers = _build_aux_numbers(p=p)
     doc_body = inject_equation_targets(doc_body)
     doc_body = rewrite_crossrefs(doc_body, aux_numbers=aux_numbers)
     doc_body = prefix_chapter_sections(doc_body, aux_numbers=aux_numbers)
@@ -269,6 +308,7 @@ def build(*, variant: str, clean: bool, skip_validate: bool) -> Path:
         doc_body, repo_root=p.repo_root, notes_output_dir=p.notes_output, media_dir=p.media, dpi=asset_dpi
     )
     doc_body = promote_displaystyle_math(doc_body)
+    doc_body = promote_long_inline_math(doc_body)
     doc_body = prefix_caption_numbers(doc_body, aux_numbers=aux_numbers)
     doc_body = add_visible_equation_numbers(doc_body, aux_numbers=aux_numbers)
     if strict_figures:

@@ -94,6 +94,7 @@ The chapter keeps everything small so you can see all four ingredients in one pl
 A hard threshold $\theta$ can be absorbed into a bias term by writing $p = \mathbf{w}^\top\mathbf{x} - \theta$ and setting $b=-\theta$. In practice we append $x_0=1$ and treat $b$ as another weight $w_0$; the algebra is identical. The bias handles \emph{where} the unit switches, while the weights handle \emph{which direction} it prefers.
 
 \subsection{Performance: what are we trying to improve?}
+\label{sec:mlp_performance_what_are_we_trying_to_improve}
 
 Once we have a forward computation, we need a performance function that tells us whether the output is good. For one training example with target $t$, a simple choice is the squared error
 \begin{equation}
@@ -113,6 +114,7 @@ We only need a performance function that (1) is easy to differentiate and (2) re
 For a fixed input, the performance becomes a surface over the weights. If the surface looks like a ``bowl,'' then the bottom is the optimum. The goal is to move weights along this surface in the direction that improves performance.
 
 \subsection{Gradient descent: how do weights move?}
+\label{sec:mlp_gradient_descent_how_do_weights_move}
 
 We now ask: how should $\mathbf{w}_1, w_2, b_1, b_2$ change to reduce $P$? The standard answer is gradient descent:
 \begin{equation}
@@ -173,6 +175,7 @@ The gradient gives a direction; the step size $\eta$ sets the distance. In pract
 \end{figure}
 
 \subsection{Why hard thresholds block learning}
+\label{sec:mlp_why_hard_thresholds_block_learning}
 
 At this point the story is simple: define $P$, compute $\nabla P$, and update weights. The catch is that computing $\nabla P$ requires derivatives through the activation. When we apply the chain rule to \Cref{eq:two_neuron_forward}, factors like $f'(p_1)$ and $f'(p_2)$ appear immediately.
 
@@ -222,6 +225,7 @@ The threshold itself can be folded into a bias term, but the discontinuity remai
 \end{figure}
 
 \subsection{Differentiable activations and the sigmoid trick}
+\label{sec:mlp_differentiable_activations_and_the_sigmoid_trick}
 
 A classic choice is the logistic (sigmoid) function
 \begin{equation}
@@ -248,7 +252,9 @@ Let $\beta = \sigma(\alpha) = (1+e^{-\alpha})^{-1}$. Differentiate:
 \]
 This is the exact algebraic shortcut used in neural networks.
 
-\subsection{Deriving weight updates for the two\hyp{}neuron network}
+\subsection{Deriving weight updates for the two\hyp{}
+\label{sec:mlp_deriving_weight_updates_for_the_two}neuron network}
+\label{sec:mlp_deriving_weight_updates_for_the_two_sec_mlp_deriving_weight_updates_for_the_two_neuron_network}
 
 The diagram in \Cref{fig:mlp_minimal_chain} is also a derivative map: to update a weight, follow how a small change in that weight would flow forward to the output and then back to the performance. The chain rule turns that story into algebra.
 
@@ -317,7 +323,9 @@ Thus $\nabla_{\mathbf{w}_1}P=\delta_1 x \approx [-0.018,\,+0.018]^\top$ and $\na
 \noindent\textbf{Update:} with $\eta=0.5$, gradient descent increases $w_2$ slightly (since the gradient is negative) and nudges $\mathbf{w}_1$ in a direction that increases $y_2$ toward the target.
 \end{tcolorbox}
 
-\subsection{From two neurons to multi\hyp{}layer networks}
+\subsection{From two neurons to multi\hyp{}
+\label{sec:mlp_from_two_neurons_to_multi}layer networks}
+\label{sec:mlp_from_two_neurons_to_multi_sec_mlp_from_two_neurons_to_multi_layer_networks}
 
 Nothing essential changes for deeper networks; we simply apply the same chain rule repeatedly. For a layer $l$ with pre\hyp{}activations $\mathbf{p}^{(l)}$ and weights $W^{(l+1)}$, the error signal satisfies
 \begin{equation}
@@ -331,6 +339,7 @@ Conceptually, nothing new happens when you go from two neurons to many layers: i
 \end{tcolorbox}
 
 \subsection{Summary}
+\label{sec:mlp_summary}
 \begin{itemize}
     \item A two\hyp{}neuron chain is the smallest network that goes beyond a single perceptron.
     \item Learning starts by defining a performance function and asking how weights change it.

@@ -16,6 +16,7 @@ Biology as engineering abstraction: start with simple units, make the update rul
 \end{tcolorbox}
 
 \subsection{Biological Inspiration}
+\label{sec:perceptron_biological_inspiration}
 
 Human intelligence is often characterized by behaviors that resemble cognitive processes such as learning, reasoning, and decision-making. To replicate such intelligent behavior artificially, it is natural to look towards the biological systems that exhibit these capabilities. The human brain, composed of billions of interconnected neurons, serves as a primary source of inspiration.
 
@@ -46,6 +47,7 @@ Despite extensive research, many aspects of neural function remain poorly unders
 These uncertainties highlight the challenges in directly modeling biological neurons and motivate the development of simplified artificial models.
 
 \subsection{From Biological to Artificial Neural Networks}
+\label{sec:perceptron_from_biological_to_artificial_neural_networks}
 
 Artificial neural networks (ANNs) are computational models inspired by the structure and function of biological neural systems. The goal is to create systems that can process information, learn from data, and perform tasks that require intelligence.
 
@@ -68,6 +70,7 @@ To design an ANN that captures essential aspects of biological neural processing
 The concept of artificial neural networks dates back to the early 1940s, with pioneering work that attempted to mathematically model neuron behavior. Over the past eight decades, ANNs have evolved significantly, leading to a variety of architectures and learning algorithms. This evolution reflects ongoing efforts to better approximate biological intelligence and to address practical challenges in computation and learning.
 
 \subsection{Outline of Neural Network Study}
+\label{sec:perceptron_outline_of_neural_network_study}
 
 This chapter introduces perceptrons and common activation functions. \Cref{chap:mlp} then develops multilayer perceptrons and the backpropagation machinery needed to train them; \Cref{chap:rnn} returns to sequence models with recurrent connections.
 
@@ -76,6 +79,7 @@ Formal definitions of the perceptron neuron model (activation functions, weighte
 % Chapter 5 (continued)
 
 \subsection{Neural Network Architectures}
+\label{sec:perceptron_neural_network_architectures}
 
 Neural networks can be broadly categorized based on the flow of information through their structure. Understanding these architectures is crucial for designing and analyzing neural models that mimic biological neural systems.
 
@@ -106,6 +110,7 @@ The recurrent architecture is more flexible and biologically plausible since neu
 with the full treatment deferred to \Cref{chap:rnn}.
 
 \subsection{Activation Functions}
+\label{sec:perceptron_activation_functions}
 
 Activation functions determine how the input to a neuron is transformed into an output signal, effectively controlling the neuron's excitation level. They play a critical role in enabling neural networks to model complex, nonlinear relationships.
 
@@ -167,6 +172,7 @@ In this chapter we use \(f(\cdot)\) as a generic placeholder for an activation f
 \end{tcolorbox}
 
 \subsection{Learning Paradigms in Neural Networks}
+\label{sec:perceptron_learning_paradigms_in_neural_networks}
 
 When building a neural network, whether feedforward or recurrent, the fundamental process involves producing an output, comparing it with a target, and then adjusting the network parameters based on the error. This iterative process is the essence of \emph{learning}. We distinguish several learning paradigms depending on the availability and nature of the target information:
 
@@ -181,6 +187,7 @@ Beyond competitive learning, unsupervised methods encompass clustering, density 
 Reinforcement learning (RL) models learning from interaction with feedback. An agent with policy \(\pi(a\mid s)\) selects actions, collects rewards, and updates \(\pi\) to improve expected return. Full RL treatments appear later; here the point is that not all learning is supervised, and neural-network controllers are common in modern RL.
 
 \subsection{Fundamentals of Artificial Neural Networks}
+\label{sec:perceptron_fundamentals_of_artificial_neural_networks}
 
 The foundational model of artificial neural networks dates back to McCulloch and Pitts (1943), who proposed a simple neuron model capturing essential features of biological neurons.
 
@@ -238,6 +245,7 @@ In biological circuits inhibition is carried by specialized interneurons, wherea
 In this model, learning can be interpreted as adjusting the weights \( w_i \) and threshold \(\theta\) to achieve desired input-output mappings. The challenge is to find these parameters such that the neuron outputs 1 for inputs belonging to a certain class and 0 otherwise.
 
 \subsection{Mathematical Formulation of the Neuron Output}
+\label{sec:perceptron_mathematical_formulation_of_the_neuron_output}
 
 To summarize, the neuron output is given by
 
@@ -260,6 +268,7 @@ We explicitly set \(f(0)=1\); other texts sometimes use \(f(0)=\tfrac{1}{2}\), s
 This model laid the groundwork for later developments in neural networks, including the introduction of differentiable nonlinearities that enable gradient-based learning.
 
 \subsection{McCulloch-Pitts neuron: examples and limits}
+\label{sec:perceptron_mcculloch_pitts_neuron_examples_and_limits}
 
 Recall that the McCulloch-Pitts (MP) neuron model is defined by a weighted sum of binary inputs compared against a threshold to produce a binary output. Formally, for inputs \(x_i \in \{0,1\}\) and weights \(w_i\), the neuron output \(y\) is given by
 \begin{align}

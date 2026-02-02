@@ -35,6 +35,7 @@ Data \(\rightarrow\) model \(\rightarrow\) objective \(\rightarrow\) audit. This
 \end{itemize}
 
 \subsection{Problem Setup and Notation}
+\label{sec:supervised_problem_setup_and_notation}
 
 We observe a dataset \(\mathcal D = \{(\mathbf x_i, y_i)\}_{i=1}^N\) drawn i.i.d. from an unknown distribution \(\mathcal P\) on the input--output space \(\mathcal X \times \mathcal Y\). A hypothesis (model) \(h_\theta : \mathcal X \to \mathcal Y\) with parameters \(\theta\) produces predictions \(\hat{y}_i = h_\theta(\mathbf x_i)\). A pointwise loss function \(\ell(\hat{y}, y)\) measures the penalty incurred by predicting \(\hat{y}\) when the true label is \(y\).
 
@@ -46,6 +47,7 @@ R(h_\theta) &= \mathbb{E}_{(\mathbf x, y)\sim \mathcal P}\big[\ell\big(h_\theta(
 Because \(\mathcal P\) is unknown, learning algorithms minimize empirical proxies of \(R(h_\theta)\). This is the formal version of the ``educated guess'' idea: we posit a model family \(h_\theta\), then use data to choose parameter values that make its predictions behave like the measured input--output pairs. In practice we do this on a \emph{training set} (the data used to fit parameters), and we reserve held-out data to check whether the fitted model is trustworthy; \Cref{sec:lec1_model_selection} makes these evaluation protocols precise.
 
 \subsection{Fitting, Overfitting, and Underfitting}
+\label{sec:supervised_fitting_overfitting_and_underfitting}
 
 Fitting is the act of choosing parameters \(\theta\) so a model's predictions match observed data. Concretely, we pick a loss \(\ell\), evaluate it on examples \((\mathbf{x}_i,y_i)\), and use an optimization method to search for parameters that make the aggregate loss small. This is what practitioners usually mean by \emph{training}.
 
@@ -112,6 +114,7 @@ We want a well-fitted model: low training error and comparable validation/test e
 \end{figure}
 
 \subsection{Empirical Risk Minimization and Regularization}
+\label{sec:supervised_empirical_risk_minimization_and_regularization}
 
 To make the informal idea of ``fitting'' mathematically precise, we choose an objective and minimize it. The supervised-learning baseline is \emph{empirical risk minimization}: minimize the average loss on the training data.
 
@@ -120,10 +123,12 @@ This is the first place where the chapter's opening promises become concrete. If
 The \emph{empirical risk minimizer} (ERM) selects
 \begin{equation}
 \hat\theta_{\text{ERM}} = \arg\min_{\theta} \; \hat R_N(h_\theta).
+\label{eq:auto_supervised_ecc27ebd80}
 \end{equation}
 To mitigate overfitting, we often add a regularizer \(\Omega(\theta)\) with strength \(\lambda \ge 0\):
 \begin{equation}
 \hat\theta_\lambda = \arg\min_{\theta} \; \hat R_N(h_\theta) + \lambda\,\Omega(\theta), \qquad \Omega(\theta) \in \{\|\theta\|_2^2,\; \|\theta\|_1,\ldots\}.
+\label{eq:auto_supervised_11c23f9474}
 \end{equation}
 
 \noindent Regularization is not an arbitrary penalty. It is the mathematical version of a teaching move: if a student can memorize every worked example, you change the exercises so memorization is less effective and understanding is rewarded. Regularization plays the same role. It makes some parameter settings expensive, which pushes learning toward explanations that generalize better.
@@ -219,13 +224,16 @@ The difference is easiest to remember geometrically: L2 has round level sets, wh
 \end{figure}
 
 \subsection{Elastic-net paths and cross-validation}
+\label{sec:supervised_elastic_net_paths_and_cross_validation}
 Pure L1 or L2 penalties rarely dominate modern workflows; the \emph{elastic net} mixes them to balance sparsity and stability:
 \begin{equation}
     \hat{\theta}_{\alpha,\lambda} = \arg\min_{\theta} \hat{R}_N(h_\theta) + \lambda\Big(\alpha \|\theta\|_1 + \tfrac{1-\alpha}{2} \|\theta\|_2^2\Big), \qquad \alpha \in [0,1].
+\label{eq:auto_supervised_dda9108db8}
 \end{equation}
 Setting \(\alpha=1\) recovers the lasso, \(\alpha=0\) yields ridge, and intermediate values trace a solution path that tends to group correlated features while still pruning irrelevant ones. In practice we standardize the features once, draw a logarithmic grid of \(\lambda\) values, and run \(K\)-fold cross-validation for each pair \((\alpha,\lambda)\). The ``one-standard-error'' rule selects the largest \(\lambda\) whose validation error is within one standard error of the minimum. It gives a stable operating point and avoids over-interpreting tiny validation differences.
 
 \subsection{Common Loss Functions}
+\label{sec:supervised_common_loss_functions}
 
 Loss functions make the teacher signal quantitative: they decide what counts as a small mistake, what counts as a large one, and which kinds of errors matter most.
 For binary classification with labels \(y \in \{-1, +1\}\) and margin \(z = y\,f(\mathbf x)\), two standard losses are
@@ -513,19 +521,23 @@ A common way to formalize ``measurement scatter'' is to write
 \begin{equation}
     y_i = \mathbf{x}_i^\top\boldsymbol{\beta} + \varepsilon_i,
     \qquad \varepsilon_i \sim \mathcal{N}(0,\sigma^2),
+\label{eq:auto_supervised_2dec229a60}
 \end{equation}
 where \(\varepsilon_i\) is observation noise (sensor noise, unmodeled effects, annotation noise, etc.). Under this assumption,
 \begin{equation}
     p(y_i\mid \mathbf{x}_i,\boldsymbol{\beta})=\mathcal{N}(\mathbf{x}_i^\top\boldsymbol{\beta},\sigma^2),
+\label{eq:auto_supervised_4f4ef34b0d}
 \end{equation}
 and (assuming i.i.d.\ observations) the likelihood factorizes:
 \begin{equation}
     p(\mathbf{y}\mid X,\boldsymbol{\beta})=\prod_{i=1}^N p(y_i\mid \mathbf{x}_i,\boldsymbol{\beta}).
+\label{eq:auto_supervised_bb73b50b8f}
 \end{equation}
 Maximizing the (log) likelihood is equivalent to minimizing the negative log-likelihood, and for Gaussian noise that becomes (up to constants and a scale factor \(1/(2\sigma^2)\)) the familiar sum of squared errors:
 \begin{equation}
     -\log p(\mathbf{y}\mid X,\boldsymbol{\beta})
     = \frac{1}{2\sigma^2}\sum_{i=1}^N (y_i-\mathbf{x}_i^\top\boldsymbol{\beta})^2 + \text{const}.
+\label{eq:auto_supervised_18a9c6ace6}
 \end{equation}
 This is the simplest example of a recurring theme: if you propose an ``educated guess'' model for how data are generated, training often becomes ``minimize a loss''.
 
@@ -533,10 +545,12 @@ This is the simplest example of a recurring theme: if you propose an ``educated 
 To fit \(\boldsymbol{\beta}\), we need a grading rubric. Squared error is the standard starting point because it is smooth and strongly penalizes large mistakes:
 \begin{equation}
     L(\boldsymbol{\beta}) = \tfrac{1}{2}\|\mathbf{y}-X\boldsymbol{\beta}\|_2^2.
+\label{eq:auto_supervised_57c930d476}
 \end{equation}
 The gradient is simple,
 \begin{equation}
     \nabla_{\boldsymbol{\beta}}L(\boldsymbol{\beta}) = X^\top(X\boldsymbol{\beta}-\mathbf{y}),
+\label{eq:auto_supervised_9bb8d7206b}
 \end{equation}
 so gradient descent is explicit: \(\boldsymbol{\beta}\leftarrow \boldsymbol{\beta}-\eta X^\top(X\boldsymbol{\beta}-\mathbf{y})\). This same loop reappears later when the model is no longer linear and the loss is no longer quadratic.
 
@@ -544,10 +558,12 @@ so gradient descent is explicit: \(\boldsymbol{\beta}\leftarrow \boldsymbol{\bet
 Least squares is convex and satisfies the normal equations:
 \begin{equation}
     X^\top X\,\hat{\boldsymbol{\beta}} = X^\top \mathbf{y}.
+\label{eq:auto_supervised_bce6291d37}
 \end{equation}
 When \(X^\top X\) is invertible, the solution can be written explicitly as
 \begin{equation}
     \hat{\boldsymbol{\beta}} = (X^\top X)^{-1}X^\top \mathbf{y}.
+\label{eq:auto_supervised_44e6ba213f}
 \end{equation}
 Geometrically, the prediction \(\hat{\mathbf{y}}\) is the orthogonal projection of \(\mathbf{y}\) onto the column space of \(X\). In code, solve the linear system (QR/SVD) rather than forming \((X^\top X)^{-1}\) explicitly; collinearity can make \(X^\top X\) poorly conditioned even when the mathematics is correct.
 
