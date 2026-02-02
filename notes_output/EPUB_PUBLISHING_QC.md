@@ -95,6 +95,7 @@ Notes:
 - The Pandoc builder generates `epub_builder/artifacts/tmp/aux/ece657_notes_epub_aux.aux` on every build; prefer it for EPUB QC so section/equation numbering matches the exact sources used to build the EPUB.
 - If you are doing PDF-only regression checks, you can use `notes_output/ece657_notes.aux` instead (produced by the PDF toolchain).
 - The aux compile is run only to extract numbering and does **not** run BibTeX; ignore “undefined citations” / missing `.bbl` warnings in `ece657_notes_epub_aux.log`.
+- `bash notes_output/scripts/run_release_checks.sh` now also writes a deterministic spot-check bundle to `notes_output/artifacts/release_checks/pdf_vs_epub_apple/`.
 
 ### 3) Image resolution audit (EPUB media)
 
