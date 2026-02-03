@@ -498,8 +498,13 @@ def build(*, variant: str, clean: bool, skip_validate: bool) -> Path:
         "--to=epub3",
         "--standalone",
         "--mathml",
+        # Split so each "Chapter N: ..." starts a new XHTML spine item (reader-visible unit).
+        # Pandoc maps LaTeX `\section` to heading level 3 when `\part` is present:
+        #   part -> h1, chapter(section) -> h3, subsection -> h4, ...
+        "--split-level=3",
+        "--toc",
         "--toc-depth",
-        "2",
+        "3",
         "--css",
         str(css_path),
         *(["--epub-cover-image", str(_prepare_cover_for_epub(cover_path=cover_path, out_dir=p.artifacts / "tmp" / "cover"))] if cover_path else []),

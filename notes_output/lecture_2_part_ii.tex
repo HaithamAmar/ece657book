@@ -15,6 +15,24 @@ After this chapter, you should be able to:
 Keep the workflow, swap the likelihood: logistic regression keeps the linear score but changes the probabilistic model (Bernoulli likelihood) and the loss (negative log\hyp{}likelihood, i.e., cross\hyp{}entropy).
 \end{tcolorbox}
 
+\begin{tcolorbox}[summarybox,title={Risk \& audit}]
+\begin{itemize}
+    \item \textbf{Threshold choice:} a high AUC can still yield a poor operating point; pick thresholds using a validation objective that matches the cost.
+    \item \textbf{Class imbalance:} report PR curves (or per-class metrics) when positives are rare; audit confusion matrices, not just accuracy.
+    \item \textbf{Probability quality:} logits can be miscalibrated; use reliability diagrams/ECE when probabilities are consumed downstream.
+    \item \textbf{Feature shortcuts:} strong apparent accuracy can come from spurious correlates; sanity-check with slices and perturbations.
+    \item \textbf{Regularization:} tune \(\lambda\) with held-out data; do not report the best test result after repeated tuning.
+\end{itemize}
+\end{tcolorbox}
+
+\begin{tcolorbox}[summarybox,title={Worked example: a toy decision boundary}]
+On a two\hyp{}moons binary classification toy, the ideas in this chapter have a visible effect:
+\begin{itemize}
+    \item Logistic regression gives a calibrated probabilistic baseline (linear score + sigmoid) that is easy to diagnose.
+    \item The nonlinearity we will need later is \emph{not} in the optimizer but in the representation: \Cref{chap:mlp} introduces multilayer features and \Cref{chap:backprop} supplies the training engine that lets those features improve the decision boundary.
+\end{itemize}
+\end{tcolorbox}
+
 \subsection{From regression to classification}
 \label{sec:logistic_from_regression_to_classification}
 Linear regression models a continuous target \(y\) and, under a Gaussian noise model, yields a closed-form solution via the normal equations (\Cref{chap:supervised}, \cref{sec:linear_regression_closed}). Classification changes the output space: \(y\) is a discrete label, and the model predicts class probabilities rather than raw responses. The ERM pipeline remains the same, but the loss becomes the negative log-likelihood (binary cross\hyp{}entropy) and optimization is typically iterative.

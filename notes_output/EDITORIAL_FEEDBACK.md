@@ -15,6 +15,10 @@ Use this file to record editorial feedback as you read the **PDF** and **EPUBs**
   - Layout overflow report: `notes_output/artifacts/release_checks/epub_layout_audit_1000w.md`
   - Table audit report: `notes_output/artifacts/release_checks/epub_table_audit.md`
 
+## Forward plan
+
+- Execution backlog for publish-grade EPUB work: `notes_output/EPUB_EXECUTION_PLAN.md`
+
 ## Entry template (copy/paste)
 
 ### [YYYY-MM-DD] Item: <short title>
@@ -26,7 +30,7 @@ Use this file to record editorial feedback as you read the **PDF** and **EPUBs**
   - Section heading: <optional>
   - Label(s): <e.g., `fig:roadmap`, `eq:bayes_theorem`, `tab:...`, `chap:...`, `sec:...`, `app:...`>
   - PDF page: <number>
-  - EPUB file: <e.g., `EPUB/text/ch016.xhtml`> (optional)
+  - EPUB file: <e.g., `EPUB/text/ch003.xhtml`> (optional; XHTML filenames may vary by build)
 - **What you see (symptom):** <1–3 sentences>
 - **What it should be (expected):** <1–3 sentences>
 - **Evidence / artifacts:**
@@ -57,7 +61,72 @@ Use this file to record editorial feedback as you read the **PDF** and **EPUBs**
 - The production gatekeeper uses Apple EPUB audits and fails on:
   - flagged images,
   - overflow issues,
-  - wide tables (>= 5 columns), **except** the allowlisted word-vectorization table (`ch016.xhtml`).
+  - wide tables (>= 5 columns), **except** the allowlisted word-vectorization table (caption contains “Feature-based word vectorization”).
+
+## Production/pipeline fix log (keep this short and factual)
+
+### [2026-02-03] Item: `adjustbox` option text leaking into EPUB (“max width=,center”) — FIXED
+
+- **Severity:** major
+- **Surface:** Apple EPUB (and likely Kindle EPUB)
+- **Location:**
+  - Label(s): `fig:lec11-ga-flow` (also applicable to the Key Takeaways taxonomy figure)
+  - Release crop: `notes_output/artifacts/release_checks/pdf_vs_epub_apple/compare/fig/fig_lec11-ga-flow.png`
+- **What you see (symptom):** the EPUB renders literal text like `max width=,center` above the figure.
+- **Likely root cause:** Pandoc doesn’t understand the `adjustbox` environment and leaks its argument into the output.
+- **Fix applied (pipeline):** unwrap `\begin{adjustbox}{...}...\end{adjustbox}` before Pandoc in `epub_builder/lib/latex.py` (`unwrap_graphics_wrappers`).
+- **Regression check:** `bash notes_output/scripts/run_production_checks.sh` (should be green; OCR of the crop should not find “max width”).
+
+### [2026-02-03] Item: Chapters not split into separate EPUB spine items — FIXED
+
+- **Severity:** major
+- **Surface:** Apple EPUB + Kindle EPUB
+- **What you see (symptom):** multiple chapters were “connected” inside a single XHTML file (TOC jumped to anchors inside one file rather than opening a new chapter unit).
+- **Likely root cause:** Pandoc default chunking didn’t split at our chapter heading level when `\part*{...}` is present.
+- **Fix applied (pipeline):** force chunking at heading level 3 in `epub_builder/build.py` (`--split-level=3`).
+- **Regression check:** `bash notes_output/scripts/run_production_checks.sh` and verify `EPUB/text/ch*.xhtml` count increases and TOC chapter links point to different `chNNN.xhtml` files.
+
+### [2026-02-03] Item: EPUB heading hierarchy too small (headers not larger than body) — FIXED
+
+- **Severity:** major
+- **Surface:** Apple EPUB + Kindle EPUB
+- **What you see (symptom):** section/chapter headings appear too close to body text size (weak hierarchy).
+- **Fix applied (pipeline/CSS):** added explicit `h1..h6` sizing in `epub_builder/epub.css` (Pandoc embeds this into `EPUB/styles/stylesheet1.css`).
+- **Regression check:** open the EPUB in Apple Books and verify `h3` chapter headers and `h4` section headers are visually larger than paragraphs.
+
+### [2026-02-03] Item: “Transformation toolkit” table caption mislabeled + table rendering risk — FIXED
+
+- **Severity:** major
+- **Surface:** Apple EPUB + Kindle EPUB
+- **Location:** `notes_output/lecture_2_part_i.tex:532` (table in Chapter 2)
+- **What you see (symptom):** caption starts with “Schematic:” even though it’s a table; some readers rendered the table poorly (too narrow).
+- **Fix applied (source):** changed caption prefix to “Table:” in `notes_output/lecture_2_part_i.tex`.
+- **Fix applied (pipeline):**
+  - strip inline table/col `width:` styles in `epub_builder/lib/epub.py` so reader CSS controls responsiveness,
+  - normalize any remaining table captions `Schematic:` → `Table:` in EPUB postprocess.
+- **Regression check:** `bash notes_output/scripts/run_production_checks.sh`, and verify the table appears with readable columns in Apple Books.
+
+### [2026-02-03] Item: “Transformation toolkit” table still appears clipped in Apple Books — MITIGATED
+
+- **Severity:** major
+- **Surface:** Apple EPUB (reader-specific rendering)
+- **What you see (symptom):** first column text appears clipped (“Constant actor”, “.linear …”), suggesting the table is being center-cropped rather than wrapped/scrolled.
+- **Likely root cause:** Apple Books table rendering + hyphenation/centering interactions can clip wide tables instead of enabling scroll.
+- **Mitigation attempt (CSS):** tried left-aligned scroll-table styling in `epub_builder/epub.css`; this made Apple Books rendering worse (letters stacked vertically).
+- **Status:** deferred. Prefer a robust, reader-proof representation for this specific table (e.g., render as a figure image, or redesign as two compact bullet lists) after higher-priority editorial items.
+- **Regression check:** rebuild and open the Apple EPUB; verify the left edge is visible and words don’t lose leading letters.
+
+### [2026-02-03] Item: “Continuity thread” callouts are too explicit — FIXED
+
+- **Severity:** major
+- **Surface:** PDF + Apple EPUB + Kindle EPUB
+- **What you see (symptom):** headings like “Continuity thread: …” read as meta-instructions and break narrative immersion.
+- **Fix applied (source):** removed/renamed those callouts and rephrased to keep the recurring example implicit and chapter-local:
+  - `notes_output/lecture_supervised.tex:38`
+  - `notes_output/lecture_2_part_ii.tex:28`
+  - `notes_output/lecture_3_part_ii.tex:32`
+  - `notes_output/lecture_4_part_i.tex:23`
+- **Regression check:** rebuild EPUBs and confirm `Continuity thread` does not appear anywhere in `EPUB/text/*.xhtml`.
 
 Below is **chapter-by-chapter editorial feedback** plus **book-level guidance**. I’m basing this on the book’s stated intent and structure (preface + roadmap + chapter template), the full table of contents, and sampled passages from multiple chapters (including “Key takeaways” sections, learning outcomes, and representative technical pages).   
 

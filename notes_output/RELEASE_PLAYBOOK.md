@@ -28,7 +28,7 @@ Gatekeeper audits (fail the run by default):
 - Wide tables (>= 5 columns): `notes_output/artifacts/release_checks/epub_table_audit.json`
 
 Notes:
-- One intentionally wide table is allowlisted in the production gatekeeper: the word-feature vectorization table (`ch016.xhtml`) that demonstrates graded feature values (e.g., 0.5 for shared attributes). This table is expected to be horizontally scrollable in reflowable EPUB layouts.
+- One intentionally wide table is allowlisted in the production gatekeeper: the \emph{Feature-based word vectorization} table (caption contains “Feature-based word vectorization”), which demonstrates graded feature values (e.g., 0.5 for shared attributes). The XHTML filename can vary between builds; the allowlist is caption-based.
 
 Draft bypass env vars:
 - `ALLOW_FLAGGED_IMAGES=1`

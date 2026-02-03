@@ -85,6 +85,40 @@ def _wrap_tables(html: str) -> str:
     # inside <p> in Pandoc output.
     return re.sub(r"(<table\b[\s\S]*?</table>)", _sub, html)
 
+def _strip_table_inline_widths(html: str) -> str:
+    """
+    Some readers treat Pandoc's inline `style="width:XX%"` on <table>/<col> as
+    authoritative and render tables extremely narrow. We prefer responsive CSS.
+    """
+    if "<table" not in html and "<col" not in html:
+        return html
+
+    def _strip_width_style(m: re.Match[str]) -> str:
+        tag = m.group(0)
+        style = m.group(1)
+        # Remove width declarations but keep other style properties.
+        style2 = re.sub(r"(^|;)\s*width\s*:\s*[^;]+", "", style, flags=re.IGNORECASE)
+        style2 = re.sub(r";{2,}", ";", style2)
+        style2 = style2.strip().strip(";").strip()
+        if not style2:
+            return re.sub(r'\s+style="[^"]*"', "", tag)
+        return tag.replace(style, style2)
+
+    # Strip width from any inline style attribute.
+    html = re.sub(r'(<(?:table|col)\b[^>]*\sstyle=")([^"]+)(")', lambda m: m.group(1) + re.sub(r"(^|;)\s*width\s*:\s*[^;]+", "", m.group(2), flags=re.IGNORECASE).strip().strip(";") + m.group(3), html)
+    # Remove now-empty style attributes.
+    html = re.sub(r'(<(?:table|col)\b[^>]*?)\sstyle=""', r"\1", html)
+    return html
+
+def _normalize_table_captions(html: str) -> str:
+    """
+    Table captions sometimes reuse the 'Schematic:' prefix used for figures.
+    For tables, use 'Table:'.
+    """
+    if "<caption>" not in html:
+        return html
+    return re.sub(r"(<caption>\s*)Schematic:\s*", r"\1Table: ", html)
+
 
 def postprocess_epub_minimal(epub_path: Path) -> None:
     if not epub_path.exists():
@@ -174,6 +208,8 @@ def postprocess_epub_minimal(epub_path: Path) -> None:
                 s = orig
                 s = _rewrite_cross_file_fragment_links(s, current_xhtml=xhtml.name, id_map=id_map)
                 s = _wrap_tables(s)
+                s = _strip_table_inline_widths(s)
+                s = _normalize_table_captions(s)
                 # Non-greedy match on individual MathML blocks.
                 s2 = re.sub(
                     r'(<math\b[^>]*\bdisplay="block"[^>]*>[\s\S]*?</math>)',

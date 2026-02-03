@@ -18,6 +18,16 @@ After this chapter, you should be able to:
 Control information flow with structure (masks, normalization, residual paths) so optimization remains stable while context windows grow.
 \end{tcolorbox}
 
+\begin{tcolorbox}[summarybox,title={Risk \& audit}]
+\begin{itemize}
+    \item \textbf{Masking errors:} audit causal and padding masks; subtle bugs can leak future tokens or corrupt attention weights.
+    \item \textbf{Evaluation leakage:} benchmark contamination (train/test overlap) can inflate results; prefer held-out slices and time-based splits when possible.
+    \item \textbf{Long-context failure:} measure how quality degrades with sequence length; do not assume attention implies usable memory.
+    \item \textbf{Calibration and confidence:} likelihood and token probabilities need not align with factual correctness; audit reliability for downstream decisions.
+    \item \textbf{Reproducibility:} log tokenizer, data filters, and decoding settings; minor changes can swing outcomes more than architectural tweaks.
+\end{itemize}
+\end{tcolorbox}
+
 \begin{tcolorbox}[summarybox,title={Author's note: attention allocates focus per token}]
 It is helpful to view attention as each token asking ``who else helps me understand my role,'' with masks and layer norms enforcing the rules of that dialogue. The scaled dot-product equations that follow merely quantify that per-token focus allocation.
 \end{tcolorbox}

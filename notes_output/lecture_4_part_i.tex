@@ -20,6 +20,10 @@ Compute local error signals once, then reuse them to update every parameter effi
 A practical MLP rarely updates one coordinate at a time; gradients are treated as full vectors so that every weight moves coherently. The backpropagation formulas derived below exist precisely to deliver those vector updates efficiently.
 \end{tcolorbox}
 
+\begin{tcolorbox}[summarybox,title={Why backprop matters}]
+Backpropagation is what turns a multilayer network from a diagram into a trainable model. It reuses local error signals so you can compute \emph{all} gradients efficiently, which makes it practical to learn hidden representations (not just tune a final linear layer), and to pair that increased capacity with the same validation\(\rightarrow\)audit discipline (learning curves, early stopping, and slice checks).
+\end{tcolorbox}
+
 \subsection{Context and Motivation}
 \label{sec:backprop_context_and_motivation}
 

@@ -99,9 +99,19 @@ from pathlib import Path
 p = Path("artifacts/release_checks/epub_table_audit.json")
 tables = json.loads(p.read_text(encoding="utf-8"))
 flag_cols = 5
-allowed_wide_xhtml = {"ch016.xhtml"}  # word-vectorization feature table (intentionally wide)
+allowed_caption_substrings = {
+    "Feature-based word vectorization",
+}
+allowed_wide_xhtml = {"ch016.xhtml"}  # legacy fallback; prefer caption-based allowlisting
+
+def is_allowed(t: dict) -> bool:
+    caption = (t.get("caption") or "").strip()
+    if any(s in caption for s in allowed_caption_substrings):
+        return True
+    return t.get("xhtml") in allowed_wide_xhtml
+
 wide = [t for t in tables if int(t.get("n_cols", 0)) >= flag_cols]
-wide_blocking = [t for t in wide if (t.get("xhtml") not in allowed_wide_xhtml)]
+wide_blocking = [t for t in wide if not is_allowed(t)]
 if wide_blocking:
     sample = ", ".join(sorted({t.get("xhtml", "?") for t in wide_blocking})[:10])
     raise SystemExit(
@@ -109,7 +119,7 @@ if wide_blocking:
         f"Example XHTML: {sample}. Set ALLOW_WIDE_TABLES=1 to bypass for drafts."
     )
 if wide:
-    allowed = [t for t in wide if t.get('xhtml') in allowed_wide_xhtml]
+    allowed = [t for t in wide if is_allowed(t)]
     if allowed:
         allowed_files = ", ".join(sorted({t.get("xhtml", "?") for t in allowed}))
         print(f"Table QC: OK ({len(allowed)} wide table(s) allowed: {allowed_files})")

@@ -118,6 +118,14 @@ def verify_epub(epub_path: Path, *, aux_path: Path | None = None) -> list[Issue]
             if "<table" in s and '<div class="table-wrap">' not in s:
                 issues.append(Issue(name, 'contains <table> without <div class="table-wrap"> wrapper'))
 
+            # Table captions should not reuse the figure-oriented "Schematic:" prefix.
+            if re.search(r"<caption>\s*Schematic:\s*", s):
+                issues.append(Issue(name, 'contains table caption starting with "Schematic:" (prefer "Table:")'))
+
+            # Avoid inline table width styles that can make tables unreadably narrow.
+            if re.search(r"<table\b[^>]*\sstyle=", s) or re.search(r"<col\b[^>]*\sstyle=", s):
+                issues.append(Issue(name, "contains inline style on <table>/<col> (prefer CSS-only sizing)"))
+
             # Unresolved citations are unacceptable for publishing.
             # Many LaTeX/BibTeX toolchains render missing citations as `[?]`.
             if "[?]" in s:
@@ -143,6 +151,24 @@ def verify_epub(epub_path: Path, *, aux_path: Path | None = None) -> list[Issue]
                 block = m.group(0)
                 if "<img" not in block and "<svg" not in block and "<math" not in block:
                     issues.append(Issue(f"EPUB/text/{fn}", f'figure "{lab}" has no renderable content'))
+
+            # Chapters should be separate spine items: each chap: label should live in its own XHTML file.
+            chap_labels = _extract_aux_labels(aux_path, prefix="chap:")
+            chap_files: dict[str, str] = {}
+            for lab in chap_labels:
+                fn = id_map.get(lab)
+                if not fn:
+                    issues.append(Issue("AUX", f"missing chap id in EPUB: {lab}"))
+                    continue
+                chap_files[lab] = fn
+            if chap_files:
+                dup_files = {}
+                for lab, fn in chap_files.items():
+                    dup_files.setdefault(fn, []).append(lab)
+                offenders = {fn: labs for fn, labs in dup_files.items() if len(labs) > 1}
+                for fn, labs in sorted(offenders.items()):
+                    sample = ", ".join(labs[:6])
+                    issues.append(Issue(f"EPUB/text/{fn}", f"multiple chap:* ids in one file (expected 1): {sample}"))
 
     return issues
 

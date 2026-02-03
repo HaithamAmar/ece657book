@@ -29,6 +29,15 @@ The chapter follows one tight loop:
 Once you can execute this loop for two neurons, scaling to many neurons is mostly bookkeeping (\Cref{chap:backprop}).
 \end{tcolorbox}
 
+\begin{tcolorbox}[summarybox,title={How this chapter fits the workflow}]
+The same objective\(\rightarrow\)audit workflow from the supervised toolkit still applies; what changes is the \emph{representation}.
+\begin{itemize}
+    \item From \Cref{chap:supervised}: diagnostics (learning curves, bias--variance) tell you \emph{what} is going wrong.
+    \item From \Cref{chap:logistic}: a linear probabilistic baseline tells you \emph{how far} you can go without nonlinear features.
+    \item Here: we build the smallest nonlinear network and derive its gradient updates, setting up the general backprop machinery in \Cref{chap:backprop}.
+\end{itemize}
+\end{tcolorbox}
+
 \subsection{From a single unit to the smallest network}
 \label{sec:mlp-limitations}
 

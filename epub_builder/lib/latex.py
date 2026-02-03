@@ -497,26 +497,70 @@ def prefix_chapter_sections(text: str, *, aux_numbers: dict[str, str]) -> str:
     Convert `\\section{Title}\\label{chap:foo}` into `\\section{Chapter N: Title}...`
     using chapter numbers parsed from `ece657_notes.aux`.
     """
-    # Match common pattern where the chapter/appendix label immediately follows the section.
-    pat = re.compile(r"\\section\{([^}]*)\}\s*\\label\{((?:chap|app):[^}]+)\}")
-
-    def _sub(m: re.Match[str]) -> str:
-        title = m.group(1).strip()
-        lab = m.group(2).strip()
+    # Regex is too brittle for titles containing nested braces/macros like:
+    #   \section{\texorpdfstring{Foo\\bar}{Foo bar}}\label{chap:som}
+    # Use a brace-aware scan instead.
+    out: list[str] = []
+    i = 0
+    while i < len(text):
+        s = text.find("\\section", i)
+        if s == -1:
+            out.append(text[i:])
+            break
+        out.append(text[i:s])
+        j = s + len("\\section")
+        # Skip starred headings (intentionally unnumbered).
+        if j < len(text) and text[j] == "*":
+            out.append(text[s : j + 1])
+            i = j + 1
+            continue
+        while j < len(text) and text[j].isspace():
+            j += 1
+        if j >= len(text) or text[j] != "{":
+            out.append("\\section")
+            i = s + len("\\section")
+            continue
+        title_end = _find_matching_brace(text, j)
+        if title_end is None:
+            out.append(text[s:])
+            break
+        title = text[j + 1 : title_end].strip()
+        k = title_end + 1
+        while k < len(text) and text[k].isspace():
+            k += 1
+        if not text.startswith("\\label{", k):
+            # No immediate chapter/appendix label; keep original.
+            out.append(text[s:k])
+            i = k
+            continue
+        lab_end = text.find("}", k + len("\\label{"))
+        if lab_end == -1:
+            out.append(text[s:])
+            break
+        lab = text[k + len("\\label{") : lab_end].strip()
+        if not (lab.startswith("chap:") or lab.startswith("app:")):
+            out.append(text[s : lab_end + 1])
+            i = lab_end + 1
+            continue
         num = aux_numbers.get(lab)
         if not num:
-            return m.group(0)
-        if lab.startswith("chap:"):
-            # Avoid double-prefixing if the title already starts with "Chapter".
-            if title.lower().startswith("chapter "):
-                return m.group(0)
-            return f"\\section{{Chapter {num}: {title}}}\\label{{{lab}}}"
-        # Appendices are lettered (A/B/C).
-        if title.lower().startswith("appendix "):
-            return m.group(0)
-        return f"\\section{{Appendix {num}: {title}}}\\label{{{lab}}}"
+            out.append(text[s : lab_end + 1])
+            i = lab_end + 1
+            continue
 
-    return pat.sub(_sub, text)
+        if lab.startswith("chap:"):
+            if title.lower().startswith("chapter "):
+                out.append(text[s : lab_end + 1])
+            else:
+                out.append(f"\\section{{Chapter {num}: {title}}}\\label{{{lab}}}")
+        else:
+            if title.lower().startswith("appendix "):
+                out.append(text[s : lab_end + 1])
+            else:
+                out.append(f"\\section{{Appendix {num}: {title}}}\\label{{{lab}}}")
+        i = lab_end + 1
+
+    return "".join(out)
 
 def number_unlabeled_headings(text: str, *, aux_numbers: dict[str, str]) -> str:
     """
@@ -987,6 +1031,82 @@ def unwrap_graphics_wrappers(text: str) -> str:
     In this book, many figures use `\\resizebox{...}{...}{\\includegraphics{...}}`.
     Pandoc's LaTeX reader can drop unknown wrappers, leaving caption-only figures.
     """
+    # Some figures wrap the actual content in an `adjustbox` environment, e.g.
+    # `\begin{adjustbox}{max width=\linewidth,center} ... \end{adjustbox}`.
+    # Pandoc does not understand `adjustbox` and can leak its option string as
+    # literal text in the EPUB (e.g., "max width=,center"). Unwrap it early.
+    begin_env = "\\begin{adjustbox}"
+    end_env = "\\end{adjustbox}"
+    if begin_env in text:
+        out_env: list[str] = []
+        i_env = 0
+
+        def _parse_optional_bracket_arg(s: str, pos: int) -> int | None:
+            # Optional [..] argument. We do not expect nesting.
+            while pos < len(s) and s[pos].isspace():
+                pos += 1
+            if pos < len(s) and s[pos] == "[":
+                end = s.find("]", pos + 1)
+                if end == -1:
+                    return None
+                return end + 1
+            return pos
+
+        while i_env < len(text):
+            s = text.find(begin_env, i_env)
+            if s == -1:
+                out_env.append(text[i_env:])
+                break
+            out_env.append(text[i_env:s])
+            j = s + len(begin_env)
+            j2 = _parse_optional_bracket_arg(text, j)
+            if j2 is None:
+                # Unbalanced optional arg; keep literal and bail out.
+                out_env.append(text[s:])
+                break
+            j = j2
+            while j < len(text) and text[j].isspace():
+                j += 1
+            # Required `{...}` argument (typically the adjustbox options).
+            if j >= len(text) or text[j] != "{":
+                out_env.append(begin_env)
+                i_env = s + len(begin_env)
+                continue
+            j_end = _find_matching_brace(text, j)
+            if j_end is None:
+                out_env.append(text[s:])
+                break
+            content_start = j_end + 1
+
+            # Find the matching \end{adjustbox}, accounting for nesting.
+            depth = 1
+            k = content_start
+            content_end = None
+            while depth > 0:
+                b = text.find(begin_env, k)
+                e = text.find(end_env, k)
+                if e == -1:
+                    break
+                if b != -1 and b < e:
+                    depth += 1
+                    k = b + len(begin_env)
+                else:
+                    depth -= 1
+                    if depth == 0:
+                        content_end = e
+                        k = e + len(end_env)
+                        break
+                    k = e + len(end_env)
+
+            if content_end is None:
+                out_env.append(text[s:])
+                break
+
+            out_env.append(text[content_start:content_end].strip() + "\n")
+            i_env = k
+
+        text = "".join(out_env)
+
     wrappers = [
         ("\\resizebox", 3, 2),  # (macro, nargs, content_arg_index)
         ("\\scalebox", 2, 1),

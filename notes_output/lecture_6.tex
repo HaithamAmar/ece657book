@@ -19,84 +19,37 @@ After this chapter, you should be able to:
 Keep the same statistical learning loop from \Crefrange{chap:supervised}{chap:logistic}, but move the ``bias'' into architecture via weight sharing and locality.
 \end{tcolorbox}
 
+\begin{tcolorbox}[summarybox,title={Risk \& audit}]
+\begin{itemize}
+    \item \textbf{Train/val mismatch:} augmentation, preprocessing, and normalization must be identical at evaluation time (except stochastic augmentation).
+    \item \textbf{Resolution trade-offs:} downsampling can erase small objects; audit performance by scale and by class, not only overall accuracy.
+    \item \textbf{BatchNorm regimes:} very small batch sizes can destabilize BN statistics; consider alternatives (layer/group norm) and audit sensitivity.
+    \item \textbf{Shortcut learning:} CNNs can latch onto background cues; use perturbations, counterfactual crops, and slice audits.
+    \item \textbf{Robustness:} report performance under shifts (lighting, camera, compression) and track calibration when scores are used as probabilities.
+\end{itemize}
+\end{tcolorbox}
+
 \begin{tcolorbox}[summarybox,title={Shape reminder}]
 Throughout this chapter we use the row-major (deep-learning) convention for batches: inputs \(X\in\mathbb{R}^{B\times d_{\text{in}}}\), weights \(W\in\mathbb{R}^{d_{\text{in}}\times d_{\text{out}}}\), and biases \(b\in\mathbb{R}^{d_{\text{out}}}\), with forward map \(Z=XW+\mathbf{1}b^\top\). When we write single-example equations, you can read them as the same convention with \(B=1\). For convolution/cross-correlation we follow the standard deep-learning tensor convention (channels and spatial axes); the same shape logic applies once the tensors are flattened into matrix form.
+\end{tcolorbox}
+
+\begin{tcolorbox}[summarybox,title={How to read this chapter}]
+\begin{itemize}
+    \item \textbf{Core thread (CNNs):} why locality + weight sharing $\rightarrow$ convolution/pooling mechanics $\rightarrow$ channels/feature maps $\rightarrow$ end-to-end classifiers.
+    \item \textbf{Going deeper:} why depth works (receptive-field growth) and why CNNs displaced classical pipelines (the 2012 shift).
+    \item \textbf{Training toolkit:} gradient-based optimization and the stabilizers you will reuse later (initialization, activations, batch norm, dropout, AdamW).
+\end{itemize}
 \end{tcolorbox}
 
 \subsection{Historical Context and Motivation}
 \label{sec:cnn_historical_context_and_motivation}
 
-Artificial neural networks (ANNs) have a long history dating back to the 1940s, with the seminal work of McCulloch and Pitts in 1943. Despite this early start, it took several decades before deep learning models became widely successful and practical. Neural networks experienced waves of interest, notably in the 1980s and 1990s, but it was only in the last 10--15 years that deep architectures have become dominant.
+The core backprop loop from earlier chapters scales to high-dimensional perception tasks, but naively applying dense multilayer perceptrons (MLPs) to images runs into two practical walls: \emph{parameter count} and \emph{inductive bias}. Images have strong local structure (edges, corners, textures), yet a fully connected layer treats every pixel as unrelated to its neighbors and spends parameters learning spatial patterns from scratch.
 
-Understanding why deep learning took so long to mature is crucial. Several challenges hindered progress for many years:
+CNNs emerged as a pragmatic answer: keep end-to-end gradient training, but bake in locality and translation structure through sparse connectivity and shared weights. The result is a model class that is both more sample-efficient and more computationally viable on large grids.
 
-\begin{itemize}
-    \item \textbf{Optimization hurdles:} Early neural networks were shallow (few layers) and suffered from problems such as vanishing or exploding gradients, making it hard to train deep models effectively.
-    \item \textbf{Computational resources:} Deep networks require significant computational power and memory, which were not readily available until recent advances in hardware (e.g., GPUs).
-    \item \textbf{Data availability:} Large labeled datasets, essential for training deep models, were scarce until the advent of big data.
-    \item \textbf{Algorithmic improvements:} Innovations such as better activation functions, initialization schemes, and optimization algorithms were necessary to enable deep learning.
-\end{itemize}
-
-These factors combined to delay the widespread adoption of deep learning despite its theoretical potential.
-
-\subsection{Overview of Neural Network Architectures}
-\label{sec:cnn_overview_of_neural_network_architectures}
-
-Before delving into deep learning, it is important to review the basic building blocks of neural networks.
-
-\subsubsection{Feedforward Neural Networks (Multi-Layer Perceptrons)}
-\label{sec:cnn_feedforward_neural_networks_multi_layer_perceptrons_sub}
-
-A feedforward neural network consists of an input layer, one or more hidden layers, and an output layer. Data flows in one direction from input to output without cycles.
-
-Consider a simple network with an input layer of dimension $d$ and a single hidden layer with $h$ neurons. We write a single input as a row vector
-\[
-\mathbf{x} = [x_1, x_2, \ldots, x_d],
-\]
-and the weight matrix connecting the input to the hidden layer is
-\[
-\mathbf{W} \in \mathbb{R}^{d \times h}.
-\]
-
-The pre-activation input to the hidden layer neurons is
-\begin{align}
-\mathbf{z} = \mathbf{x}\mathbf{W} + \mathbf{b}, \label{eq:preactivation}
-\end{align}
-where $\mathbf{b} \in \mathbb{R}^h$ is the bias vector.
-
-Applying a nonlinear activation function $\sigma(\cdot)$ element-wise yields the hidden layer output
-\[
-\mathbf{h} = \sigma(\mathbf{z}).
-\]
-
-The output layer then produces the final output, often via another linear transformation and activation.
-
-\paragraph{Fully Connected Layers and Feature Transformation}
-
-Each neuron in the hidden layer is connected to every input feature, making the layer \emph{fully connected}. The weights $\mathbf{W}$ serve two main purposes:
-
-\begin{itemize}
-    \item \textbf{Feature extraction:} Each neuron computes a weighted combination of input features, effectively extracting new features.
-\item \textbf{Attenuation of irrelevant inputs:} Weights with small magnitude suppress the contribution of certain input features, although genuine feature selection usually requires explicit regularization (e.g., L1 penalties) or pruning.
-\end{itemize}
-
-Thus, each layer transforms the input features into a new representation, which subsequent layers can further process.
-
-\subsection{Why Shallow Networks Are Insufficient}
-\label{sec:cnn_why_shallow_networks_are_insufficient}
-
-In theory, shallow networks with a single hidden layer are universal function approximators \citep{Cybenko1989}. However, in practice, they have several limitations:
-
-\begin{itemize}
-    \item \textbf{Large number of neurons required:} To approximate complex functions, shallow networks often need exponentially many neurons.
-    \item \textbf{Overfitting:} Large networks with many parameters tend to overfit training data, especially with limited data.
-\item \textbf{Limited expressivity:} Although universal approximators, shallow networks often require exponentially many neurons to capture rich structure, so depth provides a far more parameter-efficient representation.
-\end{itemize}
-
-Deep networks, with multiple hidden layers, can represent complex functions more compactly by learning hierarchical feature representations. This hierarchical structure is key to the success of deep learning.
-
-\subsection{Limitations of Traditional Feedforward Neural Networks}
-\label{sec:cnn_limitations_of_traditional_feedforward_neural_networks}
+\subsection{Why fully connected layers break on images}
+\label{sec:cnn_why_fully_connected_layers_break_on_images}
 
 \paragraph{Requirement for large datasets}
 
@@ -124,12 +77,7 @@ This flattening process has two major drawbacks:
 
 \paragraph{Implications}
 
-These limitations motivate the development of specialized architectures, such as convolutional neural networks (CNNs), which exploit spatial locality and reduce parameter count by sharing weights.
-
-\subsection{Challenges in Training Large Fully Connected Networks}
-\label{sec:cnn_challenges_in_training_large_fully_connected_networks}
-
-Consider a fully connected neural network where the input layer has 70,656 neurons (flattened from a $256 \times 276$ grayscale image), connected to a hidden layer with 100 neurons, which in turn connects to an output layer for classification. Although this is a simplified example, it illustrates key challenges in training large networks.
+The punchline is not that dense networks ``cannot'' learn images; it is that the price is too high. Without any architectural prior, you pay in parameters, data, and compute. Convolutions and pooling supply that prior: they make the model spend capacity on local patterns and reuse those patterns across the grid.
 
 \paragraph{Parameter Explosion}
 
@@ -237,14 +185,14 @@ Start with an input tensor of size \(50\times50\times30\). Apply \(10\) filters 
     \item \textbf{Pooling} type (max/average), window size, and stride (if pooling is used).
 \end{itemize}
 
-\subsection{Multi-branch convolution blocks (Inception idea)}
-\label{sec:cnn_multi_branch_convolution_blocks_inception_idea}
-One practical variant is to run multiple filter sizes in parallel (for example \(1\times1\), \(3\times3\), and \(5\times5\)) and concatenate the resulting feature maps along the channel axis. This allows the network to capture multi-scale patterns without committing to a single kernel size. When branches must line up spatially, \emph{same} padding is used to keep all outputs the same height and width; pooling branches often pad for this alignment even though pooling by itself is usually unpadded.
-
 \subsection{From feature maps to classifiers}
 \label{sec:cnn_from_feature_maps_to_classifiers}
 
 Stacks of convolutional and pooling layers produce a hierarchy of feature maps. A common design is to flatten the final maps into a vector and pass them to a small dense classifier (often a softmax layer) that predicts the class label. Backpropagation updates both the dense weights and the shared convolutional filters, so the feature extractor and classifier are learned jointly.
+
+\subsection{Multi-branch convolution blocks (Inception idea)}
+\label{sec:cnn_multi_branch_convolution_blocks_inception_idea}
+One practical variant is to run multiple filter sizes in parallel (for example \(1\times1\), \(3\times3\), and \(5\times5\)) and concatenate the resulting feature maps along the channel axis. This allows the network to capture multi-scale patterns without committing to a single kernel size. When branches must line up spatially, \emph{same} padding is used to keep all outputs the same height and width; pooling branches often pad for this alignment even though pooling by itself is usually unpadded.
 
 \subsection{Historical Context and the 2012 Breakthrough}
 \label{sec:cnn_historical_context_and_the_2012_breakthrough}
@@ -254,6 +202,25 @@ Before 2012, neural networks were often dismissed in many academic circles due t
 \paragraph{SVM geometry refresher.} The classical soft-margin picture views an SVM as balancing a wide margin against slack variables \(\xi_i\) that widen the feasible tube so that mislabeled points incur linear penalties instead of rendering the optimization infeasible. The geometric intuition is to maximize the margin while tolerating limited violations. This highlights why SVMs were attractive when data were scarce; the hinge-loss curves in \Cref{chap:supervised} supply the loss-level view of the same trade-off.
 
 \paragraph{Stack depth versus receptive field.} Stacking identical \(3\times3\) filters still grows the effective receptive field: each stage wraps a thicker box around the original pixels, which explains why deep-but-narrow CNNs can capture wide spatial context without enormous kernels even when individual kernels remain small.
+
+\begin{figure}[t]
+    \centering
+    \begin{tikzpicture}[scale=0.9]
+        % Simple receptive-field growth sketch: nested boxes over an input grid.
+        \draw[step=0.6, gray!25, very thin] (0,0) grid (3.6,3.6);
+        \draw[cbBlue, thick] (1.2,1.2) rectangle (2.4,2.4);
+        \draw[cbOrange, thick] (0.6,0.6) rectangle (3.0,3.0);
+        \draw[cbGreen, thick] (0,0) rectangle (3.6,3.6);
+        \node[anchor=west, font=\scriptsize] at (3.8,2.9) {after 1 layer};
+        \node[anchor=west, font=\scriptsize] at (3.8,2.1) {after 2 layers};
+        \node[anchor=west, font=\scriptsize] at (3.8,1.3) {after 3 layers};
+        \draw[cbBlue, thick] (3.65,2.85) -- (3.75,2.85);
+        \draw[cbOrange, thick] (3.65,2.05) -- (3.75,2.05);
+        \draw[cbGreen, thick] (3.65,1.25) -- (3.75,1.25);
+    \end{tikzpicture}
+    \caption{Schematic: Receptive field growth across depth. Even with small \(3\times3\) kernels, stacking layers expands the spatial context seen by deeper units.}
+    \label{fig:cnn_receptive_field_growth}
+\end{figure}
 
 With the architectural motivation in place, we now focus on how these models are trained and why deep optimization remains delicate.
 
@@ -273,13 +240,11 @@ where $\eta$ is the learning rate.
 
 The gradient $\frac{\partial \mathcal{L}}{\partial w}$ is computed efficiently using the backpropagation algorithm, which applies the chain rule to propagate errors backward through the network layers.
 
-\paragraph{Challenges in Deep Networks}
+\paragraph{Preview: why deep optimization needs extra care}
+As depth grows, gradient flow becomes fragile (vanishing/exploding gradients). The next sections make that failure mode explicit and summarize the mitigation toolkit used in modern CNN stacks.
 
-In deep networks, gradients can vanish or explode as they propagate through many layers, making training unstable or slow. This problem was a major obstacle until solutions such as better activation functions (e.g., ReLU), normalization techniques, and initialization methods were developed.
-
-\subsection{Deep Network Optimization \mbox{Challenges}
-\label{sec:cnn_deep_network_optimization_challenges}}
-\label{sec:cnn_deep_network_optimization_challenges_sec_cnn_deep_network_optimization_challenges}
+\subsection{Deep Network Optimization Challenges}
+\label{sec:cnn_deep_network_optimization_challenges}
 
 Deep networks are difficult to optimize because the objective is highly nonconvex and the
 gradient signal can be distorted as it flows through many layers. We begin with the most
@@ -417,7 +382,7 @@ Use AdamW (or SGD+momentum) when you want clean weight-decay semantics; reserve 
 \end{tcolorbox}
 
 \begin{tcolorbox}[summarybox,title={MLP/CNN block pseudocode (schematic)}]
-\small
+\footnotesize
 \begin{verbatim}
 function ForwardBackward(params, x, y):
   # forward

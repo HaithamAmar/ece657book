@@ -15,6 +15,13 @@ Building on the multilayer perceptron (MLP) architecture (\Cref{chap:mlp}) and i
 Make the nonlinearity explicit: use a fixed (or lightly tuned) basis expansion in the hidden layer, then learn the output weights with linear-algebra tools.
 \end{tcolorbox}
 
+\begin{tcolorbox}[summarybox,title={How to read this chapter}]
+\begin{itemize}
+    \item \textbf{Core thread (RBFNs):} architecture $\rightarrow$ basis functions and widths $\rightarrow$ linear solve (least squares / ridge) $\rightarrow$ kernel view and practical tuning.
+    \item \textbf{Optional bridge:} a short Wiener-filter refresher connects the RBFN linear solve to classical linear estimation; it is provided for context and can be skimmed without loss of continuity.
+\end{itemize}
+\end{tcolorbox}
+
 \subsection{Overview and Motivation}
 \label{sec:rbf_overview_and_motivation}
 
@@ -608,8 +615,7 @@ Assuming \(\mathbf{R}\) is invertible, the optimal filter coefficients are
 
 This completes the derivation of the Wiener filter solution.
 
-\subsection{Interpretation and Properties of the Wiener Filter}
-\label{sec:rbf_interpretation_and_properties_of_the_wiener_filter}
+\paragraph{Optional: interpretation and properties}
 
 \paragraph{Interpretation:} The Wiener filter can be viewed as the linear estimator that projects the desired signal \(d(t)\) onto the subspace spanned by the input vector \(\mathbf{x}(t)\) in the least-squares sense.
 
@@ -620,8 +626,7 @@ This completes the derivation of the Wiener filter solution.
     \item \textbf{Causality:} The Wiener filter as derived is non-causal; causal versions require additional constraints.
 \end{itemize}
 
-\subsection{Extension: Frequency-Domain Wiener Filter}
-\label{sec:rbf_extension_frequency_domain_wiener_filter}
+\paragraph{Optional: frequency-domain form}
 
 For stationary processes, the Wiener filter can be equivalently expressed in the frequency domain. Let \(S_{xx}(\omega)\) and \(S_{dx}(\omega)\) denote the power spectral density (PSD) of the input and the cross-PSD between desired and input signals, respectively. Then the frequency response of the Wiener filter is
 \begin{equation}
@@ -631,8 +636,7 @@ H(\omega) = \frac{S_{dx}(\omega)}{S_{xx}(\omega)}.
 
 This expression provides insight into the filter's behavior as a frequency-selective operator that emphasizes frequencies where the desired signal and input are strongly correlated.
 
-\subsection{Closing Remarks on Adaptive Filtering}
-\label{sec:rbf_closing_remarks_on_adaptive_filtering}
+\paragraph{Optional: why adaptive filtering comes next}
 
 While the Wiener filter provides a closed-form solution, in practice the statistics \(\mathbf{R}\) and \(\mathbf{p}\) are often unknown or time-varying. This motivates adaptive filtering algorithms such as LMS and RLS, which iteratively approximate \(\mathbf{w}^\star\) using observed data.
 

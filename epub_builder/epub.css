@@ -6,6 +6,35 @@ body {
   hyphens: none;
 }
 
+/* Headings: enforce a clear visual hierarchy in readers that default to small headers. */
+h1, h2, h3, h4, h5, h6 {
+  line-height: 1.2;
+  margin: 1.2em 0 0.6em 0;
+  font-weight: 700;
+}
+
+/* Parts */
+h1 {
+  font-size: 1.9em;
+  break-before: page;
+  page-break-before: always;
+}
+
+/* (Pandoc leaves h2 mostly unused in our current structure; keep it reasonable.) */
+h2 { font-size: 1.55em; }
+
+/* Chapters (LaTeX \section when \part exists) */
+h3 {
+  font-size: 1.45em;
+  break-before: page;
+  page-break-before: always;
+}
+
+/* Section/subsection headings */
+h4 { font-size: 1.25em; }
+h5 { font-size: 1.12em; }
+h6 { font-size: 1.05em; }
+
 /* Images and figures */
 img, svg, embed, object {
   max-width: 100%;

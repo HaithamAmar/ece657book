@@ -16,19 +16,12 @@
 Add recurrence, then train it by unrolling time and reusing the backprop machinery from \Cref{chap:backprop}.
 \end{tcolorbox}
 
-\subsection{Quick recap: padding in CNNs}
-\label{sec:rnn_quick_recap_padding_in_cnns}
-
-For a 1D or 2D convolution with input size \(n\), kernel size \(k\), stride \(s\), and padding \(p\), the output size is
-\[
-\left\lfloor \frac{n + 2p - k}{s} \right\rfloor + 1.
-\]
-When \(s=1\) and you want to preserve the original size, choose \(p=(k-1)/2\) for odd \(k\); padding \(p\) means adding \(p\) zeros on each side (left/right in 1D, all borders in 2D). This bookkeeping matters later when we compare sequence padding to spatial padding in CNNs.
-
-\subsection{Autoencoders and latent representations}
-\label{sec:rnn_autoencoders_and_latent_representations}
-
-Autoencoders map an input \(\mathbf{x}\) through an \emph{encoder} to a latent vector \(\mathbf{z}\), then reconstruct \(\hat{\mathbf{x}}\) with a \emph{decoder}. Training uses the input itself as the target, so the loss penalizes reconstruction error. An \emph{undercomplete} bottleneck (\(\dim \mathbf{z} < \dim \mathbf{x}\)) behaves like compression; an \emph{overcomplete} latent space can still learn useful structure when paired with regularization. We mention autoencoders here because the idea of encoding a long input into a compact representation will reappear in sequence models.
+\begin{tcolorbox}[summarybox,title={How to read this chapter}]
+\begin{itemize}
+    \item \textbf{Core thread (RNNs):} state and unrolling $\rightarrow$ parameter sharing $\rightarrow$ BPTT $\rightarrow$ stabilization (clipping, gating motivation) $\rightarrow$ word representations as sequence inputs.
+    \item \textbf{Optional reminders:} brief notes on padding and autoencoders appear later; skim them if you are here primarily for RNN dynamics and training.
+\end{itemize}
+\end{tcolorbox}
 
 The statistical learning chapters (\Crefrange{chap:supervised}{chap:logistic}) established the basic training loop: choose a model class, define a loss, optimize it, and then audit generalization and calibration. The feedforward neural chapters then extended the model class from linear predictors to multilayer networks (MLPs, RBF networks, and CNNs). Those architectures have proven effective for tasks such as classification, regression, and feature extraction, but they share a common structural limitation: information flows strictly from input to output, without an internal state that can store context over time.
 
@@ -117,13 +110,21 @@ We keep the row-major (deep-learning) convention: \(\mathbf{x}_t \in \mathbb{R}^
 In this chapter, we will:
 
 \begin{itemize}
-    \item Revisit CNN padding and autoencoders as a bridge to sequence encoders.
     \item Formally define the architecture of recurrent neural networks.
     \item Derive the forward and backward passes for training RNNs.
     \item Discuss challenges such as vanishing and exploding gradients.
     \item Introduce variants of RNNs designed to mitigate these challenges.
     \item Explore applications where RNNs provide significant advantages over feedforward networks.
 \end{itemize}
+
+\begin{tcolorbox}[summarybox,title={Optional reminders: padding and autoencoders (skim)}]
+\textbf{Padding (CNNs).} For a 1D/2D convolution with input size \(n\), kernel size \(k\), stride \(s\), and padding \(p\), the output size is
+\[
+\left\lfloor \frac{n + 2p - k}{s} \right\rfloor + 1.
+\]
+When \(s=1\) and you want to preserve size, choose \(p=(k-1)/2\) for odd \(k\).\par\smallskip
+\textbf{Autoencoders.} An encoder maps \(\mathbf{x}\mapsto \mathbf{z}\) and a decoder maps \(\mathbf{z}\mapsto \hat{\mathbf{x}}\); training uses a reconstruction loss. The idea of compressing a long input into a compact representation reappears in sequence encoders and attention models.
+\end{tcolorbox}
 
 \begin{tcolorbox}[summarybox,title={Vanilla RNN cell (forward + BPTT)}]
 \begin{verbatim}
@@ -302,64 +303,8 @@ y_t &= g(h_t W_{hy} + b_y), \quad t=1,\ldots,T \label{eq:rnn_output_state}
 Inputs \(X \in \mathbb{R}^{B\times T \times d_x}\); hidden states \(H \in \mathbb{R}^{B\times T \times d_h}\); logits \(Y \in \mathbb{R}^{B\times T \times d_o}\). Parameters (row-major): \(W_{xh}\in\mathbb{R}^{d_x\times d_h}\), \(W_{hh}\in\mathbb{R}^{d_h\times d_h}\), \(W_{hy}\in\mathbb{R}^{d_h\times d_o}\), biases \(b_h\in\mathbb{R}^{d_h}\), \(b_y\in\mathbb{R}^{d_o}\).\\
 Padding mask \(M\in\{0,1\}^{B\times T}\): loss \(L=\sum_{b,t} M_{b,t}\,\text{CE}(\hat y_{b,t}, y_{b,t})/\sum_{b,t} M_{b,t}\). Masks preview the padding/causal masks detailed in \Cref{chap:transformers}.
 \end{tcolorbox}
-\subsection{Recurrent Neural Networks: Historical Context and Motivation}
-\label{sec:rnn_recurrent_neural_networks_historical_context_and_motivation}
-
-Recall from our earlier discussion on Hopfield networks that the configuration of the network states significantly impacts the overall energy landscape. The sequence of states, or more precisely, their spatial arrangement within the network, determines the energy and thus the network's behavior. This property endowed Hopfield networks with associative memory capabilities, as the weights were constructed to "remember" specific patterns.
-
-However, Hopfield networks were primarily designed for storage and retrieval of static patterns rather than for dynamic prediction or forecasting tasks. Despite their introduction in 1982, their practical utility beyond research was limited.
-
-\subsection{The 1986 Breakthrough: Backpropagation and Trainable Multi-Layer Networks}
-\label{sec:rnn_the_1986_breakthrough_backpropagation_and_trainable_multi_layer_networks}
-
-In 1986, Rumelhart, Hinton, and Williams popularized the use of backpropagation as a practical training method for multilayer networks \citep{Rumelhart1986}. That contribution is not an RNN architecture; it is a training procedure that made it feasible to fit large parametric models by propagating error derivatives through compositions of linear maps and nonlinearities.
-
-For recurrent networks, the conceptual move is to view the computation graph as a \emph{shared} module repeated across time steps. Training then becomes standard backpropagation applied to the unrolled graph, with gradients accumulated across each copy of the shared parameters; this is precisely what ``backpropagation through time'' (BPTT) implements in the sections that follow.
-
-\subsection{State Dynamics in Recurrent Neural Networks}
-\label{sec:rnn_state_dynamics_in_recurrent_neural_networks}
-
-The 1986 RNN formulation introduced the concept of a \emph{state} that evolves over time as a function of the previous state and the current input. Formally, the state update can be expressed as:
-\begin{equation}
-    \mathbf{h}_t = f(\mathbf{h}_{t-1}, \mathbf{x}_t; \theta).
-\label{eq:auto_rnn_d7d3146e60}
-\end{equation}
-where
-\begin{itemize}
-    \item \(\mathbf{h}_t\) is the hidden state at time \(t\),
-    \item \(\mathbf{x}_t\) is the input at time \(t\),
-    \item \(f\) is a nonlinear function parameterized by \(\theta\) (e.g., weights and biases),
-    \item \(\mathbf{h}_{t-1}\) is the hidden state at the previous time step.
-\end{itemize}
-
-The output at time \(t\), denoted \(\mathbf{y}_t\), is typically computed as a function of the hidden state:
-\begin{equation}
-    \mathbf{y}_t = g(\mathbf{h}_t; \phi).
-\label{eq:auto_rnn_9c25b06433}
-\end{equation}
-where \(g\) is another nonlinear function parameterized by \(\phi\).
-
-\paragraph{Interpretation}
-
-- The hidden state \(\mathbf{h}_t\) acts as a memory that summarizes information from all previous inputs up to time \(t\).
-- The recurrence allows the network to maintain context and model temporal dependencies.
-
-\subsection{Unfolding the Recurrent Neural Network}
-\label{sec:rnn_unfolding_the_recurrent_neural_network}
-
-To better understand and implement RNNs, it is common to \emph{unfold} the network through time. Unfolding transforms the recurrent structure into a feedforward network with shared weights across time steps.
-
-\paragraph{Process}
-
-- Start with an initial hidden state \(\mathbf{h}_0\), which may be initialized to zero or learned.
-- At each time step \(t\), compute \(\mathbf{h}_t\) using \Cref{eq:rnn_state_update}.
-- Compute output \(\mathbf{y}_t\) using \Cref{eq:rnn_output}.
-- The parameters \(\theta\) and \(\phi\) are shared across all time steps, enabling the network to generalize across sequences of varying lengths.
-
-\paragraph{Significance}
-
-- Unfolding clarifies the flow of information and dependencies across time.
-- It facilitates the application of backpropagation through time (BPTT) for training.
+\paragraph{Unrolling and shared weights.}
+The cleanest way to understand recurrence is to \emph{unroll time}: the same cell is applied repeatedly, reusing the same parameters at each step. Training then becomes ordinary backpropagation on the unrolled computation graph, with gradients accumulated across every copy of the shared weights (backpropagation through time, BPTT).
 
 \subsection{Mathematical Formulation of a Simple RNN Cell}
 \label{sec:rnn_mathematical_formulation_of_a_simple_rnn_cell}
@@ -407,81 +352,6 @@ Consider a simple RNN cell with the following update equations:
     \caption{Schematic: Unrolling an RNN reveals repeated application of the same parameters across time steps. This view motivates backpropagation through time (BPTT), which accumulates gradients through every copy before updating the shared weights.}
     \label{fig:lec7-rnn-unrolled}
 \end{figure}
-\subsection{Recurrent Neural Network (RNN) Unfolding and Parameter Sharing}
-\label{sec:rnn_recurrent_neural_network_rnn_unfolding_and_parameter_sharing}
-
-Recall that a recurrent neural network (RNN) processes sequential data by maintaining a hidden state that evolves over time. At each time step \( t \), the network receives an input \( \mathbf{x}_t \) and updates its hidden state \( \mathbf{h}_t \), which in turn produces an output \( \mathbf{y}_t \). \Cref{fig:lec7-rnn-unrolled} depicts this unfolding explicitly so we can reason about the repeated weight matrices across time.
-
-\paragraph{Unfolding the RNN}
-Unfolding the RNN across time steps transforms the recurrent structure into a deep feedforward network with shared weights across layers (time steps). This unrolled network looks like a chain where each hidden state depends on the previous hidden state and the current input:
-
-\[
-\mathbf{h}_t = f(\mathbf{h}_{t-1}, \mathbf{x}_t; \Theta), \quad \mathbf{y}_t = g(\mathbf{h}_t; \Theta_y)
-\]
-
-where \( f \) and \( g \) are nonlinear functions parameterized by weights \(\Theta\) and \(\Theta_y\), respectively.
-
-\paragraph{Parameter Sharing}
-A key property of RNNs is \emph{parameter sharing} across time steps. Specifically:
-
-\begin{itemize}
-    \item The weights connecting the previous hidden state \(\mathbf{h}_{t-1}\) to the current hidden state \(\mathbf{h}_t\) are the same for all \( t \).
-    \item The weights connecting the input \(\mathbf{x}_t\) to the hidden state \(\mathbf{h}_t\) are also shared across all time steps.
-    \item The weights mapping the hidden state \(\mathbf{h}_t\) to the output \(\mathbf{y}_t\) are shared as well.
-\end{itemize}
-
-This parameter sharing reduces the number of parameters to learn and enables the network to generalize across different positions in the sequence.
-
-\subsection{Mathematical Formulation of the RNN}
-\label{sec:rnn_mathematical_formulation_of_the_rnn}
-
-We formalize the RNN update equations as follows. Let the hidden state at time \( t \) be \(\mathbf{h}_t \in \mathbb{R}^{1\times h}\), the input at time \( t \) be \(\mathbf{x}_t \in \mathbb{R}^{1\times d}\), and the output at time \( t \) be \(\mathbf{y}_t \in \mathbb{R}^{1\times o}\) (row-vector convention). Let \(\mathbf{a}_t\in\mathbb{R}^{1\times h}\) denote the pre-activation (affine) hidden update.
-
-\begin{align}
-    \mathbf{a}_t &= \mathbf{h}_{t-1}\mathbf{W}_a + \mathbf{x}_t\mathbf{W}_x + \mathbf{b}_h, \\
-    \mathbf{h}_t &= f\!\left(\mathbf{a}_t\right), \\
-    \mathbf{y}_t &= g\left( \mathbf{h}_t\mathbf{W}_y + \mathbf{b}_y \right),
-    \label{eq:auto:lecture_7:1}
-\end{align}
-
-where:
-\begin{itemize}
-    \item \(\mathbf{W}_a \in \mathbb{R}^{h \times h}\) is the recurrent weight matrix (hidden-to-hidden).
-    \item \(\mathbf{W}_x \in \mathbb{R}^{d \times h}\) is the input-to-hidden weight matrix.
-    \item \(\mathbf{W}_y \in \mathbb{R}^{h \times o}\) is the hidden-to-output weight matrix.
-    \item \(\mathbf{b}_h \in \mathbb{R}^h\) and \(\mathbf{b}_y \in \mathbb{R}^o\) are bias vectors.
-    \item \(f(\cdot)\) is the activation function for the hidden state (commonly \(\tanh\) or \(\mathrm{ReLU}\)).
-    \item \(g(\cdot)\) is the output activation function (e.g., softmax for classification).
-\end{itemize}
-Checking dimensions: \(\mathbf{h}_{t-1}\mathbf{W}_a\in\mathbb{R}^{1\times h}\), \(\mathbf{x}_t\mathbf{W}_x\in\mathbb{R}^{1\times h}\), and \(\mathbf{h}_t\mathbf{W}_y\in\mathbb{R}^{1\times o}\), so the shapes are consistent with the compact form \eqref{eq:rnn_compact}.
-
-\paragraph{Interpretation}
-\Cref{eq:rnn_hidden_state} shows that the current hidden state \(\mathbf{h}_t\) is a nonlinear transformation of the previous hidden state \(\mathbf{h}_{t-1}\) and the current input \(\mathbf{x}_t\). \Cref{eq:rnn_output} maps the hidden state to the output at time \( t \).
-
-\paragraph{Reusability of the Hidden State}
-The hidden state \(\mathbf{h}_t\) serves as a summary of all previous inputs up to time \( t \). This recursive formulation allows the network to capture temporal dependencies of arbitrary length.
-
-\subsection{Generalized Notation}
-\label{sec:rnn_generalized_notation}
-
-To simplify notation, define the concatenated input vector at time \( t \):
-
-\[
-\mathbf{z}_t = \begin{bmatrix} \mathbf{h}_{t-1} & \mathbf{x}_t \end{bmatrix} \in \mathbb{R}^{1\times (h + d)}.
-\]
-
-Correspondingly, define the combined weight matrix:
-
-\[
-\mathbf{W} = \begin{bmatrix} \mathbf{W}_a \\ \mathbf{W}_x \end{bmatrix} \in \mathbb{R}^{(h + d)\times h}.
-\]
-
-Then the hidden state update can be written compactly as:
-
-\begin{equation}
-    \mathbf{h}_t = \sigma\left( \mathbf{z}_t \mathbf{W} + \mathbf{b}_h \right). \label{eq:rnn_compact}
-\end{equation}
-This stacks the recurrent and input weights into a single matrix.
 \subsection{Recurrent Neural Network (RNN) Architectures and Loss Computation}
 \label{sec:rnn_recurrent_neural_network_rnn_architectures_and_loss_computation}
 
@@ -1039,20 +909,6 @@ Mis-handled pads (loss on padded tokens); forgetting to detach hidden state acro
     \label{fig:lec7-attention}
 \end{figure}
 
-\subsection{RNN Input-Output Configurations}
-\label{sec:rnn_rnn_input_output_configurations}
-
-RNNs can be configured in several ways depending on the task:
-
-\begin{itemize}
-    \item \textbf{Many-to-Many (Equal Length):} Input and output sequences have the same length \( T \). For example, sequence labeling tasks.
-    \item \textbf{Many-to-One:} Input is a sequence of length \( T \), output is a single prediction. Example: sentiment analysis where a sentence maps to a sentiment score.
-    \item \textbf{Many-to-Many (Unequal Length):} Input and output sequences have different lengths. Example: machine translation where input and output sentences differ in length.
-    \item \textbf{One-to-Many:} Single input produces a sequence output. Less common, but applicable in tasks like image captioning where one image input generates a sequence of words.
-\end{itemize}
-
-The main difference lies in how the loss is computed and how outputs are generated, but the underlying backpropagation principles remain consistent.
-
 \subsection{Representing Words for RNN Inputs}
 \label{sec:rnn_representing_words_for_rnn_inputs}
 
@@ -1085,11 +941,8 @@ This representation is sparse and high-dimensional. Conceptually the one-hot bas
 \]
 so a one-hot input \(\mathbf{x}_t\) simply selects the corresponding row of \(\mathbf{E}\) as its dense embedding \(\mathbf{e}_t\).
 
-\paragraph{Limitations of One-Hot Encoding}
-
-One-hot vectors do not capture semantic similarity between words (e.g., "king" and "queen" are orthogonal). Indeed, the cosine similarity between any two distinct one-hot vectors is exactly zero because their non-zero entries never overlap. They also lead to very high-dimensional inputs, which can be computationally costly to store and process.
-
-To address these limitations we introduce distributed word representations (e.g., Word2Vec, GloVe, fastText) that map words to dense vectors where geometric relationships encode semantic similarity.
+\paragraph{Why one-hot is not enough (preview).}
+One-hot inputs are easy to implement but discard similarity: ``king'' and ``queen'' are orthogonal. The next subsection makes that failure mode concrete and motivates denser representations.
 
 \subsection{Example: Sentiment Analysis with RNNs}
 \label{sec:rnn_example_sentiment_analysis_with_rnns}
@@ -1153,8 +1006,11 @@ We can define features such as:
 
 Assigning numerical values to these features for each word yields a vector representation that encodes semantic information. For example:
 
-\begin{center}
+\begin{table}[t]
+\centering
 \small
+\caption{Schematic: Feature-based word vectorization example. Each word is mapped to a vector of graded semantic features; fractional entries (e.g., 0.5) indicate mixed usage across contexts.}
+\label{tab:word_feature_vectorization}
 \begin{tabular}{l|cccccccc}
 \textbf{Word} & Gender & Royalty & Age & Person & Fruit & Title & Abstract & Sweet \\
 \hline
@@ -1167,7 +1023,7 @@ apple & 0 & 0 & 0 & 0 & 1 & 0 & 0 & 1 \\
 monarch & 0.5 & 1 & 0.5 & 1 & 0 & 1 & 0 & 0 \\
 royal & 0 & 1 & 0.5 & 0 & 0 & 1 & 1 & 0 \\
 \end{tabular}
-\end{center}
+\end{table}
 
 \paragraph{Notes:}
 \begin{itemize}

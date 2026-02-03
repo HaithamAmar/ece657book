@@ -25,6 +25,20 @@ This chapter builds the supervised-learning toolkit around that central act. We 
 Data \(\rightarrow\) model \(\rightarrow\) objective \(\rightarrow\) audit. This workflow shows up repeatedly in later chapters, even when the models become deeper and the optimization less forgiving.
 \end{tcolorbox}
 
+\begin{tcolorbox}[summarybox,title={Risk \& audit}]
+\begin{itemize}
+    \item \textbf{Leakage:} avoid split mistakes (duplicates, near-duplicates, time leakage) that inflate validation accuracy.
+    \item \textbf{Metric mismatch:} align the loss you optimize with the metric you report (and the decision you must make).
+    \item \textbf{Overfitting signals:} track training vs.\ validation curves and use learning curves to diagnose data hunger vs.\ excess capacity.
+    \item \textbf{Distribution shift:} audit performance by slice (population, device, lighting, region) rather than relying on one aggregate score.
+    \item \textbf{Calibration:} check reliability when probabilities drive actions (thresholds, alerts, resource allocation).
+\end{itemize}
+\end{tcolorbox}
+
+\begin{tcolorbox}[summarybox,title={A concrete toy task}]
+To keep the discussion grounded, we will repeatedly sketch one small binary classification problem: a two\hyp{}moons toy with a standard train/validation/test split. It is deliberately simple, but it is rich enough to reveal the recurring failure modes (memorization, metric mismatch, split leakage) and the recurring remedies (regularization, validation, and diagnostics).
+\end{tcolorbox}
+
 \noindent Before we turn the ``fitting'' story into equations, let us fix the handful of symbols we will reuse for several pages. The goal is not to introduce new notation, but to keep the derivations readable while the ideas are still new.
 \begin{itemize}
   \item Data \(X \in \mathbb{R}^{N\times d}\) with rows \(\mathbf{x}_i^\top\); targets \(y_i\in\mathbb{R}\) for regression and \(y_i \in \{0,1\}\) for binary classification. The affine map \(y_{\pm1}=2y-1\) switches to \(\{-1,+1\}\) when margin-based expressions are convenient.
