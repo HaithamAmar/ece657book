@@ -96,6 +96,10 @@ Notes:
 - If you are doing PDF-only regression checks, you can use `notes_output/ece657_notes.aux` instead (produced by the PDF toolchain).
 - The aux compile is run only to extract numbering and does **not** run BibTeX; ignore “undefined citations” / missing `.bbl` warnings in `ece657_notes_epub_aux.log`.
 - `bash notes_output/scripts/run_release_checks.sh` now also writes a deterministic spot-check bundle to `notes_output/artifacts/release_checks/pdf_vs_epub_apple/`.
+- `bash notes_output/scripts/run_release_checks.sh` also writes deterministic Apple EPUB audit artifacts under `notes_output/artifacts/release_checks/`:
+  - `epub_image_quality.md` / `.json` (image quality offenders)
+  - `epub_layout_audit_1000w.md` (overflow audit at tablet-ish width)
+  - `epub_table_audit.md` / `.json` (table inventory + wide-table flags)
 
 ### 3) Image resolution audit (EPUB media)
 

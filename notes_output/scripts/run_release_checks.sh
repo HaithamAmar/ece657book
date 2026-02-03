@@ -38,9 +38,46 @@ else
   echo "      To enable: create venv and install Playwright per notes_output/PRODUCTION_ROADMAP.md."
 fi
 
-echo "[5/5] Wrote:"
+echo "[5/7] EPUB audits (Apple)"
+IMG_JSON="${OUT_DIR}/epub_image_quality.json"
+IMG_MD="${OUT_DIR}/epub_image_quality.md"
+TABLE_JSON="${OUT_DIR}/epub_table_audit.json"
+TABLE_MD="${OUT_DIR}/epub_table_audit.md"
+LAYOUT_MD="${OUT_DIR}/epub_layout_audit_1000w.md"
+
+# Image quality and layout audits require the epub_builder venv (Playwright/Pillow).
+if [ -x "${REPO_ROOT}/epub_builder/.venv/bin/python" ]; then
+  "${REPO_ROOT}/epub_builder/.venv/bin/python" "${REPO_ROOT}/epub_builder/scripts/audit_epub_image_quality.py" \
+    --epub "${REPO_ROOT}/epub_builder/dist/ece657_ebook_apple.epub" \
+    --out-json "${IMG_JSON}" \
+    --out-md "${IMG_MD}" \
+    --top 60 >/dev/null || true
+
+  export TMPDIR=/tmp
+  "${REPO_ROOT}/epub_builder/.venv/bin/python" "${REPO_ROOT}/epub_builder/scripts/audit_epub_layout.py" \
+    --epub "${REPO_ROOT}/epub_builder/dist/ece657_ebook_apple.epub" \
+    --out-md "${LAYOUT_MD}" \
+    --viewport-w 1000 \
+    --viewport-h 1400 >/dev/null || true
+else
+  echo "WARN: skipping image/layout audits (missing ${REPO_ROOT}/epub_builder/.venv)."
+fi
+
+# Table audit is pure-Python (no browser); run it regardless.
+/usr/bin/python3 "${REPO_ROOT}/epub_builder/scripts/audit_epub_tables.py" \
+  --epub "${REPO_ROOT}/epub_builder/dist/ece657_ebook_apple.epub" \
+  --out-json "${TABLE_JSON}" \
+  --out-md "${TABLE_MD}" \
+  --flag-cols 5 >/dev/null || true
+
+echo "[6/7] Wrote:"
 echo "  ${OUT_DIR}/report.txt"
 echo "  ${OUT_DIR}/manifest.json"
 echo "  ${OUT_DIR}/pdf/"
 echo "  ${OUT_DIR}/epub/"
 echo "  ${OUT_DIR}/pdf_vs_epub_apple/manifest.json"
+echo "  ${OUT_DIR}/epub_image_quality.md"
+echo "  ${OUT_DIR}/epub_layout_audit_1000w.md"
+echo "  ${OUT_DIR}/epub_table_audit.md"
+
+echo "[7/7] Done."
