@@ -3,10 +3,17 @@
 % entrypoint (ece657_notes.tex vs ece657_ebook.tex).
 %
 % NOTE: Chapter numbering is by \section in this manuscript.
+
+% Part dividers (unnumbered) are intentionally included here so both PDF and
+% EPUB builds share the same high-level structure and TOC grouping.
+\part*{Part I: Foundations and the ERM toolbox}
+\addcontentsline{toc}{part}{Part I: Foundations and the ERM toolbox}
 \input{lecture_1_intro.tex}
 \input{lecture_2_part_i.tex}
 \input{lecture_supervised.tex}
 \input{lecture_2_part_ii.tex}
+\part*{Part II: Neural networks and sequence modeling}
+\addcontentsline{toc}{part}{Part II: Neural networks and sequence modeling}
 \input{lecture_3_part_i.tex}
 \input{lecture_3_part_ii.tex}
 \input{lecture_4_part_i.tex}
@@ -17,9 +24,15 @@
 \input{lecture_7.tex}
 % Modern sequence modeling beyond RNNs
 \input{lecture_transformers.tex}
+\part*{Part III: NLP applications}
+\addcontentsline{toc}{part}{Part III: NLP applications}
 \input{lecture_8_part_i.tex}
+\part*{Part IV: Soft computing and fuzzy reasoning}
+\addcontentsline{toc}{part}{Part IV: Soft computing and fuzzy reasoning}
 \input{lecture_8_part_ii.tex}
 \input{lecture_9.tex}
 \input{lecture_10_part_i.tex}
 \input{lecture_10_part_ii.tex}
+\part*{Part V: Evolutionary optimization}
+\addcontentsline{toc}{part}{Part V: Evolutionary optimization}
 \input{lecture_11.tex}

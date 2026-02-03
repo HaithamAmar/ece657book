@@ -16,6 +16,7 @@ Structure & logic
   - `notes_output/SETUP_CHECKLIST.md`
   - `notes_output/RELEASE_PLAYBOOK.md`
   - `notes_output/TEST_MATRIX.md`
+- Chapter house template (required structure for every chapter): `notes_output/CHAPTER_TEMPLATE.md`.
 - Citation policy + bib hygiene:
   - `notes_output/CITATION_POLICY.md`
 - Cross-reference policy + label hygiene:
