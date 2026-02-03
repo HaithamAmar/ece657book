@@ -99,14 +99,24 @@ from pathlib import Path
 p = Path("artifacts/release_checks/epub_table_audit.json")
 tables = json.loads(p.read_text(encoding="utf-8"))
 flag_cols = 5
+allowed_wide_xhtml = {"ch016.xhtml"}  # word-vectorization feature table (intentionally wide)
 wide = [t for t in tables if int(t.get("n_cols", 0)) >= flag_cols]
-if wide:
-    sample = ", ".join(sorted({t.get("xhtml", "?") for t in wide})[:10])
+wide_blocking = [t for t in wide if (t.get("xhtml") not in allowed_wide_xhtml)]
+if wide_blocking:
+    sample = ", ".join(sorted({t.get("xhtml", "?") for t in wide_blocking})[:10])
     raise SystemExit(
-        f"Table QC failed: {len(wide)} table(s) with >= {flag_cols} columns. "
+        f"Table QC failed: {len(wide_blocking)} table(s) with >= {flag_cols} columns. "
         f"Example XHTML: {sample}. Set ALLOW_WIDE_TABLES=1 to bypass for drafts."
     )
-print(f"Table QC: OK (no tables with >= {flag_cols} columns)")
+if wide:
+    allowed = [t for t in wide if t.get('xhtml') in allowed_wide_xhtml]
+    if allowed:
+        allowed_files = ", ".join(sorted({t.get("xhtml", "?") for t in allowed}))
+        print(f"Table QC: OK ({len(allowed)} wide table(s) allowed: {allowed_files})")
+    else:
+        print(f"Table QC: OK (no tables with >= {flag_cols} columns)")
+else:
+    print(f"Table QC: OK (no tables with >= {flag_cols} columns)")
 PY
 fi
 

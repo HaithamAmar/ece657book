@@ -27,6 +27,9 @@ Gatekeeper audits (fail the run by default):
 - Layout overflow: `notes_output/artifacts/release_checks/epub_layout_audit_1000w.md`
 - Wide tables (>= 5 columns): `notes_output/artifacts/release_checks/epub_table_audit.json`
 
+Notes:
+- One intentionally wide table is allowlisted in the production gatekeeper: the word-feature vectorization table (`ch016.xhtml`) that demonstrates graded feature values (e.g., 0.5 for shared attributes). This table is expected to be horizontally scrollable in reflowable EPUB layouts.
+
 Draft bypass env vars:
 - `ALLOW_FLAGGED_IMAGES=1`
 - `ALLOW_OVERFLOW=1`
