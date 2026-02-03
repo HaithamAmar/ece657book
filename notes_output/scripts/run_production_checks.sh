@@ -9,7 +9,7 @@ cd "${ROOT_DIR}"
 echo "[1/3] Release checks (PDF + EPUB build + snapshots)…"
 bash "${ROOT_DIR}/scripts/run_release_checks.sh"
 
-echo "[2/3] Sanity-check publishing inputs…"
+echo "[2/4] Sanity-check publishing inputs…"
 if [[ ! -f "${ROOT_DIR}/BookCover.png" ]]; then
   echo "Missing cover image: ${ROOT_DIR}/BookCover.png" >&2
   echo "Add a production cover (PNG) before publishing." >&2
@@ -64,7 +64,70 @@ if missing:
 print("book_metadata.json: OK")
 PY
 
-echo "[3/3] EPUBCheck (required for production)…"
+echo "[3/4] Gatekeeper audits (Apple EPUB)…"
+
+# Gatekeeper defaults: fail if any of these audits flag a problem.
+# Allow bypass for drafts via:
+# - ALLOW_FLAGGED_IMAGES=1
+# - ALLOW_WIDE_TABLES=1
+# - ALLOW_OVERFLOW=1
+RELEASE_DIR="${ROOT_DIR}/artifacts/release_checks"
+IMG_QC_JSON="${RELEASE_DIR}/epub_image_quality.json"
+TABLE_QC_JSON="${RELEASE_DIR}/epub_table_audit.json"
+LAYOUT_QC_MD="${RELEASE_DIR}/epub_layout_audit_1000w.md"
+
+if [[ -f "${IMG_QC_JSON}" && "${ALLOW_FLAGGED_IMAGES:-}" != "1" ]]; then
+  /usr/bin/python3 - <<'PY'
+import json
+from pathlib import Path
+
+p = Path("artifacts/release_checks/epub_image_quality.json")
+d = json.loads(p.read_text(encoding="utf-8"))
+flagged = int(d.get("summary", {}).get("flagged_images", 0))
+total = int(d.get("summary", {}).get("total_images", 0))
+if flagged:
+    raise SystemExit(f"Image QC failed: flagged_images={flagged}/{total}. Set ALLOW_FLAGGED_IMAGES=1 to bypass for drafts.")
+print(f"Image QC: OK (flagged_images=0/{total})")
+PY
+fi
+
+if [[ -f "${TABLE_QC_JSON}" && "${ALLOW_WIDE_TABLES:-}" != "1" ]]; then
+  /usr/bin/python3 - <<'PY'
+import json
+from pathlib import Path
+
+p = Path("artifacts/release_checks/epub_table_audit.json")
+tables = json.loads(p.read_text(encoding="utf-8"))
+flag_cols = 5
+wide = [t for t in tables if int(t.get("n_cols", 0)) >= flag_cols]
+if wide:
+    sample = ", ".join(sorted({t.get("xhtml", "?") for t in wide})[:10])
+    raise SystemExit(
+        f"Table QC failed: {len(wide)} table(s) with >= {flag_cols} columns. "
+        f"Example XHTML: {sample}. Set ALLOW_WIDE_TABLES=1 to bypass for drafts."
+    )
+print(f"Table QC: OK (no tables with >= {flag_cols} columns)")
+PY
+fi
+
+if [[ -f "${LAYOUT_QC_MD}" && "${ALLOW_OVERFLOW:-}" != "1" ]]; then
+  /usr/bin/python3 - <<'PY'
+import re
+from pathlib import Path
+
+p = Path("artifacts/release_checks/epub_layout_audit_1000w.md")
+s = p.read_text(encoding="utf-8", errors="ignore")
+m = re.search(r"Issues found:\s*(\d+)", s)
+issues = int(m.group(1)) if m else None
+if issues is None:
+    raise SystemExit("Layout QC failed: could not parse Issues found from epub_layout_audit_1000w.md")
+if issues:
+    raise SystemExit(f"Layout QC failed: Issues found={issues}. Set ALLOW_OVERFLOW=1 to bypass for drafts.")
+print("Layout QC: OK (Issues found=0)")
+PY
+fi
+
+echo "[4/4] EPUBCheck (required for production)…"
 EPUBCHECK_OUT="${ROOT_DIR}/artifacts/release_checks/epubcheck"
 mkdir -p "${EPUBCHECK_OUT}"
 

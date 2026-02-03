@@ -22,6 +22,16 @@ Deliverables:
 - Kindle EPUB: `epub_builder/dist/ece657_ebook_kindle.epub`
 - QC bundle: `notes_output/artifacts/release_checks/`
 
+Gatekeeper audits (fail the run by default):
+- Image quality: `notes_output/artifacts/release_checks/epub_image_quality.json`
+- Layout overflow: `notes_output/artifacts/release_checks/epub_layout_audit_1000w.md`
+- Wide tables (>= 5 columns): `notes_output/artifacts/release_checks/epub_table_audit.json`
+
+Draft bypass env vars:
+- `ALLOW_FLAGGED_IMAGES=1`
+- `ALLOW_OVERFLOW=1`
+- `ALLOW_WIDE_TABLES=1`
+
 ## 2) Human visual QA (required)
 
 Automated checks are not enough. Minimum manual pass:
@@ -57,4 +67,3 @@ This repo produces two EPUBs; which one you upload depends on the platform:
 
 Keep the QC bundle archived for each release:
 - `notes_output/artifacts/release_checks/` (copy it to a dated folder if needed).
-
