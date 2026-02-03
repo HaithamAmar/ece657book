@@ -285,7 +285,7 @@ Your Chapter 14 bias checks and deployment checklist are excellent because they 
 
 ---
 
-### 11. Introduction to Deep Learning and Neural Networks
+### 11. Convolutional Neural Networks and Deep Training Tools
 
 (From content, this is essentially your **CNN + deep training stability toolkit**: dropout, BN, optimizers, gradient issues.) 
 

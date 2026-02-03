@@ -8,7 +8,7 @@ Structure & logic
   1. **Chapter 1** (`lecture_1_intro.tex`): framing and roadmap; the “Perspective” box (“ideas that survived multiple paradigm shifts”) lives in the preface (`preface.tex`) right before “How to use this book”.
   2. **Chapters 2–4** (`lecture_2_part_i.tex`, `lecture_supervised.tex`, `lecture_2_part_ii.tex`): problem-solving strategies, supervised learning foundations, and logistic regression as a bridge into neural network training.
   3. **Chapters 5–10** (`lecture_3_part_i.tex` … `lecture_5_part_ii.tex`): neural networks (MLPs/backprop), RBFNs, then unsupervised learning (SOMs) and Hopfield networks.
-  4. **Chapters 11–13** (`lecture_6.tex`, `lecture_7.tex`, `lecture_transformers.tex`): deep learning refreshers, RNNs (incl. LSTM/GRU), and Transformers.
+  4. **Chapters 11–13** (`lecture_6.tex`, `lecture_7.tex`, `lecture_transformers.tex`): CNNs + deep training tools, RNNs (incl. LSTM/GRU), and Transformers.
   5. **Chapters 14–19** (`lecture_8_part_i.tex` … `lecture_11.tex`): NLP applications, soft computing and fuzzy systems, and evolutionary computing, closing with broader reflections. Chapters reuse the “recurring questions” motif: core idea, caution, visual anchor, and broader context.
 - Print output is `ece657_notes.pdf`; reflowable ebook output is an EPUB built from `ece657_ebook.tex` (see “Reflowable ebook (Kindle/Apple)” below). For publishing checks, use the generated regression bundle under `notes_output/artifacts/release_checks/` (built by `bash notes_output/scripts/run_release_checks.sh`).
 - Production-quality plan (what to do next, in priority order): `notes_output/PRODUCTION_ROADMAP.md`.
@@ -100,7 +100,7 @@ Chapter-to-file mapping
 | 8 | Radial Basis Function Networks (RBFNs) | `lecture_4_part_ii.tex` |
 | 9 | Introduction to Self-Organizing Networks and Unsupervised Learning | `lecture_5_part_i.tex` |
 | 10 | Hopfield Networks: Introduction and Context | `lecture_5_part_ii.tex` |
-| 11 | Introduction to Deep Learning and Neural Networks | `lecture_6.tex` |
+| 11 | Convolutional Neural Networks and Deep Training Tools | `lecture_6.tex` |
 | 12 | Introduction to Recurrent Neural Networks | `lecture_7.tex` |
 | 13 | Transformers: Attention-Based Sequence Modeling | `lecture_transformers.tex` |
 | 14 | Neural Network Applications in Natural Language Processing | `lecture_8_part_i.tex` |
