@@ -489,6 +489,21 @@ In intelligent control systems, such as automotive braking, fuzzy logic allows t
     \item Fuzzy operators (t\hyp{}norms, implications) enable approximate reasoning under uncertainty.
     \item Choosing operators and membership functions matches problem semantics to inference behavior.
 \end{itemize}
+
+\medskip
+\noindent\textbf{Minimum viable mastery.}
+\begin{itemize}
+    \item Define what is being approximated (truth values, search steps, or function classes) in each soft-computing pillar.
+    \item Explain why operator choices matter (they encode semantics and shape the resulting decision surfaces).
+    \item Connect fuzzy-set primitives to the later inference pipeline (fuzzify, combine, imply, aggregate, defuzzify).
+\end{itemize}
+
+\noindent\textbf{Common pitfalls.}
+\begin{itemize}
+    \item Mixing operator families inconsistently across a pipeline and then debugging symptoms at the end.
+    \item Treating ``soft'' as a license to skip validation: soft methods still require measurable objectives and checks.
+    \item Ignoring scaling and units when defining universes and membership functions.
+\end{itemize}
 \end{tcolorbox}
 
 \begin{tcolorbox}[summarybox,title={Exercises and lab ideas}]
@@ -497,6 +512,9 @@ In intelligent control systems, such as automotive braking, fuzzy logic allows t
     \item Stress-test a key hyperparameter or design choice discussed here and report the effect on validation performance or stability.
     \item Re-derive one core equation or update rule by hand and check it numerically against your implementation.
 \end{itemize}
+
+\medskip
+\noindent\textbf{If you are skipping ahead.} When you reach \Crefrange{chap:fuzzysets}{chap:fuzzyinference}, keep the operator choices explicit and consistent. Many formatting and interpretation problems later come from hidden operator defaults.
 \end{tcolorbox}
 
 \paragraph{Where we head next.} \Crefrange{chap:fuzzysets}{chap:fuzzyinference} develop the thermostat running example end-to-end: \Cref{chap:fuzzysets} builds membership functions, \Cref{chap:fuzzyrelations} moves information between universes via relations, and \Cref{chap:fuzzyinference} assembles full inference and defuzzification.

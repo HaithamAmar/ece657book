@@ -681,6 +681,21 @@ The choice of composition operator therefore follows a practical rule: begin wit
     \item Multiple preimages require aggregation (e.g., \(\sup\) over inverse mappings with a chosen t\hyp{}norm).
     \item Clear notation and figures (domains, mappings) prevent ambiguity in fuzzy transformations.
 \end{itemize}
+
+\medskip
+\noindent\textbf{Minimum viable mastery.}
+\begin{itemize}
+    \item Given \(y=f(x)\), compute \(\mu_Y(y)\) via inverse mappings and a chosen aggregation rule.
+    \item State when the mapping is one-to-one vs.\ many-to-one and how that changes the computation.
+    \item Track domain restrictions explicitly so transformed sets respect feasibility (e.g., square-root domains).
+\end{itemize}
+
+\noindent\textbf{Common pitfalls.}
+\begin{itemize}
+    \item Dropping multi-preimage cases and silently producing overconfident outputs.
+    \item Hiding domain restrictions, leading to membership mass on invalid regions.
+    \item Mixing notations for \(T\), \(\sup\), and complements across examples (hard to audit later).
+\end{itemize}
 \end{tcolorbox}
 
 \begin{tcolorbox}[summarybox,title={Exercises and lab ideas}]
@@ -689,6 +704,9 @@ The choice of composition operator therefore follows a practical rule: begin wit
     \item Stress-test a key hyperparameter or design choice discussed here and report the effect on validation performance or stability.
     \item Re-derive one core equation or update rule by hand and check it numerically against your implementation.
 \end{itemize}
+
+\medskip
+\noindent\textbf{If you are skipping ahead.} The extension principle is the bookkeeping layer for the full inference pipeline. When you reach \Cref{chap:fuzzyinference}, every ``rule output'' is an instance of the same transfer-and-aggregate pattern.
 \end{tcolorbox}
 
 \paragraph{Where we head next.} In \Cref{chap:fuzzyinference}, each rule induces a fuzzy relation on (input \(\times\) output); sup-$T$ composition and projection compute the implied output set before aggregation and defuzzification. That chapter uses the same defaults (max--min with the standard complement), as summarized in \crefrange{eq:antecedent_min}{eq:output_aggregation}.

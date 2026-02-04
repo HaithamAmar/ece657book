@@ -194,6 +194,21 @@ For the thermostat example, Mamdani rules (``IF error is Cold AND rate is Fallin
     \item Aggregation and defuzzification (e.g., centroid) produce crisp outputs from fuzzy rule bases.
     \item Design choices (operators, shapes) trade interpretability and control smoothness.
 \end{itemize}
+
+\medskip
+\noindent\textbf{Minimum viable mastery.}
+\begin{itemize}
+    \item For a rule base, compute firing strengths, apply implication, aggregate consequents, and compute a centroid output.
+    \item Explain the Mamdani vs.\ Sugeno/TSK tradeoff (interpretability vs.\ efficiency/tunability).
+    \item Treat operator choice as part of the specification and keep it consistent across examples and implementations.
+\end{itemize}
+
+\noindent\textbf{Common pitfalls.}
+\begin{itemize}
+    \item Defining memberships on incompatible scales (inputs never trigger, or everything triggers).
+    \item Writing many redundant rules and then tuning symptoms rather than consolidating the rule base.
+    \item Comparing controllers without stating operators, defuzzification, and evaluation protocol.
+\end{itemize}
 \end{tcolorbox}
 
 \begin{tcolorbox}[summarybox,title={Exercises and lab ideas}]
@@ -202,6 +217,9 @@ For the thermostat example, Mamdani rules (``IF error is Cold AND rate is Fallin
     \item Build a Sugeno/TSK variant of the same controller and compare outputs to the Mamdani version under identical test trajectories.
     \item Evaluate different defuzzification methods (centroid, weighted average, max membership) on a toy rule base and quantify the steady-state error they induce.
 \end{itemize}
+
+\medskip
+\noindent\textbf{If you are skipping ahead.} When you reach \Cref{chap:evo}, keep this chapter's audit instinct: log your design choices. Evolutionary and fuzzy systems both invite silent degrees of freedom that only become visible with disciplined reporting.
 \end{tcolorbox}
 
 \paragraph{Where we head next.} \Cref{chap:evo} moves from fuzzy controllers to evolutionary computing, where population-based search and optimization heuristics provide another pillar of soft computing.

@@ -199,6 +199,15 @@ One practical variant is to run multiple filter sizes in parallel (for example \
 
 Before 2012, neural networks were often dismissed in many academic circles due to their poor performance on large-scale problems and the dominance of other methods such as Support Vector Machines (SVMs). The sentiment was that neural networks were "fancy" but not practical or well-understood.
 
+\begin{tcolorbox}[summarybox,title={Historical note: why deep learning became practical}]
+\begin{itemize}
+    \item \textbf{Data:} large labeled datasets made high-capacity models measurable rather than speculative.
+    \item \textbf{Compute:} GPUs turned convolution and backprop into an engineering workflow instead of a theoretical bottleneck.
+    \item \textbf{Architectures:} locality and weight sharing made vision models scale without an explosion in parameters.
+    \item \textbf{Optimization details:} better activations, initialization, regularization, and training hygiene narrowed the gap between a good idea and a working model.
+\end{itemize}
+\end{tcolorbox}
+
 \paragraph{SVM geometry refresher.} The classical soft-margin picture views an SVM as balancing a wide margin against slack variables \(\xi_i\) that widen the feasible tube so that mislabeled points incur linear penalties instead of rendering the optimization infeasible. The geometric intuition is to maximize the margin while tolerating limited violations. This highlights why SVMs were attractive when data were scarce; the hinge-loss curves in \Cref{chap:supervised} supply the loss-level view of the same trade-off.
 
 \paragraph{Stack depth versus receptive field.} Stacking identical \(3\times3\) filters still grows the effective receptive field: each stage wraps a thicker box around the original pixels, which explains why deep-but-narrow CNNs can capture wide spatial context without enormous kernels even when individual kernels remain small.
@@ -415,6 +424,21 @@ This omits batching, convolution strides, and optimizer detail but highlights th
     \item Batch normalization, dropout, and optimizer choice strongly influence training stability and generalization.
     \item Stacking small kernels expands the effective receptive field across depth.
 \end{itemize}
+
+\medskip
+\noindent\textbf{Minimum viable mastery.}
+\begin{itemize}
+    \item Given \((n,f,s,p)\), compute output shapes and parameter counts for a convolutional block.
+    \item Explain equivariance vs.\ invariance and how stride/pooling/padding affect each.
+    \item Describe what batch normalization and dropout do during training and how they change behavior at evaluation time.
+\end{itemize}
+
+\noindent\textbf{Common pitfalls.}
+\begin{itemize}
+    \item Letting shape bookkeeping drift (mismatched padding/stride) until the first dense layer fails.
+    \item Forgetting train/eval mode for batchnorm/dropout, producing misleading validation curves.
+    \item Treating pooling as mandatory or always beneficial; in some tasks, stride-2 convolutions or anti-aliasing are better choices.
+\end{itemize}
 \end{tcolorbox}
 
 \begin{tcolorbox}[summarybox,title={Exercises and lab ideas}]
@@ -424,6 +448,9 @@ This omits batching, convolution strides, and optimizer detail but highlights th
     \item Equivariance sanity check: translate an image and confirm intermediate feature maps translate accordingly.
     \item Train two depth-10 CNNs on a tiny dataset: one plain, one with identity skips; compare convergence and accuracy.
 \end{itemize}
+
+\medskip
+\noindent\textbf{If you are skipping ahead.} The optimization and regularization knobs here reappear almost unchanged in sequence models. When you reach \Cref{chap:rnn} and \Cref{chap:transformers}, the main new difficulty is dependency structure, not loss minimization.
 \end{tcolorbox}
 
 \medskip

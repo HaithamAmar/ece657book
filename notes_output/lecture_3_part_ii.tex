@@ -359,10 +359,18 @@ Conceptually, nothing new happens when you go from two neurons to many layers: i
 \end{itemize}
 
 \begin{tcolorbox}[summarybox,title={Key takeaways}]
+\textbf{Minimum viable mastery}
 \begin{itemize}
     \item Training is a loop: define a forward computation, define a scalar performance, then use derivatives to update parameters.
     \item Hard thresholds break the gradient story; smooth activations (e.g., sigmoid) restore informative derivatives.
     \item The two-neuron derivation already contains the reusable ``local error'' pattern that scales to deep networks.
+\end{itemize}
+\medskip
+\textbf{Common pitfalls}
+\begin{itemize}
+    \item Trying to differentiate through discontinuities (step functions) and then ``patching'' gradients by hand.
+    \item Losing the chain rule in bookkeeping: cache intermediate values and reuse them consistently.
+    \item Confusing notation: distinguish pre-activation vs.\ activation, and keep shapes explicit when batching.
 \end{itemize}
 \end{tcolorbox}
 
@@ -373,6 +381,8 @@ Conceptually, nothing new happens when you go from two neurons to many layers: i
     \item \textbf{Step vs.\ sigmoid:} Replace the smooth activation with a hard threshold and observe what breaks when you try to compute updates via derivatives.
     \item \textbf{XOR with two hidden units:} Train a tiny MLP on XOR and plot its decision regions; note sensitivity to initialization and step size.
 \end{itemize}
+\medskip
+\noindent\textbf{If you are skipping ahead.} Be able to read a forward graph and a backward recursion: local derivatives, cached activations, and a scalar loss driving parameter updates. That is exactly what \Cref{chap:backprop} scales up.
 \end{tcolorbox}
 
 \medskip

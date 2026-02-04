@@ -1115,6 +1115,21 @@ When two or more objectives conflict, we seek a set of Pareto-optimal solutions 
     \item Constraint handling is part of the design: penalties, repair, and feasibility-first selection each encode a different notion of ``acceptable'' search.
     \item Multi-objective search replaces a single optimum with a Pareto front; NSGA-II is a standard baseline for producing diverse trade-offs.
 \end{itemize}
+
+\medskip
+\noindent\textbf{Minimum viable mastery.}
+\begin{itemize}
+    \item Specify genotype, variation operators, selection scheme, and termination criteria in a way that is reproducible.
+    \item Distinguish constraint handling strategies and justify the one used (penalty vs.\ repair vs.\ feasibility rules).
+    \item Report multi-objective results as trade-offs (Pareto fronts) rather than as a single scalar score.
+\end{itemize}
+
+\noindent\textbf{Common pitfalls.}
+\begin{itemize}
+    \item Over-interpreting a single stochastic run (report multiple seeds and dispersion).
+    \item Using aggressive selection and low mutation, collapsing diversity and getting stuck in deceptive basins.
+    \item Comparing algorithms without matching evaluation budget (fitness calls), constraint handling, and stopping rules.
+\end{itemize}
 \end{tcolorbox}
 
 \begin{tcolorbox}[summarybox,title={Exercises and lab ideas}]
@@ -1123,6 +1138,9 @@ When two or more objectives conflict, we seek a set of Pareto-optimal solutions 
     \item Prototype a CMA-ES or Differential Evolution solver on a noisy Rosenbrock function and compare convergence traces against the canonical GA.
     \item Build a tiny GP to rediscover a closed-form expression (e.g., $y = x^3 + x$) from samples; report how often crossover/mutation produce valid programs.
 \end{itemize}
+
+\medskip
+\noindent\textbf{If you are skipping ahead.} This chapter is largely self-contained. If you revisit earlier model chapters, keep the common thread in mind: every method still requires a clear objective, a diagnostic that detects failure, and a reporting protocol that survives replication.
 \end{tcolorbox}
 
 \paragraph{Where we head next.} This chapter closes the soft-computing thread. For background refreshers, \Cref{app:linear_systems} summarizes linear-systems prerequisites and \Cref{app:kernels} collects kernel-method context used earlier in the book.

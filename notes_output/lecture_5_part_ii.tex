@@ -38,7 +38,7 @@ These issues historically limited the practical use of recurrent networks, leadi
 General recurrent networks can behave unpredictably because feedback can create cycles that oscillate or amplify small differences. Hopfield's key move was to restrict the architecture so the dynamics become a descent process: symmetric weights and no self-loops allow the network to be assigned an energy function that decreases under asynchronous updates. That single design choice turns ``recurrent'' from ``chaotic'' into ``stable memory.''
 \end{tcolorbox}
 
-\subsection{Hopfield's Breakthrough (1982)}
+\subsection{Hopfield's breakthrough}
 \label{sec:hopfield_hopfield_s_breakthrough_1982}
 
 In 1982, John Hopfield introduced a special class of recurrent networks that overcame many of these challenges by imposing specific constraints on the network architecture and weights \citep{Hopfield1982}. The key insights were:
@@ -528,6 +528,21 @@ However, its practical use is limited by low storage capacity and sensitivity to
     \item Asynchronous updates monotonically reduce the Lyapunov energy, ensuring convergence to a fixed point.
     \item Capacity is limited and spurious attractors appear as the load \(P/N\) grows; treat Hopfield nets primarily as associative memories.
 \end{itemize}
+
+\medskip
+\noindent\textbf{Minimum viable mastery.}
+\begin{itemize}
+    \item Write the energy \(E(s)\), state the symmetry condition \(W=W^\top\) with zero diagonal, and explain why asynchronous updates decrease \(E\).
+    \item Distinguish true memories from spurious attractors, and connect failure modes to loading \(P/N\) and correlation among stored patterns.
+    \item Use overlap and energy traces as diagnostics when demonstrating recall under corruption.
+\end{itemize}
+
+\noindent\textbf{Common pitfalls.}
+\begin{itemize}
+    \item Using asymmetric weights or nonzero self-connections (breaks the standard energy argument).
+    \item Overloading the network and expecting clean recall (spurious minima dominate).
+    \item Reporting a single cherry-picked recall trajectory instead of multiple corruption levels and multiple stored sets.
+\end{itemize}
 \end{tcolorbox}
 
 \begin{tcolorbox}[summarybox,title={Exercises and lab ideas}]
@@ -536,6 +551,9 @@ However, its practical use is limited by low storage capacity and sensitivity to
     \item Stress-test a key hyperparameter or design choice discussed here and report the effect on validation performance or stability.
     \item Re-derive one core equation or update rule by hand and check it numerically against your implementation.
 \end{itemize}
+
+\medskip
+\noindent\textbf{If you are skipping ahead.} The key transferable idea is the combination of a state update rule with a scalar quantity that tracks progress (energy, loss, or validation curves). That mindset carries into deep training in \Crefrange{chap:mlp}{chap:cnn}.
 \end{tcolorbox}
 
 \medskip

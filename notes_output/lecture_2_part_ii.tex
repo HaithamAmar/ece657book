@@ -516,10 +516,18 @@ Use class or sample weights (e.g., inverse prevalence) inside the loss, and pick
 
 \FloatBarrier
 \begin{tcolorbox}[summarybox,title={Key takeaways}]
+\textbf{Minimum viable mastery}
 \begin{itemize}
     \item Logistic regression models class probability with a sigmoid link and maximizes a concave log\hyp{}likelihood (equivalently minimizes a convex negative log\hyp{}likelihood); there is no closed-form solution.
     \item ROC and PR curves provide threshold\hyp{}independent evaluation; AUC summarizes performance.
     \item Proper feature scaling and regularization improve convergence and generalization.
+\end{itemize}
+\medskip
+\textbf{Common pitfalls}
+\begin{itemize}
+    \item Confusing scores with decisions: choose thresholds using costs and PR/ROC trade-offs, not a default 0.5.
+    \item Reporting only AUC: check calibration when probabilities are used downstream (reliability/ECE).
+    \item Letting imbalance hide failure: stratify splits and audit per-class performance, not only overall accuracy.
 \end{itemize}
 \end{tcolorbox}
 
@@ -548,6 +556,8 @@ Threshold tuning & Choose a decision threshold based on PR curves or cost ratios
     \item Stress-test a key hyperparameter or design choice discussed here and report the effect on validation performance or stability.
     \item Re-derive one core equation or update rule by hand and check it numerically against your implementation.
 \end{itemize}
+\medskip
+\noindent\textbf{If you are skipping ahead.} Keep three ideas: (i) Bayes-optimal boundaries are a conceptual anchor, (ii) logistic regression is the first practical probabilistic baseline, and (iii) evaluation depends on costs, thresholds, and calibration. Those recur throughout the neural and deployment chapters.
 \end{tcolorbox}
 
 \medskip

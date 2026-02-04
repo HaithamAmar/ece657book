@@ -16,6 +16,13 @@
 Representation learning as a contract between data and objective---when you train on co-occurrence, you get both useful structure (analogies, clusters) and the biases present in the corpus.
 \end{tcolorbox}
 
+\begin{tcolorbox}[summarybox,title={Chapter map (core vs.\ detours)}]
+\begin{itemize}
+    \item \textbf{Core path:} distributional hypothesis $\rightarrow$ Word2Vec (CBOW/skip-gram) objectives $\rightarrow$ negative sampling $\rightarrow$ how to evaluate embeddings (analogies, neighbors) $\rightarrow$ how embeddings plug into RNNs/Transformers.
+    \item \textbf{Optional detours:} deeper objective derivations, historical notes, and the deployment/fairness discussion (important when embeddings are used in decisions rather than as a pure feature extractor).
+\end{itemize}
+\end{tcolorbox}
+
 \subsection{Context and Motivation}
 \label{sec:nlp_context_and_motivation}
 
@@ -620,6 +627,21 @@ In this chapter, we concluded the derivation of word embedding models based on c
     \item Analogies and clustering arise from linear geometry in the embedding space.
     \item Bias in corpora propagates to embeddings; debiasing and careful datasets are important.
 \end{itemize}
+
+\medskip
+\noindent\textbf{Minimum viable mastery.}
+\begin{itemize}
+    \item Explain how co-occurrence statistics induce geometry (dot products, cosine similarity, and linear offsets).
+    \item Distinguish local-window objectives from global matrix factorization views and state when each is a good approximation.
+    \item Identify at least one concrete bias test and one mitigation strategy, and articulate their limitations.
+\end{itemize}
+
+\noindent\textbf{Common pitfalls.}
+\begin{itemize}
+    \item Treating nearest neighbors as meaning rather than distributional evidence (polysemy and domain shift).
+    \item Over-interpreting analogy accuracy without controlling for frequency and evaluation set construction.
+    \item Applying debiasing as a post-hoc patch while ignoring corpus composition and labeling practices.
+\end{itemize}
 \end{tcolorbox}
 
 \begin{tcolorbox}[summarybox,title={Exercises and lab ideas}]
@@ -628,6 +650,9 @@ In this chapter, we concluded the derivation of word embedding models based on c
     \item Stress-test a key hyperparameter or design choice discussed here and report the effect on validation performance or stability.
     \item Re-derive one core equation or update rule by hand and check it numerically against your implementation.
 \end{itemize}
+
+\medskip
+\noindent\textbf{If you are skipping ahead.} You can treat embeddings as feature vectors for any downstream model, but the audit mindset matters: log your corpus choices and evaluation splits so that later ``fairness'' or calibration conclusions have context.
 \end{tcolorbox}
 
 \medskip

@@ -455,11 +455,19 @@ A single perceptron makes one global, all-or-none decision: one hyperplane, one 
 \end{tcolorbox}
 
 \begin{tcolorbox}[summarybox,title={Key takeaways}]
+\textbf{Minimum viable mastery}
 \begin{itemize}
     \item The perceptron and Adaline turn threshold units into trainable classifiers by updating weights from data.
     \item Geometry (hyperplanes and signed distance) explains predictions and update magnitude.
     \item Logistic regression keeps the same linear score but learns calibrated probabilities via a smooth loss (\Cref{chap:logistic}).
     \item Nonlinear tasks (e.g., XOR) require multilayer networks and backpropagation (\Crefrange{chap:mlp}{chap:backprop}).
+\end{itemize}
+\medskip
+\textbf{Common pitfalls}
+\begin{itemize}
+    \item Expecting a single hyperplane to solve nonconvex structure: without hidden units you cannot express XOR-like logic.
+    \item Mixing label codings (\(\{-1,+1\}\) vs.\ \(\{0,1\}\)) without adjusting the loss/update formulas.
+    \item Treating linear scores as probabilities: calibrated probabilities require a probabilistic model/loss (e.g., logistic).
 \end{itemize}
 \end{tcolorbox}
 
@@ -469,6 +477,8 @@ A single perceptron makes one global, all-or-none decision: one hyperplane, one 
     \item Stress-test a key hyperparameter or design choice discussed here and report the effect on validation performance or stability.
     \item Re-derive one core equation or update rule by hand and check it numerically against your implementation.
 \end{itemize}
+\medskip
+\noindent\textbf{If you are skipping ahead.} Remember the two bottlenecks that force multilayer networks: expressivity (nonlinear boundaries) and trainability (smooth gradients). \Cref{chap:mlp} and \Cref{chap:backprop} assume these motivations.
 \end{tcolorbox}
 
 \medskip

@@ -695,14 +695,6 @@ Most modern SOM libraries expose both modes, so choose the update rule that matc
     \label{fig:lec5-early-stopping}
 \end{figure}
 
-\begin{tcolorbox}[summarybox,title={Key takeaways}]
-\begin{itemize}
-    \item SOMs perform topology-preserving vector quantization on a discrete lattice.
-    \item A shrinking neighborhood and decaying learning rate drive coarse-to-fine organization.
-    \item U-Matrices and quantization/topographic errors are practical diagnostics for convergence.
-\end{itemize}
-\end{tcolorbox}
-
 \subsection{Limitations of Winner-Takes-All and Motivation for Cooperation}
 \label{sec:som_limitations_of_winner_takes_all_and_motivation_for_cooperation}
 
@@ -1216,6 +1208,30 @@ When the SOM lattice is collapsed to a single point, the algorithm reduces to a 
 \end{itemize}
 Tracking both metrics reveals whether the neighborhood decay is too slow (over-smoothing) or too aggressive (tearing the topology). \Cref{chap:supervised}'s learning-curve plots suggest early\hyp{}stopping heuristics: stop when QE/TE on a validation split flatten.
 
+\begin{tcolorbox}[summarybox,title={Key takeaways}]
+\begin{itemize}
+    \item SOMs perform topology-preserving vector quantization on a discrete lattice.
+    \item A shrinking neighborhood and decaying learning rate drive coarse-to-fine organization.
+    \item U-Matrices and quantization/topographic errors are practical diagnostics for convergence.
+\end{itemize}
+
+\medskip
+\noindent\textbf{Minimum viable mastery.}
+\begin{itemize}
+    \item Given \(x\), compute the BMU, write the weight update \(w_i \leftarrow w_i + \alpha(t) h_{ci}(t) (x-w_i)\), and explain how \(h_{ci}\) enforces cooperation.
+    \item Interpret a U-Matrix and component planes as diagnostics for neighborhood structure and convergence.
+    \item Choose sensible \(\alpha(t)\) and \(\sigma(t)\) schedules and justify them using QE/TE validation curves.
+\end{itemize}
+
+\noindent\textbf{Common pitfalls.}
+\begin{itemize}
+    \item Using a map that is too small or a neighborhood decay that is too aggressive (tearing the topology).
+    \item Skipping input normalization, causing prototypes to track scale rather than structure.
+    \item Treating lattice distance as a true metric in data space (SOM topology is approximate, not exact geometry).
+    \item Over-interpreting a single run without checking QE/TE plateaus and sensitivity to initialization.
+\end{itemize}
+\end{tcolorbox}
+
 \begin{tcolorbox}[summarybox,title={Exercises and lab ideas}]
 \begin{itemize}
     \item Train a \(10\times 10\) SOM on handwritten digits (MNIST) and plot component planes; report quantization/topographic errors as training progresses.
@@ -1223,6 +1239,9 @@ Tracking both metrics reveals whether the neighborhood decay is too slow (over-s
     \item Visualize the effect of annealing schedules by freezing the learning rate and neighborhood radius at different epochs and observing the resulting U-Matrix.
     \item Compare SOM prototypes to K-means centers on the same dataset; sweep \((\sigma(t))\) schedules and map sizes; report QE/TE and a trustworthiness@k measure.
 \end{itemize}
+
+\medskip
+\noindent\textbf{If you are skipping ahead.} Keep the notion of an ``energy landscape'' from this chapter in mind: \Cref{chap:hopfield} makes that idea explicit with a Lyapunov energy, and later attention models (\Cref{chap:transformers}) can be read as learned, content-based neighborhood selection.
 \end{tcolorbox}
 
 \medskip

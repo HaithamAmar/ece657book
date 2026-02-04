@@ -582,10 +582,18 @@ This contrast helps position the data-driven chapters that follow, where the sys
 
 \medskip
 \begin{tcolorbox}[summarybox,title={Key takeaways}]
+\textbf{Minimum viable mastery}
 \begin{itemize}
     \item Symbolic integration is a compact example of a goal-driven system: represent state, apply meaning-preserving actions, and verify outcomes.
     \item Safe moves encode guaranteed transformations; heuristic moves trade certainty for coverage and require backtracking discipline.
     \item Residual checks act as a crisp goal test: differentiate a candidate and measure whether it agrees with the original integrand on the declared domain.
+\end{itemize}
+\medskip
+\textbf{Common pitfalls}
+\begin{itemize}
+    \item Losing the system-level point in calculus detail: always name the state, action, heuristic, and goal test.
+    \item Ignoring domains/branches: substitutions can shrink domains, introduce branch cuts, and invalidate a ``correct'' algebraic rewrite.
+    \item Treating heuristics as proofs: heuristic branches must be verified (or backtracked), not trusted.
 \end{itemize}
 \end{tcolorbox}
 
@@ -595,6 +603,8 @@ This contrast helps position the data-driven chapters that follow, where the sys
     \item Stress-test a key hyperparameter or design choice discussed here and report the effect on validation performance or stability.
     \item Re-derive one core equation or update rule by hand and check it numerically against your implementation.
 \end{itemize}
+\medskip
+\noindent\textbf{If you are skipping ahead.} Keep the pattern vocabulary: safe vs.\ heuristic moves, explicit budgets, and residual/verification checks. The data-driven chapters reuse the same discipline (objective, constraints, and validation) even though the ``actions'' become parameter updates.
 \end{tcolorbox}
 
 \medskip

@@ -646,10 +646,18 @@ While the Wiener filter provides a closed-form solution, in practice the statist
 In \Cref{chap:som}, we move from supervised RBF models to unsupervised, self-organizing methods. Self-organizing maps (SOMs) and Hopfield-style associative memory discover structure in data (clusters, manifolds) without labeled targets, complementing the supervised architectures covered so far.
 
 \begin{tcolorbox}[summarybox,title={Key takeaways}]
+\textbf{Minimum viable mastery}
 \begin{itemize}
     \item Localized Gaussian bases + linear readout give an interpretable nonlinear model; center/width/regularization choices control bias--variance.
     \item Primal RBFNs and kernel ridge regression are two views of the same estimator (full vs. truncated basis); regularization cures conditioning.
     \item RBFNs bridge learned-feature models (MLPs) and kernel methods (SVMs/GPs); they form a strong baseline for localized decision boundaries.
+\end{itemize}
+\medskip
+\textbf{Common pitfalls}
+\begin{itemize}
+    \item Width selection: too small memorizes, too large collapses to a linear model; validate \(\sigma\) and \(\lambda\).
+    \item Poor conditioning: without regularization, solves can be numerically unstable even when the math is correct.
+    \item Confusing kernels with bases: a full kernel method scales differently than a truncated (primal) basis expansion.
 \end{itemize}
 \end{tcolorbox}
 
@@ -660,6 +668,8 @@ In \Cref{chap:som}, we move from supervised RBF models to unsupervised, self-org
     \item Show that setting centers at all data points with \(\lambda>0\) yields the same predictions as kernel ridge regression; derive the relationship between \(\mathbf{w}\) and \(\boldsymbol{\alpha}\).
     \item Plot how validation error moves with \((M,\sigma,\lambda)\) and link the curves back to the bias--variance discussion in \Cref{chap:supervised}.
 \end{itemize}
+\medskip
+\noindent\textbf{If you are skipping ahead.} Keep the idea that ``nonlinear'' can still be linear-in-parameters once a basis is fixed. That perspective is reused in kernel methods and shows up again when we discuss architectural bias (CNNs) and representation choices.
 \end{tcolorbox}
 
 \medskip

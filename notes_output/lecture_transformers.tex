@@ -489,6 +489,21 @@ Terminology: masked-LM and next-token LM are \emph{self-supervised} (targets der
     \item Practical stability depends on details (pre-LN vs.\ post-LN, optimizer choices, masking, and careful decoding/evaluation).
     \item Architecture choices (encoder/decoder, positions, caching) are not cosmetic: they determine what the model can reuse at inference time.
 \end{itemize}
+
+\medskip
+\noindent\textbf{Minimum viable mastery.}
+\begin{itemize}
+    \item Compute masked attention for a short sequence and explain why the mask enforces causality.
+    \item Explain pre-LN vs.\ post-LN and why residual paths influence optimization stability.
+    \item Describe KV caching and how it changes inference-time cost compared to training-time cost.
+\end{itemize}
+
+\noindent\textbf{Common pitfalls.}
+\begin{itemize}
+    \item Incorrect masking (future leakage) or inconsistent tokenization between train and evaluation.
+    \item Reporting speed or memory without stating context length, batch size, and caching assumptions.
+    \item Treating decoding strategy as an afterthought; greedy, beam, and sampling regimes change observed quality.
+\end{itemize}
 \end{tcolorbox}
 
 \begin{tcolorbox}[summarybox,title={Exercises and lab ideas}]
@@ -499,6 +514,9 @@ Terminology: masked-LM and next-token LM are \emph{self-supervised} (targets der
     \item Fine-tune a base model with RoPE vs.\ ALiBi and evaluate extrapolation to 2\(\times\) the training context.
     \item Implement DPO on a small preference dataset; report win-rates versus the SFT baseline.
 \end{itemize}
+
+\medskip
+\noindent\textbf{If you are skipping ahead.} When reading \Cref{chap:nlp}, keep the encoder/decoder distinction and the causality mask in mind. Many ``mysterious'' metric failures reduce to masking, tokenization, or evaluation protocol.
 \end{tcolorbox}
 
 \medskip

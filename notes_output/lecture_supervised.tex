@@ -594,10 +594,18 @@ Ridge adds \(\lambda\|\boldsymbol{\beta}\|_2^2\) to the objective, shrinking coe
 \noindent The discipline of supervised learning is reusable across models: define a dataset and a hypothesis class, choose an objective (loss plus regularizer), optimize it, and then audit generalization with clean train/validation/test separation. In \Cref{chap:logistic}, we apply this toolkit to classification, where the loss becomes a Bernoulli negative log-likelihood (cross\hyp{}entropy) and the evaluation tools expand (confusion matrices, ROC/PR curves, and calibration).
 
 \begin{tcolorbox}[summarybox,title={Key takeaways}]
+\textbf{Minimum viable mastery}
 \begin{itemize}
     \item Supervised learning chooses a hypothesis class and fits parameters by minimizing empirical risk, then audits generalization on held-out data.
     \item Overfitting is a training success but a deployment failure; regularization and validation protocols are the practical defenses.
     \item Learning curves and bias--variance reasoning are diagnostics: they help decide whether to add data, change capacity, or adjust regularization.
+\end{itemize}
+\medskip
+\textbf{Common pitfalls}
+\begin{itemize}
+    \item Tuning on the test set (or peeking repeatedly) turns the test set into training data.
+    \item Leakage through preprocessing: fit scalers/encoders/imputers on the training split only, then apply to val/test.
+    \item Over-interpreting a single metric: use learning curves and slice audits, not only one headline number.
 \end{itemize}
 \end{tcolorbox}
 
@@ -607,6 +615,8 @@ Ridge adds \(\lambda\|\boldsymbol{\beta}\|_2^2\) to the objective, shrinking coe
     \item Create a controlled overfitting experiment: increase polynomial feature degree or add noisy features, then use learning curves (\Cref{fig:lec1_learning_curves}) to diagnose bias vs.\ variance and decide how much regularization is needed.
     \item Demonstrate a leakage failure mode by fitting preprocessing on the full dataset (incorrect) versus on the training split only (correct); report the difference in test error.
 \end{itemize}
+\medskip
+\noindent\textbf{If you are skipping ahead.} Keep the ERM loop and split hygiene close: model class, loss/regularizer, optimizer, and a clean train/val/test protocol. Those ideas are assumed immediately in \Cref{chap:logistic} and reused throughout the neural chapters.
 \end{tcolorbox}
 
 \medskip

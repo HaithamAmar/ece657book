@@ -432,10 +432,18 @@ Readers arrive with different goals. The roadmap is intentionally a dependency g
 
 \medskip
 \begin{tcolorbox}[summarybox,title={Key takeaways}]
+\textbf{Minimum viable mastery}
 \begin{itemize}
     \item Intelligent systems integrate perception, decision, and action; we study both model\hyp{}based and control\hyp{}based realizations.
     \item The system--machine distinction is mostly about embodiment: intelligent machines are physical instances of intelligent systems.
     \item ``Levels'' are an organizing lens, and meta\hyp{}cognition is treated operationally (self\hyp{}monitoring and bounded self\hyp{}correction), not philosophically.
+\end{itemize}
+\medskip
+\textbf{Common pitfalls}
+\begin{itemize}
+    \item Treating the roadmap as a single linear syllabus rather than a dependency graph of prerequisites.
+    \item Confusing ``probability'' with ``decision'': many later failures come from thresholds and costs, not from modeling.
+    \item Letting notation drift: keep \Cref{app:notation_collisions} close when symbols are reused in different chapters.
 \end{itemize}
 \end{tcolorbox}
 
@@ -445,6 +453,8 @@ Readers arrive with different goals. The roadmap is intentionally a dependency g
     \item For one section of this chapter, rewrite the core definition in your own words and list one concrete failure mode the definition helps you anticipate.
     \item Use \Cref{fig:roadmap} to choose a reading path and write down which two chapters you will skim first (and why).
 \end{itemize}
+\medskip
+\noindent\textbf{If you are skipping ahead.} Keep the operational vocabulary (representation, actions, objective/goal test, and audit/checks) and the roadmap (\Cref{fig:roadmap}) in mind; later chapters assume these as the organizing lens for both symbolic and data-driven tools.
 \end{tcolorbox}
 
 \paragraph{Where we head next.} To make the abstract vocabulary of ``intelligence'' concrete, we start with a deliberately small case study: symbolic integration as transformation search (\Cref{chap:symbolic}). It is a crisp example of a system that decomposes a problem, applies safe rules, branches heuristically, backtracks, and certifies progress or failure with residual checks---capabilities that reappear later, often in data\hyp{}driven form.

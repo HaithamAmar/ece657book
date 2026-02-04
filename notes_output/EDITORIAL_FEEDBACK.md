@@ -77,6 +77,19 @@ Use this file to record editorial feedback as you read the **PDF** and **EPUBs**
 - **Fix applied (pipeline):** unwrap `\begin{adjustbox}{...}...\end{adjustbox}` before Pandoc in `epub_builder/lib/latex.py` (`unwrap_graphics_wrappers`).
 - **Regression check:** `bash notes_output/scripts/run_production_checks.sh` (should be green; OCR of the crop should not find “max width”).
 
+### [2026-02-03] Item: End-of-chapter closure kit (mastery/pitfalls/skip-ahead) + targeted reintegration — DONE
+
+- **Severity:** polish (production value)
+- **Surface:** PDF + Apple EPUB + Kindle EPUB
+- **What changed (source):**
+  - Added consistent `Minimum viable mastery` + `Common pitfalls` inside the existing `Key takeaways` box in all remaining chapters (keeps the required chapter template titles intact).
+  - Added a short `If you are skipping ahead` paragraph inside the existing `Exercises and lab ideas` box (keeps `Where we head next` / `References` order intact).
+  - Relocated Chapter 9 (SOM) `Key takeaways` to the chapter end (before exercises) so the wrap-up is actually a wrap-up.
+  - Reintegrated high-value historical framing with two compact boxes:
+    - `notes_output/lecture_6.tex` (CNNs): why deep learning became practical
+    - `notes_output/lecture_7.tex` (RNNs): from gating to attention
+- **Regression check:** `bash notes_output/scripts/run_production_checks.sh` (should be green; chapter template audit 19/19 PASS).
+
 ### [2026-02-03] Item: Chapters not split into separate EPUB spine items — FIXED
 
 - **Severity:** major
@@ -483,3 +496,90 @@ You correctly isolate offering-specific details here.
 ---
 
 If you want, I can also produce a **redline-style checklist** you can apply mechanically during rearrangement (chapter-order QA + cross-reference QA + notation QA), but the notes above should already give you a clear, concrete editing plan.
+
+
+Yep — **this version is materially stronger** and it fixes several of the coherence risks I flagged earlier.
+
+What I’m reacting to here is the *new front matter + TOC architecture* (explicit Parts, clearer chapter naming, explicit Appendix D “Notation collision index,” and better “reading aids” framing). 
+
+## What you improved (and why it works)
+
+### 1) The book now reads like a designed system, not a pile of chapters
+
+You added explicit **Part structure** (“Foundations and the ERM toolbox,” then “Neural networks, sequence modeling, and NLP,” then fuzzy, then evolutionary). That’s exactly what a reader needs to *feel progress* rather than “topic hopping.” 
+
+### 2) You fixed the biggest earlier issue: Chapter 11’s identity
+
+It’s now titled **“Convolutional Neural Networks and Deep Training Tools”**, which prevents redundancy with “Introduction to Neural Networks.” That’s a big clarity win: the title matches the contents. 
+
+### 3) You added the right “glue”: Notation + reading aids + editorial heuristics
+
+You’ve got:
+
+* a **Notation and Conventions** section that explicitly acknowledges symbol overloads,
+* “Reading Aids,” and
+* an explicit promise of consistency (“edited with four recurring questions…”).
+  That signals editorial discipline and reduces reader anxiety. 
+
+### 4) You implemented the “notation collision index”
+
+Appendix D exists and is referenced as the place where overloads are resolved. That directly addresses a common technical-book failure mode. 
+
+---
+
+## What still needs tightening (high-impact)
+
+### A) Part numbering/label consistency
+
+I see “Part I,” “Part II,” then later “Part IV” (Soft computing) and “Part V” (Evolutionary). That implies a missing **Part III** in the TOC view. Even if it’s only a numbering artifact, readers *will* interpret it as “something missing.” 
+**Fix:** Either renumber or explicitly label the missing Part (even if it’s “Part III: (reserved)” — but better to renumber cleanly).
+
+### B) Scope creep inside a few chapters is still visible from the TOC
+
+Two chapters look like “containers” that may become too broad:
+
+* **Chapter 12** (RNNs + also word representation discussion is inside it),
+* **Chapter 14** (embeddings + bias + deployment checklist + contextual transformers).
+  This can still work — but only if each has a **strong internal spine** and you’re ruthless about what’s “core” vs “reference.” 
+  **Fix:** Put a short **“Chapter map” box** at the start of 12 and 14:
+* “Core path (must read)” vs “Detours (optional)”.
+
+### C) Make “Key Takeaways” global, not only at the end of Part V
+
+I see “Key Takeaways” as a standalone entry near the end of the Evolutionary section. 
+If you want the *book* to feel engineered, either:
+
+* add “Key takeaways” at the end of **every Part**, or
+* rename the final one to “Book-wide takeaways” so it doesn’t feel inconsistent.
+
+### D) Rearrangement hazard: cross-chapter bridge promises must be enforced everywhere
+
+Your Chapter 1 intro and “roadmap” are strong, but rearrangement breaks books when:
+
+* “see Chapter X” becomes wrong,
+* figure references drift,
+* notation reuse changes.
+  You already have the infrastructure to prevent this (Notation notes + Appendix D). 
+  **Fix:** Add a **1-page “Rearrangement QA checklist”** in Appendix C or D:
+* “Every cross-reference validated”
+* “Figure/table numbers regenerated”
+* “Notation collisions rechecked”
+* “Chapter opening: assumed prerequisites updated”
+  This is the practical move that separates “draft” from “publishable.”
+
+---
+
+## One concrete “next edit” that will noticeably raise quality
+
+Add a *standardized end-of-chapter closure block* (same format every time):
+
+1. **Minimum mastery (3–7 bullets)**
+2. **Common pitfalls (3–6 bullets)**
+3. **Where we go next (2–5 sentences, explicit chapter name)**
+4. **If you’re skipping ahead… (one paragraph: what you must know)**
+
+Your “Reading Aids” already promises this kind of navigability — now make it real everywhere. 
+
+---
+
+If by “how about this” you meant something more specific (e.g., a particular chapter you just rearranged), tell me **which chapter numbers changed** and I’ll sanity-check the *narrative continuity* and *dependency logic* for that exact rearrangement.

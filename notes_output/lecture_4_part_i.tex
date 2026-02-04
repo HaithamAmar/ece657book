@@ -890,10 +890,18 @@ While some activation functions are inspired by biological neurons, others are c
 This closes the core backpropagation story for MLPs. Next we summarize practical stability considerations and the key takeaways that guide real training.
 
     \begin{tcolorbox}[summarybox,title={Key takeaways}]
+    \textbf{Minimum viable mastery}
     \begin{itemize}
         \item MLP training relies on stable optimization: proper initialization, learning\hyp{}rate schedules, and normalization help.
         \item Regularization (weight decay, dropout) reduces overfitting; validation curves guide early stopping.
-        \item Despite power, MLPs face local minima and sensitivity to hyperparameters.
+        \item Despite power, MLPs remain sensitive to hyperparameters, so debugging and audits matter.
+    \end{itemize}
+    \medskip
+    \textbf{Common pitfalls}
+    \begin{itemize}
+        \item Silent shape mistakes: mismatched dimensions can yield plausible but wrong gradients.
+        \item Learning-rate pathologies: too large diverges, too small stalls; diagnose with train/val curves.
+        \item Overfitting by optimization: improving training loss without validation gains is a signal to stop or regularize.
     \end{itemize}
     \end{tcolorbox}
 
@@ -912,6 +920,8 @@ This closes the core backpropagation story for MLPs. Next we summarize practical
         \item Re-derive one core equation or update rule by hand and check it numerically against your implementation.
     \end{itemize}
     \end{tcolorbox}
+    \medskip
+    \noindent\textbf{If you are skipping ahead.} Keep one practical habit: do a gradient check on a tiny case before scaling up. That discipline mirrors residual checks in \Cref{chap:symbolic} and prevents most wasted training runs in later deep chapters.
 
     \medskip
     \paragraph{Where we head next.} \Cref{chap:rbf} introduces radial basis function networks, an alternative nonlinear model where the hidden layer is a (mostly) fixed basis expansion and the output layer is trained by a linear solve. It is a useful contrast to end-to-end backpropagation.

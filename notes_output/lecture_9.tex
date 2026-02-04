@@ -1135,6 +1135,21 @@ Practical tip: libraries such as \texttt{scikit-fuzzy} provide a tested \texttt{
     \item Support/core and set operations (intersection/union/complement) generalize crisp logic.
     \item Visualizing membership and operations clarifies design of fuzzy controllers.
 \end{itemize}
+
+\medskip
+\noindent\textbf{Minimum viable mastery.}
+\begin{itemize}
+    \item Construct a universe of discourse, define overlapping memberships, and compute degrees for concrete inputs.
+    \item Apply basic operations (min/max, product, complements) and predict how the choice changes shape.
+    \item Translate a design intent (``smooth'', ``conservative'', ``aggressive'') into membership overlap and operator choices.
+\end{itemize}
+
+\noindent\textbf{Common pitfalls.}
+\begin{itemize}
+    \item Setting memberships without checking units/scales, producing labels that never activate or always saturate.
+    \item Using too many overlapping labels without justification (hard to tune, hard to interpret).
+    \item Tuning by aesthetics alone instead of checking downstream sensitivity and stability.
+\end{itemize}
 \end{tcolorbox}
 
 \begin{tcolorbox}[summarybox,title={Exercises and lab ideas}]
@@ -1144,6 +1159,9 @@ Practical tip: libraries such as \texttt{scikit-fuzzy} provide a tested \texttt{
     \item Write memberships for the thermostat error/rate variables (triangular or trapezoidal) and evaluate them at a few inputs.
     \item Plot overlapping memberships using the provided snippet; adjust parameters to see how overlap changes.
 \end{itemize}
+
+\medskip
+\noindent\textbf{If you are skipping ahead.} The rest of the fuzzy chapters build on these primitives. If you find later rule outputs unstable, the first place to revisit is the universe scaling and overlap choices here.
 \end{tcolorbox}
 
 \paragraph{Where we head next.} In \Cref{chap:fuzzyrelations}, we move from fuzzification/defuzzification mechanics to system design patterns and adaptive fuzzy controllers; the relation operators and projections there tie these set-level tools into control and hybrid schemes.

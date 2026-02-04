@@ -16,10 +16,10 @@
 Add recurrence, then train it by unrolling time and reusing the backprop machinery from \Cref{chap:backprop}.
 \end{tcolorbox}
 
-\begin{tcolorbox}[summarybox,title={How to read this chapter}]
+\begin{tcolorbox}[summarybox,title={Chapter map (core vs.\ detours)}]
 \begin{itemize}
-    \item \textbf{Core thread (RNNs):} state and unrolling $\rightarrow$ parameter sharing $\rightarrow$ BPTT $\rightarrow$ stabilization (clipping, gating motivation) $\rightarrow$ word representations as sequence inputs.
-    \item \textbf{Optional reminders:} brief notes on padding and autoencoders appear later; skim them if you are here primarily for RNN dynamics and training.
+    \item \textbf{Core path:} why memory is needed $\rightarrow$ state + parameter sharing $\rightarrow$ unrolling + BPTT $\rightarrow$ stability (vanishing/exploding, clipping) $\rightarrow$ gating (GRU/LSTM).
+    \item \textbf{Optional detours:} quick padding/autoencoder reminders (for encoder intuition), and the later word-representation section (useful if you want the full bridge into \Cref{chap:nlp}).
 \end{itemize}
 \end{tcolorbox}
 
@@ -845,6 +845,10 @@ Mis-handled pads (loss on padded tokens); forgetting to detach hidden state acro
 
 \paragraph{Attention mechanisms.} Even with gating, long sequences can challenge fixed-size hidden states. Attention augments the decoder with a content-based lookup into the encoder states, as visualized in \Cref{fig:lec7-attention}. Bright entries correspond to encoder positions that most influence each generated token.
 
+\begin{tcolorbox}[summarybox,title={Historical note: from gating to attention}]
+Gating (LSTM/GRU) made long-range gradient flow workable by creating additive memory paths. Attention takes a different route: rather than forcing all context into a single state, it learns a soft retrieval rule over past representations. This shift explains why modern sequence models often prefer attention when long context and parallel training matter most, while gated RNNs remain competitive for streaming and low-latency settings.
+\end{tcolorbox}
+
 \begin{figure}[t]
     \centering
     \begin{tikzpicture}
@@ -1265,6 +1269,21 @@ All gates are elementwise; $\sigma$ denotes the logistic sigmoid and $\odot$ the
     \item Embeddings provide dense, learned word features; RNN hidden states encode context.
     \item Stability tools (clipping, gating, attention) enable long-range dependency modeling.
 \end{itemize}
+
+\medskip
+\noindent\textbf{Minimum viable mastery.}
+\begin{itemize}
+    \item Define the next-token objective and relate cross-entropy, perplexity, and log-likelihood.
+    \item Explain BPTT, truncation, and masking for variable-length sequences.
+    \item Describe why gates help (information and gradient flow) and when attention is a practical alternative.
+\end{itemize}
+
+\noindent\textbf{Common pitfalls.}
+\begin{itemize}
+    \item Train/inference mismatch (teacher forcing without a decoding strategy that reflects it).
+    \item Unstable gradients on long sequences (no clipping, poor initialization, or overly large learning rates).
+    \item Incorrect padding masks that leak future tokens or contaminate the loss.
+\end{itemize}
 \end{tcolorbox}
 
 \begin{tcolorbox}[summarybox,title={Exercises and lab ideas}]
@@ -1274,6 +1293,9 @@ All gates are elementwise; $\sigma$ denotes the logistic sigmoid and $\odot$ the
     \item Empirically sweep \(\|\mathbf{W}_{hh}\|\) (spectral scaling) and reproduce vanishing/exploding behavior.
     \item Implement the masked, truncated-BPTT loop above and verify that pads do not affect the loss.
 \end{itemize}
+
+\medskip
+\noindent\textbf{If you are skipping ahead.} Keep the loss/perplexity diagnostics and masking discipline from this chapter. \Cref{chap:transformers} changes the architecture, but the same evaluation traps and data-leakage risks remain.
 \end{tcolorbox}
 
 \medskip

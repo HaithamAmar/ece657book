@@ -1,0 +1,47 @@
+% Appendix: Rearrangement QA checklist (editorial safeguard)
+\section{Rearrangement QA Checklist}\label{app:rearrangement_qa}
+
+\noindent This appendix is a practical guardrail for any future reordering, splitting, merging, or rewriting of chapters/sections. The goal is to keep the book coherent as a dependency graph while ensuring every cross-reference and numbering-dependent statement remains correct in both PDF and EPUB builds.
+
+\begin{tcolorbox}[summarybox,title={When to run this checklist}]
+\begin{itemize}
+    \item You reordered chapters or moved a section across chapters.
+    \item You inserted/removed a major block (derivation, figure suite, table, appendix).
+    \item You edited labels, captions, or any prose that mentions a numbered object.
+    \item You changed the Part structure or TOC grouping.
+\end{itemize}
+\end{tcolorbox}
+
+\subsection*{A. Cross-references and numbering}
+\begin{itemize}
+    \item \textbf{No hardcoded numbers:} search for prose patterns like ``Chapter~7'', ``Figure~12'', ``Table~4'', ``Appendix~B'' and replace with references (e.g., \texttt{\textbackslash Cref\{chap:...\}}) where appropriate.
+    \item \textbf{Every label resolves:} confirm there are no dangling reference targets (e.g., \texttt{\textbackslash ref\{...\}}, \texttt{\textbackslash eqref\{...\}}, \texttt{\textbackslash Cref\{...\}}).
+    \item \textbf{Correct targets:} spot-check that links land on the intended object (especially in reading-path routing lists and ``Where we head next'' bridges).
+    \item \textbf{Equation numbering hygiene:} any equation you want numbered must use a numbered environment (e.g., \texttt{equation}/\texttt{align}) with a matching \texttt{\textbackslash label\{eq:...\}}.
+\end{itemize}
+
+\subsection*{B. Continuity and prerequisites}
+\begin{itemize}
+    \item \textbf{Chapter openings:} verify the first page of each chapter states the correct prerequisite ideas (not necessarily all prerequisites, but the essential ones).
+    \item \textbf{Chapter closures:} confirm ``Where we head next'' points to the correct next chapter(s) and does not refer to moved material.
+    \item \textbf{Reading paths:} update any explicit reading-path lists or roadmap explanations so they still route correctly after rearrangement.
+\end{itemize}
+
+\subsection*{C. Notation collisions}
+\begin{itemize}
+    \item \textbf{Collision index updated:} if you introduced a new meaning for an existing symbol, add it to the notation collision index (\Cref{app:notation_collisions}).
+    \item \textbf{Local disambiguation:} ensure the first use in a chapter makes the meaning explicit when a symbol is overloaded (argument vs.\ no-argument patterns, typography, or a brief notation note).
+\end{itemize}
+
+\subsection*{D. EPUB-specific checks}
+\begin{itemize}
+    \item \textbf{TOC structure:} confirm Parts and chapters appear as distinct navigation units and the hierarchy is meaningful.
+    \item \textbf{Figure/table fit:} spot-check any moved wide figures/tables in Apple Books and Kindle Previewer; reflow can change when content moves.
+    \item \textbf{Link integrity:} confirm internal links (chapter/figure/equation jumps) work in the EPUB reader, not only in PDF.
+\end{itemize}
+
+\subsection*{E. Regression commands (authoritative)}
+\begin{itemize}
+    \item Run: \verb|bash notes_output/scripts/run_production_checks.sh|
+    \item If failures occur, fix source or pipeline before proceeding; do not ``paper over'' broken numbering in prose.
+\end{itemize}

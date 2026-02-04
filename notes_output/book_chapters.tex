@@ -12,6 +12,14 @@
 \input{lecture_2_part_i.tex}
 \input{lecture_supervised.tex}
 \input{lecture_2_part_ii.tex}
+\begin{tcolorbox}[summarybox,title={Part I takeaways}]
+\begin{itemize}
+  \item Intelligence as engineered self-correction: represent state, choose actions, verify outcomes.
+  \item Two recurring toolkits: safe vs.\ heuristic moves (search) and ERM (model--loss--optimize--audit).
+  \item Classification as a probabilistic decision problem: Bayes optimality and calibrated scores precede thresholds.
+  \item Reading paths are a dependency graph: later chapters reuse diagnostics, notations, and audit habits introduced here.
+\end{itemize}
+\end{tcolorbox}
 \part*{Part II: Neural networks, sequence modeling, and NLP}
 \addcontentsline{toc}{part}{Part II: Neural networks, sequence modeling, and NLP}
 \input{lecture_3_part_i.tex}
@@ -25,12 +33,38 @@
 % Modern sequence modeling beyond RNNs
 \input{lecture_transformers.tex}
 \input{lecture_8_part_i.tex}
-\part*{Part IV: Soft computing and fuzzy reasoning}
-\addcontentsline{toc}{part}{Part IV: Soft computing and fuzzy reasoning}
+\begin{tcolorbox}[summarybox,title={Part II takeaways}]
+\begin{itemize}
+  \item Representation and training are coupled: expressivity is only useful if gradients can reach the parameters.
+  \item Depth and inductive bias trade parameters for structure (MLPs vs.\ CNNs vs.\ recurrence vs.\ attention).
+  \item Stability tools recur across architectures: initialization, normalization, regularization, and validation-driven stopping.
+  \item Sequence models turn memory into computation: unrolling, masking, and caching define what information can flow.
+\end{itemize}
+\end{tcolorbox}
+% Former Part III (NLP applications) was collapsed into Part II; renumber Parts
+% here to keep the TOC continuous and avoid the appearance of a missing Part.
+\part*{Part III: Soft computing and fuzzy reasoning}
+\addcontentsline{toc}{part}{Part III: Soft computing and fuzzy reasoning}
 \input{lecture_8_part_ii.tex}
 \input{lecture_9.tex}
 \input{lecture_10_part_i.tex}
 \input{lecture_10_part_ii.tex}
-\part*{Part V: Evolutionary optimization}
-\addcontentsline{toc}{part}{Part V: Evolutionary optimization}
+\begin{tcolorbox}[summarybox,title={Part III takeaways}]
+\begin{itemize}
+  \item Soft computing makes uncertainty explicit: degrees of membership and rule-based aggregation.
+  \item Interpretability is a design variable: rules, operators, and defuzzification encode assumptions.
+  \item Debugging is empirical: test edge cases, inspect rule firing, and validate monotonicity and scale.
+  \item The same audit mindset applies: define failure modes up front and track them as you tune operators and rules.
+\end{itemize}
+\end{tcolorbox}
+\part*{Part IV: Evolutionary optimization}
+\addcontentsline{toc}{part}{Part IV: Evolutionary optimization}
 \input{lecture_11.tex}
+\begin{tcolorbox}[summarybox,title={Part IV takeaways}]
+\begin{itemize}
+  \item Evolutionary search is an optimization tool when gradients are unavailable or unreliable.
+  \item Operators (selection, crossover, mutation) encode exploration vs.\ exploitation; tune them against variance across runs.
+  \item Constraints and multi-objectives are first-class: define feasibility and trade-offs before optimizing.
+  \item Report reproducibly: seeds, multiple runs, and distributions matter more than a single best trajectory.
+\end{itemize}
+\end{tcolorbox}
