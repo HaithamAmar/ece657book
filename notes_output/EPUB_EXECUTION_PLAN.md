@@ -63,7 +63,7 @@ This plan is the **forward-looking backlog** for taking the current EPUB pipelin
    - Acceptance: reader feels continuity implicitly; no “Continuity thread:” headings; no new crossref issues.
 
 3. **Risk & audit boxes**
-   - Add consistent 3–6 bullet “Risk & audit” boxes to selected chapters beyond Chapter 14 (per editorial direction).
+   - Add consistent 3–6 bullet “Risk & audit” boxes to selected chapters beyond the NLP/deployment chapter (per editorial direction).
    - Acceptance: consistent styling and tone; renders correctly in EPUB.
 
 ## Work Package 5 — Automation & regression hardening (P1)

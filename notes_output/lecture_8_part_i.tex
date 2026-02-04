@@ -1,4 +1,4 @@
-% Chapter 14
+% Chapter 13
 \section{Neural Network Applications in Natural Language Processing}\label{chap:nlp}
 \graphicspath{{assets/lec8/}{assets/lec14/}}
 
@@ -10,7 +10,7 @@
 \end{itemize}
 \end{tcolorbox}
 
-\Cref{chap:transformers} showed how modern sequence models route information through attention. This chapter steps back one level to a foundational ingredient shared by RNNs and Transformers: embeddings that turn discrete tokens into geometry. The roadmap in \Cref{fig:roadmap} places this as the application/deployment tail of the neural strand.
+\Cref{chap:rnn} framed language as prediction under context: the model must assign probability to the next token using a compact state that summarizes the past. To make that workable in practice, we need representations that turn discrete symbols into geometry. This chapter builds those representations (embeddings and their training objectives) and shows how to evaluate and audit them; \Cref{chap:transformers} then uses the same ingredients inside attention-based architectures for long-context modeling and efficient deployment. The roadmap in \Cref{fig:roadmap} places this as the application/deployment tail of the neural strand.
 
 \begin{tcolorbox}[summarybox,title={Design motif}]
 Representation learning as a contract between data and objective---when you train on co-occurrence, you get both useful structure (analogies, clusters) and the biases present in the corpus.
@@ -26,7 +26,7 @@ Representation learning as a contract between data and objective---when you trai
 \subsection{Context and Motivation}
 \label{sec:nlp_context_and_motivation}
 
-In this chapter, we conclude our discussion on neural networks by focusing on their applications in natural language processing (NLP). Previously, we introduced the concept of representing words as inputs to a neural network, typically encoded as one-hot vectors, and obtaining as output a feature representation of these words. This feature representation captures semantic and syntactic properties of words in a continuous vector space.
+In this chapter, we focus on neural methods for natural language processing (NLP) through the lens of representation learning. Previously, we introduced the idea of representing words as inputs to a neural network, typically encoded as one-hot vectors, and obtaining as output a feature representation of these words. This feature representation captures semantic and syntactic properties of words in a continuous vector space.
 
 A classic example illustrating the power of such representations is the analogy:
 \[
@@ -128,7 +128,7 @@ This approach tends to perform better on infrequent words and captures more deta
 
 Let the vocabulary size be \(V\), and embedding dimension be \(d\). Define the embedding matrix \(\mathbf{W} \in \mathbb{R}^{V \times d}\), where the \(i\)-th row \(\mathbf{v}_i\) is the embedding vector for word \(w_i\). \emph{Convention: we treat embeddings as \textbf{rows}; one-hot words index rows via $\mathbf{x}\mathbf{W}$ (row lookup).}
 
-% Chapter 14 (continued)
+% Chapter 13 (continued)
 
 \subsection{Neural Network Architecture for Word Embeddings}
 \label{sec:nlp_neural_network_architecture_for_word_embeddings}
@@ -216,7 +216,7 @@ Note that the input vectors \(\mathbf{x}_{t+j}\) are extremely sparse (one-hot),
 
 The matrix \(\mathbf{W}\) can be interpreted as a lookup table: the \(i\)-th row is the embedding for word \(w_i\), and \(\mathbf{x}\mathbf{W}\) (with one-hot \(\mathbf{x}\)) selects that row directly.
 
-% Chapter 14 (continued)
+% Chapter 13 (continued)
 
 \subsection{Word Embeddings: Continuous Bag of Words (CBOW) and skip-gram models}
 \label{sec:nlp_word_embeddings_continuous_bag_of_words_cbow_and_skip_gram_models}
@@ -656,7 +656,7 @@ In this chapter, we concluded the derivation of word embedding models based on c
 \end{tcolorbox}
 
 \medskip
-\paragraph{Where we head next.} \Cref{chap:softcomp} steps away from neural embeddings to review the broader soft-computing toolkit (fuzzy logic, evolutionary ideas) that we previewed in the roadmap in \Cref{chap:intro}; keep the fairness discussion in mind as we compare alternative paradigms for reasoning under uncertainty.
+\paragraph{Where we head next.} \Cref{chap:transformers} scales the sequence toolkit by replacing recurrence with attention, so context can be accessed directly rather than compressed into a single state. Keep the same audit instincts as you read: tokenization choices, masking correctness, and evaluation protocol matter as much as architecture. After that, \Cref{chap:softcomp} pivots to soft computing (fuzzy logic and evolutionary ideas) as an alternative paradigm for reasoning under uncertainty.
 
 \paragraph{References.} Full citations for works mentioned in this chapter appear in the book-wide bibliography.
 \nocite{Mikolov2013,Pennington2014,LevyGoldberg2014,Devlin2019}

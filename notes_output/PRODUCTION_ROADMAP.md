@@ -25,7 +25,7 @@ Non-goals:
 ### Must-have (release blockers)
 - No missing figures (including TikZ failures or missing media in the EPUB zip).
 - All cross-references read naturally:
-  - “Chapter 14”, “Section 3.7”, “Figure 11”, “Table 4”, “Appendix B”, “(4.1)”, etc.
+  - “Chapter X”, “Section 3.7”, “Figure 11”, “Table 4”, “Appendix B”, “(4.1)”, etc.
 - Equation numbering is consistent with the PDF conventions:
   - If it’s meant to be numbered/referenced, it must be an `equation` (or equivalent) with a stable `\\label{eq:...}`.
   - “Display-ish inline math” must not clip.
@@ -180,4 +180,3 @@ These are “editorial integrity” tasks that make a premium book feel premium:
   - enforce invariants,
   - and catch missing assets.
 - Avoid hardcoding numbers in the pipeline (counters should come from `.aux` + stable labels).
-

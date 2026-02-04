@@ -7,15 +7,17 @@ Structure & logic
 - Chapter progression and rationale:
   1. **Chapter 1** (`lecture_1_intro.tex`): framing and roadmap; the “Perspective” box (“ideas that survived multiple paradigm shifts”) lives in the preface (`preface.tex`) right before “How to use this book”.
   2. **Chapters 2–4** (`lecture_2_part_i.tex`, `lecture_supervised.tex`, `lecture_2_part_ii.tex`): problem-solving strategies, supervised learning foundations, and logistic regression as a bridge into neural network training.
-  3. **Chapters 5–10** (`lecture_3_part_i.tex` … `lecture_5_part_ii.tex`): neural networks (MLPs/backprop), RBFNs, then unsupervised learning (SOMs) and Hopfield networks.
-  4. **Chapters 11–13** (`lecture_6.tex`, `lecture_7.tex`, `lecture_transformers.tex`): CNNs + deep training tools, RNNs (incl. LSTM/GRU), and Transformers.
-  5. **Chapters 14–19** (`lecture_8_part_i.tex` … `lecture_11.tex`): NLP applications, soft computing and fuzzy systems, and evolutionary computing, closing with broader reflections. Chapters reuse the “recurring questions” motif: core idea, caution, visual anchor, and broader context.
+  3. **Part I: Foundations and the ERM toolbox (Ch 1–4)**: how to read the book, then the two “evergreen” toolkits (safe vs. heuristic reasoning; ERM/MLE/MAP + diagnostics) that later chapters reuse.
+  4. **Part II: Neural networks, sequence modeling, and NLP (Ch 5–14)**: perceptrons/MLPs/backprop and training hygiene, then architectural inductive biases (RBF/CNN/RNN), then applied NLP and attention-based sequence modeling.
+  5. **Part III: Soft computing and fuzzy reasoning (Ch 15–18)**: fuzzy sets/relations/inference and hybrid reasoning patterns, grounded in worked control-style examples.
+  6. **Part IV: Evolutionary optimization (Ch 19)**: population-based search when gradients are unavailable/unreliable, with reproducibility and budget-aware reporting as first-class concerns.
 - Print output is `ece657_notes.pdf`; reflowable ebook output is an EPUB built from `ece657_ebook.tex` (see “Reflowable ebook (Kindle/Apple)” below). For publishing checks, use the generated regression bundle under `notes_output/artifacts/release_checks/` (built by `bash notes_output/scripts/run_release_checks.sh`).
 - Production-quality plan (what to do next, in priority order): `notes_output/PRODUCTION_ROADMAP.md`.
 - Setup + release operator docs:
   - `notes_output/SETUP_CHECKLIST.md`
   - `notes_output/RELEASE_PLAYBOOK.md`
   - `notes_output/TEST_MATRIX.md`
+- Internal workflow artifacts/checklists (not part of the published book): `notes_output/_archive/internal_workflow/`
 - Chapter house template (required structure for every chapter): `notes_output/CHAPTER_TEMPLATE.md`.
 - Citation policy + bib hygiene:
   - `notes_output/CITATION_POLICY.md`

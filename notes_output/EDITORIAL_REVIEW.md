@@ -1,23 +1,21 @@
 ## Editorial review: flow, structure, and proposed changes (no source files modified)
 
+**Status:** archived. This document predates the current Part structure and Chapter 13/14 ordering (NLP now precedes Transformers). Keep it only for historical context; do not execute the renumbering plan below. For the current order, see `notes_output/book_chapters.tex` and `notes_output/PART_II_EDITORIAL_REVIEW.md`.
+
 This review evaluates the document’s narrative flow and coherence across lectures/chapters and proposes a concrete, minimal set of edits to improve organization and consistency. All recommendations are actionable but are collected here without changing any originals, per request.
 
 ### Important constraints (as provided)
 - Filenames do not determine order; each top-level `\section{...}` is a chapter.
-- The Transformers chapter is fixed as Chapter 13 and must remain so.
-- Recommendations below therefore treat per‑section chapter numbering as authoritative and avoid relying on file names.
+- Chapter numbering is by include order in `notes_output/book_chapters.tex`; avoid hardcoding chapter numbers in prose.
+- Recommendations below therefore treat per-section numbering as authoritative and prefer `\Cref{chap:...}` over literal “Chapter 13/14”.
 
 ### Executive summary
 - The content breadth is strong and well‑developed, with consistent pedagogy (Learning Outcomes, summary boxes, rich figures).
 - **Correction**: Previous reports of a "duplicate MLP chapter" in `lecture_8_part_i.tex` were incorrect. That file contains the **Word Embeddings** chapter ("Neural Network Applications in NLP"), which is distinct and valuable.
-- **Flow Issues**:
-  - The current chapter numbering in comments (e.g., `% Chapter 14` for Embeddings) conflicts with the requirement to have Transformers as Chapter 13.
-  - There is a numbering gap if Transformers is 13 and Soft Computing starts at 15.
-  - The sequence of Deep Learning (11) -> RNNs (12) -> Transformers (13) leaves no room for Embeddings before Transformers unless we renumber.
-- **Recommended actions**:
-  1) **Renumber Chapters 8–12**: Shift the sequence to place Embeddings at Chapter 12 (immediately before Transformers) and compact the earlier chapters (SOMs, Hopfield, Deep Learning, RNNs) to fill slots 8–11.
-  2) **Renumber Soft Computing**: Start the Soft Computing sequence at Chapter 14 (immediately after Transformers) to close the gap.
-  3) **Fix Main File**: Move `hyperref` and `bookmark` packages to the end of the preamble to fix compilation errors.
+- **Flow Issues (historical, since resolved):**
+  - Chapter numbering in comments and drafts drifted from the include order during early part/TOC experiments.
+  - Some early drafts left an apparent “gap” between the neural strand and the soft-computing strand.
+- **Recommended actions (historical):** the renumbering plan below is preserved for traceability only and should not be executed on the current manuscript.
 
 ---
 

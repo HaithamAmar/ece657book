@@ -19,8 +19,8 @@ Part II currently includes:
 6. Chapter 10: `lecture_5_part_ii.tex` — *Hopfield Networks: Introduction and Context*
 7. Chapter 11: `lecture_6.tex` — (CNN chapter; verify title in build output / ToC)
 8. Chapter 12: `lecture_7.tex` — (RNN/sequence chapter; verify title)
-9. Chapter 13: `lecture_transformers.tex` — *Transformers: Attention-Based Sequence Modeling*
-10. Chapter 14: `lecture_8_part_i.tex` — *Neural Network Applications in Natural Language Processing*
+9. Chapter 13: `lecture_8_part_i.tex` — *Neural Network Applications in Natural Language Processing*
+10. Chapter 14: `lecture_transformers.tex` — *Transformers: Attention-Based Sequence Modeling*
 
 ## Arc coherence (Part-level)
 
@@ -30,7 +30,7 @@ Part II currently includes:
 ### What currently risks feeling “nonlinear”
 - The placement of **RBFNs** (Chapter 8) between backprop and unsupervised chapters can read like a detour unless the chapter endings/introductions explicitly “close the loop” (what it adds, why it sits here).
 - **Hopfield** (energy-based) can feel like a second detour unless the transition frames it as a complementary lens on recurrence/representation, not “another model.”
-- Chapter 14 being separated as its own part previously reinforced “application mode”; now that it is in Part II, it should open with a short bridge from Transformers/sequence modeling so it feels earned.
+- The NLP chapter is now within Part II; it should open with a short bridge from the sequence material (RNNs) and close by setting up attention/Transformers as the scaling step.
 
 ## Chapter-level linearity checklists (editorial)
 
@@ -95,17 +95,17 @@ Below are “shape checks” per chapter: what the chapter should feel like, wha
 **Potential structural improvements**
 - Move “failure modes” (vanishing/exploding) earlier so LSTM/GRU feel like solutions to a pain the reader already felt.
 
-### Chapter 13 — Transformers
+### Chapter 13 — NLP applications
+**Desired shape**
+- Problem framing → embeddings as representation learning → objectives (CBOW/skip-gram, negative sampling) → evaluation + audits → deployment checklist.
+**Transition target**
+- Land the reader in Chapter 14 with “why attention scales this” without turning it into a marketing pitch.
+
+### Chapter 14 — Transformers
 **Desired shape**
 - Attention as a replacement for recurrence bottlenecks → self-attention → positional encoding → training/inference differences → scaling + practical tooling (PEFT) → what it enables downstream.
-**Transition target**
-- Land the reader in Chapter 14 with “what this buys you in NLP” without turning it into a marketing pitch.
-
-### Chapter 14 — NLP applications
-**Desired shape**
-- Problem framing → representations (static → contextual) → the minimal toolkit to build an NLP system → evaluation + risk/audit for deployment.
 **Watch-outs**
-- Since this is now within Part II, open with a short bridge from Chapter 13 (sequence modeling → language) so it doesn’t feel like a new book.
+- Ensure the bridge does not assume the reader just came from embeddings; keep a short “what attention buys you” recap and point back to the NLP chapter when needed.
 
 ## Recommendations (next actionable edits)
 
@@ -113,4 +113,3 @@ Below are “shape checks” per chapter: what the chapter should feel like, wha
 2. Do a full read of **Chapter 11** and propose a concrete section order (basic → deeper) with minimal cutting/pasting.
 3. Do a full read of **Chapter 12** and similarly propose/execute a section order pass.
 4. Re-audit Part II ToC after edits to ensure heading hierarchy is meaningful and uncluttered.
-

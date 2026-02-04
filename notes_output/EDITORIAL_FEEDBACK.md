@@ -90,6 +90,18 @@ Use this file to record editorial feedback as you read the **PDF** and **EPUBs**
     - `notes_output/lecture_7.tex` (RNNs): from gating to attention
 - **Regression check:** `bash notes_output/scripts/run_production_checks.sh` (should be green; chapter template audit 19/19 PASS).
 
+### [2026-02-04] Item: Swap Chapter 13/14 ordering (NLP before Transformers) — DONE
+
+- **Severity:** major (continuity + TOC meaning)
+- **Surface:** PDF + Apple EPUB + Kindle EPUB
+- **What changed (source):**
+  - Reordered Part II includes so `chap:nlp` (NLP applications) comes before `chap:transformers`.
+  - Updated chapter bridges and reading paths so forward pointers remain forward:
+    - `notes_output/lecture_1_intro.tex` (reading paths)
+    - `notes_output/lecture_7.tex` / `notes_output/lecture_8_part_i.tex` / `notes_output/lecture_transformers.tex` (Where we head next)
+    - `notes_output/lecture_8_part_ii.tex` and `notes_output/lecture_11.tex` (strand references)
+- **Regression check:** `bash notes_output/scripts/run_production_checks.sh` (chapter audit PASS; EPUB audits + EPUBCheck OK).
+
 ### [2026-02-03] Item: Chapters not split into separate EPUB spine items — FIXED
 
 - **Severity:** major
@@ -162,10 +174,9 @@ You explicitly position the book as a stand-alone, rigorous-but-readable “grad
 * Add a **Part structure** (even if you keep chapter numbering). Right now the ToC reads like a continuous list; the mental model becomes clearer if you group:
 
   * Part I: Foundations + ERM toolbox (Ch 1–4)
-  * Part II: Neural networks → deep learning → sequences (Ch 5–13)
-  * Part III: NLP applications (Ch 14)
-  * Part IV: Soft computing + fuzzy reasoning (Ch 15–18)
-  * Part V: Evolutionary optimization (Ch 19)
+  * Part II: Neural networks → sequences → NLP → attention (Ch 5–14)
+  * Part III: Soft computing + fuzzy reasoning (Ch 15–18)
+  * Part IV: Evolutionary optimization (Ch 19)
 
 ### 2) Your recurring chapter template is a major strength — enforce it aggressively
 
@@ -203,7 +214,7 @@ You also add local “Notation notes” (e.g., σ as sigmoid vs σ² as variance
 
 ### 5) Responsible deployment + bias sections: keep them integrated, not siloed
 
-Your Chapter 14 bias checks and deployment checklist are excellent because they are **practical, audit-oriented, and concrete**. 
+Your NLP chapter’s bias checks and deployment checklist are excellent because they are **practical, audit-oriented, and concrete**.
 
 **What to improve**
 
@@ -491,7 +502,7 @@ You correctly isolate offering-specific details here.
 **P1 (big quality lift)**
 5) Add a one-page notation collision index (symbol → meaning by chapter). 
 6) Make one running dataset/example persist across 3→4→6→7 (continuity). 
-7) Add mini “risk & audit” boxes beyond Chapter 14 so safety isn’t siloed. 
+7) Add mini “risk & audit” boxes beyond the NLP/deployment chapter so safety isn’t siloed.
 
 ---
 
@@ -539,7 +550,7 @@ I see “Part I,” “Part II,” then later “Part IV” (Soft computing) and
 Two chapters look like “containers” that may become too broad:
 
 * **Chapter 12** (RNNs + also word representation discussion is inside it),
-* **Chapter 14** (embeddings + bias + deployment checklist + contextual transformers).
+* **NLP chapter** (embeddings + bias + deployment checklist + contextual transformers).
   This can still work — but only if each has a **strong internal spine** and you’re ruthless about what’s “core” vs “reference.” 
   **Fix:** Put a short **“Chapter map” box** at the start of 12 and 14:
 * “Core path (must read)” vs “Detours (optional)”.

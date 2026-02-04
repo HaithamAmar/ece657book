@@ -14,7 +14,7 @@
 We revisit a smart thermostat that regulates a room using two linguistic inputs (temperature error and rate of change) and one output (heater power). This compact scenario lets us instantiate membership functions (\Cref{chap:fuzzysets}), transform them between universes (\Cref{chap:fuzzyrelations}), and assemble complete inference systems (\Cref{chap:fuzzyinference}) without inventing new notation each time.
 \end{tcolorbox}
 
-Building on \Cref{chap:nlp}, which concluded the neural (biologically inspired) strand with modern language models and their practical pitfalls, we now pivot to the behavioral and evolutionary strand previewed in the roadmap in \Cref{chap:intro}: soft computing. The roadmap figure (\Cref{fig:roadmap}) marks this transition explicitly.
+After completing the neural strand's sequence toolchain---from recurrence in \Cref{chap:rnn} to embeddings and deployment audits in \Cref{chap:nlp} and attention-based modeling in \Cref{chap:transformers}---we pivot to the behavioral and evolutionary strand previewed in \Cref{chap:intro}: soft computing. The roadmap figure (\Cref{fig:roadmap}) marks this transition explicitly.
 
 \begin{tcolorbox}[summarybox,title={Design motif}]
 When precision is costly or ill-defined, make the vagueness explicit and keep the system auditable: represent linguistic concepts with membership functions, reason with operator choices you can explain, and tune those choices with optimization rather than brittle rules.
@@ -126,7 +126,7 @@ For example, reading $24.5^\circ$C from a thermometer with $\pm 1^\circ$C resolu
 \subsection{Soft Computing: Motivation and Overview}
 \label{sec:softcomp_soft_computing_motivation_and_overview}
 
-Soft computing is not a monolithic framework but rather a coalition of distinct methods unified by a common goal: to exploit tolerance for imprecision, uncertainty, and partial truth to achieve tractability, robustness, and low solution cost. Unlike traditional hard computing, which demands exact inputs and produces precise outputs, soft computing embraces the inherent vagueness of many real-world problems, particularly those involving human reasoning and perception. The constituents mirror the probabilistic and connectionist tools from \Crefrange{chap:supervised}{chap:nlp} but favour interpretability and rule-based reasoning:
+Soft computing is not a monolithic framework but rather a coalition of distinct methods unified by a common goal: to exploit tolerance for imprecision, uncertainty, and partial truth to achieve tractability, robustness, and low solution cost. Unlike traditional hard computing, which demands exact inputs and produces precise outputs, soft computing embraces the inherent vagueness of many real-world problems, particularly those involving human reasoning and perception. The constituents mirror the probabilistic and connectionist tools from \Crefrange{chap:supervised}{chap:transformers} but favour interpretability and rule-based reasoning:
 \begin{itemize}
     \item \textbf{Fuzzy Logic:} Captures human knowledge and reasoning expressed in linguistic terms, allowing approximate reasoning with imprecise concepts.
     \item \textbf{Neurocomputing (Neural Networks):} Learning from data and pattern recognition; hybrids such as ANFIS \citep{Jang1993} blend fuzzy rules with trainable neural layers.

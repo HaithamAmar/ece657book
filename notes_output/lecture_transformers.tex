@@ -1,4 +1,4 @@
-%Chapter 13
+% Chapter 14
 \section{Transformers: Attention-Based Sequence Modeling}\label{chap:transformers}
 
 \begin{tcolorbox}[summarybox,title={Learning Outcomes}]
@@ -516,10 +516,10 @@ Terminology: masked-LM and next-token LM are \emph{self-supervised} (targets der
 \end{itemize}
 
 \medskip
-\noindent\textbf{If you are skipping ahead.} When reading \Cref{chap:nlp}, keep the encoder/decoder distinction and the causality mask in mind. Many ``mysterious'' metric failures reduce to masking, tokenization, or evaluation protocol.
+\noindent\textbf{If you are skipping ahead.} After this chapter, the book pivots away from neural sequence models, so treat this chapter as the last stop for masking discipline and evaluation hygiene. If you need the embedding objectives and bias/deployment checklist, see \Cref{chap:nlp}.
 \end{tcolorbox}
 
 \medskip
-\paragraph{Where we head next.} \Cref{chap:nlp} applies these architectures to language modeling and embeddings (tokenizers, weight tying, perplexity), and covers downstream metrics (BLEU/ROUGE/AUPRC) and bias/calibration checks. Keep the encoder/decoder distinctions in mind as we map them to concrete NLP pipelines; \Cref{chap:rnn} contrasts BPTT and sequential latency, and \Cref{chap:cnn} notes that ViTs \citep{Dosovitskiy2021} inherit convolutional translation equivariance only after patchification plus position encodings.
+\paragraph{Where we head next.} \Cref{chap:softcomp} steps away from neural sequence models to review the broader soft-computing toolkit (fuzzy logic and evolutionary ideas) previewed in \Cref{chap:intro}. If you want the embedding objectives and deployment/audit checklist that pair naturally with language modeling, see \Cref{chap:nlp}.
 
 \paragraph{References.} Full citations for works mentioned in this chapter appear in the book-wide bibliography.

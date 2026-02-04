@@ -108,7 +108,7 @@ Areas to improve
 
 Add a small paragraph on truncated BPTT and sequence packing/masking in practice.
 Provide a checklist of common RNN failure modes (exposure bias, covariate shift, hidden‑state collapse) and links to mitigations (already partially covered).
-Chapter 13 — Transformers
+Chapter 13 — Neural NLP Applications (embeddings)
 Strengths
 
 Concise, correct formulas for scaled dot‑product attention and multi‑head attention; masking and pretraining objectives noted; P‑efficient adaptation and long‑context strategies get brief coverage.
@@ -117,7 +117,7 @@ Areas to improve
 Expand positional encoding: add a sentence on RoPE/ALiBi and why they extrapolate.
 Add a short “pre‑LN vs post‑LN” stability note and canonical block layout (you hint at LayerNorm; a diagram would help).
 A 1‑page “Transformer block pseudocode” would elevate this chapter’s practical value.
-Chapter 14 — Neural NLP Applications (embeddings)
+Chapter 14 — Transformers
 Strengths
 
 Thorough CBOW/Skip‑gram derivations; negative sampling and PMI connection are well presented; good caution on bias and practical mitigation checklist.
