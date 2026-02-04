@@ -119,6 +119,20 @@ Use this file to record editorial feedback as you read the **PDF** and **EPUBs**
 - **Fix applied (pipeline/CSS):** added explicit `h1..h6` sizing in `epub_builder/epub.css` (Pandoc embeds this into `EPUB/styles/stylesheet1.css`).
 - **Regression check:** open the EPUB in Apple Books and verify `h3` chapter headers and `h4` section headers are visually larger than paragraphs.
 
+### [2026-02-04] Item: TOC front matter nested under a redundant title entry; OPF missing publisher/rights/stable identifier — FIXED
+
+- **Severity:** major (navigation + store-grade metadata)
+- **Surface:** Apple EPUB + Kindle EPUB
+- **What you see (symptom):**
+  - The EPUB TOC nests Preface/Acknowledgments/Notation under a top-level entry that repeats the book title, making the TOC harder to scan.
+  - The OPF metadata omitted `dc:publisher` / `dc:rights` and used a build-variant UUID identifier rather than the stable `book_metadata.json` identifier.
+- **Fix applied (pipeline):**
+  - `epub_builder/build.py`: pass `identifier`, `publisher`, and `rights` from `notes_output/book_metadata.json` to Pandoc so they appear as `dc:*` in `EPUB/content.opf`.
+  - `epub_builder/lib/epub.py`: flatten the title-wrapper TOC item so Preface/Acknowledgments/Notation become top-level TOC entries.
+- **Regression check:** `bash notes_output/scripts/run_production_checks.sh`, then confirm:
+  - `EPUB/nav.xhtml` starts with Preface/Acknowledgments/Notation as top-level items.
+  - `EPUB/content.opf` contains `dc:identifier` equal to `book_metadata.json:identifier` and includes `dc:publisher` + `dc:rights`.
+
 ### [2026-02-03] Item: “Transformation toolkit” table caption mislabeled + table rendering risk — FIXED
 
 - **Severity:** major

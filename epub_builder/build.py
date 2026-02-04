@@ -461,6 +461,9 @@ def build(*, variant: str, clean: bool, skip_validate: bool) -> Path:
     title = metadata.get("title")
     creator = metadata.get("creator") or metadata.get("author")
     lang = metadata.get("language")
+    identifier = metadata.get("identifier")
+    publisher = metadata.get("publisher")
+    rights = metadata.get("rights")
     cover_val = metadata.get("cover_image") or metadata.get("cover") or metadata.get("cover-image")
     if title:
         pandoc_metadata_args += ["-M", f"title={title}"]
@@ -468,6 +471,13 @@ def build(*, variant: str, clean: bool, skip_validate: bool) -> Path:
         pandoc_metadata_args += ["-M", f"author={creator}"]
     if lang:
         pandoc_metadata_args += ["-M", f"lang={lang}"]
+    # Publishing metadata: keep stable across rebuilds for consistency in readers and stores.
+    if identifier:
+        pandoc_metadata_args += ["-M", f"identifier={identifier}"]
+    if publisher:
+        pandoc_metadata_args += ["-M", f"publisher={publisher}"]
+    if rights:
+        pandoc_metadata_args += ["-M", f"rights={rights}"]
 
     cover_path: Path | None = None
     if cover_val:

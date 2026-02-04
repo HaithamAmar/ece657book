@@ -36,6 +36,64 @@ def _strip_empty_spans_from_nav(nav: str) -> str:
     return nav2
 
 
+def _strip_tags(s: str) -> str:
+    return re.sub(r"<[^>]+?>", "", s)
+
+
+def _flatten_title_wrapper_in_nav_toc(nav: str) -> str:
+    """
+    Pandoc sometimes nests front matter entries under a top-level TOC item that
+    repeats the book title. That makes the TOC less scannable in some readers.
+
+    Rewrite:
+      <ol class="toc">
+        <li><a>BOOK TITLE</a><ol class="toc">...front matter...</ol></li>
+        <li>Part I ...</li>
+        ...
+      </ol>
+
+    Into:
+      <ol class="toc">
+        ...front matter...
+        <li>Part I ...</li>
+        ...
+      </ol>
+    """
+    toc_nav_m = re.search(r'(<nav\b[^>]*\bepub:type="toc"[\s\S]*?</nav>)', nav)
+    if not toc_nav_m:
+        return nav
+
+    toc_nav = toc_nav_m.group(1)
+    title_m = re.search(r'<h1\b[^>]*\bid="toc-title"[^>]*>([\s\S]*?)</h1>', toc_nav)
+    toc_title = _strip_tags(title_m.group(1)).strip() if title_m else ""
+
+    li_m = re.search(
+        r'(<ol\b[^>]*\bclass="toc"[^>]*>\s*)'
+        r'(<li\b[^>]*>\s*<a\b[^>]*>([\s\S]*?)</a>\s*<ol\b[^>]*\bclass="toc"[^>]*>([\s\S]*?)</ol>\s*</li>)',
+        toc_nav,
+        flags=re.DOTALL,
+    )
+    if not li_m:
+        return nav
+
+    first_anchor = _strip_tags(li_m.group(3)).strip()
+    if toc_title and first_anchor != toc_title:
+        return nav
+
+    toc_nav2 = re.sub(
+        r'(<ol\b[^>]*\bclass="toc"[^>]*>\s*)'
+        r'<li\b[^>]*>\s*<a\b[^>]*>[\s\S]*?</a>\s*<ol\b[^>]*\bclass="toc"[^>]*>([\s\S]*?)</ol>\s*</li>',
+        lambda m: m.group(1) + m.group(2),
+        toc_nav,
+        count=1,
+        flags=re.DOTALL,
+    )
+    if toc_nav2 == toc_nav:
+        return nav
+
+    return nav.replace(toc_nav, toc_nav2, 1)
+
+
 def _id_to_xhtml_map(text_dir: Path) -> dict[str, str]:
     """
     Build a mapping from element id -> xhtml filename (e.g., 'fig:roadmap' -> 'ch005.xhtml').
@@ -196,6 +254,7 @@ def postprocess_epub_minimal(epub_path: Path) -> None:
             nav = nav_xhtml.read_text(encoding="utf-8", errors="ignore")
             nav2 = _strip_mathml_from_nav(nav)
             nav2 = _strip_empty_spans_from_nav(nav2)
+            nav2 = _flatten_title_wrapper_in_nav_toc(nav2)
             if nav2 != nav:
                 nav_xhtml.write_text(nav2, encoding="utf-8")
 
