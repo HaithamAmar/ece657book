@@ -104,8 +104,8 @@ Chapter-to-file mapping
 | 10 | Hopfield Networks: Introduction and Context | `lecture_5_part_ii.tex` |
 | 11 | Convolutional Neural Networks and Deep Training Tools | `lecture_6.tex` |
 | 12 | Introduction to Recurrent Neural Networks | `lecture_7.tex` |
-| 13 | Transformers: Attention-Based Sequence Modeling | `lecture_transformers.tex` |
-| 14 | Neural Network Applications in Natural Language Processing | `lecture_8_part_i.tex` |
+| 13 | Neural Network Applications in Natural Language Processing | `lecture_8_part_i.tex` |
+| 14 | Transformers: Attention-Based Sequence Modeling | `lecture_transformers.tex` |
 | 15 | Introduction to Soft Computing | `lecture_8_part_ii.tex` |
 | 16 | Fuzzy Sets and Membership Functions: Foundations and Representations | `lecture_9.tex` |
 | 17 | Fuzzy Set Transformations Between Related Universes | `lecture_10_part_i.tex` |
