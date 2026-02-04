@@ -431,7 +431,7 @@ SGD remains the backbone; momentum and Adam/AdamW from \Cref{chap:cnn} accelerat
     \end{tikzpicture}%
     }
     % Avoid dense inline math in captions; it wraps poorly in EPUB renderers.
-    \caption[Computational graph for backpropagation (reverse-mode AD)]{Schematic: Computational graph for a feedforward network. Backpropagation is reverse-mode AD: the forward sweep caches intermediate values; the reverse sweep propagates error signals (deltas) and accumulates gradients for weights and biases from those cached values.}
+    \caption[Computational graph for backpropagation (reverse-mode AD)]{Computational graph for a feedforward network. Backpropagation is reverse\hyp{}mode AD: the forward sweep caches intermediate values; the reverse sweep propagates error signals (deltas) and accumulates gradients for weights and biases from those cached values. Use this when debugging backprop implementations and verifying where each gradient term comes from.}
     \label{fig:backprop-computational-graph}
 \end{figure}
 
@@ -804,7 +804,7 @@ These gradients are used in gradient-based optimization methods (e.g., stochasti
     \end{tikzpicture}
     \fi
     % Avoid inline math in captions; it wraps poorly in some EPUB renderers.
-    \caption{Schematic: Forward (blue) and backward (orange) flows for a two-layer MLP. The cached activations and the layerwise error terms (deltas) are exactly the quantities carried along these arrows; backward signals are computed with the next-layer weights and the activation derivative. Use this when you are implementing backprop and want to confirm what must be cached and where gradients flow.}
+    \caption{Forward (blue) and backward (orange) flows for a two-layer MLP. The cached activations and the layerwise error terms (deltas) are exactly the quantities carried along these arrows; backward signals are computed with the next-layer weights and the activation derivative. Use this when you are implementing backprop and want to confirm what must be cached and where gradients flow.}
     \label{fig:lec4_backprop_flow}
 \end{figure}
 
@@ -879,7 +879,7 @@ With the full MLP and backpropagation machinery in place, it is useful to compar
     \ensuretikzbackgroundlayers
 \end{tikzpicture}
     % Avoid inline math in captions; it wraps poorly in some EPUB renderers.
-    \caption{Schematic: Canonical activation functions on a common axis. Solid curves show the activation; dashed curves show its derivative. Use this when choosing an activation and checking whether its derivative will saturate or die out.}
+    \caption{Canonical activation functions on a common axis. Solid curves show the activation; dashed curves show its derivative. Use this when choosing an activation and checking whether its derivative will saturate or die out.}
     \label{fig:lec4-activations}
 \end{figure}
 

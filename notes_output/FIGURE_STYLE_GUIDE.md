@@ -24,7 +24,8 @@ This project targets a premium, publication-grade look. Figures must be readable
 
 ## Captions (house rule)
 
-- Prefer captions that start with `Schematic:` for conceptual visuals.
-- For `Schematic:` figures, end the caption with a short, decision-oriented sentence:
+- Avoid the `Schematic:` prefix by default; it is usually redundant and reads like placeholder text.
+- Use `Schematic:` only when a reader could reasonably mistake the visual for an empirical result or a to-scale diagram.
+- Regardless of prefix, end conceptual captions with a short, decision-oriented sentence:
   - `Use this when...`
-  This keeps schematics from becoming decorative and helps reflowable EPUB readers understand why the visual matters.
+  This keeps conceptual visuals from becoming decorative and helps reflowable EPUB readers understand why the visual matters.

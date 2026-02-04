@@ -205,7 +205,7 @@ Two-dimensional toy datasets remain useful for reasoning about inductive biases.
                 \node[anchor=west, font=\scriptsize, cbGreen] at (axis cs:0.9,0.95){Nonlinear separator};
         \end{groupplot}
     \end{tikzpicture}
-    \caption{Schematic: Decision boundaries for logistic regression (left) versus a shallow MLP (right). Linear models carve a single hyperplane, whereas hidden units can warp the boundary to follow non-convex manifolds such as the moons dataset. Use this when diagnosing whether representation capacity (not optimization) limits a classifier.}
+    \caption{Decision boundaries for logistic regression (left) versus a shallow MLP (right). Linear models carve a single hyperplane, whereas hidden units can warp the boundary to follow non-convex manifolds such as the moons dataset. Use this when diagnosing whether representation capacity (not optimization) limits a classifier.}
     \label{fig:lec7-boundaries}
 \end{figure}
 
@@ -263,10 +263,10 @@ Unless there is a compelling reason to run to numerical convergence, stop as soo
         \end{groupplot}
     \end{tikzpicture}
     \ifdefined\HCode
-        \caption{Schematic: Binary cross-entropy geometry (left), effect of learning-rate schedules on loss (middle), and the typical training/validation divergence that motivates early stopping (right). Use this when choosing a learning-rate schedule and interpreting early-stopping signals.}
+        \caption{Binary cross-entropy geometry (left), effect of learning-rate schedules on loss (middle), and the typical training/validation divergence that motivates early stopping (right). Use this when choosing a learning-rate schedule and interpreting early-stopping signals.}
     \else
         % Avoid inline math in captions; it wraps poorly in some EPUB renderers.
-        \caption{Schematic: Binary cross-entropy geometry (left), effect of learning-rate schedules on loss (middle), and the typical training/validation divergence that motivates early stopping (right). Use this when choosing a learning-rate schedule and interpreting early-stopping signals.}
+        \caption{Binary cross-entropy geometry (left), effect of learning-rate schedules on loss (middle), and the typical training/validation divergence that motivates early stopping (right). Use this when choosing a learning-rate schedule and interpreting early-stopping signals.}
     \fi
     \label{fig:lec7-loss-hyperparams}
 \end{figure}
@@ -349,7 +349,7 @@ Consider a simple RNN cell with the following update equations:
         \coordinate (braceR) at ($(h3.south east)+(0,-12mm)$);
         \draw[decorate, decoration={brace, amplitude=5pt}] (braceL) -- node[midway, below=10pt]{\scriptsize shared parameters across the unrolled sequence} (braceR);
     \end{tikzpicture}
-    \caption{Schematic: Unrolling an RNN reveals repeated application of the same parameters across time steps. This view motivates backpropagation through time (BPTT), which accumulates gradients through every copy before updating the shared weights. Use this when translating a recurrent cell into an explicit computation graph for training.}
+    \caption{Unrolling an RNN reveals repeated application of the same parameters across time steps. This view motivates backpropagation through time (BPTT), which accumulates gradients through every copy before updating the shared weights. Use this when translating a recurrent cell into an explicit computation graph for training.}
     \label{fig:lec7-rnn-unrolled}
 \end{figure}
 \subsection{Recurrent Neural Network (RNN) Architectures and Loss Computation}
@@ -412,7 +412,7 @@ Choose \(K\) to balance memory and credit assignment (common range: 20--100 step
         % shared parameters note
         \node at (4,-2.0) {\scriptsize shared $(\mathbf{W}_{hh}, \mathbf{W}_{xh}, \mathbf{W}_{hy})$ across time};
     \end{tikzpicture}
-    \caption{Schematic: Backpropagation through time (BPTT): unrolled forward pass (black) and backward gradients (pink) through time. Use this when reasoning about truncation windows and why long histories strain gradient flow.}
+    \caption{Backpropagation through time (BPTT): unrolled forward pass (black) and backward gradients (pink) through time. Use this when reasoning about truncation windows and why long histories strain gradient flow.}
     \label{fig:lec7-bptt}
 \end{figure}
 
@@ -427,7 +427,7 @@ Empirically, vanilla RNNs often fail to preserve dependencies beyond roughly 5--
 \begin{figure}[t]
     \centering
     \includegraphics[width=0.72\linewidth]{lec7_vanish_explode}
-    \caption{Schematic: Vanishing (blue) versus exploding (orange) gradients on a log scale. The gray strip highlights the stability band; the inset reminds readers that repeated Jacobian products either shrink gradients (thin blue arrows) or amplify them (thick orange arrows). Use this when diagnosing why long-range dependencies fail to train.}
+    \caption{Vanishing (blue) versus exploding (orange) gradients on a log scale. The gray strip highlights the stability band; the inset reminds readers that repeated Jacobian products either shrink gradients (thin blue arrows) or amplify them (thick orange arrows). Use this when diagnosing why long-range dependencies fail to train.}
     \label{fig:lec7-vanishing}
 \end{figure}
 
@@ -534,7 +534,7 @@ If your task needs dependencies longer than a handful of steps, do not over-tune
         \end{groupplot}
     \end{tikzpicture}
     % Avoid inline math in captions; it wraps poorly in some EPUB renderers.
-    \caption{Schematic: Gradient norms (left) explode without clipping (orange) but remain bounded when the global norm is clipped at tau (green). Training loss (right) stabilizes as a result. Use this when setting clipping thresholds to stabilize training without freezing learning.}
+    \caption{Gradient norms (left) explode without clipping (orange) but remain bounded when the global norm is clipped at tau (green). Training loss (right) stabilizes as a result. Use this when setting clipping thresholds to stabilize training without freezing learning.}
     \label{fig:lec7-clipping}
 \end{figure}
 
@@ -606,7 +606,7 @@ If your task needs dependencies longer than a handful of steps, do not over-tune
 \end{tikzpicture}
 }%
 
-\caption{Schematic: Teacher forcing vs.\ inference in a sequence-to-sequence decoder. Gold arrows show supervised targets; orange arrows highlight autoregressive feedback that motivates scheduled sampling. Use this when diagnosing train/test mismatch from teacher forcing.}
+\caption{Teacher forcing vs.\ inference in a sequence-to-sequence decoder. Gold arrows show supervised targets; orange arrows highlight autoregressive feedback that motivates scheduled sampling. Use this when diagnosing train/test mismatch from teacher forcing.}
 \label{fig:lec7-teacher-forcing}
 \end{figure}
 
@@ -699,9 +699,9 @@ If your task needs dependencies longer than a handful of steps, do not over-tune
         \end{tikzpicture}%
     }
         \ifdefined\HCode
-            \caption{Schematic: Long Short-Term Memory (LSTM) cell \citep{Hochreiter1997,Gers2000}. Use this when mapping gates and the cell state to the gradient-flow path.}
+            \caption{Long Short-Term Memory (LSTM) cell \citep{Hochreiter1997,Gers2000}. Use this when mapping gates and the cell state to the gradient-flow path.}
         \else
-            \caption{Schematic: Long Short-Term Memory (LSTM) cell \citep{Hochreiter1997,Gers2000}. Use this when mapping gates and the cell state to the gradient-flow path.}
+            \caption{Long Short-Term Memory (LSTM) cell \citep{Hochreiter1997,Gers2000}. Use this when mapping gates and the cell state to the gradient-flow path.}
         \fi
     \label{fig:lec7-lstm}
 \end{figure}
@@ -807,9 +807,9 @@ If your task needs dependencies longer than a handful of steps, do not over-tune
         \end{tikzpicture}%
     }
     \ifdefined\HCode
-    \caption{Schematic: Gated Recurrent Unit (GRU) cell \citep{Cho2014}. Use this when comparing gating to vanilla recurrence and to LSTM-style memory.}
+    \caption{Gated Recurrent Unit (GRU) cell \citep{Cho2014}. Use this when comparing gating to vanilla recurrence and to LSTM-style memory.}
     \else
-    \caption{Schematic: Gated Recurrent Unit (GRU) cell \citep{Cho2014}. Use this when comparing gating to vanilla recurrence and to LSTM-style memory.}
+    \caption{Gated Recurrent Unit (GRU) cell \citep{Cho2014}. Use this when comparing gating to vanilla recurrence and to LSTM-style memory.}
     \fi
     \label{fig:lec7-gru}
 \end{figure}
@@ -909,7 +909,7 @@ Gating (LSTM/GRU) made long-range gradient flow workable by creating additive me
     \end{axis}
     \end{tikzpicture}
     % Avoid inline math in captions; it wraps poorly in some EPUB renderers.
-    \caption{Schematic: Attention heatmap for a translation model. Rows are target tokens (decoder steps) and columns are source tokens (encoder positions). Each cell is an attention weight; the dot in each row marks the source position receiving the most attention. Use this when checking whether attention aligns to the intended source context.}
+    \caption{Attention heatmap for a translation model. Rows are target tokens (decoder steps) and columns are source tokens (encoder positions). Each cell is an attention weight; the dot in each row marks the source position receiving the most attention. Use this when checking whether attention aligns to the intended source context.}
     \label{fig:lec7-attention}
 \end{figure}
 
@@ -1013,7 +1013,7 @@ Assigning numerical values to these features for each word yields a vector repre
 \begin{table}[t]
 \centering
 \small
-\caption{Schematic: Feature-based word vectorization example. Each word is mapped to a vector of graded semantic features; fractional entries (e.g., 0.5) indicate mixed usage across contexts. Use this when building intuition for how discrete symbols become vectors that downstream models can consume.}
+\caption{Feature-based word vectorization example. Each word is mapped to a vector of graded semantic features; fractional entries (e.g., 0.5) indicate mixed usage across contexts. Use this when building intuition for how discrete symbols become vectors that downstream models can consume.}
 \label{tab:word_feature_vectorization}
 \begin{tabular}{l|cccccccc}
 \textbf{Word} & Gender & Royalty & Age & Person & Fruit & Title & Abstract & Sweet \\
@@ -1118,7 +1118,7 @@ and countries that are geographically close tend to have embeddings closer in ve
     \centering
     \includegraphics[width=\textwidth]{lec14_embeddings_clusters}
     % Avoid inline math in captions; it wraps poorly in some EPUB renderers.
-    \caption{Schematic: Toy 2D projection of word embeddings showing neighboring clusters (countries vs. capitals). Light hulls highlight clusters; arrows show that country-to-capital displacement vectors align, a visual check on analogy structure. Use this when sanity-checking whether embedding offsets behave consistently across many pairs.}
+    \caption{Toy 2D projection of word embeddings showing neighboring clusters (countries vs. capitals). Light hulls highlight clusters; arrows show that country-to-capital displacement vectors align, a visual check on analogy structure. Use this when sanity-checking whether embedding offsets behave consistently across many pairs.}
     \label{fig:lec7-embedding-clusters}
 \end{figure}
 

@@ -30,8 +30,6 @@ TITLE_RE = re.compile(r"title\s*=\s*\{([^}]*)\}")
 # Match: \begin{tcolorbox}[<opts>]
 TCOLORBOX_BEGIN_RE = re.compile(r"\\begin\{tcolorbox\}\[(.*?)\]", re.DOTALL)
 
-CAPTION_PREFIX_RE = re.compile(r"\\caption\{\s*(Schematic:|Empirical:)", re.DOTALL)
-
 PARA_WHERE_NEXT_RE = re.compile(r"\\paragraph\{\s*Where\s+we\s+head\s+next\.\s*\}")
 PARA_REFERENCES_RE = re.compile(r"\\paragraph\{\s*References\.\s*\}")
 
@@ -150,10 +148,6 @@ def audit_chapter(chapter_index: int, chapter_path: Path, tex: str) -> ChapterAu
     untitled = sum(1 for t in titles if t == "")
     if untitled:
         a.warnings.append(f"{untitled} tcolorbox(es) appear without a title=... option.")
-
-    # Captions should start with Schematic:/Empirical: (heuristic).
-    if "\\caption{" in tex and not CAPTION_PREFIX_RE.search(tex):
-        a.warnings.append('Some figure/table captions may not start with "Schematic:" or "Empirical:" (check).')
 
     # "Course voice" phrases (heuristic).
     banned_hits = sorted(set(m.group(0) for m in BANNED_RE.finditer(tex)))

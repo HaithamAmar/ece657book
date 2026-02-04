@@ -236,7 +236,7 @@ Before 2012, neural networks were often dismissed in many academic circles due t
         \draw[cbOrange, thick] (3.65,2.05) -- (3.75,2.05);
         \draw[cbGreen, thick] (3.65,1.25) -- (3.75,1.25);
     \end{tikzpicture}
-    \caption{Schematic: Receptive field growth across depth. Even with small \(3\times3\) kernels, stacking layers expands the spatial context seen by deeper units. Use this when explaining why depth can replace very large kernels.}
+    \caption{Receptive field growth across depth. Even with small \(3\times3\) kernels, stacking layers expands the spatial context seen by deeper units. Use this when explaining why depth can replace very large kernels.}
     \label{fig:cnn_receptive_field_growth}
 \end{figure}
 
@@ -344,7 +344,7 @@ Taken together, these tools stabilize optimization; the figures below highlight 
 \begin{figure}[t]
     \centering
     \includegraphics[width=0.65\linewidth]{lec6_dropout_curves}
-    \caption[Dropout effect on training/validation curves (validation flattening)]{Schematic: Dropout effect on training/validation curves. Compared to a no-dropout baseline, validation curves flatten and generalization improves.}
+    \caption[Dropout effect on training/validation curves (validation flattening)]{Illustrative dropout effect on training/validation curves. Compared to a no\hyp{}dropout baseline, validation curves flatten and generalization improves. Use this when diagnosing variance and deciding whether dropout is likely to help versus simpler regularization.}
     \label{fig:lec6-dropout}
 \end{figure}
 
@@ -366,7 +366,7 @@ Taken together, these tools stabilize optimization; the figures below highlight 
             \addplot[cbOrange, thick, samples=200, domain=-6:6] {1/sqrt(2*pi*1.0)*exp(-(x^2)/2)}; \addlegendentry{channel 2}
         \end{groupplot}
     \end{tikzpicture}
-    \caption{Schematic: Batch normalization transforms per-channel activations toward zero mean and unit variance prior to the learned affine re-scaling, stabilizing training. Use this when diagnosing unstable training from drifting activation scales.}
+    \caption{Batch normalization transforms per-channel activations toward zero mean and unit variance prior to the learned affine re-scaling, stabilizing training. Use this when diagnosing unstable training from drifting activation scales.}
     \label{fig:lec6-bn}
 \end{figure}
 
@@ -384,7 +384,7 @@ Taken together, these tools stabilize optimization; the figures below highlight 
             \addplot[cbOrange, thick, samples=120, domain=0:60] {0.15 + 1.0*exp(-x/10)}; \addlegendentry{Adam}
         \end{axis}
     \end{tikzpicture}
-    \caption{Schematic: Representative training curves for SGD with momentum versus Adam on the same CNN. Use this when comparing optimizer behavior under the same model and data.}
+    \caption{Representative training curves for SGD with momentum versus Adam on the same CNN. Use this when comparing optimizer behavior under the same model and data.}
     \label{fig:lec6-optimizers}
 \end{figure}
 

@@ -137,7 +137,7 @@ Figures, diagrams, and color guidance
 - Current placement reference (from `ece657_notes.aux`): Figure 52 is `\label{fig:lec7-gru}` (GRU cell schematic) in `lecture_7.tex` (Chapter 12). Closely related: Figure 51 is `fig:lec7-lstm`.
 - Historic `review/*.md` notes may refer to older figure numbers; treat them as context, but verify against the current build artifacts (`ece657_notes.aux`, `ece657_notes.lof`, `ece657_notes.lot`).
 - Always produce a grayscale proof when a figure relies on color gradients, then store updated previews back in `notes_output/artifacts/previews/`.
-- Caption style: prefer `Schematic:` (or `Empirical:` when appropriate) as part of the caption text. Avoid bracketed placeholders like `[Schematic]`.
+- Caption style: avoid `Schematic:` by default; it often reads like placeholder text. Use `Schematic:` only when a reader could reasonably mistake the visual for an empirical result or a to-scale diagram. Use `Empirical:` when the figure is actually data/experiment-driven.
 
 Recent figure work (2025-12-27)
 -------------------------------

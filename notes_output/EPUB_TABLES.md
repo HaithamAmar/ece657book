@@ -15,7 +15,7 @@ Use this decision tree for any table that still feels bad in Apple Books / Kindl
 4. If the table is a dense reference and must remain as-is → keep as table + scroll; verify on Kindle.
 
 ### Captions and consistency
-- Captions should start with `Schematic:` or `Empirical:` where appropriate (same as figures).
+- Captions should read like tables. Avoid `Schematic:` by default; use it only when the table could be mistaken for an empirical result or a measured/to-scale artifact. Prefer starting with a concrete noun phrase (e.g., "Handling class imbalance..." / "Transformation toolkit...") and, when needed, use wording like "Illustrative" to signal non-empirical content.
 - Keep table text short; push long explanations into surrounding prose.
 
 ## How to re-run the audit
@@ -32,4 +32,3 @@ python3 epub_builder/scripts/audit_epub_tables.py \
 
 Then open:
 - `notes_output/EPUB_TABLES_AUDIT.md`
-

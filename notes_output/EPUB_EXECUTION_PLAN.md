@@ -42,7 +42,7 @@ This plan is the **forward-looking backlog** for taking the current EPUB pipelin
 ## Work Package 3 — Tables (P0)
 
 1. **Caption taxonomy**
-   - Tables use `Table:` and figures use `Figure:` / `Schematic:` as appropriate.
+   - Tables use `Table:` and figures use `Figure:` as the label prefix; avoid `Schematic:` by default and only use it when a reader could reasonably mistake the visual for an empirical result or a to-scale diagram.
    - Acceptance: table captions read like tables (not “schematics”).
 
 2. **Wide/important tables**
