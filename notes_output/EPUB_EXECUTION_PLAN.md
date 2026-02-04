@@ -39,6 +39,10 @@ This plan is the **forward-looking backlog** for taking the current EPUB pipelin
    - Keep block math scrollable (current pipeline wraps MathML in `.math-block`).
    - Acceptance: no truncated block equations in Apple Books at common font sizes.
 
+4. **TOC/title hygiene (EPUB)**
+   - Avoid manual line breaks (`\\\\`) inside chapter titles; they render as `<br/>` in `EPUB/nav.xhtml` and make the TOC look less polished.
+   - Acceptance: chapter titles are single-line in the TOC across Apple Books + Kindle Previewer.
+
 ## Work Package 3 — Tables (P0)
 
 1. **Caption taxonomy**
@@ -65,6 +69,14 @@ This plan is the **forward-looking backlog** for taking the current EPUB pipelin
 3. **Risk & audit boxes**
    - Add consistent 3–6 bullet “Risk & audit” boxes to selected chapters beyond the NLP/deployment chapter (per editorial direction).
    - Acceptance: consistent styling and tone; renders correctly in EPUB.
+
+4. **Part II deep editorial pass (CNN/RNN coherence)**
+   - Create a rearrangement plan for Chapters 11–12 that preserves all material but improves the learning arc (“basic → deeper → deepest”), then implement with crossref + equation + citation checks.
+   - Acceptance: no new `check_crossrefs.py` / `check_equations.py` / `check_citations.py` violations; EPUB regression remains green; chapter reads linearly without “teleporting” prerequisites.
+
+5. **Fragmentation reduction (long chapters)**
+   - Review heading density in Chapters 16 (Fuzzy sets) and 19 (Evolutionary) and consolidate micro-headings where it improves flow without reducing rigor.
+   - Acceptance: TOC remains high-signal; chapters remain skimmable; no template drift.
 
 ## Work Package 5 — Automation & regression hardening (P1)
 
