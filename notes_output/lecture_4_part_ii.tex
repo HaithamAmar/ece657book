@@ -91,7 +91,7 @@ We denote each basis response by \(\varphi_i(\mathbf{x})\); stacking them yields
         \node[align=left, font=\scriptsize, right=0.3cm of y] {Linear weights \(w_i\)\\learned from data};
     \end{tikzpicture}
     % Avoid inline math in captions; it wraps poorly in some EPUB renderers.
-\caption{Schematic: RBFN architecture. Inputs feed fixed radial units parameterized by centers and widths; a linear readout with weights (and bias) is trained by a regression or classification loss. Only the output weights are typically learned; centers/widths come from k-means or spacing heuristics.}
+\caption{Schematic: RBFN architecture. Inputs feed fixed radial units parameterized by centers and widths; a linear readout with weights (and bias) is trained by a regression or classification loss. Only the output weights are typically learned; centers/widths come from k-means or spacing heuristics. Use this when separating representation choices (centers/widths) from the supervised readout training loop.}
     \label{fig:rbf_architecture_weights}
 \end{figure}
 
@@ -120,7 +120,7 @@ Once you have the architecture in mind, it helps to visualize what the hidden la
             \addlegendentry{$\sum_j w_j \phi_j(x)$}
         \end{axis}
     \end{tikzpicture}
-    \caption{Schematic: Localized Gaussian basis functions (dashed) and their weighted sum (solid). Overlapping bumps allow RBF networks to interpolate complex signals smoothly.}
+    \caption{Schematic: Localized Gaussian basis functions (dashed) and their weighted sum (solid). Overlapping bumps allow RBF networks to interpolate complex signals smoothly. Use this when building intuition for locality and smooth interpolation in basis-function models.}
     \label{fig:rbf_gaussian_bumps}
 \end{figure}
 
@@ -155,7 +155,7 @@ Once you have the architecture in mind, it helps to visualize what the hidden la
         \end{scope}
     \end{tikzpicture}
     % Avoid inline math in captions; it wraps poorly in some EPUB renderers.
-    \caption{Schematic: Center placement and overlap. Top: K-means prototypes roughly tile the data manifold, giving even overlap; bottom: random centers can leave gaps or excessive overlap, influencing the width (sigma) choice and conditioning.}
+    \caption{Schematic: Center placement and overlap. Top: K-means prototypes roughly tile the data manifold, giving even overlap; bottom: random centers can leave gaps or excessive overlap, influencing the width (sigma) choice and conditioning. Use this when choosing how to place centers before tuning the width parameter.}
     \label{fig:rbf_centres}
 \end{figure}
 
@@ -345,7 +345,7 @@ which serve as localized similarity measures to each centroid \(v_i\). When \(\s
         \end{scope}
     \end{tikzpicture}
     % Avoid inline math in captions; it wraps poorly in some EPUB renderers.
-    \caption{Schematic: How the width parameter (sigma) influences decision boundaries on a 2D toy dataset. Too-large sigma underfits, intermediate sigma captures the boundary, too-small sigma overfits with fragmented regions. Use \Cref{chap:supervised}'s validation curves to pick model size and regularization.}
+    \caption{Schematic: How the width parameter (sigma) influences decision boundaries on a 2D toy dataset. Too-large sigma underfits, intermediate sigma captures the boundary, too-small sigma overfits with fragmented regions. Use \Cref{chap:supervised}'s validation curves to pick model size and regularization. Use this when tuning sigma to balance smoothness against boundary fidelity.}
     \label{fig:rbf_sigma_sweep}
 \end{figure}
 
@@ -438,7 +438,7 @@ mirroring the \(\lambda \boldsymbol{\alpha}^\top K \boldsymbol{\alpha}\) term in
     \draw[->,gray!60,dashed] (-1,-0.6) -- (1,-1.4) node[midway,sloped,above,gray!60]{Nystr\"om $M<N$};
 \end{tikzpicture}
     % Avoid inline math in captions; it wraps poorly in some EPUB renderers.
-    \caption{Schematic: Primal (finite basis) vs.\ dual (kernel ridge) viewpoints. Using as many centers as data points recovers the dual form; using fewer centers corresponds to a Nystr\"om approximation. The same trade-off appears in kernel methods through the choice of kernel and effective rank.}
+    \caption{Schematic: Primal (finite basis) vs.\ dual (kernel ridge) viewpoints. Using as many centers as data points recovers the dual form; using fewer centers corresponds to a Nystr\"om approximation. The same trade-off appears in kernel methods through the choice of kernel and effective rank. Use this when deciding whether to train a finite basis model or switch to a kernel viewpoint.}
 \label{fig:rbf_primal_dual}
 \end{figure}
     To improve numerical stability or control model complexity, a Tikhonov (ridge) regulariser can be added,
@@ -551,7 +551,7 @@ Choose \(M=4\) centers at the data and set a global \(\sigma\) from the mean int
         \end{axis}
         \end{tikzpicture}
         % Avoid inline math in captions; it wraps poorly in some EPUB renderers.
-        \caption{Schematic: RBFN decision boundary on the XOR toy for a model with 4 centers, width sigma = 0.8, and ridge lambda = 1e-3. Shading indicates the predicted class under a 0.5 threshold; the black contour marks the 0.5 boundary. Training points are overlaid (class 0: open circles; class 1: filled squares). See \Cref{fig:rbf_sigma_sweep} for how sigma changes this boundary.}
+        \caption{Schematic: RBFN decision boundary on the XOR toy for a model with 4 centers, width sigma = 0.8, and ridge lambda = 1e-3. Shading indicates the predicted class under a 0.5 threshold; the black contour marks the 0.5 boundary. Training points are overlaid (class 0: open circles; class 1: filled squares). See \Cref{fig:rbf_sigma_sweep} for how sigma changes this boundary. Use this when sanity-checking whether an RBF model has enough centers/width to represent a non-linear boundary.}
         \label{fig:rbf_boundary}
     \end{figure}
 

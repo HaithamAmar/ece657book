@@ -594,3 +594,288 @@ Your “Reading Aids” already promises this kind of navigability — now make 
 ---
 
 If by “how about this” you meant something more specific (e.g., a particular chapter you just rearranged), tell me **which chapter numbers changed** and I’ll sanity-check the *narrative continuity* and *dependency logic* for that exact rearrangement.
+
+
+Here’s a **hard-nosed editorial review** of *Modern Intelligent Systems: A Graduate Companion* based on the current PDF structure, the chapter scaffolding (Learning Outcomes / Design motif / Risk & audit / Pitfalls / Exercises), and representative passages across parts and appendices. 
+
+## Book-level feedback (structure, voice, “sloppiness traps”)
+
+**1) Your core differentiator is clear — but you sometimes under-sell it.**
+The book’s organizing promise is: *“unified narrative connecting intuition → math → deployment across model families”* (Preface + Chapter 1 framing). Lean into this by enforcing a repeated *bridge paragraph* at the start of every chapter: “What question does this tool answer that the previous tool couldn’t?” You already do this in places (e.g., Ch2 ties to operational intelligence vocabulary ), but it’s not yet “ritualized” everywhere.
+
+**2) The “ERM + audit” spine is your strongest pedagogical backbone. Don’t let later chapters drift.**
+Ch3’s workflow and warnings about leakage/test peeking are excellent . Make sure every later chapter *explicitly* re-attaches to:
+
+* what is optimized,
+* what is held out,
+* what failure looks like,
+* what diagnostic is mandatory.
+  Right now, that consistency is good in Ch4  and Ch9 , but it should be non-negotiable everywhere (especially Transformers + Evolutionary).
+
+**3) Notation discipline is strong — but you’re still at risk of “local symbol amnesia.”**
+Appendix D (“notation collision index”) is a great move . The sloppy failure mode is: a reader jumps into Ch11/Ch14 and forgets what σ meant elsewhere. You already add “Notation note” in places (e.g., Ch11) . Recommendation: enforce a **1–2 line “Notation note”** anywhere a collision is plausible, even if you think it’s obvious.
+
+**4) Watch “schematic overload”: figures are helpful, but captions must carry the burden.**
+Your List of Figures shows lots of “Schematic:” visuals. That’s fine — but schematics become fluff if they don’t state: *what decision this figure helps a practitioner make.* Some already do (ROC/PR operating point ; SOM QE/TE ). Make that a rule: every schematic caption must end with “Use this when…”
+
+**5) The book-wide “Key Takeaways” section is useful, but it risks duplicating chapter endings.**
+The back-matter Key Takeaways summary is strong , but you should prevent redundancy by making chapter-end “Key takeaways” more tactical (“minimum viable mastery + pitfalls”), while back-matter stays purely navigational (“what lives where”).
+
+---
+
+# Chapter-by-chapter editorial feedback (actionable, sloppiness-focused)
+
+## Preface + Acknowledgments
+
+* **What works:** Clear origin story and scope; good “why this book exists.”
+* **Sloppiness risks:** Phrases like “as of this writing” date the book quickly — either commit to a “2026 snapshot” label or rewrite to be timeless.
+* **Action:** Add a single paragraph: “What this book is *not*” (not a full DL cookbook; not a pure math text; not a survey of every architecture).
+
+---
+
+## Chapter 1 — About This Book
+
+You set the operating vocabulary (representation/actions/objectives/audit) and the roadmap.
+
+* **What works:** Strong scaffolding, exercises, and “where we head next.”
+* **Sloppiness risks:**
+
+  1. Historical sketch can become a “name parade” if not tied to the operational definition.
+  2. “Levels of intelligence” can feel like opinion unless you pin it to repeated usage later.
+* **Actions:**
+
+  * End Ch1 with a **one-page “Reader contract”**: what you promise (rigor + diagnostics + deployment cautions) and what you demand (do the audits).
+  * Add explicit forward pointers: “You will see this audit lens again in Ch3, Ch4, Ch9…” (you already hint at this—make it explicit and repetitive).
+
+---
+
+## Chapter 2 — Symbolic Integration and Problem-Solving Strategies
+
+This chapter is a clever “small system” demonstration of representation + safe moves + heuristic branching + goal tests. 
+
+* **What works:** Design motif (differentiate and check residual) is perfect. 
+* **Sloppiness risks:** Readers may ask, “Why is this in an AI book?” if the bridge to later ML is not hammered.
+* **Actions:**
+
+  * Add a short “mapping table”: transformation tree concepts ↔ ML equivalents (search space ↔ hypothesis space; goal test ↔ validation loss; heuristics ↔ inductive bias).
+  * Explicitly state: this chapter is the *template* for “intelligent behavior,” not a detour.
+
+---
+
+## Chapter 3 — Supervised Learning Foundations
+
+This is the backbone: ERM, splits, learning curves, calibration, scoring rules.
+
+* **What works:** Split hygiene + proper scoring rules + calibration monitoring are unusually well integrated for a “foundations” chapter. 
+* **Sloppiness risks:**
+
+  * “ERM/MLE/MAP” can become acronym soup if you don’t repeatedly restate the narrative: *we choose a loss because it corresponds to an assumption + a use-case.*
+* **Actions:**
+
+  * Add a micro-checklist box: “Before you trust any reported result…” (leakage, peeking, calibration, slice checks).
+  * Consider tightening: keep one canonical workflow figure and refer back rather than re-explaining.
+
+---
+
+## Chapter 4 — Classification and Logistic Regression
+
+Good “swap the likelihood, keep the workflow.”
+
+* **What works:** ROC/PR operating point framing, imbalance guidance, calibration callouts.
+* **Sloppiness risks:**
+
+  * Many texts stop at AUC — you don’t, which is great — but then you must be consistent later: CNN/RNN/Transformer chapters should also remind readers “ranking ≠ calibrated probabilities.”
+* **Actions:**
+
+  * Ensure the multiclass extension promise (“softmax regression”) is either fully delivered or de-scoped; don’t leave it half-implicit.
+
+---
+
+## Chapter 5 — Introduction to Neural Networks (Perceptron/Adaline framing)
+
+* **What works:** Clear contrast: perceptron hard decisions vs logistic calibrated probabilities. 
+* **Sloppiness risks:** Perceptron convergence guarantees can mislead if readers forget separability assumptions.
+* **Actions:**
+
+  * Put the separability assumption in a bold “If this is false, stop” box.
+  * When you mention pitfalls (feature scaling, non-separable data) , tie them back to Ch3 diagnostics: “learning curves / validation behavior will reveal this.”
+
+---
+
+## Chapter 6 — MLP Foundations (two-neuron to multi-layer)
+
+* **What works (from the book-wide summary):** You frame forward/backward pass mechanics and numerical stability. 
+* **Sloppiness risks:** This is where derivations can become “algebra theater” unless every block ends with: what to implement, what to cache, what breaks.
+* **Actions:**
+
+  * Add a “minimum implementable training loop” pseudocode that mirrors Ch7 later, to reduce duplication and cognitive load.
+
+---
+
+## Chapter 7 — Backpropagation Learning in MLPs
+
+* **What works (from the summary):** You convert derivatives into SGD/mini-batch practice and tie to Ch3 diagnostics. 
+* **Sloppiness risks:** Readers often get lost in indices; backprop is where notation sloppiness is fatal.
+* **Actions:**
+
+  * Enforce consistent symbol roles (layer index vs time index). Point readers to Appendix D whenever ambiguity is likely. 
+  * Add one explicit “shape table” (dimensions of each variable) as a recurring device.
+
+---
+
+## Chapter 8 — Radial Basis Function Networks
+
+* **What works:** Excellent intuition about σ controlling locality; you explicitly warn under/overfit and recommend validation selection. 
+* **Sloppiness risks:** σ is overloaded across the book; you handled it with a notation note (good). 
+* **Actions:**
+
+  * Add a small “practitioner recipe” box: choose centers (k-means), sweep σ and ridge λ, evaluate with Ch3 validation curves.
+
+---
+
+## Chapter 9 — Self-Organizing Maps
+
+* **What works:** QE/TE diagnostics, early stopping idea, and explicit practical pitfalls.
+* **Sloppiness risks:** SOMs are easy to present as “cool maps” without honest limits; you already warn about over-interpreting single runs. 
+* **Actions:**
+
+  * Add one paragraph: when SOM is the wrong tool (task is predictive; embedding must be supervised; scaling issues dominate).
+
+---
+
+## Chapter 10 — Hopfield Networks
+
+* **What works (from the summary):** Energy framing + update regime comparisons. 
+* **Sloppiness risks:** Energy-based models are trendy again; readers might assume Hopfield = modern EBMs unless you delineate.
+* **Actions:** Add a “Then vs now” sidebar: classical Hopfield assumptions vs modern energy-based memory / transformer-as-retrieval analogies (high level, not a detour).
+
+---
+
+## Chapter 11 — CNNs and Deep Training Tools
+
+* **What works:** The vanishing/exploding gradient explanation and mitigation list is solid; includes BN, clipping, dropout. 
+* **Sloppiness risks:** This chapter can become a grab bag of “training tricks.” The danger is losing the organizing lens.
+* **Actions:**
+
+  * Structure “tools” as answers to *specific failure signatures* (e.g., “loss NaNs → clipping; val gap → regularization; slow convergence → normalization/init”).
+  * Keep the notation note style (you already do) whenever σ appears. 
+
+---
+
+## Chapter 12 — RNNs
+
+* **What works (from the summary):** BPTT, gating, teacher forcing, and ties back to diagnostics. 
+* **Sloppiness risks:** Readers confuse “sequence length” with “layers” with “time index.”
+* **Actions:**
+
+  * Add a single canonical diagram labeling: *t vs l vs n*, and reuse it in Transformers to reinforce continuity.
+
+---
+
+## Chapter 13 — NLP Applications + Embeddings + Bias
+
+* **What works:** You directly address bias and provide practical checks + deployment checklist. 
+* **Sloppiness risks:** Bias sections often become moralizing or vague. Yours is concrete — keep it that way. But don’t leave “Documentation.” dangling as an incomplete bullet (it appears cut off in the snippet). 
+* **Actions:**
+
+  * Make the “Responsible deployment checklist” a numbered checklist with a consistent template (Purpose, Data, Privacy, Monitoring, Documentation…) so it reads like something teams actually adopt. 
+  * Ensure citations are consistent for debiasing techniques you name (Bolukbasi et al., etc.).
+
+---
+
+## Chapter 14 — Transformers
+
+* **What works (from TOC):** You cover attention, positional info, masks, efficiency, fine-tuning, decoding, and a brief alignment section.
+* **Sloppiness risks:** This chapter is where books go wrong by mixing *architecture explanation* with *systems lore* without clearly separating what is essential vs “2024 snapshot.”
+* **Actions:**
+
+  * Split into two explicitly labeled layers:
+
+    1. **Core invariant** (attention, masking, residual + LN, positional encoding, decoding basics).
+    2. **Snapshot / engineering notes** (efficient attention variants, LoRA, long-context tricks).
+  * Make sure “Alignment (Brief)” does not read like handwaving — either cleanly scope it (“what alignment is, what it is not”) or move it to an appendix.
+
+---
+
+## Chapter 15 — Introduction to Soft Computing
+
+* **What works (from TOC):** Clear separation of imprecision vs uncertainty vs fuzziness.
+* **Sloppiness risks:** Soft computing chapters can feel like a second book stapled on unless you keep connecting back to “why this is still useful in 2026+.”
+* **Actions:**
+
+  * Add a short bridge: “Fuzzy logic is not probability; it is a language for graded concepts” and point to your comparison tables. (Your book already emphasizes that distinction in the tables list.)
+
+---
+
+## Chapter 16 — Fuzzy Sets and Membership Functions
+
+* **What works:** Strong operator coverage + end-to-end Mamdani example is a big pedagogical win.
+* **Sloppiness risks:** Readers drown in operators unless you keep pointing to “what choices matter in practice.”
+* **Actions:**
+
+  * Add “default recommendations” (which t-norm/s-norm to start with and why), then label alternatives as advanced.
+
+---
+
+## Chapter 17 — Transformations Between Universes (Extension principle)
+
+* **What works:** This is the kind of chapter most books skip; it strengthens the mathematical legitimacy of fuzzy reasoning.
+* **Sloppiness risks:** This is high abstraction; without consistent mini-examples, readers detach.
+* **Actions:**
+
+  * Keep one running example alive through the whole chapter (and remind what the reader should track).
+
+---
+
+## Chapter 18 — Fuzzy Inference Systems
+
+* **What works:** Mamdani vs Sugeno/Takagi–Sugeno distinction is essential and timely for “hybrid systems.”
+* **Sloppiness risks:** “Rule composition” can become procedural without interpretation.
+* **Actions:**
+
+  * Add a section: “How inference fails” (rule explosion, conflicting rules, membership miscalibration), with a diagnostic checklist.
+
+---
+
+## Chapter 19 — Evolutionary Computing
+
+* **What works:** You treat constraints + multi-objectives as first-class and emphasize reproducibility across runs (excellent). 
+* **Sloppiness risks:** GA chapters often become cookbook operator lists without principled tuning guidance.
+* **Actions:**
+
+  * Enforce one unifying concept: **exploration vs exploitation** and tie every operator choice back to it. Your takeaways already gesture at this — amplify it. 
+  * Add a “reporting standard” box (seeds, distributions, multiple runs) — you already imply it; make it formal. 
+
+---
+
+# Appendices (A–D) + Back Matter
+
+## Appendix C — Course Logistics
+
+Good that you moved offering-specific details out of the main flow. 
+
+* **Editorial action:** Add a bold line early in the book: “Appendix C is ignorable unless you’re in ECE 657.”
+
+## Appendix D — Notation collision index
+
+This is a legit quality marker. 
+
+* **Editorial action:** Reference it more aggressively in-chapter (“If you’re reading out of order, see Appendix D”).
+
+## Back matter — Key Takeaways
+
+The condensed map is strong and helps navigation. 
+
+* **Editorial action:** Ensure each chapter’s own closing section doesn’t clone these.
+
+---
+
+## The highest-impact “anti-sloppiness” upgrades (if you do only 5 things)
+
+1. Add a **chapter-opening bridge paragraph** everywhere: “What problem this solves that the prior chapter didn’t.”
+2. Enforce a **universal audit checklist**: objective → split hygiene → metric → calibration → slice tests.
+3. Make **notation notes mandatory** at first collision risk; point to Appendix D. 
+4. Make every schematic caption end with **“Use this when…”** (decision-oriented visuals).
+5. Split Transformers into **Invariant Core vs Snapshot Notes** to prevent rapid dating.
+
+If you want, I can also produce a **one-page “Book Consistency Rubric”** you (or an editor) can apply chapter-by-chapter to mechanically detect drift, redundancy, and missing bridges—so the rearrangement doesn’t reintroduce sloppiness.

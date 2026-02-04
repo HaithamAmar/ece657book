@@ -41,6 +41,15 @@ Throughout this chapter we use the row-major (deep-learning) convention for batc
 \end{itemize}
 \end{tcolorbox}
 
+\begin{tcolorbox}[summarybox,title={Training failure signatures (symptom $\rightarrow$ likely fixes)}]
+\begin{itemize}
+    \item \textbf{Loss becomes NaN / diverges quickly:} lower learning rate; check data normalization; add gradient clipping; verify BN statistics (or switch norm).
+    \item \textbf{Training loss decreases but validation stalls:} audit split hygiene (\Cref{chap:supervised}); add regularization (weight decay, dropout); strengthen augmentation; check shortcut features via slice tests.
+    \item \textbf{Both training and validation improve slowly:} revisit initialization and normalization; try momentum/AdamW; confirm the objective matches the metric you care about.
+    \item \textbf{High accuracy but poor probability decisions:} audit calibration (reliability/ECE) and re-threshold on held-out data rather than trusting raw scores (\Cref{chap:logistic}).
+\end{itemize}
+\end{tcolorbox}
+
 \subsection{Historical Context and Motivation}
 \label{sec:cnn_historical_context_and_motivation}
 
@@ -227,7 +236,7 @@ Before 2012, neural networks were often dismissed in many academic circles due t
         \draw[cbOrange, thick] (3.65,2.05) -- (3.75,2.05);
         \draw[cbGreen, thick] (3.65,1.25) -- (3.75,1.25);
     \end{tikzpicture}
-    \caption{Schematic: Receptive field growth across depth. Even with small \(3\times3\) kernels, stacking layers expands the spatial context seen by deeper units.}
+    \caption{Schematic: Receptive field growth across depth. Even with small \(3\times3\) kernels, stacking layers expands the spatial context seen by deeper units. Use this when explaining why depth can replace very large kernels.}
     \label{fig:cnn_receptive_field_growth}
 \end{figure}
 
@@ -357,7 +366,7 @@ Taken together, these tools stabilize optimization; the figures below highlight 
             \addplot[cbOrange, thick, samples=200, domain=-6:6] {1/sqrt(2*pi*1.0)*exp(-(x^2)/2)}; \addlegendentry{channel 2}
         \end{groupplot}
     \end{tikzpicture}
-    \caption{Schematic: Batch normalization transforms per-channel activations toward zero mean and unit variance prior to the learned affine re-scaling, stabilizing training.}
+    \caption{Schematic: Batch normalization transforms per-channel activations toward zero mean and unit variance prior to the learned affine re-scaling, stabilizing training. Use this when diagnosing unstable training from drifting activation scales.}
     \label{fig:lec6-bn}
 \end{figure}
 
@@ -375,7 +384,7 @@ Taken together, these tools stabilize optimization; the figures below highlight 
             \addplot[cbOrange, thick, samples=120, domain=0:60] {0.15 + 1.0*exp(-x/10)}; \addlegendentry{Adam}
         \end{axis}
     \end{tikzpicture}
-    \caption{Schematic: Representative training curves for SGD with momentum versus Adam on the same CNN.}
+    \caption{Schematic: Representative training curves for SGD with momentum versus Adam on the same CNN. Use this when comparing optimizer behavior under the same model and data.}
     \label{fig:lec6-optimizers}
 \end{figure}
 

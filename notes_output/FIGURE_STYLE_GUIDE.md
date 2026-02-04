@@ -22,3 +22,9 @@ This project targets a premium, publication-grade look. Figures must be readable
 - No heavy whitespace borders (tight crop).
 - Line-art is not “hairline thin” (strokes visible at normal zoom).
 
+## Captions (house rule)
+
+- Prefer captions that start with `Schematic:` for conceptual visuals.
+- For `Schematic:` figures, end the caption with a short, decision-oriented sentence:
+  - `Use this when...`
+  This keeps schematics from becoming decorative and helps reflowable EPUB readers understand why the visual matters.

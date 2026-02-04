@@ -15,6 +15,15 @@
 Constrain recurrence so the dynamics become a descent process: symmetric weights and an energy function turn ``feedback'' into ``stable memory.''
 \end{tcolorbox}
 
+\begin{tcolorbox}[summarybox,title={Then vs.\ now: energy-based memory in context}]
+\begin{itemize}
+    \item \textbf{Then (classical Hopfield):} binary states, symmetric weights, and an explicit Lyapunov energy guarantee convergence to a fixed point.
+    \item \textbf{What persists:} stable attractors, pattern completion, and the idea that ``memory'' is a geometry (an energy landscape), not a stored list.
+    \item \textbf{What changes in modern systems:} memory is often \emph{content-addressable} and learned from data at scale (retrieval, associative recall), with softer states and differentiable training objectives.
+    \item \textbf{How to read the bridge:} keep the energy/attractor intuition, but do not assume every modern memory mechanism inherits Hopfield's symmetry or convergence guarantees.
+\end{itemize}
+\end{tcolorbox}
+
 \subsection{From Feedforward to Recurrent Neural Networks}
 \label{sec:hopfield_from_feedforward_to_recurrent_neural_networks}
 
@@ -225,7 +234,7 @@ For clarity, \Cref{tab:hopfield-deltaE} reports the energy change for each singl
         \bottomrule
     \end{tabular}
     % Avoid inline math in captions; it wraps poorly in some EPUB renderers.
-    \caption{Schematic: Single-neuron flips from (1, 1, -1); all raise the energy, so the state is a local minimum.}
+    \caption{Schematic: Single-neuron flips from (1, 1, -1); all raise the energy, so the state is a local minimum. Use this when checking stability of a stored pattern under single-bit perturbations.}
     \label{tab:hopfield-deltaE}
 \end{table}
 
@@ -256,7 +265,7 @@ If the network is perturbed slightly (for instance, by flipping \(s_3\) to \(+1\
         \end{axis}
     \end{tikzpicture}
     % Avoid inline math in captions; it wraps poorly in some EPUB renderers.
-    \caption{Schematic: Hopfield energy decreases monotonically under asynchronous updates. Starting from a noisy probe state s(0), successive single-neuron flips move downhill until the stored memory s(2) is recovered.}
+    \caption{Schematic: Hopfield energy decreases monotonically under asynchronous updates. Starting from a noisy probe state s(0), successive single-neuron flips move downhill until the stored memory s(2) is recovered. Use this when explaining why asynchronous updates converge under Hopfield's symmetry constraints.}
     \label{fig:hopfield-energy-descent}
 \end{figure}
 

@@ -422,7 +422,7 @@ Recall that our goal is to obtain a global vector representation for words, capt
     \centering
     \includegraphics[width=0.82\linewidth]{lec14_analogy_geometry}
     % Avoid inline math in captions; it wraps poorly in some EPUB renderers.
-    \caption{Schematic: Analogy geometry in embedding space. The classic offset ``v(king) - v(man) + v(woman) approx v(queen)'' forms a parallelogram; a similar gender direction also moves ``doctor'' toward ``nurse.'' Visualizing these displacement vectors (solid vs. dashed) makes the shared relational direction explicit. Points are shown after a 2D PCA projection, so directions are approximate rather than exact.}
+    \caption{Schematic: Analogy geometry in embedding space. The classic offset ``v(king) - v(man) + v(woman) approx v(queen)'' forms a parallelogram; a similar gender direction also moves ``doctor'' toward ``nurse.'' Visualizing these displacement vectors (solid vs. dashed) makes the shared relational direction explicit. Points are shown after a 2D PCA projection, so directions are approximate rather than exact. Use this when sanity-checking whether embedding offsets capture a consistent relation (and when they expose bias directions).}
     \label{fig:lec8-embedding-clusters}
 \end{figure}
 
@@ -602,15 +602,15 @@ When extending embeddings to multiple languages, biases can manifest differently
 Embedding spaces faithfully capture geometry (analogies, clusters) precisely because they also capture the biases present in the data. Treat every downstream use as a combination of those two facets: audit the geometry you need, but also audit the offset directions you would rather suppress. Vector arithmetic makes biases quantifiable, so put that ability to work before shipping a model.
 \end{tcolorbox}
 
-\subsection{Responsible deployment checklist (appendix)}
+\subsection{Responsible deployment checklist}
 \label{sec:nlp_responsible_deployment_checklist_appendix}
-\begin{itemize}
-    \item \textbf{Purpose and consent.} Document the use-case, decision stakes, and where humans remain in the loop; distinguish exploratory prototypes from production decision aids.
-    \item \textbf{Data lineage and licensing.} Track licenses for each corpus (newswire, Common Crawl, proprietary logs) and state whether downstream users may redistribute the embeddings or derived models.
-    \item \textbf{Privacy and security.} Scan corpora for PII, redact when necessary, and restrict raw-data access. When embeddings leave the lab, accompany them with an acceptable-use policy and redaction guarantees.
+\begin{enumerate}
+    \item \textbf{Purpose \& consent.} Document the use-case, decision stakes, and where humans remain in the loop; distinguish exploratory prototypes from production decision aids.
+    \item \textbf{Data lineage \& licensing.} Track licenses for each corpus (newswire, Common Crawl, proprietary logs) and state whether downstream users may redistribute the embeddings or derived models.
+    \item \textbf{Privacy \& security.} Scan corpora for PII, redact when necessary, and restrict raw-data access. When embeddings leave the lab, accompany them with an acceptable-use policy and redaction guarantees.
     \item \textbf{Monitoring.} Deploy subgroup-aware metrics, calibration checks, and toxicity filters in production; log drifts and institute retraining/rollback thresholds.
     \item \textbf{Documentation.} Ship a short ``model card'' summarizing intended uses, failure modes, and evaluation data so downstream teams can reason about fit-for-purpose decisions.
-\end{itemize}
+\end{enumerate}
 
 \subsection{Contextual embeddings and transformers}
 \label{sec:nlp_contextual_embeddings_and_transformers}

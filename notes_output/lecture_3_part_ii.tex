@@ -80,7 +80,7 @@ Even this tiny network introduces the central idea of neural networks: intermedi
         \node[lab, below=4pt of y] {$y_2=f(p_2)$};
     \end{tikzpicture}
     % Avoid inline math in captions; it wraps poorly in some EPUB renderers.
-    \caption{Schematic: The minimal neural network used in this chapter is a two-neuron chain. The first unit produces an intermediate signal, and the second unit maps that signal to the final output.}
+    \caption{Schematic: The minimal neural network used in this chapter is a two-neuron chain. The first unit produces an intermediate signal, and the second unit maps that signal to the final output. Use this when tracking variables and gradients in a toy network before scaling to deeper models.}
     \label{fig:mlp_minimal_chain}
 \end{figure}
 
@@ -179,7 +179,7 @@ The gradient gives a direction; the step size $\eta$ sets the distance. In pract
         \end{axis}
     \end{tikzpicture}
     % Avoid inline math in captions; it wraps poorly in some EPUB renderers.
-    \caption{Schematic: Think of performance as a surface over the weights. Gradient descent moves in one vector step (blue), whereas coordinate-wise updates can zig-zag (orange).}
+    \caption{Schematic: Think of performance as a surface over the weights. Gradient descent moves in one vector step (blue), whereas coordinate-wise updates can zig-zag (orange). Use this when building intuition for why gradient directions reduce loss more efficiently than axis-aligned steps.}
     \label{fig:mlp_gd_surface}
 \end{figure}
 
@@ -229,7 +229,7 @@ The threshold itself can be folded into a bias term, but the discontinuity remai
         \end{groupplot}
     \end{tikzpicture}
     % Avoid inline math in captions; it wraps poorly in some EPUB renderers.
-    \caption{Schematic: Hard thresholds block gradient-based learning because the derivative is zero almost everywhere. A smooth activation like the sigmoid provides informative derivatives across a wide range of inputs.}
+    \caption{Schematic: Hard thresholds block gradient-based learning because the derivative is zero almost everywhere. A smooth activation like the sigmoid provides informative derivatives across a wide range of inputs. Use this when motivating why smooth nonlinearities enable gradient-based training.}
     \label{fig:mlp_step_vs_sigmoid}
 \end{figure}
 

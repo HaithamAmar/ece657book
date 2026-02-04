@@ -249,7 +249,7 @@ These mechanisms can be visualized by considering crossover as splicing two pare
                 \node[font=\scriptsize, below=0.15cm of repair] {or penalty/feasible-first};
         \end{groupplot}
     \end{tikzpicture}
-    \caption{Schematic: Evolutionary micro-operators. Left: fitter individuals get sampled more often (roulette/tournament). Middle: crossover splices parents by a mask (one-point shown). Right: constraint handling routes offspring through repair/penalty/feasibility before evaluation.}
+    \caption{Schematic: Evolutionary micro-operators. Left: fitter individuals get sampled more often (roulette/tournament). Middle: crossover splices parents by a mask (one-point shown). Right: constraint handling routes offspring through repair/penalty/feasibility before evaluation. Use this when mapping an implementation to the canonical operator loop.}
     \label{fig:lec11-ea-micro}
 \end{figure}
 
@@ -738,7 +738,7 @@ In practice, a combination of these criteria is often used. For example, one mig
             \node[anchor=south east, font=\scriptsize] at (axis cs:31.5,0.82){Flat region $\Rightarrow$ consider stopping};
         \end{axis}
     \end{tikzpicture}
-    \caption{Schematic: Illustrative GA run showing the best and mean normalized fitness over 50 generations. Flat regions motivate ``no improvement'' stopping rules, while steady separation between best and mean indicates ongoing selection pressure.}
+    \caption{Schematic: Illustrative GA run showing the best and mean normalized fitness over 50 generations. Flat regions motivate ``no improvement'' stopping rules, while steady separation between best and mean indicates ongoing selection pressure. Use this when diagnosing premature convergence versus ongoing exploration.}
     \label{fig:lec11-ga-progress}
 \end{figure}
 
@@ -817,7 +817,7 @@ This iterative cycle continues until convergence or stopping criteria are met. T
 
 \end{tikzpicture}
 \end{adjustbox}
-\caption{Schematic: GA flowchart showing the iterative process: initialization leads to fitness evaluation and a termination check. If not terminated, the algorithm proceeds through selection, crossover, mutation, and replacement, which then feeds the next generation's fitness evaluation.}
+\caption{Schematic: GA flowchart showing the iterative process: initialization leads to fitness evaluation and a termination check. If not terminated, the algorithm proceeds through selection, crossover, mutation, and replacement, which then feeds the next generation's fitness evaluation. Use this when verifying that your implementation preserves the intended control flow.}
 \label{fig:lec11-ga-flow}
 \end{figure}
 
@@ -835,7 +835,7 @@ Mutation (flip one bit) & \(\,0110_2 \to 0111_2\) & 0.4375 & -0.02 \\
 \bottomrule
 \end{tabularx}
 % Avoid inline math in captions; it wraps poorly in some EPUB renderers.
-\caption{Schematic: Toy GA generation on a bounded interval. One crossover and mutation illustrate how the fitness function guides selection before the next generation.}
+\caption{Schematic: Toy GA generation on a bounded interval. One crossover and mutation illustrate how the fitness function guides selection before the next generation. Use this when explaining how variation operators interact with selection pressure.}
 \label{tab:ga-toy}
 \end{table}
 
@@ -1105,7 +1105,7 @@ When two or more objectives conflict, we seek a set of Pareto-optimal solutions 
 \begin{figure}[t]
     \centering
     \includegraphics[width=0.58\linewidth]{lec19_pareto}
-    \caption{Schematic: Sample Pareto front for two objectives. NSGA-II keeps all non-dominated points (blue) while pushing dominated solutions (orange) toward the front via selection, yielding a spread of trade-offs in one run.}
+    \caption{Schematic: Sample Pareto front for two objectives. NSGA-II keeps all non-dominated points (blue) while pushing dominated solutions (orange) toward the front via selection, yielding a spread of trade-offs in one run. Use this when interpreting multi-objective results as trade-offs, not a single optimum.}
     \label{fig:lec11-pareto}
 \end{figure}
 
