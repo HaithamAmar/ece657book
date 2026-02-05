@@ -189,6 +189,15 @@ Use this file to record editorial feedback as you read the **PDF** and **EPUBs**
   3. **Part II coherence (plan first, then execute):** write a concrete rearrangement plan for Chapters 11–12 (CNN/RNN) that moves from “basic → deeper → deepest,” without deleting content (only relocate/merge), then implement with regression checks.
   4. **Fragmentation reduction:** review Chapters 16 and 19 for micro-heading overload; consolidate where it improves narrative flow without losing rigor.
 
+### [2026-02-04] Item: Chapter 9 TOC title line break + Chapter 13 (NLP) Risk \& audit parity — DONE
+
+- **Severity:** polish (presentation + template consistency)
+- **Surface:** PDF + Apple EPUB + Kindle EPUB
+- **What changed (source):**
+  - Chapter 9 title no longer uses an explicit `\\\\` line break (improves EPUB TOC scanability): `notes_output/lecture_5_part_i.tex`.
+  - Added a `Risk \& audit` box to Chapter 13 (NLP) to match Chapters 3/4/11: `notes_output/lecture_8_part_i.tex`.
+- **Regression check:** `bash notes_output/scripts/run_production_checks.sh` (chapter audit + EPUB audits must stay green).
+
 Below is **chapter-by-chapter editorial feedback** plus **book-level guidance**. I’m basing this on the book’s stated intent and structure (preface + roadmap + chapter template), the full table of contents, and sampled passages from multiple chapters (including “Key takeaways” sections, learning outcomes, and representative technical pages).   
 
 ---

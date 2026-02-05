@@ -16,6 +16,16 @@
 Representation learning as a contract between data and objective---when you train on co-occurrence, you get both useful structure (analogies, clusters) and the biases present in the corpus.
 \end{tcolorbox}
 
+\begin{tcolorbox}[summarybox,title={Risk \& audit}]
+\begin{itemize}
+    \item \textbf{Evaluation leakage:} similarity/analogy benchmarks can overlap training sources; keep a truly held-out evaluation set and treat ``standard'' datasets as potentially contaminated.
+    \item \textbf{Tokenization debt:} preprocessing and vocabulary choices (case, subwords, cutoffs) change what the model can represent; version tokenizers and report them with results.
+    \item \textbf{Frequency bias:} rare words get unstable vectors; audit neighborhoods by frequency and use subsampling/regularization so geometry is not just Zipf effects.
+    \item \textbf{Social bias:} co-occurrence reflects social structure and stereotypes; probe for bias before using embeddings in decisions and document mitigations.
+    \item \textbf{Privacy/memorization:} large corpora can contain sensitive strings; treat training data as a security boundary and audit downstream systems for memorization.
+\end{itemize}
+\end{tcolorbox}
+
 \begin{tcolorbox}[summarybox,title={Chapter map (core vs.\ detours)}]
 \begin{itemize}
     \item \textbf{Core path:} distributional hypothesis $\rightarrow$ Word2Vec (CBOW/skip-gram) objectives $\rightarrow$ negative sampling $\rightarrow$ how to evaluate embeddings (analogies, neighbors) $\rightarrow$ how embeddings plug into RNNs/Transformers.
