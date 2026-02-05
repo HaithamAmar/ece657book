@@ -36,7 +36,7 @@ Representation learning as a contract between data and objective---when you trai
 \subsection{Context and Motivation}
 \label{sec:nlp_context_and_motivation}
 
-In this chapter, we focus on neural methods for natural language processing (NLP) through the lens of representation learning. Previously, we introduced the idea of representing words as inputs to a neural network, typically encoded as one-hot vectors, and obtaining as output a feature representation of these words. This feature representation captures semantic and syntactic properties of words in a continuous vector space.
+In this chapter, we focus on neural methods for natural language processing (NLP) through the lens of representation learning. \Cref{chap:rnn} treated language as prediction under context; here we focus on the missing ingredient that makes that practical: turning discrete symbols into vectors with useful geometry.
 
 A classic example illustrating the power of such representations is the analogy:
 \[
@@ -47,19 +47,54 @@ This demonstrates that vector arithmetic on word embeddings can capture meaningf
 \subsection{Problem Statement}
 \label{sec:nlp_problem_statement}
 
-Given a vocabulary (corpus) of approximately 10,000 words, we want to learn a mapping from each word to a dense vector representation in a feature space of dimension \(d\), where \(d\) is typically between 200 and 500. Formally, if the vocabulary size is \(V\), each word \(w_i\) is initially represented as a one-hot vector \(\mathbf{x}_i \in \mathbb{R}^V\), where
-\[
-x_{ij} = \begin{cases}
-1 & \text{if } j = i, \\
-0 & \text{otherwise}.
-\end{cases}
-\]
-Here the row index \(i\) selects the word and the column index \(j\) specifies the position within the \(V\)-dimensional one-hot vector, so each word is associated with a unique canonical basis vector.
-Our objective is to learn an embedding function
+Given a vocabulary (corpus) of approximately 10,000 words, we want to learn a mapping from each word to a dense vector representation in a feature space of dimension \(d\), where \(d\) is typically between 200 and 500. Formally, if the vocabulary size is \(V\), each word \(w_i\) begins as an index (equivalently, a one-hot indicator). Our objective is to learn an embedding function
 \[
 f: \{1, \ldots, V\} \to \mathbb{R}^d,
 \]
 such that semantic and syntactic properties of words are preserved in the embedding space.
+
+\subsection{Warm-up: from symbols to vectors}
+\label{sec:nlp_warmup_from_symbols_to_vectors}
+
+One-hot vectors make discrete tokens compatible with linear algebra, but they do not express \emph{similarity}: synonyms are orthogonal, and a model that treats each basis element independently has no reason to generalize from ``great'' to ``awesome'' without seeing both during training.
+
+\paragraph{One-hot encoding (baseline).}
+Fix a dictionary of size \(V\). A token at position \(t\) can be represented as a one-hot row indicator \(\mathbf{x}_t \in \{0,1\}^{1\times V}\) with a single 1. This guarantees uniqueness, but it makes every pair of distinct words equally far apart.
+
+\paragraph{Why one-hot is not enough (two quick failures).}
+\textbf{Synonyms.} A sentiment model trained to treat ``great'' as positive has no immediate reason to treat ``awesome'' as positive if the two words are orthogonal basis vectors.\par
+\textbf{Document similarity.} ``I enjoyed talking to the monarchs'' and ``I loved conversing with the royals'' express the same meaning, but a bag-of-words similarity score stays low if it cannot recognize that \emph{monarchs} and \emph{royals} occupy similar roles.
+
+\paragraph{Embedding lookup as learned features.}
+Instead of using the identity basis, we learn a table \(\mathbf{E}\in\mathbb{R}^{V\times d}\) whose rows are trainable parameters. A one-hot indicator becomes a row lookup:
+\[
+\mathbf{e}_t=\mathbf{x}_t\mathbf{E}\in\mathbb{R}^{1\times d}.
+\]
+This is the same linear algebra as one-hot, but now the coordinates are \emph{learned} so that similar words end up nearby when that helps prediction.
+
+A useful mental model is to imagine that each word is a \emph{graded bundle of attributes}. If we could write those attributes down explicitly, each word would already be a vector:
+\begin{table}[t]
+\centering
+\small
+\caption{Feature-based word vectorization example. Each word is mapped to a vector of graded semantic features; fractional entries (e.g., 0.5) indicate mixed usage across contexts. Use this when building intuition for how discrete symbols become vectors that downstream models can consume.}
+\label{tab:word_feature_vectorization}
+\begin{tabular}{l|cccccccc}
+\textbf{Word} & Gender & Royalty & Age & Person & Fruit & Title & Abstract & Sweet \\
+\hline
+man & 1 & 0 & 1 & 1 & 0 & 0 & 0 & 0 \\
+woman & 0 & 0 & 1 & 1 & 0 & 0 & 0 & 0 \\
+king & 1 & 1 & 1 & 1 & 0 & 1 & 0 & 0 \\
+queen & 0 & 1 & 1 & 1 & 0 & 1 & 0 & 0 \\
+orange & 0 & 0 & 0 & 0 & 1 & 0 & 0 & 1 \\
+apple & 0 & 0 & 0 & 0 & 1 & 0 & 0 & 1 \\
+monarch & 0.5 & 1 & 0.5 & 1 & 0 & 1 & 0 & 0 \\
+royal & 0 & 1 & 0.5 & 0 & 0 & 1 & 1 & 0 \\
+\end{tabular}
+\end{table}
+
+Of course, hand-crafting features does not scale to large vocabularies, and it bakes in subjective choices. The central move of modern embeddings is to let the \emph{training objective} discover whatever coordinates best support prediction from context.
+
+\paragraph{Subword tokenization and OOV handling.} Practical systems rarely operate on raw word types alone. To reduce vocabulary size and handle out-of-vocabulary (OOV) forms, they tokenize text into \emph{subword units}. Byte Pair Encoding (BPE) and WordPiece learn a compact inventory of frequent character sequences; words are segmented into a small number of subwords that can be re-composed by the model. FastText instead augments word vectors with character \(n\)-gram embeddings, so the representation of an unseen word is the sum of its subword vectors.
 
 \subsection{Key Insight: Distributional Hypothesis}
 \label{sec:nlp_key_insight_distributional_hypothesis}

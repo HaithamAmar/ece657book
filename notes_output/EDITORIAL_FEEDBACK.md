@@ -191,6 +191,29 @@ Use this file to record editorial feedback as you read the **PDF** and **EPUBs**
 
 ### [2026-02-04] Item: Chapter 9 TOC title line break + Chapter 13 (NLP) Risk \& audit parity — DONE
 
+- **Update (2026-02-05):** Chapter 9 TOC wrapping is now addressed at the source by giving the `\section` a short optional TOC title in `notes_output/lecture_5_part_i.tex` (keeps the on-page chapter title unchanged, but produces a cleaner TOC entry in PDF/EPUB).
+
+### [2026-02-05] Item: Move “Representing Words for RNN Inputs” out of Chapter 12 into Chapter 13 (NLP) — DONE
+
+- **Severity:** major (narrative coherence)
+- **Surface:** PDF + Apple EPUB + Kindle EPUB
+- **What changed (source):**
+  - Removed the word-representation/embedding bridge section from `notes_output/lecture_7.tex` (RNNs) so Chapter 12 can end cleanly on sequence modeling + training dynamics.
+  - Added a Chapter 13 lead-in section `Warm-up: from symbols to vectors` in `notes_output/lecture_8_part_i.tex` so embeddings/feature-geometry are introduced where they belong (before CBOW/skip-gram objectives).
+  - Preserved the graded-feature word-vectorization table (allowlisted by the EPUB table audit) exactly, including its fractional entries.
+- **Regression check:** `bash notes_output/scripts/run_production_checks.sh` (should remain green; Table QC should still allow exactly the one wide table).
+
+### [2026-02-05] Item: Prevent EPUB preprocessing from corrupting TikZ line breaks (`\\[-2pt]`) as display math (`\\[...\\]`) — FIXED
+
+- **Severity:** blocker (EPUB build failure risk + silent corruption risk)
+- **Surface:** Apple EPUB + Kindle EPUB
+- **What you see (symptom):** Pandoc errors like “unexpected `\\end{quote}`” caused by upstream LaTeX corruption; or malformed fragments such as `\\]-2pt]...` appearing near TikZ nodes.
+- **Likely root cause:** EPUB pipeline passes that scan for display math `\\[ ... \\]` were also matching TikZ line breaks `\\\\[<len>]`.
+- **Fix applied (pipeline):**
+  - Added guards in `epub_builder/lib/latex.py` to skip `\\[`/`\\]` when they are part of `\\\\[<len>]` / `\\\\]` sequences, without dropping text.
+  - Added the same guardrail in `notes_output/scripts/check_equations.py` so equation hygiene does not false-positive on TikZ line breaks.
+- **Regression check:** `bash notes_output/scripts/run_production_checks.sh` and confirm EPUB builds + audits + EPUBCheck pass.
+
 - **Severity:** polish (presentation + template consistency)
 - **Surface:** PDF + Apple EPUB + Kindle EPUB
 - **What changed (source):**
@@ -587,17 +610,16 @@ Appendix D exists and is referenced as the place where overloads are resolved. T
 
 ### A) Part numbering/label consistency
 
-I see “Part I,” “Part II,” then later “Part IV” (Soft computing) and “Part V” (Evolutionary). That implies a missing **Part III** in the TOC view. Even if it’s only a numbering artifact, readers *will* interpret it as “something missing.” 
-**Fix:** Either renumber or explicitly label the missing Part (even if it’s “Part III: (reserved)” — but better to renumber cleanly).
+Status (2026-02-05): Parts are now continuous and reader-facing: NLP is folded into Part II, and later Parts are renumbered accordingly. Keep this stable unless there is a very high-value reorganization, because Part labels become “mental bookmarks” once a reader starts referencing the TOC.
 
 ### B) Scope creep inside a few chapters is still visible from the TOC
-
+ 
 Two chapters look like “containers” that may become too broad:
 
-* **Chapter 12** (RNNs + also word representation discussion is inside it),
-* **NLP chapter** (embeddings + bias + deployment checklist + contextual transformers).
-  This can still work — but only if each has a **strong internal spine** and you’re ruthless about what’s “core” vs “reference.” 
-  **Fix:** Put a short **“Chapter map” box** at the start of 12 and 14:
+* **NLP chapter** (embeddings + evaluation + bias/deployment + contextual models),
+* **Transformers chapter** (architecture + masking + inference + deployment heuristics).
+   This can still work — but only if each has a **strong internal spine** and you’re ruthless about what’s “core” vs “reference.” 
+   **Fix:** Put a short **“Chapter map” box** at the start of 12 and 14:
 * “Core path (must read)” vs “Detours (optional)”.
 
 ### C) Make “Key Takeaways” global, not only at the end of Part V
@@ -616,12 +638,12 @@ Your Chapter 1 intro and “roadmap” are strong, but rearrangement breaks book
 * figure references drift,
 * notation reuse changes.
   You already have the infrastructure to prevent this (Notation notes + Appendix D). 
-  **Fix:** Add a **1-page “Rearrangement QA checklist”** in Appendix C or D:
-* “Every cross-reference validated”
-* “Figure/table numbers regenerated”
-* “Notation collisions rechecked”
-* “Chapter opening: assumed prerequisites updated”
-  This is the practical move that separates “draft” from “publishable.”
+  **Fix (workflow, not book content):** keep a **rearrangement QA checklist** in the internal release docs (e.g., `notes_output/RELEASE_PLAYBOOK.md` / `notes_output/PRODUCTION_ROADMAP.md`) rather than in the reader-facing appendices:
+* Every cross-reference validated
+* Figure/table numbers regenerated
+* Notation collisions rechecked
+* Chapter openings: assumed prerequisites updated
+  This is the practical move that separates “draft” from “publishable,” but it should live with the publishing workflow.
 
 ---
 

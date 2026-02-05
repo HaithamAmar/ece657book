@@ -163,12 +163,24 @@ def main() -> int:
 
         # Labels inside \[...\] are a common footgun: LaTeX doesn't number them by default.
         # If numbering is needed, prefer `equation` or `align`.
+        #
+        # Guardrail: do not confuse display math `\[` with line breaks `\\[<len>]`
+        # (common inside TikZ nodes and tabular material).
         i = 0
         while True:
             s = tex.find("\\[", i)
             if s == -1:
                 break
+            if s > 0 and tex[s - 1] == "\\":  # skip `\\[` (newline + optional spacing)
+                i = s + 2
+                continue
             e = tex.find("\\]", s + 2)
+            if e == -1:
+                break
+            while e > 0 and tex[e - 1] == "\\":  # skip `\\]` (rare, but symmetric guard)
+                e = tex.find("\\]", e + 2)
+                if e == -1:
+                    break
             if e == -1:
                 break
             block = tex[s : e + 2]

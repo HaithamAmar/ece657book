@@ -19,7 +19,7 @@ Add recurrence, then train it by unrolling time and reusing the backprop machine
 \begin{tcolorbox}[summarybox,title={Chapter map (core vs.\ detours)}]
 \begin{itemize}
     \item \textbf{Core path:} why memory is needed $\rightarrow$ state + parameter sharing $\rightarrow$ unrolling + BPTT $\rightarrow$ stability (vanishing/exploding, clipping) $\rightarrow$ gating (GRU/LSTM).
-    \item \textbf{Optional detours:} quick padding/autoencoder reminders (for encoder intuition), and the later word-representation section (useful if you want the full bridge into \Cref{chap:nlp}).
+    \item \textbf{Optional detours:} quick padding/autoencoder reminders (for encoder intuition). For word representations and embedding objectives, jump to \Cref{chap:nlp}.
 \end{itemize}
 \end{tcolorbox}
 
@@ -913,282 +913,10 @@ Gating (LSTM/GRU) made long-range gradient flow workable by creating additive me
     \label{fig:lec7-attention}
 \end{figure}
 
-\subsection{Representing Words for RNN Inputs}
-\label{sec:rnn_representing_words_for_rnn_inputs}
-
-Natural language processing (NLP) requires converting words into numerical representations that sequence models can process. Since machines operate on numbers, words must be encoded appropriately. \Cref{chap:nlp} develops the embedding objectives and evaluation tools; here we focus on how those representations flow through recurrent computation.
-
-\paragraph{Vocabulary Size and Word Representation}
-
-Natural language has a large but finite vocabulary at any chosen granularity. Depending on whether you count words, inflections, or subword units, the effective inventory can range from tens of thousands (common token vocabularies) to far larger sets of distinct surface forms.
-
-This finite vocabulary allows us to define a fixed-size dictionary \( V \) of words.
-
-\paragraph{One-Hot Encoding}
-
-A simple method to represent words is \emph{one-hot encoding}:
-\begin{itemize}
-    \item Assign each word in the vocabulary a unique index \( i \in \{1, \ldots, |V|\} \).
-    \item Represent each word as a vector \( \mathbf{w} \in \mathbb{R}^{|V|} \) where all entries are zero except the \( i \)-th entry, which is 1.
-\end{itemize}
-
-For example, if \( |V| = 10,000 \), the word "house" might be represented as:
-\[
-\mathbf{w}_{\text{house}} = [0, 0, \ldots, 1, \ldots, 0],
-\]
-with the 1 in the position corresponding to "house".
-
-This representation is sparse and high-dimensional. Conceptually the one-hot basis vectors correspond to the rows of the identity matrix \( I_{|V|} \), but in practice modern models replace that fixed basis with a \emph{learned} embedding table whose rows are trainable parameters. One convenient view is:
-\[
-\text{one-hot words} \;\leftrightarrow\; \text{rows of } I_{|V|},\qquad
-\mathbf{E} \in \mathbb{R}^{|V|\times d}\ \text{trainable},\ \ \mathbf{e}_t = \mathbf{x}_t \mathbf{E},
-\]
-so a one-hot input \(\mathbf{x}_t\) simply selects the corresponding row of \(\mathbf{E}\) as its dense embedding \(\mathbf{e}_t\).
-
-\paragraph{Why one-hot is not enough (preview).}
-One-hot inputs are easy to implement but discard similarity: ``king'' and ``queen'' are orthogonal. The next subsection makes that failure mode concrete and motivates denser representations.
-
-\subsection{Example: Sentiment Analysis with RNNs}
-\label{sec:rnn_example_sentiment_analysis_with_rnns}
-
-Consider the sentence:
-\[
-\text{"This place is great."}
-\]
-
-Each word is first converted into a numerical vector (e.g., one-hot encoded). The sequence of vectors is fed into the RNN, which processes them sequentially.
-
-For a \emph{many-to-one} RNN (e.g., sentiment classification), we are interested in the hidden state after processing the entire sentence. This final hidden state summarizes the contextual information and can be fed into a classifier to predict the sentiment label.
-
-\subsection{Limitations of One-Hot Encoding in Natural Language Processing}
-\label{sec:rnn_limitations_of_one_hot_encoding_in_natural_language_processing}
-
-Recall that one-hot encoding represents each word in the vocabulary as a unique vector with a single 1 and zeros elsewhere. While this approach guarantees uniqueness, it fails to capture any semantic or syntactic relationships between words.
-
-\paragraph{Example:} Consider the sentences:
-\begin{itemize}
-    \item ``This place is great.''
-    \item ``This place is awesome.''
-    \item ``This place is good.''
-\end{itemize}
-Using one-hot encoding, the words \textit{great}, \textit{awesome}, and \textit{good} are represented as orthogonal vectors. Thus, a model trained to associate ``great'' with a five-star rating may not generalize to ``awesome'' or ``good,'' despite their similar meanings.
-
-\paragraph{Document similarity:} Suppose we have two documents:
-\begin{align*}
-    D_1 &: \text{``I enjoyed talking to the monarchs.''} \\
-    D_2 &: \text{``I loved conversing with the Royals.''}
-\end{align*}
-Semantically, these sentences convey the same meaning. However, one-hot encoding treats \textit{monarchs} and \textit{Royals} as distinct tokens, as well as \textit{talking} and \textit{conversing}. Consequently, simple word-count based similarity metrics (e.g., cosine similarity on bag-of-words vectors) would yield a low similarity score, failing to capture the semantic equivalence.
-
-\paragraph{Summary:} One-hot encoding:
-\begin{itemize}
-    \item Ignores semantic similarity between words.
-    \item Treats synonyms and related words as completely unrelated.
-    \item Does not capture contextual or syntactic information.
-\end{itemize}
-
-This motivates the need for richer \textbf{feature representations} of words that encode their meanings and relationships.
-
-\subsection{Feature-Based Word Representations}
-\label{sec:rnn_feature_based_word_representations}
-
-To encode the meaning of words, we can represent each word as a vector of \emph{features} that capture semantic properties. These features can be handcrafted or learned, and aim to reflect qualities such as sentiment, category, or other linguistic attributes.
-
-\paragraph{Example:} Consider the following words:
-\[
-\text{man, woman, king, queen, orange, apple, monarch, royal}
-\]
-We can define features such as:
-\begin{itemize}
-    \item \textbf{Gender}: male, female, neutral
-    \item \textbf{Royalty status}: commoner, royalty
-    \item \textbf{Age}: adult, child
-    \item \textbf{Category}: animal, fruit, person, abstract
-    \item \textbf{Edibility}: edible, inedible
-    \item \textbf{Sweetness}: sweet, not sweet
-\end{itemize}
-
-Assigning numerical values to these features for each word yields a vector representation that encodes semantic information. For example:
-
-\begin{table}[t]
-\centering
-\small
-\caption{Feature-based word vectorization example. Each word is mapped to a vector of graded semantic features; fractional entries (e.g., 0.5) indicate mixed usage across contexts. Use this when building intuition for how discrete symbols become vectors that downstream models can consume.}
-\label{tab:word_feature_vectorization}
-\begin{tabular}{l|cccccccc}
-\textbf{Word} & Gender & Royalty & Age & Person & Fruit & Title & Abstract & Sweet \\
-\hline
-man & 1 & 0 & 1 & 1 & 0 & 0 & 0 & 0 \\
-woman & 0 & 0 & 1 & 1 & 0 & 0 & 0 & 0 \\
-king & 1 & 1 & 1 & 1 & 0 & 1 & 0 & 0 \\
-queen & 0 & 1 & 1 & 1 & 0 & 1 & 0 & 0 \\
-orange & 0 & 0 & 0 & 0 & 1 & 0 & 0 & 1 \\
-apple & 0 & 0 & 0 & 0 & 1 & 0 & 0 & 1 \\
-monarch & 0.5 & 1 & 0.5 & 1 & 0 & 1 & 0 & 0 \\
-royal & 0 & 1 & 0.5 & 0 & 0 & 1 & 1 & 0 \\
-\end{tabular}
-\end{table}
-
-\paragraph{Notes:}
-\begin{itemize}
-    \item The values can be binary or continuous, reflecting degrees or uncertainty (e.g., ``monarch'' receives a gender value of 0.5 to indicate that the term is used for multiple genders).
-    \item High-level categories are often represented with several binary indicators (person, fruit, title, abstract) rather than a single categorical feature.
-    \item Some features may be language- or culture-specific, and this approach requires domain knowledge and manual feature engineering.
-\end{itemize}
-
-\paragraph{Advantages:}
-\begin{itemize}
-    \item Captures semantic similarity: words with similar features have similar representations.
-    \item Enables reasoning about relationships (e.g., gender, royalty).
-    \item Provides interpretable dimensions.
-\end{itemize}
-
-\paragraph{Limitations:}
-\begin{itemize}
-    \item Requires extensive manual effort to define and annotate features.
-    \item May not scale well to large vocabularies or complex semantics.
-    \item Difficult to capture contextual nuances and polysemy.
-\end{itemize}
-
-\subsection{Towards Distributed Word Representations}
-\label{sec:rnn_towards_distributed_word_representations}
-
-The feature-based approach motivates the idea of \textbf{distributed representations}, where each word is represented as a dense vector in a continuous space. These vectors encode semantic and syntactic properties implicitly, often learned from large corpora.
-
-\paragraph{Key idea:} Instead of one-hot vectors, represent each word \( w \) as a vector \(\mathbf{v}_w \in \mathbb{R}^d\), where \(d \ll |V|\) (vocabulary size), such that:
-\[
-\text{similarity}(\mathbf{v}_w, \mathbf{v}_{w'}) \approx \text{semantic similarity}(w, w')
-\]
-
-\paragraph{Methods to obtain distributed representations}
-Several approaches learn such embeddings automatically from corpora, including neural language models (Word2Vec CBOW and Skip-gram), matrix factorization methods (GloVe), and contextual models (ELMo, BERT). These methods leverage co-occurrence statistics to place semantically similar words nearby in the embedding space.
-
-\subsection{Semantic Relationships in Word Embeddings}
-\label{sec:rnn_semantic_relationships_in_word_embeddings}
-
-We continue our exploration of word embeddings by examining how semantic relationships between words can be captured in vector space. The key insight, as demonstrated by \citet{Mikolov2013}, is that certain linguistic regularities and patterns manifest as linear relationships between word vectors.
-\paragraph{Subword tokenization and OOV handling.} Modern NLP systems rarely operate on raw word types alone. To reduce vocabulary size and handle out-of-vocabulary (OOV) words, they tokenize text into \emph{subword units}. Byte Pair Encoding (BPE) and WordPiece learn a compact inventory of frequent character sequences; words are segmented into a small number of subwords that can be re-composed by the model. FastText instead augments word vectors with character \(n\)-gram embeddings, so the representation of an unseen word is the sum of its subword vectors. Subword methods improve data efficiency, model morphology, and eliminate true OOVs while keeping sequence lengths manageable.
-
-\paragraph{Example: Gender and Royalty Analogies}
-
-Consider the analogy involving gender and royalty:
-
-\[
-\text{king} - \text{man} + \text{woman} \approx \text{queen}.
-\]
-
-This relationship suggests that the vector difference between \textit{king} and \textit{man} encodes the concept of "royal masculinity," and adding the vector for \textit{woman} shifts this to "royal femininity," yielding a vector close to \textit{queen}.
-
-More formally, if we denote the embedding of a word \( w \) as \(\mathbf{v}_w\), then the analogy can be expressed as:
-
-\begin{equation}
-\mathbf{v}_{\text{king}} - \mathbf{v}_{\text{man}} + \mathbf{v}_{\text{woman}} \approx \mathbf{v}_{\text{queen}}.
-\label{eq:king-queen-analogy}
-\end{equation}
-
-This vector arithmetic captures semantic relationships and can be used to find words that best complete analogies by maximizing cosine similarity:
-
-\[
-\arg\max_{w} \cos\big(\mathbf{v}_w, \mathbf{v}_{\text{king}} - \mathbf{v}_{\text{man}} + \mathbf{v}_{\text{woman}}\big).
-\]
-
-Here \(\cos(\mathbf{a}, \mathbf{b}) = \frac{\mathbf{a}^\top \mathbf{b}}{\|\mathbf{a}\|\,\|\mathbf{b}\|}\) denotes cosine similarity between vectors \(\mathbf{a}\) and \(\mathbf{b}\).
-
-\paragraph{Empirical Validation}
-
-Mikolov et al. showed that these relationships hold not only for gender and royalty but also for other semantic categories such as family relations (e.g., \textit{uncle} to \textit{aunt}), geographical locations (e.g., \textit{Portugal} to \textit{Lisbon}), and cultural concepts. The distances between word vectors reflect meaningful semantic distances, such as:
-
-\[
-\|\mathbf{v}_{\text{man}} - \mathbf{v}_{\text{woman}}\|_2 \approx \|\mathbf{v}_{\text{king}} - \mathbf{v}_{\text{queen}}\|_2,
-\]
-
-and similarly for other pairs.
-
-\paragraph{Geographical and Cultural Clustering}
-
-Word embeddings also often (empirically) capture geographic and cultural proximity. For example, the embeddings for countries and their capitals frequently cluster together:
-
-\[
-\mathbf{v}_{\text{Portugal}} \approx \mathbf{v}_{\text{Lisbon}}, \quad \mathbf{v}_{\text{Spain}} \approx \mathbf{v}_{\text{Madrid}}, \quad \mathbf{v}_{\text{France}} \approx \mathbf{v}_{\text{Paris}},
-\]
-
-and countries that are geographically close tend to have embeddings closer in vector space (e.g., \textit{China} is closer to \textit{Russia} and \textit{Japan} than to \textit{Portugal}), although the strength of this effect depends on the corpus used for training. Throughout this chapter, statements such as $\mathbf{v}_{\text{Portugal}} \approx \mathbf{v}_{\text{Lisbon}}$ are shorthand for ``the cosine similarity between the vectors exceeds a data-dependent threshold (typically $>0.8$)'' or, equivalently, that the two vectors lie in each other's $k$-nearest-neighbor list under cosine distance. These relations are empirical regularities rather than hard equalities, and the precise neighborhood structure depends on the corpus, training objective, and dimensionality of the embedding space.
-\Cref{fig:lec7-embedding-clusters} illustrates such neighborhoods after projecting embeddings to two principal components; the visual clusters make the relational analogies immediately apparent.
-\begin{figure}[t]
-    \centering
-    \includegraphics[width=\textwidth]{lec14_embeddings_clusters}
-    % Avoid inline math in captions; it wraps poorly in some EPUB renderers.
-    \caption{Toy 2D projection of word embeddings showing neighboring clusters (countries vs. capitals). Light hulls highlight clusters; arrows show that country-to-capital displacement vectors align, a visual check on analogy structure. Use this when sanity-checking whether embedding offsets behave consistently across many pairs.}
-    \label{fig:lec7-embedding-clusters}
-\end{figure}
-
-\subsection{Feature-Based Representation vs. One-Hot Encoding}
-\label{sec:rnn_feature_based_representation_vs_one_hot_encoding}
-
-The success of word embeddings lies in their ability to represent words as dense vectors encoding multiple latent features, as opposed to sparse one-hot vectors.
-
-\paragraph{One-Hot Encoding}
-
-One-hot encoding represents each word as a vector with a single 1 and zeros elsewhere. This representation is:
-
-\begin{itemize}
-    \item \textbf{Sparse}: High-dimensional with mostly zeros (in the one-hot representation used here, the dimensionality equals the vocabulary size and only one entry is non-zero for each word).
-    \item \textbf{Uninformative}: No notion of similarity between words.
-\end{itemize}
-
-\paragraph{Feature-Based Embeddings}
-
-In contrast, word embeddings are dense vectors in \(\mathbb{R}^d\) (typically \(d=100\) to \(300\)) where each dimension can be interpreted as a latent feature capturing semantic or syntactic properties. These features emerge from the training process rather than being explicitly defined. The term ``feature-based embedding'' is non-standard in the literature; we use it here simply to stress that the coordinates behave like automatically discovered features. Most papers instead refer to these objects as \emph{dense distributed representations}, and we always mean that same concept.
-Unlike the hand-crafted example below, the latent dimensions of distributed embeddings are not usually interpretable in isolation. They capture statistical regularities uncovered automatically during training. Interpretability can sometimes be probed post hoc (e.g., via probing classifiers or dimension alignment), but there is no guarantee that any single axis corresponds cleanly to a human-understandable attribute.
-
-\paragraph{Context Window Convention}
-
-When we refer to the ``context'' of a word \(w_t\) we mean the multiset of tokens that fall within a symmetric sliding window of radius \(c\) around position \(t\). Formally,
-\[
-    \mathcal{C}_t = \{\,w_{t-c},\ldots,w_{t-1},\; w_{t+1},\ldots,w_{t+c}\,\}.
-\]
-Directional variants sometimes use only the preceding words. The co-occurrence matrix in the next section corresponds to the special case \(c=1\), where we only count the following token. Making the window definition explicit removes ambiguity about which neighboring words contribute counts to \(C_{ij}\).
-
-\subsection{Open Questions: Feature Discovery and Representation}
-\label{sec:rnn_open_questions_feature_discovery_and_representation}
-
-Two natural questions arise regarding the nature of these features:
-
-\begin{enumerate}
-    \item \textbf{Who decides the features?}
-    Unlike manually engineered features, the features in word embeddings are \emph{discovered automatically} during training. There is no explicit human selection of features such as "gender" or "age." Instead, the training algorithm uncovers latent dimensions that best capture word co-occurrence statistics.
-
-    \item \textbf{How are the feature values determined?}
-The feature values (vector components) are learned by optimizing an objective function that encourages words appearing in similar contexts to have similar embeddings. This is typically done via self-supervised learning on large corpora. In a self-supervised setting the model creates its own supervision signal (future tokens, masked tokens, or neighboring sentences), so that no external labels are required.
-\end{enumerate}
-
-\paragraph{Self-supervised learning of embeddings}
-
-Although this learning is sometimes described informally as ``unsupervised,'' it is more accurately \emph{self-supervised} because the training objective uses the structure of the data itself (e.g., predicting context words) to create targets. In self-supervised setups the model manufactures its own targets from the input (for example, masking a word and asking the network to predict it), eliminating the need for manually annotated labels.
-
-\paragraph{Summary}
-
-Thus, the embedding process can be viewed as a function:
-
-\[
-f: \text{Vocabulary} \to \mathbb{R}^d,
-\]
-
-where \(f\) is learned to encode semantic and syntactic properties implicitly, without explicit feature engineering. In matrix form we implement \(f\) by selecting the \emph{row} of the learned embedding matrix \(\mathbf{E}\) corresponding to the word of interest (row\hyp{}embedding convention).
-
-In practice we optimize objectives such as the continuous bag-of-words (CBOW) likelihood (predicts a center word from its surrounding context) and the skip-gram with negative sampling (SGNS) loss (predicts context words given a center word). These training regimes are typically optimized with SGD variants (SGD, Adam) on large corpora; \Cref{chap:nlp} spells out the CBOW/skip-gram objectives in detail.
-
-% References:
-% \begin{thebibliography}{9}
-% \bibitem{mikolov2013distributed}
-% Tomas Mik
-
-\noindent\textbf{Forward pointer.} We cover Word2Vec/CBOW, skip-gram, and GloVe in \Cref{chap:nlp}; keep the self-supervised framing in mind as we shift from RNNs to dedicated embedding objectives.
-
 \subsection{Wrapping Up the Derivations}
 \label{sec:rnn_wrapping_up_the_derivations}
 
-In this chapter, we have explored the foundational concepts behind modeling sequences in natural language processing (NLP) using recurrent neural networks (RNNs). We began by considering the problem of predicting the probability of a word given its preceding context, which is central to language modeling.
+In this chapter, we explored the foundational ideas behind modeling sequences with recurrent neural networks (RNNs). One common example is language modeling: predicting the next token in a sequence from its preceding context.
 
 Recall that the goal is to estimate the conditional probability of a word \( w_t \) given the sequence of previous words \( w_1, w_2, \ldots, w_{t-1} \):
 \begin{equation}
@@ -1217,14 +945,8 @@ This objective encourages the model to assign high probability to the actual nex
 
 A key insight is that no explicit labeling is required to train such models. The natural co-occurrence statistics of words in large corpora serve as implicit supervision. For example, the model learns that the word "juice" often follows "apple" because this pattern frequently appears in the training data. This is the essence of \emph{self-supervised} learning in NLP, where the prediction targets are created directly from the input sequence.
 
-\paragraph{Feature Representations}
-
-The input to the RNN is typically a dense vector representation of words, known as \emph{word embeddings}. These embeddings capture semantic and syntactic properties of words and are learned jointly with the model parameters. The embedding matrix \( \mathbf{E} \in \mathbb{R}^{V \times d} \), where \( V \) is the vocabulary size and \( d \) is the embedding dimension, maps each word index to a vector. We denote by \(\mathbf{e}_{w_t}\in\{0,1\}^{1\times V}\) the one-hot row indicator of word \(w_t\). The embedding lookup can then be written compactly as
-\begin{equation}
-    \mathbf{x}_t = \mathbf{e}_{w_t}\mathbf{E},
-\label{eq:auto_rnn_a1959b1e5b}
-\end{equation}
-so \(\mathbf{E}[w_t]\) simply selects the row of \(\mathbf{E}\) associated with \(w_t\). The boldface \(\mathbf{E}[\,\cdot\,]\) notation is intentional: it denotes array indexing into the learnable embedding matrix rather than an expectation operator \( \mathbb{E}[\cdot] \). Whenever expectations appear later in the book we write them explicitly as \( \mathbb{E}[\cdot] \) to avoid overload.
+\paragraph{Input representations.}
+The input \(\mathbf{x}_t\) is a numeric vector. In language modeling and other discrete-token problems, it is typically a token embedding produced by a learned lookup table. \Cref{chap:nlp} covers where those vectors come from (training objectives, evaluation, and audit considerations).
 
 \paragraph{Summary of the Modeling Pipeline}
 
@@ -1266,7 +988,7 @@ All gates are elementwise; $\sigma$ denotes the logistic sigmoid and $\odot$ the
 \begin{tcolorbox}[summarybox,title={Key takeaways}]
 \begin{itemize}
     \item Language modeling is trained with self-supervision by maximizing next-token likelihood.
-    \item Embeddings provide dense, learned word features; RNN hidden states encode context.
+    \item Token vectors provide the numeric inputs; RNN hidden states encode context over time.
     \item Stability tools (clipping, gating, attention) enable long-range dependency modeling.
 \end{itemize}
 

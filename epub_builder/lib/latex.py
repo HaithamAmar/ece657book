@@ -188,6 +188,7 @@ def inject_equation_targets(text: str) -> str:
     text = "".join(out)
 
     # Also handle display-math blocks written as \[ ... \] (common in the manuscript).
+    # Important: avoid matching `\\[<len>]` line breaks (common in TikZ/node text and tables).
     out2: list[str] = []
     i = 0
     while True:
@@ -195,7 +196,18 @@ def inject_equation_targets(text: str) -> str:
         if s == -1:
             out2.append(text[i:])
             break
+        if s > 0 and text[s - 1] == "\\":  # skip `\\[` (newline + optional spacing)
+            out2.append(text[i : s + 2])
+            i = s + 2
+            continue
         e = text.find("\\]", s + 2)
+        if e == -1:
+            out2.append(text[i:])
+            break
+        while e > 0 and text[e - 1] == "\\":  # skip `\\]` (rare, but symmetric guard)
+            e = text.find("\\]", e + 2)
+            if e == -1:
+                break
         if e == -1:
             out2.append(text[i:])
             break
@@ -955,6 +967,7 @@ def add_visible_equation_numbers(text: str, *, aux_numbers: dict[str, str]) -> s
     text2 = "".join(out)
 
     # Also add visible numbers for display math written as \[...\].
+    # Guard against `\\[<len>]` line breaks (common in TikZ/node text and tables).
     out3: list[str] = []
     i = 0
     while True:
@@ -962,7 +975,18 @@ def add_visible_equation_numbers(text: str, *, aux_numbers: dict[str, str]) -> s
         if s == -1:
             out3.append(text2[i:])
             break
+        if s > 0 and text2[s - 1] == "\\":  # skip `\\[` (newline + optional spacing)
+            out3.append(text2[i : s + 2])
+            i = s + 2
+            continue
         e = text2.find("\\]", s + 2)
+        if e == -1:
+            out3.append(text2[i:])
+            break
+        while e > 0 and text2[e - 1] == "\\":  # skip `\\]` (rare, but symmetric guard)
+            e = text2.find("\\]", e + 2)
+            if e == -1:
+                break
         if e == -1:
             out3.append(text2[i:])
             break
