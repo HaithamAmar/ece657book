@@ -12,7 +12,7 @@ After this chapter, you should be able to:
 \end{itemize}
 \end{tcolorbox}
 
-\Cref{chap:rnn} made the sequence problem explicit: stateful computation plus gradients that must flow across time. Transformers keep the sequence focus but remove recurrence, replacing it with attention so information can move globally in one layer. The roadmap in \Cref{fig:roadmap} shows this as the modern sequence branch.
+\Cref{chap:rnn} made the sequence problem explicit: stateful computation plus gradients that must flow across time. \Cref{chap:nlp} then supplied the missing front end for language---turning symbols into vectors with useful geometry. Transformers keep the sequence focus but remove recurrence, replacing it with attention so information can move globally in one layer. The roadmap in \Cref{fig:roadmap} shows this as the modern sequence branch.
 
 \begin{tcolorbox}[summarybox,title={Design motif}]
 Control information flow with structure (masks, normalization, residual paths) so optimization remains stable while context windows grow.
@@ -34,7 +34,7 @@ It is helpful to view attention as each token asking ``who else helps me underst
 
 \subsection{Why transformers after RNNs?}
 \label{sec:transformers_why_transformers_after_rnns}
-\Cref{chap:rnn} closed with recurrent models that process tokens sequentially, leaving them prone to vanishing/exploding gradients, limited receptive fields, and low hardware utilization. Transformers replace the recurrence with attention so every position can condition on any other in a single layer, enabling parallel hardware use and more direct long-range interactions \citep{Vaswani2017}.
+The RNN chapter (\Cref{chap:rnn}) closed with recurrent models that process tokens sequentially: information must travel through time steps, training cannot fully parallelize across positions, and gradients can still struggle on long contexts even with gating. The embeddings chapter (\Cref{chap:nlp}) addressed a different bottleneck---how tokens become vectors so many\hyp{}to\hyp{}one decisions (e.g., sentiment classification) can generalize across similar words. Transformers replace recurrence with attention so every position can condition on any other in a single layer, enabling parallel hardware use and more direct long-range interactions \citep{Vaswani2017}.
 
 \subsection{Scaled Dot-Product Attention}
 \label{sec:transformers_scaled_dot_product_attention}
@@ -324,7 +324,7 @@ opt.step(); opt.zero_grad()
 \end{verbatim}
 At inference, reuse cached K/V states per layer instead of recomputing attention over the full prefix.
 \end{tcolorbox}
-\paragraph{Code--math dictionary.} In code blocks, \texttt{x} is the token-index tensor (input IDs), \texttt{h} is the hidden-state array \(\mathbf{H}\), \texttt{mask} is the attention mask, and \texttt{embed(x)} denotes an embedding lookup into the learned matrix \(\mathbf{E}\) (written algebraically as a row-selection or \(\mathbf{E}[w_t]\) in \Cref{chap:rnn}).
+\paragraph{Code--math dictionary.} In code blocks, \texttt{x} is the token-index tensor (input IDs), \texttt{h} is the hidden-state array \(\mathbf{H}\), \texttt{mask} is the attention mask, and \texttt{embed(x)} denotes an embedding lookup into the learned matrix \(\mathbf{E}\) (written algebraically as a row-selection or \(\mathbf{E}[w_t]\) in \Cref{chap:nlp}).
 
 \subsection{Long Contexts and Efficient Attention}
 \label{sec:transformers_long_contexts_and_efficient_attention}
