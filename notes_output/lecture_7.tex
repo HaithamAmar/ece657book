@@ -948,6 +948,21 @@ A key insight is that no explicit labeling is required to train such models. The
 \paragraph{Input representations.}
 The input \(\mathbf{x}_t\) is a numeric vector. In language modeling and other discrete-token problems, it is typically a token embedding produced by a learned lookup table. \Cref{chap:nlp} covers where those vectors come from (training objectives, evaluation, and audit considerations).
 
+\subsubsection{Worked example: sentiment as a many-to-one decision}
+\label{sec:rnn_sentiment_worked_example}
+
+To make the sequence viewpoint concrete, consider a short review such as:
+\emph{``This place is great.''}
+In a sentiment classifier, we map the token sequence \((w_1,\ldots,w_T)\) to a single label \(y\in\{0,1\}\) (negative/positive). The recurrence consumes numeric inputs \(\mathbf{x}_t\) (one per token) and produces a final state \(\mathbf{h}_T\) that summarizes the sentence:
+\begin{equation}
+\mathbf{h}_t=f(\mathbf{h}_{t-1},\mathbf{x}_t;\theta),\qquad
+\hat{y}=\sigma(\mathbf{w}^\top \mathbf{h}_T+b),
+\label{eq:rnn_sentiment_many_to_one}
+\end{equation}
+where \(\sigma(\cdot)\) is the logistic sigmoid and \(\hat{y}\) is the predicted probability of the positive class.
+
+This setup highlights a subtle but important dependency between \emph{representation} and \emph{generalization}. If tokens are treated as unrelated IDs (e.g., purely one-hot indicators), then ``great'' and ``awesome'' are orthogonal inputs: the model has no built-in reason to transfer evidence across similar words unless the training objective supplies a geometry that makes them nearby. In \Cref{chap:nlp}, we return to this same kind of task and show how learning word vectors from context gives the model a meaningful input space before any sequence model is applied.
+
 \paragraph{Summary of the Modeling Pipeline}
 
 \begin{enumerate}

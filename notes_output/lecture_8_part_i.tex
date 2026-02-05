@@ -65,6 +65,9 @@ Fix a dictionary of size \(V\). A token at position \(t\) can be represented as 
 \textbf{Synonyms.} A sentiment model trained to treat ``great'' as positive has no immediate reason to treat ``awesome'' as positive if the two words are orthogonal basis vectors.\par
 \textbf{Document similarity.} ``I enjoyed talking to the monarchs'' and ``I loved conversing with the royals'' express the same meaning, but a bag-of-words similarity score stays low if it cannot recognize that \emph{monarchs} and \emph{royals} occupy similar roles.
 
+\medskip
+\noindent This is the same friction point you saw in \Cref{sec:rnn_sentiment_worked_example}: the sequence model can only be as systematic as its input geometry.
+
 \paragraph{Embedding lookup as learned features.}
 Instead of using the identity basis, we learn a table \(\mathbf{E}\in\mathbb{R}^{V\times d}\) whose rows are trainable parameters. A one-hot indicator becomes a row lookup:
 \[

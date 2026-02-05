@@ -214,6 +214,16 @@ Use this file to record editorial feedback as you read the **PDF** and **EPUBs**
   - Added the same guardrail in `notes_output/scripts/check_equations.py` so equation hygiene does not false-positive on TikZ line breaks.
 - **Regression check:** `bash notes_output/scripts/run_production_checks.sh` and confirm EPUB builds + audits + EPUBCheck pass.
 
+### [2026-02-05] Item: Reintroduce a minimal RNN sentiment use-case as a natural lead-in to embeddings — DONE
+
+- **Severity:** polish (continuity)
+- **Surface:** PDF + Apple EPUB + Kindle EPUB
+- **What changed (source):**
+  - Added a short worked example in the RNN wrap-up showing sentiment as a many-to-one decision (`notes_output/lecture_7.tex`, label `sec:rnn_sentiment_worked_example`).
+  - Added a one-line callback in the Chapter 13 warm-up so the reader sees the same problem again, now with vector geometry (`notes_output/lecture_8_part_i.tex`).
+- **Intent:** keep the example motivating without turning Chapter 12 into a second embeddings chapter.
+- **Regression check:** `bash notes_output/scripts/run_production_checks.sh` (should remain green).
+
 - **Severity:** polish (presentation + template consistency)
 - **Surface:** PDF + Apple EPUB + Kindle EPUB
 - **What changed (source):**
