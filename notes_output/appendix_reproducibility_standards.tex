@@ -1,0 +1,38 @@
+\section{Reproducibility and Reporting Standards}\label{app:repro_standards}
+
+This appendix defines the minimum reporting standard used throughout this book when experiments include stochastic training, model selection, or constrained optimization. The objective is simple: results should be auditable and repeatable by another reader with the same code and data access.
+
+\begin{tcolorbox}[summarybox,title={Core reporting template (required fields)}]
+\begin{itemize}
+    \item \textbf{Data protocol:} split policy, leakage controls, and preprocessing/tokenization version.
+    \item \textbf{Model protocol:} architecture configuration, parameter count, initialization policy, and regularization settings.
+    \item \textbf{Optimization protocol:} optimizer, schedule, batch size, stopping rule, and checkpoint selection criterion.
+    \item \textbf{Evaluation protocol:} primary metric, calibration/slice checks, and whether thresholds were tuned on validation only.
+    \item \textbf{Variance protocol:} random seeds, number of runs, and summary statistics (median/mean plus spread).
+\end{itemize}
+\end{tcolorbox}
+
+\subsection*{Minimum acceptable evidence}
+\begin{itemize}
+    \item Report at least 5 seeds for low-cost experiments and 10+ seeds when claims depend on small metric differences.
+    \item Show both central tendency and spread (e.g., median + interquartile range, or mean + standard deviation).
+    \item Match evaluation budgets when comparing methods (same number of epochs/fitness calls and same stopping policy).
+    \item Preserve a machine-readable experiment log (configuration + metrics + seed) for each run.
+\end{itemize}
+
+\subsection*{Common failure modes to avoid}
+\begin{itemize}
+    \item \textbf{Best-run reporting:} publishing only the strongest seed and omitting dispersion.
+    \item \textbf{Budget mismatch:} giving one method more training/evaluation budget than another.
+    \item \textbf{Selection leakage:} tuning hyperparameters on test data (explicitly or implicitly).
+    \item \textbf{Unversioned preprocessing:} changing tokenization/normalization without recording revisions.
+\end{itemize}
+
+\subsection*{Chapter-specific notes}
+\begin{itemize}
+    \item \textbf{Supervised/Logistic chapters:} pair accuracy-like metrics with calibration and slice checks.
+    \item \textbf{Deep-learning chapters:} track gradient health, early stopping criteria, and checkpoint restore policy.
+    \item \textbf{Evolutionary chapter:} report evaluation-budget-normalized performance and multi-seed front dispersion.
+\end{itemize}
+
+\paragraph{Practical rule.} If a claim changes a design decision, it must include enough protocol detail for a third party to reproduce the comparison.

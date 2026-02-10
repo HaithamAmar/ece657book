@@ -75,6 +75,8 @@ To formalize this, we introduce the following notation:
     \item $f(\cdot)$: activation function.
 \end{itemize}
 These definitions carry directly into the forward-pass recap below, where we chain the affine map and nonlinearity across layers.
+\paragraph{Notation handoff.}
+Across this chapter, \(a\) denotes activations and \(z\) denotes pre-activations; this pairing is reused in later deep-learning chapters. If you jump into chapters out of order, keep \Cref{app:notation_collisions} nearby for symbol overloads.
 
 \subsection{Forward Pass Recap}
 \label{sec:backprop_forward_pass_recap}
@@ -910,6 +912,15 @@ This closes the core backpropagation story for MLPs. Next we summarize practical
         \item Maintain a validation split distinct from the training mini\hyp{}batches. After each epoch, record the validation loss \(L_{\text{val}}^{(e)}\).
         \item Stop training when \(L_{\text{val}}\) has not improved for \(k\) consecutive epochs (typical patience \(k \in [5,10]\)). Optionally require a minimum relative improvement (e.g., \(0.1\%\)) to smooth noise.
     \item Always checkpoint the parameters that achieved the best validation score and restore them before testing; averaging the last \(m\) checkpoints (``Polyak averaging'') can further stabilize performance.
+\end{itemize}
+\end{tcolorbox}
+
+\begin{tcolorbox}[summarybox,title={Derivation closure: implement, cache, fail-fast}]
+\begin{itemize}
+    \item \textbf{Implement:} encode one canonical forward signature \((A^{(l-1)},W^{(l)},b^{(l)}) \mapsto (Z^{(l)},A^{(l)})\), then reuse it for every layer.
+    \item \textbf{Cache:} store \((A^{(l-1)}, Z^{(l)})\) per layer so backward passes only apply local Jacobians and matrix multiplications.
+    \item \textbf{Fail-fast checks:} do a numerical gradient check on one mini-batch, then verify gradient norms and validation curves before long runs.
+    \item \textbf{Reproducibility:} log seed, optimizer, schedule, and stopping rule with each run; the reporting template in \Cref{app:repro_standards} keeps comparisons fair.
 \end{itemize}
 \end{tcolorbox}
 

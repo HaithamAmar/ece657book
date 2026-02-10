@@ -10,10 +10,24 @@
 \end{itemize}
 \end{tcolorbox}
 
-The roadmap in \Cref{chap:intro} keeps four strands in view: statistical/data-driven modeling, biological/neural representation learning, behavioral rule-based fuzzy systems, and evolutionary search. This chapter develops the evolutionary thread. See \Cref{fig:roadmap} for the strand placement.
+After the fuzzy trilogy (\Crefrange{chap:softcomp}{chap:fuzzyinference}), this chapter develops the evolutionary-search strand introduced in \Cref{chap:intro}. The focus shifts from rule composition to population-based optimization under constraints, budgets, and stochastic variability.
 
 \begin{tcolorbox}[summarybox,title={Design motif}]
 When gradients are unavailable or the landscape is rugged, treat design as search: maintain a diverse population, score candidates with a fitness function, and let selection plus variation drive improvement under constraints.
+\end{tcolorbox}
+
+\begin{tcolorbox}[summarybox,title={Notation handoff}]
+Vectors of candidate solutions are written as \(\mathbf{x}\), objective values as \(f(\mathbf{x})\), and population members as individuals/chromosomes depending on encoding. If symbol reuse from earlier chapters becomes ambiguous, default to local definitions and consult \Cref{app:notation_collisions}.
+\end{tcolorbox}
+
+\begin{tcolorbox}[summarybox,title={Risk \& audit}]
+\begin{itemize}
+    \item \textbf{Premature convergence:} aggressive selection or weak mutation collapses diversity before good regions are explored.
+    \item \textbf{Budget mismatch:} comparisons are invalid unless algorithms share evaluation budgets and stopping rules.
+    \item \textbf{Constraint leakage:} hidden infeasibility can inflate scores; use explicit feasibility checks in logs and plots.
+    \item \textbf{Single-run overclaim:} stochastic algorithms require multi-seed reporting with spread, not one best trajectory.
+    \item \textbf{Objective gaming:} fitness proxies can drift from deployment goals; audit secondary metrics and failure cases.
+\end{itemize}
 \end{tcolorbox}
 
 \subsection{Context and Motivation}
@@ -919,7 +933,7 @@ A single generation could proceed as follows:
 \item \textbf{Feasibility-first selection} ranks feasible candidates ahead of infeasible ones, then compares raw fitness only within each group; among infeasible solutions, select those with the smallest violation.
 \item \textbf{Deb's feasibility rules} \citep{Deb2001Book}: (i) if one solution is feasible and the other is not, pick the feasible one; (ii) if both are feasible, pick the better objective; (iii) if both are infeasible, pick the one with smaller total constraint violation. Adaptive penalties can be layered on top when violations persist.
 \end{itemize}
-\paragraph{Reproducibility and fair comparison} Fix random seeds when debugging, run many seeds (e.g., 20+) for reporting, match evaluation budgets across algorithms, and report mean/median best-so-far with variability bands. Log all hyperparameters and share code/configs to make comparisons fair.
+\paragraph{Reproducibility and fair comparison} Fix random seeds when debugging, run many seeds (e.g., 20+) for reporting, match evaluation budgets across algorithms, and report mean/median best-so-far with variability bands. Log all hyperparameters and share code/configs to make comparisons fair. Use \Cref{app:repro_standards} as the default reporting template.
 Penalty terms are easy to implement, repair operators exploit domain knowledge, and feasibility-first policies are useful in safety-critical controllers where violating constraints is unacceptable even temporarily.
 \end{tcolorbox}
 

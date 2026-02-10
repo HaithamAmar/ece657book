@@ -358,6 +358,15 @@ Conceptually, nothing new happens when you go from two neurons to many layers: i
     \item The two\hyp{}neuron derivation already contains the backpropagation pattern used in deep networks.
 \end{itemize}
 
+\begin{tcolorbox}[summarybox,title={Derivation closure: implement, cache, fail-fast}]
+\begin{itemize}
+    \item \textbf{Implement:} treat the chapter equations as a forward function plus a scalar loss; write them once in vector form before batching.
+    \item \textbf{Cache:} keep \((\mathbf{x}, p_1, y_1, p_2, y_2)\) from the forward pass so each gradient term is a local reuse, not a re-derivation.
+    \item \textbf{Fail-fast checks:} run finite-difference gradient checks on a tiny example, then track train/validation divergence to catch update-sign or step-size mistakes early.
+    \item \textbf{Handoff:} the same cache-then-backward discipline scales directly in \Cref{chap:backprop}; only bookkeeping grows.
+\end{itemize}
+\end{tcolorbox}
+
 \begin{tcolorbox}[summarybox,title={Key takeaways}]
 \textbf{Minimum viable mastery}
 \begin{itemize}

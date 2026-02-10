@@ -26,12 +26,16 @@ Keep the same statistical learning loop from \Crefrange{chap:supervised}{chap:lo
     \item \textbf{BatchNorm regimes:} very small batch sizes can destabilize BN statistics; consider alternatives (layer/group norm) and audit sensitivity.
     \item \textbf{Shortcut learning:} CNNs can latch onto background cues; use perturbations, counterfactual crops, and slice audits.
     \item \textbf{Robustness:} report performance under shifts (lighting, camera, compression) and track calibration when scores are used as probabilities.
+    \item \textbf{Run-to-run variance:} report seeds, spread, and stopping policy; use \Cref{app:repro_standards} as the default reporting format.
 \end{itemize}
 \end{tcolorbox}
 
 \begin{tcolorbox}[summarybox,title={Shape reminder}]
 Throughout this chapter we use the row-major (deep-learning) convention for batches: inputs \(X\in\mathbb{R}^{B\times d_{\text{in}}}\), weights \(W\in\mathbb{R}^{d_{\text{in}}\times d_{\text{out}}}\), and biases \(b\in\mathbb{R}^{d_{\text{out}}}\), with forward map \(Z=XW+\mathbf{1}b^\top\). When we write single-example equations, you can read them as the same convention with \(B=1\). For convolution/cross-correlation we follow the standard deep-learning tensor convention (channels and spatial axes); the same shape logic applies once the tensors are flattened into matrix form.
 \end{tcolorbox}
+
+\paragraph{Notation handoff.}
+Here \(\sigma(\cdot)\) is used only as an activation nonlinearity, while earlier statistical chapters use \(\sigma^2\) for variance. Keep \Cref{app:notation_collisions} nearby when moving between probability and deep-learning sections.
 
 \begin{tcolorbox}[summarybox,title={How to read this chapter}]
 \begin{itemize}
@@ -424,6 +428,15 @@ function ForwardBackward(params, x, y):
 \end{verbatim}
 \normalsize
 This omits batching, convolution strides, and optimizer detail but highlights the cache-then-backprop pattern reused throughout the deep-learning chapters.
+\end{tcolorbox}
+
+\begin{tcolorbox}[summarybox,title={Derivation closure: implement, cache, fail-fast}]
+\begin{itemize}
+    \item \textbf{Implement:} treat each block as a typed transform (conv/BN/activation/pool) with explicit input-output shapes.
+    \item \textbf{Cache:} retain pre-activations, normalization statistics, and masks needed for backward passes; do not recompute them implicitly.
+    \item \textbf{Fail-fast checks:} validate shape arithmetic, then run one-batch overfit tests before full training to catch broken gradients early.
+    \item \textbf{Report:} publish seed, augmentation recipe, and calibration metrics with every benchmark, following \Cref{app:repro_standards}.
+\end{itemize}
 \end{tcolorbox}
 
 \begin{tcolorbox}[summarybox,title={Key takeaways}]

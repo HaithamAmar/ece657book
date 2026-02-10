@@ -16,10 +16,24 @@ For the thermostat, each rule combines the temperature error (\textit{Cold}, \te
 
 Throughout this chapter we keep the trilogy defaults from \Crefrange{chap:fuzzysets}{chap:fuzzyrelations}: \(\wedge=\min\), \(\vee=\max\), and the standard complement \(1-\mu\). Aggregation over rule consequents defaults to the max s\hyp{}norm unless stated otherwise; alternatives live in \Cref{tab:tnorms}.
 
-Building on \Cref{chap:fuzzyrelations}, where we developed transfer operators (projection, composition, and the extension principle) to move fuzzy information between related universes, we now assemble complete fuzzy inference systems (FIS): rule composition and output calculation. The roadmap in \Cref{fig:roadmap} shows this as the inference step that turns fuzzy sets into decisions.
+Building on \Cref{chap:fuzzyrelations}, where transfer operators (projection, composition, and the extension principle) move fuzzy information between related universes, this chapter assembles complete fuzzy inference systems (FIS): rule composition and output calculation. It closes the fuzzy trilogy by turning set/relation machinery into end-to-end decisions.
 
 \begin{tcolorbox}[summarybox,title={Design motif}]
 Local linguistic rules become a global behavior only after you commit to concrete operators (t\hyp{}norm, implication, aggregation, defuzzifier) and then sanity-check the resulting surface.
+\end{tcolorbox}
+
+\begin{tcolorbox}[summarybox,title={Notation handoff}]
+This chapter reuses the trilogy defaults \((\wedge=\min,\ \vee=\max,\ C(\mu)=1-\mu)\), with \(T\) for generic t\hyp{}norms and \(S\) for aggregation alternatives when explicitly stated. If these symbols conflict with earlier chapters, use local definitions and refer to \Cref{app:notation_collisions}.
+\end{tcolorbox}
+
+\begin{tcolorbox}[summarybox,title={Risk \& audit}]
+\begin{itemize}
+    \item \textbf{Rule explosion:} too many overlapping rules can make behavior opaque; prune with coverage and conflict diagnostics.
+    \item \textbf{Operator mismatch:} min/product implication and max/sum aggregation produce different surfaces; choose once and document why.
+    \item \textbf{Membership miscalibration:} poorly scaled sets can overfire or underfire rules; audit control-surface smoothness and boundary behavior.
+    \item \textbf{Defuzzification sensitivity:} centroid vs.\ weighted average can shift outputs materially; test with edge-case inputs.
+    \item \textbf{Deployment drift:} sensor scaling changes break rule semantics; version normalization and monitor post-deployment residuals.
+\end{itemize}
 \end{tcolorbox}
 
 \subsection{Context and Motivation}

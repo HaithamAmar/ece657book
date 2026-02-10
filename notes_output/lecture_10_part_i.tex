@@ -18,7 +18,7 @@ Unless stated otherwise in \Crefrange{chap:fuzzysets}{chap:fuzzyinference}, we u
 We treat the thermostat's heater power as the target universe while the inputs remain error/rate. When mapping ``Comfortable'' from Celsius to Fahrenheit or translating error/rate pairs into control actions, the extension principle tells us how those fuzzy labels transfer; keep that single example in mind as you work through the upcoming dilation and projection formulas.
 \end{tcolorbox}
 
-Building on \Cref{chap:fuzzysets}, we address a fundamental question: \emph{How do we transfer fuzzy knowledge from one universe of discourse to another related universe?} This question arises whenever the same linguistic label must be reused across units, sensors, or derived variables (Celsius vs.\ Fahrenheit; position vs.\ velocity), each with its own universe and membership functions. The roadmap in \Cref{fig:roadmap} places this in the fuzzy-relations step of the soft-computing strand.
+Building on \Cref{chap:fuzzysets}, we address a fundamental question: \emph{How do we transfer fuzzy knowledge from one universe of discourse to another related universe?} This question arises whenever the same linguistic label must be reused across units, sensors, or derived variables (Celsius vs.\ Fahrenheit; position vs.\ velocity), each with its own universe and membership functions. This chapter develops that transfer layer so \Cref{chap:fuzzyinference} can assemble full inference pipelines.
 
 \begin{tcolorbox}[summarybox,title={Design motif}]
 Preserve meaning while changing representation: the extension principle is a disciplined way to push fuzzy concepts through transformations so downstream inference remains interpretable (see \Cref{chap:fuzzyinference}).
@@ -38,7 +38,7 @@ However, what if we want to extend this reasoning to a \emph{different} universe
 \end{itemize}
 
 In such cases, the new universe is a function of the original universe, and we want to \emph{preserve} and \emph{transfer} the fuzzy knowledge encoded in the original fuzzy sets to the new universe.
-\paragraph{Notation.} Throughout this chapter we use the trilogy defaults stated above: \(\wedge=\min\), \(\vee=\max\), and complement \(1-\mu\). When we introduce a general t\hyp{}norm \(T\), it appears explicitly (e.g., in \Cref{eq:extension-two-var} and \Cref{eq:composition_general}).
+\paragraph{Notation.} Throughout this chapter we use the trilogy defaults stated above: \(\wedge=\min\), \(\vee=\max\), and complement \(1-\mu\). When we introduce a general t\hyp{}norm \(T\), it appears explicitly (e.g., in \Cref{eq:extension-two-var} and \Cref{eq:composition_general}). For symbol overloads when reading across parts, see \Cref{app:notation_collisions}.
 
 
 \subsection{Problem Statement}

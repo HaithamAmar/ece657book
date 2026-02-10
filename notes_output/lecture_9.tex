@@ -2,7 +2,7 @@
 \section{Fuzzy Sets and Membership Functions: Foundations and Representations}\label{chap:fuzzysets}
 \graphicspath{{assets/lec9/}{assets/lec16/}}
 
-Building on \Cref{chap:softcomp}, we now formalize the foundations of fuzzy logic: universes of discourse, fuzzy sets, membership functions, and the basic operators used throughout the fuzzy trilogy. These tools define the linguistic labels for the running thermostat example and prepare the ground for fuzzy relations and full inference systems in \Crefrange{chap:fuzzyrelations}{chap:fuzzyinference}. The roadmap in \Cref{fig:roadmap} situates this as the start of the fuzzy trilogy.
+Building on \Cref{chap:softcomp}, this chapter formalizes the foundations of fuzzy logic: universes of discourse, fuzzy sets, membership functions, and the basic operators used throughout the fuzzy trilogy. These tools define the thermostat labels used in later chapters and prepare the transfer/inference steps developed in \Crefrange{chap:fuzzyrelations}{chap:fuzzyinference}.
 
 \begin{tcolorbox}[summarybox,title={Design motif}]
 Treat vagueness as a first-class modeling choice: write the membership functions down, pick operators explicitly, and then audit how those choices shape the behavior of a rule base.
@@ -30,6 +30,10 @@ Unless stated otherwise, the fuzzy trilogy uses the \emph{standard} operators:
     \item De Morgan's laws are interpreted with this standard complement.
 \end{itemize}
 Alternative t-/s\hyp{}norms or complements are called out explicitly when they appear.
+\end{tcolorbox}
+
+\begin{tcolorbox}[summarybox,title={Notation handoff}]
+In the fuzzy trilogy, \(\mu_A(x)\) always denotes membership grade, \(T\) denotes a t\hyp{}norm when generalized conjunction is needed, and \(S\) denotes an s\hyp{}norm for generalized union. If these symbols clash with other parts, use the local chapter meaning and consult \Cref{app:notation_collisions}.
 \end{tcolorbox}
 
 \subsection{Recap: Fuzzy Sets and the Universe of Discourse}

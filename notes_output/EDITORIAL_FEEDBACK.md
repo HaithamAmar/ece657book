@@ -1194,3 +1194,35 @@ Quick lint checklist before merge:
 - No `Use this when ...` remains (use `Use it when ...`).
 - No table caption starts with `Schematic:`.
 - No caption text implies a structural/content move in a wording-only pass.
+
+## [2026-02-10] Book-wide tightening pass (points 2-8, minimal-change execution)
+
+### Scope executed
+- Added derivation-to-implementation closure boxes in Chapters 6, 7, and 11 to make each chapter end with the same practical loop: implement equations, cache intermediates, and fail-fast diagnostics.
+- Standardized notation handoff cues across Chapters 6, 7, 11, 13, and 16-19, each explicitly pointing to Appendix D (`\Cref{app:notation_collisions}`).
+- Strengthened risk/audit framing in Chapters 18 and 19, while preserving existing strong risk boxes in Chapters 3, 4, 11, and 13.
+- Added a dedicated reproducibility appendix (Appendix E) and cross-linked it from supervised, deep-learning, and evolutionary chapters.
+
+### Files changed in this pass
+- `notes_output/lecture_3_part_ii.tex`
+- `notes_output/lecture_4_part_i.tex`
+- `notes_output/lecture_6.tex`
+- `notes_output/lecture_7.tex`
+- `notes_output/lecture_8_part_i.tex`
+- `notes_output/lecture_9.tex`
+- `notes_output/lecture_10_part_i.tex`
+- `notes_output/lecture_10_part_ii.tex`
+- `notes_output/lecture_11.tex`
+- `notes_output/lecture_supervised.tex`
+- `notes_output/book_appendices.tex`
+- `notes_output/appendix_reproducibility_standards.tex` (new)
+
+### Why this was minimal-change
+- No chapter reordering or section movement.
+- No major equation rewrites or figure/table structural edits.
+- Changes are additive framing and cross-link normalization around existing content.
+
+### Proposed next micro-pass (optional, wording-only)
+1. Harmonize opening bridge sentence length in Chapters 15-19 (target 2-3 lines each).
+2. Tighten any repeated “roadmap” phrasing in adjacent chapters.
+3. Run one final chapter-format + production-check bundle before tagging a release candidate.
