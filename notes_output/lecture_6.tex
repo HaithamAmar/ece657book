@@ -8,22 +8,7 @@ Convolutional networks are the simplest version of that bargain. They keep the E
 
 The second thread in this chapter is pragmatic. Deep models are only useful when they train. After the CNN mechanics, we transition into the deep\hyp{}training toolkit (initialization, activations, normalization, regularization, and optimizers) that will reappear in \Crefrange{chap:rnn}{chap:transformers}.
 
-\begin{tcolorbox}[summarybox,title={Learning Outcomes}]
-After this chapter, you should be able to:
-\begin{itemize}
-  \item Derive convolution/cross-correlation with stride and padding in 1D/2D.
-  \item Explain receptive-field growth across layers and pooling effects.
-  \item Compare loss choices for classification vs. regression and evaluation metrics.
-  \item Connect the hinge-loss/soft-margin ideas from \Cref{chap:supervised} to kernels and CNN features.
-  \item Describe practical optimizers and regularizers (BN, dropout, weight decay).
-\end{itemize}
-\end{tcolorbox}
-
-\begin{tcolorbox}[summarybox,title={Design motif}]
-Keep the same statistical learning loop from \Crefrange{chap:supervised}{chap:logistic}, but move the ``bias'' into architecture via weight sharing and locality.
-\end{tcolorbox}
-
-\subsection{Historical Context and Motivation}
+\subsection{Motivation and map}
 \label{sec:cnn_historical_context_and_motivation}
 
 The core backprop loop from earlier chapters scales to high-dimensional perception tasks, but naively applying dense multilayer perceptrons (MLPs) to images runs into two practical walls: \emph{parameter count} and \emph{inductive bias}. Images have strong local structure (edges, corners, textures), yet a fully connected layer treats every pixel as unrelated to its neighbors and spends parameters learning spatial patterns from scratch.
@@ -37,12 +22,23 @@ CNNs emerged as a pragmatic answer: keep end-to-end gradient training, but bake 
     \item \textbf{Training toolkit:} gradient-based optimization and the stabilizers you will reuse later (initialization, activations, batch norm, dropout, AdamW).
 \end{itemize}
 
+\begin{tcolorbox}[summarybox,title={Learning Outcomes}]
+After this chapter, you should be able to:
+\begin{itemize}
+  \item Derive convolution/cross-correlation with stride and padding in 1D/2D.
+  \item Explain receptive-field growth across layers and pooling effects.
+  \item Compare loss choices for classification vs. regression and evaluation metrics.
+  \item Connect the hinge-loss/soft-margin ideas from \Cref{chap:supervised} to kernels and CNN features.
+  \item Describe practical optimizers and regularizers (BN, dropout, weight decay).
+\end{itemize}
+\end{tcolorbox}
+
 \subsection{Why fully connected layers break on images}
 \label{sec:cnn_why_fully_connected_layers_break_on_images}
 
 \paragraph{Requirement for large datasets}
 
-Feedforward networks typically require large amounts of labeled data to generalize well. For small datasets (e.g., Titanic survival data, movie ratings), simpler models like logistic regression or decision trees may outperform neural networks due to overfitting risks.
+Dense feedforward networks can be competitive on small tabular problems, but on images they become data-hungry fast: you are trying to learn spatial structure from scratch while fitting millions of parameters. The issue is not that the model class is ``wrong''; it is that the sample complexity and compute burden are badly mismatched to the grid structure of vision data.
 
 \paragraph{High-dimensional inputs and flattening}
 
@@ -67,6 +63,10 @@ This flattening process has two major drawbacks:
 \paragraph{Implications}
 
 The punchline is not that dense networks ``cannot'' learn images; it is that the price is too high. Without any architectural prior, you pay in parameters, data, and compute. Convolutions and pooling supply that prior: they make the model spend capacity on local patterns and reuse those patterns across the grid.
+
+\begin{tcolorbox}[summarybox,title={Design motif}]
+Keep the same statistical learning loop from \Crefrange{chap:supervised}{chap:logistic}, but move a large fraction of the ``bias'' into architecture via weight sharing and locality.
+\end{tcolorbox}
 
 \paragraph{Parameter Explosion}
 
@@ -129,6 +129,10 @@ For an input feature map \(X\) and filter \(K\), the (cross-correlation) output 
 \[
 (X * K)_{ij} = \sum_{u=0}^{k-1} \sum_{v=0}^{k-1} K_{uv}\,X_{i+u,\,j+v}.
 \]
+
+\begin{tcolorbox}[summarybox,title={Author's note: ``convolution'' vs.\ cross-correlation}]
+In most deep-learning libraries, the operation called ``convolution'' is technically \emph{cross-correlation}: the kernel is not flipped before sliding. The name stuck because the two operations differ only by a reversal of the kernel, and the kernel is learned anyway. What matters in practice is that the ``filter'' is a small learned weight matrix that is applied repeatedly across space (weight sharing). Learn the shapes, the stride/padding bookkeeping, and the inductive bias; the terminology is imperfect but the idea is powerful.
+\end{tcolorbox}
 With stride \(s\) and padding \(p\), the output size along one axis is
 \[
 \left\lfloor \frac{n + 2p - k}{s} \right\rfloor + 1,
@@ -150,6 +154,15 @@ Suppose an input is \(6\times6\) and the filter is \(3\times3\).
 \end{itemize}
 The floor in the formula is important: if \((n + 2p - k)\) is not divisible by \(s\), the last partial window is dropped.
 
+\paragraph{Convolutional hyperparameters (what you choose up front).}
+\label{sec:cnn_convolutional_hyperparameters_what_you_choose_up_front}
+\begin{itemize}
+    \item \textbf{Filter size} (\(k\times k\)) and \textbf{number of filters} (\(C_{\text{out}}\)).
+    \item \textbf{Stride} \(s\) and \textbf{padding} \(p\) (valid vs.\ same).
+    \item \textbf{Activation} function after each convolution.
+    \item \textbf{Pooling} type (max/average), window size, and stride (if pooling is used).
+\end{itemize}
+
 \subsection{Pooling as nonparametric downsampling}
 \label{sec:cnn_pooling_as_nonparametric_downsampling}
 
@@ -157,10 +170,6 @@ Pooling reduces spatial size without learning new parameters: a max-pooling wind
 
 \begin{tcolorbox}[summarybox,title={Author's note: pooling is a design choice}]
 Pooling is not ``more correct'' than strided convolutions; it is a trade-off. If you want downsampling with learned weights, use stride. If you want a fixed local summary (often more stable early in training), max pooling is a reasonable default. Avoid padding in pooling unless you need spatial alignment with a parallel branch.
-\end{tcolorbox}
-
-\begin{tcolorbox}[summarybox,title={Author's note: ``convolution'' vs.\ cross-correlation}]
-In most deep-learning libraries, the operation called ``convolution'' is technically \emph{cross-correlation}: the kernel is not flipped before sliding. The name stuck because the two operations differ only by a reversal of the kernel, and the kernel is learned anyway. What matters in practice is that the ``filter'' is a small learned weight matrix that is applied repeatedly across space (weight sharing). Learn the shapes, the stride/padding bookkeeping, and the inductive bias; the terminology is imperfect but the idea is powerful.
 \end{tcolorbox}
 
 \subsection{Channels and feature maps}
@@ -172,25 +181,16 @@ Real inputs are multi-channel. An RGB image has three channels, so a \(k\times k
 Start with an input tensor of size \(50\times50\times30\). Apply \(10\) filters of size \(3\times3\) with stride \(1\) and valid padding. The spatial size becomes \(50-3+1=48\), so the output is \(48\times48\times10\). Apply \(2\times2\) max pooling with stride \(2\): the spatial size becomes \(\left\lfloor(48-2)/2\right\rfloor + 1 = 24\), so the pooled output is \(24\times24\times10\). Flattening that volume yields \(24\cdot24\cdot10=5760\) features for a dense classifier.
 \end{tcolorbox}
 
-\subsection{Convolutional hyperparameters (what you choose up front)}
-\label{sec:cnn_convolutional_hyperparameters_what_you_choose_up_front}
-\begin{itemize}
-    \item \textbf{Filter size} (\(k\times k\)) and \textbf{number of filters} (\(C_{\text{out}}\)).
-    \item \textbf{Stride} \(s\) and \textbf{padding} \(p\) (valid vs.\ same).
-    \item \textbf{Activation} function after each convolution.
-    \item \textbf{Pooling} type (max/average), window size, and stride (if pooling is used).
-\end{itemize}
-
-\subsection{From feature maps to classifiers}
+\paragraph{From feature maps to classifiers.}
 \label{sec:cnn_from_feature_maps_to_classifiers}
 
 Stacks of convolutional and pooling layers produce a hierarchy of feature maps. A common design is to flatten the final maps into a vector and pass them to a small dense classifier (often a softmax layer) that predicts the class label. Backpropagation updates both the dense weights and the shared convolutional filters, so the feature extractor and classifier are learned jointly.
 
-\subsection{Multi-branch convolution blocks (Inception idea)}
+\paragraph{Multi-branch convolution blocks (Inception idea).}
 \label{sec:cnn_multi_branch_convolution_blocks_inception_idea}
 One practical variant is to run multiple filter sizes in parallel (for example \(1\times1\), \(3\times3\), and \(5\times5\)) and concatenate the resulting feature maps along the channel axis. This allows the network to capture multi-scale patterns without committing to a single kernel size. When branches must line up spatially, \emph{same} padding is used to keep all outputs the same height and width; pooling branches often pad for this alignment even though pooling by itself is usually unpadded.
 
-\subsection{Historical Context and the 2012 Breakthrough}
+\subsection{Why deep learning became practical (2012)}
 \label{sec:cnn_historical_context_and_the_2012_breakthrough}
 
 Before 2012, neural networks were often dismissed in many academic circles due to their poor performance on large-scale problems and the dominance of other methods such as Support Vector Machines (SVMs). The sentiment was that neural networks were "fancy" but not practical or well-understood.
@@ -229,17 +229,6 @@ Before 2012, neural networks were often dismissed in many academic circles due t
 
 With the architectural motivation in place, we now focus on how these models are trained and why deep optimization remains delicate.
 
-\begin{tcolorbox}[summarybox,title={Risk \& audit}]
-\begin{itemize}
-    \item \textbf{Train/val mismatch:} augmentation, preprocessing, and normalization must be identical at evaluation time (except stochastic augmentation).
-    \item \textbf{Resolution trade-offs:} downsampling can erase small objects; audit performance by scale and by class, not only overall accuracy.
-    \item \textbf{BatchNorm regimes:} very small batch sizes can destabilize BN statistics; consider alternatives (layer/group norm) and audit sensitivity.
-    \item \textbf{Shortcut learning:} CNNs can latch onto background cues; use perturbations, counterfactual crops, and slice audits.
-    \item \textbf{Robustness:} report performance under shifts (lighting, camera, compression) and track calibration when scores are used as probabilities.
-    \item \textbf{Run-to-run variance:} report seeds, spread, and stopping policy; use \Cref{app:repro_standards} as the default reporting format.
-\end{itemize}
-\end{tcolorbox}
-
 \subsection{Training Neural Networks: Gradient-Based Optimization}
 \label{sec:cnn_training_neural_networks_gradient_based_optimization}
 
@@ -259,7 +248,7 @@ The gradient $\frac{\partial \mathcal{L}}{\partial w}$ is computed efficiently u
 \paragraph{Preview: why deep optimization needs extra care}
 As depth grows, gradient flow becomes fragile (vanishing/exploding gradients). The next sections make that failure mode explicit and summarize the mitigation toolkit used in modern CNN stacks.
 
-\subsection{Deep Network Optimization Challenges}
+\paragraph{Deep optimization challenges.}
 \label{sec:cnn_deep_network_optimization_challenges}
 
 Deep networks are difficult to optimize because the objective is highly nonconvex and the
@@ -346,6 +335,17 @@ Batch normalization normalizes layer inputs during training, reducing the effect
 For exploding gradients, gradient clipping limits the maximum gradient norm during backpropagation, preventing excessively large updates.
 
 Taken together, these tools stabilize optimization; the figures below highlight dropout, normalization, and optimizer behavior in practice.
+
+\begin{tcolorbox}[summarybox,title={Risk \& audit}]
+\begin{itemize}
+    \item \textbf{Train/val mismatch:} augmentation, preprocessing, and normalization must match at evaluation time (except stochastic augmentation).
+    \item \textbf{Resolution trade-offs:} downsampling can erase small objects; audit performance by scale and by class, not only overall accuracy.
+    \item \textbf{BatchNorm regimes:} very small batch sizes can destabilize BN statistics; consider alternatives (layer/group norm) and audit sensitivity.
+    \item \textbf{Shortcut learning:} CNNs can latch onto background cues; use perturbations, counterfactual crops, and slice audits.
+    \item \textbf{Robustness:} report performance under shifts (lighting, camera, compression) and track calibration when scores are used as probabilities.
+    \item \textbf{Run-to-run variance:} report seeds, spread, and stopping policy; use \Cref{app:repro_standards} as the default reporting format.
+\end{itemize}
+\end{tcolorbox}
 
 
 \begin{figure}[t]

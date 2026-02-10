@@ -89,6 +89,55 @@ Below are “shape checks” per chapter: what the chapter should feel like, wha
 - Bring “what convolution buys you” before details (weight sharing / inductive bias).
 - Keep implementation-level details (padding/stride shapes) grouped and short.
 
+#### Chapter 11 notes after full read (2026-02-10)
+
+Source: `notes_output/lecture_6.tex` (Chapter 11 in the current build).
+
+**What works (macro)**
+- The chapter has a strong opening bridge from Hopfield and sets two clear threads: CNN mechanics then a reusable deep-training toolkit.
+- The CNN mechanics portion is mostly in the right order (dense failure → locality/sharing → conv/pool bookkeeping → channels).
+- The deep-training toolkit is anchored around vanishing/exploding gradients and a mitigation checklist, which is pedagogically sound.
+
+**What makes it feel messy (micro / ordering)**
+- There are two separate “Historical Context …” subsections:
+  - `Historical Context and Motivation` (early), then later `Historical Context and the 2012 Breakthrough`.
+  - This reads like duplicated scaffolding and interrupts the “basic → deeper” ramp.
+- Several subsections are “micro” (a short list or one paragraph), which makes the chapter feel like an outline rather than a continuous argument:
+  - `Convolutional hyperparameters (what you choose up front)` (list only)
+  - `From feature maps to classifiers` (single paragraph)
+  - `Multi-branch convolution blocks (Inception idea)` (single paragraph)
+  - `Deep Network Optimization Challenges` (short bridge; largely redundant with the next subsection)
+- The “How to read this chapter” itemize lives in the first subsection; it is useful, but it lands before the reader has felt the main pain (why dense layers are the wrong default for images).
+
+**Suggested reordered narrative (minimal content movement, fewer micro-headings)**
+- Keep the current *chapter preamble* intact (bridge prose, Learning Outcomes, Design motif).
+- CNN core path:
+  1. Start with the “dense failure” and inductive-bias punchline:
+     - `Why fully connected layers break on images`
+     - `Sparse connectivity and parameter sharing`
+  2. Group all conv bookkeeping together:
+     - `Convolution and pooling mechanics` + worked stride/padding
+     - `Pooling as nonparametric downsampling`
+     - `Channels and feature maps`
+     - Fold `Convolutional hyperparameters …` into the end of this block as a short `\\paragraph{Hyperparameters you choose up front.}` instead of a standalone subsection.
+  3. Assemble the end-to-end classifier story:
+     - Fold `From feature maps to classifiers` into the end of the channels/bookkeeping section (or keep as `\\paragraph{From feature maps to a classifier.}`).
+     - Keep `Multi-branch convolution blocks (Inception idea)` but demote it to a `\\paragraph{Multi-branch blocks (Inception idea).}` that follows immediately after the baseline “feature maps → classifier” description.
+  4. Keep the “why this won historically” story as the transition point into training hygiene:
+     - Rename `Historical Context and the 2012 Breakthrough` to something non-duplicative like `Why deep learning became practical (2012)` and keep the SVM + receptive-field asides here.
+     - Optionally merge the earlier `Historical Context and Motivation` into the chapter preamble (or rename it to `Orientation` and keep it short).
+- Training toolkit path (after the 2012 transition):
+  5. Replace `Training Neural Networks: Gradient-Based Optimization` subsection with a short recap paragraph (it repeats earlier chapters).
+  6. Merge `Deep Network Optimization Challenges` into the start of `Vanishing and Exploding Gradients …` (remove one heading level without deleting content).
+  7. Keep the sequence:
+     - vanishing/exploding gradients (math intuition + consequences)
+     - `Training failure signatures (symptom -> likely fixes)` box (already well-placed)
+     - mitigation toolkit
+
+**Rationale**
+- The reader should feel one clean ramp: “dense is wrong default” → “what convolution buys you” → “how it works” → “how you build a classifier” → “why depth mattered historically” → “why training breaks and how to fix it”.
+- Demoting 3–4 micro-subsections into paragraphs improves continuity without removing any material or changing the technical level.
+
 ### Chapter 12 — RNNs / sequence modeling (needs a dedicated pass)
 **Goal for this pass**
 - Make recurrence feel inevitable: why sequence dependence breaks feedforward models → unrolling → BPTT → vanishing/exploding gradients → LSTM/GRU remedies → training policies.

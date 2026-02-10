@@ -1316,3 +1316,30 @@ Quick lint checklist before merge:
 ### Notes (residual)
 - This pass improves the chapter-opening reading rhythm, but it does not address deeper structural questions (section ordering, redundancy, level of detail) within each chapter.
 - The next editorial work should separate "structure" (moving sections) from "wording-only" polishing to avoid mixing scopes.
+
+## [2026-02-10] Chapter 11 restructure (CNN) for pedagogical order
+
+### Goals
+- Reduce outline-fragmentation from micro-subsections while keeping all content.
+- Keep the opening narrative-first (no immediate box dump) and delay boxes until they are actionable.
+- Remove duplicated ``Historical context'' scaffolding and make the chapter read as one linear arc: pain point -> inductive bias -> mechanics -> depth context -> training toolkit.
+
+### Changes made
+- Chapter 11 (`notes_output/lecture_6.tex`):
+  - Renamed the early scaffold subsection to `Motivation and map`.
+  - Moved `Learning Outcomes` to occur after the map and before the first technical subsection (still early, but not the first thing the reader sees).
+  - Repositioned the `Design motif` box to follow the dense-layer failure analysis (so it lands after the motivating pain point).
+  - Moved the ``convolution vs. cross-correlation'' note into the convolution mechanics section (no longer adjacent to pooling notes).
+  - Demoted three micro-subsections into `\paragraph{...}` blocks with preserved labels:
+    - `sec:cnn_convolutional_hyperparameters_what_you_choose_up_front`
+    - `sec:cnn_from_feature_maps_to_classifiers`
+    - `sec:cnn_multi_branch_convolution_blocks_inception_idea`
+  - Renamed the 2012 historical block to `Why deep learning became practical (2012)` (label preserved).
+  - Moved `Risk & audit` later so it no longer interrupts the ``2012 -> training'' transition.
+  - Demoted `Deep Network Optimization Challenges` into a paragraph (label preserved), immediately upstream of the vanishing/exploding gradients section.
+
+### Validation (must stay green)
+- Production gate: `bash notes_output/scripts/run_production_checks.sh` (green after restructure).
+- Audits:
+  - `notes_output/artifacts/qc/chapter_format_audit_20260210_090215.md`
+  - `notes_output/artifacts/qc/advanced_editorial_audit_20260210_091310.md`
