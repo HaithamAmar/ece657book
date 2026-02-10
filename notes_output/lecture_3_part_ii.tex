@@ -12,13 +12,13 @@ After this chapter, you should be able to:
 \end{itemize}
 \end{tcolorbox}
 
-\Cref{chap:perceptron} introduced the perceptron and Adaline: single units that learn by updating weights from data, with Adaline giving our first explicit glimpse of gradient descent on a smooth performance function. In this chapter we keep the story linear and concrete. We build the smallest possible network (two neurons in series), define a performance function, and ask the core question: \emph{how should the weights change to improve performance?} Answering that question forces us to use derivatives (the chain rule) and leads naturally to gradient descent. Along the way we encounter a practical obstacle: hard thresholds are not differentiable, so they do not support gradient-based learning. We replace them with smooth activations and immediately gain a clean update story. This is the conceptual bridge to full backpropagation in \Cref{chap:backprop}. The roadmap in \Cref{fig:roadmap} shows this as the hinge between single-unit models and multilayer training.
+\Cref{chap:perceptron} introduced the perceptron and Adaline: single units that learn by updating weights from data, with Adaline giving our first explicit glimpse of gradient descent on a smooth performance function. In this chapter we keep the story linear and concrete. We build the smallest possible network (two neurons in series), define a performance function, and ask the core question: \emph{how should the weights change to improve performance?} Answering that question forces us to use derivatives (the chain rule) and leads naturally to gradient descent. Along the way we encounter a practical obstacle: hard thresholds are not differentiable, so they do not support gradient-based learning. We replace them with smooth activations and immediately gain a clean update story. This is the conceptual bridge to full backpropagation in \Cref{chap:backprop}. Figure \Cref{fig:roadmap} shows this as the hinge between single-unit models and multilayer training.
 
 \begin{tcolorbox}[summarybox,title={Design motif}]
 Build the smallest trainable network you can, keep every intermediate quantity visible, and let the chain rule explain how learning signals flow.
 \end{tcolorbox}
 
-\begin{tcolorbox}[summarybox,title={A short roadmap: building a trainable network}]
+\begin{tcolorbox}[summarybox,title={A short map: building a trainable network}]
 The chapter follows one tight loop:
 \begin{itemize}
     \item \textbf{Build:} write the forward computation (a two-neuron chain).

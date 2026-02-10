@@ -10,31 +10,12 @@
 \end{itemize}
 \end{tcolorbox}
 
-\Cref{chap:rnn} framed language as prediction under context: the model must assign probability to the next token from a compressed state. This chapter addresses the missing ingredient behind that setup: representations that turn discrete symbols into usable geometry. We build those embeddings, training objectives, and audits here; \Cref{chap:transformers} then reuses the same representation primitives inside attention-based architectures for longer-context modeling and deployment. The roadmap in \Cref{fig:roadmap} places this as the application/deployment tail of the neural strand.
+\Cref{chap:rnn} framed language as prediction under context: the model must assign probability to the next token from a compressed state. That framing makes the bottleneck obvious. Tokens are discrete identifiers, while the model is a continuous function: if the input geometry is unhelpful, the network cannot generalize systematically from one string to another.
+
+This chapter supplies that geometry. We build word embeddings and the objectives that train them, then show how to sanity-check the resulting space (neighbors, analogies, and simple audits). Those same representation primitives become inputs to both recurrent and attention-based models; \Cref{chap:transformers} reuses them when recurrence is replaced by attention.
 
 \begin{tcolorbox}[summarybox,title={Design motif}]
 Representation learning as a contract between data and objective---when you train on co-occurrence, you get both useful structure (analogies, clusters) and the biases present in the corpus.
-\end{tcolorbox}
-
-\begin{tcolorbox}[summarybox,title={Risk \& audit}]
-\begin{itemize}
-    \item \textbf{Evaluation leakage:} similarity/analogy benchmarks can overlap training sources; keep a truly held-out evaluation set and treat ``standard'' datasets as potentially contaminated.
-    \item \textbf{Tokenization debt:} preprocessing and vocabulary choices (case, subwords, cutoffs) change what the model can represent; version tokenizers and report them with results.
-    \item \textbf{Frequency bias:} rare words get unstable vectors; audit neighborhoods by frequency and use subsampling/regularization so geometry is not just Zipf effects.
-    \item \textbf{Social bias:} co-occurrence reflects social structure and stereotypes; probe for bias before using embeddings in decisions and document mitigations.
-    \item \textbf{Privacy/memorization:} large corpora can contain sensitive strings; treat training data as a security boundary and audit downstream systems for memorization.
-\end{itemize}
-\end{tcolorbox}
-
-\begin{tcolorbox}[summarybox,title={Chapter map (core vs.\ detours)}]
-\begin{itemize}
-    \item \textbf{Core path:} distributional hypothesis $\rightarrow$ Word2Vec (CBOW/skip-gram) objectives $\rightarrow$ negative sampling $\rightarrow$ how to evaluate embeddings (analogies, neighbors) $\rightarrow$ how embeddings plug into RNNs/Transformers.
-    \item \textbf{Optional detours:} deeper objective derivations, historical notes, and the deployment/fairness discussion (important when embeddings are used in decisions rather than as a pure feature extractor).
-\end{itemize}
-\end{tcolorbox}
-
-\begin{tcolorbox}[summarybox,title={Notation handoff}]
-We use \(V\) for vocabulary size, \(d\) for embedding dimension, \(\mathbf{x}_t\) for one-hot token indicators, and \(\mathbf{e}_t\) for learned embedding vectors. When symbols collide with earlier chapters (e.g., \(d\) as data dimension vs.\ embedding size), the local meaning is authoritative; \Cref{app:notation_collisions} gives the global index.
 \end{tcolorbox}
 
 \subsection{Context and Motivation}
@@ -47,6 +28,17 @@ A classic example illustrating the power of such representations is the analogy:
 \text{king} - \text{man} + \text{woman} \approx \text{queen}.
 \]
 This demonstrates that vector arithmetic on word embeddings can capture meaningful relationships between words. The goal is to find a vector space embedding where semantic similarity corresponds to geometric closeness.
+
+\begin{tcolorbox}[summarybox,title={Chapter map (core vs.\ detours)}]
+\begin{itemize}
+    \item \textbf{Core path:} distributional hypothesis $\rightarrow$ Word2Vec (CBOW/skip-gram) objectives $\rightarrow$ negative sampling $\rightarrow$ how to evaluate embeddings (analogy/neighbors) $\rightarrow$ how embeddings plug into RNNs/attention models.
+    \item \textbf{Optional detours:} deeper objective derivations, historical notes, and the deployment/fairness discussion (important when embeddings are used in decisions rather than as a pure feature extractor).
+\end{itemize}
+\end{tcolorbox}
+
+\begin{tcolorbox}[summarybox,title={Notation handoff}]
+We use \(V\) for vocabulary size, \(d\) for embedding dimension, \(\mathbf{x}_t\) for one-hot token indicators, and \(\mathbf{e}_t\) for learned embedding vectors. When symbols collide with earlier chapters (e.g., \(d\) as data dimension vs.\ embedding size), the local meaning is authoritative; \Cref{app:notation_collisions} gives the global index.
+\end{tcolorbox}
 
 \subsection{Problem Statement}
 \label{sec:nlp_problem_statement}
@@ -612,6 +604,16 @@ we obtain embeddings that approximate the log co-occurrence matrix in a least-sq
 \paragraph{Interpretation and Limitations}
 
 While SVD provides a closed-form solution, it does not explicitly model the bias terms \( b_i, b_k \) or the weighting function \( f(x) \). Those additional degrees of freedom allow gradient-based methods such as GloVe to better match empirical co-occurrence ratios. Biases soak up unigram frequency effects while the weighting function prevents very noisy counts from dominating the fit.
+
+\begin{tcolorbox}[summarybox,title={Risk \& audit}]
+\begin{itemize}
+    \item \textbf{Evaluation leakage:} similarity/analogy benchmarks can overlap training sources; keep a truly held-out evaluation set and treat ``standard'' datasets as potentially contaminated.
+    \item \textbf{Tokenization debt:} preprocessing and vocabulary choices (case, subwords, cutoffs) change what the model can represent; version tokenizers and report them with results.
+    \item \textbf{Frequency bias:} rare words get unstable vectors; audit neighborhoods by frequency and use subsampling/regularization so geometry is not just Zipf effects.
+    \item \textbf{Social bias:} co-occurrence reflects social structure and stereotypes; probe for bias before using embeddings in decisions and document mitigations.
+    \item \textbf{Privacy/memorization:} large corpora can contain sensitive strings; treat training data as a security boundary and audit downstream systems for memorization.
+\end{itemize}
+\end{tcolorbox}
 
 \subsection{Bias in Natural Language Processing}
 \label{sec:nlp_bias_in_natural_language_processing}

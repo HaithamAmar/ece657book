@@ -12,7 +12,7 @@ After this chapter, you should be able to:
 \end{itemize}
 \end{tcolorbox}
 
-\Cref{chap:rnn} made the sequence problem explicit: stateful computation plus gradients that must flow across time. \Cref{chap:nlp} then supplied the representation layer that makes those sequence objectives practical. This chapter keeps that representation layer but removes recurrence, replacing it with attention so information can move globally within a layer. The roadmap in \Cref{fig:roadmap} shows this as the modern sequence branch.
+\Cref{chap:rnn} made the sequence problem explicit: stateful computation plus gradients that must flow across time. \Cref{chap:nlp} then supplied the representation layer that makes those sequence objectives practical. This chapter keeps that representation layer but removes recurrence, replacing it with attention so information can move globally within a layer. Figure \Cref{fig:roadmap} shows this as the modern sequence branch.
 
 \begin{tcolorbox}[summarybox,title={Design motif}]
 Control information flow with structure (masks, normalization, residual paths) so optimization remains stable while context windows grow.

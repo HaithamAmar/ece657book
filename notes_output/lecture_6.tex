@@ -13,45 +13,14 @@ After this chapter, you should be able to:
 \end{itemize}
 \end{tcolorbox}
 
-\Cref{chap:hopfield} used energy to tame recurrence and create stable memories. Here we return to deep feedforward perception, where convolutions and pooling impose a spatial inductive bias that improves sample efficiency and robustness. This chapter also sets up the next sequence run (\Crefrange{chap:rnn}{chap:transformers}): the optimization loop stays familiar, while dependency structure and representation choices change. The roadmap in \Cref{fig:roadmap} shows this as the deep feedforward branch.
+\Cref{chap:hopfield} used energy to make recurrence stable: dynamics settle, memories persist, and failure has a concrete signature. Vision problems have the opposite flavor. The system must form a representation that is rich enough to support decisions, but structured enough to learn from finite data.
+
+Convolutional networks are the simplest version of that bargain. They keep the ERM workflow from \Crefrange{chap:supervised}{chap:logistic} and the gradient-training machinery from \Cref{chap:mlp}, but move a large fraction of the ``modeling bias'' into architecture. Local connectivity and weight sharing make images tractable: the model spends capacity on patterns that actually recur across a grid.
+
+The second thread in this chapter is pragmatic. Deep models are only useful when they train. After the CNN mechanics, we transition into the deep\hyp{}training toolkit (initialization, activations, normalization, regularization, and optimizers) that will reappear in \Crefrange{chap:rnn}{chap:transformers}.
 
 \begin{tcolorbox}[summarybox,title={Design motif}]
 Keep the same statistical learning loop from \Crefrange{chap:supervised}{chap:logistic}, but move the ``bias'' into architecture via weight sharing and locality.
-\end{tcolorbox}
-
-\begin{tcolorbox}[summarybox,title={Risk \& audit}]
-\begin{itemize}
-    \item \textbf{Train/val mismatch:} augmentation, preprocessing, and normalization must be identical at evaluation time (except stochastic augmentation).
-    \item \textbf{Resolution trade-offs:} downsampling can erase small objects; audit performance by scale and by class, not only overall accuracy.
-    \item \textbf{BatchNorm regimes:} very small batch sizes can destabilize BN statistics; consider alternatives (layer/group norm) and audit sensitivity.
-    \item \textbf{Shortcut learning:} CNNs can latch onto background cues; use perturbations, counterfactual crops, and slice audits.
-    \item \textbf{Robustness:} report performance under shifts (lighting, camera, compression) and track calibration when scores are used as probabilities.
-    \item \textbf{Run-to-run variance:} report seeds, spread, and stopping policy; use \Cref{app:repro_standards} as the default reporting format.
-\end{itemize}
-\end{tcolorbox}
-
-\begin{tcolorbox}[summarybox,title={Shape reminder}]
-Throughout this chapter we use the row-major (deep-learning) convention for batches: inputs \(X\in\mathbb{R}^{B\times d_{\text{in}}}\), weights \(W\in\mathbb{R}^{d_{\text{in}}\times d_{\text{out}}}\), and biases \(b\in\mathbb{R}^{d_{\text{out}}}\), with forward map \(Z=XW+\mathbf{1}b^\top\). When we write single-example equations, you can read them as the same convention with \(B=1\). For convolution/cross-correlation we follow the standard deep-learning tensor convention (channels and spatial axes); the same shape logic applies once the tensors are flattened into matrix form.
-\end{tcolorbox}
-
-\paragraph{Notation handoff.}
-Here \(\sigma(\cdot)\) is used only as an activation nonlinearity, while earlier statistical chapters use \(\sigma^2\) for variance. Keep \Cref{app:notation_collisions} nearby when moving between probability and deep-learning sections.
-
-\begin{tcolorbox}[summarybox,title={How to read this chapter}]
-\begin{itemize}
-    \item \textbf{Core thread (CNNs):} why locality + weight sharing $\rightarrow$ convolution/pooling mechanics $\rightarrow$ channels/feature maps $\rightarrow$ end-to-end classifiers.
-    \item \textbf{Going deeper:} why depth works (receptive-field growth) and why CNNs displaced classical pipelines (the 2012 shift).
-    \item \textbf{Training toolkit:} gradient-based optimization and the stabilizers you will reuse later (initialization, activations, batch norm, dropout, AdamW).
-\end{itemize}
-\end{tcolorbox}
-
-\begin{tcolorbox}[summarybox,title={Training failure signatures (symptom $\rightarrow$ likely fixes)}]
-\begin{itemize}
-    \item \textbf{Loss becomes NaN / diverges quickly:} lower learning rate; check data normalization; add gradient clipping; verify BN statistics (or switch norm).
-    \item \textbf{Training loss decreases but validation stalls:} audit split hygiene (\Cref{chap:supervised}); add regularization (weight decay, dropout); strengthen augmentation; check shortcut features via slice tests.
-    \item \textbf{Both training and validation improve slowly:} revisit initialization and normalization; try momentum/AdamW; confirm the objective matches the metric you care about.
-    \item \textbf{High accuracy but poor probability decisions:} audit calibration (reliability/ECE) and re-threshold on held-out data rather than trusting raw scores (\Cref{chap:logistic}).
-\end{itemize}
 \end{tcolorbox}
 
 \subsection{Historical Context and Motivation}
@@ -60,6 +29,14 @@ Here \(\sigma(\cdot)\) is used only as an activation nonlinearity, while earlier
 The core backprop loop from earlier chapters scales to high-dimensional perception tasks, but naively applying dense multilayer perceptrons (MLPs) to images runs into two practical walls: \emph{parameter count} and \emph{inductive bias}. Images have strong local structure (edges, corners, textures), yet a fully connected layer treats every pixel as unrelated to its neighbors and spends parameters learning spatial patterns from scratch.
 
 CNNs emerged as a pragmatic answer: keep end-to-end gradient training, but bake in locality and translation structure through sparse connectivity and shared weights. The result is a model class that is both more sample-efficient and more computationally viable on large grids.
+
+\begin{tcolorbox}[summarybox,title={How to read this chapter}]
+\begin{itemize}
+    \item \textbf{Core thread (CNNs):} why locality + weight sharing $\rightarrow$ convolution/pooling mechanics $\rightarrow$ channels/feature maps $\rightarrow$ end-to-end classifiers.
+    \item \textbf{Going deeper:} why depth works (receptive-field growth) and why CNNs displaced classical pipelines (the 2012 shift).
+    \item \textbf{Training toolkit:} gradient-based optimization and the stabilizers you will reuse later (initialization, activations, batch norm, dropout, AdamW).
+\end{itemize}
+\end{tcolorbox}
 
 \subsection{Why fully connected layers break on images}
 \label{sec:cnn_why_fully_connected_layers_break_on_images}
@@ -138,6 +115,13 @@ With millions of parameters, the model has high capacity and can easily memorize
 CNNs replace dense connections with \emph{local receptive fields}. Each output unit connects to a small neighborhood of pixels, not the entire image. If a \(k \times k\) filter scans a \(H\times W\) input, the number of learned weights is \(k^2\) (per channel), not \(HW\). The same filter is reused at every spatial location, so a single set of parameters detects a pattern anywhere in the image. This parameter sharing is the key to scalability: it cuts the parameter count and preserves translation equivariance.
 
 Historically, dense MLPs on image benchmarks struggled to compete with classical pipelines because the parameter count and data requirements were prohibitive. CNNs reversed that trend by tying weights and focusing on local patterns while keeping the same gradient-based training loop, so capacity grows with depth and channel count rather than with the raw pixel grid.
+
+\begin{tcolorbox}[summarybox,title={Shape reminder}]
+Throughout this chapter we use the row-major (deep-learning) convention for batches: inputs \(X\in\mathbb{R}^{B\times d_{\text{in}}}\), weights \(W\in\mathbb{R}^{d_{\text{in}}\times d_{\text{out}}}\), and biases \(b\in\mathbb{R}^{d_{\text{out}}}\), with forward map \(Z=XW+\mathbf{1}b^\top\). When we write single-example equations, you can read them as the same convention with \(B=1\). For convolution/cross-correlation we follow the standard deep-learning tensor convention (channels and spatial axes); the same shape logic applies once the tensors are flattened into matrix form.
+\end{tcolorbox}
+
+\paragraph{Notation handoff.}
+Here \(\sigma(\cdot)\) is used only as an activation nonlinearity, while earlier statistical chapters use \(\sigma^2\) for variance. Keep \Cref{app:notation_collisions} nearby when moving between probability and deep-learning sections.
 
 \subsection{Convolution and pooling mechanics}
 \label{sec:cnn_convolution_and_pooling_mechanics}
@@ -246,6 +230,17 @@ Before 2012, neural networks were often dismissed in many academic circles due t
 
 With the architectural motivation in place, we now focus on how these models are trained and why deep optimization remains delicate.
 
+\begin{tcolorbox}[summarybox,title={Risk \& audit}]
+\begin{itemize}
+    \item \textbf{Train/val mismatch:} augmentation, preprocessing, and normalization must be identical at evaluation time (except stochastic augmentation).
+    \item \textbf{Resolution trade-offs:} downsampling can erase small objects; audit performance by scale and by class, not only overall accuracy.
+    \item \textbf{BatchNorm regimes:} very small batch sizes can destabilize BN statistics; consider alternatives (layer/group norm) and audit sensitivity.
+    \item \textbf{Shortcut learning:} CNNs can latch onto background cues; use perturbations, counterfactual crops, and slice audits.
+    \item \textbf{Robustness:} report performance under shifts (lighting, camera, compression) and track calibration when scores are used as probabilities.
+    \item \textbf{Run-to-run variance:} report seeds, spread, and stopping policy; use \Cref{app:repro_standards} as the default reporting format.
+\end{itemize}
+\end{tcolorbox}
+
 \subsection{Training Neural Networks: Gradient-Based Optimization}
 \label{sec:cnn_training_neural_networks_gradient_based_optimization}
 
@@ -272,6 +267,15 @@ Deep networks are difficult to optimize because the objective is highly nonconve
 gradient signal can be distorted as it flows through many layers. We begin with the most
 basic pathology---vanishing and exploding gradients---and then summarize practical
 mitigations.
+
+\begin{tcolorbox}[summarybox,title={Training failure signatures (symptom $\rightarrow$ likely fixes)}]
+\begin{itemize}
+    \item \textbf{Loss becomes NaN / diverges quickly:} lower learning rate; check data normalization; add gradient clipping; verify BN statistics (or switch norm).
+    \item \textbf{Training loss decreases but validation stalls:} audit split hygiene (\Cref{chap:supervised}); add regularization (weight decay, dropout); strengthen augmentation; check shortcut features via slice tests.
+    \item \textbf{Both training and validation improve slowly:} revisit initialization and normalization; try momentum/AdamW; confirm the objective matches the metric you care about.
+    \item \textbf{High accuracy but poor probability decisions:} audit calibration (reliability/ECE) and re-threshold on held-out data rather than trusting raw scores (\Cref{chap:logistic}).
+\end{itemize}
+\end{tcolorbox}
 
 % Chapter 11 (continued)
 

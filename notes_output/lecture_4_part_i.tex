@@ -10,7 +10,7 @@
 \end{itemize}
 \end{tcolorbox}
 
-Building on the two\hyp{}neuron derivation in \Cref{chap:mlp}, we now derive backpropagation as a systematic application of the chain rule to an $L$-layer network. The key idea is unchanged: compute local error terms (the \(\delta\)'s), then reuse them to obtain all weight gradients efficiently. The roadmap in \Cref{fig:roadmap} marks this chapter as the training engine for deep models.
+Building on the two\hyp{}neuron derivation in \Cref{chap:mlp}, we now derive backpropagation as a systematic application of the chain rule to an $L$-layer network. The key idea is unchanged: compute local error terms (the \(\delta\)'s), then reuse them to obtain all weight gradients efficiently. Figure \Cref{fig:roadmap} marks this chapter as the training engine for deep models.
 
 \begin{tcolorbox}[summarybox,title={Design motif}]
 Compute local error signals once, then reuse them to update every parameter efficiently. The organization (cache forward values, then sweep backward) is the algorithm.
