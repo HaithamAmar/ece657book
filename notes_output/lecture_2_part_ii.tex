@@ -1,5 +1,7 @@
 %Chapter 4
 \section{Classification and Logistic Regression}\label{chap:logistic}
+\Cref{chap:symbolic} illustrated one view of intelligent behavior as transformation search with explicit goal tests, while \Cref{chap:supervised} introduced the data-driven view: represent a task with data, choose a hypothesis class, minimize empirical risk under regularization, and audit performance on held-out data. This chapter extends that toolkit from regression to classification. Figure \Cref{fig:roadmap} places this chapter on the core supervised path.
+
 \begin{tcolorbox}[summarybox,title={Learning Outcomes}]
 After this chapter, you should be able to:
 \begin{itemize}
@@ -9,21 +11,15 @@ After this chapter, you should be able to:
 \end{itemize}
 \end{tcolorbox}
 
-\Cref{chap:symbolic} illustrated one view of intelligent behavior as transformation search with explicit goal tests, while \Cref{chap:supervised} introduced the data-driven view: represent a task with data, choose a hypothesis class, minimize empirical risk under regularization, and audit performance on held-out data. This chapter extends that toolkit from regression to classification. Figure \Cref{fig:roadmap} places this chapter on the core supervised path.
-
 \begin{tcolorbox}[summarybox,title={Design motif}]
 Keep the workflow, swap the likelihood: logistic regression keeps the linear score but changes the probabilistic model (Bernoulli likelihood) and the loss (negative log\hyp{}likelihood, i.e., cross\hyp{}entropy).
 \end{tcolorbox}
 
-\begin{tcolorbox}[summarybox,title={Risk \& audit}]
-\begin{itemize}
-    \item \textbf{Threshold choice:} a high AUC can still yield a poor operating point; pick thresholds using a validation objective that matches the cost.
-    \item \textbf{Class imbalance:} report PR curves (or per-class metrics) when positives are rare; audit confusion matrices, not just accuracy.
-    \item \textbf{Probability quality:} logits can be miscalibrated; use reliability diagrams/ECE when probabilities are consumed downstream.
-    \item \textbf{Feature shortcuts:} strong apparent accuracy can come from spurious correlates; sanity-check with slices and perturbations.
-    \item \textbf{Regularization:} tune \(\lambda\) with held-out data; do not report the best test result after repeated tuning.
-\end{itemize}
-\end{tcolorbox}
+\subsection{From regression to classification}
+\label{sec:logistic_from_regression_to_classification}
+Linear regression models a continuous target \(y\) and, under a Gaussian noise model, yields a closed-form solution via the normal equations (\Cref{chap:supervised}, \cref{sec:linear_regression_closed}). Classification changes the output space: \(y\) is a discrete label, and the model predicts class probabilities rather than raw responses. The ERM pipeline remains the same, but the loss becomes the negative log-likelihood (binary cross\hyp{}entropy) and optimization is typically iterative.
+
+Throughout this chapter we use \(y\in\{0,1\}\) by default, switching to \(y_{\pm1}=2y-1\) only when margin-based expressions are convenient. Predictions carry hats (e.g., \(\hat{y}\)), \(\varepsilon\) denotes noise, and \(e=y-\hat{y}\) denotes residuals. For a refresher on data splits, learning curves, and the bias--variance vocabulary, see \Cref{chap:supervised}; here we focus on the logistic-specific modeling and diagnostics.
 
 \begin{tcolorbox}[summarybox,title={Worked example: a toy decision boundary}]
 On a two\hyp{}moons binary classification toy, the ideas in this chapter have a visible effect:
@@ -32,12 +28,6 @@ On a two\hyp{}moons binary classification toy, the ideas in this chapter have a 
     \item The nonlinearity we will need later is \emph{not} in the optimizer but in the representation: \Cref{chap:mlp} introduces multilayer features and \Cref{chap:backprop} supplies the training engine that lets those features improve the decision boundary.
 \end{itemize}
 \end{tcolorbox}
-
-\subsection{From regression to classification}
-\label{sec:logistic_from_regression_to_classification}
-Linear regression models a continuous target \(y\) and, under a Gaussian noise model, yields a closed-form solution via the normal equations (\Cref{chap:supervised}, \cref{sec:linear_regression_closed}). Classification changes the output space: \(y\) is a discrete label, and the model predicts class probabilities rather than raw responses. The ERM pipeline remains the same, but the loss becomes the negative log-likelihood (binary cross\hyp{}entropy) and optimization is typically iterative.
-
-Throughout this chapter we use \(y\in\{0,1\}\) by default, switching to \(y_{\pm1}=2y-1\) only when margin-based expressions are convenient. Predictions carry hats (e.g., \(\hat{y}\)), \(\varepsilon\) denotes noise, and \(e=y-\hat{y}\) denotes residuals. For a refresher on data splits, learning curves, and the bias--variance vocabulary, see \Cref{chap:supervised}; here we focus on the logistic-specific modeling and diagnostics.
 
 \subsection{Classification problem statement}
 \label{sec:logistic_classification_problem_statement}
@@ -447,6 +437,16 @@ Two common priors explain the two penalties that appear most often in practice: 
 
 \subsection{Confusion Matrices and Derived Metrics}
 \label{sec:logistic_confusion_matrices_and_derived_metrics}
+
+\begin{tcolorbox}[summarybox,title={Risk \& audit}]
+\begin{itemize}
+    \item \textbf{Threshold choice:} a high AUC can still yield a poor operating point; pick thresholds using a validation objective that matches the cost.
+    \item \textbf{Class imbalance:} report PR curves (or per-class metrics) when positives are rare; audit confusion matrices, not just accuracy.
+    \item \textbf{Probability quality:} logits can be miscalibrated; use reliability diagrams/ECE when probabilities are consumed downstream.
+    \item \textbf{Feature shortcuts:} strong apparent accuracy can come from spurious correlates; sanity-check with slices and perturbations.
+    \item \textbf{Regularization:} tune \(\lambda\) with held-out data; do not report the best test result after repeated tuning.
+\end{itemize}
+\end{tcolorbox}
 
 Once we have a probabilistic classifier, we need diagnostics that quantify performance on held-out data. For multi-class prediction, the confusion matrix \(C_{ij}\) records the number of examples with true class \(i\) predicted as \(j\). From \(C\) we compute accuracy, per-class precision/recall, and aggregate metrics. \emph{Macro-averaged} precision/recall first evaluate the metric per class and then average them uniformly, whereas \emph{micro-averaged} precision/recall pool all true/false positives across classes before computing the ratio (equivalent to weighting each example equally). Visual inspection (\Cref{fig:lec1_confusion}) helps diagnose systematic errors across classes.
 

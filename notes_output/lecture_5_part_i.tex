@@ -2,6 +2,10 @@
 \section[Self-Organizing Networks]{Introduction to Self-Organizing Networks and Unsupervised Learning}\label{chap:som}
 \graphicspath{{assets/lec5/}}
 
+\Cref{chap:rbf} offered a nonlinearity that stays close to linear algebra (basis expansion + linear solve). Here we switch to an unsupervised lens: self-organizing maps discover prototypes and organize them on a lattice without labels. Figure \Cref{fig:roadmap} highlights this as the competitive/unsupervised branch.
+
+This chapter opens the unsupervised neural thread with \emph{Self-Organizing Maps} (SOMs), also known as Kohonen maps. \Cref{chap:hopfield} then studies Hopfield networks, an energy-based associative memory model. Both operate without explicit targets, in contrast to the supervised ERM pipeline in \Cref{chap:supervised}.
+
 \begin{tcolorbox}[summarybox,title={Learning Outcomes}]
 \begin{itemize}
     \item Describe how competitive learning, cooperation, and annealing interact in SOM training.
@@ -10,25 +14,8 @@
 \end{itemize}
 \end{tcolorbox}
 
-\Cref{chap:rbf} offered a nonlinearity that stays close to linear algebra (basis expansion + linear solve). Here we switch to an unsupervised lens: self-organizing maps discover prototypes and organize them on a lattice without labels. Figure \Cref{fig:roadmap} highlights this as the competitive/unsupervised branch.
-
 \begin{tcolorbox}[summarybox,title={Design motif}]
 Competition plus cooperation: pick a winner, then let its neighbors learn too, so the map becomes both a clustering device and a visualization.
-\end{tcolorbox}
-
-\begin{tcolorbox}[summarybox,title={Tiny numeric step (online update)}]
-Input \(\mathbf{x}=[0.2,0.8]\), two map units with weights \(\mathbf{w}_1=[0.1,0.9]\), \(\mathbf{w}_2=[0.7,0.3]\), coordinates \(\mathbf{r}_1=[0,0]\), \(\mathbf{r}_2=[1,0]\), \(\alpha=0.5\), \(\sigma=1\). BMU \(c=1\) (closest to \(\mathbf{x}\)). Neighborhoods: \(h_{11}=1\), \(h_{21}=\exp(-1/2)\approx 0.607\). Updates:
-\[
-\mathbf{w}_1\leftarrow [0.15,\,0.85],\quad
-\mathbf{w}_2\leftarrow [0.548,\,0.452].
-\]
-Even the neighbor moves toward \(\mathbf{x}\), illustrating cooperation.
-\end{tcolorbox}
-
-This chapter opens the unsupervised neural thread with \emph{Self-Organizing Maps} (SOMs), also known as Kohonen maps. \Cref{chap:hopfield} then studies Hopfield networks, an energy-based associative memory model. Both operate without explicit targets, in contrast to the supervised ERM pipeline in \Cref{chap:supervised}.
-
-\begin{tcolorbox}[summarybox,title={Historical intuition: two sheets and topographic neighborhoods}]
-A useful way to picture SOMs is as two coupled ``sheets'': an input space and a fixed lattice of units. Each input is connected (in principle) to the whole lattice, but learning makes some regions of the lattice respond strongly (excitation) while others respond weakly (inhibition). The payoff is a \emph{topographic} map: inputs that are far apart in the original space can end up near one another on the lattice if they are statistically similar under the features the SOM has learned.
 \end{tcolorbox}
 
 \subsection{Overview of Self-Organizing Networks}
@@ -42,6 +29,10 @@ The key characteristics of SOMs include:
     \item \textbf{Competitive learning:} Neurons compete to become the "winner" for a given input, and only the winner and its neighbors update their weights.
     \item \textbf{Unsupervised learning:} No labeled outputs are required; the network self-organizes based on input similarity.
 \end{itemize}
+
+\begin{tcolorbox}[summarybox,title={Historical intuition: two sheets and topographic neighborhoods}]
+A useful way to picture SOMs is as two coupled ``sheets'': an input space and a fixed lattice of units. Each input is connected (in principle) to the whole lattice, but learning makes some regions of the lattice respond strongly (excitation) while others respond weakly (inhibition). The payoff is a \emph{topographic} map: inputs that are far apart in the original space can end up near one another on the lattice if they are statistically similar under the features the SOM has learned.
+\end{tcolorbox}
 
 \begin{tcolorbox}[summarybox,title={Author's note: tie SOMs back to clustering and dimensionality reduction}]
 SOMs live in the same ecosystem as clustering and dimensionality reduction: they learn prototypes without labels and simultaneously organize those prototypes on a low-dimensional lattice. Treat the update rules as a carefully annealed clustering algorithm whose output just happens to be arranged on a grid for interpretability.
@@ -242,6 +233,15 @@ Here \(\|\cdot\|_2\) denotes the Euclidean norm unless explicitly stated otherwi
     \end{equation}
     where \(\alpha(t)\) is the learning rate, which decreases over time, and the effective width of \(h_{ci}(t)\) likewise shrinks so that large-scale ordering occurs early and fine-tuning occurs later (see \Cref{sec:som_neighborhood}).
 \end{enumerate}
+
+\begin{tcolorbox}[summarybox,title={Tiny numeric step (online update)}]
+Input \(\mathbf{x}=[0.2,0.8]\), two map units with weights \(\mathbf{w}_1=[0.1,0.9]\), \(\mathbf{w}_2=[0.7,0.3]\), coordinates \(\mathbf{r}_1=[0,0]\), \(\mathbf{r}_2=[1,0]\), \(\alpha=0.5\), \(\sigma=1\). BMU \(c=1\) (closest to \(\mathbf{x}\)). Neighborhoods: \(h_{11}=1\), \(h_{21}=\exp(-1/2)\approx 0.607\). Updates:
+\[
+\mathbf{w}_1\leftarrow [0.15,\,0.85],\quad
+\mathbf{w}_2\leftarrow [0.548,\,0.452].
+\]
+Even the neighbor moves toward \(\mathbf{x}\), illustrating cooperation.
+\end{tcolorbox}
 
 This iterative process causes the map to self-organize, with neurons specializing to represent clusters or features of the input space.
 

@@ -2,6 +2,8 @@
 \section{Backpropagation Learning in Multi-Layer Perceptrons}\label{chap:backprop}
 \graphicspath{{assets/lec4/}}
 
+Building on the two\hyp{}neuron derivation in \Cref{chap:mlp}, we now derive backpropagation as a systematic application of the chain rule to an $L$-layer network. The key idea is unchanged: compute local error terms (the \(\delta\)'s), then reuse them to obtain all weight gradients efficiently. Figure \Cref{fig:roadmap} marks this chapter as the training engine for deep models.
+
 \begin{tcolorbox}[summarybox,title={Learning Outcomes}]
 \begin{itemize}
     \item Derive the layerwise backpropagation recursions for arbitrary-depth MLPs.
@@ -10,18 +12,8 @@
 \end{itemize}
 \end{tcolorbox}
 
-Building on the two\hyp{}neuron derivation in \Cref{chap:mlp}, we now derive backpropagation as a systematic application of the chain rule to an $L$-layer network. The key idea is unchanged: compute local error terms (the \(\delta\)'s), then reuse them to obtain all weight gradients efficiently. Figure \Cref{fig:roadmap} marks this chapter as the training engine for deep models.
-
 \begin{tcolorbox}[summarybox,title={Design motif}]
 Compute local error signals once, then reuse them to update every parameter efficiently. The organization (cache forward values, then sweep backward) is the algorithm.
-\end{tcolorbox}
-
-\begin{tcolorbox}[summarybox,title={Author's note: gradients move vectors, not single weights}]
-A practical MLP rarely updates one coordinate at a time; gradients are treated as full vectors so that every weight moves coherently. The backpropagation formulas derived below exist precisely to deliver those vector updates efficiently.
-\end{tcolorbox}
-
-\begin{tcolorbox}[summarybox,title={Why backprop matters}]
-Backpropagation is what turns a multilayer network from a diagram into a trainable model. It reuses local error signals so you can compute \emph{all} gradients efficiently, which makes it practical to learn hidden representations (not just tune a final linear layer), and to pair that increased capacity with the same validation\(\rightarrow\)audit discipline (learning curves, early stopping, and slice checks).
 \end{tcolorbox}
 
 \subsection{Context and Motivation}
@@ -30,6 +22,14 @@ Backpropagation is what turns a multilayer network from a diagram into a trainab
 Recall that a single-layer perceptron has no hidden layer (just input and output), while a shallow network adds one hidden layer between them. These shallow models solve linearly separable problems but remain insufficient for more complex tasks. The multi-layer perceptron introduces multiple layers of neurons, each connected by weighted links, enabling the network to learn nonlinear decision boundaries.
 
 However, this increased complexity raises the question: \emph{How do we update the weights across multiple layers to minimize the error at the output?} Unlike the single-layer perceptron, where weight updates depend directly on the output error, in a deep network, changes in weights at one layer propagate through subsequent layers, influencing the final output in a nonlinear and intertwined manner.
+
+\begin{tcolorbox}[summarybox,title={Author's note: gradients move vectors, not single weights}]
+A practical MLP rarely updates one coordinate at a time; gradients are treated as full vectors so that every weight moves coherently. The backpropagation formulas derived below exist precisely to deliver those vector updates efficiently.
+\end{tcolorbox}
+
+\begin{tcolorbox}[summarybox,title={Why backprop matters}]
+Backpropagation is what turns a multilayer network from a diagram into a trainable model. It reuses local error signals so you can compute \emph{all} gradients efficiently, which makes it practical to learn hidden representations (not just tune a final linear layer), and to pair that increased capacity with the same validation\(\rightarrow\)audit discipline (learning curves, early stopping, and slice checks).
+\end{tcolorbox}
 
 \subsection{Problem Setup}
 \label{sec:backprop_problem_setup}

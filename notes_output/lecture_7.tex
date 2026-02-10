@@ -2,6 +2,8 @@
 \section{Introduction to Recurrent Neural Networks}\label{chap:rnn}
 \graphicspath{{assets/lec7/}{assets/lec9/}{assets/lec14/}}
 
+\Cref{chap:cnn} showed how architectural bias (convolution/pooling) improves sample efficiency while preserving the same optimization loop. This chapter keeps that loop but changes the axis from space to time: sequence models need memory so present predictions can depend on prior tokens. Figure \Cref{fig:roadmap} flags this as the sequential branch of the neural strand.
+
 \begin{tcolorbox}[summarybox,title={Learning Outcomes}]
 \begin{itemize}
     \item Explain why recurrent structures are needed for sequence modeling and contrast them with feedforward nets.
@@ -10,17 +12,8 @@
 \end{itemize}
 \end{tcolorbox}
 
-\Cref{chap:cnn} showed how architectural bias (convolution/pooling) improves sample efficiency while preserving the same optimization loop. This chapter keeps that loop but changes the axis from space to time: sequence models need memory so present predictions can depend on prior tokens. Figure \Cref{fig:roadmap} flags this as the sequential branch of the neural strand.
-
 \begin{tcolorbox}[summarybox,title={Design motif}]
 Add recurrence, then train it by unrolling time and reusing the backprop machinery from \Cref{chap:backprop}.
-\end{tcolorbox}
-
-\begin{tcolorbox}[summarybox,title={Chapter map (core vs.\ detours)}]
-\begin{itemize}
-    \item \textbf{Core path:} why memory is needed $\rightarrow$ state + parameter sharing $\rightarrow$ unrolling + BPTT $\rightarrow$ stability (vanishing/exploding, clipping) $\rightarrow$ gating (GRU/LSTM).
-    \item \textbf{Optional detours:} quick padding/autoencoder reminders (for encoder intuition). For word representations and embedding objectives, jump to \Cref{chap:nlp}.
-\end{itemize}
 \end{tcolorbox}
 
 The statistical learning chapters (\Crefrange{chap:supervised}{chap:logistic}) established the basic training loop: choose a model class, define a loss, optimize it, and then audit generalization and calibration. The feedforward neural chapters then extended the model class from linear predictors to multilayer networks (MLPs, RBF networks, and CNNs). Those architectures have proven effective for tasks such as classification, regression, and feature extraction, but they share a common structural limitation: information flows strictly from input to output, without an internal state that can store context over time.
@@ -42,6 +35,13 @@ This is a common situation in many real-world problems, such as:
     \item Speech recognition and synthesis
     \item Control systems with memory of past states
 \end{itemize}
+
+\begin{tcolorbox}[summarybox,title={Chapter map (core vs.\ detours)}]
+\begin{itemize}
+    \item \textbf{Core path:} why memory is needed $\rightarrow$ state + parameter sharing $\rightarrow$ unrolling + BPTT $\rightarrow$ stability (vanishing/exploding, clipping) $\rightarrow$ gating (GRU/LSTM).
+    \item \textbf{Optional detours:} quick padding/autoencoder reminders (for encoder intuition). For word representations and embedding objectives, jump to \Cref{chap:nlp}.
+\end{itemize}
+\end{tcolorbox}
 
 Order carries meaning even in simple settings: if it is Saturday, the next day is Sunday. In language, ``out of the blue'' means something sudden, whereas ``the ball was blue'' refers to color; the sequence makes the difference. In predictive text, ``I want to buy ...'' favors a different continuation than ``Write a book about Teddy ...'' These examples also highlight variable-length inputs: a review can be three words or three hundred. You can always build a fixed window of past inputs and feed it to a standard MLP, but that approach scales poorly as the history grows and does not share parameters across time.
 

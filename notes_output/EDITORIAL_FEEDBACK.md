@@ -1226,3 +1226,27 @@ Quick lint checklist before merge:
 1. Harmonize opening bridge sentence length in Chapters 15-19 (target 2-3 lines each).
 2. Tighten any repeated “roadmap” phrasing in adjacent chapters.
 3. Run one final chapter-format + production-check bundle before tagging a release candidate.
+
+## [2026-02-10] Chapter-opening flow pass (box-heavy openings; Chapter 11 training box)
+
+### Editorial intent
+- Start chapters with a narrative bridge (no boxes).
+- Keep `Learning Outcomes` as the first *box* the reader encounters.
+- Avoid front-loading multiple heavy boxes (risk/audit, long maps, numeric sidebars).
+- Place boxes where they are actionable (near the section that uses them), rather than aggregating them at the top.
+- No deletions: content is preserved via reordering and relocation.
+
+### What changed (high-level)
+- Moved early non-essential boxes out of chapter openings for Chapters 2-4 and 6-12.
+- Converted some early boxes that were purely navigational into regular prose (e.g., Chapter 11 "How to read this chapter") to reduce box density.
+- Repositioned Chapter 11's "Training failure signatures (symptom -> likely fixes)" box to appear after the reader has seen the vanishing/exploding gradient mechanics.
+
+### Measurable before/after
+- Evidence: `notes_output/artifacts/qc/advanced_editorial_audit_20260209_225702.md` (before) vs `notes_output/artifacts/qc/advanced_editorial_audit_20260209_231834.md` (after).
+- After this pass, the only chapters with >2 opening boxes are:
+  - Chapter 14 (`lecture_transformers.tex`) (intentionally deferred; likely rewritten)
+  - Chapters 15-18 (each includes a single "Running example checkpoint" box alongside Learning Outcomes + Design motif)
+
+### Notes (residual)
+- This pass improves the chapter-opening reading rhythm, but it does not address deeper structural questions (section ordering, redundancy, level of detail) within each chapter.
+- The next editorial work should separate "structure" (moving sections) from "wording-only" polishing to avoid mixing scopes.

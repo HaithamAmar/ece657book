@@ -2,6 +2,12 @@
 \section{Convolutional Neural Networks and Deep Training Tools}\label{chap:cnn}
 \graphicspath{{assets/lec6/}{assets/lec8/}}
 
+\Cref{chap:hopfield} used energy to make recurrence stable: dynamics settle, memories persist, and failure has a concrete signature. Vision problems have the opposite flavor. The system must form a representation that is rich enough to support decisions, but structured enough to learn from finite data.
+
+Convolutional networks are the simplest version of that bargain. They keep the ERM workflow from \Crefrange{chap:supervised}{chap:logistic} and the gradient-training machinery from \Cref{chap:mlp}, but move a large fraction of the ``modeling bias'' into architecture. Local connectivity and weight sharing make images tractable: the model spends capacity on patterns that actually recur across a grid.
+
+The second thread in this chapter is pragmatic. Deep models are only useful when they train. After the CNN mechanics, we transition into the deep\hyp{}training toolkit (initialization, activations, normalization, regularization, and optimizers) that will reappear in \Crefrange{chap:rnn}{chap:transformers}.
+
 \begin{tcolorbox}[summarybox,title={Learning Outcomes}]
 After this chapter, you should be able to:
 \begin{itemize}
@@ -12,12 +18,6 @@ After this chapter, you should be able to:
   \item Describe practical optimizers and regularizers (BN, dropout, weight decay).
 \end{itemize}
 \end{tcolorbox}
-
-\Cref{chap:hopfield} used energy to make recurrence stable: dynamics settle, memories persist, and failure has a concrete signature. Vision problems have the opposite flavor. The system must form a representation that is rich enough to support decisions, but structured enough to learn from finite data.
-
-Convolutional networks are the simplest version of that bargain. They keep the ERM workflow from \Crefrange{chap:supervised}{chap:logistic} and the gradient-training machinery from \Cref{chap:mlp}, but move a large fraction of the ``modeling bias'' into architecture. Local connectivity and weight sharing make images tractable: the model spends capacity on patterns that actually recur across a grid.
-
-The second thread in this chapter is pragmatic. Deep models are only useful when they train. After the CNN mechanics, we transition into the deep\hyp{}training toolkit (initialization, activations, normalization, regularization, and optimizers) that will reappear in \Crefrange{chap:rnn}{chap:transformers}.
 
 \begin{tcolorbox}[summarybox,title={Design motif}]
 Keep the same statistical learning loop from \Crefrange{chap:supervised}{chap:logistic}, but move the ``bias'' into architecture via weight sharing and locality.
@@ -30,13 +30,12 @@ The core backprop loop from earlier chapters scales to high-dimensional percepti
 
 CNNs emerged as a pragmatic answer: keep end-to-end gradient training, but bake in locality and translation structure through sparse connectivity and shared weights. The result is a model class that is both more sample-efficient and more computationally viable on large grids.
 
-\begin{tcolorbox}[summarybox,title={How to read this chapter}]
+\paragraph{How to read this chapter.}
 \begin{itemize}
     \item \textbf{Core thread (CNNs):} why locality + weight sharing $\rightarrow$ convolution/pooling mechanics $\rightarrow$ channels/feature maps $\rightarrow$ end-to-end classifiers.
     \item \textbf{Going deeper:} why depth works (receptive-field growth) and why CNNs displaced classical pipelines (the 2012 shift).
     \item \textbf{Training toolkit:} gradient-based optimization and the stabilizers you will reuse later (initialization, activations, batch norm, dropout, AdamW).
 \end{itemize}
-\end{tcolorbox}
 
 \subsection{Why fully connected layers break on images}
 \label{sec:cnn_why_fully_connected_layers_break_on_images}
@@ -268,15 +267,6 @@ gradient signal can be distorted as it flows through many layers. We begin with 
 basic pathology---vanishing and exploding gradients---and then summarize practical
 mitigations.
 
-\begin{tcolorbox}[summarybox,title={Training failure signatures (symptom $\rightarrow$ likely fixes)}]
-\begin{itemize}
-    \item \textbf{Loss becomes NaN / diverges quickly:} lower learning rate; check data normalization; add gradient clipping; verify BN statistics (or switch norm).
-    \item \textbf{Training loss decreases but validation stalls:} audit split hygiene (\Cref{chap:supervised}); add regularization (weight decay, dropout); strengthen augmentation; check shortcut features via slice tests.
-    \item \textbf{Both training and validation improve slowly:} revisit initialization and normalization; try momentum/AdamW; confirm the objective matches the metric you care about.
-    \item \textbf{High accuracy but poor probability decisions:} audit calibration (reliability/ECE) and re-threshold on held-out data rather than trusting raw scores (\Cref{chap:logistic}).
-\end{itemize}
-\end{tcolorbox}
-
 % Chapter 11 (continued)
 
 \subsection{Vanishing and Exploding Gradients in Deep Networks}
@@ -312,6 +302,15 @@ Note that $\sigma'(x)$ approaches zero when $\sigma(x)$ is near 0 or 1, i.e., wh
 The derivative is maximized at $\sigma(x)=0.5$, where $\sigma'(x)=0.25$, so repeatedly multiplying sigmoid derivatives can shrink gradients roughly like $0.25^L$ across $L$ layers.
 
 \paragraph{Notation note.} In this chapter $\sigma(\cdot)$ always denotes the logistic sigmoid nonlinearity, whereas symbols such as $\sigma^2$ are reserved for variances in earlier statistical chapters; context (function of an argument vs. squared scalar) distinguishes them.
+
+\begin{tcolorbox}[summarybox,title={Training failure signatures (symptom $\rightarrow$ likely fixes)}]
+\begin{itemize}
+    \item \textbf{Loss becomes NaN / diverges quickly:} lower learning rate; check data normalization; add gradient clipping; verify BN statistics (or switch norm).
+    \item \textbf{Training loss decreases but validation stalls:} audit split hygiene (\Cref{chap:supervised}); add regularization (weight decay, dropout); strengthen augmentation; check shortcut features via slice tests.
+    \item \textbf{Both training and validation improve slowly:} revisit initialization and normalization; try momentum/AdamW; confirm the objective matches the metric you care about.
+    \item \textbf{High accuracy but poor probability decisions:} audit calibration (reliability/ECE) and re-threshold on held-out data rather than trusting raw scores (\Cref{chap:logistic}).
+\end{itemize}
+\end{tcolorbox}
 
 \subsection{Strategies to Mitigate Vanishing and Exploding Gradients}
 \label{sec:cnn_strategies_to_mitigate_vanishing_and_exploding_gradients}

@@ -1,14 +1,6 @@
 % Chapter 3
 \section{Supervised Learning Foundations}\label{chap:supervised}
 
-\begin{tcolorbox}[summarybox,title={Learning Outcomes}]
-\begin{itemize}
-    \item Formalize datasets, hypotheses, and empirical risk minimization (ERM) with consistent notation used in \Crefrange{chap:supervised}{chap:logistic}.
-    \item Compare common regression/classification losses and regularizers, understanding when to prefer each.
-    \item Diagnose under/overfitting with data splits, learning curves, and bias--variance reasoning; use these diagnostics to guide model selection and regularization.
-\end{itemize}
-\end{tcolorbox}
-
 \Cref{chap:symbolic} illustrated a non-statistical lens: solve problems by transformation search, with explicit goal tests. We now switch to the data-driven lens. Figure \Cref{fig:roadmap} marks this as the core supervised strand.
 
 Building intelligent models is an imprecise science. If we know the relationship between the input and the output, there is no need to infer it: Celsius and Fahrenheit are linked by a simple formula, and many physical laws provide direct mappings from one quantity to another. In the problems that motivate machine learning, the mapping is unknown, messy, or only partially understood, so we settle for an approximation. That approximation might be statistical (learned from data), rule-based (encoded from experience), biologically inspired (neural computation), behavioral (fuzzy rules), or evolutionary (search over candidate solutions). In this chapter we focus on the statistical, data-driven strand: supervised learning.
@@ -21,23 +13,16 @@ The word \emph{fitting} is meant literally. In classical curve fitting---and in 
 
 This chapter builds the supervised-learning toolkit around that central act. We start by making the pieces explicit (data, models, and losses). Then we show what training is doing when it succeeds, and what it looks like when it fails (underfitting vs.\ overfitting). After that we formalize the standard objective (ERM) and the main ``anti-memorization'' tools (regularization and validation). Finally, we work through linear regression as the first fully transparent case study where you can see the entire pipeline end to end.
 
-\begin{tcolorbox}[summarybox,title={Design motif}]
-Data \(\rightarrow\) model \(\rightarrow\) objective \(\rightarrow\) audit. This workflow shows up repeatedly in later chapters, even when the models become deeper and the optimization less forgiving.
-\end{tcolorbox}
-
-\begin{tcolorbox}[summarybox,title={Risk \& audit}]
+\begin{tcolorbox}[summarybox,title={Learning Outcomes}]
 \begin{itemize}
-    \item \textbf{Leakage:} avoid split mistakes (duplicates, near-duplicates, time leakage) that inflate validation accuracy.
-    \item \textbf{Metric mismatch:} align the loss you optimize with the metric you report (and the decision you must make).
-    \item \textbf{Overfitting signals:} track training vs.\ validation curves and use learning curves to diagnose data hunger vs.\ excess capacity.
-    \item \textbf{Distribution shift:} audit performance by slice (population, device, lighting, region) rather than relying on one aggregate score.
-    \item \textbf{Calibration:} check reliability when probabilities drive actions (thresholds, alerts, resource allocation).
-    \item \textbf{Reporting discipline:} log data split policy, seeds, and selection criteria; \Cref{app:repro_standards} defines the book-wide template.
+    \item Formalize datasets, hypotheses, and empirical risk minimization (ERM) with consistent notation used in \Crefrange{chap:supervised}{chap:logistic}.
+    \item Compare common regression/classification losses and regularizers, understanding when to prefer each.
+    \item Diagnose under/overfitting with data splits, learning curves, and bias--variance reasoning; use these diagnostics to guide model selection and regularization.
 \end{itemize}
 \end{tcolorbox}
 
-\begin{tcolorbox}[summarybox,title={A concrete toy task}]
-To keep the discussion grounded, we will repeatedly sketch one small binary classification problem: a two\hyp{}moons toy with a standard train/validation/test split. It is deliberately simple, but it is rich enough to reveal the recurring failure modes (memorization, metric mismatch, split leakage) and the recurring remedies (regularization, validation, and diagnostics).
+\begin{tcolorbox}[summarybox,title={Design motif}]
+Data \(\rightarrow\) model \(\rightarrow\) objective \(\rightarrow\) audit. This workflow shows up repeatedly in later chapters, even when the models become deeper and the optimization less forgiving.
 \end{tcolorbox}
 
 \noindent Before we turn the ``fitting'' story into equations, let us fix the handful of symbols we will reuse for several pages. The goal is not to introduce new notation, but to keep the derivations readable while the ideas are still new.
@@ -355,6 +340,17 @@ In other words, this is where the chapter's ``audit'' step becomes operational: 
 
 Practical workflows allocate data into training, validation, and test portions. Training data are used to fit parameters; validation data guide choices such as hyperparameters and model families; and the test set provides an unbiased audit once those choices are fixed. The key habit is the separation of roles: training is where you allow the model to ``learn'' (and potentially overfit), validation is where you decide what kind of learning you trust, and the test set is the final audit.
 
+\begin{tcolorbox}[summarybox,title={Risk \& audit}]
+\begin{itemize}
+    \item \textbf{Leakage:} avoid split mistakes (duplicates, near-duplicates, time leakage) that inflate validation accuracy.
+    \item \textbf{Metric mismatch:} align the loss you optimize with the metric you report (and the decision you must make).
+    \item \textbf{Overfitting signals:} track training vs.\ validation curves and use learning curves to diagnose data hunger vs.\ excess capacity.
+    \item \textbf{Distribution shift:} audit performance by slice (population, device, lighting, region) rather than relying on one aggregate score.
+    \item \textbf{Calibration:} check reliability when probabilities drive actions (thresholds, alerts, resource allocation).
+    \item \textbf{Reporting discipline:} log data split policy, seeds, and selection criteria; \Cref{app:repro_standards} defines the book-wide template.
+\end{itemize}
+\end{tcolorbox}
+
 \begin{tcolorbox}[summarybox,title={Proper scoring rules and calibration},breakable]
 \small
 \begin{itemize}
@@ -389,6 +385,10 @@ Practical workflows allocate data into training, validation, and test portions. 
     \caption{Dataset partitioning into training, validation, and test segments. Any resampling scheme should preserve disjoint evaluation data; when classes are imbalanced, shuffle within strata so each split reflects the overall class mix. Use it when designing splits that support trustworthy model selection and reporting.}
     \label{fig:lec1_splits}
 \end{figure}
+
+\begin{tcolorbox}[summarybox,title={A concrete toy task}]
+As a reference point, keep in mind one small binary classification problem: a two\hyp{}moons toy with a standard train/validation/test split. It is deliberately simple, but it is rich enough to reveal the recurring failure modes (memorization, metric mismatch, split leakage) and the recurring remedies (regularization, validation, and diagnostics).
+\end{tcolorbox}
 
 To make the workflow concrete, \Cref{fig:lec1_pipeline} summarizes the standard ERM pipeline from dataset to model selection.
 

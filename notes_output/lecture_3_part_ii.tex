@@ -1,6 +1,8 @@
 % Chapter 6
 \section{Multi-Layer Perceptrons: Challenges and Foundations}\label{chap:mlp}
 
+\Cref{chap:perceptron} introduced the perceptron and Adaline: single units that learn by updating weights from data, with Adaline giving our first explicit glimpse of gradient descent on a smooth performance function. In this chapter we keep the story linear and concrete. We build the smallest possible network (two neurons in series), define a performance function, and ask the core question: \emph{how should the weights change to improve performance?} Answering that question forces us to use derivatives (the chain rule) and leads naturally to gradient descent. Along the way we encounter a practical obstacle: hard thresholds are not differentiable, so they do not support gradient-based learning. We replace them with smooth activations and immediately gain a clean update story. This is the conceptual bridge to full backpropagation in \Cref{chap:backprop}. Figure \Cref{fig:roadmap} shows this as the hinge between single-unit models and multilayer training.
+
 \begin{tcolorbox}[summarybox,title={Learning Outcomes}]
 After this chapter, you should be able to:
 \begin{itemize}
@@ -12,11 +14,12 @@ After this chapter, you should be able to:
 \end{itemize}
 \end{tcolorbox}
 
-\Cref{chap:perceptron} introduced the perceptron and Adaline: single units that learn by updating weights from data, with Adaline giving our first explicit glimpse of gradient descent on a smooth performance function. In this chapter we keep the story linear and concrete. We build the smallest possible network (two neurons in series), define a performance function, and ask the core question: \emph{how should the weights change to improve performance?} Answering that question forces us to use derivatives (the chain rule) and leads naturally to gradient descent. Along the way we encounter a practical obstacle: hard thresholds are not differentiable, so they do not support gradient-based learning. We replace them with smooth activations and immediately gain a clean update story. This is the conceptual bridge to full backpropagation in \Cref{chap:backprop}. Figure \Cref{fig:roadmap} shows this as the hinge between single-unit models and multilayer training.
-
 \begin{tcolorbox}[summarybox,title={Design motif}]
 Build the smallest trainable network you can, keep every intermediate quantity visible, and let the chain rule explain how learning signals flow.
 \end{tcolorbox}
+
+\subsection{From a single unit to the smallest network}
+\label{sec:mlp-limitations}
 
 \begin{tcolorbox}[summarybox,title={A short map: building a trainable network}]
 The chapter follows one tight loop:
@@ -37,9 +40,6 @@ The same objective\(\rightarrow\)audit workflow from the supervised toolkit stil
     \item Here: we build the smallest nonlinear network and derive its gradient updates, setting up the general backprop machinery in \Cref{chap:backprop}.
 \end{itemize}
 \end{tcolorbox}
-
-\subsection{From a single unit to the smallest network}
-\label{sec:mlp-limitations}
 
 \paragraph{Function estimation as the unifying view.}
 Learning is function estimation: approximate some unknown mapping $f: X \to Y$ from examples. A neural network is a structured way to represent a nonlinear $f$ by composing simple units. In this chapter we keep the bookkeeping minimal and use one tiny network plus a simple squared error objective so we can focus on the mechanics of learning.

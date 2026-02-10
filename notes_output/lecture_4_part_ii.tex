@@ -1,6 +1,8 @@
 % Chapter 8
 \section{Radial Basis Function Networks (RBFNs)}\label{chap:rbf}
 
+Building on the multilayer perceptron (MLP) architecture (\Cref{chap:mlp}) and its training machinery (\Cref{chap:backprop}), we now introduce a different class of feedforward models: \emph{Radial Basis Function Networks} (RBFNs). Figure \Cref{fig:roadmap} places this as the kernel/prototype branch alongside the MLP path.
+
 \begin{tcolorbox}[summarybox,title={Learning Outcomes}]
 \begin{itemize}
     \item Explain the architecture and training stages of RBF networks (center selection, width tuning, linear solve).
@@ -9,11 +11,12 @@
 \end{itemize}
 \end{tcolorbox}
 
-Building on the multilayer perceptron (MLP) architecture (\Cref{chap:mlp}) and its training machinery (\Cref{chap:backprop}), we now introduce a different class of feedforward models: \emph{Radial Basis Function Networks} (RBFNs). Figure \Cref{fig:roadmap} places this as the kernel/prototype branch alongside the MLP path.
-
 \begin{tcolorbox}[summarybox,title={Design motif}]
 Make the nonlinearity explicit: use a fixed (or lightly tuned) basis expansion in the hidden layer, then learn the output weights with linear-algebra tools.
 \end{tcolorbox}
+
+\subsection{Overview and Motivation}
+\label{sec:rbf_overview_and_motivation}
 
 \begin{tcolorbox}[summarybox,title={How to read this chapter}]
 \begin{itemize}
@@ -21,9 +24,6 @@ Make the nonlinearity explicit: use a fixed (or lightly tuned) basis expansion i
     \item \textbf{Optional bridge:} a short Wiener-filter refresher connects the RBFN linear solve to classical linear estimation; it is provided for context and can be skimmed without loss of continuity.
 \end{itemize}
 \end{tcolorbox}
-
-\subsection{Overview and Motivation}
-\label{sec:rbf_overview_and_motivation}
 
 An RBFN is a special category of feedforward neural network characterized by the following properties:
 
