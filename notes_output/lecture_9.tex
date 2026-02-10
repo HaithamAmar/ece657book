@@ -2,11 +2,7 @@
 \section{Fuzzy Sets and Membership Functions: Foundations and Representations}\label{chap:fuzzysets}
 \graphicspath{{assets/lec9/}{assets/lec16/}}
 
-Building on \Cref{chap:softcomp}, this chapter formalizes the foundations of fuzzy logic: universes of discourse, fuzzy sets, membership functions, and the basic operators used throughout the fuzzy trilogy. These tools define the thermostat labels used in later chapters and prepare the transfer/inference steps developed in \Crefrange{chap:fuzzyrelations}{chap:fuzzyinference}.
-
-\begin{tcolorbox}[summarybox,title={Design motif}]
-Treat vagueness as a first-class modeling choice: write the membership functions down, pick operators explicitly, and then audit how those choices shape the behavior of a rule base.
-\end{tcolorbox}
+\noindent Building on \Cref{chap:softcomp}, this chapter formalizes the foundations of fuzzy logic: universes of discourse, fuzzy sets, membership functions, and the basic operators used throughout the fuzzy trilogy. These tools define the thermostat labels used in later chapters and prepare the transfer/inference steps developed in \Crefrange{chap:fuzzyrelations}{chap:fuzzyinference}.
 
 \begin{tcolorbox}[summarybox,title={Learning Outcomes}]
 After this chapter, you should be able to:
@@ -18,22 +14,12 @@ After this chapter, you should be able to:
 \end{itemize}
 \end{tcolorbox}
 
+\begin{tcolorbox}[summarybox,title={Design motif}]
+Treat vagueness as a first-class modeling choice: write the membership functions down, pick operators explicitly, and then audit how those choices shape the behavior of a rule base.
+\end{tcolorbox}
+
 \begin{tcolorbox}[summarybox,title={Running example checkpoint}]
 For the thermostat scenario introduced in \Cref{chap:softcomp}, the universe of discourse for the inputs is \([-5,5]^\circ\text{C}\) temperature error and \([-2,2]^\circ\text{C}/\text{min}\) rate-of-change. As you study triangular, trapezoidal, and Gaussian membership functions, imagine parameterizing the linguistic labels \textit{Cold}, \textit{Comfy}, and \textit{Hot} for these inputs. We reuse those shapes when composing rules in \Crefrange{chap:fuzzyrelations}{chap:fuzzyinference}.
-\end{tcolorbox}
-
-\begin{tcolorbox}[summarybox,title={Operator defaults used in \Crefrange{chap:fuzzysets}{chap:fuzzyinference}}]
-Unless stated otherwise, the fuzzy trilogy uses the \emph{standard} operators:
-\begin{itemize}
-    \item Complement (negation): \(C(\mu) = 1 - \mu\) (so \(C(C(\mu))=\mu\)).
-    \item Intersection and union: \(T_{\min}(a,b)=\min(a,b)\), \(S_{\max}(a,b)=\max(a,b)\).
-    \item De Morgan's laws are interpreted with this standard complement.
-\end{itemize}
-Alternative t-/s\hyp{}norms or complements are called out explicitly when they appear.
-\end{tcolorbox}
-
-\begin{tcolorbox}[summarybox,title={Notation handoff}]
-In the fuzzy trilogy, \(\mu_A(x)\) always denotes membership grade, \(T\) denotes a t\hyp{}norm when generalized conjunction is needed, and \(S\) denotes an s\hyp{}norm for generalized union. If these symbols clash with other parts, use the local chapter meaning and consult \Cref{app:notation_collisions}.
 \end{tcolorbox}
 
 \subsection{Recap: Fuzzy Sets and the Universe of Discourse}
@@ -387,6 +373,20 @@ Thus, membership functions in fuzzy sets represent \emph{possibility} rather tha
 
 \subsection{Fuzzy Set Operations}
 \label{sec:fuzzysets_fuzzy_set_operations}
+
+\begin{tcolorbox}[summarybox,title={Operator defaults used in \Crefrange{chap:fuzzysets}{chap:fuzzyinference}}]
+Unless stated otherwise, the fuzzy trilogy uses the \emph{standard} operators:
+\begin{itemize}
+    \item Complement (negation): \(C(\mu) = 1 - \mu\) (so \(C(C(\mu))=\mu\)).
+    \item Intersection and union: \(T_{\min}(a,b)=\min(a,b)\), \(S_{\max}(a,b)=\max(a,b)\).
+    \item De Morgan's laws are interpreted with this standard complement.
+\end{itemize}
+Alternative t-/s\hyp{}norms or complements are called out explicitly when they appear.
+\end{tcolorbox}
+
+\begin{tcolorbox}[summarybox,title={Notation handoff}]
+In the fuzzy trilogy, \(\mu_A(x)\) always denotes membership grade, \(T\) denotes a t\hyp{}norm when generalized conjunction is needed, and \(S\) denotes an s\hyp{}norm for generalized union. If these symbols clash with other parts, use the local chapter meaning and consult \Cref{app:notation_collisions}.
+\end{tcolorbox}
 
 Fuzzy logic introduces operations on fuzzy sets that generalize classical set operations but operate on membership functions. Let \( A \) and \( B \) be fuzzy sets on \( X \) with membership functions \(\mu_A\) and \(\mu_B\).
 

@@ -2,6 +2,8 @@
 \section{Introduction to Evolutionary Computing}\label{chap:evo}
 \graphicspath{{assets/lec19/}}
 
+After the fuzzy trilogy (\Crefrange{chap:softcomp}{chap:fuzzyinference}), this chapter develops the evolutionary-search strand introduced in \Cref{chap:intro}. The focus shifts from rule composition to population-based optimization under constraints, budgets, and stochastic variability.
+
 \begin{tcolorbox}[summarybox,title={Learning Outcomes}]
 \begin{itemize}
     \item Explain the evolutionary-computation toolbox (GAs, GP, CMA-ES, DE) and when each is well-suited.
@@ -10,24 +12,8 @@
 \end{itemize}
 \end{tcolorbox}
 
-After the fuzzy trilogy (\Crefrange{chap:softcomp}{chap:fuzzyinference}), this chapter develops the evolutionary-search strand introduced in \Cref{chap:intro}. The focus shifts from rule composition to population-based optimization under constraints, budgets, and stochastic variability.
-
 \begin{tcolorbox}[summarybox,title={Design motif}]
 When gradients are unavailable or the landscape is rugged, treat design as search: maintain a diverse population, score candidates with a fitness function, and let selection plus variation drive improvement under constraints.
-\end{tcolorbox}
-
-\begin{tcolorbox}[summarybox,title={Notation handoff}]
-Vectors of candidate solutions are written as \(\mathbf{x}\), objective values as \(f(\mathbf{x})\), and population members as individuals/chromosomes depending on encoding. If symbol reuse from earlier chapters becomes ambiguous, default to local definitions and consult \Cref{app:notation_collisions}.
-\end{tcolorbox}
-
-\begin{tcolorbox}[summarybox,title={Risk \& audit}]
-\begin{itemize}
-    \item \textbf{Premature convergence:} aggressive selection or weak mutation collapses diversity before good regions are explored.
-    \item \textbf{Budget mismatch:} comparisons are invalid unless algorithms share evaluation budgets and stopping rules.
-    \item \textbf{Constraint leakage:} hidden infeasibility can inflate scores; use explicit feasibility checks in logs and plots.
-    \item \textbf{Single-run overclaim:} stochastic algorithms require multi-seed reporting with spread, not one best trajectory.
-    \item \textbf{Objective gaming:} fitness proxies can drift from deployment goals; audit secondary metrics and failure cases.
-\end{itemize}
 \end{tcolorbox}
 
 \subsection{Context and Motivation}
@@ -56,6 +42,10 @@ Evolutionary algorithms borrow the language of biology to provide a disciplined 
 
 \subsection{Problem Setting: Optimization}
 \label{sec:evo_problem_setting_optimization}
+
+\begin{tcolorbox}[summarybox,title={Notation handoff}]
+Vectors of candidate solutions are written as \(\mathbf{x}\), objective values as \(f(\mathbf{x})\), and population members as individuals/chromosomes depending on encoding. If symbol reuse from earlier chapters becomes ambiguous, default to local definitions and consult \Cref{app:notation_collisions}.
+\end{tcolorbox}
 
 Consider an optimization problem where the goal is to find an input vector \( \mathbf{x} \in \mathbb{R}^n \) that minimizes (or maximizes) a given objective function \( f: \mathbb{R}^n \to \mathbb{R} \). Formally, we want to solve
 
@@ -669,6 +659,16 @@ Tuning these probabilities is critical for balancing exploration and exploitatio
 
 \subsection{Known Issues in Genetic Algorithms}
 \label{sec:evo_known_issues_in_genetic_algorithms}
+
+\begin{tcolorbox}[summarybox,title={Risk \& audit}]
+\begin{itemize}
+    \item \textbf{Premature convergence:} aggressive selection or weak mutation collapses diversity before good regions are explored.
+    \item \textbf{Budget mismatch:} comparisons are invalid unless algorithms share evaluation budgets and stopping rules.
+    \item \textbf{Constraint leakage:} hidden infeasibility can inflate scores; use explicit feasibility checks in logs and plots.
+    \item \textbf{Single-run overclaim:} stochastic algorithms require multi-seed reporting with spread, not one best trajectory.
+    \item \textbf{Objective gaming:} fitness proxies can drift from deployment goals; audit secondary metrics and failure cases.
+\end{itemize}
+\end{tcolorbox}
 
 While genetic algorithms (GAs) provide a powerful heuristic framework for optimization, several well-known issues can affect their performance and reliability:
 
