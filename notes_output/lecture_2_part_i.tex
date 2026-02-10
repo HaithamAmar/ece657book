@@ -2,7 +2,7 @@
 \section{Symbolic Integration and Problem-Solving Strategies}\label{chap:symbolic}
 \graphicspath{{assets/lec2_part1/}}
 
-\Cref{chap:intro} treated ``intelligence'' operationally: a system should represent a problem, choose actions, and verify or correct itself under constraints. This chapter makes that concrete with a deliberately small example---symbolic integration---where the system's actions are algebraic transformations. Figure \Cref{fig:roadmap} situates this symbolic strand alongside the data-driven path.
+\Cref{chap:intro} treated ``intelligence'' operationally: a system should represent a problem, choose actions, and verify or correct itself under constraints. This chapter makes that concrete with a deliberately small example---symbolic integration---where the system's actions are algebraic transformations. \Cref{fig:roadmap} situates this symbolic strand alongside the data-driven path.
 
 We study symbolic problem solving through the lens of \emph{integration-by-transformation}: preserve meaning while rewriting an expression into a form that exposes a solution. The point is not the catalog of tricks in isolation, but the system-level pattern: explicit representations, meaning-preserving actions, heuristic branching with backtracking, and a clear goal test that certifies correctness.
 
@@ -208,7 +208,7 @@ From a cost perspective, Path 1 is cheaper and more direct, so the system priori
 
 \paragraph{Two safe options from here}
 \begin{itemize}
-  \item \textbf{(a) Substitution \(u=\tan y\).} Since \(\sec^4 y\,dy = \sec^2 y\,(\sec^2 y\,dy)\) and \(\sec^2 y = 1 + \tan^2 y\), set \(u=\tan y\), \(du=\sec^2 y\,dy\):\\
+  \item \textbf{(a) Substitution \(u=\tan y\).} Since \(\sec^4 y\,dy = \sec^2 y\,(\sec^2 y\,dy)\) and \(\sec^2 y = 1 + \tan^2 y\), set \(u=\tan y\), \(du=\sec^2 y\,dy\):
   \[
   \begin{aligned}
   4 \int \sec^4 y\,dy
@@ -431,6 +431,8 @@ The worked integral above shows how the search explored multiple branches (e.g.,
         \caption{Transformation tree for the running example integral; badges \textbf{[S]}/\textbf{[H]} mark safe vs.\ heuristic moves; the dashed branch mirrors the sine substitution. Use it when diagnosing where a solve attempt branched and why backtracking was required.}
         \label{fig:lec3_transform_tree}
 \end{figure}
+
+Use \Cref{fig:lec3_transform_tree} as the derivation anchor for this section.
 
 \paragraph{Example:} For the integral problem, the root node is the original integral. From there, we branch into applying different substitutions or algebraic manipulations, such as
 \[

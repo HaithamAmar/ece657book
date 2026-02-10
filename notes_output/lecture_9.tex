@@ -235,6 +235,10 @@ with analogous expressions for the \(A\) and \(D\) categories. These overlapping
     \label{fig:lec9-grade-trapezoids}
 \end{figure}
 
+Use \Cref{fig:lec9-grade-trapezoids} as the derivation anchor for this section.
+
+\Cref{fig:lec9-membership-overlap} is the overlap diagnostic used when tuning membership coverage.
+
 \subsection{Example: Overlapping weight labels}\label{sec:weight-membership}
 
 Fuzzy labels often overlap so that borderline values belong to multiple sets. For weights measured in kilograms, one crisp partition is \([0,10],[11,20],[21,30]\) for \texttt{Small}, \texttt{Medium}, \texttt{Large}. A fuzzy partition smooths these transitions:
@@ -294,6 +298,10 @@ The overlap reflects the vagueness of the labels: a weight near 22~kg partially 
     \caption[Overlapping membership functions for Small/Medium/Large labels]{Overlapping membership functions for the ``Small'', ``Medium'', and ``Large'' weight labels. The shaded overlaps capture gradual transitions. Use it when tuning membership overlaps so small numeric changes do not cause abrupt rule changes.}
     \label{fig:lec9-membership-overlap}
 \end{figure}
+
+Use \Cref{fig:lec9-membership-overlap} as the derivation anchor for this section.
+
+\Cref{fig:tnorm-surfaces} is the operator-shape reference for choosing conjunction behavior in rule aggregation.
 
 \paragraph{Quick plotting snippet.} With \texttt{scikit-fuzzy} or plain \texttt{matplotlib} you can visualize overlaps to debug label choices:
 \begin{verbatim}
@@ -617,6 +625,8 @@ These operators allow for a nonlinear mapping of the complement, reflecting diff
     \fi
     \label{fig:tnorm-surfaces}
 \end{figure}
+
+Use \Cref{fig:tnorm-surfaces} as the derivation anchor for this section.
 
 \paragraph{Properties of Complement Operators}
 A commonly desired set of properties for a complement operator \( C \) is:
@@ -1003,6 +1013,8 @@ In a Mamdani-style controller the conjunction ``AND'' is typically modeled by th
 
 The next step is to formalize the \emph{implication} and \emph{aggregation} operators that map these fuzzy inputs to fuzzy outputs, and then perform \emph{defuzzification} to obtain crisp outputs.
 
+Use \Cref{tab:fuzzy-operators} as the derivation anchor for this section.
+
 \begin{table}[t]
 \centering
 % Avoid inline math in captions; it wraps poorly in some EPUB renderers.
@@ -1018,6 +1030,8 @@ t\hyp{}norm \(T(a,b)\) & s\hyp{}norm \(S(a,b)\) & Implication \(\Rightarrow\) & 
 \bottomrule
 \end{tabularx}
 \end{table}
+
+\Cref{tab:fuzzy-operators} is the operator-choice checklist referenced in the Mamdani design discussion.
 
 \subsection{Worked Example: Mamdani Fuzzy Inference (End-to-End)}
 \label{sec:fuzzysets_worked_example_mamdani_fuzzy_inference_end_to_end}
@@ -1131,6 +1145,8 @@ Practical tip: libraries such as \texttt{scikit-fuzzy} provide a tested \texttt{
     \caption{End-to-end fuzzy inference example. (A) Consequent membership functions with clipping levels from firing strengths at T = 27 deg C. (B) Aggregated output set (max of truncated consequents) and a centroid marker near s* approx 0.58. Use it when sanity-checking clipping, aggregation, and centroid defuzzification end to end.}
     \label{fig:fuzzy-end-to-end}
 \end{figure}
+
+Use \Cref{fig:fuzzy-end-to-end} as the derivation anchor for this section.
 
 \begin{tcolorbox}[summarybox,title={Key takeaways}]
 \begin{itemize}

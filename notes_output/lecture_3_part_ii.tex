@@ -1,7 +1,7 @@
 % Chapter 6
 \section{Multi-Layer Perceptrons: Challenges and Foundations}\label{chap:mlp}
 
-\Cref{chap:perceptron} introduced the perceptron and Adaline: single units that learn by updating weights from data, with Adaline giving our first explicit glimpse of gradient descent on a smooth performance function. In this chapter we keep the story linear and concrete. We build the smallest possible network (two neurons in series), define a performance function, and ask the core question: \emph{how should the weights change to improve performance?} Answering that question forces us to use derivatives (the chain rule) and leads naturally to gradient descent. Along the way we encounter a practical obstacle: hard thresholds are not differentiable, so they do not support gradient-based learning. We replace them with smooth activations and immediately gain a clean update story. This is the conceptual bridge to full backpropagation in \Cref{chap:backprop}. Figure \Cref{fig:roadmap} shows this as the hinge between single-unit models and multilayer training.
+\Cref{chap:perceptron} introduced the perceptron and Adaline: single units that learn by updating weights from data, with Adaline giving our first explicit glimpse of gradient descent on a smooth performance function. In this chapter we keep the story linear and concrete. We build the smallest possible network (two neurons in series), define a performance function, and ask the core question: \emph{how should the weights change to improve performance?} Answering that question forces us to use derivatives (the chain rule) and leads naturally to gradient descent. Along the way we encounter a practical obstacle: hard thresholds are not differentiable, so they do not support gradient-based learning. We replace them with smooth activations and immediately gain a clean update story. This is the conceptual bridge to full backpropagation in \Cref{chap:backprop}. \Cref{fig:roadmap} shows this as the hinge between single-unit models and multilayer training.
 
 \begin{tcolorbox}[summarybox,title={Learning Outcomes}]
 After this chapter, you should be able to:
@@ -59,6 +59,8 @@ The smallest network that is more than a single unit is a \emph{two\hyp{}neuron 
 \end{align}
 Even this tiny network introduces the central idea of neural networks: intermediate computations (here $y_1$) are reused and influence the final output $y_2$. A single neuron is a linear classifier; chaining neurons gives a nonlinear representation. With multiple hidden units, that added structure is enough to solve XOR.
 
+Use \Cref{fig:mlp_minimal_chain} as the derivation anchor for this section.
+
 \begin{figure}[t]
     \centering
     \begin{tikzpicture}[
@@ -83,6 +85,8 @@ Even this tiny network introduces the central idea of neural networks: intermedi
     \caption{The minimal neural network used in this chapter is a two-neuron chain. The first unit produces an intermediate signal, and the second unit maps that signal to the final output. Use it when tracking variables and gradients in a toy network before scaling to deeper models.}
     \label{fig:mlp_minimal_chain}
 \end{figure}
+
+\Cref{fig:mlp_gd_surface} is the optimization-geometry reference for vector versus coordinate updates.
 
 \begin{tcolorbox}[summarybox,title={Author's note: why a network changes the story}]
 With one perceptron, every training example pushes on the same single separator. A network introduces \emph{intermediate representations}: different hidden units can respond to different patterns, and the output unit can combine those responses. That added structure is what lets neural networks model nonlinearity while still using simple building blocks.
@@ -183,6 +187,10 @@ The gradient gives a direction; the step size $\eta$ sets the distance. In pract
     \label{fig:mlp_gd_surface}
 \end{figure}
 
+Use \Cref{fig:mlp_gd_surface} as the derivation anchor for this section.
+
+\Cref{fig:mlp_step_vs_sigmoid} is the activation-smoothness reference used to motivate differentiable training.
+
 \subsection{Why hard thresholds block learning}
 \label{sec:mlp_why_hard_thresholds_block_learning}
 
@@ -232,6 +240,8 @@ The threshold itself can be folded into a bias term, but the discontinuity remai
     \caption{Hard thresholds block gradient-based learning because the derivative is zero almost everywhere. A smooth activation like the sigmoid provides informative derivatives across a wide range of inputs. Use it when motivating why smooth nonlinearities enable gradient-based training.}
     \label{fig:mlp_step_vs_sigmoid}
 \end{figure}
+
+Use \Cref{fig:mlp_step_vs_sigmoid} as the derivation anchor for this section.
 
 \subsection{Differentiable activations and the sigmoid trick}
 \label{sec:mlp_differentiable_activations_and_the_sigmoid_trick}

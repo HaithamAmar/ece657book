@@ -2,7 +2,7 @@
 \section[Self-Organizing Networks]{Introduction to Self-Organizing Networks and Unsupervised Learning}\label{chap:som}
 \graphicspath{{assets/lec5/}}
 
-\Cref{chap:rbf} offered a nonlinearity that stays close to linear algebra (basis expansion + linear solve). Here we switch to an unsupervised lens: self-organizing maps discover prototypes and organize them on a lattice without labels. Figure \Cref{fig:roadmap} highlights this as the competitive/unsupervised branch.
+\Cref{chap:rbf} offered a nonlinearity that stays close to linear algebra (basis expansion + linear solve). Here we switch to an unsupervised lens: self-organizing maps discover prototypes and organize them on a lattice without labels. \Cref{fig:roadmap} highlights this as the competitive/unsupervised branch.
 
 This chapter opens the unsupervised neural thread with \emph{Self-Organizing Maps} (SOMs), also known as Kohonen maps. \Cref{chap:hopfield} then studies Hopfield networks, an energy-based associative memory model. Both operate without explicit targets, in contrast to the supervised ERM pipeline in \Cref{chap:supervised}.
 
@@ -76,6 +76,10 @@ The neighborhood influence is usually controlled by a kernel (often Gaussian) wh
     \caption{Learning-rate scheduling intuition. On a smooth objective (left), large initial steps quickly cover ground and roughly align prototypes, while a decaying step-size refines the solution near convergence. Right: common exponential and multiplicative decays used in SOM training. Use it when choosing a schedule that converges without freezing too early.}
     \label{fig:lec5-learning-rate}
 \end{figure}
+
+Use \Cref{fig:lec5-learning-rate} as the diagnostic anchor for this section.
+
+\Cref{fig:lec5-som-component-planes} is the feature-plane audit reference paired with U-Matrix diagnostics.
 
 Before delving into the mathematical formulation and algorithmic details of SOMs, it is important to review two foundational concepts that underpin their operation: \emph{clustering} and \emph{dimensionality reduction}.
 
@@ -155,6 +159,8 @@ Dimensionality reduction refers to techniques that transform high-dimensional da
     \caption{Classical MDS intuition. Projecting a cube onto a plane via an orthogonal map yields a square (left), whereas an oblique projection along a body diagonal produces a hexagon (right). The local adjacency of vertices is preserved even though metric structure is distorted. Use it when interpreting low-dimensional embeddings as geometry-preserving only in limited ways.}
     \label{fig:lec5-mds-projection}
 \end{figure}
+
+Use \Cref{fig:lec5-mds-projection} as the diagnostic anchor for this section.
 
 \paragraph{Challenges:} Reducing dimensions inevitably leads to some loss of information. The goal is to minimize this loss while achieving a more tractable representation.
 
@@ -287,6 +293,8 @@ where $\mathbf{r}_i$ denotes the lattice coordinates of neuron $i$ and $\sigma(t
     \caption{Gaussian neighborhood weights in SOM training. Early iterations use a broad kernel so many neighbors adapt; later iterations shrink the neighborhood width sigma(t) so only units near the BMU update. Use it when tuning sigma(t) to trade global ordering for local refinement.}
     \label{fig:lec5-gaussian-neighborhood}
 \end{figure}
+
+Use \Cref{fig:lec5-gaussian-neighborhood} as the diagnostic anchor for this section.
 
 % Chapter 9 (continued)
 
@@ -548,6 +556,8 @@ Even though SOMs are inherently unsupervised, their training dynamics still bene
     \label{fig:lec5-bias-variance}
 \end{figure}
 
+Use \Cref{fig:lec5-bias-variance} as the diagnostic anchor for this section.
+
 \paragraph{Loss-landscape smoothing.} Adding small cooperative penalties (e.g., weight decay between neighbors) produces smoother loss contours and accelerates convergence, as sketched in \Cref{fig:lec5-regularization}. The penalty discourages neighboring prototypes from diverging and keeps the map topologically ordered.
 
 \begin{figure}[t]
@@ -589,6 +599,8 @@ Even though SOMs are inherently unsupervised, their training dynamics still bene
     \label{fig:lec5-regularization}
 \end{figure}
 
+Use \Cref{fig:lec5-regularization} as the diagnostic anchor for this section.
+
 \paragraph{Quantization vs. information preservation.} Classical SOM optimizes a topology-preserving vector quantization objective; it does not include cross\hyp{}entropy terms. Modern variants sometimes introduce \emph{auxiliary} regularizers to encourage codebook utilization (e.g., entropy penalties on assignment histograms) or draw analogies to VQ\hyp{}VAE. Monitoring both quantization error and an entropy-style regularizer, as in \Cref{fig:lec5-crossentropy}, helps reveal when the map is collapsing to a few units or when density variations are no longer represented faithfully.
 
 \begin{figure}[t]
@@ -618,6 +630,8 @@ Even though SOMs are inherently unsupervised, their training dynamics still bene
     \caption{Quantization error combined with an entropy-style regularizer (modern SOM variant; for example, a negative sum of p log p over unit usage). Valleys arise when prototypes cover the space evenly; ridges highlight collapse or poor topological preservation. Use it when diagnosing prototype collapse versus healthy coverage.}
     \label{fig:lec5-crossentropy}
 \end{figure}
+
+Use \Cref{fig:lec5-crossentropy} as the diagnostic anchor for this section.
 
 \paragraph{Quantization vs. topographic error.} Given data points \(\{\mathbf{x}_i\}\) and best-matching units \(b_i = \operatorname{BMU}(\mathbf{x}_i)\), the \emph{quantization error} is
 \[
@@ -694,6 +708,8 @@ Most modern SOM libraries expose both modes, so choose the update rule that matc
     \caption{Validation curves used to identify an early\hyp{}stopping knee. When both quantization and topographic errors flatten (shaded band), further training risks map drift. Use it when deciding where to stop training based on stability, not only final error.}
     \label{fig:lec5-early-stopping}
 \end{figure}
+
+Use \Cref{fig:lec5-early-stopping} as the diagnostic anchor for this section.
 
 \subsection{Limitations of Winner-Takes-All and Motivation for Cooperation}
 \label{sec:som_limitations_of_winner_takes_all_and_motivation_for_cooperation}
@@ -782,6 +798,8 @@ The geometric effect of these limitations is easiest to see in \Cref{fig:lec5-so
     \caption{Voronoi-like regions induced by SOM prototypes (left) and the corresponding softmax confidence after shrinking the neighborhood kernel (right). Softer updates blur the decision frontiers and reduce jagged mappings between adjacent neurons. Use it when interpreting a prototype map as a piecewise-constant partition of feature space.}
     \label{fig:lec5-softmax-regions}
 \end{figure}
+
+Use \Cref{fig:lec5-softmax-regions} as the diagnostic anchor for this section.
 
 To address these issues, the concept of \emph{cooperation} among neurons is introduced. Instead of a single winner neuron updating its weights, a neighborhood of neurons around the winner also update their weights, albeit to a lesser extent. This idea leads to smoother mappings and better topological ordering.
 
@@ -1002,6 +1020,8 @@ The neighborhood size typically shrinks over time during training, starting larg
 \caption{Component planes for three features on a trained SOM (toy data). Each plane maps one feature across the grid; aligned bright/dark regions reveal correlated features and complement the U-Matrix in \Cref{fig:lec5-som-lattice-umatrix}. Interpret brightness comparatively within a plane rather than as an absolute scale. Use it when diagnosing which input features drive map organization.}
     \label{fig:lec5-som-component-planes}
 \end{figure}
+
+Use \Cref{fig:lec5-som-component-planes} as the diagnostic anchor for this section.
 The weight update rule generalizes to:
 \begin{align}
 \mathbf{w}_j(t+1) = \mathbf{w}_j(t) + \alpha(t) \, h_{j c}(t) \left( \mathbf{x} - \mathbf{w}_j(t) \right),
@@ -1062,6 +1082,8 @@ Suppose the output neurons are arranged in a 2D lattice as shown schematically i
     \caption{SOM lattice with the best-matching unit (BMU) highlighted in blue and a dashed neighborhood radius indicating which prototype vectors receive cooperative updates. Use it when visualizing the cooperative update neighborhood around the BMU.}
     \label{fig:som_neighborhood}
 \end{figure}
+
+Use \Cref{fig:som_neighborhood} as the diagnostic anchor for this section.
 
 Each neuron \(j\) in \(\mathcal{N}(c)\) updates its weight vector according to \eqref{eq:coop_weight_update}, with the magnitude of update modulated by \(h_{j c}(t)\).
 

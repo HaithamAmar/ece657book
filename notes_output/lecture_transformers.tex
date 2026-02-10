@@ -173,6 +173,8 @@ with \(\mathbf{W}_i^Q \in \mathbb{R}^{d_{\text{model}} \times d_k}\), \(\mathbf{
     \label{fig:lec13_transformer_block}
 \end{figure}
 
+\Cref{fig:lec13_micro_figures} is the compact visual bridge for positional encoding, KV cache reuse, and LoRA adapters.
+
 \begin{figure}[t]
     \centering
     \resizebox{\linewidth}{!}{%
@@ -248,6 +250,10 @@ with \(\mathbf{W}_i^Q \in \mathbb{R}^{d_{\text{model}} \times d_k}\), \(\mathbf{
     \caption{Schematic: Transformer micro-views. Left: positional encodings (sinusoidal/rotary) add order information. Center: KV cache stores past keys/values so decoding a new token reuses prior context. Right: LoRA inserts low-rank adapters (B A) on top of a frozen weight matrix W for parameter-efficient tuning.}
     \label{fig:lec13_micro_figures}
 \end{figure}
+
+Use \Cref{fig:lec13_micro_figures} as the architecture anchor for this section.
+
+\Cref{fig:lec13-masks} is the mask-behavior reference for padding and causal attention constraints.
 
 \paragraph{Micro attention example (2 tokens, causal mask).}
 Let \(Q=K=V=\begin{bmatrix}1&0\\0&1\end{bmatrix}\) and \(d_k=2\).
@@ -442,6 +448,8 @@ Autoregressive generation uses greedy, beam search, top-\(p\) (nucleus), or top-
     \caption{Schematic: Attention masks visualized as heatmaps (queries on rows, keys on columns). Left: padding mask zeroes attention into padded positions of a shorter sequence in a packed batch. Right: causal mask enforces autoregressive flow by blocking attention to future tokens.}
     \label{fig:lec13-masks}
 \end{figure}
+
+Use \Cref{fig:lec13-masks} as the architecture anchor for this section.
 
 \subsection{Alignment (Brief)}
 \label{sec:transformers_alignment_brief}

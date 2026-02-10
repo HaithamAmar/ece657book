@@ -1,7 +1,7 @@
 % Chapter 10
 \section{Hopfield Networks: Introduction and Context}\label{chap:hopfield}
 
-\Cref{chap:som} focused on self-organizing maps and unsupervised feature maps; we now transition to another unsupervised/energy-based model: the \emph{Hopfield network}, a recurrent system that stores patterns as attractors. Figure \Cref{fig:roadmap} marks this as the energy-based branch.
+\Cref{chap:som} focused on self-organizing maps and unsupervised feature maps; we now transition to another unsupervised/energy-based model: the \emph{Hopfield network}, a recurrent system that stores patterns as attractors. \Cref{fig:roadmap} marks this as the energy-based branch.
 
 \begin{tcolorbox}[summarybox,title={Learning Outcomes}]
 \begin{itemize}
@@ -238,6 +238,8 @@ For clarity, \Cref{tab:hopfield-deltaE} reports the energy change for each singl
     \label{tab:hopfield-deltaE}
 \end{table}
 
+Use \Cref{tab:hopfield-deltaE} as the diagnostic anchor for this section.
+
 Because every single-neuron flip raises the energy, the state \((1,1,-1)\) is a stable local minimum for this network.
 If the network is perturbed slightly (for instance, by flipping \(s_3\) to \(+1\) to create the noisy pattern \((1,1,1)\)), asynchronous updates follow the gradient of decreasing energy and drive the system back to the stored memory \((1,1,-1)\). This illustrates how Hopfield networks perform content-addressable recall; the staircase energy trajectory in \Cref{fig:hopfield-energy-descent} makes the monotone descent concrete.
 
@@ -268,6 +270,8 @@ If the network is perturbed slightly (for instance, by flipping \(s_3\) to \(+1\
     \caption{Hopfield energy decreases monotonically under asynchronous updates. Starting from a noisy probe state s(0), successive single-neuron flips move downhill until the stored memory s(2) is recovered. Use it when explaining why asynchronous updates converge under Hopfield's symmetry constraints.}
     \label{fig:hopfield-energy-descent}
 \end{figure}
+
+Use \Cref{fig:hopfield-energy-descent} as the diagnostic anchor for this section.
 
 % Chapter 10 (continued)
 

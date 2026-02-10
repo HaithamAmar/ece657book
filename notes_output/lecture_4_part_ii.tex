@@ -1,7 +1,7 @@
 % Chapter 8
 \section{Radial Basis Function Networks (RBFNs)}\label{chap:rbf}
 
-Building on the multilayer perceptron (MLP) architecture (\Cref{chap:mlp}) and its training machinery (\Cref{chap:backprop}), we now introduce a different class of feedforward models: \emph{Radial Basis Function Networks} (RBFNs). Figure \Cref{fig:roadmap} places this as the kernel/prototype branch alongside the MLP path.
+Building on the multilayer perceptron (MLP) architecture (\Cref{chap:mlp}) and its training machinery (\Cref{chap:backprop}), we now introduce a different class of feedforward models: \emph{Radial Basis Function Networks} (RBFNs). \Cref{fig:roadmap} places this as the kernel/prototype branch alongside the MLP path.
 
 \begin{tcolorbox}[summarybox,title={Learning Outcomes}]
 \begin{itemize}
@@ -53,6 +53,8 @@ The RBFN consists of three layers:
 We denote each basis response by \(\varphi_i(\mathbf{x})\); stacking them yields \(\mathbf{G}(\mathbf{x})\in\mathbb{R}^M\) with entries \(G_i(\mathbf{x})=\varphi_i(\mathbf{x})\). For a dataset of \(N\) samples, the corresponding design matrix \(\Phi\in\mathbb{R}^{N\times M}\) stacks one transformed sample per row, with entries \(\Phi_{ji}=\varphi_i(\mathbf{x}_j)=G_i(\mathbf{x}_j)\). This matches the design-matrix convention used in \Cref{chap:supervised}.
 \end{tcolorbox}
 
+Use \Cref{fig:rbf_architecture_weights} as the architecture anchor for this section.
+
 \begin{figure}[t]
     \centering
     \begin{tikzpicture}[>=stealth, node distance=1.6cm]
@@ -95,6 +97,8 @@ We denote each basis response by \(\varphi_i(\mathbf{x})\); stacking them yields
     \label{fig:rbf_architecture_weights}
 \end{figure}
 
+\Cref{fig:rbf_architecture_weights} is the architecture reference separating fixed radial features from trained readout weights.
+
 \paragraph{A picture to keep in mind}
 Once you have the architecture in mind, it helps to visualize what the hidden layer \emph{does}. In one dimension, you can literally draw the bases as overlapping Gaussian bumps; the model output is a weighted sum of those bumps. \Cref{fig:rbf_gaussian_bumps} is the mental model we will reuse as we introduce centers, widths, and the final linear solve.
 
@@ -123,6 +127,10 @@ Once you have the architecture in mind, it helps to visualize what the hidden la
     \caption{Localized Gaussian basis functions (dashed) and their weighted sum (solid). Overlapping bumps allow RBF networks to interpolate complex signals smoothly. Use it when building intuition for locality and smooth interpolation in basis-function models.}
     \label{fig:rbf_gaussian_bumps}
 \end{figure}
+
+Use \Cref{fig:rbf_gaussian_bumps} as the architecture anchor for this section.
+
+\Cref{fig:rbf_centres} is the center-placement reference used when selecting initialization strategy.
 
 \begin{figure}[t]
     \centering
@@ -158,6 +166,10 @@ Once you have the architecture in mind, it helps to visualize what the hidden la
     \caption{Center placement and overlap. Top: K-means prototypes roughly tile the data manifold, giving even overlap; bottom: random centers can leave gaps or excessive overlap, influencing the width (sigma) choice and conditioning. Use it when choosing how to place centers before tuning the width parameter.}
     \label{fig:rbf_centres}
 \end{figure}
+
+Use \Cref{fig:rbf_centres} as the architecture anchor for this section.
+
+\Cref{fig:rbf_primal_dual} is the primal-versus-dual reference used when discussing basis count and Nystr\"om trade-offs.
 
 \begin{enumerate}
     \item \textbf{Input layer:} Receives the input vector \(\mathbf{x} \in \mathbb{R}^n\).
@@ -349,6 +361,8 @@ which serve as localized similarity measures to each centroid \(v_i\). When \(\s
     \label{fig:rbf_sigma_sweep}
 \end{figure}
 
+\Cref{fig:rbf_boundary} is the nonlinear decision-boundary reference for the XOR-style toy example.
+
 \paragraph{Notation note.} In this chapter we write radial basis functions as \(\varphi_i(\cdot)\) and use \(\Phi\) for the associated design matrix. When we need a generic kernel feature map, we use \(\phi(\cdot)\) (consistent with \Cref{app:kernels}); when probability density functions are needed, we write them as \(p(\cdot)\). This avoids overloading a single symbol.
 
 % Chapter 8
@@ -441,6 +455,8 @@ mirroring the \(\lambda \boldsymbol{\alpha}^\top K \boldsymbol{\alpha}\) term in
     \caption{Primal (finite basis) vs.\ dual (kernel ridge) viewpoints. Using as many centers as data points recovers the dual form; using fewer centers corresponds to a Nystr\"om approximation. The same trade-off appears in kernel methods through the choice of kernel and effective rank. Use it when deciding whether to train a finite basis model or switch to a kernel viewpoint.}
 \label{fig:rbf_primal_dual}
 \end{figure}
+
+Use \Cref{fig:rbf_primal_dual} as the architecture anchor for this section.
     To improve numerical stability or control model complexity, a Tikhonov (ridge) regulariser can be added,
     \[
         \mathbf{w}_\lambda^\star = (\Phi^\top \Phi + \lambda I)^{-1}\Phi^\top \mathbf{y}, \qquad \lambda>0,
@@ -554,6 +570,8 @@ Choose \(M=4\) centers at the data and set a global \(\sigma\) from the mean int
         \caption{RBFN decision boundary on XOR with 4 centers, sigma = 0.8, and ridge lambda = 1e-3. Shading indicates the predicted class under a 0.5 threshold; the black contour marks the 0.5 boundary. Training points are overlaid (class 0: open circles; class 1: filled squares). See \Cref{fig:rbf_sigma_sweep} for sigma effects. Use it when checking whether center count and width are sufficient for a non-linear boundary.}
         \label{fig:rbf_boundary}
     \end{figure}
+
+Use \Cref{fig:rbf_boundary} as the architecture anchor for this section.
 
 \subsection{Remarks on Radial Basis Function Networks}
 \label{sec:rbf_remarks_on_radial_basis_function_networks}

@@ -1343,3 +1343,185 @@ Quick lint checklist before merge:
 - Audits:
   - `notes_output/artifacts/qc/chapter_format_audit_20260210_090215.md`
   - `notes_output/artifacts/qc/advanced_editorial_audit_20260210_091310.md`
+
+## [2026-02-10] Visual editorial inspection (full-page pass, Chapters 11-13)
+
+### Method
+- Generated full-page screenshots directly from the current print PDF:
+  - Chapter 11 pages 222-240 -> `notes_output/artifacts/editorial_visual/ch11/`
+  - Chapter 12 pages 241-263 -> `notes_output/artifacts/editorial_visual/ch12/`
+  - Chapter 13 pages 264-289 -> `notes_output/artifacts/editorial_visual/ch13/`
+- Read each page as a reader (not a regex pass), looking for:
+  - narrative flow breaks,
+  - heading rhythm and section granularity,
+  - box clustering and attention disruption,
+  - figure/table placement and local context,
+  - transition quality between concepts.
+
+### Chapter 11 (CNN) - visual findings
+- **Improved:** The chapter now reads in a mostly linear order (motivation -> mechanics -> training stability), with fewer abrupt micro-section jumps.
+- **Issue (medium):** The opening still starts with a carry-over block from Chapter 10 (page 222), then chapter start on same page. This weakens the visual "new chapter" reset.
+- **Issue (medium):** Pages 237-239 are box-dense (`Practical optimizer notes`, pseudocode, derivation closure) and can feel like checklist stacking.
+- **Issue (low):** `Training Neural Networks: Gradient-Based Optimization` remains generic and visually similar to prior chapters; it can be trimmed/reframed as a brief bridge rather than a full subsection.
+- **Issue (low):** Page 239 ends with a single box and large whitespace; acceptable in print, but weak as a reading beat.
+
+### Chapter 12 (RNN) - visual findings
+- **Issue (high):** Heading flow is still fragmented by utility blocks (`Chapter map`, `Simple RNN at a glance`, `Optional reminders`, code boxes) before the core derivation is fully established (pages 243-247).
+- **Issue (high):** Section `12.4 Outline of this chapter` appears late (page 245), after substantial technical content; this is backward pedagogically.
+- **Issue (medium):** Several short "note-like" boxes in sequence (pages 249, 255, 258) create scanning fatigue; some should be merged or demoted to paragraphs.
+- **Issue (medium):** RNN-to-attention bridge is present but visually buried (pages 258-259). It should be elevated as an explicit transition subsection heading.
+- **Issue (low):** Some pages feel text-heavy without cadence breaks (e.g., pages 252, 254, 260), where one strategic figure/callout anchor would improve pacing.
+
+### Chapter 13 (NLP embeddings) - visual findings
+- **Issue (high):** Concept order still oscillates between introductory and detailed derivations:
+  - broad framework statements appear, then deep CBOW math, then higher-level framing returns.
+  - this is readable, but visually signals "looping back" rather than "progressing forward."
+- **Issue (high):** Duplicate-density feel in the middle (pages 270-276): many closely related objective equations/subsections with minimal visual hierarchy changes.
+- **Issue (medium):** The chapter carries both strategic framing and implementation detail well, but transition markers between these modes are not visually strong enough.
+- **Issue (medium):** Bias/deployment section (pages 285-288) is valuable but arrives as a sharp style shift; benefits from a short bridge sentence that closes the math arc before governance arc starts.
+- **Issue (low):** End section (`13.18 Contextual embeddings and transformers`) is concise and useful, but currently feels like an appendix stub; should either be expanded slightly or explicitly labeled as a forward pointer.
+
+### Cross-chapter reader experience (11 -> 12 -> 13)
+- **Strength:** The macro progression (vision architecture -> sequence dynamics -> representation geometry) is coherent.
+- **Primary gap:** Section granularity and box cadence are still inconsistent between Chapters 12 and 13.
+- **Primary risk:** Too many "utility" boxes near local intros can dilute the core storyline and reduce momentum.
+
+### Recommended next editorial pass (visual-first, minimal movement)
+1. **Chapter 12 flow normalization**
+   - Move/demote `Outline of this chapter` so it appears before technical derivations (or remove as a heading and integrate into intro prose).
+   - Merge adjacent utility boxes where possible into one "Implementation checklist" block.
+   - Promote a clear `From RNN limits to attention` transition heading.
+2. **Chapter 13 narrative linearization**
+   - Group the CBOW/skip-gram objective sequence into one contiguous derivation run with fewer heading level changes.
+   - Add one short bridge before bias/deployment to signal "from geometry to governance."
+   - Keep technical content intact; only adjust heading/bridge prose to reduce perceived repetition.
+3. **Chapter boundary polish**
+   - Enforce a stronger chapter-start reset so new chapters do not visually start beneath prior chapter closeout material.
+
+### Quality assessment after this visual pass
+- Chapter 11: **8.8/10** (strongly improved order; minor pacing/box density issues remain).
+- Chapter 12: **7.9/10** (content quality high, but ordering and box rhythm still feel instructional rather than book-like).
+- Chapter 13: **8.1/10** (valuable coverage, but mid-chapter derivation flow can be made more monotonic and reader-forward).
+
+## [2026-02-10] Implemented pass: visual-first, minimal movement (Ch. 12 + Ch. 13)
+
+### Scope executed (single edit batch)
+- **Chapter 12 (`lecture_7.tex`)**
+  - Replaced early map box with concise prose (`Chapter flow`) to reduce box-heavy opening.
+  - Removed late `Outline of this chapter` subsection and integrated flow as a short roadmap paragraph near the opening.
+  - Merged stability notes into one box (`Stability defaults in practice`) and merged implementation boxes into one (`Implementation checklist: masks, clipping, pitfalls`).
+  - Promoted an explicit transition heading: `From recurrent state to attention`.
+  - Moved optional reminders/coding utility material later so derivation arc is less interrupted.
+- **Chapter 13 (`lecture_8_part_i.tex`)**
+  - Reframed derivation arc heading to `From lookup to objective: compact derivation path`.
+  - Demoted micro-subsections to paragraph heads where they were creating heading churn:
+    - `Neural network architecture for word embeddings`
+    - `Context window and sequential input`
+    - `Interpretation of the weight matrix W`
+  - Removed low-value empty heading (`Interpretation and Remarks`).
+  - Added an explicit bridge from math/geometry to governance/bias sections.
+
+### Guardrails honored
+- No content movement across chapters.
+- No objective/formula deletions in the derivation core.
+- Kept labels where practical; no cross-reference regressions observed in gate checks.
+
+### Validation snapshot
+- Ran: `bash notes_output/scripts/run_production_checks.sh`
+- Result: green release checks + EPUB audits + EPUBCheck pass.
+- Key artifacts refreshed:
+  - `notes_output/artifacts/qc/chapter_format_audit_20260210_104148.md`
+  - `notes_output/artifacts/release_checks/report.txt`
+  - `notes_output/artifacts/release_checks/epub_layout_audit_1000w.md`
+  - `notes_output/artifacts/release_checks/epub_table_audit.md`
+  - `notes_output/artifacts/release_checks/epub_image_quality.md`
+
+## [2026-02-10] Chapter 11 continuity fix: remove 2012 non-sequitur block
+
+### Editorial intent
+- Eliminate the stand-alone subsection `Why deep learning became practical (2012)` that interrupted the CNN mechanics arc.
+- Keep the historical signal, but only as one integrated sentence in the architecture-to-training transition.
+
+### Change applied
+- File: `notes_output/lecture_6.tex`
+  - Removed the subsection + historical tcolorbox + SVM refresher detour.
+  - Updated the chapter map bullet (`Going deeper`) to remove explicit "2012 shift" framing.
+  - Added one concise bridging sentence after multi-branch discussion: data + GPU maturity made CNN architectural priors decisive at scale.
+
+### Validation
+- Re-ran `bash notes_output/scripts/run_production_checks.sh`.
+- Gate status: green (chapter format pass, equation hygiene pass, image/table/layout audits pass, EPUBCheck pass).
+
+## [2026-02-10] Release-blocker gate implementation (P0 policy pass)
+
+### What was implemented
+- Added a strict TeX warning gate:
+  - `notes_output/scripts/check_build_warnings.py`
+  - Fails on undefined references/citations summaries, undefined cite/ref lines, pdfTeX/driver warnings, and overfull hbox above threshold (`--max-overfull-pt`, default `3.0`).
+  - Writes: `notes_output/artifacts/qc/build_warning_gate.md`.
+- Added figure/table coverage audit:
+  - `notes_output/scripts/check_ref_coverage.py`
+  - Fails when any `fig:` / `tab:` label has zero references.
+  - Optional strict-order mode (`--strict-order`) also checks before/after references inside the same file.
+  - Writes: `notes_output/artifacts/qc/ref_coverage_report.md`.
+- Added bibliography style policy audit:
+  - `notes_output/scripts/check_bib_style.py`
+  - Enforces required fields for `article` / `inproceedings` / `book`; validates DOI/arXiv metadata consistency.
+  - Writes: `notes_output/artifacts/qc/bib_style_report.md`.
+- Wired the three audits into:
+  - `notes_output/scripts/run_editorial_qc.sh`
+  - Draft bypass flags:
+    - `ALLOW_TEX_WARNINGS=1`
+    - `ALLOW_REF_COVERAGE_GAPS=1`
+    - `STRICT_REF_ORDER=1` (optional stronger mode)
+    - `MAX_OVERFULL_PT=<float>` (threshold override)
+
+### Current results against P0
+- `check_build_warnings.py`: **PASS**
+- `check_bib_style.py`: **PASS with warnings** (`93` warnings; no hard errors)
+- `check_ref_coverage.py` (blocking mode): **FAIL**
+  - Labels scanned: `83`
+  - Unreferenced labels: `32`
+  - Report: `notes_output/artifacts/qc/ref_coverage_report.md`
+  - Representative unreferenced labels:
+    - `fig:lec1_splits`
+    - `fig:lec2_sigmoid_bce`
+    - `fig:lec6-dropout`
+    - `fig:lec7-rnn-unrolled`
+    - `fig:lec13-masks`
+    - `tab:word_feature_vectorization`
+    - `tab:ga-toy`
+    - `tab:fuzzy-operators`
+
+### Interpretation
+- The new gate correctly surfaced a real release risk: a non-trivial set of figures/tables are currently not referenced in body prose.
+- The bibliography is structurally valid, but style normalization is still pending (warnings list captured for batch cleanup).
+
+### Next closeout actions
+1. Fix all `32` unreferenced `fig:/tab:` labels (minimal prose insertions near first mention points).
+2. Re-run `bash notes_output/scripts/run_editorial_qc.sh` with blocker mode (no bypass flags).
+3. Triage `bib_style_report.md` warnings into one normalization pass.
+
+## [2026-02-10] Strict-order closure pass (minimal prose, no structural movement)
+
+### Scope
+- Applied one-line strict-order closure references for all labels flagged in:
+  - `notes_output/artifacts/qc/ref_coverage_report_strict.md`
+- Rule used:
+  - Add a minimal post-appearance sentence after each flagged figure/table environment.
+  - If strict mode still lacked a pre-appearance mention, add one minimal pre-sentence immediately before the same environment.
+- No section reorder, no content relocation, no formula edits.
+
+### Verification
+- `python3 notes_output/scripts/check_ref_coverage.py --root notes_output --strict-order` -> **PASS**
+- `STRICT_REF_ORDER=1 bash notes_output/scripts/run_editorial_qc.sh` -> **PASS**
+- `python3 notes_output/scripts/check_crossrefs.py` -> **PASS**
+
+### Artifacts
+- `notes_output/artifacts/qc/ref_coverage_report_strict.md`
+- `notes_output/artifacts/qc/publish_qc_report.md`
+- `notes_output/artifacts/qc/chapter_format_audit_20260210_161156.md`
+
+### Remaining non-blocker
+- Bibliography style audit remains warning-only (`93` warnings):
+  - `notes_output/artifacts/qc/bib_style_report.md`

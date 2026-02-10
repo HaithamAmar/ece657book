@@ -18,7 +18,7 @@ CNNs emerged as a pragmatic answer: keep end-to-end gradient training, but bake 
 \paragraph{How to read this chapter.}
 \begin{itemize}
     \item \textbf{Core thread (CNNs):} why locality + weight sharing $\rightarrow$ convolution/pooling mechanics $\rightarrow$ channels/feature maps $\rightarrow$ end-to-end classifiers.
-    \item \textbf{Going deeper:} why depth works (receptive-field growth) and why CNNs displaced classical pipelines (the 2012 shift).
+    \item \textbf{Going deeper:} why depth works (receptive-field growth) and how CNNs displaced classical pipelines at scale.
     \item \textbf{Training toolkit:} gradient-based optimization and the stabilizers you will reuse later (initialization, activations, batch norm, dropout, AdamW).
 \end{itemize}
 
@@ -190,23 +190,11 @@ Stacks of convolutional and pooling layers produce a hierarchy of feature maps. 
 \label{sec:cnn_multi_branch_convolution_blocks_inception_idea}
 One practical variant is to run multiple filter sizes in parallel (for example \(1\times1\), \(3\times3\), and \(5\times5\)) and concatenate the resulting feature maps along the channel axis. This allows the network to capture multi-scale patterns without committing to a single kernel size. When branches must line up spatially, \emph{same} padding is used to keep all outputs the same height and width; pooling branches often pad for this alignment even though pooling by itself is usually unpadded.
 
-\subsection{Why deep learning became practical (2012)}
-\label{sec:cnn_historical_context_and_the_2012_breakthrough}
-
-Before 2012, neural networks were often dismissed in many academic circles due to their poor performance on large-scale problems and the dominance of other methods such as Support Vector Machines (SVMs). The sentiment was that neural networks were "fancy" but not practical or well-understood.
-
-\begin{tcolorbox}[summarybox,title={Historical note: why deep learning became practical}]
-\begin{itemize}
-    \item \textbf{Data:} large labeled datasets made high-capacity models measurable rather than speculative.
-    \item \textbf{Compute:} GPUs turned convolution and backprop into an engineering workflow instead of a theoretical bottleneck.
-    \item \textbf{Architectures:} locality and weight sharing made vision models scale without an explosion in parameters.
-    \item \textbf{Optimization details:} better activations, initialization, regularization, and training hygiene narrowed the gap between a good idea and a working model.
-\end{itemize}
-\end{tcolorbox}
-
-\paragraph{SVM geometry refresher.} The classical soft-margin picture views an SVM as balancing a wide margin against slack variables \(\xi_i\) that widen the feasible tube so that mislabeled points incur linear penalties instead of rendering the optimization infeasible. The geometric intuition is to maximize the margin while tolerating limited violations. This highlights why SVMs were attractive when data were scarce; the hinge-loss curves in \Cref{chap:supervised} supply the loss-level view of the same trade-off.
+At scale, this architectural prior became decisive once large labeled datasets and GPU training matured: the sample-efficiency and compute-efficiency gap versus classical kernel pipelines narrowed and then flipped in favor of deep convolutional stacks.
 
 \paragraph{Stack depth versus receptive field.} Stacking identical \(3\times3\) filters still grows the effective receptive field: each stage wraps a thicker box around the original pixels, which explains why deep-but-narrow CNNs can capture wide spatial context without enormous kernels even when individual kernels remain small.
+
+Use \Cref{fig:cnn_receptive_field_growth} as the architecture anchor for this section.
 
 \begin{figure}[t]
     \centering
@@ -226,6 +214,8 @@ Before 2012, neural networks were often dismissed in many academic circles due t
     \caption{Receptive field growth across depth. Even with small \(3\times3\) kernels, stacking layers expands the spatial context seen by deeper units. Use it when explaining why depth can replace very large kernels.}
     \label{fig:cnn_receptive_field_growth}
 \end{figure}
+
+\Cref{fig:cnn_receptive_field_growth} is the receptive-field intuition reference for the depth discussion.
 
 With the architectural motivation in place, we now focus on how these models are trained and why deep optimization remains delicate.
 
@@ -348,12 +338,16 @@ Taken together, these tools stabilize optimization; the figures below highlight 
 \end{tcolorbox}
 
 
+Use \Cref{fig:lec6-dropout} as the architecture anchor for this section.
+
 \begin{figure}[t]
     \centering
     \includegraphics[width=0.65\linewidth]{lec6_dropout_curves}
     \caption[Dropout effect on training/validation curves (validation flattening)]{Illustrative dropout effect on training/validation curves. Compared to a no\hyp{}dropout baseline, validation curves flatten and generalization improves. Use it when diagnosing variance and deciding whether dropout is likely to help versus simpler regularization.}
     \label{fig:lec6-dropout}
 \end{figure}
+
+\Cref{fig:lec6-dropout} is the validation-curve diagnostic reference for dropout decisions.
 
 \paragraph{Batch normalization.} BN accelerates convergence by normalizing mini\hyp{}batch statistics and learning scale/shift parameters. \Cref{fig:lec6-bn} contrasts the pre- and post\hyp{}normalization activation distributions; whitening the distribution keeps gradients in a well-behaved range and reduces covariate shift. In deep Transformer stacks, a closely related design choice is \emph{pre-LN} versus \emph{post-LN}: modern architectures typically place layer normalization \emph{before} the residual block (pre-LN) to improve training stability on very deep networks.
 
@@ -377,6 +371,8 @@ Taken together, these tools stabilize optimization; the figures below highlight 
     \label{fig:lec6-bn}
 \end{figure}
 
+Use \Cref{fig:lec6-bn} as the architecture anchor for this section.
+
 \paragraph{Adaptive optimizers.} While vanilla SGD remains a workhorse, Adam and related methods adapt learning rates per-parameter \citep{Kingma2015}. \Cref{fig:lec6-optimizers} summarizes the typical loss trajectories; Adam converges faster initially, whereas SGD+momentum often attains a slightly lower asymptote after fine-tuning.
 
 \begin{figure}[t]
@@ -394,6 +390,8 @@ Taken together, these tools stabilize optimization; the figures below highlight 
     \caption{Representative training curves for SGD with momentum versus Adam on the same CNN. Use it when comparing optimizer behavior under the same model and data.}
     \label{fig:lec6-optimizers}
 \end{figure}
+
+Use \Cref{fig:lec6-optimizers} as the architecture anchor for this section.
 
 \begin{tcolorbox}[summarybox,title={Practical optimizer notes}]
 \textbf{Mixed precision.} Modern CNN stacks often run activations/gradients in FP16 or BF16 while keeping master weights in FP32. Frameworks such as PyTorch AMP/TF mixed precision insert dynamic loss scaling so gradients do not underflow; the reward is higher throughput and lower memory pressure on recent GPUs/TPUs.\\

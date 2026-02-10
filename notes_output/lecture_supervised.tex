@@ -1,7 +1,7 @@
 % Chapter 3
 \section{Supervised Learning Foundations}\label{chap:supervised}
 
-\Cref{chap:symbolic} illustrated a non-statistical lens: solve problems by transformation search, with explicit goal tests. We now switch to the data-driven lens. Figure \Cref{fig:roadmap} marks this as the core supervised strand.
+\Cref{chap:symbolic} illustrated a non-statistical lens: solve problems by transformation search, with explicit goal tests. We now switch to the data-driven lens. \Cref{fig:roadmap} marks this as the core supervised strand.
 
 Building intelligent models is an imprecise science. If we know the relationship between the input and the output, there is no need to infer it: Celsius and Fahrenheit are linked by a simple formula, and many physical laws provide direct mappings from one quantity to another. In the problems that motivate machine learning, the mapping is unknown, messy, or only partially understood, so we settle for an approximation. That approximation might be statistical (learned from data), rule-based (encoded from experience), biologically inspired (neural computation), behavioral (fuzzy rules), or evolutionary (search over candidate solutions). In this chapter we focus on the statistical, data-driven strand: supervised learning.
 
@@ -65,6 +65,8 @@ The model is flexible enough to match the training set by memorizing its quirks.
 \paragraph{What we aim for.}
 We want a well-fitted model: low training error and comparable validation/test error. The tools below are designed to keep that distinction visible: objectives (losses and regularizers), validation protocols (splits and cross-validation), and diagnostics (learning curves and bias--variance reasoning).
 
+Use \Cref{fig:lec1_fit_regimes} as the diagnostic anchor for this section.
+
 \begin{figure}[!htbp]
     \centering
 \begin{tikzpicture}[background rectangle/.style={fill=white}, show background rectangle]
@@ -114,6 +116,8 @@ We want a well-fitted model: low training error and comparable validation/test e
     \label{fig:lec1_fit_regimes}
 \end{figure}
 
+\Cref{fig:lec1_fit_regimes} is the baseline bias-variance diagnostic used throughout the chapter.
+
 \subsection{Empirical Risk Minimization and Regularization}
 \label{sec:supervised_empirical_risk_minimization_and_regularization}
 
@@ -156,6 +160,8 @@ The difference is easiest to remember geometrically: L2 has round level sets, wh
 \end{itemize}
 \end{tcolorbox}
 
+Use \Cref{fig:lec1_l1_l2_geometry} as the diagnostic anchor for this section.
+
 \begin{figure}[h]
     \centering
 \begin{tikzpicture}[scale=0.95, background rectangle/.style={fill=white}, show background rectangle]
@@ -194,6 +200,10 @@ The difference is easiest to remember geometrically: L2 has round level sets, wh
     \label{fig:lec1_l1_l2_geometry}
 \end{figure}
 
+\Cref{fig:lec1_l1_l2_geometry} summarizes the geometric reason L1 and L2 penalties behave differently.
+
+Use \Cref{fig:lec1_lasso_path} as the diagnostic anchor for this section.
+
 \begin{figure}[!htbp]
     \centering
 \begin{tikzpicture}[background rectangle/.style={fill=white}, show background rectangle]
@@ -223,6 +233,8 @@ The difference is easiest to remember geometrically: L2 has round level sets, wh
     \caption{A typical lasso path as the regularization strength increases. Coefficients shrink, and some become exactly zero, yielding sparse models. Use it when interpreting how penalty strength trades accuracy for sparsity.}
     \label{fig:lec1_lasso_path}
 \end{figure}
+
+\Cref{fig:lec1_lasso_path} provides the coefficient-path view used when tuning sparsity strength.
 
 \subsection{Elastic-net paths and cross-validation}
 \label{sec:supervised_elastic_net_paths_and_cross_validation}
@@ -300,6 +312,10 @@ Hinge / squared hinge & Yes & Margin-based classifiers (SVMs, large-margin perce
     \label{fig:lec1_class_losses}
 \end{figure}
 
+Use \Cref{fig:lec1_class_losses} as the diagnostic anchor for this section.
+
+\Cref{fig:lec1_reg_losses} is the regression-loss comparison referenced in this section.
+
 \begin{figure}[!htbp]
     \centering
 \begin{tikzpicture}[background rectangle/.style={fill=white}, show background rectangle]
@@ -329,6 +345,8 @@ Hinge / squared hinge & Yes & Margin-based classifiers (SVMs, large-margin perce
     \caption{Regression losses versus prediction error. The Huber loss transitions from quadratic to linear to reduce sensitivity to outliers. Use it when choosing a loss that is robust to heavy-tailed noise.}
     \label{fig:lec1_reg_losses}
 \end{figure}
+
+Use \Cref{fig:lec1_reg_losses} as the diagnostic anchor for this section.
 
 \FloatBarrier
 
@@ -362,6 +380,8 @@ Practical workflows allocate data into training, validation, and test portions. 
 \normalsize
 \end{tcolorbox}
 
+Use \Cref{fig:lec1_splits} as the diagnostic anchor for this section.
+
 \begin{figure}[h]
     \centering
 \begin{tikzpicture}[x=0.9\linewidth,y=1.0cm, font=\scriptsize, background rectangle/.style={fill=white}, show background rectangle]
@@ -385,6 +405,8 @@ Practical workflows allocate data into training, validation, and test portions. 
     \caption{Dataset partitioning into training, validation, and test segments. Any resampling scheme should preserve disjoint evaluation data; when classes are imbalanced, shuffle within strata so each split reflects the overall class mix. Use it when designing splits that support trustworthy model selection and reporting.}
     \label{fig:lec1_splits}
 \end{figure}
+
+\Cref{fig:lec1_splits} is the split protocol reference for the train/validation/test workflow.
 
 \begin{tcolorbox}[summarybox,title={A concrete toy task}]
 As a reference point, keep in mind one small binary classification problem: a two\hyp{}moons toy with a standard train/validation/test split. It is deliberately simple, but it is rich enough to reveal the recurring failure modes (memorization, metric mismatch, split leakage) and the recurring remedies (regularization, validation, and diagnostics).
@@ -412,7 +434,13 @@ To make the workflow concrete, \Cref{fig:lec1_pipeline} summarizes the standard 
     \label{fig:lec1_pipeline}
 \end{figure}
 
+Use \Cref{fig:lec1_pipeline} as the diagnostic anchor for this section.
+
+\Cref{fig:lec1-calibration-double-descent} anchors the calibration and capacity diagnostics in this aside.
+
 Learning curves plot training and validation error against the number of training examples, revealing underfitting or overfitting regimes.
+
+Use \Cref{fig:lec1_learning_curves} as the diagnostic anchor for this section.
 
 \begin{figure}[h]
     \centering
@@ -493,6 +521,8 @@ Treat both as diagnostics rather than guarantees. Use them to decide whether to 
     \caption[Calibration and capacity diagnostics (reliability and double descent)]{Calibration and capacity diagnostics. Left: reliability diagram with binned predicted probabilities vs. empirical accuracy; Expected Calibration Error (ECE) measures deviation from the diagonal. Right: illustrative double\hyp{}descent risk vs.\ model size (log\hyp{}scale on the x\hyp{}axis); the dashed line sketches a scaling\hyp{}law trend for choosing capacity/regularization. Use it when deciding whether to prioritize calibration, more data, more capacity, or stronger regularization.}
     \label{fig:lec1-calibration-double-descent}
 \end{figure}
+
+Use \Cref{fig:lec1-calibration-double-descent} as the diagnostic anchor for this section.
 
 Regularization trades model complexity for generalization; \Cref{fig:lec1_ridge} depicts the effect of ridge penalties on the weight norm.
 

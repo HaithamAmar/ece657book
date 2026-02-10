@@ -2,7 +2,7 @@
 \section{Introduction to Evolutionary Computing}\label{chap:evo}
 \graphicspath{{assets/lec19/}}
 
-After the fuzzy trilogy (\Crefrange{chap:softcomp}{chap:fuzzyinference}), this chapter develops the evolutionary-search strand introduced in \Cref{chap:intro}. The focus shifts from rule composition to population-based optimization under constraints, budgets, and stochastic variability.
+After the fuzzy trilogy (\Crefrange{chap:softcomp}{chap:fuzzyinference}), this chapter develops the evolutionary-search strand introduced in \Cref{chap:intro}. The focus shifts from rule composition to population-based optimization under constraints, budgets, and stochastic noise.
 
 \begin{tcolorbox}[summarybox,title={Learning Outcomes}]
 \begin{itemize}
@@ -215,6 +215,8 @@ During reproduction, chromosomes from parent individuals combine to form offspri
 
 These mechanisms can be visualized by considering crossover as splicing two parent strings according to a binary mask and mutation as independently flipping bits with a small probability.
 
+Use \Cref{fig:lec11-ea-micro} as the architecture anchor for this section.
+
 \begin{figure}[t]
     \centering
     \begin{tikzpicture}
@@ -256,6 +258,8 @@ These mechanisms can be visualized by considering crossover as splicing two pare
     \caption{Evolutionary micro-operators. Left: fitter individuals get sampled more often (roulette/tournament). Middle: crossover splices parents by a mask (one-point shown). Right: constraint handling routes offspring through repair/penalty/feasibility before evaluation. Use it when mapping an implementation to the canonical operator loop.}
     \label{fig:lec11-ea-micro}
 \end{figure}
+
+\Cref{fig:lec11-ea-micro} is the operator-level visual reference for selection, crossover, and constraint handling.
 
 \paragraph{Modeling the Genetic Operations}
 
@@ -756,6 +760,8 @@ In practice, a combination of these criteria is often used. For example, one mig
     \label{fig:lec11-ga-progress}
 \end{figure}
 
+Use \Cref{fig:lec11-ga-progress} as the architecture anchor for this section.
+
 \subsection{Summary of Genetic Algorithm Workflow}
 \label{sec:evo_summary_of_genetic_algorithm_workflow}
 
@@ -835,6 +841,10 @@ This iterative cycle continues until convergence or stopping criteria are met. T
 \label{fig:lec11-ga-flow}
 \end{figure}
 
+Use \Cref{fig:lec11-ga-flow} as the architecture anchor for this section.
+
+Use \Cref{tab:ga-toy} as the architecture anchor for this section.
+
 \begin{table}[h]
 \centering
 \small
@@ -852,6 +862,8 @@ Mutation (flip one bit) & \(\,0110_2 \to 0111_2\) & 0.4375 & -0.02 \\
 \caption{Toy GA generation on a bounded interval. One crossover and mutation illustrate how the fitness function guides selection before the next generation. Use it when explaining how variation operators interact with selection pressure.}
 \label{tab:ga-toy}
 \end{table}
+
+\Cref{tab:ga-toy} is the step-by-step toy generation trace used to ground the operator sequence.
 
 \begin{tcolorbox}[summarybox,title={Defaults that work (DE/CMA-ES)}]
 \textbf{Differential Evolution (DE):} start with population \(10\!-\!20\times D\) (dimension \(D\)), mutation scale \(F\in[0.5,0.8]\), crossover \(C_r\in[0.7,0.9]\).
@@ -1116,12 +1128,18 @@ Readers are encouraged to explore these topics through further reading and resea
 When two or more objectives conflict, we seek a set of Pareto-optimal solutions rather than a single best point. The Non-dominated Sorting Genetic Algorithm II (NSGA-II) sorts each generation into Pareto fronts: rank-1 individuals are non-dominated, rank-2 are dominated only by rank-1, etc. Replacement preserves all members of the best fronts and uses crowding distance to maintain diversity along the trade-off curve. NSGA-II's combination of elitist survival and \(O(N \log N)\) non-dominated sorting makes it the default baseline for multi-objective evolutionary optimization \citep{Deb2002}.
 \paragraph{Metrics and variants} Hypervolume (area/volume dominated by the front with respect to a reference point) is a common scalar indicator; report it alongside the spread of solutions \citep{Zitzler2002}. MOEA/D decomposes objectives into weighted subproblems; SPEA2/IBEA are popular alternatives. Always plot the Pareto set and budget-matched hypervolume traces when comparing algorithms.
 
+Use \Cref{fig:lec11-pareto} as the architecture anchor for this section.
+
 \begin{figure}[t]
     \centering
     \includegraphics[width=0.58\linewidth]{lec19_pareto}
-    \caption{Sample Pareto front for two objectives. NSGA-II keeps all non-dominated points (blue) while pushing dominated solutions (orange) toward the front via selection, yielding a spread of trade-offs in one run. Use it when interpreting multi-objective results as trade-offs, not a single optimum.}
-    \label{fig:lec11-pareto}
+\caption{Sample Pareto front for two objectives. NSGA-II keeps all non-dominated points (blue) while pushing dominated solutions (orange) toward the front via selection, yielding a spread of trade-offs in one run. Use it when interpreting multi-objective results as trade-offs, not a single optimum.}
+\label{fig:lec11-pareto}
 \end{figure}
+
+\Cref{fig:lec11-pareto} is the trade-off reference used when interpreting multi-objective runs.
+
+\clearpage
 
 \begin{tcolorbox}[summarybox,title={Key takeaways}]
 \begin{itemize}

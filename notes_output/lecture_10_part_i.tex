@@ -184,6 +184,10 @@ Let \(A=\text{Comfortable}_C\) be triangular on Celsius with breakpoints \((21,2
     \label{fig:lec10-extension}
 \end{figure}
 
+Use \Cref{fig:lec10-extension} as the derivation anchor for this section.
+
+\Cref{fig:alpha-cut-nonmonotone} is the non-monotone alpha-cut reference used when discussing piecewise image mapping.
+
 \paragraph{Extension to Multiple Fuzzy Sets}
 
 Suppose now we have two fuzzy sets \( A_1 \) and \( A_2 \) defined on the same universe \( X = \{-1, 0, 1, 2\} \), with membership functions listed in the order \((-1,0,1,2)\):
@@ -315,6 +319,10 @@ For discrete universes the extension principle costs \(O(|X|)\) per \(y\) (or \(
     \label{fig:alpha-cut-nonmonotone}
 \end{figure}
 
+Use \Cref{fig:alpha-cut-nonmonotone} as the derivation anchor for this section.
+
+\Cref{fig:lec17_projection_matrix} is the projection-table reference for the relation-to-marginal mapping step.
+
 \subsection{Projection of Fuzzy Relations}
 \label{sec:fuzzyrelations_projection_of_fuzzy_relations}
 
@@ -336,6 +344,8 @@ where \( T \) is a chosen t\hyp{}norm, commonly the minimum operator:
     T(a,b) = \min(a,b).
 \]
 A \emph{t\hyp{}norm} is any binary operator \(T : [0,1]^2 \to [0,1]\) that is commutative, associative, monotone in each argument, and has \(1\) as identity, so it faithfully generalizes set intersection to graded memberships. Popular choices include the minimum, the product \(ab\), and the \L{}ukasiewicz t\hyp{}norm \(\max(0, a+b-1)\).
+
+Use \Cref{tab:tnorms} as the derivation anchor for this section.
 
 \begin{table}[h]
 \centering
@@ -433,6 +443,8 @@ The \emph{total projection} of \( R \) is the maximum membership value over the 
     \caption{Illustrative fuzzy relation table (left) together with its projections onto the error universe (middle) and the rate-of-change universe (right). These are the exact quantities used in the running thermostat example before composing rules. Use it when building rule antecedents from a relation and checking which universes each projection lives on.}
     \label{fig:lec17_projection_matrix}
 \end{figure}
+
+Use \Cref{fig:lec17_projection_matrix} as the derivation anchor for this section.
 
 \paragraph{Example (continued)}
 

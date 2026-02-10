@@ -1,6 +1,6 @@
 %Chapter 4
 \section{Classification and Logistic Regression}\label{chap:logistic}
-\Cref{chap:symbolic} illustrated one view of intelligent behavior as transformation search with explicit goal tests, while \Cref{chap:supervised} introduced the data-driven view: represent a task with data, choose a hypothesis class, minimize empirical risk under regularization, and audit performance on held-out data. This chapter extends that toolkit from regression to classification. Figure \Cref{fig:roadmap} places this chapter on the core supervised path.
+\Cref{chap:symbolic} illustrated one view of intelligent behavior as transformation search with explicit goal tests, while \Cref{chap:supervised} introduced the data-driven view: represent a task with data, choose a hypothesis class, minimize empirical risk under regularization, and audit performance on held-out data. This chapter extends that toolkit from regression to classification. \Cref{fig:roadmap} places this chapter on the core supervised path.
 
 \begin{tcolorbox}[summarybox,title={Learning Outcomes}]
 After this chapter, you should be able to:
@@ -128,6 +128,10 @@ To keep the discussion concrete, we reuse a small toy dataset in \Cref{fig:lec1_
     \label{fig:lec1_dataset}
 \end{figure}
 
+Use \Cref{fig:lec1_dataset} as the diagnostic anchor for this section.
+
+\Cref{fig:lec2_sigmoid_bce} is the compact geometry reference for logits, BCE, and regularization strength.
+
 \begin{figure}[!htbp]
     \centering
 \begin{tikzpicture}[background rectangle/.style={fill=white}, show background rectangle]
@@ -175,6 +179,10 @@ To keep the discussion concrete, we reuse a small toy dataset in \Cref{fig:lec1_
     \caption{Bayes-optimal boundary for two Gaussian classes. Equal covariances and similar priors (LDA setting) yield a linear separator; unequal covariances yield a quadratic boundary. The boundary is near the equal-posterior line (vertical, pink); left/right regions map to predicted classes R0 and R1. Use it when contrasting linear vs.\ quadratic boundaries under different generative assumptions.}
     \label{fig:lec1_bayes}
 \end{figure}
+
+Use \Cref{fig:lec1_bayes} as the diagnostic anchor for this section.
+
+\Cref{fig:lec1_mle_map} provides the low-data MAP-versus-MLE comparison used in this discussion.
 
 \paragraph{Naive Bayes Approximation}
 One classical workaround is the Naive Bayes classifier, which assumes that the components of \(\mathbf{x}\) are conditionally independent given the class label. Under this assumption,
@@ -300,6 +308,8 @@ The Hessian has the form \(X^\top W X\) where \(W=\mathrm{diag}(p_i(1-p_i))\succ
     \label{fig:lec2_sigmoid_bce}
 \end{figure}
 
+Use \Cref{fig:lec2_sigmoid_bce} as the diagnostic anchor for this section.
+
 \paragraph{Optimization geometry (why iterative solvers)}
 Unlike linear regression, logistic regression does not have a closed-form solution for \(\boldsymbol{\beta}\), even though the objective is convex. In practice we therefore rely on iterative solvers (gradient methods, quasi\hyp{}Newton methods, or Newton/IRLS in moderate dimensions). \Cref{fig:lec1_gd} is a convex quadratic toy that reminds us what an optimization trajectory looks like when we minimize a smooth objective: step size and conditioning shape how quickly iterates contract toward the minimizer.
 
@@ -364,6 +374,8 @@ Unlike linear regression, logistic regression does not have a closed-form soluti
         \caption{Gradient-descent iterates contracting toward the minimizer of a convex quadratic cost. Ellipses are level sets; arrows show the ``steepest descent along contours'' direction. Use it when visualizing why conditioning slows gradient descent.}
         \label{fig:lec1_gd}
     \end{figure}
+
+Use \Cref{fig:lec1_gd} as the diagnostic anchor for this section.
 \paragraph{Geometry of the logistic surface.} The decision rule is linear in feature space even though the posterior itself is smoothly varying. \Cref{fig:lec2-logistic-boundary} depicts this duality: the white hyperplane slices the space into two half-spaces while the probability ``ramp'' shows how margins translate into calibrated confidences.
 \begin{figure}[h]
     \centering
@@ -376,6 +388,8 @@ Unlike linear regression, logistic regression does not have a closed-form soluti
     \caption{Illustrative logistic-regression boundary. The dashed line marks the linear decision boundary at probability 0.5; labeled contours show how the posterior varies smoothly with margin, enabling calibrated decisions and adjustable thresholds. Use it when explaining why logistic outputs support threshold tuning.}
     \label{fig:lec2-logistic-boundary}
 \end{figure}
+
+Use \Cref{fig:lec2-logistic-boundary} as the diagnostic anchor for this section.
 
 \FloatBarrier
 
@@ -433,6 +447,8 @@ Two common priors explain the two penalties that appear most often in practice: 
         \label{fig:lec1_mle_map}
     \end{figure}
 
+Use \Cref{fig:lec1_mle_map} as the diagnostic anchor for this section.
+
 \FloatBarrier
 
 \subsection{Confusion Matrices and Derived Metrics}
@@ -463,6 +479,8 @@ On highly imbalanced problems accuracy and AUROC can be misleading; prefer class
     \caption{ROC and PR curves with an explicit operating point. Left: ROC curve with iso-cost lines; right: PR curve with a class-prevalence baseline and iso-F1 contours. Together they visualize threshold trade-offs and calibration quality. Use it when selecting an operating point under class imbalance and asymmetric costs.}
     \label{fig:lec1-roc-pr}
 \end{figure}
+
+Use \Cref{fig:lec1-roc-pr} as the diagnostic anchor for this section.
 \begin{tcolorbox}[summarybox,title={Imbalance and thresholds}]
 Use class or sample weights (e.g., inverse prevalence) inside the loss, and pick thresholds via ROC/PR curves or explicit cost ratios rather than defaulting to 0.5. With symmetric priors but asymmetric costs, predict class 1 when the logit exceeds \(\log(c_{10}/c_{01})\); for rare positives, report PR-AUC alongside AUROC.
 \end{tcolorbox}
@@ -513,6 +531,8 @@ Use class or sample weights (e.g., inverse prevalence) inside the loss, and pick
         \caption{Confusion matrix for a three-class classifier; diagonals dominate, indicating strong accuracy with modest confusion between classes B and C. Use it when diagnosing which error types dominate in multiclass settings.}
         \label{fig:lec1_confusion}
     \end{figure}
+
+Use \Cref{fig:lec1_confusion} as the diagnostic anchor for this section.
 
 \FloatBarrier
 \begin{tcolorbox}[summarybox,title={Key takeaways}]

@@ -1,7 +1,7 @@
 % Chapter 5
 \section{Introduction to Neural Networks}\label{chap:perceptron}
 
-\Cref{chap:logistic} established linear and logistic models as strong baselines, but their decision boundaries are linear in the original feature space. We now shift from the statistical lens to a biological one: neurons as simple units whose collective behavior yields nonlinear decision boundaries. This chapter introduces neuron models, perceptrons, activation functions, and the first learning rules (perceptron and Adaline). Figure \Cref{fig:roadmap} marks this as the start of the neural strand.
+\Cref{chap:logistic} established linear and logistic models as strong baselines, but their decision boundaries are linear in the original feature space. We now shift from the statistical lens to a biological one: neurons as simple units whose collective behavior yields nonlinear decision boundaries. This chapter introduces neuron models, perceptrons, activation functions, and the first learning rules (perceptron and Adaline). \Cref{fig:roadmap} marks this as the start of the neural strand.
 
 \begin{tcolorbox}[summarybox,title={Learning Outcomes}]
 After this chapter, you should be able to:
@@ -428,6 +428,8 @@ Therefore the perceptron halts after finitely many mistakes on separable data. I
     \caption{Perceptron geometry. Points on opposite sides of the separating hyperplane receive different labels, and signed distance to the boundary controls both prediction and update magnitude. Compare with \Cref{fig:lec2-logistic-boundary} in \Cref{chap:logistic}: both are linear separators, but logistic smooths the boundary into calibrated probabilities. Use it when relating margin geometry to update size and convergence.}
     \label{fig:lec3-perceptron-geometry}
 \end{figure}
+
+Use \Cref{fig:lec3-perceptron-geometry} as the derivation anchor for this section.
 
 \paragraph{Adaline model}
 

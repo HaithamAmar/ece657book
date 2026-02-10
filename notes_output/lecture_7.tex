@@ -2,7 +2,7 @@
 \section{Introduction to Recurrent Neural Networks}\label{chap:rnn}
 \graphicspath{{assets/lec7/}{assets/lec9/}{assets/lec14/}}
 
-\Cref{chap:cnn} showed how architectural bias (convolution/pooling) improves sample efficiency while preserving the same optimization loop. This chapter keeps that loop but changes the axis from space to time: sequence models need memory so present predictions can depend on prior tokens. Figure \Cref{fig:roadmap} flags this as the sequential branch of the neural strand.
+\Cref{chap:cnn} showed how architectural bias (convolution/pooling) improves sample efficiency while preserving the same optimization loop. This chapter keeps that loop but changes the axis from space to time: sequence models need memory so present predictions can depend on prior tokens. \Cref{fig:roadmap} flags this as the sequential branch of the neural strand.
 
 \begin{tcolorbox}[summarybox,title={Learning Outcomes}]
 \begin{itemize}
@@ -36,12 +36,8 @@ This is a common situation in many real-world problems, such as:
     \item Control systems with memory of past states
 \end{itemize}
 
-\begin{tcolorbox}[summarybox,title={Chapter map (core vs.\ detours)}]
-\begin{itemize}
-    \item \textbf{Core path:} why memory is needed $\rightarrow$ state + parameter sharing $\rightarrow$ unrolling + BPTT $\rightarrow$ stability (vanishing/exploding, clipping) $\rightarrow$ gating (GRU/LSTM).
-    \item \textbf{Optional detours:} quick padding/autoencoder reminders (for encoder intuition). For word representations and embedding objectives, jump to \Cref{chap:nlp}.
-\end{itemize}
-\end{tcolorbox}
+\paragraph{Chapter flow.}
+We proceed in one pass: motivate temporal memory, formalize state updates and parameter sharing, derive unrolling/BPTT, then cover stabilization (clipping and gating) before closing with attention as the transition beyond recurrent bottlenecks. Optional reminders are kept near the chapter close so they do not interrupt the derivation arc.
 
 Order carries meaning even in simple settings: if it is Saturday, the next day is Sunday. In language, ``out of the blue'' means something sudden, whereas ``the ball was blue'' refers to color; the sequence makes the difference. In predictive text, ``I want to buy ...'' favors a different continuation than ``Write a book about Teddy ...'' These examples also highlight variable-length inputs: a review can be three words or three hundred. You can always build a fixed window of past inputs and feed it to a standard MLP, but that approach scales poorly as the history grows and does not share parameters across time.
 
@@ -95,70 +91,19 @@ where $\psi$ is a nonlinear function without any dependence on past inputs. This
 We keep the row-major (deep-learning) convention: \(\mathbf{x}_t \in \mathbb{R}^{d_x}\), \(\mathbf{h}_t \in \mathbb{R}^{d_h}\), pre-activation \(\mathbf{a}_t = \mathbf{x}_t W_{xh} + \mathbf{h}_{t-1} W_{hh} + \mathbf{b}_h\), output \(\mathbf{y}_t = \mathbf{h}_t W_{hy} + \mathbf{b}_y\). Column-vector formulations simply transpose the order of factors; all stability conclusions (spectral norms of Jacobian factors) carry over.
 \end{tcolorbox}
 
-\begin{tcolorbox}[summarybox,title={Simple RNN at a glance}]
-\begin{itemize}
-    \item \textbf{Objective:} Minimize cross\hyp{}entropy (or another sequence loss) between targets and \(p_\theta(y_t\mid h_t)\), with \(h_t = f(x_t W_{xh} + h_{t-1} W_{hh} + b_h)\).
-    \item \textbf{Key hyperparameters:} Hidden state size, BPTT truncation window, optimizer/learning rate, regularization (dropout, weight decay), gradient-clipping threshold.
-    \item \textbf{Defaults:} \(\tanh\) or ReLU activations, hidden size 128--512, Adam or SGD+momentum with clipping, layer norm or gating (LSTM/GRU) for long sequences.
-    \item \textbf{Common pitfalls:} Vanishing/exploding gradients on long sequences, too-small hidden states, and train/test mismatch when teacher forcing is not reflected at inference.
-\end{itemize}
-\end{tcolorbox}
-
-\subsection{Outline of this chapter}
-\label{sec:rnn_outline_of_this_chapter}
-
-In this chapter, we will:
-
-\begin{itemize}
-    \item Formally define the architecture of recurrent neural networks.
-    \item Derive the forward and backward passes for training RNNs.
-    \item Discuss challenges such as vanishing and exploding gradients.
-    \item Introduce variants of RNNs designed to mitigate these challenges.
-    \item Explore applications where RNNs provide significant advantages over feedforward networks.
-\end{itemize}
-
-\begin{tcolorbox}[summarybox,title={Optional reminders: padding and autoencoders (skim)}]
-\textbf{Padding (CNNs).} For a 1D/2D convolution with input size \(n\), kernel size \(k\), stride \(s\), and padding \(p\), the output size is
-\[
-\left\lfloor \frac{n + 2p - k}{s} \right\rfloor + 1.
-\]
-When \(s=1\) and you want to preserve size, choose \(p=(k-1)/2\) for odd \(k\).\par\smallskip
-\textbf{Autoencoders.} An encoder maps \(\mathbf{x}\mapsto \mathbf{z}\) and a decoder maps \(\mathbf{z}\mapsto \hat{\mathbf{x}}\); training uses a reconstruction loss. The idea of compressing a long input into a compact representation reappears in sequence encoders and attention models.
-\end{tcolorbox}
-
-\begin{tcolorbox}[summarybox,title={Vanilla RNN cell (forward + BPTT)}]
-\begin{verbatim}
-# Forward for a sequence {x_t, y_t}
-h_0 = 0
-for t = 1..T:
-    pre_h = h_{t-1} W_hh + x_t W_xh + b_h
-    h_t  = tanh(pre_h)
-    yhat_t = h_t W_hy + b_y
-
-# Backward (BPTT with optional truncation K)
-delta_pre_next = 0
-for t = T..1:
-    delta_y = grad_loss(yhat_t, y_t)
-    grad_W_hy += h_t^T delta_y
-    grad_b_y += delta_y
-    delta_h = delta_y W_hy^T + delta_pre_next W_hh^T
-    delta_pre = delta_h .* (1 - h_t^2)
-    grad_W_hh += h_{t-1}^T delta_pre
-    grad_W_xh += x_t^T delta_pre
-    grad_b_h += delta_pre
-    delta_pre_next = delta_pre
-    if t < T-K: break  # truncated BPTT
-\end{verbatim}
-Use gradient clipping (e.g., clip the global norm of parameter gradients) and layer/batch normalization when sequences are long to avoid exploding/vanishing gradients.
-\end{tcolorbox}
-The element-wise product in the backward step corresponds to the Hadamard factors described in the derivation in \Cref{chap:mlp}; we write it as \texttt{.*} to align with NumPy/Matlab notation.
-
-\paragraph{Code--math dictionary.} In code blocks we use ASCII identifiers such as \texttt{h\_t}, \texttt{W\_hh}, and \texttt{b\_h}; in equations the same objects appear as \(\mathbf{h}_t\), \(\mathbf{W}_{hh}\), and \(\mathbf{b}_h\) (boldface for vectors/matrices, subscripts for time and role).
-
-Detailed algebraic derivations (forward/backward passes and gradient expressions) appear in \Crefrange{eq:simple_rnn_hidden}{eq:simple_rnn_output}; readers are encouraged to work through the accompanying examples to solidify intuition.
+\paragraph{Roadmap.}\label{sec:rnn_outline_of_this_chapter}
+The sequence is: architecture and state updates, unrolling/BPTT, instability sources, stabilization strategies, gated variants, and attention-era transition.
 
 \subsection{Recap: Feedforward Building Blocks}
 \label{sec:rnn_recap_feedforward_building_blocks}
+
+\paragraph{Simple RNN at a glance.}
+\begin{itemize}
+    \item \textbf{Objective:} Minimize cross\hyp{}entropy (or another sequence loss) between targets and \(p_\theta(y_t\mid h_t)\), with \(h_t = f(x_t W_{xh} + h_{t-1} W_{hh} + b_h)\).
+    \item \textbf{Key hyperparameters:} hidden state size, BPTT truncation window, optimizer/learning rate, regularization (dropout, weight decay), and clipping threshold.
+    \item \textbf{Defaults:} \(\tanh\) or ReLU activations, hidden size 128--512, Adam or SGD+momentum with clipping, and layer norm or gating (LSTM/GRU) for long sequences.
+    \item \textbf{Common pitfalls:} vanishing/exploding gradients on long sequences, too-small hidden states, and train/test mismatch when teacher forcing is not reflected at inference.
+\end{itemize}
 
 RNNs reuse the same ingredients as multilayer perceptrons (activations, nonlinear decision boundaries, loss functions, and training heuristics) but wrap them around a temporal axis. \Cref{fig:backprop-computational-graph} from \Cref{chap:backprop} highlights the canonical MLP dataflow along with common activation choices and derivatives that govern gradient flow.
 
@@ -208,6 +153,10 @@ Two-dimensional toy datasets remain useful for reasoning about inductive biases.
     \caption{Decision boundaries for logistic regression (left) versus a shallow MLP (right). Linear models carve a single hyperplane, whereas hidden units can warp the boundary to follow non-convex manifolds such as the moons dataset. Use it when diagnosing whether representation capacity (not optimization) limits a classifier.}
     \label{fig:lec7-boundaries}
 \end{figure}
+
+Use \Cref{fig:lec7-boundaries} as the derivation anchor for this section.
+
+\Cref{fig:lec7-rnn-unrolled} is the canonical unrolling view used to interpret shared-parameter BPTT updates.
 
 Finally, \Cref{fig:lec7-loss-hyperparams} summarizes two diagnostics: BCE geometry and the effect of learning\hyp{}rate schedules/early stopping.
 Here BCE (binary cross\hyp{}entropy) for a binary target $y\in\{0,1\}$ and logit $z$ is $\mathcal{L}(z,y)=\log(1+e^{-z})$ for $y{=}1$ and $\log(1+e^{z})$ for $y{=}0$; the \emph{logit} $z$ is the pre\hyp{}sigmoid score so that $\sigma(z)$ yields the predicted probability. The middle panel contrasts a conservative schedule (smooth decay) with a more aggressive one (faster initial drop but risk of oscillation), and the right panel shows early stopping triggered when validation loss ceases to improve while training loss continues decreasing.
@@ -270,6 +219,8 @@ Unless there is a compelling reason to run to numerical convergence, stop as soo
     \fi
     \label{fig:lec7-loss-hyperparams}
 \end{figure}
+
+Use \Cref{fig:lec7-loss-hyperparams} as the derivation anchor for this section.
 
 \begin{tcolorbox}[summarybox,title={LayerNorm and residual RNN tips}]
 Layer Normalization~\citep{Ba2016} stabilizes recurrent dynamics by normalizing each hidden vector \(h_t\) across features before applying the nonlinearity; unlike BatchNorm it works with batch size 1 and handles variable-length sequences gracefully. Residual RNN stacks (adding the input of a layer back to its output) keep gradients flowing even when depth increases, mirroring the skip-connections that make deep CNNs trainable. Together, LayerNorm + residual links curb exploding/vanishing gradients and are the default when building multi-layer RNN/LSTM stacks.
@@ -352,6 +303,8 @@ Consider a simple RNN cell with the following update equations:
     \caption{Unrolling an RNN reveals repeated application of the same parameters across time steps. This view motivates backpropagation through time (BPTT), which accumulates gradients through every copy before updating the shared weights. Use it when translating a recurrent cell into an explicit computation graph for training.}
     \label{fig:lec7-rnn-unrolled}
 \end{figure}
+
+Use \Cref{fig:lec7-rnn-unrolled} as the derivation anchor for this section.
 \subsection{Recurrent Neural Network (RNN) Architectures and Loss Computation}
 \label{sec:rnn_recurrent_neural_network_rnn_architectures_and_loss_computation}
 
@@ -391,6 +344,36 @@ for t in range(T):
 Choose \(K\) to balance memory and credit assignment (common range: 20--100 steps).
 \end{tcolorbox}
 
+\begin{tcolorbox}[summarybox,title={Vanilla RNN cell (forward + BPTT)}]
+\begin{verbatim}
+# Forward for a sequence {x_t, y_t}
+h_0 = 0
+for t = 1..T:
+    pre_h = h_{t-1} W_hh + x_t W_xh + b_h
+    h_t  = tanh(pre_h)
+    yhat_t = h_t W_hy + b_y
+
+# Backward (BPTT with optional truncation K)
+delta_pre_next = 0
+for t = T..1:
+    delta_y = grad_loss(yhat_t, y_t)
+    grad_W_hy += h_t^T delta_y
+    grad_b_y += delta_y
+    delta_h = delta_y W_hy^T + delta_pre_next W_hh^T
+    delta_pre = delta_h .* (1 - h_t^2)
+    grad_W_hh += h_{t-1}^T delta_pre
+    grad_W_xh += x_t^T delta_pre
+    grad_b_h += delta_pre
+    delta_pre_next = delta_pre
+    if t < T-K: break  # truncated BPTT
+\end{verbatim}
+Use gradient clipping (e.g., clip the global norm of parameter gradients) and layer/batch normalization when sequences are long to avoid exploding/vanishing gradients.
+\end{tcolorbox}
+
+The element-wise product in the backward step corresponds to the Hadamard factors described in the derivation in \Cref{chap:mlp}; we write it as \texttt{.*} to align with NumPy/Matlab notation.
+\paragraph{Code--math dictionary.}
+In code blocks we use ASCII identifiers such as \texttt{h\_t}, \texttt{W\_hh}, and \texttt{b\_h}; in equations the same objects appear as \(\mathbf{h}_t\), \(\mathbf{W}_{hh}\), and \(\mathbf{b}_h\) (boldface for vectors/matrices, subscripts for time and role). Detailed algebraic derivations (forward/backward passes and gradient expressions) appear in \Crefrange{eq:simple_rnn_hidden}{eq:simple_rnn_output}.
+
 \begin{figure}[t]
     \centering
     \begin{tikzpicture}[
@@ -416,6 +399,8 @@ Choose \(K\) to balance memory and credit assignment (common range: 20--100 step
     \label{fig:lec7-bptt}
 \end{figure}
 
+Use \Cref{fig:lec7-bptt} as the derivation anchor for this section.
+
 \paragraph{Vanishing and Exploding Gradients}
 
 Because each gradient term contains products of Jacobians such as
@@ -431,6 +416,8 @@ Empirically, vanilla RNNs often fail to preserve dependencies beyond roughly 5--
     \label{fig:lec7-vanishing}
 \end{figure}
 
+Use \Cref{fig:lec7-vanishing} as the derivation anchor for this section.
+
 \paragraph{Parameter Updates}
 
 At each time step, the gradient of the loss with respect to parameters (e.g., weights \( W \)) depends on the chain of partial derivatives through the network states:
@@ -445,12 +432,10 @@ Because of parameter sharing, the same \( W \) influences multiple time steps, a
 
 \paragraph{Gradient clipping.} A practical safeguard is to clip the global norm of the gradient when it exceeds a threshold. \Cref{fig:lec7-clipping} shows how clipping prevents the exploding case from destabilizing optimization while leaving the vanishing regime untouched. Orthogonal or unitary initializations for the recurrent weight matrix \(W_{hh}\) are another common trick: because orthogonal matrices preserve Euclidean norms, gradients neither explode nor vanish in the very early stages of training (before nonlinearities and data\hyp{}dependent effects accumulate).
 
-\begin{tcolorbox}[summarybox,title={Rule of thumb: keep gradients in the safe band}]
+\begin{tcolorbox}[summarybox,title={Stability defaults in practice}]
 Spectral norm \(\|\mathbf{W}_{hh}\|_2 \approx 1\) keeps gradients roughly stable over tens of steps; clipping thresholds \(\tau \in [0.5, 5]\) are sensible defaults when sequences are long. BatchNorm inside the recurrent loop is rarely helpful; prefer LayerNorm or gating to stabilize dynamics.
-\end{tcolorbox}
-
-\begin{tcolorbox}[summarybox,title={Author's note: do not fight vanilla RNNs}]
-If your task needs dependencies longer than a handful of steps, do not over-tune a plain RNN. Start with clipping and a sensible truncation window, but move to GRU/LSTM once you see long-range information vanish.
+\par\smallskip
+\textbf{Author's note: do not fight vanilla RNNs.} If your task needs dependencies longer than a handful of steps, do not over-tune a plain RNN. Start with clipping and a sensible truncation window, but move to GRU/LSTM once long-range information vanishes.
 \end{tcolorbox}
 
 \paragraph{Dropout in RNNs.} Variational/recurrent dropout applies the same dropout mask at every time step to avoid injecting temporal noise \citep{Gal2016,Semeniuta2016}; zoneout preserves hidden units stochastically instead of zeroing them \citep{Krueger2016}. Standard per-time-step dropout often harms sequence retention.
@@ -538,6 +523,8 @@ If your task needs dependencies longer than a handful of steps, do not over-tune
     \label{fig:lec7-clipping}
 \end{figure}
 
+Use \Cref{fig:lec7-clipping} as the derivation anchor for this section.
+
 \paragraph{Teacher forcing and scheduled sampling.} Sequence-to-sequence models frequently feed the ground-truth token back into the decoder during training (teacher forcing) to accelerate convergence. \Cref{fig:lec7-teacher-forcing} contrasts this regime with free-running inference: teacher forcing injects gold tokens at every step, whereas inference conditions the decoder on its own predictions. This mismatch is precisely what scheduled-sampling curricula aim to mitigate \citep{Bengio2015}.
 
 \begin{figure}[t]
@@ -609,6 +596,8 @@ If your task needs dependencies longer than a handful of steps, do not over-tune
 \caption{Teacher forcing vs.\ inference in a sequence-to-sequence decoder. Gold arrows show supervised targets; orange arrows highlight autoregressive feedback that motivates scheduled sampling. Use it when diagnosing train/test mismatch from teacher forcing.}
 \label{fig:lec7-teacher-forcing}
 \end{figure}
+
+Use \Cref{fig:lec7-teacher-forcing} as the derivation anchor for this section.
 
 \paragraph{Gated cells.} LSTMs \citep{Hochreiter1997,Gers2000} and GRUs \citep{Cho2014} alleviate vanishing gradients by introducing additive memory paths guarded by gates. \Cref{fig:lec7-lstm,fig:lec7-gru} present the canonical cell diagrams used later in the chapter when deriving the update equations. Intuitively, LSTM forget/input/output gates control retention, writing, and exposure of the memory \(c_t\); GRU update/reset gates interpolate between \(h_{t-1}\) and a candidate \(\tilde h_t\) and decide how much past context influences the candidate. In an LSTM, the state updates as \(c_t = f_t \odot c_{t-1} + i_t \odot \tilde c_t\) and \(h_t = o_t \odot \tanh(c_t)\). In a GRU, the hidden state updates as \(h_t = (1-z_t)\odot h_{t-1} + z_t \odot \tilde h_t\), with the reset gate \(r_t\) shaping the candidate computation. In both figures, \(x_t\) denotes the input at time \(t\), and \(h_{t-1}\) / \(c_{t-1}\) denote the carried state(s).
 
@@ -705,6 +694,8 @@ If your task needs dependencies longer than a handful of steps, do not over-tune
         \fi
     \label{fig:lec7-lstm}
 \end{figure}
+
+Use \Cref{fig:lec7-lstm} as the derivation anchor for this section.
 
 % GRU cell (based on the provided reference TikZ, with explicit (1-z_t) block).
 % Matches: h_t = (1-z_t)\odot h_{t-1} + z_t \odot \tilde h_t.
@@ -814,6 +805,8 @@ If your task needs dependencies longer than a handful of steps, do not over-tune
     \label{fig:lec7-gru}
 \end{figure}
 
+Use \Cref{fig:lec7-gru} as the derivation anchor for this section.
+
         % Keep the cell diagrams together and prevent the following non-float boxes from
         % appearing before a deferred figure.
             \FloatBarrier
@@ -825,7 +818,8 @@ If your task needs dependencies longer than a handful of steps, do not over-tune
 \textbf{LSTM:} Maintains a separate cell state \(c_t\) and uses input/forget/output gates; highest parameter count but most robust on very long-range dependencies and widely used in legacy sequence models.
 \end{tcolorbox}
 
-\begin{tcolorbox}[summarybox,title={Minimal training loop with masks and clipping}]
+\begin{tcolorbox}[summarybox,title={Implementation checklist: masks, clipping, pitfalls}]
+\textbf{Minimal training loop with masks and clipping}
 \begin{verbatim}
 h = torch.zeros(B, d_h)
 for x, y, mask in loader:         # [B,T,dx], [B,T], [B,T]
@@ -837,14 +831,14 @@ for x, y, mask in loader:         # [B,T,dx], [B,T], [B,T]
     opt.step(); opt.zero_grad()
 \end{verbatim}
 Variable-length sequences are padded; the mask zeros out pads in the loss. Reset \(h\) between sequences that should not share state.
+\par\smallskip
+\textbf{Pitfalls checklist} Mis-handled pads (loss on padded tokens); forgetting to detach hidden state across mini\hyp{}batches; no clipping on long sequences; BatchNorm inside recurrence (prefer LayerNorm); teacher-forcing train/test mismatch without scheduled sampling; no masking leads to biased gradients; dropout applied independently each time step instead of variational/recurrent dropout.
 \end{tcolorbox}
 
-\begin{tcolorbox}[summarybox,title={Pitfalls checklist}]
-Mis-handled pads (loss on padded tokens); forgetting to detach hidden state across mini\hyp{}batches; no clipping on long sequences; BatchNorm inside recurrence (prefer LayerNorm); teacher-forcing train/test mismatch without scheduled sampling; no masking leads to biased gradients; dropout applied independently each time step instead of variational/recurrent dropout.
-\end{tcolorbox}
-
-\paragraph{Attention mechanisms.} Even with gating, long sequences can challenge fixed-size hidden states. Attention augments the decoder with a content-based lookup into the encoder states, as visualized in \Cref{fig:lec7-attention}. Bright entries correspond to encoder positions that most influence each generated token.
-
+\subsection{From recurrent state to attention}
+\label{sec:rnn_from_recurrent_state_to_attention}
+\paragraph{Attention mechanisms.}
+Even with gating, long sequences can challenge fixed-size hidden states. Attention augments the decoder with a content-based lookup into the encoder states, as visualized in \Cref{fig:lec7-attention}. Bright entries correspond to encoder positions that most influence each generated token.
 \begin{tcolorbox}[summarybox,title={Historical note: from gating to attention}]
 Gating (LSTM/GRU) made long-range gradient flow workable by creating additive memory paths. Attention takes a different route: rather than forcing all context into a single state, it learns a soft retrieval rule over past representations. This shift explains why modern sequence models often prefer attention when long context and parallel training matter most, while gated RNNs remain competitive for streaming and low-latency settings.
 \end{tcolorbox}
@@ -912,6 +906,8 @@ Gating (LSTM/GRU) made long-range gradient flow workable by creating additive me
     \caption{Attention heatmap for a translation model. Rows are target tokens (decoder steps) and columns are source tokens (encoder positions). Each cell is an attention weight; the dot in each row marks the source position receiving the most attention. Use it when checking whether attention aligns to the intended source context.}
     \label{fig:lec7-attention}
 \end{figure}
+
+Use \Cref{fig:lec7-attention} as the derivation anchor for this section.
 
 \subsection{Wrapping Up the Derivations}
 \label{sec:rnn_wrapping_up_the_derivations}
@@ -999,6 +995,13 @@ All gates are elementwise; $\sigma$ denotes the logistic sigmoid and $\odot$ the
 
 \paragraph{Notation note.} In the sequence\hyp{}model chapters, $\sigma(\cdot)$ always denotes the logistic sigmoid gate nonlinearity; when $\sigma$ is used without an argument (e.g., in earlier chapters for noise scales $\sigma^2$) it refers to a standard deviation. Context distinguishes these roles; see \Cref{app:notation_collisions} for the cross-chapter symbol index.
 \end{tcolorbox}
+
+\paragraph{Optional refresher (padding and autoencoders).}
+For a 1D/2D convolution with input size \(n\), kernel size \(k\), stride \(s\), and padding \(p\), the output size is
+\[
+\left\lfloor \frac{n + 2p - k}{s} \right\rfloor + 1.
+\]
+When \(s=1\) and you want to preserve size, choose \(p=(k-1)/2\) for odd \(k\). For encoder intuition, recall that autoencoders map \(\mathbf{x}\mapsto\mathbf{z}\mapsto\hat{\mathbf{x}}\) with a reconstruction loss; the same compression intuition reappears in sequence encoders and attention models.
 
 \begin{tcolorbox}[summarybox,title={Key takeaways}]
 \begin{itemize}

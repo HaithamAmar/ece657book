@@ -2,7 +2,7 @@
 \section{Backpropagation Learning in Multi-Layer Perceptrons}\label{chap:backprop}
 \graphicspath{{assets/lec4/}}
 
-Building on the two\hyp{}neuron derivation in \Cref{chap:mlp}, we now derive backpropagation as a systematic application of the chain rule to an $L$-layer network. The key idea is unchanged: compute local error terms (the \(\delta\)'s), then reuse them to obtain all weight gradients efficiently. Figure \Cref{fig:roadmap} marks this chapter as the training engine for deep models.
+Building on the two\hyp{}neuron derivation in \Cref{chap:mlp}, we now derive backpropagation as a systematic application of the chain rule to an $L$-layer network. The key idea is unchanged: compute local error terms (the \(\delta\)'s), then reuse them to obtain all weight gradients efficiently. \Cref{fig:roadmap} marks this chapter as the training engine for deep models.
 
 \begin{tcolorbox}[summarybox,title={Learning Outcomes}]
 \begin{itemize}
@@ -350,6 +350,8 @@ Given a training set of \( N \) examples \(\{(x^{(n)}, t^{(n)})\}_{n=1}^N\), the
 SGD remains the backbone; momentum and Adam/AdamW from \Cref{chap:cnn} accelerate convergence. Add L2 weight decay to the gradient or decouple it (AdamW) to avoid biasing adaptive steps. For deep or ill-conditioned nets, gradient clipping can prevent explosions; for classification, pair these with cross\hyp{}entropy and the log-sum-exp stability tricks introduced alongside CNNs in \Cref{chap:cnn}. Reverse-mode AD underlies all of these updates.
 \end{tcolorbox}
 
+Use \Cref{fig:backprop-computational-graph} as the derivation anchor for this section.
+
 \begin{figure}[t]
     \centering
     \resizebox{\linewidth}{!}{%
@@ -436,6 +438,8 @@ SGD remains the backbone; momentum and Adam/AdamW from \Cref{chap:cnn} accelerat
     \caption[Computational graph for backpropagation (reverse-mode AD)]{Computational graph for a feedforward network. Backpropagation is reverse\hyp{}mode AD: the forward sweep caches intermediate values, and the reverse sweep propagates deltas while accumulating weight/bias gradients from those cached values. Use it when debugging backprop implementations and tracing each gradient term.}
     \label{fig:backprop-computational-graph}
 \end{figure}
+
+Use \Cref{fig:backprop-computational-graph} as the derivation anchor for this section.
 
 \begin{tcolorbox}[summarybox,title={Debugging and gradient-check checklist}]
 \begin{itemize}
@@ -810,6 +814,8 @@ These gradients are used in gradient-based optimization methods (e.g., stochasti
     \label{fig:lec4_backprop_flow}
 \end{figure}
 
+Use \Cref{fig:lec4_backprop_flow} as the derivation anchor for this section.
+
 \paragraph{Example Execution}
 
 An example was provided illustrating the forward pass computation of activations and the backward pass calculation of gradients for a simple MLP with one hidden layer. This example concretely demonstrated how the chain rule is applied layer-by-layer and how the error signals are propagated backward.
@@ -885,11 +891,15 @@ With the full MLP and backpropagation machinery in place, it is useful to compar
     \label{fig:lec4-activations}
 \end{figure}
 
+Use \Cref{fig:lec4-activations} as the derivation anchor for this section.
+
 For reference, \(\sigma'(z)=\sigma(z)\bigl(1-\sigma(z)\bigr)\), \(\tanh'(z)=1-\tanh^2(z)\), and the ReLU derivative is \(0\) for negative inputs and \(1\) for positive inputs (take \(0\) at the origin).
 
 \paragraph{Trade-offs}
 While some activation functions are inspired by biological neurons, others are chosen for mathematical convenience and training efficiency. Sigmoid and tanh saturate at large magnitude inputs, which slows gradients in deep networks. ReLU avoids saturation on the positive side but can produce ``dying ReLUs'' when biases push units negative and the gradients become zero; if many units stall, use He initialization, reduce the learning rate, or swap to a leaky ReLU with a small negative slope (e.g., 0.01).
 This closes the core backpropagation story for MLPs. Next we summarize practical stability considerations and the key takeaways that guide real training.
+
+\clearpage
 
     \begin{tcolorbox}[summarybox,title={Key takeaways}]
     \textbf{Minimum viable mastery}
