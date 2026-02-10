@@ -10,7 +10,7 @@
 \end{itemize}
 \end{tcolorbox}
 
-\Cref{chap:cnn} showed how architectural bias (convolution/pooling) can replace some data demands while keeping the same optimization loop. This chapter turns to sequences, where the missing ingredient is memory: the model must remember enough of the past to act in the present. The roadmap in \Cref{fig:roadmap} flags this as the sequential branch of the neural strand.
+\Cref{chap:cnn} showed how architectural bias (convolution/pooling) improves sample efficiency while preserving the same optimization loop. This chapter keeps that loop but changes the axis from space to time: sequence models need memory so present predictions can depend on prior tokens. The roadmap in \Cref{fig:roadmap} flags this as the sequential branch of the neural strand.
 
 \begin{tcolorbox}[summarybox,title={Design motif}]
 Add recurrence, then train it by unrolling time and reusing the backprop machinery from \Cref{chap:backprop}.
@@ -75,7 +75,7 @@ Here, $f$ and $g$ are typically nonlinear functions implemented by neural networ
 Unrolling makes the training graph \(T\) steps deep. Gradients from each time step accumulate onto the shared weights, and the repeated Jacobian products are precisely why long sequences revive the vanishing/exploding gradient issues from deep feedforward networks.
 Training this unrolled graph with standard backpropagation is known as \emph{backpropagation through time} (BPTT).
 
-Recurrent neural networks (RNNs) were among the first practical sequence models \citep{Elman1990,Bengio1994}. CNNs from \Cref{chap:cnn} trade recurrence for parallel, spatially shared filters, while \Cref{chap:transformers} will revisit sequence modeling without recurrence. \Cref{chap:nlp} supplies the embeddings and perplexity metrics commonly paired with RNNs.
+Recurrent neural networks (RNNs) were among the first practical sequence models \citep{Elman1990,Bengio1994}. CNNs from \Cref{chap:cnn} trade recurrence for parallel, spatially shared filters. \Cref{chap:nlp} then supplies the token representations and evaluation lens commonly paired with RNNs, and \Cref{chap:transformers} revisits sequence modeling without recurrence.
 
 \subsection{Comparison with Feedforward Networks}
 \label{sec:rnn_comparison_with_feedforward_networks}
@@ -205,7 +205,7 @@ Two-dimensional toy datasets remain useful for reasoning about inductive biases.
                 \node[anchor=west, font=\scriptsize, cbGreen] at (axis cs:0.9,0.95){Nonlinear separator};
         \end{groupplot}
     \end{tikzpicture}
-    \caption{Decision boundaries for logistic regression (left) versus a shallow MLP (right). Linear models carve a single hyperplane, whereas hidden units can warp the boundary to follow non-convex manifolds such as the moons dataset. Use this when diagnosing whether representation capacity (not optimization) limits a classifier.}
+    \caption{Decision boundaries for logistic regression (left) versus a shallow MLP (right). Linear models carve a single hyperplane, whereas hidden units can warp the boundary to follow non-convex manifolds such as the moons dataset. Use it when diagnosing whether representation capacity (not optimization) limits a classifier.}
     \label{fig:lec7-boundaries}
 \end{figure}
 
@@ -263,10 +263,10 @@ Unless there is a compelling reason to run to numerical convergence, stop as soo
         \end{groupplot}
     \end{tikzpicture}
     \ifdefined\HCode
-        \caption{Binary cross-entropy geometry (left), effect of learning-rate schedules on loss (middle), and the typical training/validation divergence that motivates early stopping (right). Use this when choosing a learning-rate schedule and interpreting early-stopping signals.}
+        \caption{Binary cross-entropy geometry (left), effect of learning-rate schedules on loss (middle), and the typical training/validation divergence that motivates early stopping (right). Use it when choosing a learning-rate schedule and interpreting early-stopping signals.}
     \else
         % Avoid inline math in captions; it wraps poorly in some EPUB renderers.
-        \caption{Binary cross-entropy geometry (left), effect of learning-rate schedules on loss (middle), and the typical training/validation divergence that motivates early stopping (right). Use this when choosing a learning-rate schedule and interpreting early-stopping signals.}
+        \caption{Binary cross-entropy geometry (left), effect of learning-rate schedules on loss (middle), and the typical training/validation divergence that motivates early stopping (right). Use it when choosing a learning-rate schedule and interpreting early-stopping signals.}
     \fi
     \label{fig:lec7-loss-hyperparams}
 \end{figure}
@@ -349,7 +349,7 @@ Consider a simple RNN cell with the following update equations:
         \coordinate (braceR) at ($(h3.south east)+(0,-12mm)$);
         \draw[decorate, decoration={brace, amplitude=5pt}] (braceL) -- node[midway, below=10pt]{\scriptsize shared parameters across the unrolled sequence} (braceR);
     \end{tikzpicture}
-    \caption{Unrolling an RNN reveals repeated application of the same parameters across time steps. This view motivates backpropagation through time (BPTT), which accumulates gradients through every copy before updating the shared weights. Use this when translating a recurrent cell into an explicit computation graph for training.}
+    \caption{Unrolling an RNN reveals repeated application of the same parameters across time steps. This view motivates backpropagation through time (BPTT), which accumulates gradients through every copy before updating the shared weights. Use it when translating a recurrent cell into an explicit computation graph for training.}
     \label{fig:lec7-rnn-unrolled}
 \end{figure}
 \subsection{Recurrent Neural Network (RNN) Architectures and Loss Computation}
@@ -412,7 +412,7 @@ Choose \(K\) to balance memory and credit assignment (common range: 20--100 step
         % shared parameters note
         \node at (4,-2.0) {\scriptsize shared $(\mathbf{W}_{hh}, \mathbf{W}_{xh}, \mathbf{W}_{hy})$ across time};
     \end{tikzpicture}
-    \caption{Backpropagation through time (BPTT): unrolled forward pass (black) and backward gradients (pink) through time. Use this when reasoning about truncation windows and why long histories strain gradient flow.}
+    \caption{Backpropagation through time (BPTT): unrolled forward pass (black) and backward gradients (pink) through time. Use it when reasoning about truncation windows and why long histories strain gradient flow.}
     \label{fig:lec7-bptt}
 \end{figure}
 
@@ -427,7 +427,7 @@ Empirically, vanilla RNNs often fail to preserve dependencies beyond roughly 5--
 \begin{figure}[t]
     \centering
     \includegraphics[width=0.72\linewidth]{lec7_vanish_explode}
-    \caption{Vanishing (blue) versus exploding (orange) gradients on a log scale. The gray strip highlights the stability band; the inset reminds readers that repeated Jacobian products either shrink gradients (thin blue arrows) or amplify them (thick orange arrows). Use this when diagnosing why long-range dependencies fail to train.}
+    \caption{Vanishing (blue) versus exploding (orange) gradients on a log scale. The gray strip highlights the stability band; the inset reminds readers that repeated Jacobian products either shrink gradients (thin blue arrows) or amplify them (thick orange arrows). Use it when diagnosing why long-range dependencies fail to train.}
     \label{fig:lec7-vanishing}
 \end{figure}
 
@@ -534,7 +534,7 @@ If your task needs dependencies longer than a handful of steps, do not over-tune
         \end{groupplot}
     \end{tikzpicture}
     % Avoid inline math in captions; it wraps poorly in some EPUB renderers.
-    \caption{Gradient norms (left) explode without clipping (orange) but remain bounded when the global norm is clipped at tau (green). Training loss (right) stabilizes as a result. Use this when setting clipping thresholds to stabilize training without freezing learning.}
+    \caption{Gradient norms (left) explode without clipping (orange) but remain bounded when the global norm is clipped at tau (green). Training loss (right) stabilizes as a result. Use it when setting clipping thresholds to stabilize training without freezing learning.}
     \label{fig:lec7-clipping}
 \end{figure}
 
@@ -606,7 +606,7 @@ If your task needs dependencies longer than a handful of steps, do not over-tune
 \end{tikzpicture}
 }%
 
-\caption{Teacher forcing vs.\ inference in a sequence-to-sequence decoder. Gold arrows show supervised targets; orange arrows highlight autoregressive feedback that motivates scheduled sampling. Use this when diagnosing train/test mismatch from teacher forcing.}
+\caption{Teacher forcing vs.\ inference in a sequence-to-sequence decoder. Gold arrows show supervised targets; orange arrows highlight autoregressive feedback that motivates scheduled sampling. Use it when diagnosing train/test mismatch from teacher forcing.}
 \label{fig:lec7-teacher-forcing}
 \end{figure}
 
@@ -699,9 +699,9 @@ If your task needs dependencies longer than a handful of steps, do not over-tune
         \end{tikzpicture}%
     }
         \ifdefined\HCode
-            \caption{Long Short-Term Memory (LSTM) cell \citep{Hochreiter1997,Gers2000}. Use this when mapping gates and the cell state to the gradient-flow path.}
+            \caption{Long Short-Term Memory (LSTM) cell \citep{Hochreiter1997,Gers2000}. Use it when mapping gates and the cell state to the gradient-flow path.}
         \else
-            \caption{Long Short-Term Memory (LSTM) cell \citep{Hochreiter1997,Gers2000}. Use this when mapping gates and the cell state to the gradient-flow path.}
+            \caption{Long Short-Term Memory (LSTM) cell \citep{Hochreiter1997,Gers2000}. Use it when mapping gates and the cell state to the gradient-flow path.}
         \fi
     \label{fig:lec7-lstm}
 \end{figure}
@@ -807,9 +807,9 @@ If your task needs dependencies longer than a handful of steps, do not over-tune
         \end{tikzpicture}%
     }
     \ifdefined\HCode
-    \caption{Gated Recurrent Unit (GRU) cell \citep{Cho2014}. Use this when comparing gating to vanilla recurrence and to LSTM-style memory.}
+    \caption{Gated Recurrent Unit (GRU) cell \citep{Cho2014}. Use it when comparing gating to vanilla recurrence and to LSTM-style memory.}
     \else
-    \caption{Gated Recurrent Unit (GRU) cell \citep{Cho2014}. Use this when comparing gating to vanilla recurrence and to LSTM-style memory.}
+    \caption{Gated Recurrent Unit (GRU) cell \citep{Cho2014}. Use it when comparing gating to vanilla recurrence and to LSTM-style memory.}
     \fi
     \label{fig:lec7-gru}
 \end{figure}
@@ -909,14 +909,14 @@ Gating (LSTM/GRU) made long-range gradient flow workable by creating additive me
     \end{axis}
     \end{tikzpicture}
     % Avoid inline math in captions; it wraps poorly in some EPUB renderers.
-    \caption{Attention heatmap for a translation model. Rows are target tokens (decoder steps) and columns are source tokens (encoder positions). Each cell is an attention weight; the dot in each row marks the source position receiving the most attention. Use this when checking whether attention aligns to the intended source context.}
+    \caption{Attention heatmap for a translation model. Rows are target tokens (decoder steps) and columns are source tokens (encoder positions). Each cell is an attention weight; the dot in each row marks the source position receiving the most attention. Use it when checking whether attention aligns to the intended source context.}
     \label{fig:lec7-attention}
 \end{figure}
 
 \subsection{Wrapping Up the Derivations}
 \label{sec:rnn_wrapping_up_the_derivations}
 
-In this chapter, we explored the foundational ideas behind modeling sequences with recurrent neural networks (RNNs). One common example is language modeling: predicting the next token in a sequence from its preceding context.
+This chapter develops the core ideas behind recurrent neural networks (RNNs) for sequence modeling. A canonical task is language modeling: predicting the next token from preceding context.
 
 Recall that the goal is to estimate the conditional probability of a word \( w_t \) given the sequence of previous words \( w_1, w_2, \ldots, w_{t-1} \):
 \begin{equation}
@@ -1036,7 +1036,7 @@ All gates are elementwise; $\sigma$ denotes the logistic sigmoid and $\odot$ the
 \end{tcolorbox}
 
 \medskip
-\paragraph{Where we head next.} \Cref{chap:nlp} turns the sequence viewpoint into practical language tooling: embedding objectives, evaluation by analogies/neighborhoods, and the deployment/audit checklist for real use. Keep the sentiment example (\Cref{sec:rnn_sentiment_worked_example}) in mind: once tokens live in a geometry rather than as unrelated IDs, the same many\hyp{}to\hyp{}one classifier can generalize more systematically. \Cref{chap:transformers} then returns to architecture, replacing recurrence with attention so information can move globally and training can exploit parallel hardware.
+\paragraph{Where we head next.} \Cref{chap:nlp} translates this sequence viewpoint into representation tooling: embedding objectives, neighborhood/analogy diagnostics, and deployment audits. Keep the sentiment example (\Cref{sec:rnn_sentiment_worked_example}) in mind: with learned token geometry, the same many\hyp{}to\hyp{}one task generalizes better than with raw IDs. \Cref{chap:transformers} then changes architecture again, replacing recurrence with attention while preserving the same evaluation and masking discipline.
 
 \paragraph{References.} Full citations for works mentioned in this chapter appear in the book-wide bibliography.
 \nocite{JurafskyMartin2023,Goodfellow2016,Mikolov2010,LevyGoldberg2014}

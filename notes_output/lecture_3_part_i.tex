@@ -424,7 +424,7 @@ Therefore the perceptron halts after finitely many mistakes on separable data. I
         \end{axis}
     \end{tikzpicture}
     % Avoid inline math in captions; it wraps poorly in some EPUB renderers.
-    \caption{Perceptron geometry. Points on either side of the separating hyperplane receive different labels, and the signed distance to the boundary controls both the class prediction and the magnitude of the update during learning. Compare to \Cref{fig:lec2-logistic-boundary} in \Cref{chap:logistic}: both share a linear separator, but logistic smooths the boundary into calibrated probabilities. Use this when relating margin geometry to update size and convergence behavior.}
+    \caption{Perceptron geometry. Points on opposite sides of the separating hyperplane receive different labels, and signed distance to the boundary controls both prediction and update magnitude. Compare with \Cref{fig:lec2-logistic-boundary} in \Cref{chap:logistic}: both are linear separators, but logistic smooths the boundary into calibrated probabilities. Use it when relating margin geometry to update size and convergence.}
     \label{fig:lec3-perceptron-geometry}
 \end{figure}
 
@@ -482,7 +482,7 @@ A single perceptron makes one global, all-or-none decision: one hyperplane, one 
 \end{tcolorbox}
 
 \medskip
-\paragraph{Where we head next.} Perceptrons are intentionally simple: hard thresholds and uniform updates. Seeing both what they can do (linear separation) and what they cannot do (nonlinear tasks such as XOR) clarifies why multilayer networks are needed. \Cref{chap:mlp} builds directly on the perceptron/Adaline story by chaining units into the smallest multi\hyp{}layer network, defining a performance (loss) function, and then asking the key question: \emph{how should weights change to improve performance?} That question forces the chain rule and motivates smooth activations. \Cref{chap:backprop} then generalizes the same bookkeeping to arbitrary depth and turns the derivation into an efficient training algorithm.
+\paragraph{Where we head next.} Perceptrons are intentionally simple: hard thresholds and uniform updates. Their strengths (linear separation) and limits (for example XOR) motivate multilayer models. \Cref{chap:mlp} continues this thread by chaining units, defining a loss, and asking the key training question: \emph{how should weights change to improve performance?} That question leads directly to the chain rule and smooth activations. \Cref{chap:backprop} then scales the same bookkeeping to arbitrary depth and efficient implementation.
 
 \paragraph{References.} Full citations for works mentioned in this chapter appear in the book-wide bibliography.
 \nocite{McCullochPitts1943,Rosenblatt1958,WidrowHoff1960,Rumelhart1986}

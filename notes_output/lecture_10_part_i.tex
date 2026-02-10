@@ -180,7 +180,7 @@ Let \(A=\text{Comfortable}_C\) be triangular on Celsius with breakpoints \((21,2
         \end{groupplot}
     \end{tikzpicture}
     % Avoid inline math in captions; it wraps poorly in some EPUB renderers.
-    \caption{Mapping a fuzzy set through the function ``y = x-squared''. The membership at an output value y is the supremum over all pre-images x that map to y; shared images such as x = +/-1 map to y = 1 using the maximum membership. Use this when applying the extension principle to a non-invertible function.}
+    \caption{Mapping a fuzzy set through the function ``y = x-squared''. The membership at an output value y is the supremum over all pre-images x that map to y; shared images such as x = +/-1 map to y = 1 using the maximum membership. Use it when applying the extension principle to a non-invertible function.}
     \label{fig:lec10-extension}
 \end{figure}
 
@@ -311,7 +311,7 @@ For discrete universes the extension principle costs \(O(|X|)\) per \(y\) (or \(
         \end{axis}
     \end{tikzpicture}
     % Avoid inline math in captions; it wraps poorly in some EPUB renderers.
-    \caption{Alpha-cuts under the non-monotone map ``y = x-squared''. A symmetric triangular fuzzy set on X maps to a right-skewed fuzzy set on Y. Each alpha-cut on A splits into two intervals whose images union to the output alpha-cut. Use this when propagating a fuzzy set through a non-monotone map via alpha-cuts.}
+    \caption{Alpha-cuts under the non-monotone map ``y = x-squared''. A symmetric triangular fuzzy set on X maps to a right-skewed fuzzy set on Y. Each alpha-cut on A splits into two intervals whose images union to the output alpha-cut. Use it when propagating a fuzzy set through a non-monotone map via alpha-cuts.}
     \label{fig:alpha-cut-nonmonotone}
 \end{figure}
 
@@ -339,7 +339,7 @@ A \emph{t\hyp{}norm} is any binary operator \(T : [0,1]^2 \to [0,1]\) that is co
 
 \begin{table}[h]
 \centering
-\caption{Popular t\hyp{}norms and their typical roles. Use this when choosing a default conjunction operator and understanding its qualitative behavior.}
+\caption{Popular t\hyp{}norms and their typical roles. Use it when choosing a default conjunction operator and understanding its qualitative behavior.}
 \label{tab:tnorms}
 \begin{tabularx}{0.94\linewidth}{@{}>{\raggedright\arraybackslash}p{0.23\linewidth} >{\raggedright\arraybackslash}p{0.3\linewidth} >{\raggedright\arraybackslash}X@{}}
 \toprule
@@ -430,7 +430,7 @@ The \emph{total projection} of \( R \) is the maximum membership value over the 
         0.5 \\
     \end{tabular}
     % Avoid inline math in captions; it wraps poorly in some EPUB renderers.
-    \caption{Illustrative fuzzy relation table (left) together with its projections onto the error universe (middle) and the rate-of-change universe (right). These are the exact quantities used in the running thermostat example before composing rules. Use this when building rule antecedents from a relation and checking which universes each projection lives on.}
+    \caption{Illustrative fuzzy relation table (left) together with its projections onto the error universe (middle) and the rate-of-change universe (right). These are the exact quantities used in the running thermostat example before composing rules. Use it when building rule antecedents from a relation and checking which universes each projection lives on.}
     \label{fig:lec17_projection_matrix}
 \end{figure}
 
@@ -709,7 +709,7 @@ The choice of composition operator therefore follows a practical rule: begin wit
 \noindent\textbf{If you are skipping ahead.} The extension principle is the bookkeeping layer for the full inference pipeline. When you reach \Cref{chap:fuzzyinference}, every ``rule output'' is an instance of the same transfer-and-aggregate pattern.
 \end{tcolorbox}
 
-\paragraph{Where we head next.} In \Cref{chap:fuzzyinference}, each rule induces a fuzzy relation on (input \(\times\) output); sup-$T$ composition and projection compute the implied output set before aggregation and defuzzification. That chapter uses the same defaults (max--min with the standard complement), as summarized in \crefrange{eq:antecedent_min}{eq:output_aggregation}.
+\paragraph{Where we head next.} \Cref{chap:fuzzyinference} operationalizes these relation tools: each rule induces a fuzzy relation on input-output space, then sup-$T$ composition and projection produce the implied output set before aggregation and defuzzification. The same defaults (max--min with standard complement) carry over, as summarized in \crefrange{eq:antecedent_min}{eq:output_aggregation}.
 
 \paragraph{References.} Full citations for works mentioned in this chapter appear in the book-wide bibliography.
 \nocite{Zadeh1975,BandlerKohout1980,KlirYuan1995,Dubois1988,Klement2000}

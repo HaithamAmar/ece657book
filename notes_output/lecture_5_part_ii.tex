@@ -234,7 +234,7 @@ For clarity, \Cref{tab:hopfield-deltaE} reports the energy change for each singl
         \bottomrule
     \end{tabular}
     % Avoid inline math in captions; it wraps poorly in some EPUB renderers.
-    \caption{Single-neuron flips from (1, 1, -1); all raise the energy, so the state is a local minimum. Use this when checking stability of a stored pattern under single-bit perturbations.}
+    \caption{Single-neuron flips from (1, 1, -1); all raise the energy, so the state is a local minimum. Use it when checking stability of a stored pattern under single-bit perturbations.}
     \label{tab:hopfield-deltaE}
 \end{table}
 
@@ -265,7 +265,7 @@ If the network is perturbed slightly (for instance, by flipping \(s_3\) to \(+1\
         \end{axis}
     \end{tikzpicture}
     % Avoid inline math in captions; it wraps poorly in some EPUB renderers.
-    \caption{Hopfield energy decreases monotonically under asynchronous updates. Starting from a noisy probe state s(0), successive single-neuron flips move downhill until the stored memory s(2) is recovered. Use this when explaining why asynchronous updates converge under Hopfield's symmetry constraints.}
+    \caption{Hopfield energy decreases monotonically under asynchronous updates. Starting from a noisy probe state s(0), successive single-neuron flips move downhill until the stored memory s(2) is recovered. Use it when explaining why asynchronous updates converge under Hopfield's symmetry constraints.}
     \label{fig:hopfield-energy-descent}
 \end{figure}
 
@@ -566,7 +566,7 @@ However, its practical use is limited by low storage capacity and sensitivity to
 \end{tcolorbox}
 
 \medskip
-\paragraph{Where we head next.} \Cref{chap:cnn} pivots from associative memory dynamics to deep feedforward architectures for perception, where convolution and pooling build hierarchical features. The optimization discipline carries over unchanged: the ERM toolkit from \Cref{chap:supervised} and the training mechanics from \Crefrange{chap:mlp}{chap:backprop} remain central. We return to recurrence and attention in \Cref{chap:rnn} and \Cref{chap:transformers}.
+\paragraph{Where we head next.} \Cref{chap:cnn} turns from associative memory to deep feedforward perception, where convolution and pooling form hierarchical features. The optimization workflow is unchanged: the ERM toolkit from \Cref{chap:supervised} and the training mechanics from \Crefrange{chap:mlp}{chap:backprop} remain central. Recurrence and attention return in \Cref{chap:rnn} and \Cref{chap:transformers}.
 
 \paragraph{References.} Full citations for works mentioned in this chapter appear in the book-wide bibliography.
 \nocite{Hopfield1982,AmitGutfreundSompolinsky1985}

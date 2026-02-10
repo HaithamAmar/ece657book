@@ -242,7 +242,7 @@ with analogous expressions for the \(A\) and \(D\) categories. These overlapping
         \end{axis}
     \end{tikzpicture}
     % Avoid inline math in captions; it wraps poorly in some EPUB renderers.
-    \caption{Trapezoidal membership functions for grades C and B with the overlapping region shaded. Scores near 78--82 partially satisfy both grade definitions. Use this when designing overlapping grade/linguistic bins so boundary cases behave smoothly.}
+    \caption{Trapezoidal membership functions for grades C and B with the overlapping region shaded. Scores near 78--82 partially satisfy both grade definitions. Use it when designing overlapping grade/linguistic bins so boundary cases behave smoothly.}
     \label{fig:lec9-grade-trapezoids}
 \end{figure}
 
@@ -302,7 +302,7 @@ The overlap reflects the vagueness of the labels: a weight near 22~kg partially 
             \addplot[gray,dashed] coordinates {(25,0) (25,1.05)};
         \end{axis}
     \end{tikzpicture}
-    \caption[Overlapping membership functions for Small/Medium/Large labels]{Overlapping membership functions for the ``Small'', ``Medium'', and ``Large'' weight labels. The shaded overlaps capture gradual transitions. Use this when tuning membership overlaps so small numeric changes do not cause abrupt rule changes.}
+    \caption[Overlapping membership functions for Small/Medium/Large labels]{Overlapping membership functions for the ``Small'', ``Medium'', and ``Large'' weight labels. The shaded overlaps capture gradual transitions. Use it when tuning membership overlaps so small numeric changes do not cause abrupt rule changes.}
     \label{fig:lec9-membership-overlap}
 \end{figure}
 
@@ -607,10 +607,10 @@ These operators allow for a nonlinear mapping of the complement, reflecting diff
     \centering
     \includegraphics[width=0.9\linewidth]{lec16_fuzzy_and}
     \ifdefined\HCode
-        \caption{Fuzzy AND surfaces comparing minimum versus product t\hyp{}norms; analogous OR surfaces show similar differences. Choices here influence rule aggregation in \Cref{chap:fuzzyinference}. Use this when deciding whether conjunction should behave like a conservative minimum or a multiplicative attenuation.}
+        \caption{Fuzzy AND surfaces comparing minimum versus product t\hyp{}norms; analogous OR surfaces show similar differences. Choices here influence rule aggregation in \Cref{chap:fuzzyinference}. Use it when deciding whether conjunction should behave like a conservative minimum or a multiplicative attenuation.}
     \else
         % Avoid inline math in captions; it wraps poorly in some EPUB renderers.
-        \caption{Fuzzy AND surfaces comparing minimum versus product t\hyp{}norms; analogous OR surfaces show similar differences. Choices here influence rule aggregation in \Cref{chap:fuzzyinference}. Use this when deciding whether conjunction should behave like a conservative minimum or a multiplicative attenuation.}
+        \caption{Fuzzy AND surfaces comparing minimum versus product t\hyp{}norms; analogous OR surfaces show similar differences. Choices here influence rule aggregation in \Cref{chap:fuzzyinference}. Use it when deciding whether conjunction should behave like a conservative minimum or a multiplicative attenuation.}
     \fi
     \label{fig:tnorm-surfaces}
 \end{figure}
@@ -905,7 +905,7 @@ Note that:
 \subsection{Closure of Membership Function Derivations}
 \label{sec:fuzzysets_closure_of_membership_function_derivations}
 
-In this chapter, we finalize the discussion on how to generate new membership functions from existing ones using fuzzy set operations. Recall that membership functions represent fuzzy sets and encode the degree of membership of elements in a universe of discourse. The ability to manipulate these membership functions algebraically is fundamental to fuzzy logic and fuzzy inference systems.
+This chapter completes the toolkit for generating new membership functions from existing ones via fuzzy-set operations. Membership functions encode graded belonging over a universe of discourse, and algebraic manipulation of those functions is central to fuzzy logic and fuzzy inference.
 
 \subsubsection{Generating New Membership Functions via Set Operations}
 \label{sec:fuzzysets_generating_new_membership_functions_via_set_operations_sub}
@@ -1003,7 +1003,7 @@ The next step is to formalize the \emph{implication} and \emph{aggregation} oper
 \begin{table}[t]
 \centering
 % Avoid inline math in captions; it wraps poorly in some EPUB renderers.
-\caption{Typical operator choices in fuzzy inference and their qualitative effects. Here the t-norm implements fuzzy AND, the s-norm implements fuzzy OR, and the implication shapes consequents. Use this when choosing default operators for a Mamdani-style pipeline and predicting qualitative behavior.}
+\caption{Typical operator choices in fuzzy inference and their qualitative effects. Here the t-norm implements fuzzy AND, the s-norm implements fuzzy OR, and the implication shapes consequents. Use it when choosing default operators for a Mamdani-style pipeline and predicting qualitative behavior.}
 \label{tab:fuzzy-operators}
 \begin{tabularx}{\linewidth}{@{}>{\raggedright\arraybackslash}X>{\raggedright\arraybackslash}X>{\raggedright\arraybackslash}X>{\raggedright\arraybackslash}X@{}}
 \toprule
@@ -1125,7 +1125,7 @@ Practical tip: libraries such as \texttt{scikit-fuzzy} provide a tested \texttt{
         \end{groupplot}
     \end{tikzpicture}
     % Avoid inline math in captions; it wraps poorly in some EPUB renderers.
-    \caption{End-to-end fuzzy inference example. (A) Consequent membership functions with clipping levels from firing strengths at T = 27 deg C. (B) Aggregated output set (max of truncated consequents) and a centroid marker near s* approx 0.58. Use this when sanity-checking clipping, aggregation, and centroid defuzzification end to end.}
+    \caption{End-to-end fuzzy inference example. (A) Consequent membership functions with clipping levels from firing strengths at T = 27 deg C. (B) Aggregated output set (max of truncated consequents) and a centroid marker near s* approx 0.58. Use it when sanity-checking clipping, aggregation, and centroid defuzzification end to end.}
     \label{fig:fuzzy-end-to-end}
 \end{figure}
 
@@ -1164,6 +1164,6 @@ Practical tip: libraries such as \texttt{scikit-fuzzy} provide a tested \texttt{
 \noindent\textbf{If you are skipping ahead.} The rest of the fuzzy chapters build on these primitives. If you find later rule outputs unstable, the first place to revisit is the universe scaling and overlap choices here.
 \end{tcolorbox}
 
-\paragraph{Where we head next.} In \Cref{chap:fuzzyrelations}, we move from fuzzification/defuzzification mechanics to system design patterns and adaptive fuzzy controllers; the relation operators and projections there tie these set-level tools into control and hybrid schemes.
+\paragraph{Where we head next.} \Cref{chap:fuzzyrelations} moves from fuzzification/defuzzification mechanics to system-level design and adaptive fuzzy controllers; relation operators and projections there connect these set-level tools to control and hybrid schemes.
 
 \paragraph{References.} Full citations for works mentioned in this chapter appear in the book-wide bibliography.

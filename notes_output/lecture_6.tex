@@ -13,7 +13,7 @@ After this chapter, you should be able to:
 \end{itemize}
 \end{tcolorbox}
 
-\Cref{chap:hopfield} used energy to tame recurrence and create stable memories. Here we pivot back to deep feedforward models for perception, where convolutions and pooling impose a spatial inductive bias that improves sample efficiency and robustness. The roadmap in \Cref{fig:roadmap} shows this as the deep feedforward branch.
+\Cref{chap:hopfield} used energy to tame recurrence and create stable memories. Here we return to deep feedforward perception, where convolutions and pooling impose a spatial inductive bias that improves sample efficiency and robustness. This chapter also sets up the next sequence run (\Crefrange{chap:rnn}{chap:transformers}): the optimization loop stays familiar, while dependency structure and representation choices change. The roadmap in \Cref{fig:roadmap} shows this as the deep feedforward branch.
 
 \begin{tcolorbox}[summarybox,title={Design motif}]
 Keep the same statistical learning loop from \Crefrange{chap:supervised}{chap:logistic}, but move the ``bias'' into architecture via weight sharing and locality.
@@ -236,7 +236,7 @@ Before 2012, neural networks were often dismissed in many academic circles due t
         \draw[cbOrange, thick] (3.65,2.05) -- (3.75,2.05);
         \draw[cbGreen, thick] (3.65,1.25) -- (3.75,1.25);
     \end{tikzpicture}
-    \caption{Receptive field growth across depth. Even with small \(3\times3\) kernels, stacking layers expands the spatial context seen by deeper units. Use this when explaining why depth can replace very large kernels.}
+    \caption{Receptive field growth across depth. Even with small \(3\times3\) kernels, stacking layers expands the spatial context seen by deeper units. Use it when explaining why depth can replace very large kernels.}
     \label{fig:cnn_receptive_field_growth}
 \end{figure}
 
@@ -344,7 +344,7 @@ Taken together, these tools stabilize optimization; the figures below highlight 
 \begin{figure}[t]
     \centering
     \includegraphics[width=0.65\linewidth]{lec6_dropout_curves}
-    \caption[Dropout effect on training/validation curves (validation flattening)]{Illustrative dropout effect on training/validation curves. Compared to a no\hyp{}dropout baseline, validation curves flatten and generalization improves. Use this when diagnosing variance and deciding whether dropout is likely to help versus simpler regularization.}
+    \caption[Dropout effect on training/validation curves (validation flattening)]{Illustrative dropout effect on training/validation curves. Compared to a no\hyp{}dropout baseline, validation curves flatten and generalization improves. Use it when diagnosing variance and deciding whether dropout is likely to help versus simpler regularization.}
     \label{fig:lec6-dropout}
 \end{figure}
 
@@ -366,7 +366,7 @@ Taken together, these tools stabilize optimization; the figures below highlight 
             \addplot[cbOrange, thick, samples=200, domain=-6:6] {1/sqrt(2*pi*1.0)*exp(-(x^2)/2)}; \addlegendentry{channel 2}
         \end{groupplot}
     \end{tikzpicture}
-    \caption{Batch normalization transforms per-channel activations toward zero mean and unit variance prior to the learned affine re-scaling, stabilizing training. Use this when diagnosing unstable training from drifting activation scales.}
+    \caption{Batch normalization transforms per-channel activations toward zero mean and unit variance prior to the learned affine re-scaling, stabilizing training. Use it when diagnosing unstable training from drifting activation scales.}
     \label{fig:lec6-bn}
 \end{figure}
 
@@ -384,7 +384,7 @@ Taken together, these tools stabilize optimization; the figures below highlight 
             \addplot[cbOrange, thick, samples=120, domain=0:60] {0.15 + 1.0*exp(-x/10)}; \addlegendentry{Adam}
         \end{axis}
     \end{tikzpicture}
-    \caption{Representative training curves for SGD with momentum versus Adam on the same CNN. Use this when comparing optimizer behavior under the same model and data.}
+    \caption{Representative training curves for SGD with momentum versus Adam on the same CNN. Use it when comparing optimizer behavior under the same model and data.}
     \label{fig:lec6-optimizers}
 \end{figure}
 
@@ -459,10 +459,10 @@ This omits batching, convolution strides, and optimizer detail but highlights th
 \end{itemize}
 
 \medskip
-\noindent\textbf{If you are skipping ahead.} The optimization and regularization knobs here reappear almost unchanged in sequence models. When you reach \Cref{chap:rnn} and \Cref{chap:transformers}, the main new difficulty is dependency structure, not loss minimization.
+\noindent\textbf{If you are skipping ahead.} The optimization and regularization knobs here carry almost unchanged into \Crefrange{chap:rnn}{chap:transformers}; what changes there is how context is represented and propagated, not the core loss-minimization discipline.
 \end{tcolorbox}
 
 \medskip
-\paragraph{Where we head next.} \Cref{chap:rnn} returns to sequence modeling: recurrent networks and attention mechanisms inherit many of the optimization tools discussed here, but add temporal dependencies and stateful computation.
+\paragraph{Where we head next.} \Cref{chap:rnn} keeps the same training and audit discipline but shifts the modeling axis from spatial locality to temporal state and sequence dependence.
 
 \paragraph{References.} Full citations for works mentioned in this chapter appear in the book-wide bibliography.

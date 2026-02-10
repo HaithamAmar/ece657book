@@ -65,6 +65,39 @@ Use this file to record editorial feedback as you read the **PDF** and **EPUBs**
 
 ## Production/pipeline fix log (keep this short and factual)
 
+### [2026-02-09] Item: Minimal editorial tightening pass (Chapters 13-14 flow coherence) — DONE
+
+- **Severity:** polish (cohesion/readability)
+- **Surface:** PDF + Apple EPUB + Kindle EPUB
+- **What changed (source):**
+  - `notes_output/lecture_8_part_i.tex`
+    - Renamed duplicated Word2Vec section titles to clarify progression:
+      - `Word2Vec: Two Architectures` -> `Word2Vec at a glance`
+      - `Word Embeddings: Continuous Bag of Words (CBOW) and skip-gram models` -> `Word2Vec objectives in detail`
+      - Detailed subheads now explicitly mark objective derivations (`CBOW objective (detailed form)`, `skip-gram objective (detailed form)`).
+    - Added one bridge sentence between the conceptual and detailed Word2Vec sections to reduce perceived repetition.
+  - `notes_output/lecture_transformers.tex`
+    - Tightened the attention shape-convention callback to reference both the RNN and NLP chapters (`\Cref{chap:rnn,chap:nlp}`), reflecting the current chapter ordering and avoiding stale single-chapter anchoring.
+- **Deferred by intent (unchanged in this pass):**
+  - Wide/clipped Chapter 2 transformation-toolkit table treatment remains deferred pending separate design decision.
+- **Regression check:** `bash notes_output/scripts/run_production_checks.sh` (must stay green).
+
+### [2026-02-09] Item: Wording-level continuity pass across Chapters 11-14 (no structural change) — DONE
+
+- **Severity:** polish (narrative continuity)
+- **Surface:** PDF + Apple EPUB + Kindle EPUB
+- **What changed (source):**
+  - `notes_output/lecture_6.tex`
+    - Tightened opening/closing bridge language so Chapter 11 now hands off explicitly to the Chapter 12->14 sequence thread without introducing architecture content early.
+  - `notes_output/lecture_7.tex`
+    - Refined opening and chapter handoff language so RNNs lead naturally into representation learning (`chap:nlp`) and then attention (`chap:transformers`).
+  - `notes_output/lecture_8_part_i.tex`
+    - Reworded intro and closing transition to emphasize representation as the connective layer between recurrent and attention models.
+  - `notes_output/lecture_transformers.tex`
+    - Reworded intro and exit paragraph to frame Chapter 14 as the endpoint of the neural sequence thread before the soft-computing pivot.
+- **Not changed by design:** section order, labels, equations, figures, and chapter structure.
+- **Regression check:** `bash notes_output/scripts/run_production_checks.sh` (must stay green).
+
 ### [2026-02-03] Item: `adjustbox` option text leaking into EPUB (“max width=,center”) — FIXED
 
 - **Severity:** major
@@ -1136,3 +1169,28 @@ Next-step options
 •	Option A (fast): Apply the top-priority fixes only (Part II redundancy + snapshot framing + structure sweep + export hygiene).
 •	Option B (best ROI): Do Option A + a targeted line-edit of Chapters 1, 3, 4, 14, and 19 (these drive first impressions and adoption).
 •	Option C (textbook-ready): Full consistency pass + professional copyedit + standardized figures/tables + instructor resources.
+
+## Caption Style Guide (Canonical, Short)
+
+Use these rules for all future caption edits so style stays consistent across PDF and EPUB.
+
+1. Start with the artifact type and purpose:
+   - Figures: describe what is shown and the decision/interpretation it supports.
+   - Tables: describe what is summarized/compared (never prefix table captions with `Schematic:`).
+2. Keep structure compact: context sentence(s) + one practical usage sentence.
+3. Use one closing action cue only: `Use it when ...`
+4. Keep wording concrete and non-promotional; avoid filler adjectives.
+5. Preserve technical fidelity:
+   - Do not change labels, equation references, symbols, or units in a wording pass.
+   - Keep cross-references (`\\Cref{...}`) intact.
+6. Prefer short, plain wording over long clause chains:
+   - Use semicolons sparingly.
+   - Split overloaded captions into two clean sentences when possible.
+7. Target consistency:
+   - similar figure families should have similar caption rhythm,
+   - but avoid copy-paste repetition across chapters.
+
+Quick lint checklist before merge:
+- No `Use this when ...` remains (use `Use it when ...`).
+- No table caption starts with `Schematic:`.
+- No caption text implies a structural/content move in a wording-only pass.

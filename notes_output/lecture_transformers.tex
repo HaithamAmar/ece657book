@@ -12,7 +12,7 @@ After this chapter, you should be able to:
 \end{itemize}
 \end{tcolorbox}
 
-\Cref{chap:rnn} made the sequence problem explicit: stateful computation plus gradients that must flow across time. \Cref{chap:nlp} then supplied the missing front end for language---turning symbols into vectors with useful geometry. Transformers keep the sequence focus but remove recurrence, replacing it with attention so information can move globally in one layer. The roadmap in \Cref{fig:roadmap} shows this as the modern sequence branch.
+\Cref{chap:rnn} made the sequence problem explicit: stateful computation plus gradients that must flow across time. \Cref{chap:nlp} then supplied the representation layer that makes those sequence objectives practical. This chapter keeps that representation layer but removes recurrence, replacing it with attention so information can move globally within a layer. The roadmap in \Cref{fig:roadmap} shows this as the modern sequence branch.
 
 \begin{tcolorbox}[summarybox,title={Design motif}]
 Control information flow with structure (masks, normalization, residual paths) so optimization remains stable while context windows grow.
@@ -44,7 +44,7 @@ Given query, key, value matrices \(\mathbf{Q} \in \mathbb{R}^{n_q \times d_k}\),
     = \operatorname{softmax}\!\left(\frac{\mathbf{Q}\mathbf{K}^\top}{\sqrt{d_k}}\right) \mathbf{V}.
 \label{eq:auto_transformers_0c8cb47ef2}
 \end{equation}
-Here \(n_q\) is the sequence length of the queries and \(n_k\) the sequence length of keys/values. We maintain the sequence-first convention from \Cref{chap:rnn}: rows index time positions (a ``token dimension'') and columns index features, while batch elements are processed independently. The \(1/\sqrt{d_k}\) factor stabilizes gradients by keeping logits in a reasonable range.
+Here \(n_q\) is the sequence length of the queries and \(n_k\) the sequence length of keys/values. We keep the same sequence-first convention used in \Cref{chap:rnn,chap:nlp}: rows index time positions (a ``token dimension'') and columns index features, while batch elements are processed independently. The \(1/\sqrt{d_k}\) factor stabilizes gradients by keeping logits in a reasonable range.
 
 \begin{tcolorbox}[summarybox,title={Shape ledger}]
 We treat mini\hyp{}batches as \(\mathbf{X}\in\mathbb{R}^{B\times n \times d_{\text{model}}}\) (batch, sequence, features). After the linear projections each head carries \(\mathbf{Q},\mathbf{K}\in\mathbb{R}^{B\times h \times n \times d_k}\), \(\mathbf{V}\in\mathbb{R}^{B\times h \times n \times d_v}\), and the attention weights live in \(\mathbb{R}^{B\times h \times n \times n}\). Reading dimensions in this order avoids confusion when mixing frameworks; \(h\cdot d_k = d_{\text{model}}\) (often \(d_v=d_k\)). FFN inner widths typically 2--4\(\times d_{\text{model}}\).
@@ -520,6 +520,6 @@ Terminology: masked-LM and next-token LM are \emph{self-supervised} (targets der
 \end{tcolorbox}
 
 \medskip
-\paragraph{Where we head next.} \Cref{chap:softcomp} steps away from neural sequence models to review the broader soft-computing toolkit (fuzzy logic and evolutionary ideas) previewed in \Cref{chap:intro}. If you want the embedding objectives and deployment/audit checklist that pair naturally with language modeling, see \Cref{chap:nlp}.
+\paragraph{Where we head next.} \Cref{chap:softcomp} steps away from neural sequence models and re-enters the broader soft-computing toolkit (fuzzy logic and evolutionary ideas) previewed in \Cref{chap:intro}. Read this chapter as the endpoint of the neural sequence thread: representation objectives from \Cref{chap:nlp} plus masking/calibration discipline from \Crefrange{chap:rnn}{chap:transformers}.
 
 \paragraph{References.} Full citations for works mentioned in this chapter appear in the book-wide bibliography.

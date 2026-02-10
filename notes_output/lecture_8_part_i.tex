@@ -10,7 +10,7 @@
 \end{itemize}
 \end{tcolorbox}
 
-\Cref{chap:rnn} framed language as prediction under context: the model must assign probability to the next token using a compact state that summarizes the past. To make that workable in practice, we need representations that turn discrete symbols into geometry. This chapter builds those representations (embeddings and their training objectives) and shows how to evaluate and audit them; \Cref{chap:transformers} then uses the same ingredients inside attention-based architectures for long-context modeling and efficient deployment. The roadmap in \Cref{fig:roadmap} places this as the application/deployment tail of the neural strand.
+\Cref{chap:rnn} framed language as prediction under context: the model must assign probability to the next token from a compressed state. This chapter addresses the missing ingredient behind that setup: representations that turn discrete symbols into usable geometry. We build those embeddings, training objectives, and audits here; \Cref{chap:transformers} then reuses the same representation primitives inside attention-based architectures for longer-context modeling and deployment. The roadmap in \Cref{fig:roadmap} places this as the application/deployment tail of the neural strand.
 
 \begin{tcolorbox}[summarybox,title={Design motif}]
 Representation learning as a contract between data and objective---when you train on co-occurrence, you get both useful structure (analogies, clusters) and the biases present in the corpus.
@@ -36,7 +36,7 @@ Representation learning as a contract between data and objective---when you trai
 \subsection{Context and Motivation}
 \label{sec:nlp_context_and_motivation}
 
-In this chapter, we focus on neural methods for natural language processing (NLP) through the lens of representation learning. \Cref{chap:rnn} treated language as prediction under context; here we focus on the missing ingredient that makes that practical: turning discrete symbols into vectors with useful geometry.
+In this chapter, we focus on neural methods for natural language processing (NLP) through the lens of representation learning. The recurring question from \Cref{chap:rnn} is practical: what input space makes sequence prediction stable and data efficient? The answer is to learn vectors whose geometry captures contextual similarity.
 
 A classic example illustrating the power of such representations is the analogy:
 \[
@@ -79,7 +79,7 @@ A useful mental model is to imagine that each word is a \emph{graded bundle of a
 \begin{table}[t]
 \centering
 \small
-\caption{Feature-based word vectorization example. Each word is mapped to a vector of graded semantic features; fractional entries (e.g., 0.5) indicate mixed usage across contexts. Use this when building intuition for how discrete symbols become vectors that downstream models can consume.}
+\caption{Feature-based word vectorization example. Each word is mapped to a vector of graded semantic features; fractional entries (e.g., 0.5) indicate mixed usage across contexts. Use it when building intuition for how discrete symbols become vectors that downstream models can consume.}
 \label{tab:word_feature_vectorization}
 \begin{tabular}{l|cccccccc}
 \textbf{Word} & Gender & Royalty & Age & Person & Fruit & Title & Abstract & Sweet \\
@@ -118,15 +118,15 @@ By explicitly examining the surrounding words (context windows of a few tokens t
 \subsection{Contextual Meaning and Feature Extraction}
 \label{sec:nlp_contextual_meaning_and_feature_extraction}
 
-Words appear in many different contexts, and by aggregating information from these contexts, we can infer intrinsic features of the word. For example, the contexts in which \emph{pretty} appears with \emph{good} or \emph{image} help us understand its different senses.
+The practical takeaway is that repeated context patterns reveal latent word properties. In the \emph{pretty} example, co-occurrence with evaluative adjectives points to an intensifier sense, while co-occurrence with visual nouns points to an aesthetic sense.
 
-This motivates the use of statistical models that learn word embeddings by analyzing large corpora and capturing co-occurrence patterns.
+This is why modern embedding models treat corpus co-occurrence as supervision.
 
 \begin{tcolorbox}[summarybox,title={Author's note: who chooses the features?}]
 A natural student question is: if embeddings represent ``features,'' who decides what the features are? In modern embedding learning, the answer is: nobody writes them down explicitly. The features emerge from the training objective. By training a model to predict nearby words (or to distinguish real context pairs from random ones), the optimization process forces the hidden representation to encode whatever properties are useful for prediction. This is best viewed as \emph{self-supervised} learning: targets come from the text itself via context windows, rather than from human labels.
 \end{tcolorbox}
 
-\subsection{Word2Vec: Two Architectures}
+\subsection{Word2Vec at a glance}
 \label{sec:nlp_word2vec_two_architectures}
 
 The Word2Vec framework, introduced by \citet{Mikolov2013}, operationalizes the distributional hypothesis through two main architectures:
@@ -136,7 +136,7 @@ The Word2Vec framework, introduced by \citet{Mikolov2013}, operationalizes the d
     \item \textbf{skip-gram:} Predicts the surrounding context words given the target word.
 \end{enumerate}
 
-Both architectures learn word embeddings as a byproduct of solving these prediction tasks.
+Both architectures learn vectors by solving local prediction tasks rather than from hand-labeled semantic features.
 
 \subsubsection{Continuous Bag of Words (CBOW)}
 \label{sec:nlp_continuous_bag_of_words_cbow_sub}
@@ -171,6 +171,8 @@ In practice we maximize the sum of log-probabilities
 
 This approach tends to perform better on infrequent words and captures more detailed semantic relationships.
 
+This first pass is conceptual. The next sections pin down the exact parameterization and training objectives used in practice.
+
 \subsection{Mathematical Formulation of CBOW}
 \label{sec:nlp_mathematical_formulation_of_cbow}
 
@@ -181,7 +183,7 @@ Let the vocabulary size be \(V\), and embedding dimension be \(d\). Define the e
 \subsection{Neural Network Architecture for Word Embeddings}
 \label{sec:nlp_neural_network_architecture_for_word_embeddings}
 
-Consider a corpus with vocabulary size \( V = 10,000 \) words. Our goal is to learn a dense vector representation (embedding) for each word in this vocabulary. We denote the dimensionality of the embedding space as \( d = 300 \).
+For a concrete setup, take a corpus with vocabulary size \( V = 10{,}000 \) and embedding dimension \( d = 300 \). The goal is to learn one dense vector per vocabulary item.
 
 \paragraph{Input Representation}
 
@@ -239,7 +241,7 @@ During training, the weights \(\mathbf{W}\) and \(\mathbf{W}_{\text{out}}\) are 
 \subsection{Context window and sequential input}
 \label{sec:nlp_context_window_and_sequential_input}
 
-Suppose we use a context window of size 4 words surrounding the target word. For example, to predict the word ``automatic'' in the phrase ``to buy an automatic car,'' the context words are
+Reusing the same toy phrase, let the context window size be 4 around the target token. To predict ``automatic'' in ``to buy an automatic car,'' the context words are
 \[
 \text{to}, \quad \text{buy}, \quad \text{an}, \quad \text{car}.
 \]
@@ -266,17 +268,17 @@ The matrix \(\mathbf{W}\) can be interpreted as a lookup table: the \(i\)-th row
 
 % Chapter 13 (continued)
 
-\subsection{Word Embeddings: Continuous Bag of Words (CBOW) and skip-gram models}
+\subsection{Word2Vec objectives in detail}
 \label{sec:nlp_word_embeddings_continuous_bag_of_words_cbow_and_skip_gram_models}
 
-Recall from the previous discussion that word embeddings are dense vector representations of words learned from large corpora, capturing semantic and syntactic properties. Two foundational models for learning such embeddings are the Continuous Bag of Words (CBOW) and skip-gram models, both introduced in the Word2Vec framework.
+With notation fixed, we now write the two Word2Vec objectives in full form: Continuous Bag of Words (CBOW) and skip-gram.
 
-\subsubsection{Continuous Bag of Words (CBOW)}
+\subsubsection{CBOW objective (detailed form)}
 \label{sec:nlp_continuous_bag_of_words_cbow_sub_2}
 
-In CBOW, the objective is to predict a target word given its surrounding context words. Formally, given a sequence of words \( w_1, w_2, \ldots, w_T \), and a context window of size \( c \), the model predicts the word \( w_t \) based on the context words \( \{ w_{t-c}, \ldots, w_{t-1}, w_{t+1}, \ldots, w_{t+c} \} \).
+In the detailed CBOW form, the model predicts center token \(w_t\) from its window context. For a sequence \( w_1, w_2, \ldots, w_T \) and half-window size \( c \), the context is \( \{ w_{t-c}, \ldots, w_{t-1}, w_{t+1}, \ldots, w_{t+c} \} \).
 
-The input to the model is a one-hot encoded vector representing the context words. Since each word is represented as a one-hot vector of dimension \( V \) (the vocabulary size), the input is a sparse vector with a single 1 and zeros elsewhere. The embedding matrix \( \mathbf{W} \in \mathbb{R}^{V \times d} \) maps each word to a \( d \)-dimensional dense vector (embedding).
+Each context token is encoded as a one-hot row in \(\mathbb{R}^{1\times V}\), then mapped through \(\mathbf{W}\in\mathbb{R}^{V\times d}\) to its dense embedding.
 
 The CBOW model computes the average of the embeddings of the context words using an \emph{input} embedding matrix \(\mathbf{W}\) and predicts with a separate \emph{output} embedding matrix \(\mathbf{W}_{\text{out}}\):
 
@@ -297,14 +299,14 @@ P(w_t \mid \text{context}) = \frac{\exp(\mathbf{h}\,\mathbf{u}_{w_t})}{\sum_{w=1
 where \( \mathbf{u}_w \) is the output vector corresponding to word \( w \).
 It is useful to think of the set of output vectors as the \emph{columns} of a second matrix \(\mathbf{W}_{\text{out}} \in \mathbb{R}^{d \times V}\); although \(\mathbf{W}_{\text{out}}\) often starts as a copy of \(\mathbf{W}^\top\), the two sets of embeddings are optimized independently during training. Many modern implementations optionally \emph{tie} these matrices so that \(\mathbf{W}_{\text{out}}=\mathbf{W}^\top\), reducing parameters and encouraging symmetry between input and output spaces.
 
-Training proceeds by maximizing the log-likelihood over the corpus, adjusting the embedding matrix \( \mathbf{W} \) and output vectors \( \mathbf{u}_w \) to improve prediction accuracy. After sufficient training, the rows of \( \mathbf{W} \) serve as the learned word embeddings.
+Training maximizes corpus log-likelihood, updating both \(\mathbf{W}\) and output vectors \(\mathbf{u}_w\). The rows of \(\mathbf{W}\) are then used as the learned embeddings.
 
-\paragraph{Key Insight:} Because the input vectors are one-hot encoded, the multiplication \( \mathbf{x}_{t+j}\mathbf{W} \) simply selects the \emph{row} of $\mathbf{W}$ corresponding to the context word \( w_{t+j} \). This makes the embedding matrix \( \mathbf{W} \) a lookup table of word features.
+\paragraph{Key Insight:} Multiplying one-hot input \( \mathbf{x}_{t+j} \) by \(\mathbf{W}\) performs a row lookup. The embedding matrix therefore behaves as a trainable feature table.
 
-\subsubsection{skip-gram model}
+\subsubsection{skip-gram objective (detailed form)}
 \label{sec:nlp_skip_gram_model_sub}
 
-The skip-gram model reverses the CBOW objective: it uses the current word to predict its surrounding context words. Given a center word \( w_t \), the model aims to maximize the probability of each context word \( w_{t+j} \) within a window \( c \):
+The detailed skip-gram form reverses CBOW: use center word \(w_t\) to predict each context token \(w_{t+j}\) in window \(c\):
 
 \begin{align}
 \prod_{\substack{-c \leq j \leq c \\ j \neq 0}} P(w_{t+j} \mid w_t)
@@ -329,7 +331,7 @@ where \( \mathbf{u}_w \) are the output vectors as before.
 
 \paragraph{Training Objective:} Maximize the log-likelihood of the context words given the center word over the entire corpus. Compare to the RNN language-model objective in \Cref{chap:rnn}: both predict nearby tokens, but here the context is a fixed sliding window rather than a learned recurrent state.
 
-\paragraph{Interpretation:} The skip-gram model learns embeddings such that words appearing in similar contexts have similar vector representations.
+\paragraph{Interpretation:} Skip-gram pushes words with similar neighborhoods toward similar embeddings.
 
 \subsubsection{Computational Challenges: Softmax Normalization}
 \label{sec:nlp_computational_challenges_softmax_normalization_sub}
@@ -470,7 +472,7 @@ Recall that our goal is to obtain a global vector representation for words, capt
     \centering
     \includegraphics[width=0.82\linewidth]{lec14_analogy_geometry}
     % Avoid inline math in captions; it wraps poorly in some EPUB renderers.
-    \caption{Analogy geometry in embedding space. The classic offset ``v(king) - v(man) + v(woman) approx v(queen)'' forms a parallelogram; a similar gender direction also moves ``doctor'' toward ``nurse.'' Visualizing these displacement vectors (solid vs. dashed) makes the shared relational direction explicit. Points are shown after a 2D PCA projection, so directions are approximate rather than exact. Use this when sanity-checking whether embedding offsets capture a consistent relation (and when they expose bias directions).}
+    \caption{Analogy geometry in embedding space. The offset ``v(king) - v(man) + v(woman) approx v(queen)'' forms a parallelogram; a similar gender direction shifts ``doctor'' toward ``nurse.'' Solid and dashed vectors highlight the shared relational direction. Points are shown after 2D PCA, so directions are approximate. Use it when checking whether embedding offsets encode consistent relations and reveal bias directions.}
     \label{fig:lec8-embedding-clusters}
 \end{figure}
 
@@ -667,7 +669,7 @@ Static embeddings assign a single vector per word type, so polysemous words such
 
 \subsection*{Wrap-up}
 
-In this chapter, we concluded the derivation of word embedding models based on co-occurrence statistics, emphasizing the role of bias terms and optimization strategies such as singular value decomposition. We highlighted the importance of understanding and mitigating bias in natural language processing, as embeddings inherently reflect the cultural and societal context of their training data. These considerations are crucial for developing fair and effective language models.
+This chapter has developed word-embedding models from co-occurrence statistics, including the role of bias terms and optimization tools such as singular value decomposition. It also emphasized a practical constraint: embeddings inherit social and cultural structure from training corpora, so bias diagnosis and mitigation are part of model quality, not an optional add-on.
 
 \begin{tcolorbox}[summarybox,title={Key takeaways}]
 \begin{itemize}
@@ -704,7 +706,7 @@ In this chapter, we concluded the derivation of word embedding models based on c
 \end{tcolorbox}
 
 \medskip
-\paragraph{Where we head next.} \Cref{chap:transformers} scales the sequence toolkit by replacing recurrence with attention, so context can be accessed directly rather than compressed into a single state. The same many\hyp{}to\hyp{}one decisions you saw with RNNs (\Cref{sec:rnn_sentiment_worked_example}) can be built on top of attention-based encoders as well; the difference is how the model forms and queries context. Keep the same audit instincts as you read: tokenization choices, masking correctness, and evaluation protocol matter as much as architecture. After that, \Cref{chap:softcomp} pivots to soft computing (fuzzy logic and evolutionary ideas) as an alternative paradigm for reasoning under uncertainty.
+\paragraph{Where we head next.} \Cref{chap:transformers} keeps the same token geometry but changes context formation: attention replaces recurrent state, so dependencies are queried directly. The same many\hyp{}to\hyp{}one decisions from \Cref{sec:rnn_sentiment_worked_example} remain, but computational path and scaling behavior change. Keep the same audit lens as you read: tokenization choices, masking correctness, and evaluation protocol matter as much as architecture. After that, \Cref{chap:softcomp} pivots to soft computing (fuzzy logic and evolutionary ideas) as an alternative paradigm for reasoning under uncertainty.
 
 \paragraph{References.} Full citations for works mentioned in this chapter appear in the book-wide bibliography.
 \nocite{Mikolov2013,Pennington2014,LevyGoldberg2014,Devlin2019}
