@@ -16,9 +16,8 @@ Building on \Cref{chap:fuzzyrelations}, where transfer operators (projection, co
 Local linguistic rules become a global behavior only after you commit to concrete operators (t\hyp{}norm, implication, aggregation, defuzzifier) and then sanity-check the resulting surface.
 \end{tcolorbox}
 
-\begin{tcolorbox}[summarybox,title={Running example checkpoint}]
+\paragraph{Running example checkpoint.}
 For the thermostat, each rule combines the temperature error (\textit{Cold}, \textit{Slightly Warm}, \ldots) and rate-of-change to set heater power. As you work through antecedent aggregation, implication, and defuzzification, keep one concrete rule base (e.g., ``IF error is Cold AND rate is Falling THEN heater power is High'') in mind; the formulas below map directly onto that setup.
-\end{tcolorbox}
 
 \subsection{Context and Motivation}
 \label{sec:fuzzyinference_context_and_motivation}

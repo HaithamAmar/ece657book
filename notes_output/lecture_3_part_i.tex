@@ -1,5 +1,8 @@
 % Chapter 5
 \section{Introduction to Neural Networks}\label{chap:perceptron}
+
+\Cref{chap:logistic} established linear and logistic models as strong baselines, but their decision boundaries are linear in the original feature space. We now shift from the statistical lens to a biological one: neurons as simple units whose collective behavior yields nonlinear decision boundaries. This chapter introduces neuron models, perceptrons, activation functions, and the first learning rules (perceptron and Adaline). Figure \Cref{fig:roadmap} marks this as the start of the neural strand.
+
 \begin{tcolorbox}[summarybox,title={Learning Outcomes}]
 After this chapter, you should be able to:
 \begin{itemize}
@@ -8,8 +11,6 @@ After this chapter, you should be able to:
   \item Identify common pitfalls (saturation, poor initialization) and basic remedies.
 \end{itemize}
 \end{tcolorbox}
-
-\Cref{chap:logistic} established linear and logistic models as strong baselines, but their decision boundaries are linear in the original feature space. We now shift from the statistical lens to a biological one: neurons as simple units whose collective behavior yields nonlinear decision boundaries. This chapter introduces neuron models, perceptrons, activation functions, and the first learning rules (perceptron and Adaline). Figure \Cref{fig:roadmap} marks this as the start of the neural strand.
 
 \begin{tcolorbox}[summarybox,title={Design motif}]
 Biology as engineering abstraction: start with simple units, make the update rule explicit, and use geometry to build intuition before the algebra gets deep.

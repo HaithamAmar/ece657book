@@ -26,6 +26,14 @@ BOOK_APPENDICES = ROOT / "book_appendices.tex"
 EBOOK_ENTRYPOINT = ROOT / "ece657_ebook.tex"
 QC_DIR = ROOT / "artifacts" / "qc"
 
+OPENING_IGNORE_LINE_PREFIXES = (
+    "\\graphicspath",
+    "\\markboth",
+    "\\label",
+    "\\setcounter",
+    "\\hyphenation",
+)
+
 
 INPUT_RE = re.compile(r"\\input\{([^}]+)\}")
 
@@ -113,6 +121,92 @@ def _first_label_near_section(tex: str, max_lines: int = 40) -> str | None:
     return m.group(1) if m else None
 
 
+def _approx_word_count(tex: str) -> int:
+    """
+    Heuristic word-count for LaTeX snippets (good enough for detecting tiny sections).
+    Keeps argument text while dropping commands and most markup.
+    """
+    s = _strip_comments(tex)
+    s = re.sub(r"\\begin\{[^}]+\}", " ", s)
+    s = re.sub(r"\\end\{[^}]+\}", " ", s)
+    s = s.replace("\\(", " ").replace("\\)", " ").replace("\\[", " ").replace("\\]", " ")
+    s = s.replace("$", " ")
+    # Drop command names but keep their arguments as raw text.
+    s = re.sub(r"\\[a-zA-Z@]+\*?(?:\[[^\]]*\])?", " ", s)
+    s = re.sub(r"[{}]", " ", s)
+    words = re.findall(r"[A-Za-z0-9]+", s)
+    return len(words)
+
+
+def _opening_first_significant_is_box(tex: str) -> bool | None:
+    """
+    Return True if the first non-trivial line after \\section is a tcolorbox begin.
+    Return None if no \\section found.
+    """
+    tex_no_comments = _strip_comments(tex)
+    section_m = SECTION_RE.search(tex_no_comments)
+    if not section_m:
+        return None
+    after = tex_no_comments[section_m.end() :].splitlines()
+    for raw in after:
+        line = raw.strip()
+        if not line:
+            continue
+        if any(line.startswith(pfx) for pfx in OPENING_IGNORE_LINE_PREFIXES):
+            continue
+        # Common pattern: \noindent <prose>
+        if line.startswith("\\noindent"):
+            remainder = line[len("\\noindent") :].strip()
+            if not remainder:
+                continue
+            line = remainder
+        return line.startswith("\\begin{tcolorbox}")
+    return False
+
+
+def _opening_prose_words_before_first_box(tex: str, max_lines: int = 80) -> int:
+    """
+    Count approximate prose words before the first tcolorbox begin near the chapter start.
+    This is used to ensure chapters don't open with a box-dump.
+    """
+    tex_no_comments = _strip_comments(tex)
+    section_m = SECTION_RE.search(tex_no_comments)
+    if not section_m:
+        return 0
+    after_lines = tex_no_comments[section_m.end() :].splitlines()[:max_lines]
+    kept: list[str] = []
+    for raw in after_lines:
+        line = raw.rstrip()
+        if "\\begin{tcolorbox}" in line:
+            break
+        stripped = line.strip()
+        if not stripped:
+            continue
+        if any(stripped.startswith(pfx) for pfx in OPENING_IGNORE_LINE_PREFIXES):
+            continue
+        # Strip \noindent but keep the prose.
+        if stripped.startswith("\\noindent"):
+            stripped = stripped[len("\\noindent") :].strip()
+        # If it's still a command-only line, ignore.
+        if stripped.startswith("\\") and stripped.count(" ") == 0:
+            continue
+        kept.append(stripped)
+    return _approx_word_count("\n".join(kept))
+
+
+def _subsection_word_counts(tex: str) -> list[tuple[str, int]]:
+    tex_no_comments = _strip_comments(tex)
+    subs = list(SUBSECTION_RE.finditer(tex_no_comments))
+    counts: list[tuple[str, int]] = []
+    for i, m in enumerate(subs):
+        title = m.group(1).strip()
+        start = m.end()
+        end = subs[i + 1].start() if i + 1 < len(subs) else len(tex_no_comments)
+        payload = tex_no_comments[start:end]
+        counts.append((title, _approx_word_count(payload)))
+    return counts
+
+
 @dataclass(frozen=True)
 class UnitAudit:
     index: int
@@ -130,10 +224,13 @@ class UnitAudit:
     opening_tcolorbox_titles: tuple[str, ...]
     opening_tcolorbox_count: int
     first_subsection_line: int | None
+    opening_first_significant_is_box: bool | None
+    opening_prose_words_before_first_box: int
     learning_outcomes_first: bool
     has_chapter_map_box: bool
     has_outline_subsection: bool
     duplicate_subsection_titles: tuple[str, ...]
+    short_subsections: tuple[str, ...]
     schematic_caption_count: int
     plain_chapter_num_count: int
     nlp_term_count: int
@@ -159,6 +256,9 @@ def audit_unit(index: int, kind: str, relpath: str, tex: str) -> UnitAudit:
     tcb_titles = tuple(_scan_tcolorbox_titles(tex_no_comments))
 
     first_subsection_line = _line_number_of_first_regex(tex_no_comments, SUBSECTION_RE)
+    opening_first_significant_is_box = _opening_first_significant_is_box(tex_no_comments)
+    opening_prose_words_before_first_box = _opening_prose_words_before_first_box(tex_no_comments)
+
     opening_titles: list[str] = []
     learning_outcomes_first = False
     if first_subsection_line is not None:
@@ -179,6 +279,12 @@ def audit_unit(index: int, kind: str, relpath: str, tex: str) -> UnitAudit:
         sub_counts[s] = sub_counts.get(s, 0) + 1
     dup_subs = tuple(sorted([s for s, c in sub_counts.items() if c > 1]))
 
+    # Short subsections: flag likely "micro" sections that interrupt flow.
+    short: list[str] = []
+    for title, wc in _subsection_word_counts(tex_no_comments):
+        if wc > 0 and wc < 90:
+            short.append(f"{title} ({wc}w)")
+
     return UnitAudit(
         index=index,
         kind=kind,
@@ -195,10 +301,13 @@ def audit_unit(index: int, kind: str, relpath: str, tex: str) -> UnitAudit:
         opening_tcolorbox_titles=tuple(t for t in opening_titles if t),
         opening_tcolorbox_count=len(opening_titles),
         first_subsection_line=first_subsection_line,
+        opening_first_significant_is_box=opening_first_significant_is_box,
+        opening_prose_words_before_first_box=opening_prose_words_before_first_box,
         learning_outcomes_first=learning_outcomes_first,
         has_chapter_map_box=has_chapter_map_box,
         has_outline_subsection=has_outline_subsection,
         duplicate_subsection_titles=dup_subs,
+        short_subsections=tuple(short[:12]),
         schematic_caption_count=len(CAPTION_SCHEMATIC_RE.findall(tex_no_comments)),
         plain_chapter_num_count=len(PLAIN_CHAPTER_NUM_RE.findall(tex_no_comments)),
         nlp_term_count=len(NLP_TERM_RE.findall(tex_no_comments)),
@@ -239,6 +348,13 @@ def _score_chapter(u: UnitAudit) -> tuple[int, list[str]]:
         score -= 1
         reasons.append("Slightly box-heavy opening before first subsection.")
 
+    if u.opening_first_significant_is_box:
+        score -= 1
+        reasons.append("Chapter opens immediately with a box (add narrative bridge first).")
+    elif u.opening_prose_words_before_first_box < 35:
+        score -= 1
+        reasons.append("Very short narrative bridge before first box.")
+
     if not u.learning_outcomes_first:
         score -= 1
         reasons.append("Learning Outcomes is not the first titled opening box.")
@@ -257,6 +373,10 @@ def _score_chapter(u: UnitAudit) -> tuple[int, list[str]]:
     if u.roadmap_term_count >= 3:
         score -= 1
         reasons.append('Repeated "roadmap" phrasing inside chapter.')
+
+    if u.short_subsections:
+        score -= 1
+        reasons.append("Very short subsections found (likely flow interruptions).")
 
     if score < 0:
         score = 0
@@ -312,7 +432,9 @@ def render_report(chapters: Iterable[UnitAudit], appendices: Iterable[UnitAudit]
                 "- Opening structure:"
                 f" tcolorbox-first180={u.opening_tcolorbox_count},"
                 f" first-subsection-line={u.first_subsection_line},"
-                f" learning-outcomes-first={u.learning_outcomes_first}"
+                f" learning-outcomes-first={u.learning_outcomes_first},"
+                f" prose-words-before-first-box={u.opening_prose_words_before_first_box},"
+                f" opens-with-box={u.opening_first_significant_is_box}"
             )
         if u.opening_tcolorbox_titles:
             preview = ", ".join(u.opening_tcolorbox_titles[:8])
@@ -332,6 +454,11 @@ def render_report(chapters: Iterable[UnitAudit], appendices: Iterable[UnitAudit]
                 lines.append(f"  - {t}")
             if len(u.duplicate_subsection_titles) > 12:
                 lines.append(f"  - ... ({len(u.duplicate_subsection_titles) - 12} more)")
+
+        if u.short_subsections and u.kind == "chapter":
+            lines.append("- Very short subsections (<90w):")
+            for t in u.short_subsections:
+                lines.append(f"  - {t}")
 
         if u.has_chapter_map_box or u.has_outline_subsection:
             lines.append(

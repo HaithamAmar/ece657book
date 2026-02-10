@@ -65,6 +65,34 @@ Use this file to record editorial feedback as you read the **PDF** and **EPUBs**
 
 ## Production/pipeline fix log (keep this short and factual)
 
+### [2026-02-10] Item: Chapter openings (avoid box-dump; narrative bridge first) + running-example de-boxing (Parts II-III) — DONE
+
+- **Severity:** major (reader flow + consistency)
+- **Surface:** PDF + Apple EPUB + Kindle EPUB
+- **What changed (source):**
+  - `notes_output/lecture_1_intro.tex`
+    - Inserted narrative bridge before the first callout so the book does not open with a box.
+  - `notes_output/lecture_3_part_i.tex`
+    - Same treatment for Chapter 5: narrative bridge now precedes Learning Outcomes.
+  - `notes_output/lecture_8_part_i.tex`
+    - Chapter 13 no longer opens with Learning Outcomes; the bridge from RNNs is now the first prose.
+    - Converted early "Chapter map" and "Notation handoff" callouts into normal prose paragraphs to avoid a box-heavy front section.
+  - `notes_output/lecture_transformers.tex`
+    - Chapter 14 now opens with a narrative bridge, then Learning Outcomes and Design motif.
+    - Moved `Risk & audit` to after the first subsection starts; moved the attention author's note to the first attention subsection so it lands next to the math it comments on.
+  - `notes_output/lecture_8_part_ii.tex`
+  - `notes_output/lecture_9.tex`
+  - `notes_output/lecture_10_part_i.tex`
+  - `notes_output/lecture_10_part_ii.tex`
+    - Converted the early "Running example checkpoint" boxes into plain prose paragraphs so these chapters start with at most two scaffolding boxes (Learning Outcomes, Design motif).
+- **What changed (QC tooling):**
+  - `notes_output/scripts/advanced_editorial_audit.py`
+    - Added new opening-flow checks (`opens-with-box`, `prose-words-before-first-box`) and a heuristic short-subsection detector (<90 words).
+- **Evidence / artifacts:**
+  - Before: `notes_output/artifacts/qc/advanced_editorial_audit_20260210_081337.md`
+  - After: `notes_output/artifacts/qc/advanced_editorial_audit_20260210_082008.md`
+- **Regression check:** `bash notes_output/scripts/run_production_checks.sh` (must stay green).
+
 ### [2026-02-09] Item: Minimal editorial tightening pass (Chapters 13-14 flow coherence) — DONE
 
 - **Severity:** polish (cohesion/readability)
@@ -218,6 +246,44 @@ Use this file to record editorial feedback as you read the **PDF** and **EPUBs**
   - Transformers chapter restructuring is deferred; only continuity references are maintained.
 - **Next steps (proposed order, post-WP1/WP2/WP4):**
   1. **TOC cleanliness:** remove hard line breaks in chapter titles (notably Chapter 9) so EPUB TOC entries render as single lines.
+
+## Editorial standards (structure + flow)
+
+These standards are meant to be enforceable (by habit and by audits). When in doubt, prefer reader flow over packaging convenience.
+
+### Chapter opening ritual
+
+- Start with **prose first**: 2 to 4 paragraphs bridging from the previous chapter or part.
+- The **first box encountered** should be `Learning Outcomes`, then `Design motif`.
+- Avoid a box-dump: target **<= 2 boxes** before the first substantive subsection begins.
+- Any heavier callouts (`Risk & audit`, `Notation handoff`, chapter maps, long "how to read" guides) should appear **after** the reader has met the main idea and can use the box immediately.
+
+### Headings and linearity
+
+- Prefer fewer, higher-signal subsections over many micro-subsections.
+- Avoid subsections with < ~90 words of payload; demote to `\\paragraph{...}` or merge with the adjacent subsection.
+- Avoid duplicate or near-duplicate subsection titles inside the same chapter.
+- Avoid sudden tangents: detours should be labeled by placement and framing (a short bridge sentence), not by meta-instruction headings.
+
+### Boxes (callouts)
+
+- Boxes should be actionable at point-of-use; do not aggregate "reference" boxes at the top of a chapter.
+- Do not stack multiple heavy boxes back-to-back without intervening prose (1 to 2 sentences is enough).
+- Use `Risk & audit` sparingly and never as the first screen of a chapter.
+
+### Vocabulary consistency
+
+- Keep "roadmap" language mostly in Chapter 1 and part dividers; chapters should reference earlier material without repeating the same navigation phrasing.
+
+## Quality snapshot (2026-02-10)
+
+This is a structural/editorial assessment based on the latest audits plus spot-checking the chapter openings.
+
+- **Chapter openings:** now consistent across all chapters (no chapter opens with a box; the first box is Learning Outcomes). See `notes_output/artifacts/qc/advanced_editorial_audit_20260210_082008.md`.
+- **Box density:** openings now top out at two boxes; heavier callouts are pushed later into the chapter where they are actionable.
+- **Navigation redundancy (remaining):** Chapter 12 still contains both a chapter-map box and an "Outline of this chapter" subsection (audit flags it as redundant). Consider keeping only one.
+- **Micro-subsections (remaining):** multiple chapters contain very short subsections (<90 words), which tends to read as "outline-y" rather than narrative. The audit now lists these per chapter to drive a targeted merge/demotion pass.
+
   2. **Risk \& audit parity:** add a `Risk \& audit` box to Chapter 13 (NLP) to match Chapters 3/4/11 and keep the ERM+audit spine visible into embeddings/bias/deployment.
   3. **Part II coherence (plan first, then execute):** write a concrete rearrangement plan for Chapters 11–12 (CNN/RNN) that moves from “basic → deeper → deepest,” without deleting content (only relocate/merge), then implement with regression checks.
   4. **Fragmentation reduction:** review Chapters 16 and 19 for micro-heading overload; consolidate where it improves narrative flow without losing rigor.

@@ -2,6 +2,10 @@
 \section{Neural Network Applications in Natural Language Processing}\label{chap:nlp}
 \graphicspath{{assets/lec8/}{assets/lec14/}}
 
+\Cref{chap:rnn} framed language as prediction under context: the model must assign probability to the next token from a compressed state. That framing makes the bottleneck obvious. Tokens are discrete identifiers, while the model is a continuous function: if the input geometry is unhelpful, the network cannot generalize systematically from one string to another.
+
+This chapter supplies that geometry. We build word embeddings and the objectives that train them, then show how to sanity-check the resulting space (neighbors, analogies, and simple audits). Those same representation primitives become inputs to both recurrent and attention-based models; \Cref{chap:transformers} reuses them when recurrence is replaced by attention.
+
 \begin{tcolorbox}[summarybox,title={Learning Outcomes}]
 \begin{itemize}
     \item Describe distributional semantics and the motivation for dense word embeddings.
@@ -9,10 +13,6 @@
     \item Connect embedding quality to downstream architectures (RNNs, Transformers) and fairness considerations.
 \end{itemize}
 \end{tcolorbox}
-
-\Cref{chap:rnn} framed language as prediction under context: the model must assign probability to the next token from a compressed state. That framing makes the bottleneck obvious. Tokens are discrete identifiers, while the model is a continuous function: if the input geometry is unhelpful, the network cannot generalize systematically from one string to another.
-
-This chapter supplies that geometry. We build word embeddings and the objectives that train them, then show how to sanity-check the resulting space (neighbors, analogies, and simple audits). Those same representation primitives become inputs to both recurrent and attention-based models; \Cref{chap:transformers} reuses them when recurrence is replaced by attention.
 
 \begin{tcolorbox}[summarybox,title={Design motif}]
 Representation learning as a contract between data and objective---when you train on co-occurrence, you get both useful structure (analogies, clusters) and the biases present in the corpus.
@@ -29,16 +29,14 @@ A classic example illustrating the power of such representations is the analogy:
 \]
 This demonstrates that vector arithmetic on word embeddings can capture meaningful relationships between words. The goal is to find a vector space embedding where semantic similarity corresponds to geometric closeness.
 
-\begin{tcolorbox}[summarybox,title={Chapter map (core vs.\ detours)}]
+\paragraph{How this chapter is organized.}
 \begin{itemize}
     \item \textbf{Core path:} distributional hypothesis $\rightarrow$ Word2Vec (CBOW/skip-gram) objectives $\rightarrow$ negative sampling $\rightarrow$ how to evaluate embeddings (analogy/neighbors) $\rightarrow$ how embeddings plug into RNNs/attention models.
     \item \textbf{Optional detours:} deeper objective derivations, historical notes, and the deployment/fairness discussion (important when embeddings are used in decisions rather than as a pure feature extractor).
 \end{itemize}
-\end{tcolorbox}
 
-\begin{tcolorbox}[summarybox,title={Notation handoff}]
+\paragraph{Notation.}
 We use \(V\) for vocabulary size, \(d\) for embedding dimension, \(\mathbf{x}_t\) for one-hot token indicators, and \(\mathbf{e}_t\) for learned embedding vectors. When symbols collide with earlier chapters (e.g., \(d\) as data dimension vs.\ embedding size), the local meaning is authoritative; \Cref{app:notation_collisions} gives the global index.
-\end{tcolorbox}
 
 \subsection{Problem Statement}
 \label{sec:nlp_problem_statement}

@@ -1,6 +1,8 @@
 % Chapter 14
 \section{Transformers: Attention-Based Sequence Modeling}\label{chap:transformers}
 
+\Cref{chap:rnn} made the sequence problem explicit: stateful computation plus gradients that must flow across time. \Cref{chap:nlp} then supplied the representation layer that makes those sequence objectives practical. This chapter keeps that representation layer but removes recurrence, replacing it with attention so information can move globally within a layer.
+
 \begin{tcolorbox}[summarybox,title={Learning Outcomes}]
 After this chapter, you should be able to:
 \begin{itemize}
@@ -12,11 +14,13 @@ After this chapter, you should be able to:
 \end{itemize}
 \end{tcolorbox}
 
-\Cref{chap:rnn} made the sequence problem explicit: stateful computation plus gradients that must flow across time. \Cref{chap:nlp} then supplied the representation layer that makes those sequence objectives practical. This chapter keeps that representation layer but removes recurrence, replacing it with attention so information can move globally within a layer. Figure \Cref{fig:roadmap} shows this as the modern sequence branch.
-
 \begin{tcolorbox}[summarybox,title={Design motif}]
 Control information flow with structure (masks, normalization, residual paths) so optimization remains stable while context windows grow.
 \end{tcolorbox}
+
+\subsection{Why transformers after RNNs?}
+\label{sec:transformers_why_transformers_after_rnns}
+The RNN chapter (\Cref{chap:rnn}) closed with recurrent models that process tokens sequentially: information must travel through time steps, training cannot fully parallelize across positions, and gradients can still struggle on long contexts even with gating. The embeddings chapter (\Cref{chap:nlp}) addressed a different bottleneck---how tokens become vectors so many\hyp{}to\hyp{}one decisions (e.g., sentiment classification) can generalize across similar words. Transformers replace recurrence with attention so every position can condition on any other in a single layer, enabling parallel hardware use and more direct long-range interactions \citep{Vaswani2017}.
 
 \begin{tcolorbox}[summarybox,title={Risk \& audit}]
 \begin{itemize}
@@ -28,16 +32,12 @@ Control information flow with structure (masks, normalization, residual paths) s
 \end{itemize}
 \end{tcolorbox}
 
-\begin{tcolorbox}[summarybox,title={Author's note: attention allocates focus per token}]
-It is helpful to view attention as each token asking ``who else helps me understand my role,'' with masks and layer norms enforcing the rules of that dialogue. The scaled dot-product equations that follow merely quantify that per-token focus allocation.
-\end{tcolorbox}
-
-\subsection{Why transformers after RNNs?}
-\label{sec:transformers_why_transformers_after_rnns}
-The RNN chapter (\Cref{chap:rnn}) closed with recurrent models that process tokens sequentially: information must travel through time steps, training cannot fully parallelize across positions, and gradients can still struggle on long contexts even with gating. The embeddings chapter (\Cref{chap:nlp}) addressed a different bottleneck---how tokens become vectors so many\hyp{}to\hyp{}one decisions (e.g., sentiment classification) can generalize across similar words. Transformers replace recurrence with attention so every position can condition on any other in a single layer, enabling parallel hardware use and more direct long-range interactions \citep{Vaswani2017}.
-
 \subsection{Scaled Dot-Product Attention}
 \label{sec:transformers_scaled_dot_product_attention}
+\begin{tcolorbox}[summarybox,title={Author's note: attention allocates focus per token}]
+It is helpful to view attention as each token asking ``who else helps me understand my role,'' with masks and layer norms enforcing the rules of that dialogue. The scaled dot-product equations that follow quantify that per-token focus allocation.
+\end{tcolorbox}
+
 Given query, key, value matrices \(\mathbf{Q} \in \mathbb{R}^{n_q \times d_k}\), \(\mathbf{K} \in \mathbb{R}^{n_k \times d_k}\), and \(\mathbf{V} \in \mathbb{R}^{n_k \times d_v}\), the basic attention operation is
 \begin{equation}
     \operatorname{Attn}(\mathbf{Q}, \mathbf{K}, \mathbf{V})
