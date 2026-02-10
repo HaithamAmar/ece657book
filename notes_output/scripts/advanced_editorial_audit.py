@@ -36,7 +36,8 @@ PARA_RE = re.compile(r"^\\paragraph\*?\{([^}]*)\}", re.MULTILINE)
 LABEL_RE = re.compile(r"\\label\{([^}]+)\}")
 
 TCOLORBOX_BEGIN_RE = re.compile(r"\\begin\{tcolorbox\}\[(.*?)\]", re.DOTALL)
-TCB_TITLE_RE = re.compile(r"title\\s*=\\s*\\{([^}]*)\\}")
+# tcolorbox supports both `title={...}` and `title = {...}` spellings.
+TCB_TITLE_RE = re.compile(r"title\s*(?:=\s*)?\{([^}]*)\}")
 
 CAPTION_SCHEMATIC_RE = re.compile(r"\\caption\{\s*(Schematic:)", re.IGNORECASE)
 # Plain-text numeric chapter references should be rare; prefer \\Cref{chap:...}
