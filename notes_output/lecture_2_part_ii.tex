@@ -85,8 +85,8 @@ To keep the discussion concrete, we reuse a small toy dataset in \Cref{fig:lec1_
             width=0.78\linewidth,
             height=0.5\linewidth,
             axis equal image,
-            xmin=-3.2,xmax=3.2,
-            ymin=-2.4,ymax=2.4,
+            xmin=-3.2, xmax=3.2,
+            ymin=-2.4, ymax=2.4,
             xlabel={$x_1$},
             ylabel={$x_2$},
             axis line style={gray!60},
@@ -139,11 +139,11 @@ Use \Cref{fig:lec1_dataset} as the diagnostic anchor for this section.
             width=0.9\linewidth,
             height=0.55\linewidth,
             axis equal image,
-            xmin=-3,xmax=3,
-            ymin=-2.2,ymax=2.2,
+            xmin=-3, xmax=3,
+            ymin=-2.2, ymax=2.2,
             xlabel={$x_1$},
             ylabel={$x_2$},
-            legend style={at={(0.02,0.98)},anchor=north west,draw=none,fill=white},
+            legend style={at={(0.02,0.98)}, anchor=north west, draw=none, fill=white},
             legend cell align=left,
             axis background/.style={fill=white}
         ]
@@ -267,7 +267,7 @@ The Hessian has the form \(X^\top W X\) where \(W=\mathrm{diag}(p_i(1-p_i))\succ
             title={Sigmoid},
             xlabel={logit $z$},
             ylabel={$p$},
-            xmin=-5.5,xmax=5.5,
+            xmin=-5.5, xmax=5.5,
             ymin=0, ymax=1.05,
         ]
             \addplot[cbBlue, very thick, domain=-5.5:5.5, samples=200] {1/(1+exp(-x))};
@@ -275,7 +275,7 @@ The Hessian has the form \(X^\top W X\) where \(W=\mathrm{diag}(p_i(1-p_i))\succ
             title={BCE loss},
             xlabel={logit $z$},
             ylabel={$\mathcal L$},
-            xmin=-5.5,xmax=5.5,
+            xmin=-5.5, xmax=5.5,
             ymin=0, ymax=6.2,
         ]
             \addplot[cbBlue, very thick, domain=-5.5:5.5, samples=220] {-ln(1/(1+exp(-x)))};
@@ -320,14 +320,14 @@ Unlike linear regression, logistic regression does not have a closed-form soluti
             width=0.9\linewidth,
             height=0.58\linewidth,
             axis equal image,
-            xmin=-2.6,xmax=1.4,
-            ymin=-2.2,ymax=1.2,
+            xmin=-2.6, xmax=1.4,
+            ymin=-2.2, ymax=1.2,
             xlabel={$w_1$},
             ylabel={$w_2$},
             grid=both,
             minor grid style={gray!15},
             major grid style={gray!30},
-            legend style={at={(0.97,0.03)},anchor=south east,draw=none,fill=white},
+            legend style={at={(0.97,0.03)}, anchor=south east, draw=none, fill=white},
             legend cell align=left,
             axis background/.style={fill=white}
         ]
@@ -411,9 +411,9 @@ Two common priors explain the two penalties that appear most often in practice: 
                 height=0.35\linewidth,
             xlabel={Sample size $n$},
             ylabel={Estimate},
-            xmin=0,xmax=50,
-            ymin=0.2,ymax=1.0,
-            legend style={at={(0.02,0.98)},anchor=north west},
+            xmin=0, xmax=50,
+            ymin=0.2, ymax=1.0,
+            legend style={at={(0.02,0.98)}, anchor=north west},
             axis background/.style={fill=white}
         ]
             \addplot[cbBlue, thick] table {
@@ -492,12 +492,12 @@ Use class or sample weights (e.g., inverse prevalence) inside the loss, and pick
                     width=0.6\linewidth,
                     height=0.4\linewidth,
                 view={0}{90},
-            xmin=-0.5,xmax=2.5,
-            ymin=-0.5,ymax=2.5,
+            xmin=-0.5, xmax=2.5,
+            ymin=-0.5, ymax=2.5,
             xtick={0,1,2},
             ytick={0,1,2},
-            xticklabels={Pred A,Pred B,Pred C},
-            yticklabels={True A,True B,True C},
+            xticklabels={Pred A, Pred B, Pred C},
+            yticklabels={True A, True B, True C},
                 xlabel=Predicted,
                 ylabel=True,
                 colorbar,
@@ -583,4 +583,4 @@ Threshold tuning & Choose a decision threshold based on PR curves or cost ratios
 \medskip
 \paragraph{Where we head next.} Logistic regression is still linear at the boundary. \Cref{chap:perceptron} introduces trainable neuron models, and stacking nonlinear units then removes that linear ceiling and sets up multilayer networks plus backpropagation.
 
-\paragraph{References.} Full citations for works mentioned in this chapter appear in the book-wide bibliography.
+

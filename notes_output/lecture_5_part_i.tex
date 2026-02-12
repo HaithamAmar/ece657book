@@ -50,7 +50,7 @@ The neighborhood influence is usually controlled by a kernel (often Gaussian) wh
         % Left: coarse-to-fine steps on a convex bowl
         \nextgroupplot[
             title={Coarse $\rightarrow$ fine steps on $f(x,y)$},
-            axis lines=middle, xmin=-2.2,xmax=2.2,ymin=-2.2,ymax=2.2,
+            axis lines=middle, xmin=-2.2, xmax=2.2, ymin=-2.2, ymax=2.2,
             xlabel={$x$}, ylabel={$y$}
         ]
             % Simple elliptical contours of a convex quadratic
@@ -135,8 +135,8 @@ Dimensionality reduction refers to techniques that transform high-dimensional da
             width=0.4\linewidth,
             height=0.32\linewidth,
             axis lines=middle,
-            xmin=-1,xmax=1,
-            ymin=-1,xmax=1,
+            xmin=-1, xmax=1,
+            ymin=-1, xmax=1,
             xtick={-1,0,1},
             ytick={-1,0,1},
             ticklabel style={font=\scriptsize},
@@ -281,7 +281,7 @@ where $\mathbf{r}_i$ denotes the lattice coordinates of neuron $i$ and $\sigma(t
             ymin=0, ymax=1.05,
             xlabel={Lattice distance $\|\mathbf{r}_c-\mathbf{r}_i\|_2$},
             ylabel={$h_{ci}(t)$},
-            legend style={at={(0.02,0.98)},anchor=north west,draw=none,fill=none}
+            legend style={at={(0.02,0.98)}, anchor=north west, draw=none, fill=none}
         ]
             \addplot[cbBlue,thick,domain=0:4,samples=200]{exp(-0.5*(x/1.5)^2)};
             \addlegendentry{Early $\sigma(t)$ (broad)}
@@ -540,7 +540,7 @@ Even though SOMs are inherently unsupervised, their training dynamics still bene
             ylabel={Error},
             xmin=0, xmax=1,
             ymin=0, ymax=0.9,
-            legend style={at={(0.5,1.04)},anchor=south,legend columns=3}
+            legend style={at={(0.5,1.04)}, anchor=south, legend columns=3}
         ]
             \addplot[cbBlue, thick, domain=0:1, samples=200]{0.55*exp(-4*x) + 0.08};
             \addlegendentry{Bias}
@@ -567,14 +567,14 @@ Use \Cref{fig:lec5-bias-variance} as the diagnostic anchor for this section.
             group style={group size=2 by 1, horizontal sep=2.2cm},
             width=0.42\linewidth,
             height=4.8cm,
-            xmin=-2,xmax=2,
-            ymin=-2,ymax=2,
+            xmin=-2, xmax=2,
+            ymin=-2, ymax=2,
             xtick=\empty,
             ytick=\empty,
             xlabel={$w_1$},
             ylabel={$w_2$},
-            xlabel style={at={(axis description cs:0.5,-0.08)},anchor=north},
-            ylabel style={at={(axis description cs:-0.06,0.5)},anchor=south},
+            xlabel style={at={(axis description cs:0.5,-0.08)}, anchor=north},
+            ylabel style={at={(axis description cs:-0.06,0.5)}, anchor=south},
             title style={yshift=0.2em},
             view={35}{25},
             samples=35,
@@ -666,7 +666,7 @@ Most modern SOM libraries expose both modes, so choose the update rule that matc
             ylabel={Error},
             xmin=0, xmax=60,
             ymin=0, ymax=1,
-            legend style={at={(0.5,1.03)},anchor=south,legend columns=2}
+            legend style={at={(0.5,1.03)}, anchor=south, legend columns=2}
         ]
             \addplot[cbBlue, thick, smooth] table {
                 epoch quant
@@ -772,7 +772,7 @@ The geometric effect of these limitations is easiest to see in \Cref{fig:lec5-so
             ]
                 \addplot3[surf,shader=flat,point meta=rawz,
                     domain=0:1, y domain=0:1, samples=45, samples y=45]
-                    {somindex(x,y)};
+                    {somindex(x, y)};
                 \addplot+[only marks, mark=*, mark size=1.8pt, color=cbBlue] coordinates {(0.2,0.2)};
                 \addplot+[only marks, mark=*, mark size=1.8pt, color=cbOrange] coordinates {(0.8,0.25)};
                 \addplot+[only marks, mark=*, mark size=1.8pt, color=cbGreen] coordinates {(0.28,0.78)};
@@ -790,7 +790,7 @@ The geometric effect of these limitations is easiest to see in \Cref{fig:lec5-so
             ]
                 \addplot3[surf,shader=flat,point meta=rawz,
                     domain=0:1, y domain=0:1, samples=45, samples y=45]
-                    {somsoftpeak(x,y)};
+                    {somsoftpeak(x, y)};
                 \addplot+[only marks, mark=*, mark size=1.8pt, color=black, fill=white] coordinates {(0.2,0.2)(0.8,0.25)(0.28,0.78)(0.78,0.78)};
                 \node[font=\scriptsize,anchor=south east,fill=white,inner sep=1pt] at (axis cs:0.98,0.05){$\sigma(t)\ \text{small}$};
             \end{groupplot}
@@ -910,8 +910,8 @@ The neighborhood size typically shrinks over time during training, starting larg
                         width=0.30\linewidth,
                         height=0.30\linewidth,
                         view={0}{90},
-                        xmin=-0.5,xmax=4.5,
-                        ymin=-0.5,ymax=4.5,
+                        xmin=-0.5, xmax=4.5,
+                        ymin=-0.5, ymax=4.5,
                         xtick=\empty, ytick=\empty,
                         colormap/viridis,
                         point meta min=0,
@@ -1269,4 +1269,4 @@ Tracking both metrics reveals whether the neighborhood decay is too slow (over-s
 \medskip
 \paragraph{Where we head next.} \Cref{chap:hopfield} extends the unsupervised thread with energy-based associative memory, complementing SOM topology learning with retrieval dynamics that foreshadow later attention-style mechanisms.
 
-\paragraph{References.} Full citations for works mentioned in this chapter appear in the book-wide bibliography.
+

@@ -281,7 +281,7 @@ For discrete universes the extension principle costs \(O(|X|)\) per \(y\) (or \(
             grid=both,
             minor grid style={gray!15},
             major grid style={gray!30},
-            legend style={at={(0.03,0.97)},anchor=north west}
+            legend style={at={(0.03,0.97)}, anchor=north west}
         ]
             % Triangular fuzzy number on X
             \addplot[cbBlue,thick,domain=-2:0]{0};
@@ -303,7 +303,7 @@ For discrete universes the extension principle costs \(O(|X|)\) per \(y\) (or \(
             grid=both,
             minor grid style={gray!15},
             major grid style={gray!30},
-            legend style={at={(0.97,0.97)},anchor=north east}
+            legend style={at={(0.97,0.97)}, anchor=north east}
         ]
             % Image of triangle under x^2
             \addplot[cbBlue,thick,domain=0:1]{1 - sqrt(x)};
@@ -566,8 +566,8 @@ for i in range(|X|):
     for k in range(|Z|):
         acc = 0
         for j in range(|Y|):
-            acc = max(acc, min(R1[i,j], R2[j,k]))
-        R[i,k] = acc
+            acc = max(acc, min(R1[i, j], R2[j, k]))
+        R[i, k] = acc
 return R  # the composition R1 o R2
 \end{verbatim}
 Swap \(\min\) for another \(T\) (product, \L{}ukasiewicz) and \(\max\) for the corresponding s\hyp{}norm to instantiate other composition families.
@@ -723,5 +723,5 @@ The choice of composition operator therefore follows a practical rule: begin wit
 
 \paragraph{Where we head next.} \Cref{chap:fuzzyinference} operationalizes these relation tools: each rule induces a fuzzy relation on input-output space, then sup-$T$ composition and projection produce the implied output set before aggregation and defuzzification. The same defaults (max--min with standard complement) carry over, as summarized in \crefrange{eq:antecedent_min}{eq:output_aggregation}.
 
-\paragraph{References.} Full citations for works mentioned in this chapter appear in the book-wide bibliography.
 \nocite{Zadeh1975,BandlerKohout1980,KlirYuan1995,Dubois1988,Klement2000}
+

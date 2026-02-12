@@ -381,10 +381,10 @@ Use \Cref{fig:lec6-bn} as the architecture anchor for this section.
         \begin{axis}[
             width=0.72\linewidth, height=0.36\linewidth,
             xlabel={epoch}, ylabel={loss}, xmin=0, xmax=60, ymin=0, ymax=1.1,
-            legend style={at={(0.5,1.05)},anchor=south,draw=none,fill=none}
+            legend style={at={(0.5,1.05)}, anchor=south, draw=none, fill=none}
         ]
-            \addplot[cbBlue, thick, samples=120, domain=0:60] {0.2 + 0.9*exp(-x/20)}; \addlegendentry{SGD+momentum}
-            \addplot[cbOrange, thick, samples=120, domain=0:60] {0.15 + 1.0*exp(-x/10)}; \addlegendentry{Adam}
+            \addplot[cbBlue, thick, samples=120, domain=0:60] {0.15 + 0.95*exp(-x/20)}; \addlegendentry{SGD+momentum}
+            \addplot[cbOrange, thick, samples=120, domain=0:60] {0.20 + 0.90*exp(-x/10)}; \addlegendentry{Adam}
         \end{axis}
     \end{tikzpicture}
     \caption{Representative training curves for SGD with momentum versus Adam on the same CNN. Use it when comparing optimizer behavior under the same model and data.}
@@ -479,4 +479,3 @@ This omits batching, convolution strides, and optimizer detail but highlights th
 \medskip
 \paragraph{Where we head next.} \Cref{chap:rnn} keeps the same training and audit discipline but shifts the modeling axis from spatial locality to temporal state and sequence dependence.
 
-\paragraph{References.} Full citations for works mentioned in this chapter appear in the book-wide bibliography.

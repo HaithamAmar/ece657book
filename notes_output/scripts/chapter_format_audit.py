@@ -141,9 +141,6 @@ def audit_chapter(chapter_index: int, chapter_path: Path, tex: str) -> ChapterAu
     if not PARA_WHERE_NEXT_RE.search(tex):
         a.issues.append('Missing paragraph titled "Where we head next." near chapter end.')
 
-    if not PARA_REFERENCES_RE.search(tex):
-        a.issues.append('Missing paragraph titled "References." near chapter end.')
-
     # Tcolorbox hygiene: summary boxes without titles tend to be ambiguous in EPUB.
     untitled = sum(1 for t in titles if t == "")
     if untitled:

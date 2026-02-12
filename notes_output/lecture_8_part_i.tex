@@ -38,9 +38,7 @@ This demonstrates that vector arithmetic on word embeddings can capture meaningf
 \paragraph{Notation.}
 We use \(V\) for vocabulary size, \(d\) for embedding dimension, \(\mathbf{x}_t\) for one-hot token indicators, and \(\mathbf{e}_t\) for learned embedding vectors. When symbols collide with earlier chapters (e.g., \(d\) as data dimension vs.\ embedding size), the local meaning is authoritative; \Cref{app:notation_collisions} gives the global index.
 
-\subsection{Problem Statement}
-\label{sec:nlp_problem_statement}
-
+\paragraph{Problem statement.}\label{sec:nlp_problem_statement}
 Given a vocabulary (corpus) of approximately 10,000 words, we want to learn a mapping from each word to a dense vector representation in a feature space of dimension \(d\), where \(d\) is typically between 200 and 500. Formally, if the vocabulary size is \(V\), each word \(w_i\) begins as an index (equivalently, a one-hot indicator). Our objective is to learn an embedding function
 \[
 f: \{1, \ldots, V\} \to \mathbb{R}^d,
@@ -671,9 +669,7 @@ Embedding spaces faithfully capture geometry (analogies, clusters) precisely bec
     \item \textbf{Documentation.} Ship a short ``model card'' summarizing intended uses, failure modes, and evaluation data so downstream teams can reason about fit-for-purpose decisions.
 \end{enumerate}
 
-\subsection{Contextual embeddings and transformers}
-\label{sec:nlp_contextual_embeddings_and_transformers}
-
+\paragraph{Contextual embeddings and transformers.}\label{sec:nlp_contextual_embeddings_and_transformers}
 Static embeddings assign a single vector per word type, so polysemous words such as ``bank'' cannot adapt to their context. Transformer-based language models (e.g., BERT; \citealp{Devlin2019}) compute token representations conditioned on the entire sentence via multi-head self-attention, allowing each occurrence to carry a context-specific vector. The techniques developed in this chapter remain useful for lightweight models and as initialization, but modern NLP pipelines increasingly fine-tune contextual models to capture sentence-level nuance.
 
 \subsection*{Wrap-up}
@@ -717,5 +713,4 @@ This chapter has developed word-embedding models from co-occurrence statistics, 
 \medskip
 \paragraph{Where we head next.} \Cref{chap:transformers} keeps the same token geometry but changes context formation: attention replaces recurrent state, so dependencies are queried directly. The same many\hyp{}to\hyp{}one decisions from \Cref{sec:rnn_sentiment_worked_example} remain, but computational path and scaling behavior change. Keep the same audit lens as you read: tokenization choices, masking correctness, and evaluation protocol matter as much as architecture. After that, \Cref{chap:softcomp} pivots to soft computing (fuzzy logic and evolutionary ideas) as an alternative paradigm for reasoning under uncertainty.
 
-\paragraph{References.} Full citations for works mentioned in this chapter appear in the book-wide bibliography.
 \nocite{Mikolov2013,Pennington2014,LevyGoldberg2014,Devlin2019}

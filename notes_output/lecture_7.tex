@@ -121,7 +121,7 @@ Two-dimensional toy datasets remain useful for reasoning about inductive biases.
             xlabel={$x_1$},
             ylabel={$x_2$},
             axis equal,
-            legend style={at={(0.03,0.03)},anchor=south west,legend columns=2,fill=white,draw=none}
+            legend style={at={(0.03,0.03)}, anchor=south west, legend columns=2, fill=white, draw=none}
         ]
             \nextgroupplot[title={Logistic regression}]
                 \addplot+[only marks, mark=*, color=cbBlue, mark size=1.6pt] coordinates {
@@ -180,7 +180,7 @@ Unless there is a compelling reason to run to numerical convergence, stop as soo
             ylabel={$\mathcal{L}$},
             xmin=-6, xmax=6,
             ymin=0, ymax=6,
-            legend style={at={(0.97,0.97)},anchor=north east,fill=white,draw=none}
+            legend style={at={(0.97,0.97)}, anchor=north east, fill=white, draw=none}
         ]
             \addplot[cbBlue, thick, samples=200, domain=-6:6] {ln(1+exp(-x))}; \addlegendentry{$y{=}1$}
             \addplot[cbOrange, dashed, thick, samples=200, domain=-6:6] {ln(1+exp(x))}; \addlegendentry{$y{=}0$}
@@ -191,7 +191,7 @@ Unless there is a compelling reason to run to numerical convergence, stop as soo
             ylabel={loss},
             xmin=0, xmax=50,
             ymin=0, ymax=1.2,
-            legend style={at={(0.97,0.97)},anchor=north east,fill=white,draw=none}
+            legend style={at={(0.97,0.97)}, anchor=north east, fill=white, draw=none}
         ]
             \addplot[cbBlue, thick, samples=100, domain=0:50] {0.2 + 0.9*exp(-x/12)}; \addlegendentry{conservative}
             \addplot[cbPink, dashed, thick, samples=100, domain=0:50] {0.15 + 1.0*exp(-x/6) + 0.05*sin(0.6*x)}; \addlegendentry{aggressive}
@@ -202,7 +202,7 @@ Unless there is a compelling reason to run to numerical convergence, stop as soo
             ylabel={loss},
             xmin=0, xmax=50,
             ymin=0, ymax=1.2,
-            legend style={at={(0.97,0.97)},anchor=north east,fill=white,draw=none}
+            legend style={at={(0.97,0.97)}, anchor=north east, fill=white, draw=none}
         ]
             \addplot[cbGreen, thick, samples=100, domain=0:50] {0.1 + 0.9*exp(-x/10)}; \addlegendentry{train}
             % U-shaped validation curve: improves early, then degrades (overfitting).
@@ -447,7 +447,7 @@ Spectral norm \(\|\mathbf{W}_{hh}\|_2 \approx 1\) keeps gradients roughly stable
             group style={group size=2 by 1, horizontal sep=1.6cm},
             width=0.44\linewidth,
             height=0.35\linewidth,
-            xmin=0,xmax=80,
+            xmin=0, xmax=80,
             xlabel={Iteration},
             grid=both,
             minor tick num=1,
@@ -455,8 +455,8 @@ Spectral norm \(\|\mathbf{W}_{hh}\|_2 \approx 1\) keeps gradients roughly stable
         ]
             \nextgroupplot[
                 ylabel={$\|\mathbf{g}\|$},
-                ymin=0,ymax=20,
-                legend style={at={(0.02,0.95)},anchor=north west},
+                ymin=0, ymax=20,
+                legend style={at={(0.02,0.95)}, anchor=north west},
                 ytick={0,5,10,15,20}
             ]
                 \addplot[cbOrange, thick, smooth] table {
@@ -489,7 +489,7 @@ Spectral norm \(\|\mathbf{W}_{hh}\|_2 \approx 1\) keeps gradients roughly stable
                         node[pos=0.98, anchor=south east, font=\scriptsize]{threshold $\tau$};
             \nextgroupplot[
                 ylabel={Training loss},
-                ymin=0.2,ymax=1.2,
+                ymin=0.2, ymax=1.2,
                 ytick={0.2,0.4,0.6,0.8,1.0,1.2}
             ]
                 \addplot[cbOrange, thick, smooth] table {
@@ -822,7 +822,7 @@ Use \Cref{fig:lec7-gru} as the derivation anchor for this section.
 \textbf{Minimal training loop with masks and clipping}
 \begin{verbatim}
 h = torch.zeros(B, d_h)
-for x, y, mask in loader:         # [B,T,dx], [B,T], [B,T]
+for x, y, mask in loader:         # [B, T, dx], [B, T], [B, T]
     h = h.detach()                # carry state, drop graph
     logits, h = rnn(x, h)
     loss = (mask * CE(logits, y)).sum() / mask.sum()
@@ -852,9 +852,9 @@ Gating (LSTM/GRU) made long-range gradient flow workable by creating additive me
         xlabel={Source tokens (encoder positions)},
         ylabel={Target tokens (decoder steps)},
         xtick={1,2,3,4,5},
-        xticklabels={je,veux,acheter,un,livre},
+        xticklabels={je, veux, acheter, un, livre},
         ytick={1,2,3,4,5},
-        yticklabels={I,want,to,buy,.},
+        yticklabels={I, want, to, buy,.},
         y dir=reverse,
         colormap/viridis,
         colorbar,
@@ -1041,5 +1041,5 @@ When \(s=1\) and you want to preserve size, choose \(p=(k-1)/2\) for odd \(k\). 
 \medskip
 \paragraph{Where we head next.} \Cref{chap:nlp} translates this sequence viewpoint into representation tooling: embedding objectives, neighborhood/analogy diagnostics, and deployment audits. Keep the sentiment example (\Cref{sec:rnn_sentiment_worked_example}) in mind: with learned token geometry, the same many\hyp{}to\hyp{}one task generalizes better than with raw IDs. \Cref{chap:transformers} then changes architecture again, replacing recurrence with attention while preserving the same evaluation and masking discipline.
 
-\paragraph{References.} Full citations for works mentioned in this chapter appear in the book-wide bibliography.
 \nocite{JurafskyMartin2023,Goodfellow2016,Mikolov2010,LevyGoldberg2014}
+

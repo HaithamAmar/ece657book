@@ -60,11 +60,14 @@ def _split_keys(raw: str) -> list[str]:
 
 def main() -> int:
     ap = argparse.ArgumentParser()
-    ap.add_argument("--root", default=".", help="Root directory containing LaTeX sources (default: current directory)")
+    ap.add_argument("--root", default=".", help="Root directory containing release LaTeX sources (default: auto-detect)")
     ap.add_argument("--fail-on-hardcoded", action="store_true", help='Fail if hardcoded refs like "Chapter 7" are found')
     args = ap.parse_args()
 
     root = Path(args.root).resolve()
+    if args.root == ".":
+        if not (root / "ece657_notes.tex").exists() and (root / "notes_output" / "ece657_notes.tex").exists():
+            root = (root / "notes_output").resolve()
     if not root.exists():
         print(f"ERROR: missing root dir: {root}", file=sys.stderr)
         return 2

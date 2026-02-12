@@ -171,6 +171,10 @@ Supporting scripts & bibliography
 - **Citation policy (publishable standard):** use a single, consistent author-date citation system throughout (`\citet{...}`, `\citep{...}`) and a single, unified bibliography (from `notes_output/refs.bib`) at the end of the book.
   - Do not maintain per-chapter reference lists as manual `itemize` blocks; they drift and are not a professional publishing pattern.
   - If a chapter has a small set of core sources you want guaranteed in the unified bibliography, list them with `\nocite{...}` near the end of the chapter and optionally add a short “Suggested reading” sentence using `\citet{...}`.
+  - Bibliography hard-pass policy is now: **DOI-first**, else **arXiv** (`eprint` + `archivePrefix=arXiv`), else canonical **URL fallback** for legacy/non-DOI sources.
+  - Validate with:
+    - `python3 notes_output/scripts/check_bib_style.py --bib notes_output/refs.bib --out notes_output/artifacts/qc/bib_style_report_hardpass_after.md`
+    - `python3 notes_output/scripts/enrich_bib_metadata.py --bib notes_output/refs.bib --audit-doi --report notes_output/artifacts/qc/bib_doi_audit_report.md`
 
 Build & publishing workflow
 ---------------------------
@@ -265,7 +269,7 @@ Goal: stabilize the manuscript (PDF + EPUB) and converge to “publishable” by
      - `Key takeaways` (tcolorbox)
      - `Exercises and lab ideas` (tcolorbox)
      - `Where we head next.` (paragraph)
-     - `References.` (paragraph + optional `\nocite{...}`)
+   - Keep the bibliography centralized (book-wide references section); do not append per-chapter references paragraphs.
    - Do not reintroduce `\subsection*{Summary}` or per-chapter “Further Reading/References” lists. If a chapter genuinely needs an exception, document why.
 
 Quick start (for the next editor/LLM)

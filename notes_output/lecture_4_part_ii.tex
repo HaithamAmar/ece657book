@@ -110,9 +110,9 @@ Once you have the architecture in mind, it helps to visualize what the hidden la
             height=0.34\linewidth,
             xlabel={$x$},
             ylabel={Activation},
-            xmin=-4,xmax=4,
-            ymin=-0.2,ymax=1.4,
-            legend style={at={(0.02,0.98)},anchor=north west}
+            xmin=-4, xmax=4,
+            ymin=-0.2, ymax=1.4,
+            legend style={at={(0.02,0.98)}, anchor=north west}
         ]
             \addplot[cbBlue, dashed, mark=*, mark repeat=25, mark options={fill=cbBlue}, domain=-4:4, samples=200]{exp(-((x+2)^2))};
             \addlegendentry{$\phi_1$}
@@ -693,5 +693,5 @@ In \Cref{chap:som}, we move from supervised RBF models to unsupervised, self-org
 \medskip
 \paragraph{Where we head next.} \Cref{chap:som} moves from supervised objectives to unlabeled competitive learning and prototype organization. \Cref{chap:hopfield} then revisits recurrence through an energy-based lens, setting up later sequence-model chapters.
 
-\paragraph{References.} Full citations for works mentioned in this chapter appear in the book-wide bibliography.
 \nocite{Haykin2013AdaptiveFilterTheory,WidrowStearns1985,SchreierScharf2010,Micchelli1986,ParkSandberg1991,PoggioGirosi1990,Bishop1995,HastieTibshiraniFriedman2009}
+

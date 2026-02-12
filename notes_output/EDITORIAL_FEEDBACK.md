@@ -1525,3 +1525,200 @@ Quick lint checklist before merge:
 ### Remaining non-blocker
 - Bibliography style audit remains warning-only (`93` warnings):
   - `notes_output/artifacts/qc/bib_style_report.md`
+
+## [2026-02-10] Dedicated camera-ready typography + references consistency sweep
+
+### Scope
+- Normalized chapter-end `References.` wording to one policy sentence across chapter files.
+- Repaired the remaining outlier in `lecture_4_part_i.tex` so `\nocite{...}` precedes the shared `References.` paragraph.
+- Ran a safe punctuation pass over plain-prose lines only (lines without LaTeX command markers), targeting:
+  - spaces before commas,
+  - missing spaces after commas,
+  - joined digit-word forms like `1to` -> `1 to`.
+- Confirmed no mixed manual/auto reference prefixes (`Figure \Cref`, `Table \Cref`, etc.) and no `Figure Figure` artifacts in source.
+
+### Validation
+- Ran strict gate:
+  - `cd notes_output && STRICT_REF_ORDER=1 ./scripts/run_editorial_qc.sh`
+- Result: **PASS** on chapter format, equations, strict reference order, and publish QC report generation.
+- Bibliography style remains warning-only (`93` warnings), unchanged from prior state.
+
+### Artifacts
+- `notes_output/artifacts/qc/chapter_format_audit_20260210_180937.md`
+- `notes_output/artifacts/qc/publish_qc_report.md`
+- `notes_output/artifacts/qc/bib_style_report.md`
+
+## [2026-02-10] Chapter-end references policy decision (book-wide)
+
+### Decision
+- Adopted **remove** as the chapter-end references policy for all chapters:
+  - Removed repeated `\paragraph{References.}` text from chapter tails.
+  - Kept bibliography centralized in the global references section.
+
+### Contract updates
+- Updated chapter-kit policy in `ONBOARDING.md` to remove chapter-end references paragraph from the required kit.
+- Updated `scripts/chapter_format_audit.py` to stop enforcing a `References.` paragraph near chapter end.
+
+### Validation
+- `cd notes_output && STRICT_REF_ORDER=1 ./scripts/run_editorial_qc.sh` -> **PASS**
+- Chapter format audit: `notes_output/artifacts/qc/chapter_format_audit_20260210_182429.md`
+
+## [2026-02-11] Print-production 7-check pass (mechanical gate)
+
+### Run context
+- Timestamp: `2026-02-11 10:04:11 EST`
+- PDF audited: `notes_output/ece657_notes.pdf` (`448` pages, `7 x 10 in`)
+- Primary command: `bash notes_output/scripts/run_production_checks.sh` (completed)
+
+### Check 1: Trim size, margins, gutter
+- **PASS (with caution for long spine)**.
+- Source settings:
+  - `notes_output/ece657_notes.tex:1` -> `\documentclass[11pt,twoside]{article}`
+  - `notes_output/ece657_notes.tex:4-9` -> `paperwidth=7in`, `paperheight=10in`, `inner=1in`, `outer=0.75in`, `top=0.75in`, `bottom=0.8in`
+- For a `448`-page print run, inner margin is acceptable but should be printer-validated against exact binding/gutter requirements.
+
+### Check 2: Font size and readability
+- **PASS (body/caption), WATCH (plot micro-text)**.
+- Evidence:
+  - Body: `11pt` (`notes_output/ece657_notes.tex:1`)
+  - Captions: `\usepackage[font=small,labelfont=bf]{caption}` (`notes_output/ece657_notes.tex:42`)
+  - Plot ticks/legends: `\scriptsize` in global pgfplots style (`notes_output/ece657_notes.tex:110-113`)
+- Recommendation: keep current body/caption sizes; monitor dense plot pages in physical proof.
+
+### Check 3: Figure resolution/vector quality
+- **PASS**.
+- `pdfimages -list notes_output/ece657_notes.pdf` reported no embedded raster images (`images=0`), indicating vector-first figure output in current PDF.
+
+### Check 4: Contrast and grayscale survivability
+- **WARN**.
+- Evidence:
+  - Color-explicit captions still exist (for example: `notes_output/lecture_7.tex:415`, `notes_output/lecture_11.tex:1136`, `notes_output/lecture_4_part_i.tex:813`).
+  - Light-gray usage present down to `gray!3` (`gray_refs=140`, `min_pct=3`, `lt8pct=11`).
+- Interpretation: print on non-premium paper can weaken low-contrast fills and color-only distinctions.
+
+### Check 5: Line weights / hairlines
+- **WARN**.
+- Evidence from source audit:
+  - `line width` range: `0.35pt` to `1.40pt` (`58` explicit width settings).
+  - `<0.5pt`: `4` occurrences (mostly marker outlines), `<0.7pt`: `9` occurrences.
+- Recommendation: increase sub-0.5pt strokes to >=0.5pt on plot markers and fine diagram edges for safer print reproduction.
+
+### Check 6: Black/gray consistency
+- **WARN**.
+- Global defaults are consistent, but multiple very light grays appear (including `gray!3` and `gray!5` fills).
+- Recommendation: in print profile, normalize ultra-light backgrounds and gridlines to a slightly darker floor where readability is critical.
+
+### Check 7: Fonts embedded + print profile
+- **PARTIAL PASS**.
+- `pdffonts` shows all listed fonts embedded (`emb=yes`).
+- PDF metadata:
+  - `Tagged: no` (from `pdfinfo`)
+  - No detected PDF/X marker string (`GTS_PDFXVersion` not found in string scan).
+- Tooling note: `qpdf` and `exiftool` are not installed in this environment, so deeper profile checks were limited.
+- Conclusion: embedding is good; explicit PDF/X conformance is not yet established.
+
+### Gate summary
+- Pass: 3 (`trim/layout`, `font baseline`, `vector image output`)
+- Warn: 3 (`grayscale contrast`, `hairline widths`, `light-gray consistency`)
+- Partial pass: 1 (`fonts embedded but PDF/X not confirmed`)
+
+### Related build gate outcomes (same run)
+- Build warning gate: **PASS**
+- Crossref/label hygiene: **PASS** (`675` labels scanned)
+- Figure/table reference coverage: **PASS** (`83` labels)
+- Chapter template audit: **PASS** (`19/19`)
+- Bibliography style audit: **WARN** (`93` warnings, `0` errors): `notes_output/artifacts/qc/bib_style_report.md`
+
+## [2026-02-11] Deterministic proof-to-code integrity pass
+
+### Objective
+- Add a deterministic academic-integrity gate that tests whether core mathematical derivations are implementable and numerically correct when coded.
+
+### Implementation
+- Added executable checker:
+  - `notes_output/scripts/verify_proof_integrity.py`
+- Report outputs:
+  - `notes_output/artifacts/qc/proof_integrity_report.md`
+  - `notes_output/artifacts/qc/proof_integrity_report.json`
+
+### Coverage (current deterministic subset)
+- Bayes posterior equation consistency (`eq:bayes_theorem`)
+- Logistic NLL gradient vs finite differences (`eq:lec2_logistic_grad`)
+- Two-neuron chain worked values + gradient equations (`eq:grad_w1`, `eq:grad_w2`, `eq:delta1`, `eq:delta2`)
+- Hopfield energy descent identity (`eq:energy_function`, `eq:deltaE`, `eq:hopfield_update_rule`)
+- CNN stride/padding output-size formula (worked chapter formula)
+- RNN BPTT gradients vs finite differences (`eq:simple_rnn_hidden`, `eq:simple_rnn_output`)
+- Fuzzy De Morgan and t/s-norm complementarity (`eq:fuzzy_union`, `eq:fuzzy_intersection`, `eq:fuzzy_complement`, `eq:tnorm-snorm-complement`)
+- Fuzzy relation composition example (`eq:fuzzy_composition`)
+- Word2Vec negative-sampling gradients (`eq:neg-sample-prob`, `eq:neg-sample-loss`)
+- GA selection probability normalization (`eq:selection_probability`, `eq:linear_ranking`)
+
+### Run and result
+- Command:
+  - `python3 notes_output/scripts/verify_proof_integrity.py`
+- Result:
+  - **PASS** (`11/11` checks)
+  - No missing linked equation labels in audited subset.
+
+## [2026-02-11] DOI/arXiv closure + blind-review recommendation closure (resume pass)
+
+### Scope completed in this pass
+- Closed the remaining bibliography hard-pass warnings while removing incorrect DOI auto-matches.
+- Applied technical blind-review recommendation to scope cross-reference checks to release sources when invoked from repo root.
+- Applied editorial blind-review recommendation for Chapter 13 micro-density cleanup (minimal heading-level merge, zero content movement).
+
+### Files changed
+- `notes_output/refs.bib`
+- `notes_output/scripts/check_bib_style.py`
+- `notes_output/scripts/enrich_bib_metadata.py`
+- `notes_output/scripts/check_crossrefs.py`
+- `notes_output/lecture_8_part_i.tex`
+
+### Bibliography corrections
+- Replaced known-bad DOI matches from the previous automated enrichment pass:
+  - `CoxRaja2011` DOI corrected to `10.1609/aimag.v32i1.2304`.
+  - `Zadeh1965` DOI corrected to `10.1016/S0019-9958(65)90241-X`.
+  - Removed incorrect DOI injections and switched to canonical arXiv IDs where appropriate (`Krizhevsky2012`, `Vaswani2017`, `Brown2020`, `Lan2020`, `Simonyan2014`).
+  - Added DOI for `Graves2006`: `10.1145/1143844.1143891`.
+  - Added arXiv for `LevyGoldberg2014`: `1405.4053`.
+- For legacy items without reliable DOI/arXiv, added URL fallbacks where available and documented explicit metadata exceptions in the checker policy (`MacQueen1967`, `DebAgrawal1995`, `Zitzler2002`, `Fritzke1994GrowingNeuralGas`, `Zadeh1997`).
+
+### Script/policy updates
+- `check_bib_style.py`
+  - Enforces DOI canonical form (fails if DOI field is a URL).
+  - Uses DOI-first, arXiv-second, URL-fallback policy.
+  - Supports documented exception keys for legacy references lacking DOI/arXiv.
+- `enrich_bib_metadata.py`
+  - Added `--audit-doi` mode to verify DOI title/author/year consistency against Crossref metadata.
+  - Added `--inspect-key <bibkey>` mode to inspect Crossref candidates for manual triage.
+  - Tightened DOI audit logic to reduce false positives for abbreviated titles.
+- `check_crossrefs.py`
+  - Auto-detects `notes_output/` as release root when run from repository root to avoid false failures from non-release trees.
+
+### Editorial micro-pass (Reviewer E P1)
+- `lecture_8_part_i.tex`:
+  - `\subsection{Problem Statement}` -> `\paragraph{Problem statement.}`
+  - `\subsection{Contextual embeddings and transformers}` -> `\paragraph{Contextual embeddings and transformers.}`
+  - This removes two interruption-style mini-sections while preserving text and equation flow.
+
+### Validation run results
+- `python3 notes_output/scripts/check_crossrefs.py` -> **PASS** (`675` labels)
+- `python3 notes_output/scripts/check_ref_coverage.py --root notes_output --strict-order` -> **PASS** (`83` labels)
+- `python3 notes_output/scripts/check_citations.py --notes notes_output --bib notes_output/refs.bib` -> **PASS** (`102` cited keys)
+- `python3 notes_output/scripts/check_bib_style.py --bib notes_output/refs.bib --out notes_output/artifacts/qc/bib_style_report_hardpass_after.md` -> **PASS** (`0` errors, `0` warnings)
+- `python3 notes_output/scripts/verify_proof_integrity.py` -> **PASS** (`11/11`)
+- `python3 notes_output/scripts/validate_math_examples_and_graphs.py --strict` -> **PASS** (`8/8`)
+- `bash notes_output/scripts/run_editorial_qc.sh` -> **PASS** (chapter format 19/19, equations, crossrefs, ref coverage, bib style, publish QC generation)
+
+### Artifacts generated/updated
+- `notes_output/artifacts/qc/bib_style_report_hardpass_after.md`
+- `notes_output/artifacts/qc/bib_doi_audit_report.md`
+- `notes_output/artifacts/qc/proof_integrity_report.md`
+- `notes_output/artifacts/qc/math_graph_validation_20260211_190432.md`
+- `notes_output/artifacts/qc/chapter_format_audit_20260211_191037.md`
+- `notes_output/artifacts/qc/publish_qc_report.md`
+
+### Publish decision (current checkpoint)
+- **Decision:** `PUBLISH-CANDIDATE`.
+- **Reason:** All blocking technical gates now pass in this environment (crossrefs, citation hygiene, strict-order reference coverage, equation checks, proof integrity, math/graph validation, bibliography style hard-pass).
+- **Remaining non-blocking note:** run final manual print-device proof (trim/gutter and grayscale readability) on target printer profile before external distribution.

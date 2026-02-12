@@ -8,7 +8,8 @@ Policy:
 - Required fields per entry type are present.
 - DOI-first preference: if DOI exists, entry is fine.
 - If no DOI and arXiv info exists, enforce coherent arXiv metadata.
-- Report entries missing both DOI and arXiv (warning, not hard fail).
+- If DOI/arXiv are unavailable, allow a canonical `url` fallback.
+- Report entries missing DOI, arXiv, and URL (warning, not hard fail).
 """
 
 import argparse
@@ -35,6 +36,14 @@ class Finding:
 ENTRY_START_RE = re.compile(r"@([A-Za-z]+)\s*\{", re.M)
 KEY_RE = re.compile(r"\s*([^,\s]+)\s*,", re.S)
 ARXIV_RE = re.compile(r"^\d{4}\.\d{4,5}(v\d+)?$")
+METADATA_EXCEPTION_KEYS = {
+    # Canonical publication metadata exists, but DOI/arXiv records are not reliable/available.
+    "MacQueen1967",
+    "DebAgrawal1995",
+    "Zitzler2002",
+    "Fritzke1994GrowingNeuralGas",
+    "Zadeh1997",
+}
 
 
 def parse_entries(raw: str) -> list[Entry]:
@@ -173,6 +182,10 @@ def main() -> int:
         doi = (e.fields.get("doi") or "").strip()
         eprint = (e.fields.get("eprint") or "").strip()
         archiveprefix = (e.fields.get("archiveprefix") or "").strip().lower()
+        url = (e.fields.get("url") or "").strip()
+
+        if doi and doi.lower().startswith(("http://", "https://")):
+            findings.append(Finding(level="ERROR", key=e.key, message="DOI must be canonical identifier only (remove URL prefix)"))
 
         if not doi:
             if eprint:
@@ -180,8 +193,8 @@ def main() -> int:
                     findings.append(Finding(level="ERROR", key=e.key, message=f"eprint present but archiveprefix is `{archiveprefix}` (expected `arXiv`)"))
                 if not ARXIV_RE.match(eprint):
                     findings.append(Finding(level="WARN", key=e.key, message=f"eprint does not look like canonical arXiv id: `{eprint}`"))
-            elif e.kind in {"article", "inproceedings"}:
-                findings.append(Finding(level="WARN", key=e.key, message="no DOI and no arXiv id"))
+            elif not url and e.kind in {"article", "inproceedings"} and e.key not in METADATA_EXCEPTION_KEYS:
+                findings.append(Finding(level="WARN", key=e.key, message="no DOI, no arXiv id, and no URL fallback"))
 
         venue = (e.fields.get("journal") or e.fields.get("booktitle") or "").strip()
         if venue and venue.isupper() and len(venue) > 6:
@@ -232,4 +245,3 @@ def main() -> int:
 
 if __name__ == "__main__":
     raise SystemExit(main())
-

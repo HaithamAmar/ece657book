@@ -208,7 +208,7 @@ with analogous expressions for the \(A\) and \(D\) categories. These overlapping
             xlabel={Score}, ylabel={Membership},
             xtick={60,65,70,75,80,85,90},
             ytick={0,0.5,1},
-            legend style={at={(0.02,0.98)},anchor=north west,draw=none,fill=none},
+            legend style={at={(0.02,0.98)}, anchor=north west, draw=none, fill=none},
             axis background/.style={fill=white},
             clip=true
         ]
@@ -281,7 +281,7 @@ The overlap reflects the vagueness of the labels: a weight near 22~kg partially 
             ylabel={Membership degree},
             xmin=0, xmax=30,
             ymin=0, ymax=1.05,
-            legend style={at={(0.5,1.05)},anchor=south,legend columns=3}
+            legend style={at={(0.5,1.05)}, anchor=south, legend columns=3}
         ]
             \addplot[cbBlue, thick] coordinates {(0,1) (10,1) (15,0) (30,0)};
             \addlegendentry{Small}
@@ -651,11 +651,11 @@ A \textbf{t\hyp{}norm} is a binary operator \( T: [0,1]^2 \to [0,1] \) satisfyin
 \begin{enumerate}
     \item \textbf{Commutativity:}
     \[
-        T(x,y) = T(y,x).
+        T(x, y) = T(y, x).
     \]
     \item \textbf{Associativity:}
     \[
-        T(x, T(y,z)) = T(T(x,y), z).
+        T(x, T(y, z)) = T(T(x, y), z).
     \]
     \item \textbf{Monotonicity:}
     \[
@@ -705,11 +705,11 @@ The dual concept to t\hyp{}norms is the \textbf{triangular conorm} (t\hyp{}conor
 \begin{enumerate}
     \item \textbf{Commutativity:}
     \[
-        S(x,y) = S(y,x).
+        S(x, y) = S(y, x).
     \]
     \item \textbf{Associativity:}
     \[
-        S(x, S(y,z)) = S(S(x,y), z).
+        S(x, S(y, z)) = S(S(x, y), z).
     \]
     \item \textbf{Monotonicity:}
     If \(x \le x'\) and \(y \le y'\), then
@@ -1105,7 +1105,7 @@ Practical tip: libraries such as \texttt{scikit-fuzzy} provide a tested \texttt{
             % Panel A: base sets + clipping
             \nextgroupplot[
                 title={(A) Sets and clipping},
-                title style={at={(0.5,1.22)},anchor=south},
+                title style={at={(0.5,1.22)}, anchor=south},
                 legend style={font=\scriptsize, at={(0.5,1.08)},anchor=south,legend columns=3}
             ]
             \addplot[cbBlue, thick] coordinates {(0,1) (0.5,0)}; \addlegendentry{Low}
@@ -1120,7 +1120,7 @@ Practical tip: libraries such as \texttt{scikit-fuzzy} provide a tested \texttt{
             % Panel B: aggregated output + centroid
             \nextgroupplot[
                 title={(B) Aggregated $\mu_\text{out}$ and centroid},
-                title style={at={(0.5,1.22)},anchor=south}
+                title style={at={(0.5,1.22)}, anchor=south}
             ]
             % Baselines for fill
             \addplot[name path=axisLeft, draw=none] coordinates {(0.25,0) (0.75,0)};
@@ -1185,4 +1185,4 @@ Use \Cref{fig:fuzzy-end-to-end} as the derivation anchor for this section.
 
 \paragraph{Where we head next.} \Cref{chap:fuzzyrelations} moves from fuzzification/defuzzification mechanics to system-level design and adaptive fuzzy controllers; relation operators and projections there connect these set-level tools to control and hybrid schemes.
 
-\paragraph{References.} Full citations for works mentioned in this chapter appear in the book-wide bibliography.
+
