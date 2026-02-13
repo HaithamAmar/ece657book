@@ -87,6 +87,31 @@ def _ensure_tools() -> None:
         raise SystemExit(f"Missing required tools on PATH: {', '.join(missing)}")
 
 
+def _inline_bibliography_from_bbl(doc_body: str, *, bbl_path: Path) -> str:
+    """
+    Replace LaTeX \\bibliography{...} invocation with the concrete .bbl content.
+
+    This keeps EPUB references aligned with the PDF/print bibliography output.
+    """
+    if "\\bibliography{" not in doc_body:
+        return doc_body
+
+    if not bbl_path.exists():
+        raise SystemExit(
+            "Missing notes_output/ece657_notes.bbl; build the PDF/BibTeX first so EPUB can include end references."
+        )
+
+    bbl_text = bbl_path.read_text(encoding="utf-8", errors="ignore").strip()
+    replacement = (
+        "\n\\section*{References}\n"
+        "\\addcontentsline{toc}{section}{References}\n"
+        f"{bbl_text}\n"
+    )
+    doc_body = re.sub(r"\\bibliographystyle\{[^}]*\}", "", doc_body)
+    doc_body = re.sub(r"\\bibliography\{[^}]*\}", lambda _: replacement, doc_body)
+    return doc_body
+
+
 def _paths() -> Paths:
     repo_root = Path(__file__).resolve().parents[1]
     notes_output = repo_root / "notes_output"
@@ -448,6 +473,7 @@ def build(*, variant: str, clean: bool, skip_validate: bool) -> Path:
     doc_body = promote_long_inline_math(doc_body)
     doc_body = prefix_caption_numbers(doc_body, aux_numbers=aux_numbers)
     doc_body = add_visible_equation_numbers(doc_body, aux_numbers=aux_numbers)
+    doc_body = _inline_bibliography_from_bbl(doc_body, bbl_path=p.notes_output / "ece657_notes.bbl")
     if strict_figures:
         verify_includegraphics_targets(
             doc_body, repo_root=p.repo_root, notes_output_dir=p.notes_output, media_dir=p.media
