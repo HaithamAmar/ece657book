@@ -2,9 +2,9 @@
 \section{Convolutional Neural Networks and Deep Training Tools}\label{chap:cnn}
 \graphicspath{{assets/lec6/}{assets/lec8/}}
 
-\Cref{chap:hopfield} used energy to make recurrence stable: dynamics settle, memories persist, and failure has a concrete signature. Vision problems have the opposite flavor. The system must form a representation that is rich enough to support decisions, but structured enough to learn from finite data.
+\Cref{chap:hopfield} used energy to make recurrence stable: dynamics settle, memories persist, and failure has a concrete signature. Vision problems have a different flavor. The system must form a representation that is rich enough to support decisions, yet structured enough to learn from finite data.
 
-Convolutional networks are the simplest version of that bargain. They keep the ERM workflow from \Crefrange{chap:supervised}{chap:logistic} and the gradient-training machinery from \Cref{chap:mlp}, but move a large fraction of the ``modeling bias'' into architecture. Local connectivity and weight sharing make images tractable: the model spends capacity on patterns that actually recur across a grid.
+Convolutional networks are the simplest version of that bargain. They keep the ERM workflow from \Crefrange{chap:supervised}{chap:logistic} and the gradient\hyp{}training machinery from \Cref{chap:mlp}, but move a large fraction of the ``modeling bias'' into architecture. Local connectivity and weight sharing make images tractable: the model spends capacity on patterns that actually recur across a grid.
 
 The second thread in this chapter is pragmatic. Deep models are only useful when they train. After the CNN mechanics, we transition into the deep\hyp{}training toolkit (initialization, activations, normalization, regularization, and optimizers) that will reappear in \Crefrange{chap:rnn}{chap:transformers}.
 
@@ -12,6 +12,8 @@ The second thread in this chapter is pragmatic. Deep models are only useful when
 \label{sec:cnn_historical_context_and_motivation}
 
 The core backprop loop from earlier chapters scales to high-dimensional perception tasks, but naively applying dense multilayer perceptrons (MLPs) to images runs into two practical walls: \emph{parameter count} and \emph{inductive bias}. Images have strong local structure (edges, corners, textures), yet a fully connected layer treats every pixel as unrelated to its neighbors and spends parameters learning spatial patterns from scratch.
+
+In practice, this is also where ``deep learning'' stopped being a promise and became a reliable workflow: large datasets and modern accelerators made the iterative training loop feasible, while architectural priors such as locality and weight sharing made that loop data-efficient on image grids.
 
 CNNs emerged as a pragmatic answer: keep end-to-end gradient training, but bake in locality and translation structure through sparse connectivity and shared weights. The result is a model class that is both more sample-efficient and more computationally viable on large grids.
 
@@ -22,7 +24,7 @@ CNNs emerged as a pragmatic answer: keep end-to-end gradient training, but bake 
     \item \textbf{Training toolkit:} gradient-based optimization and the stabilizers you will reuse later (initialization, activations, batch norm, dropout, AdamW).
 \end{itemize}
 
-\begin{tcolorbox}[summarybox,title={Learning Outcomes}]
+\begin{tcolorbox}[summarybox, title={Learning Outcomes}]
 After this chapter, you should be able to:
 \begin{itemize}
   \item Derive convolution/cross-correlation with stride and padding in 1D/2D.
@@ -64,7 +66,7 @@ This flattening process has two major drawbacks:
 
 The punchline is not that dense networks ``cannot'' learn images; it is that the price is too high. Without any architectural prior, you pay in parameters, data, and compute. Convolutions and pooling supply that prior: they make the model spend capacity on local patterns and reuse those patterns across the grid.
 
-\begin{tcolorbox}[summarybox,title={Design motif}]
+\begin{tcolorbox}[summarybox, title={Design motif}]
 Keep the same statistical learning loop from \Crefrange{chap:supervised}{chap:logistic}, but move a large fraction of the ``bias'' into architecture via weight sharing and locality.
 \end{tcolorbox}
 
@@ -115,7 +117,7 @@ CNNs replace dense connections with \emph{local receptive fields}. Each output u
 
 Historically, dense MLPs on image benchmarks struggled to compete with classical pipelines because the parameter count and data requirements were prohibitive. CNNs reversed that trend by tying weights and focusing on local patterns while keeping the same gradient-based training loop, so capacity grows with depth and channel count rather than with the raw pixel grid.
 
-\begin{tcolorbox}[summarybox,title={Shape reminder}]
+\begin{tcolorbox}[summarybox, title={Shape reminder}]
 Throughout this chapter we use the row-major (deep-learning) convention for batches: inputs \(X\in\mathbb{R}^{B\times d_{\text{in}}}\), weights \(W\in\mathbb{R}^{d_{\text{in}}\times d_{\text{out}}}\), and biases \(b\in\mathbb{R}^{d_{\text{out}}}\), with forward map \(Z=XW+\mathbf{1}b^\top\). When we write single-example equations, you can read them as the same convention with \(B=1\). For convolution/cross-correlation we follow the standard deep-learning tensor convention (channels and spatial axes); the same shape logic applies once the tensors are flattened into matrix form.
 \end{tcolorbox}
 
@@ -125,12 +127,12 @@ Here \(\sigma(\cdot)\) is used only as an activation nonlinearity, while earlier
 \subsection{Convolution and pooling mechanics}
 \label{sec:cnn_convolution_and_pooling_mechanics}
 
-For an input feature map \(X\) and filter \(K\), the (cross-correlation) output at spatial location \((i,j)\) is
+For an input feature map \(X\) and filter \(K\), the (cross-correlation) output at spatial location \((i, j)\) is
 \[
-(X * K)_{ij} = \sum_{u=0}^{k-1} \sum_{v=0}^{k-1} K_{uv}\,X_{i+u,\,j+v}.
+(X * K)_{ij} = \sum_{u=0}^{k-1} \sum_{v=0}^{k-1} K_{uv}\, X_{i+u,\, j+v}.
 \]
 
-\begin{tcolorbox}[summarybox,title={Author's note: ``convolution'' vs.\ cross-correlation}]
+\begin{tcolorbox}[summarybox, title={Author's note: ``convolution'' vs.\ cross-correlation}]
 In most deep-learning libraries, the operation called ``convolution'' is technically \emph{cross-correlation}: the kernel is not flipped before sliding. The name stuck because the two operations differ only by a reversal of the kernel, and the kernel is learned anyway. What matters in practice is that the ``filter'' is a small learned weight matrix that is applied repeatedly across space (weight sharing). Learn the shapes, the stride/padding bookkeeping, and the inductive bias; the terminology is imperfect but the idea is powerful.
 \end{tcolorbox}
 With stride \(s\) and padding \(p\), the output size along one axis is
@@ -168,7 +170,7 @@ The floor in the formula is important: if \((n + 2p - k)\) is not divisible by \
 
 Pooling reduces spatial size without learning new parameters: a max-pooling window keeps the strongest activation; average pooling keeps the mean. This is a nonparametric operation, so it can feel like ``cheating'' compared to learned filters, yet it often improves robustness by discarding small shifts and noise. Max pooling is the most common because it preserves the strongest feature response, but average and even median pooling appear in specialized settings. In modern CNNs, aggressive pooling is used sparingly; strided convolutions are a common alternative when you want learned downsampling instead of a fixed aggregation.
 
-\begin{tcolorbox}[summarybox,title={Author's note: pooling is a design choice}]
+\begin{tcolorbox}[summarybox, title={Author's note: pooling is a design choice}]
 Pooling is not ``more correct'' than strided convolutions; it is a trade-off. If you want downsampling with learned weights, use stride. If you want a fixed local summary (often more stable early in training), max pooling is a reasonable default. Avoid padding in pooling unless you need spatial alignment with a parallel branch.
 \end{tcolorbox}
 
@@ -177,7 +179,7 @@ Pooling is not ``more correct'' than strided convolutions; it is a trade-off. If
 
 Real inputs are multi-channel. An RGB image has three channels, so a \(k\times k\) filter is really \(k\times k\times C_{\text{in}}\) and produces one output map. A convolutional layer applies \(C_{\text{out}}\) such filters, yielding a volume of feature maps with shape \(H\times W\times C_{\text{out}}\). This is why ``same'' padding refers to spatial dimensions only: channel depth is set by the number of filters, not by padding.
 
-\begin{tcolorbox}[summarybox,title={Dimensionality bookkeeping example}]
+\begin{tcolorbox}[summarybox, title={Dimensionality bookkeeping example}]
 Start with an input tensor of size \(50\times50\times30\). Apply \(10\) filters of size \(3\times3\) with stride \(1\) and valid padding. The spatial size becomes \(50-3+1=48\), so the output is \(48\times48\times10\). Apply \(2\times2\) max pooling with stride \(2\): the spatial size becomes \(\left\lfloor(48-2)/2\right\rfloor + 1 = 24\), so the pooled output is \(24\times24\times10\). Flattening that volume yields \(24\cdot24\cdot10=5760\) features for a dense classifier.
 \end{tcolorbox}
 
@@ -194,7 +196,6 @@ At scale, this architectural prior became decisive once large labeled datasets a
 
 \paragraph{Stack depth versus receptive field.} Stacking identical \(3\times3\) filters still grows the effective receptive field: each stage wraps a thicker box around the original pixels, which explains why deep-but-narrow CNNs can capture wide spatial context without enormous kernels even when individual kernels remain small.
 
-Use \Cref{fig:cnn_receptive_field_growth} as the architecture anchor for this section.
 
 \begin{figure}[t]
     \centering
@@ -215,7 +216,7 @@ Use \Cref{fig:cnn_receptive_field_growth} as the architecture anchor for this se
     \label{fig:cnn_receptive_field_growth}
 \end{figure}
 
-\Cref{fig:cnn_receptive_field_growth} is the receptive-field intuition reference for the depth discussion.
+\Cref{fig:cnn_receptive_field_growth} provides the receptive-field intuition used in the depth discussion.
 
 With the architectural motivation in place, we now focus on how these models are trained and why deep optimization remains delicate.
 
@@ -282,7 +283,7 @@ The derivative is maximized at $\sigma(x)=0.5$, where $\sigma'(x)=0.25$, so repe
 
 \paragraph{Notation note.} In this chapter $\sigma(\cdot)$ always denotes the logistic sigmoid nonlinearity, whereas symbols such as $\sigma^2$ are reserved for variances in earlier statistical chapters; context (function of an argument vs. squared scalar) distinguishes them.
 
-\begin{tcolorbox}[summarybox,title={Training failure signatures (symptom $\rightarrow$ likely fixes)}]
+\begin{tcolorbox}[summarybox, title={Training failure signatures (symptom $\rightarrow$ likely fixes)}]
 \begin{itemize}
     \item \textbf{Loss becomes NaN / diverges quickly:} lower learning rate; check data normalization; add gradient clipping; verify BN statistics (or switch norm).
     \item \textbf{Training loss decreases but validation stalls:} audit split hygiene (\Cref{chap:supervised}); add regularization (weight decay, dropout); strengthen augmentation; check shortcut features via slice tests.
@@ -326,7 +327,7 @@ For exploding gradients, gradient clipping limits the maximum gradient norm duri
 
 Taken together, these tools stabilize optimization; the figures below highlight dropout, normalization, and optimizer behavior in practice.
 
-\begin{tcolorbox}[summarybox,title={Risk \& audit}]
+\begin{tcolorbox}[summarybox, title={Risk \& audit}]
 \begin{itemize}
     \item \textbf{Train/val mismatch:} augmentation, preprocessing, and normalization must match at evaluation time (except stochastic augmentation).
     \item \textbf{Resolution trade-offs:} downsampling can erase small objects; audit performance by scale and by class, not only overall accuracy.
@@ -338,7 +339,6 @@ Taken together, these tools stabilize optimization; the figures below highlight 
 \end{tcolorbox}
 
 
-Use \Cref{fig:lec6-dropout} as the architecture anchor for this section.
 
 \begin{figure}[t]
     \centering
@@ -347,7 +347,7 @@ Use \Cref{fig:lec6-dropout} as the architecture anchor for this section.
     \label{fig:lec6-dropout}
 \end{figure}
 
-\Cref{fig:lec6-dropout} is the validation-curve diagnostic reference for dropout decisions.
+\Cref{fig:lec6-dropout} provides the validation-curve diagnostic view used for dropout decisions.
 
 \paragraph{Batch normalization.} BN accelerates convergence by normalizing mini\hyp{}batch statistics and learning scale/shift parameters. \Cref{fig:lec6-bn} contrasts the pre- and post\hyp{}normalization activation distributions; whitening the distribution keeps gradients in a well-behaved range and reduces covariate shift. In deep Transformer stacks, a closely related design choice is \emph{pre-LN} versus \emph{post-LN}: modern architectures typically place layer normalization \emph{before} the residual block (pre-LN) to improve training stability on very deep networks.
 
@@ -371,7 +371,6 @@ Use \Cref{fig:lec6-dropout} as the architecture anchor for this section.
     \label{fig:lec6-bn}
 \end{figure}
 
-Use \Cref{fig:lec6-bn} as the architecture anchor for this section.
 
 \paragraph{Adaptive optimizers.} While vanilla SGD remains a workhorse, Adam and related methods adapt learning rates per-parameter \citep{Kingma2015}. \Cref{fig:lec6-optimizers} summarizes the typical loss trajectories; Adam converges faster initially, whereas SGD+momentum often attains a slightly lower asymptote after fine-tuning.
 
@@ -391,9 +390,8 @@ Use \Cref{fig:lec6-bn} as the architecture anchor for this section.
     \label{fig:lec6-optimizers}
 \end{figure}
 
-Use \Cref{fig:lec6-optimizers} as the architecture anchor for this section.
 
-\begin{tcolorbox}[summarybox,title={Practical optimizer notes}]
+\begin{tcolorbox}[summarybox, title={Practical optimizer notes}]
 \textbf{Mixed precision.} Modern CNN stacks often run activations/gradients in FP16 or BF16 while keeping master weights in FP32. Frameworks such as PyTorch AMP/TF mixed precision insert dynamic loss scaling so gradients do not underflow; the reward is higher throughput and lower memory pressure on recent GPUs/TPUs.\\
 \textbf{AdamW vs.\ Adam.} Decoupled weight decay (AdamW) subtracts \(\eta\lambda W\) outside the adaptive-moment step, avoiding the ``L2-as-gradient-scaling'' behavior of classical Adam and producing more predictable regularization \citep{Loshchilov2019}. In code:
 \begin{verbatim}
@@ -404,7 +402,7 @@ W -= eta * (m_hat / (sqrt(v_hat) + eps) + lambda * W)
 Use AdamW (or SGD+momentum) when you want clean weight-decay semantics; reserve plain Adam for rapid prototyping or when adaptive steps dominate regularization.
 \end{tcolorbox}
 
-\begin{tcolorbox}[summarybox,title={MLP/CNN block pseudocode (schematic)}]
+\begin{tcolorbox}[summarybox, title={MLP/CNN block pseudocode (schematic)}]
 \footnotesize
 \begin{verbatim}
 function ForwardBackward(params, x, y):
@@ -431,7 +429,7 @@ function ForwardBackward(params, x, y):
 This omits batching, convolution strides, and optimizer detail but highlights the cache-then-backprop pattern reused throughout the deep-learning chapters.
 \end{tcolorbox}
 
-\begin{tcolorbox}[summarybox,title={Derivation closure: implement, cache, fail-fast}]
+\begin{tcolorbox}[summarybox, title={Derivation closure: implement, cache, fail-fast}]
 \begin{itemize}
     \item \textbf{Implement:} treat each block as a typed transform (conv/BN/activation/pool) with explicit input-output shapes.
     \item \textbf{Cache:} retain pre-activations, normalization statistics, and masks needed for backward passes; do not recompute them implicitly.
@@ -440,7 +438,7 @@ This omits batching, convolution strides, and optimizer detail but highlights th
 \end{itemize}
 \end{tcolorbox}
 
-\begin{tcolorbox}[summarybox,title={Key takeaways}]
+\begin{tcolorbox}[summarybox, title={Key takeaways}]
 \begin{itemize}
     \item Convolutions introduce sparse connectivity and parameter sharing, dramatically reducing parameters vs. fully connected layers.
     \item Padding and stride control spatial resolution; pooling aggregates features to build invariances.
@@ -451,7 +449,7 @@ This omits batching, convolution strides, and optimizer detail but highlights th
 \medskip
 \noindent\textbf{Minimum viable mastery.}
 \begin{itemize}
-    \item Given \((n,f,s,p)\), compute output shapes and parameter counts for a convolutional block.
+    \item Given \((n, f, s, p)\), compute output shapes and parameter counts for a convolutional block.
     \item Explain equivariance vs.\ invariance and how stride/pooling/padding affect each.
     \item Describe what batch normalization and dropout do during training and how they change behavior at evaluation time.
 \end{itemize}
@@ -464,9 +462,9 @@ This omits batching, convolution strides, and optimizer detail but highlights th
 \end{itemize}
 \end{tcolorbox}
 
-\begin{tcolorbox}[summarybox,title={Exercises and lab ideas}]
+\begin{tcolorbox}[summarybox, title={Exercises and lab ideas}]
 \begin{itemize}
-    \item Hand-compute a 1D cross-correlation with several \((n,f,s,p)\) tuples and verify the shapes and values against a small script.
+    \item Hand-compute a 1D cross-correlation with several \((n, f, s, p)\) tuples and verify the shapes and values against a small script.
     \item Compare max-pool + stride 1 vs.\ stride-2 convolutions on a toy dataset; report accuracy and FLOPs.
     \item Equivariance sanity check: translate an image and confirm intermediate feature maps translate accordingly.
     \item Train two depth-10 CNNs on a tiny dataset: one plain, one with identity skips; compare convergence and accuracy.
@@ -478,4 +476,3 @@ This omits batching, convolution strides, and optimizer detail but highlights th
 
 \medskip
 \paragraph{Where we head next.} \Cref{chap:rnn} keeps the same training and audit discipline but shifts the modeling axis from spatial locality to temporal state and sequence dependence.
-

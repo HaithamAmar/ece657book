@@ -1,9 +1,9 @@
 % Chapter 5
 \section{Introduction to Neural Networks}\label{chap:perceptron}
 
-\Cref{chap:logistic} established linear and logistic models as strong baselines, but their decision boundaries are linear in the original feature space. We now shift from the statistical lens to a biological one: neurons as simple units whose collective behavior yields nonlinear decision boundaries. This chapter introduces neuron models, perceptrons, activation functions, and the first learning rules (perceptron and Adaline). \Cref{fig:roadmap} marks this as the start of the neural strand.
+\Cref{chap:logistic} established linear and logistic models as strong baselines, but their decision boundaries stay linear in the original feature space. We now shift from a statistical lens to a biological abstraction: simple neurons whose composition yields nonlinear decision surfaces. This chapter introduces neuron models, perceptrons, activation functions, and the first learning rules (perceptron and Adaline); \Cref{fig:roadmap} marks this as the start of the neural strand.
 
-\begin{tcolorbox}[summarybox,title={Learning Outcomes}]
+\begin{tcolorbox}[summarybox, title={Learning Outcomes}]
 After this chapter, you should be able to:
 \begin{itemize}
   \item Describe the core ingredients of neural networks (architecture, activations, learning).
@@ -12,18 +12,18 @@ After this chapter, you should be able to:
 \end{itemize}
 \end{tcolorbox}
 
-\begin{tcolorbox}[summarybox,title={Design motif}]
+\begin{tcolorbox}[summarybox, title={Design motif}]
 Biology as engineering abstraction: start with simple units, make the update rule explicit, and use geometry to build intuition before the algebra gets deep.
 \end{tcolorbox}
 
 \subsection{Biological Inspiration}
 \label{sec:perceptron_biological_inspiration}
 
-Human intelligence is often characterized by behaviors that resemble cognitive processes such as learning, reasoning, and decision-making. To replicate such intelligent behavior artificially, it is natural to look towards the biological systems that exhibit these capabilities. The human brain, composed of billions of interconnected neurons, serves as a primary source of inspiration.
+Neural networks borrow a simple but powerful idea from biology: complex behavior can emerge from many simple units interacting through many simple connections. The goal is not to model the brain in detail, but to steal an engineering abstraction we can write down and implement: signals flow through a network of units, and learning adjusts connection strengths so the overall system changes its behavior.
 
 \paragraph{Neurons and Neural Activity}
 
-A biological neuron can be conceptualized as a processing unit that receives multiple input signals, integrates them, and produces an output signal if certain conditions are met. The key components of a neuron include:
+A biological neuron can be viewed as a processing unit that receives multiple inputs, integrates them, and produces an output if certain conditions are met. In the simplified picture we use here, the key parts are:
 
 \begin{itemize}
     \item \textbf{Dendrites:} Receive incoming signals from other neurons.
@@ -32,11 +32,11 @@ A biological neuron can be conceptualized as a processing unit that receives mul
     \item \textbf{Synapses:} Junctions where signals are transmitted between neurons.
 \end{itemize}
 
-Signals arriving at the dendrites are often chemical in nature and can excite or inhibit the neuron. When the combined input exceeds a certain threshold, the neuron "fires," sending an electrical impulse down the axon to connected neurons. This firing is not simply binary; the strength and timing of signals can influence the neuron's response.
+Incoming signals can excite or inhibit the neuron. When the combined influence crosses a threshold, the neuron ``fires'' and sends an impulse down the axon to connected neurons. Real neurons are richer than this sketch (timing, frequency, and graded effects matter), but the abstraction is enough to motivate an artificial unit that combines inputs, applies a nonlinearity, and emits an output.
 
 \paragraph{Complexities and Unknowns}
 
-Despite extensive research, many aspects of neural function remain poorly understood, including:
+Despite extensive research, many aspects of neural function remain poorly understood. For our purposes, what matters is that even simple descriptions raise practical questions:
 
 \begin{itemize}
     \item How signals arriving at different dendrites simultaneously interact.
@@ -45,7 +45,7 @@ Despite extensive research, many aspects of neural function remain poorly unders
     \item How neural activity culminates in complex behaviors.
 \end{itemize}
 
-These uncertainties highlight the challenges in directly modeling biological neurons and motivate the development of simplified artificial models.
+These uncertainties highlight why we do not try to copy biology literally. Instead, we build simplified artificial models that preserve the compositional story (many units, many connections) while making the update rule explicit and learnable.
 
 \subsection{From Biological to Artificial Neural Networks}
 \label{sec:perceptron_from_biological_to_artificial_neural_networks}
@@ -168,7 +168,7 @@ Activation functions map the aggregated input \(z\) to a neuron's output \(y=f(z
 
 \end{itemize}
 
-\begin{tcolorbox}[summarybox,title={Notation note: activations and thresholds}]
+\begin{tcolorbox}[summarybox, title={Notation note: activations and thresholds}]
 In this chapter we use \(f(\cdot)\) as a generic placeholder for an activation function; when we need the logistic sigmoid specifically we write \(\sigma(\cdot)\). Elsewhere in the book, \(\phi(\cdot)\) denotes a kernel feature map. For thresholded functions we adopt \(H(0)=1\) (Heaviside) and \(\mathrm{sgn}(0)=0\) by convention. These choices do not affect continuous models but keep examples consistent.
 \end{tcolorbox}
 
@@ -319,7 +319,7 @@ The perceptron, introduced by Rosenblatt in 1958, extends the MP neuron by incor
     \label{eq:perceptron}
 \end{align}
 where \(\mathbf{x}\) is the input vector, \(\mathbf{w}\) the weight vector, and \(b\) the bias (threshold).
-\begin{tcolorbox}[summarybox,title={Targets and encodings}]
+\begin{tcolorbox}[summarybox, title={Targets and encodings}]
 We switch between labels in \texttt{\{0,1\}} (probability view) and labels in \texttt{\{-1,+1\}} (margin view).
 Convert with \texttt{y\_pm = 2*y01 - 1} and \texttt{y01 = (y\_pm + 1)/2}.
 Perceptron updates below use the \texttt{\{-1,+1\}} encoding.
@@ -329,7 +329,7 @@ The perceptron learning rule iteratively updates weights to reduce classificatio
 
 \paragraph{Perceptron update from the signed margin.} Let \(d_i = y_i(\mathbf{w}^\top \mathbf{x}_i + b)\) be the signed margin. If \(d_i \ge 0\) the example is correctly classified; if \(d_i < 0\) the example is misclassified. A common perceptron criterion is
 \[
-J(\mathbf{w},b) = - \sum_{i \in \mathcal{M}} d_i = - \sum_{i \in \mathcal{M}} y_i (\mathbf{w}^\top \mathbf{x}_i + b),
+J(\mathbf{w}, b) = - \sum_{i \in \mathcal{M}} d_i = - \sum_{i \in \mathcal{M}} y_i (\mathbf{w}^\top \mathbf{x}_i + b),
 \]
 where \(\mathcal{M}\) is the set of misclassified examples. Taking a gradient step on \(J\) yields
 \[
@@ -340,7 +340,7 @@ which is exactly the perceptron update. In augmented form, set \(x_0=1\) and \(w
 
 \paragraph{Perceptron convergence theorem.} If a training set is linearly separable with margin \(\gamma > 0\), the perceptron learning algorithm is guaranteed to find a separating hyperplane after at most \((R/\gamma)^2\) updates, where \(R\) bounds the input norms. Rescaling features changes \(R\) and \(\gamma\), so standardizing inputs tightens the bound. When the data are not separable the algorithm can cycle forever; \Cref{sec:mlp-limitations} (and \Cref{chap:mlp}) therefore emphasize feature scaling, bias terms, and the move to differentiable multilayer models to handle nonlinear problems.
 
-\begin{tcolorbox}[summarybox,title={Perceptron convergence theorem (proof sketch)}]
+\begin{tcolorbox}[summarybox, title={Perceptron convergence theorem (proof sketch)}]
 Assume there exists a unit vector \(\mathbf{w}^\star\) such that \(y_i\,\mathbf{w}^\star\!\cdot\!\mathbf{x}_i \ge \gamma\) for all \(i\) and that \(\|\mathbf{x}_i\|\le R\).
 Let w(t) denote the perceptron weights after t mistakes. Each mistake updates:
 \[
@@ -371,7 +371,7 @@ Let w(t) denote the perceptron weights after t mistakes. Each mistake updates:
     T\gamma
     &\le \mathbf{w}^{(T)} \cdot \mathbf{w}^\star \\
     &\le \|\mathbf{w}^{(T)}\| \|\mathbf{w}^\star\|
-    \le \sqrt{T}\,R,
+    \le \sqrt{T}\, R,
     \end{aligned}
     \]
     which implies \(T \le (R/\gamma)^2\).
@@ -379,7 +379,7 @@ Let w(t) denote the perceptron weights after t mistakes. Each mistake updates:
 Therefore the perceptron halts after finitely many mistakes on separable data. If the data are not separable, some \(\gamma > 0\) cannot be found, and the above argument no longer applies; hence the need for multilayer networks.
 \end{tcolorbox}
 
-\begin{tcolorbox}[summarybox,title={Common perceptron pitfalls}]
+\begin{tcolorbox}[summarybox, title={Common perceptron pitfalls}]
 \begin{itemize}
     \item \textbf{Feature scaling:} Large-magnitude features dominate updates; standardize inputs first.
     \item \textbf{Random seed sensitivity:} Different initial weights can lead to drastically different separating hyperplanes.
@@ -429,7 +429,6 @@ Therefore the perceptron halts after finitely many mistakes on separable data. I
     \label{fig:lec3-perceptron-geometry}
 \end{figure}
 
-Use \Cref{fig:lec3-perceptron-geometry} as the derivation anchor for this section.
 
 \paragraph{Adaline model}
 
@@ -449,15 +448,15 @@ Unlike the perceptron, Adaline updates on every example and scales the step by t
 
 The perceptron and Adaline models are limited to linearly separable problems. To overcome this, multilayer perceptrons (MLPs) with hidden layers were introduced; \Cref{chap:mlp} and \Cref{chap:backprop} develop the mechanics in full.
 
-\begin{tcolorbox}[summarybox,title={Perceptron vs.\ logistic regression}]
+\begin{tcolorbox}[summarybox, title={Perceptron vs.\ logistic regression}]
 Linear score \(s(\mathbf{x})=\mathbf{w}^\top\mathbf{x}+b\). The perceptron predicts \(\mathbb{1}[s\ge 0]\) and updates \(\mathbf{w}\leftarrow \mathbf{w}+\eta y_i\mathbf{x}_i\) (and \(b\leftarrow b+\eta y_i\)) only on mistakes, with \(y_i\in\{-1,+1\}\). Logistic regression predicts \(\sigma(s)\), minimizes cross\hyp{}entropy \(-\sum_i y_i\log\sigma(s_i)+(1-y_i)\log(1-\sigma(s_i))\), and steps by \(\sum_i(\sigma(s_i)-y_i)\mathbf{x}_i\). Prefer logistic when calibrated probabilities and smooth optimization are needed (\Cref{chap:logistic}).
 \end{tcolorbox}
 
-\begin{tcolorbox}[summarybox,title={Author's note: what a single perceptron cannot express}]
+\begin{tcolorbox}[summarybox, title={Author's note: what a single perceptron cannot express}]
 A single perceptron makes one global, all-or-none decision: one hyperplane, one threshold, one set of weights shared across every example. That simplicity is the point of the model, but it also explains its limitations. Many real problems require \emph{communities} of units that specialize: different hidden units respond to different regions, features, or patterns, and their combined vote produces a flexible decision surface. Multi-layer networks do not just add parameters; they add internal structure that lets different parts of the model ``care about'' different parts of the data.
 \end{tcolorbox}
 
-\begin{tcolorbox}[summarybox,title={Key takeaways}]
+\begin{tcolorbox}[summarybox, title={Key takeaways}]
 \textbf{Minimum viable mastery}
 \begin{itemize}
     \item The perceptron and Adaline turn threshold units into trainable classifiers by updating weights from data.
@@ -474,7 +473,7 @@ A single perceptron makes one global, all-or-none decision: one hyperplane, one 
 \end{itemize}
 \end{tcolorbox}
 
-\begin{tcolorbox}[summarybox,title={Exercises and lab ideas}]
+\begin{tcolorbox}[summarybox, title={Exercises and lab ideas}]
 \begin{itemize}
     \item Implement a minimal example from this chapter and visualize intermediate quantities (plots or diagnostics) to match the pseudocode.
     \item Stress-test a key hyperparameter or design choice discussed here and report the effect on validation performance or stability.
@@ -487,5 +486,4 @@ A single perceptron makes one global, all-or-none decision: one hyperplane, one 
 \medskip
 \paragraph{Where we head next.} Perceptrons are intentionally simple: hard thresholds and uniform updates. Their strengths (linear separation) and limits (for example XOR) motivate multilayer models. \Cref{chap:mlp} continues this thread by chaining units, defining a loss, and asking the key training question: \emph{how should weights change to improve performance?} That question leads directly to the chain rule and smooth activations. \Cref{chap:backprop} then scales the same bookkeeping to arbitrary depth and efficient implementation.
 
-\nocite{McCullochPitts1943,Rosenblatt1958,WidrowHoff1960,Rumelhart1986}
-
+\nocite{McCullochPitts1943, Rosenblatt1958, WidrowHoff1960, Rumelhart1986}
