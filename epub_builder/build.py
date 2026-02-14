@@ -101,7 +101,22 @@ def _inline_bibliography_from_bbl(doc_body: str, *, bbl_path: Path) -> str:
             "Missing notes_output/ece657_notes.bbl; build the PDF/BibTeX first so EPUB can include end references."
         )
 
-    bbl_text = bbl_path.read_text(encoding="utf-8", errors="ignore").strip()
+    bbl_text = bbl_path.read_text(encoding="utf-8", errors="ignore")
+
+    # Keep only actual bibliography entries (drop BibTeX macro preamble that
+    # can leak as visible text in EPUB, e.g., "102 urlstyle").
+    first_item = bbl_text.find("\\bibitem")
+    if first_item != -1:
+        bbl_text = bbl_text[first_item:]
+    bbl_text = re.sub(r"\\begin\{thebibliography\}\{[^}]*\}", "", bbl_text)
+    bbl_text = re.sub(r"\\end\{thebibliography\}", "", bbl_text)
+
+    # Make entries readable for Pandoc/EPUB while preserving print-style prose.
+    bbl_text = re.sub(r"\\bibitem(?:\[[^\]]*\])?\{[^}]+\}", "\n\n", bbl_text)
+    bbl_text = bbl_text.replace("\\newblock", " ")
+    bbl_text = re.sub(r"\\doi\{([^}]*)\}", r"doi: \1", bbl_text)
+    bbl_text = re.sub(r"\\url\{([^}]*)\}", r"\1", bbl_text)
+    bbl_text = re.sub(r"\n{3,}", "\n\n", bbl_text).strip()
     replacement = (
         "\n\\section*{References}\n"
         "\\addcontentsline{toc}{section}{References}\n"
