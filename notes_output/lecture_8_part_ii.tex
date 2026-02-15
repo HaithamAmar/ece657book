@@ -2,22 +2,24 @@
 \section{Introduction to Soft Computing}\label{chap:softcomp}
 \graphicspath{{assets/lec8/}}
 
-The sequence strand treated language and perception as differentiable computation: stateful models in \Cref{chap:rnn}, representation layers in \Cref{chap:nlp}, and modern attention in \Cref{chap:transformers}. Many engineered systems, however, are constrained less by data or compute than by specification: the relevant concepts are linguistic (``too warm,'' ``slightly fast,'' ``acceptable risk'') and the controller must remain auditable. Soft computing makes that vagueness explicit.
+Parts I--II emphasized two complementary toolkits: probabilistic modeling and ERM (model--loss--optimize--audit), and biologically inspired learning (distributed representations trained by gradient descent). They shine when you can write down a smooth objective and collect enough data. Many engineered systems, however, are constrained less by data or compute than by specification: the relevant concepts are linguistic (``too warm,'' ``slightly fast,'' ``acceptable risk''), the boundaries are negotiable, and the decision logic must remain auditable.
 
-\begin{tcolorbox}[summarybox,title={Learning Outcomes}]
+Soft computing makes that vagueness explicit. Instead of insisting on exact equations everywhere, we represent human concepts with graded membership functions, combine them with transparent rules, and then tune those choices (and their trade-offs) with optimization rather than brittle hand tweaks. The shift is not away from rigor; it is toward placing approximations where they belong---at the interface between messy human predicates and systems that still have to act.
+
+\begin{tcolorbox}[summarybox, title={Learning Outcomes}]
 \begin{itemize}
     \item Articulate why soft computing (fuzzy logic, evolutionary search, neural hybrids) complements the statistical strand from earlier chapters.
     \item Define fuzzy sets, linguistic variables, and rule bases at a conceptual level before \Crefrange{chap:fuzzysets}{chap:fuzzyinference} formalize them.
-    \item Track a running thermostat/autofocus example that grounds the design choices introduced throughout the fuzzy trilogy.
+    \item Work through a compact thermostat/autofocus controller example that grounds the design choices introduced throughout the fuzzy trilogy.
 \end{itemize}
 \end{tcolorbox}
 
-\begin{tcolorbox}[summarybox,title={Design motif}]
+\begin{tcolorbox}[summarybox, title={Design motif}]
 When precision is costly or ill-defined, make the vagueness explicit and keep the system auditable: represent linguistic concepts with membership functions, reason with operator choices you can explain, and tune those choices with optimization rather than brittle rules.
 \end{tcolorbox}
 
 \paragraph{Running example (thermostat).}
-We revisit a smart thermostat that regulates a room using two linguistic inputs (temperature error and rate of change) and one output (heater power). This compact scenario lets us instantiate membership functions (\Cref{chap:fuzzysets}), transform them between universes (\Cref{chap:fuzzyrelations}), and assemble complete inference systems (\Cref{chap:fuzzyinference}) without inventing new notation each time.
+We revisit a smart thermostat that regulates a room using two linguistic inputs (temperature error and rate of change) and one output (heater power). This compact scenario returns throughout the fuzzy trilogy: first to parameterize membership functions (\Cref{chap:fuzzysets}), then to transport labels across related universes (\Cref{chap:fuzzyrelations}), and finally to assemble complete inference systems (\Cref{chap:fuzzyinference}).
 
 \subsection{Hard Computing: The Classical Paradigm}
 \label{sec:softcomp_hard_computing_the_classical_paradigm}
@@ -117,7 +119,7 @@ It is important to clarify the subtle differences among these concepts:
 \end{itemize}
 In short, imprecision concerns our knowledge about a precise boundary, whereas fuzziness is a property of the concept itself: even with perfect measurements, ``warm'' transitions smoothly into ``hot.''
 For example, reading $24.5^\circ$C from a thermometer with $\pm 1^\circ$C resolution is an \emph{imprecise} observation, whereas deciding whether $24.5^\circ$C should be labelled ``warm'' or ``hot'' is a \emph{fuzzy} membership question that remains even if the thermometer were infinitely precise.
-\begin{tcolorbox}[title={Imprecision vs. Fuzziness}, colback=gray!5,colframe=gray!40,boxrule=0.4pt]
+\begin{tcolorbox}[title={Imprecision vs. Fuzziness}, colback=gray!5, colframe=gray!40, boxrule=0.4pt]
 \textbf{Imprecision} concerns uncertainty about the exact value or boundary (e.g., measurement error or coarse resolution). \textbf{Fuzziness} concerns graded membership in a concept (e.g., the degree to which a day is ``warm'') even when measurements are exact. Probability quantifies uncertainty about events; fuzziness quantifies degree of truth of linguistic predicates.
 \end{tcolorbox}
 % Chapter 15 (continued)
@@ -133,7 +135,6 @@ Soft computing is not a monolithic framework but rather a coalition of distinct 
     \item \textbf{Genetic/Evolutionary Computation:} \Cref{chap:evo} shows how evolutionary search tunes rule bases and membership parameters \citep{Herrera2008,Ishibuchi2007}.
 \end{itemize}
 
-Use \Cref{tab:fuzzy-vs-prob} as the derivation anchor for this section.
 
 \begin{table}[t]
 \centering
@@ -152,9 +153,8 @@ Use \Cref{tab:fuzzy-vs-prob} as the derivation anchor for this section.
 \end{tabular}
 \end{table}
 
-Use \Cref{tab:fuzzy-vs-prob} as the derivation anchor for this section.
 
-\Cref{tab:boolean-vs-fuzzy} is the quick translation reference from crisp logic operators to fuzzy operators.
+\Cref{tab:boolean-vs-fuzzy} provides a quick translation from crisp logic operators to fuzzy operators.
 
 \begin{table}[t]
 \centering
@@ -165,14 +165,13 @@ Use \Cref{tab:fuzzy-vs-prob} as the derivation anchor for this section.
 \toprule
  & \textbf{Boolean logic} & \textbf{Fuzzy logic} \\
 \midrule
-AND & \(\min(a,b)\) & t\hyp{}norm (e.g., min, product) \\
-OR & \(\max(a,b)\) & s\hyp{}norm (e.g., max, prob.\ sum) \\
+AND & \(\min(a, b)\) & t\hyp{}norm (e.g., min, product) \\
+OR & \(\max(a, b)\) & s\hyp{}norm (e.g., max, prob.\ sum) \\
 NOT & \(1-a\) & complement \(1-a\) \\
 \bottomrule
 \end{tabular}
 \end{table}
 
-Use \Cref{tab:boolean-vs-fuzzy} as the derivation anchor for this section.
 \FloatBarrier
 
 \subsection{Fuzzy Logic: Capturing Human Knowledge Linguistically}
@@ -314,7 +313,7 @@ which reads: "For all real numbers $x$, $x^2$ is greater than or equal to zero."
 An example involving two domains could be:
 
 \[
-\forall x \in \text{Rabbits}, \quad \forall y \in \text{Tortoises}, \quad \text{Faster}(x,y),
+\forall x \in \text{Rabbits}, \quad \forall y \in \text{Tortoises}, \quad \text{Faster}(x, y),
 \]
 
 meaning "For any rabbit $x$ and any tortoise $y$, $x$ is faster than $y$."
@@ -426,7 +425,7 @@ These are crisp sets since no student belongs to both classes simultaneously.
 
 \paragraph{Fuzzy sets} generalize this notion by allowing partial membership. A fuzzy set \( \tilde{A} \) on \(X\) is characterized by a \emph{membership function}:
 \[
-\mu_{\tilde{A}} : X \to [0,1],
+\mu_{\tilde{A}}: X \to [0,1],
 \]
 where \(\mu_{\tilde{A}}(x)\) quantifies the degree to which \(x\) belongs to \(\tilde{A}\).
 
@@ -435,7 +434,7 @@ Consider the linguistic labels \texttt{Small}, \texttt{Medium}, and \texttt{Larg
 
 \paragraph{Thermostat at a glance.} Throughout \Crefrange{chap:fuzzysets}{chap:fuzzyinference} we reuse a fuzzy thermostat: inputs are temperature error and rate (linguistic labels such as \texttt{Cold}, \texttt{Warm}, \texttt{Hot}; \texttt{Cooling}, \texttt{Stable}, \texttt{Heating}); rules map these to heater power; defuzzification turns the fuzzy action into a crisp control signal. Keep this loop in mind as membership functions and operators are introduced.
 
-\begin{tcolorbox}[summarybox,title={Lab prep: fuzzy thermostat starter}]
+\begin{tcolorbox}[summarybox, title={Lab prep: fuzzy thermostat starter}]
 \begin{itemize}
     \item Install \texttt{scikit-fuzzy} and \texttt{matplotlib}.
     \item Define triangular membership functions for \texttt{Cold}/\texttt{Warm}/\texttt{Hot} over a temperature universe; plot the overlap.
@@ -443,7 +442,7 @@ Consider the linguistic labels \texttt{Small}, \texttt{Medium}, and \texttt{Larg
 \end{itemize}
 \end{tcolorbox}
 
-\begin{tcolorbox}[summarybox,title={Exercises (\Cref{chap:softcomp})}]
+\begin{tcolorbox}[summarybox, title={Exercises (\Cref{chap:softcomp})}]
 \begin{itemize}
     \item Classify three scenarios as imprecision vs.\ uncertainty vs.\ fuzziness; justify each.
     \item Write two fuzzy thermostat rules and reason qualitatively about the output for a borderline input.
@@ -490,7 +489,7 @@ In intelligent control systems, such as automotive braking, fuzzy logic allows t
 
 \Crefrange{chap:fuzzysets}{chap:fuzzyinference} pick up the thermostat running example and formalize each stage: \Cref{chap:fuzzysets} constructs the membership functions for error/rate labels, \Cref{chap:fuzzyrelations} shows how relations and projections move information between universes, and \Cref{chap:fuzzyinference} assembles the full Mamdani/Sugeno inference pipeline. Keep this soft-computing overview handy as a conceptual map while those chapters work through the algebra.
 
-\begin{tcolorbox}[summarybox,title={Key takeaways}]
+\begin{tcolorbox}[summarybox, title={Key takeaways}]
 \begin{itemize}
     \item Soft computing embraces imprecision via fuzzy logic, evolutionary search, and neural networks.
     \item Fuzzy operators (t\hyp{}norms, implications) enable approximate reasoning under uncertainty.
@@ -513,7 +512,7 @@ In intelligent control systems, such as automotive braking, fuzzy logic allows t
 \end{itemize}
 \end{tcolorbox}
 
-\begin{tcolorbox}[summarybox,title={Exercises and lab ideas}]
+\begin{tcolorbox}[summarybox, title={Exercises and lab ideas}]
 \begin{itemize}
     \item Implement a minimal example from this chapter and visualize intermediate quantities (plots or diagnostics) to match the pseudocode.
     \item Stress-test a key hyperparameter or design choice discussed here and report the effect on validation performance or stability.
@@ -526,5 +525,4 @@ In intelligent control systems, such as automotive braking, fuzzy logic allows t
 
 \paragraph{Where we head next.} \Crefrange{chap:fuzzysets}{chap:fuzzyinference} carry the thermostat running example end-to-end: \Cref{chap:fuzzysets} builds membership functions, \Cref{chap:fuzzyrelations} transports information across universes through relations, and \Cref{chap:fuzzyinference} assembles full inference plus defuzzification.
 
-\nocite{Zadeh1965,DuboisPrade1980,YenLangari1999}
-
+\nocite{Zadeh1965, DuboisPrade1980, YenLangari1999}

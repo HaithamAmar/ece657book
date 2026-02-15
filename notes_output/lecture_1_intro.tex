@@ -1,9 +1,9 @@
 % Chapter 1
 \section{About This Book}\label{chap:intro}
 
-Intelligent systems are engineered artifacts that perceive, reason, and act under constraints. This chapter introduces the working vocabulary used throughout the book: historical context, core definitions, and recurring design themes. The roadmap in \Cref{fig:roadmap} anchors the strand sequence and reading paths.
+Intelligent systems are engineered artifacts that perceive, reason, and act under constraints. This chapter sets the shared vocabulary (historical context, core definitions, recurring design themes), and \Cref{fig:roadmap} shows how the strands connect and where to enter.
 
-\begin{tcolorbox}[summarybox,title={Learning Outcomes}]
+\begin{tcolorbox}[summarybox, title={Learning Outcomes}]
 After this chapter, you should be able to:
 \begin{itemize}
     \item Explain what this book means by an \emph{intelligent system} (and how that differs from an \emph{intelligent machine}).
@@ -13,9 +13,9 @@ After this chapter, you should be able to:
 \end{itemize}
 \end{tcolorbox}
 
-Think of this chapter as the front matter you will keep returning to: when later chapters introduce new tools, they reuse the same system vocabulary and the same habit of checking assumptions against constraints.
+Use this chapter as a standing reference: later tools reuse the same system vocabulary and the same habit of checking assumptions against constraints.
 
-\begin{tcolorbox}[summarybox,title={Design motif}]
+\begin{tcolorbox}[summarybox, title={Design motif}]
 We treat ``intelligence'' operationally: specify what a system represents, what actions it can take, and how it checks itself against objectives and constraints.
 \end{tcolorbox}
 
@@ -179,11 +179,11 @@ AI systems can be decomposed into three interrelated components:
 
 The design checklist above becomes concrete when we dissect a deployed system. Consider a networked camera that detects humans and escalates alarms in an industrial plant.
 
-\begin{tcolorbox}[summarybox,title={Checklist instantiated for the camera system}]
+\begin{tcolorbox}[summarybox, title={Checklist instantiated for the camera system}]
 \begin{description}[style=nextline]
     \item[Problem + value role] Detect humans entering restricted zones (understand the present) and log footage for later audits (explain the past).
     \item[Representation] Images are streamed as \(H\times W\times 3\) tensors; regions of interest and background models are maintained to suppress noise.
-    \item[Objectives/constraints] Maintain $<200$\,ms end-to-end latency and $<1\%$ false negatives; respect privacy/retention policies.
+    \item[Objectives/constraints] Maintain $<200$\, ms end-to-end latency and $<1\%$ false negatives; respect privacy/retention policies.
     \item[Hardware (perception/action)] CMOS sensor, on-board DSP/accelerator, motorized pan/tilt for re-targeting.
     \item[Software (reasoning)] YOLOv8-style detector fine-tuned on site-specific data, fused with Kalman filters for track smoothing and MPC logic that commands the pan/tilt actuator or triggers alerts.
     \item[Integration] Edge inference handles immediate reactions; metadata is sent to a cloud analytics service that enriches logs and retrains models (predicting the future by anticipating recurrent intrusion times).
@@ -265,7 +265,7 @@ To ground these ideas, consider input/output sketches from systems readers often
 
 These vignettes echo a common pattern: intelligent systems fuse heterogeneous sensors to produce calibrated control or decision signals under safety, comfort, or performance constraints.
 
-\begin{tcolorbox}[perspectivebox,title={Emotions as Utility Signals}]
+\begin{tcolorbox}[perspectivebox, title={Emotions as Utility Signals}]
 From a design perspective, emotions can be viewed abstractly as changes in an agent's internal utility or value function: positive affect corresponds to utility gains, negative affect to losses, and social emotions to comparisons between agents' utilities. Artificial systems can mimic this by modulating learning rates, exploration pressure, or safety margins in response to internal ``frustration'' or ``satisfaction'' signals without presupposing rich phenomenology. This book treats this view strictly as a modeling device for embedding motivational signals into controllers; affective computing and cognitive science work with much richer state representations than we use here.
 \end{tcolorbox}
 
@@ -326,7 +326,7 @@ While machines can exhibit intelligent behaviors, the question of whether they p
 In this book we treat consciousness operationally:\\
 we focus on meta-cognition (self\hyp{}monitoring of one's own decision process) rather than phenomenal awareness. This keeps the discussion tied to observable, designable behaviors rather than philosophical claims.
 
-\begin{tcolorbox}[perspectivebox,title={Author's note: ``subject of its own thought''}]
+\begin{tcolorbox}[perspectivebox, title={Author's note: ``subject of its own thought''}]
 \emph{Strong} machine intelligence, in my view, means a system can make itself the subject of its own thought. It keeps self-models (confidence monitors, policy auditors, explanation traces) to critique and revise its reasoning, not just its predictions.\\
 The rest of this book uses the simpler four-layer taxonomy (reactive~$\rightarrow$ deliberative~$\rightarrow$ adaptive~$\rightarrow$ meta-cognitive), but the ``subject of its own thought'' view motivates why Level~4 systems need special care in design and governance.
 \end{tcolorbox}
@@ -371,7 +371,7 @@ The emphasis is on breadth with enough mathematical depth that you can relate id
 
 The book also maintains a deliberate dual emphasis: representation learning with neural and kernelized models on one hand, and soft\hyp{}computing approaches (fuzzy systems and evolutionary optimization) on the other. This balance keeps robustness, interpretability, and optimization themes all in view rather than treating deep networks in isolation.
 
-	The assumed background is undergraduate calculus and linear algebra (vectors, matrices, eigenvalues) and basic probability and statistics. No prior dedicated AI or machine\hyp{}learning course is assumed: key ideas such as losses, optimization, gradient descent, backpropagation, kernels, fuzzy operators, and evolutionary operators are introduced from first principles when they first appear. Familiarity with signals and systems, and with linear time-invariant (LTI) models in particular, is helpful for the sequence-modeling and control-oriented parts of the book; \Cref{app:linear_systems} (\emph{Linear Systems Primer}) provides a concise refresher.
+    The assumed background is undergraduate calculus and linear algebra (vectors, matrices, eigenvalues) and basic probability and statistics. No prior dedicated AI or machine\hyp{}learning course is assumed: key ideas such as losses, optimization, gradient descent, backpropagation, kernels, fuzzy operators, and evolutionary operators are introduced from first principles when they first appear. Familiarity with signals and systems, and with linear time-invariant (LTI) models in particular, is helpful for the sequence-modeling and control-oriented parts of the book; \Cref{app:linear_systems} (\emph{Linear Systems Primer}) provides a concise refresher.
 
 \subsection{Roadmap and Reading Paths}
 \label{sec:intro_roadmap_and_reading_paths}
@@ -433,7 +433,7 @@ Readers arrive with different goals. The roadmap is intentionally a dependency g
 \noindent\textbf{Conventions and reading aids.} The front matter summarizes notation and common conventions, and it also includes a short guide to reading figures and recurring box styles.
 
 \medskip
-\begin{tcolorbox}[summarybox,title={Key takeaways}]
+\begin{tcolorbox}[summarybox, title={Key takeaways}]
 \textbf{Minimum viable mastery}
 \begin{itemize}
     \item Intelligent systems integrate perception, decision, and action; we study both model\hyp{}based and control\hyp{}based realizations.
@@ -449,16 +449,14 @@ Readers arrive with different goals. The roadmap is intentionally a dependency g
 \end{itemize}
 \end{tcolorbox}
 
-\begin{tcolorbox}[summarybox,title={Exercises and lab ideas}]
+\begin{tcolorbox}[summarybox, title={Exercises and lab ideas}]
 \begin{itemize}
     \item Pick one engineered system you know (e.g., a recommender, a robot, a control loop) and identify its \emph{percepts}, \emph{internal representation}, and \emph{actions}.
     \item For one section of this chapter, rewrite the core definition in your own words and list one concrete failure mode the definition helps you anticipate.
-    \item Use \Cref{fig:roadmap} to choose a reading path and write down which two chapters you will skim first (and why).
+    \item Choose a reading path using \Cref{fig:roadmap}, and write down which two chapters you will skim first (and why).
 \end{itemize}
 \medskip
 \noindent\textbf{If you are skipping ahead.} Keep the operational vocabulary (representation, actions, objective/goal test, and audit/checks) and the roadmap (\Cref{fig:roadmap}) in mind; later chapters assume these as the organizing lens for both symbolic and data-driven tools.
 \end{tcolorbox}
 
 \paragraph{Where we head next.} \Cref{chap:symbolic} grounds this vocabulary in a compact case study: symbolic integration as transformation search. The example shows decomposition, safe rewrites, heuristic branching, backtracking, and residual checks in one place; those same capabilities reappear later in data\hyp{}driven settings.
-
-

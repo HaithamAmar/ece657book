@@ -1,9 +1,9 @@
 % Chapter 14
 \section{Transformers: Attention-Based Sequence Modeling}\label{chap:transformers}
 
-\Cref{chap:rnn} made the sequence problem explicit: stateful computation plus gradients that must flow across time. \Cref{chap:nlp} then supplied the representation layer that makes those sequence objectives practical. This chapter keeps that representation layer but removes recurrence, replacing it with attention so information can move globally within a layer.
+\Cref{chap:rnn} made the sequence problem explicit: stateful computation plus gradients that must flow across time. \Cref{chap:nlp} then supplied the representation layer that makes those sequence objectives practical. This chapter keeps those representations but removes recurrence, replacing it with attention so information can move globally within a layer.
 
-\begin{tcolorbox}[summarybox,title={Learning Outcomes}]
+\begin{tcolorbox}[summarybox, title={Learning Outcomes}]
 After this chapter, you should be able to:
 \begin{itemize}
   \item Write the scaled dot-product attention and multi-head attention formulas.
@@ -14,7 +14,7 @@ After this chapter, you should be able to:
 \end{itemize}
 \end{tcolorbox}
 
-\begin{tcolorbox}[summarybox,title={Design motif}]
+\begin{tcolorbox}[summarybox, title={Design motif}]
 Control information flow with structure (masks, normalization, residual paths) so optimization remains stable while context windows grow.
 \end{tcolorbox}
 
@@ -22,7 +22,7 @@ Control information flow with structure (masks, normalization, residual paths) s
 \label{sec:transformers_why_transformers_after_rnns}
 The RNN chapter (\Cref{chap:rnn}) closed with recurrent models that process tokens sequentially: information must travel through time steps, training cannot fully parallelize across positions, and gradients can still struggle on long contexts even with gating. The embeddings chapter (\Cref{chap:nlp}) addressed a different bottleneck---how tokens become vectors so many\hyp{}to\hyp{}one decisions (e.g., sentiment classification) can generalize across similar words. Transformers replace recurrence with attention so every position can condition on any other in a single layer, enabling parallel hardware use and more direct long-range interactions \citep{Vaswani2017}.
 
-\begin{tcolorbox}[summarybox,title={Risk \& audit}]
+\begin{tcolorbox}[summarybox, title={Risk \& audit}]
 \begin{itemize}
     \item \textbf{Masking errors:} audit causal and padding masks; subtle bugs can leak future tokens or corrupt attention weights.
     \item \textbf{Evaluation leakage:} benchmark contamination (train/test overlap) can inflate results; prefer held-out slices and time-based splits when possible.
@@ -34,7 +34,7 @@ The RNN chapter (\Cref{chap:rnn}) closed with recurrent models that process toke
 
 \subsection{Scaled Dot-Product Attention}
 \label{sec:transformers_scaled_dot_product_attention}
-\begin{tcolorbox}[summarybox,title={Author's note: attention allocates focus per token}]
+\begin{tcolorbox}[summarybox, title={Author's note: attention allocates focus per token}]
 It is helpful to view attention as each token asking ``who else helps me understand my role,'' with masks and layer norms enforcing the rules of that dialogue. The scaled dot-product equations that follow quantify that per-token focus allocation.
 \end{tcolorbox}
 
@@ -46,11 +46,11 @@ Given query, key, value matrices \(\mathbf{Q} \in \mathbb{R}^{n_q \times d_k}\),
 \end{equation}
 Here \(n_q\) is the sequence length of the queries and \(n_k\) the sequence length of keys/values. We keep the same sequence-first convention used in \Cref{chap:rnn,chap:nlp}: rows index time positions (a ``token dimension'') and columns index features, while batch elements are processed independently. The \(1/\sqrt{d_k}\) factor stabilizes gradients by keeping logits in a reasonable range.
 
-\begin{tcolorbox}[summarybox,title={Shape ledger}]
+\begin{tcolorbox}[summarybox, title={Shape ledger}]
 We treat mini\hyp{}batches as \(\mathbf{X}\in\mathbb{R}^{B\times n \times d_{\text{model}}}\) (batch, sequence, features). After the linear projections each head carries \(\mathbf{Q},\mathbf{K}\in\mathbb{R}^{B\times h \times n \times d_k}\), \(\mathbf{V}\in\mathbb{R}^{B\times h \times n \times d_v}\), and the attention weights live in \(\mathbb{R}^{B\times h \times n \times n}\). Reading dimensions in this order avoids confusion when mixing frameworks; \(h\cdot d_k = d_{\text{model}}\) (often \(d_v=d_k\)). FFN inner widths typically 2--4\(\times d_{\text{model}}\).
 \end{tcolorbox}
 
-\begin{tcolorbox}[summarybox,title={Complexity and memory}]
+\begin{tcolorbox}[summarybox, title={Complexity and memory}]
 Naive attention is \(O(n^2 d_{\text{model}})\) compute and \(O(n^2)\) memory per head/layer for the attention map; this dominates long sequences. FlashAttention reduces activation I/O but keeps the quadratic arithmetic; sparse/linear variants reduce the \(n^2\) factor by trading exactness for structure (see Longformer/BigBird/Reformer/Performer/Linformer). Causal/padding masks do not change complexity, only which entries participate.
 \end{tcolorbox}
 
@@ -206,7 +206,7 @@ with \(\mathbf{W}_i^Q \in \mathbb{R}^{d_{\text{model}} \times d_k}\), \(\mathbf{
         \end{axis}
         \node[anchor=south, font=\small] at ([yshift=12pt]p1.south) {Positional encodings};
         \node[anchor=north, font=\small] at ([yshift=2pt]p1.south) {sinusoidal / RoPE};
-        \node[anchor=north west, font=\footnotesize] at ([xshift=4pt,yshift=-4pt]p1.north west) {(a)};
+        \node[anchor=north west, font=\footnotesize] at ([xshift=4pt, yshift=-4pt]p1.north west) {(a)};
     \end{scope}
 
     % Middle panel: Decoder + KV Cache
@@ -215,7 +215,7 @@ with \(\mathbf{W}_i^Q \in \mathbb{R}^{d_{\text{model}} \times d_k}\), \(\mathbf{
         \node[box, minimum width=2.6cm, font=\small] (dec) at (p2.center|-0,0.65) {Decoder block};
         \node[subbox, minimum width=2.6cm, font=\small] (kv) at (p2.center|-0,-0.65) {K/V cache};
         \draw[->, line width=0.9pt] (dec) -- (kv);
-        \node[anchor=north west, font=\footnotesize] at ([xshift=4pt,yshift=-4pt]p2.north west) {(b)};
+        \node[anchor=north west, font=\footnotesize] at ([xshift=4pt, yshift=-4pt]p2.north west) {(b)};
     \end{scope}
 
     % Right panel: LoRA adapters
@@ -229,7 +229,7 @@ with \(\mathbf{W}_i^Q \in \mathbb{R}^{d_{\text{model}} \times d_k}\), \(\mathbf{
         \draw[->, line width=0.9pt] (A.north) -- ($(W.south)!0.55!(W.south east)$);
         \node[font=\scriptsize, anchor=south] at ([yshift=2pt]W.south) {rank $r$};
         \node[font=\small] at ([yshift=-12pt]p3.south) {LoRA adapters};
-        \node[anchor=north west, font=\footnotesize] at ([xshift=4pt,yshift=-4pt]p3.north west) {(c)};
+        \node[anchor=north west, font=\footnotesize] at ([xshift=4pt, yshift=-4pt]p3.north west) {(c)};
     \end{scope}
 
     % Cross-panel connectivity arrows
@@ -251,9 +251,8 @@ with \(\mathbf{W}_i^Q \in \mathbb{R}^{d_{\text{model}} \times d_k}\), \(\mathbf{
     \label{fig:lec13_micro_figures}
 \end{figure}
 
-Use \Cref{fig:lec13_micro_figures} as the architecture anchor for this section.
 
-\Cref{fig:lec13-masks} is the mask-behavior reference for padding and causal attention constraints.
+\Cref{fig:lec13-masks} shows how padding and causal masks constrain attention patterns.
 
 \paragraph{Micro attention example (2 tokens, causal mask).}
 Let \(Q=K=V=\begin{bmatrix}1&0\\0&1\end{bmatrix}\) and \(d_k=2\).
@@ -261,7 +260,7 @@ Use a causal mask that sets all logits \emph{above} the diagonal to \(-\infty\),
 The unscaled score matrix is \(\begin{bmatrix}1&0\\0&1\end{bmatrix}\); after masking and dividing by \(\sqrt{2}\), the first row softmaxes to \([1,0]\) and the second to \([\tfrac{e^{0}}{e^{0}+e^{1/\sqrt{2}}},\tfrac{e^{1/\sqrt{2}}}{e^{0}+e^{1/\sqrt{2}}}]\).
 These are exactly the attention weights, and because \(V\) is the identity the attention output equals the weight matrix:
 \[
-\operatorname{Attn}(Q,K,V)=
+\operatorname{Attn}(Q, K, V)=
 \begin{bmatrix}
 1&0\\
 \tfrac{1}{1+e^{1/\sqrt{2}}} & \tfrac{e^{1/\sqrt{2}}}{1+e^{1/\sqrt{2}}}
@@ -297,7 +296,7 @@ Each block uses residual connections and layer normalization:
 \end{align}
 The feed-forward sublayer (FFN) is position-wise, typically two linear layers with a nonlinearity (e.g., GELU). Dropout and label smoothing are common.
 
-\begin{tcolorbox}[summarybox,title={Transformer block (pre-LN) pseudocode}]
+\begin{tcolorbox}[summarybox, title={Transformer block (pre-LN) pseudocode}]
 \begin{verbatim}
 function Block(H):
     # Pre-normalize inputs (pre-LN stabilizes deep stacks)
@@ -311,11 +310,11 @@ function Block(H):
 Decoder blocks add causal masks and cross-attention with encoder states. Pre-LN (shown here) is now common because it keeps gradients well behaved for very deep stacks; post-LN (original Transformer) is still used in smaller models.
 \end{tcolorbox}
 
-\begin{tcolorbox}[summarybox,title={Training defaults (decoder-only, 2024)}]
+\begin{tcolorbox}[summarybox, title={Training defaults (decoder-only, 2024)}]
 AdamW with cosine decay and 1--3\% warmup; LR \(\sim10^{-3}\) for small models, \(1{-}2\times10^{-4}\) for mid-size. Weight decay \(\approx 0.01\) (exclude biases/LayerNorm gains). Attention/MLP dropout \(\approx0.1\); clip global norm to 1.0. Mixed precision (FP16/BF16) plus gradient checkpointing for long contexts; tie input embeddings to the LM head; use causal masks for CLM, padding masks for packed batches.
 \end{tcolorbox}
 
-\begin{tcolorbox}[summarybox,title={One training step (decoder-only, causal mask)}]
+\begin{tcolorbox}[summarybox, title={One training step (decoder-only, causal mask)}]
 \begin{verbatim}
 x = tokenizer(batch_text)                # [B, T]
 mask = causal_mask(x)                    # [B, 1, T, T]
@@ -364,8 +363,8 @@ Autoregressive generation uses greedy, beam search, top-\(p\) (nucleus), or top-
             ymin=-0.5, ymax=4.5,
             xtick={0,...,4},
             ytick={0,...,4},
-            xticklabels={t\(_0\),t\(_1\),t\(_2\),t\(_3\),t\(_4\)},
-            yticklabels={t\(_0\),t\(_1\),t\(_2\),t\(_3\),t\(_4\)},
+            xticklabels={t\(_0\), t\(_1\), t\(_2\), t\(_3\), t\(_4\)},
+            yticklabels={t\(_0\), t\(_1\), t\(_2\), t\(_3\), t\(_4\)},
                 xticklabel style={font=\scriptsize},
                 yticklabel style={font=\scriptsize},
                 colorbar,
@@ -449,7 +448,6 @@ Autoregressive generation uses greedy, beam search, top-\(p\) (nucleus), or top-
     \label{fig:lec13-masks}
 \end{figure}
 
-Use \Cref{fig:lec13-masks} as the architecture anchor for this section.
 
 \subsection{Alignment (Brief)}
 \label{sec:transformers_alignment_brief}
@@ -482,7 +480,7 @@ Equivariance & N/A & Permutation-equivariant until positions (cf. conv translati
 \end{tabular}
 \end{center}
 
-\begin{tcolorbox}[summarybox,title={Practitioner box: pitfalls and checks}]
+\begin{tcolorbox}[summarybox, title={Practitioner box: pitfalls and checks}]
 \textbf{Pitfalls:} training instability (lr too high), attention collapse, over-length inputs.\newline
 \textbf{Checks:} monitor loss/entropy, validation perplexity, and attention patterns on probes.\newline
 \textbf{Hyperparams:} heads (4--16), depth (6--24), \(d_{\text{model}}\) (256--2048), FFN multiplier (\(\times 2\)--\(\times 4\)).
@@ -491,7 +489,7 @@ Equivariance & N/A & Permutation-equivariant until positions (cf. conv translati
 \subsection*{Notes}
 Terminology: masked-LM and next-token LM are \emph{self-supervised} (targets derived from input), not unsupervised. For embeddings downstream, we adopt row-embedding convention consistent with \Crefrange{chap:backprop}{chap:rbf}.
 
-\begin{tcolorbox}[summarybox,title={Key takeaways}]
+\begin{tcolorbox}[summarybox, title={Key takeaways}]
 \begin{itemize}
     \item Attention replaces recurrence with content-based mixing, enabling highly parallel training but introducing quadratic cost in sequence length.
     \item Practical stability depends on details (pre-LN vs.\ post-LN, optimizer choices, masking, and careful decoding/evaluation).
@@ -514,7 +512,7 @@ Terminology: masked-LM and next-token LM are \emph{self-supervised} (targets der
 \end{itemize}
 \end{tcolorbox}
 
-\begin{tcolorbox}[summarybox,title={Exercises and lab ideas}]
+\begin{tcolorbox}[summarybox, title={Exercises and lab ideas}]
 \begin{itemize}
     \item Hand-compute a 2-token attention step with masking; verify against a short script.
     \item Implement a single-block decoder-only transformer (embed + pos + pre-LN MHA + FFN) and train on a tiny character corpus; report perplexity.
@@ -529,5 +527,4 @@ Terminology: masked-LM and next-token LM are \emph{self-supervised} (targets der
 
 \medskip
 \paragraph{Where we head next.} \Cref{chap:softcomp} steps away from neural sequence models and re-enters the broader soft-computing toolkit (fuzzy logic and evolutionary ideas) previewed in \Cref{chap:intro}. Read this chapter as the endpoint of the neural sequence thread: representation objectives from \Cref{chap:nlp} plus masking/calibration discipline from \Crefrange{chap:rnn}{chap:transformers}.
-
 

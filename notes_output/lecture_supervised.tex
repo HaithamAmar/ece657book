@@ -1,19 +1,19 @@
 % Chapter 3
 \section{Supervised Learning Foundations}\label{chap:supervised}
 
-\Cref{chap:symbolic} illustrated a non-statistical lens: solve problems by transformation search, with explicit goal tests. We now switch to the data-driven lens. \Cref{fig:roadmap} marks this as the core supervised strand.
+\Cref{chap:symbolic} illustrated a non-statistical lens: solve problems by transformation search, with explicit goal tests. Here we shift to the data-driven lens. \Cref{fig:roadmap} marks this as the core supervised strand.
 
-Building intelligent models is an imprecise science. If we know the relationship between the input and the output, there is no need to infer it: Celsius and Fahrenheit are linked by a simple formula, and many physical laws provide direct mappings from one quantity to another. In the problems that motivate machine learning, the mapping is unknown, messy, or only partially understood, so we settle for an approximation. That approximation might be statistical (learned from data), rule-based (encoded from experience), biologically inspired (neural computation), behavioral (fuzzy rules), or evolutionary (search over candidate solutions). In this chapter we focus on the statistical, data-driven strand: supervised learning.
+When a mapping is known, we use the formula: Celsius and Fahrenheit are linked by a simple rule, and many physical laws give direct input--output relationships. The problems that motivate machine learning do not. The mapping is unknown, messy, or only partially understood, so we settle for an approximation. That approximation might be statistical (learned from data), rule-based (encoded from experience), biologically inspired (neural computation), behavioral (fuzzy rules), or evolutionary (search over candidate solutions). This chapter focuses on the statistical, data-driven strand: supervised learning.
 
-In this sense, supervised learning is about prediction and inference: given evidence \(\mathbf{x}\), estimate an output \(y\) that you can act on or audit. Other modeling goals exist (summarizing structure, compressing representations, discovering clusters), but supervised learning is the cleanest place to learn the mechanics of fitting models, comparing alternatives, and checking whether your success is real or just memorization.
+In this lens, supervised learning is prediction and inference: given evidence \(\mathbf{x}\), estimate an output \(y\) that you can act on or audit. Other modeling goals exist (summarizing structure, compressing representations, discovering clusters), but supervised learning is the cleanest place to learn how to fit models, compare alternatives, and check whether apparent success is real or just memorization.
 
-Supervised learning begins with three commitments: pick a functional form that can plausibly approximate the mapping, collect paired examples of inputs and outputs, and define a quantitative measure of ``how wrong'' a prediction is. Once those are in place, training becomes possible: we adjust the model parameters so the predictions align with the observed outputs on the examples we have.
+Supervised learning begins with three commitments: choose a functional form that can plausibly approximate the mapping, collect paired examples of inputs and outputs, and define a quantitative measure of ``how wrong'' a prediction is. Once those are in place, training adjusts model parameters so predictions align with observed outputs.
 
 The word \emph{fitting} is meant literally. In classical curve fitting---and in practical settings like sensor calibration---we choose parameters so a predicted curve (or surface) passes near measured points. Keep the camera thread from \Cref{chap:intro} in mind: a camera system is useful because it can predict something actionable from what it senses. A simple example is exposure calibration: we collect scenes with known reference targets, measure raw sensor readouts \(\mathbf{x}\), and learn parameters that map those readouts to a correction \(y\) so the system produces consistent brightness across conditions. The same pattern repeats at higher levels (object detection scores, tracking signals, alert decisions): the details change, but the core act is the same---use paired input/output examples to fit parameters that make predictions reliable.
 
-This chapter builds the supervised-learning toolkit around that central act. We start by making the pieces explicit (data, models, and losses). Then we show what training is doing when it succeeds, and what it looks like when it fails (underfitting vs.\ overfitting). After that we formalize the standard objective (ERM) and the main ``anti-memorization'' tools (regularization and validation). Finally, we work through linear regression as the first fully transparent case study where you can see the entire pipeline end to end.
+This chapter builds the supervised-learning toolkit around that central act. We first make the pieces explicit (data, models, and losses), then show what training looks like when it succeeds and when it fails (underfitting vs.\ overfitting). Next we formalize ERM and the main ``anti-memorization'' tools (regularization and validation). Finally, we work through linear regression as the first fully transparent case study where the entire pipeline is visible end to end.
 
-\begin{tcolorbox}[summarybox,title={Learning Outcomes}]
+\begin{tcolorbox}[summarybox, title={Learning Outcomes}]
 \begin{itemize}
     \item Formalize datasets, hypotheses, and empirical risk minimization (ERM) with consistent notation used in \Crefrange{chap:supervised}{chap:logistic}.
     \item Compare common regression/classification losses and regularizers, understanding when to prefer each.
@@ -21,7 +21,7 @@ This chapter builds the supervised-learning toolkit around that central act. We 
 \end{itemize}
 \end{tcolorbox}
 
-\begin{tcolorbox}[summarybox,title={Design motif}]
+\begin{tcolorbox}[summarybox, title={Design motif}]
 Data \(\rightarrow\) model \(\rightarrow\) objective \(\rightarrow\) audit. This workflow shows up repeatedly in later chapters, even when the models become deeper and the optimization less forgiving.
 \end{tcolorbox}
 
@@ -29,7 +29,7 @@ Data \(\rightarrow\) model \(\rightarrow\) objective \(\rightarrow\) audit. This
 \begin{itemize}
   \item Data \(X \in \mathbb{R}^{N\times d}\) with rows \(\mathbf{x}_i^\top\); targets \(y_i\in\mathbb{R}\) for regression and \(y_i \in \{0,1\}\) for binary classification. The affine map \(y_{\pm1}=2y-1\) switches to \(\{-1,+1\}\) when margin-based expressions are convenient.
   \item Parameters \(\theta\) (model-specific), weights \(\mathbf{w}\in\mathbb{R}^d\); predictions carry hats: \(\hat{y}_i = h_\theta(\mathbf{x}_i)\), \(\hat{\mathbf{y}}=X\mathbf{w}\).
-  \item The loss \(\ell(\hat{y},y)\) is the teacher's grading rubric; the objective aggregates losses over data and adds regularization. Parameters are learned from data; hyperparameters (e.g., \(\lambda\) in regularization) are chosen by validation.
+  \item The loss \(\ell(\hat{y}, y)\) is the teacher's grading rubric; the objective aggregates losses over data and adds regularization. Parameters are learned from data; hyperparameters (e.g., \(\lambda\) in regularization) are chosen by validation.
   \item Noise uses \(\varepsilon\); residuals use \(e=y-\hat{y}\). Vectors are bold lowercase, matrices bold uppercase; scalars are italic.
   \item Bias absorption (when used): augmented feature \(\tilde{\mathbf{x}}=[\mathbf{x};1]\) with corresponding augmented weights.
 \end{itemize}
@@ -37,7 +37,7 @@ Data \(\rightarrow\) model \(\rightarrow\) objective \(\rightarrow\) audit. This
 \subsection{Problem Setup and Notation}
 \label{sec:supervised_problem_setup_and_notation}
 
-We observe a dataset \(\mathcal D = \{(\mathbf x_i, y_i)\}_{i=1}^N\) drawn i.i.d. from an unknown distribution \(\mathcal P\) on the input--output space \(\mathcal X \times \mathcal Y\). A hypothesis (model) \(h_\theta : \mathcal X \to \mathcal Y\) with parameters \(\theta\) produces predictions \(\hat{y}_i = h_\theta(\mathbf x_i)\). A pointwise loss function \(\ell(\hat{y}, y)\) measures the penalty incurred by predicting \(\hat{y}\) when the true label is \(y\).
+We observe a dataset \(\mathcal D = \{(\mathbf x_i, y_i)\}_{i=1}^N\) drawn i.i.d. from an unknown distribution \(\mathcal P\) on the input--output space \(\mathcal X \times \mathcal Y\). A hypothesis (model) \(h_\theta: \mathcal X \to \mathcal Y\) with parameters \(\theta\) produces predictions \(\hat{y}_i = h_\theta(\mathbf x_i)\). A pointwise loss function \(\ell(\hat{y}, y)\) measures the penalty incurred by predicting \(\hat{y}\) when the true label is \(y\).
 
 The \emph{population risk} and \emph{empirical risk} associated with \(h_\theta\) are
 \begin{align}
@@ -50,7 +50,7 @@ Because \(\mathcal P\) is unknown, learning algorithms minimize empirical proxie
 \subsection{Fitting, Overfitting, and Underfitting}
 \label{sec:supervised_fitting_overfitting_and_underfitting}
 
-Fitting is the act of choosing parameters \(\theta\) so a model's predictions match observed data. Concretely, we pick a loss \(\ell\), evaluate it on examples \((\mathbf{x}_i,y_i)\), and use an optimization method to search for parameters that make the aggregate loss small. This is what practitioners usually mean by \emph{training}.
+Fitting is the act of choosing parameters \(\theta\) so a model's predictions match observed data. Concretely, we pick a loss \(\ell\), evaluate it on examples \((\mathbf{x}_i, y_i)\), and use an optimization method to search for parameters that make the aggregate loss small. This is what practitioners usually mean by \emph{training}.
 
 It helps to picture training as repeated adjustment under feedback. You make a prediction, measure the mistake with a loss, update parameters to reduce that mistake, and repeat. In sensor calibration, this feels familiar: if your measured output is consistently off, you change a gain or offset; if it is noisy, you adjust how aggressively you trust any one reading. Supervised learning packages that intuition into a general recipe that can be reused across problems.
 
@@ -65,7 +65,6 @@ The model is flexible enough to match the training set by memorizing its quirks.
 \paragraph{What we aim for.}
 We want a well-fitted model: low training error and comparable validation/test error. The tools below are designed to keep that distinction visible: objectives (losses and regularizers), validation protocols (splits and cross-validation), and diagnostics (learning curves and bias--variance reasoning).
 
-Use \Cref{fig:lec1_fit_regimes} as the diagnostic anchor for this section.
 
 \begin{figure}[!htbp]
     \centering
@@ -148,7 +147,7 @@ Two penalties show up so often that they have become part of the basic vocabular
 \end{itemize}
 The difference is easiest to remember geometrically: L2 has round level sets, while L1 has corners, and corners create exact zeros.
 
-\begin{tcolorbox}[summarybox,title={Regularization: L1/L2 and scaling}]
+\begin{tcolorbox}[summarybox, title={Regularization: L1/L2 and scaling}]
 \begin{itemize}
     \item \textbf{Why regularize?} Flexible models can fit training data by effectively memorizing idiosyncrasies (noise, quirks of the sample) rather than capturing stable structure. Regularization makes such memorization expensive and rewards explanations that survive on held-out data.
     \item \textbf{L2 (ridge)} shrinks weights smoothly, is rotationally invariant, and works well when features are dense and correlated.
@@ -160,7 +159,6 @@ The difference is easiest to remember geometrically: L2 has round level sets, wh
 \end{itemize}
 \end{tcolorbox}
 
-Use \Cref{fig:lec1_l1_l2_geometry} as the diagnostic anchor for this section.
 
 \begin{figure}[h]
     \centering
@@ -202,7 +200,6 @@ Use \Cref{fig:lec1_l1_l2_geometry} as the diagnostic anchor for this section.
 
 \Cref{fig:lec1_l1_l2_geometry} summarizes the geometric reason L1 and L2 penalties behave differently.
 
-Use \Cref{fig:lec1_lasso_path} as the diagnostic anchor for this section.
 
 \begin{figure}[!htbp]
     \centering
@@ -249,10 +246,10 @@ Setting \(\alpha=1\) recovers the lasso, \(\alpha=0\) yields ridge, and intermed
 \label{sec:supervised_common_loss_functions}
 
 Loss functions make the teacher signal quantitative: they decide what counts as a small mistake, what counts as a large one, and which kinds of errors matter most.
-For binary classification with labels \(y \in \{-1, +1\}\) and margin \(z = y\,f(\mathbf x)\), two standard losses are
+For binary classification with labels \(y \in \{-1, +1\}\) and margin \(z = y\, f(\mathbf x)\), two standard losses are
 \begin{align}
-\ell_{\text{hinge}}(y,z) &= \max\bigl(0, 1 - z\bigr), &
-\ell_{\text{logistic}}(y,z) &= \log\bigl(1 + e^{-z}\bigr).
+\ell_{\text{hinge}}(y, z) &= \max\bigl(0, 1 - z\bigr), &
+\ell_{\text{logistic}}(y, z) &= \log\bigl(1 + e^{-z}\bigr).
     \label{eq:auto:lecture_supervised:2}
 \end{align}
 Here \(y\in\{-1,+1\}\); when labels are instead coded as \(y\in\{0,1\}\) (common in probability-of-class formulations), the margin expression uses \(y_{\pm1}=2y-1\) to map between codings.
@@ -298,11 +295,11 @@ Hinge / squared hinge & Yes & Margin-based classifiers (SVMs, large-margin perce
             major grid style={gray!30},
             axis background/.style={fill=white}
         ]
-            \addplot[cbBlue, thick, domain=-3:3, samples=300]{ (x <= 1 ? max(0,1-x) : 0) };
+            \addplot[cbBlue, thick, domain=-3:3, samples=300]{ (x <= 1? max(0,1-x): 0) };
             \addlegendentry{Hinge}
             \addplot[cbOrange, thick, domain=-3:3, samples=300]{ ln(1 + exp(-x)) };
             \addlegendentry{Logistic}
-            \addplot[cbGreen, thick, dashed, domain=-3:3, samples=300]{ (x <= 1 ? max(0,1-x)^2 : 0) };
+            \addplot[cbGreen, thick, dashed, domain=-3:3, samples=300]{ (x <= 1? max(0,1-x)^2: 0) };
             \addlegendentry{Squared hinge}
         \end{axis}
     \ensuretikzbackgroundlayers
@@ -312,9 +309,8 @@ Hinge / squared hinge & Yes & Margin-based classifiers (SVMs, large-margin perce
     \label{fig:lec1_class_losses}
 \end{figure}
 
-Use \Cref{fig:lec1_class_losses} as the diagnostic anchor for this section.
 
-\Cref{fig:lec1_reg_losses} is the regression-loss comparison referenced in this section.
+\Cref{fig:lec1_reg_losses} compares common regression losses used in this section.
 
 \begin{figure}[!htbp]
     \centering
@@ -337,7 +333,7 @@ Use \Cref{fig:lec1_class_losses} as the diagnostic anchor for this section.
             \addlegendentry{Squared}
             \addplot[cbOrange, thick, domain=-3:3, samples=300]{abs(x)};
             \addlegendentry{Absolute}
-            \addplot[cbGreen, thick, dashed, domain=-3:3, samples=300]{ (abs(x) <= 1 ? 0.5*x^2 : abs(x) - 0.5) };
+            \addplot[cbGreen, thick, dashed, domain=-3:3, samples=300]{ (abs(x) <= 1? 0.5*x^2: abs(x) - 0.5) };
             \addlegendentry{Huber}
         \end{axis}
     \ensuretikzbackgroundlayers
@@ -346,7 +342,6 @@ Use \Cref{fig:lec1_class_losses} as the diagnostic anchor for this section.
     \label{fig:lec1_reg_losses}
 \end{figure}
 
-Use \Cref{fig:lec1_reg_losses} as the diagnostic anchor for this section.
 
 \FloatBarrier
 
@@ -358,7 +353,7 @@ In other words, this is where the chapter's ``audit'' step becomes operational: 
 
 Practical workflows allocate data into training, validation, and test portions. Training data are used to fit parameters; validation data guide choices such as hyperparameters and model families; and the test set provides an unbiased audit once those choices are fixed. The key habit is the separation of roles: training is where you allow the model to ``learn'' (and potentially overfit), validation is where you decide what kind of learning you trust, and the test set is the final audit.
 
-\begin{tcolorbox}[summarybox,title={Risk \& audit}]
+\begin{tcolorbox}[summarybox, title={Risk \& audit}]
 \begin{itemize}
     \item \textbf{Leakage:} avoid split mistakes (duplicates, near-duplicates, time leakage) that inflate validation accuracy.
     \item \textbf{Metric mismatch:} align the loss you optimize with the metric you report (and the decision you must make).
@@ -369,7 +364,7 @@ Practical workflows allocate data into training, validation, and test portions. 
 \end{itemize}
 \end{tcolorbox}
 
-\begin{tcolorbox}[summarybox,title={Proper scoring rules and calibration},breakable]
+\begin{tcolorbox}[summarybox, title={Proper scoring rules and calibration}, breakable]
 \small
 \begin{itemize}
     \item \textbf{Log loss (cross\hyp{}entropy)} and the \textbf{Brier score} are \emph{proper} scoring rules: in expectation, they are minimized by predicting the true class probability.
@@ -380,11 +375,10 @@ Practical workflows allocate data into training, validation, and test portions. 
 \normalsize
 \end{tcolorbox}
 
-Use \Cref{fig:lec1_splits} as the diagnostic anchor for this section.
 
 \begin{figure}[h]
     \centering
-\begin{tikzpicture}[x=0.9\linewidth,y=1.0cm, font=\scriptsize, background rectangle/.style={fill=white}, show background rectangle]
+\begin{tikzpicture}[x=0.9\linewidth, y=1.0cm, font=\scriptsize, background rectangle/.style={fill=white}, show background rectangle]
         \def\barheight{0.6}
         \def\train{0.7}
         \def\val{0.15}
@@ -406,9 +400,9 @@ Use \Cref{fig:lec1_splits} as the diagnostic anchor for this section.
     \label{fig:lec1_splits}
 \end{figure}
 
-\Cref{fig:lec1_splits} is the split protocol reference for the train/validation/test workflow.
+\Cref{fig:lec1_splits} lays out the split protocol for the train/validation/test workflow.
 
-\begin{tcolorbox}[summarybox,title={A concrete toy task}]
+\begin{tcolorbox}[summarybox, title={A concrete toy task}]
 As a reference point, keep in mind one small binary classification problem: a two\hyp{}moons toy with a standard train/validation/test split. It is deliberately simple, but it is rich enough to reveal the recurring failure modes (memorization, metric mismatch, split leakage) and the recurring remedies (regularization, validation, and diagnostics).
 \end{tcolorbox}
 
@@ -434,13 +428,11 @@ To make the workflow concrete, \Cref{fig:lec1_pipeline} summarizes the standard 
     \label{fig:lec1_pipeline}
 \end{figure}
 
-Use \Cref{fig:lec1_pipeline} as the diagnostic anchor for this section.
 
 \Cref{fig:lec1-calibration-double-descent} anchors the calibration and capacity diagnostics in this aside.
 
 Learning curves plot training and validation error against the number of training examples, revealing underfitting or overfitting regimes.
 
-Use \Cref{fig:lec1_learning_curves} as the diagnostic anchor for this section.
 
 \begin{figure}[h]
     \centering
@@ -490,7 +482,7 @@ Use \Cref{fig:lec1_learning_curves} as the diagnostic anchor for this section.
     \label{fig:lec1_learning_curves}
 \end{figure}
 
-\begin{tcolorbox}[summarybox,title={Data-leakage checklist}]
+\begin{tcolorbox}[summarybox, title={Data-leakage checklist}]
 \begin{itemize}
     \item Split data before any preprocessing or feature selection.
     \item Fit scalers/imputers/dimensionality-reduction transforms on the training fold only; reuse fitted parameters on validation/test (or within each CV fold via pipelines).
@@ -499,7 +491,7 @@ Use \Cref{fig:lec1_learning_curves} as the diagnostic anchor for this section.
 \end{itemize}
 \end{tcolorbox}
 
-\begin{tcolorbox}[summarybox,title={Bias--variance at a glance}]
+\begin{tcolorbox}[summarybox, title={Bias--variance at a glance}]
 \begin{itemize}
     \item \textbf{High bias (underfit):} train and validation errors both plateau high and together; add capacity/features or reduce regularization.
     \item \textbf{High variance (overfit):} train error low, validation error high/diverging; add data, strengthen regularization, or use early stopping.
@@ -509,7 +501,7 @@ Use \Cref{fig:lec1_learning_curves} as the diagnostic anchor for this section.
 
 \noindent Learning curves explain \emph{why} the train/validation split is useful: they show whether more data, more capacity, or more regularization is the lever that actually moves the validation error. Once you can read these curves, a natural next question is what happens as we scale up data and model size. The aside below summarizes two modern empirical patterns that are best treated as guidance, not as a recipe.
 
-\begin{tcolorbox}[summarybox,title={Aside: scaling laws and double descent}]
+\begin{tcolorbox}[summarybox, title={Aside: scaling laws and double descent}]
 The simplest story is the classical bias--variance picture: as model capacity grows, training error falls, and validation error often has a U-shape. In modern overparameterized models, that picture can be incomplete. You may see \emph{double descent}: after the classical U-shape, error can decrease again once model size exceeds the interpolation threshold \citep{Belkin2019}. You may also hear \emph{scaling laws}: in some regimes, validation loss decreases roughly as a power law of compute, data, and model size \citep{Kaplan2020,Hoffmann2022}.
 
 Treat both as diagnostics rather than guarantees. Use them to decide whether to collect more data, shrink or expand a model, or regularize more aggressively, but still make final choices by comparing validation curves. Do not chase the interpolation peak as a goal.
@@ -522,7 +514,6 @@ Treat both as diagnostics rather than guarantees. Use them to decide whether to 
     \label{fig:lec1-calibration-double-descent}
 \end{figure}
 
-Use \Cref{fig:lec1-calibration-double-descent} as the diagnostic anchor for this section.
 
 Regularization trades model complexity for generalization; \Cref{fig:lec1_ridge} depicts the effect of ridge penalties on the weight norm.
 
@@ -624,7 +615,7 @@ Ridge adds \(\lambda\|\boldsymbol{\beta}\|_2^2\) to the objective, shrinking coe
 \medskip
 \noindent The discipline of supervised learning is reusable across models: define a dataset and a hypothesis class, choose an objective (loss plus regularizer), optimize it, and then audit generalization with clean train/validation/test separation. In \Cref{chap:logistic}, we apply this toolkit to classification, where the loss becomes a Bernoulli negative log-likelihood (cross\hyp{}entropy) and the evaluation tools expand (confusion matrices, ROC/PR curves, and calibration).
 
-\begin{tcolorbox}[summarybox,title={Key takeaways}]
+\begin{tcolorbox}[summarybox, title={Key takeaways}]
 \textbf{Minimum viable mastery}
 \begin{itemize}
     \item Supervised learning chooses a hypothesis class and fits parameters by minimizing empirical risk, then audits generalization on held-out data.
@@ -640,7 +631,7 @@ Ridge adds \(\lambda\|\boldsymbol{\beta}\|_2^2\) to the objective, shrinking coe
 \end{itemize}
 \end{tcolorbox}
 
-\begin{tcolorbox}[summarybox,title={Exercises and lab ideas}]
+\begin{tcolorbox}[summarybox, title={Exercises and lab ideas}]
 \begin{itemize}
     \item Implement linear regression with ridge regularization using both (i) a closed-form solve (QR/SVD) and (ii) gradient descent; compare validation curves as \(\lambda\) varies.
     \item Create a controlled overfitting experiment: increase polynomial feature degree or add noisy features, then use learning curves (\Cref{fig:lec1_learning_curves}) to diagnose bias vs.\ variance and decide how much regularization is needed.
@@ -655,4 +646,3 @@ Ridge adds \(\lambda\|\boldsymbol{\beta}\|_2^2\) to the objective, shrinking coe
 
 
 \FloatBarrier
-

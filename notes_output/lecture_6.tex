@@ -8,6 +8,21 @@ Convolutional networks are the simplest version of that bargain. They keep the E
 
 The second thread in this chapter is pragmatic. Deep models are only useful when they train. After the CNN mechanics, we transition into the deep\hyp{}training toolkit (initialization, activations, normalization, regularization, and optimizers) that will reappear in \Crefrange{chap:rnn}{chap:transformers}.
 
+\begin{tcolorbox}[summarybox, title={Learning Outcomes}]
+After this chapter, you should be able to:
+\begin{itemize}
+  \item Derive convolution/cross-correlation with stride and padding in 1D/2D.
+  \item Explain receptive-field growth across layers and pooling effects.
+  \item Compare loss choices for classification vs. regression and evaluation metrics.
+  \item Connect the hinge-loss/soft-margin ideas from \Cref{chap:supervised} to kernels and CNN features.
+  \item Describe practical optimizers and regularizers (BN, dropout, weight decay).
+\end{itemize}
+\end{tcolorbox}
+
+\begin{tcolorbox}[summarybox, title={Design motif}]
+Keep the same statistical learning loop from \Crefrange{chap:supervised}{chap:logistic}, but move a large fraction of the ``bias'' into architecture via weight sharing and locality.
+\end{tcolorbox}
+
 \subsection{Motivation and map}
 \label{sec:cnn_historical_context_and_motivation}
 
@@ -23,17 +38,6 @@ CNNs emerged as a pragmatic answer: keep end-to-end gradient training, but bake 
     \item \textbf{Going deeper:} why depth works (receptive-field growth) and how CNNs displaced classical pipelines at scale.
     \item \textbf{Training toolkit:} gradient-based optimization and the stabilizers you will reuse later (initialization, activations, batch norm, dropout, AdamW).
 \end{itemize}
-
-\begin{tcolorbox}[summarybox, title={Learning Outcomes}]
-After this chapter, you should be able to:
-\begin{itemize}
-  \item Derive convolution/cross-correlation with stride and padding in 1D/2D.
-  \item Explain receptive-field growth across layers and pooling effects.
-  \item Compare loss choices for classification vs. regression and evaluation metrics.
-  \item Connect the hinge-loss/soft-margin ideas from \Cref{chap:supervised} to kernels and CNN features.
-  \item Describe practical optimizers and regularizers (BN, dropout, weight decay).
-\end{itemize}
-\end{tcolorbox}
 
 \subsection{Why fully connected layers break on images}
 \label{sec:cnn_why_fully_connected_layers_break_on_images}
@@ -65,10 +69,6 @@ This flattening process has two major drawbacks:
 \paragraph{Implications}
 
 The punchline is not that dense networks ``cannot'' learn images; it is that the price is too high. Without any architectural prior, you pay in parameters, data, and compute. Convolutions and pooling supply that prior: they make the model spend capacity on local patterns and reuse those patterns across the grid.
-
-\begin{tcolorbox}[summarybox, title={Design motif}]
-Keep the same statistical learning loop from \Crefrange{chap:supervised}{chap:logistic}, but move a large fraction of the ``bias'' into architecture via weight sharing and locality.
-\end{tcolorbox}
 
 \paragraph{Parameter Explosion}
 

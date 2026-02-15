@@ -330,7 +330,7 @@ This is a structural/editorial assessment based on the latest audits plus spot-c
   - Added a `Risk \& audit` box to Chapter 13 (NLP) to match Chapters 3/4/11: `notes_output/lecture_8_part_i.tex`.
 - **Regression check:** `bash notes_output/scripts/run_production_checks.sh` (chapter audit + EPUB audits must stay green).
 
-Below is **chapter-by-chapter editorial feedback** plus **book-level guidance**. I’m basing this on the book’s stated intent and structure (preface + roadmap + chapter template), the full table of contents, and sampled passages from multiple chapters (including “Key takeaways” sections, learning outcomes, and representative technical pages).   
+Below is **chapter-by-chapter editorial feedback** plus **book-level guidance**. I’m basing this on the book’s stated intent and structure (preface + roadmap + chapter template), the full table of contents, and sampled passages from multiple chapters (including “Key takeaways” sections, learning outcomes, and representative technical pages).
 
 ---
 
@@ -338,7 +338,7 @@ Below is **chapter-by-chapter editorial feedback** plus **book-level guidance**.
 
 ### 1) The book’s *promise* is strong — make the “unified narrative” impossible to miss
 
-You explicitly position the book as a stand-alone, rigorous-but-readable “graduate companion” that spans **(a) modern LLM-era methods** and **(b) durable principles + alternative paradigms (optimization, probabilistic thinking, hybrid reasoning)**. 
+You explicitly position the book as a stand-alone, rigorous-but-readable “graduate companion” that spans **(a) modern LLM-era methods** and **(b) durable principles + alternative paradigms (optimization, probabilistic thinking, hybrid reasoning)**.
 
 **What to improve**
 
@@ -347,7 +347,7 @@ You explicitly position the book as a stand-alone, rigorous-but-readable “grad
   1. end of Preface,
   2. start of Chapter 1,
   3. the opening “Design motif” box of each major part.
-     Your roadmap already hints at a dependency-graph design rather than linear flow; lean into that and standardize how you “route” the reader. 
+     Your roadmap already hints at a dependency-graph design rather than linear flow; lean into that and standardize how you “route” the reader.
 * Add a **Part structure** (even if you keep chapter numbering). Right now the ToC reads like a continuous list; the mental model becomes clearer if you group:
 
   * Part I: Foundations + ERM toolbox (Ch 1–4)
@@ -357,7 +357,7 @@ You explicitly position the book as a stand-alone, rigorous-but-readable “grad
 
 ### 2) Your recurring chapter template is a major strength — enforce it aggressively
 
-You tell readers to use: **Learning Outcomes → Summary & Common Pitfalls → Pseudocode → Exercises**. 
+You tell readers to use: **Learning Outcomes → Summary & Common Pitfalls → Pseudocode → Exercises**.
 
 **What to improve**
 
@@ -377,12 +377,12 @@ Because you explicitly frame the roadmap as a dependency graph and give multiple
 * Chapter numbers in text (“see Chapter X”) match the ToC.
 * Figure numbers referenced in text match figure captions.
 * “As we’ll see later” pointers actually land soon enough.
-* Notation collisions (same symbol reused differently) get a “Notation note” callout (you already do this well in places). 
+* Notation collisions (same symbol reused differently) get a “Notation note” callout (you already do this well in places).
 
 ### 4) Notation: you’re close — now standardize the *exceptions*
 
-The Notation & Conventions section is doing the right thing: collecting reusable conventions up front. 
-You also add local “Notation notes” (e.g., σ as sigmoid vs σ² as variance). 
+The Notation & Conventions section is doing the right thing: collecting reusable conventions up front.
+You also add local “Notation notes” (e.g., σ as sigmoid vs σ² as variance).
 
 **What to improve**
 
@@ -403,12 +403,12 @@ Your NLP chapter’s bias checks and deployment checklist are excellent because 
 
 ### 1. About This Book
 
-(Foundations, definitions, levels, safety, audience/prereqs, roadmap, navigation.) 
+(Foundations, definitions, levels, safety, audience/prereqs, roadmap, navigation.)
 
 **Strengths**
 
-* Strong operational definition of meta-cognition as bounded self-correction and auditability. 
-* Clear reading-path framing. 
+* Strong operational definition of meta-cognition as bounded self-correction and auditability.
+* Clear reading-path framing.
 
 **Edits to prioritize**
 
@@ -417,18 +417,18 @@ Your NLP chapter’s bias checks and deployment checklist are excellent because 
 
 **Rearrangement watch**
 
-* This chapter is your “router.” If any later chapters move, update Figure 1 and the listed reading paths immediately. 
+* This chapter is your “router.” If any later chapters move, update Figure 1 and the listed reading paths immediately.
 
 ---
 
 ### 2. Symbolic Integration and Problem-Solving Strategies
 
-(Transformation search; safe vs heuristic moves; backtracking; transformation trees; Risch aside.)  
+(Transformation search; safe vs heuristic moves; backtracking; transformation trees; Risch aside.)
 
 **Strengths**
 
-* The “system-level pattern” is crystal: representation → meaning-preserving moves → heuristic branching → goal test. 
-* The transformation-tree framing is a strong bridge to intelligence as search. 
+* The “system-level pattern” is crystal: representation → meaning-preserving moves → heuristic branching → goal test.
+* The transformation-tree framing is a strong bridge to intelligence as search.
 
 **Edits to prioritize**
 
@@ -444,12 +444,12 @@ Your NLP chapter’s bias checks and deployment checklist are excellent because 
 
 ### 3. Supervised Learning Foundations
 
-(ERM pipeline; regression; likelihood → loss; GD; regularization; diagnostics; transition to classification.) 
+(ERM pipeline; regression; likelihood → loss; GD; regularization; diagnostics; transition to classification.)
 
 **Strengths**
 
-* Excellent “loss as grading rubric” framing and explicit bridge from likelihood to squared error. 
-* Good forward pointer to classification metrics and calibration. 
+* Excellent “loss as grading rubric” framing and explicit bridge from likelihood to squared error.
+* Good forward pointer to classification metrics and calibration.
 
 **Edits to prioritize**
 
@@ -458,27 +458,27 @@ Your NLP chapter’s bias checks and deployment checklist are excellent because 
 
 **Rearrangement watch**
 
-* If Chapter 3 moves relative to Appendix B (kernels/SVM), ensure you don’t introduce kernel ideas too late. Appendix B is currently a “hidden gem” that many readers won’t naturally discover. 
+* If Chapter 3 moves relative to Appendix B (kernels/SVM), ensure you don’t introduce kernel ideas too late. Appendix B is currently a “hidden gem” that many readers won’t naturally discover.
 
 ---
 
 ### 4. Classification and Logistic Regression
 
-(Bayes optimal; generative vs discriminative; logistic; diagnostics; ROC/PR; multiclass extension.) 
+(Bayes optimal; generative vs discriminative; logistic; diagnostics; ROC/PR; multiclass extension.)
 
 **Strengths**
 
-* Starting with Bayes optimal is the right conceptual anchor. 
-* You acknowledge why it’s not used directly—good engineering realism. 
+* Starting with Bayes optimal is the right conceptual anchor.
+* You acknowledge why it’s not used directly—good engineering realism.
 
 **Edits to prioritize**
 
 * Make **thresholding and costs** explicit earlier: “probabilities are not decisions.”
-* Expand “calibration” into a first-class diagnostic (since you later use it in responsible deployment). 
+* Expand “calibration” into a first-class diagnostic (since you later use it in responsible deployment).
 
 **Rearrangement watch**
 
-* Ensure the notation switch y∈{0,1} vs y±1 stays consistent with any later margin-based discussions. 
+* Ensure the notation switch y∈{0,1} vs y±1 stays consistent with any later margin-based discussions.
 
 ---
 
@@ -515,13 +515,13 @@ Your NLP chapter’s bias checks and deployment checklist are excellent because 
 **Edits to prioritize**
 
 * Keep one “derivation spine” and push alternative derivations into side boxes. The biggest editorial risk in backprop chapters is “too many derivations; reader loses the thread.”
-* Add one explicit “finite-difference gradient check” recipe as an exercise (you already emphasize mechanical checks elsewhere—this would mirror Chapter 2’s residual check spirit). 
+* Add one explicit “finite-difference gradient check” recipe as an exercise (you already emphasize mechanical checks elsewhere—this would mirror Chapter 2’s residual check spirit).
 
 ---
 
 ### 8. Radial Basis Function Networks
 
-(RBF interpolation/learning; also includes adaptive filtering topics per ToC.) 
+(RBF interpolation/learning; also includes adaptive filtering topics per ToC.)
 
 **Edits to prioritize**
 
@@ -529,13 +529,13 @@ Your NLP chapter’s bias checks and deployment checklist are excellent because 
 
   * split into 8A (RBF networks) and 8B (adaptive filtering), **or**
   * add a strong bridge: “both are linear-in-parameters once bases are fixed → least squares/Wiener view.”
-* Make explicit how RBFs relate to kernels (Appendix B) so the reader sees the triangle: **RBF features ↔ kernels ↔ SVMs**. 
+* Make explicit how RBFs relate to kernels (Appendix B) so the reader sees the triangle: **RBF features ↔ kernels ↔ SVMs**.
 
 ---
 
 ### 9. Competitive Learning and Self-Organizing Maps
 
-(Competitive learning; SOM; topology preservation.) 
+(Competitive learning; SOM; topology preservation.)
 
 **Edits to prioritize**
 
@@ -546,7 +546,7 @@ Your NLP chapter’s bias checks and deployment checklist are excellent because 
 
 ### 10. Hopfield Networks
 
-(Associative memory; energy; convergence.) 
+(Associative memory; energy; convergence.)
 
 **Edits to prioritize**
 
@@ -557,7 +557,7 @@ Your NLP chapter’s bias checks and deployment checklist are excellent because 
 
 ### 11. Convolutional Neural Networks and Deep Training Tools
 
-(From content, this is essentially your **CNN + deep training stability toolkit**: dropout, BN, optimizers, gradient issues.) 
+(From content, this is essentially your **CNN + deep training stability toolkit**: dropout, BN, optimizers, gradient issues.)
 
 **Edits to prioritize**
 
@@ -572,7 +572,7 @@ Your NLP chapter’s bias checks and deployment checklist are excellent because 
 
 ### 12. Recurrent Neural Networks and Sequence Learning
 
-(RNNs, BPTT, GRU/LSTM; also includes autoencoders/VAEs per ToC.) 
+(RNNs, BPTT, GRU/LSTM; also includes autoencoders/VAEs per ToC.)
 
 **Edits to prioritize**
 
@@ -586,7 +586,7 @@ Your NLP chapter’s bias checks and deployment checklist are excellent because 
 
 ### 13. Transformers: Attention-Based Models for Sequence Processing
 
-(Self-attention; scaled dot-product; multi-head; positional encoding; efficient attention.) 
+(Self-attention; scaled dot-product; multi-head; positional encoding; efficient attention.)
 
 **Edits to prioritize**
 
@@ -597,27 +597,27 @@ Your NLP chapter’s bias checks and deployment checklist are excellent because 
 
 ### 14. NLP: Applications and Language Modeling
 
-(n-grams → embeddings → word2vec/GloVe → bias/debiasing → responsible deployment; then contextual embeddings tie-back to transformers.) 
+(n-grams → embeddings → word2vec/GloVe → bias/debiasing → responsible deployment; then contextual embeddings tie-back to transformers.)
 
 **Strengths**
 
-* The bias section is not hand-wavy; it gives practical evaluation and monitoring steps. 
+* The bias section is not hand-wavy; it gives practical evaluation and monitoring steps.
 
 **Edits to prioritize**
 
-* Reorder slightly so the chapter ends with a strong modern synthesis: **static embeddings → bias → contextual embeddings/Transformers** (you already start this). 
+* Reorder slightly so the chapter ends with a strong modern synthesis: **static embeddings → bias → contextual embeddings/Transformers** (you already start this).
 * Add a short “what to deploy when” guide: when static embeddings are enough vs when you must fine-tune a transformer (cost/latency/stakes).
 
 ---
 
 ### 15. Introduction to Soft Computing
 
-(Defines soft computing; fuzzy sets; why this paradigm matters.) 
+(Defines soft computing; fuzzy sets; why this paradigm matters.)
 
 **Edits to prioritize**
 
 * Use one **running real-world example** (e.g., control rule set, decision support) that carries through Chapters 16–18.
-* Make the “why now?” bridge explicit: connect back to your dual emphasis (deep/kernels vs interpretability/optimization). 
+* Make the “why now?” bridge explicit: connect back to your dual emphasis (deep/kernels vs interpretability/optimization).
 
 ---
 
@@ -627,7 +627,7 @@ Your NLP chapter’s bias checks and deployment checklist are excellent because 
 
 ### 18. Fuzzy Inference Systems
 
-(These three should read like a *single coherent arc*.) 
+(These three should read like a *single coherent arc*.)
 
 **Edits to prioritize across 16–18**
 
@@ -639,7 +639,7 @@ Your NLP chapter’s bias checks and deployment checklist are excellent because 
 
 ### 19. Evolutionary Computing
 
-(GA operators; fitness; constraints; multi-objective; NSGA-II; genetic programming.) 
+(GA operators; fitness; constraints; multi-objective; NSGA-II; genetic programming.)
 
 **Edits to prioritize**
 
@@ -652,17 +652,17 @@ Your NLP chapter’s bias checks and deployment checklist are excellent because 
 
 ### Appendix A: Linear Systems Primer
 
-It’s directly referenced as a support for sequence/control-oriented parts. 
+It’s directly referenced as a support for sequence/control-oriented parts.
 **Improve discoverability**: add “See Appendix A” callouts in Chapter 10/12 wherever LTI intuition matters.
 
 ### Appendix B: Kernel Methods and SVMs
 
-High value, but it risks being “out of sight, out of mind.” 
+High value, but it risks being “out of sight, out of mind.”
 **Editorial fix**: in Chapters 3–4, add explicit “Kernel detour” boxes with page references into Appendix B.
 
 ### Appendix C: Using this book in ECE 657
 
-You correctly isolate offering-specific details here. 
+You correctly isolate offering-specific details here.
 **Editorial note**: keep it cleanly optional; don’t let main chapters rely on it.
 
 ---
@@ -671,14 +671,14 @@ You correctly isolate offering-specific details here.
 
 **P0 (must fix for coherence)**
 
-1. Add Part structure + enforce chapter template everywhere. 
+1. Add Part structure + enforce chapter template everywhere.
 2. Resolve “Chapter 11 naming/role” to avoid redundancy with Chapter 5.
 3. Decide whether Chapter 8 and Chapter 12 are **single chapters or split chapters** (scope control).
-4. Add explicit “Where we head next” bridges at the end of *every* chapter (you already do it well in Chapter 1 → 2). 
+4. Add explicit “Where we head next” bridges at the end of *every* chapter (you already do it well in Chapter 1 → 2).
 
 **P1 (big quality lift)**
-5) Add a one-page notation collision index (symbol → meaning by chapter). 
-6) Make one running dataset/example persist across 3→4→6→7 (continuity). 
+5) Add a one-page notation collision index (symbol → meaning by chapter).
+6) Make one running dataset/example persist across 3→4→6→7 (continuity).
 7) Add mini “risk & audit” boxes beyond the NLP/deployment chapter so safety isn’t siloed.
 
 ---
@@ -688,17 +688,17 @@ If you want, I can also produce a **redline-style checklist** you can apply mech
 
 Yep — **this version is materially stronger** and it fixes several of the coherence risks I flagged earlier.
 
-What I’m reacting to here is the *new front matter + TOC architecture* (explicit Parts, clearer chapter naming, explicit Appendix D “Notation collision index,” and better “reading aids” framing). 
+What I’m reacting to here is the *new front matter + TOC architecture* (explicit Parts, clearer chapter naming, explicit Appendix D “Notation collision index,” and better “reading aids” framing).
 
 ## What you improved (and why it works)
 
 ### 1) The book now reads like a designed system, not a pile of chapters
 
-You added explicit **Part structure** (“Foundations and the ERM toolbox,” then “Neural networks, sequence modeling, and NLP,” then fuzzy, then evolutionary). That’s exactly what a reader needs to *feel progress* rather than “topic hopping.” 
+You added explicit **Part structure** (“Foundations and the ERM toolbox,” then “Neural networks, sequence modeling, and NLP,” then fuzzy, then evolutionary). That’s exactly what a reader needs to *feel progress* rather than “topic hopping.”
 
 ### 2) You fixed the biggest earlier issue: Chapter 11’s identity
 
-It’s now titled **“Convolutional Neural Networks and Deep Training Tools”**, which prevents redundancy with “Introduction to Neural Networks.” That’s a big clarity win: the title matches the contents. 
+It’s now titled **“Convolutional Neural Networks and Deep Training Tools”**, which prevents redundancy with “Introduction to Neural Networks.” That’s a big clarity win: the title matches the contents.
 
 ### 3) You added the right “glue”: Notation + reading aids + editorial heuristics
 
@@ -707,11 +707,11 @@ You’ve got:
 * a **Notation and Conventions** section that explicitly acknowledges symbol overloads,
 * “Reading Aids,” and
 * an explicit promise of consistency (“edited with four recurring questions…”).
-  That signals editorial discipline and reduces reader anxiety. 
+  That signals editorial discipline and reduces reader anxiety.
 
 ### 4) You implemented the “notation collision index”
 
-Appendix D exists and is referenced as the place where overloads are resolved. That directly addresses a common technical-book failure mode. 
+Appendix D exists and is referenced as the place where overloads are resolved. That directly addresses a common technical-book failure mode.
 
 ---
 
@@ -722,18 +722,18 @@ Appendix D exists and is referenced as the place where overloads are resolved. T
 Status (2026-02-05): Parts are now continuous and reader-facing: NLP is folded into Part II, and later Parts are renumbered accordingly. Keep this stable unless there is a very high-value reorganization, because Part labels become “mental bookmarks” once a reader starts referencing the TOC.
 
 ### B) Scope creep inside a few chapters is still visible from the TOC
- 
+
 Two chapters look like “containers” that may become too broad:
 
 * **NLP chapter** (embeddings + evaluation + bias/deployment + contextual models),
 * **Transformers chapter** (architecture + masking + inference + deployment heuristics).
-   This can still work — but only if each has a **strong internal spine** and you’re ruthless about what’s “core” vs “reference.” 
+   This can still work — but only if each has a **strong internal spine** and you’re ruthless about what’s “core” vs “reference.”
    **Fix:** Put a short **“Chapter map” box** at the start of 12 and 14:
 * “Core path (must read)” vs “Detours (optional)”.
 
 ### C) Make “Key Takeaways” global, not only at the end of Part V
 
-I see “Key Takeaways” as a standalone entry near the end of the Evolutionary section. 
+I see “Key Takeaways” as a standalone entry near the end of the Evolutionary section.
 If you want the *book* to feel engineered, either:
 
 * add “Key takeaways” at the end of **every Part**, or
@@ -746,7 +746,7 @@ Your Chapter 1 intro and “roadmap” are strong, but rearrangement breaks book
 * “see Chapter X” becomes wrong,
 * figure references drift,
 * notation reuse changes.
-  You already have the infrastructure to prevent this (Notation notes + Appendix D). 
+  You already have the infrastructure to prevent this (Notation notes + Appendix D).
   **Fix (workflow, not book content):** keep a **rearrangement QA checklist** in the internal release docs (e.g., `notes_output/RELEASE_PLAYBOOK.md` / `notes_output/PRODUCTION_ROADMAP.md`) rather than in the reader-facing appendices:
 * Every cross-reference validated
 * Figure/table numbers regenerated
@@ -765,14 +765,14 @@ Add a *standardized end-of-chapter closure block* (same format every time):
 3. **Where we go next (2–5 sentences, explicit chapter name)**
 4. **If you’re skipping ahead… (one paragraph: what you must know)**
 
-Your “Reading Aids” already promises this kind of navigability — now make it real everywhere. 
+Your “Reading Aids” already promises this kind of navigability — now make it real everywhere.
 
 ---
 
 If by “how about this” you meant something more specific (e.g., a particular chapter you just rearranged), tell me **which chapter numbers changed** and I’ll sanity-check the *narrative continuity* and *dependency logic* for that exact rearrangement.
 
 
-Here’s a **hard-nosed editorial review** of *Modern Intelligent Systems: A Graduate Companion* based on the current PDF structure, the chapter scaffolding (Learning Outcomes / Design motif / Risk & audit / Pitfalls / Exercises), and representative passages across parts and appendices. 
+Here’s a **hard-nosed editorial review** of *Modern Intelligent Systems: A Graduate Companion* based on the current PDF structure, the chapter scaffolding (Learning Outcomes / Design motif / Risk & audit / Pitfalls / Exercises), and representative passages across parts and appendices.
 
 ## Book-level feedback (structure, voice, “sloppiness traps”)
 
@@ -827,9 +827,9 @@ You set the operating vocabulary (representation/actions/objectives/audit) and t
 
 ## Chapter 2 — Symbolic Integration and Problem-Solving Strategies
 
-This chapter is a clever “small system” demonstration of representation + safe moves + heuristic branching + goal tests. 
+This chapter is a clever “small system” demonstration of representation + safe moves + heuristic branching + goal tests.
 
-* **What works:** Design motif (differentiate and check residual) is perfect. 
+* **What works:** Design motif (differentiate and check residual) is perfect.
 * **Sloppiness risks:** Readers may ask, “Why is this in an AI book?” if the bridge to later ML is not hammered.
 * **Actions:**
 
@@ -842,7 +842,7 @@ This chapter is a clever “small system” demonstration of representation + sa
 
 This is the backbone: ERM, splits, learning curves, calibration, scoring rules.
 
-* **What works:** Split hygiene + proper scoring rules + calibration monitoring are unusually well integrated for a “foundations” chapter. 
+* **What works:** Split hygiene + proper scoring rules + calibration monitoring are unusually well integrated for a “foundations” chapter.
 * **Sloppiness risks:**
 
   * “ERM/MLE/MAP” can become acronym soup if you don’t repeatedly restate the narrative: *we choose a loss because it corresponds to an assumption + a use-case.*
@@ -869,7 +869,7 @@ Good “swap the likelihood, keep the workflow.”
 
 ## Chapter 5 — Introduction to Neural Networks (Perceptron/Adaline framing)
 
-* **What works:** Clear contrast: perceptron hard decisions vs logistic calibrated probabilities. 
+* **What works:** Clear contrast: perceptron hard decisions vs logistic calibrated probabilities.
 * **Sloppiness risks:** Perceptron convergence guarantees can mislead if readers forget separability assumptions.
 * **Actions:**
 
@@ -880,7 +880,7 @@ Good “swap the likelihood, keep the workflow.”
 
 ## Chapter 6 — MLP Foundations (two-neuron to multi-layer)
 
-* **What works (from the book-wide summary):** You frame forward/backward pass mechanics and numerical stability. 
+* **What works (from the book-wide summary):** You frame forward/backward pass mechanics and numerical stability.
 * **Sloppiness risks:** This is where derivations can become “algebra theater” unless every block ends with: what to implement, what to cache, what breaks.
 * **Actions:**
 
@@ -890,19 +890,19 @@ Good “swap the likelihood, keep the workflow.”
 
 ## Chapter 7 — Backpropagation Learning in MLPs
 
-* **What works (from the summary):** You convert derivatives into SGD/mini-batch practice and tie to Ch3 diagnostics. 
+* **What works (from the summary):** You convert derivatives into SGD/mini-batch practice and tie to Ch3 diagnostics.
 * **Sloppiness risks:** Readers often get lost in indices; backprop is where notation sloppiness is fatal.
 * **Actions:**
 
-  * Enforce consistent symbol roles (layer index vs time index). Point readers to Appendix D whenever ambiguity is likely. 
+  * Enforce consistent symbol roles (layer index vs time index). Point readers to Appendix D whenever ambiguity is likely.
   * Add one explicit “shape table” (dimensions of each variable) as a recurring device.
 
 ---
 
 ## Chapter 8 — Radial Basis Function Networks
 
-* **What works:** Excellent intuition about σ controlling locality; you explicitly warn under/overfit and recommend validation selection. 
-* **Sloppiness risks:** σ is overloaded across the book; you handled it with a notation note (good). 
+* **What works:** Excellent intuition about σ controlling locality; you explicitly warn under/overfit and recommend validation selection.
+* **Sloppiness risks:** σ is overloaded across the book; you handled it with a notation note (good).
 * **Actions:**
 
   * Add a small “practitioner recipe” box: choose centers (k-means), sweep σ and ridge λ, evaluate with Ch3 validation curves.
@@ -912,7 +912,7 @@ Good “swap the likelihood, keep the workflow.”
 ## Chapter 9 — Self-Organizing Maps
 
 * **What works:** QE/TE diagnostics, early stopping idea, and explicit practical pitfalls.
-* **Sloppiness risks:** SOMs are easy to present as “cool maps” without honest limits; you already warn about over-interpreting single runs. 
+* **Sloppiness risks:** SOMs are easy to present as “cool maps” without honest limits; you already warn about over-interpreting single runs.
 * **Actions:**
 
   * Add one paragraph: when SOM is the wrong tool (task is predictive; embedding must be supervised; scaling issues dominate).
@@ -921,7 +921,7 @@ Good “swap the likelihood, keep the workflow.”
 
 ## Chapter 10 — Hopfield Networks
 
-* **What works (from the summary):** Energy framing + update regime comparisons. 
+* **What works (from the summary):** Energy framing + update regime comparisons.
 * **Sloppiness risks:** Energy-based models are trendy again; readers might assume Hopfield = modern EBMs unless you delineate.
 * **Actions:** Add a “Then vs now” sidebar: classical Hopfield assumptions vs modern energy-based memory / transformer-as-retrieval analogies (high level, not a detour).
 
@@ -929,18 +929,18 @@ Good “swap the likelihood, keep the workflow.”
 
 ## Chapter 11 — CNNs and Deep Training Tools
 
-* **What works:** The vanishing/exploding gradient explanation and mitigation list is solid; includes BN, clipping, dropout. 
+* **What works:** The vanishing/exploding gradient explanation and mitigation list is solid; includes BN, clipping, dropout.
 * **Sloppiness risks:** This chapter can become a grab bag of “training tricks.” The danger is losing the organizing lens.
 * **Actions:**
 
   * Structure “tools” as answers to *specific failure signatures* (e.g., “loss NaNs → clipping; val gap → regularization; slow convergence → normalization/init”).
-  * Keep the notation note style (you already do) whenever σ appears. 
+  * Keep the notation note style (you already do) whenever σ appears.
 
 ---
 
 ## Chapter 12 — RNNs
 
-* **What works (from the summary):** BPTT, gating, teacher forcing, and ties back to diagnostics. 
+* **What works (from the summary):** BPTT, gating, teacher forcing, and ties back to diagnostics.
 * **Sloppiness risks:** Readers confuse “sequence length” with “layers” with “time index.”
 * **Actions:**
 
@@ -950,11 +950,11 @@ Good “swap the likelihood, keep the workflow.”
 
 ## Chapter 13 — NLP Applications + Embeddings + Bias
 
-* **What works:** You directly address bias and provide practical checks + deployment checklist. 
-* **Sloppiness risks:** Bias sections often become moralizing or vague. Yours is concrete — keep it that way. But don’t leave “Documentation.” dangling as an incomplete bullet (it appears cut off in the snippet). 
+* **What works:** You directly address bias and provide practical checks + deployment checklist.
+* **Sloppiness risks:** Bias sections often become moralizing or vague. Yours is concrete — keep it that way. But don’t leave “Documentation.” dangling as an incomplete bullet (it appears cut off in the snippet).
 * **Actions:**
 
-  * Make the “Responsible deployment checklist” a numbered checklist with a consistent template (Purpose, Data, Privacy, Monitoring, Documentation…) so it reads like something teams actually adopt. 
+  * Make the “Responsible deployment checklist” a numbered checklist with a consistent template (Purpose, Data, Privacy, Monitoring, Documentation…) so it reads like something teams actually adopt.
   * Ensure citations are consistent for debiasing techniques you name (Bolukbasi et al., etc.).
 
 ---
@@ -1015,12 +1015,12 @@ Good “swap the likelihood, keep the workflow.”
 
 ## Chapter 19 — Evolutionary Computing
 
-* **What works:** You treat constraints + multi-objectives as first-class and emphasize reproducibility across runs (excellent). 
+* **What works:** You treat constraints + multi-objectives as first-class and emphasize reproducibility across runs (excellent).
 * **Sloppiness risks:** GA chapters often become cookbook operator lists without principled tuning guidance.
 * **Actions:**
 
-  * Enforce one unifying concept: **exploration vs exploitation** and tie every operator choice back to it. Your takeaways already gesture at this — amplify it. 
-  * Add a “reporting standard” box (seeds, distributions, multiple runs) — you already imply it; make it formal. 
+  * Enforce one unifying concept: **exploration vs exploitation** and tie every operator choice back to it. Your takeaways already gesture at this — amplify it.
+  * Add a “reporting standard” box (seeds, distributions, multiple runs) — you already imply it; make it formal.
 
 ---
 
@@ -1028,19 +1028,19 @@ Good “swap the likelihood, keep the workflow.”
 
 ## Appendix C — Course Logistics
 
-Good that you moved offering-specific details out of the main flow. 
+Good that you moved offering-specific details out of the main flow.
 
 * **Editorial action:** Add a bold line early in the book: “Appendix C is ignorable unless you’re in ECE 657.”
 
 ## Appendix D — Notation collision index
 
-This is a legit quality marker. 
+This is a legit quality marker.
 
 * **Editorial action:** Reference it more aggressively in-chapter (“If you’re reading out of order, see Appendix D”).
 
 ## Back matter — Key Takeaways
 
-The condensed map is strong and helps navigation. 
+The condensed map is strong and helps navigation.
 
 * **Editorial action:** Ensure each chapter’s own closing section doesn’t clone these.
 
@@ -1050,7 +1050,7 @@ The condensed map is strong and helps navigation.
 
 1. Add a **chapter-opening bridge paragraph** everywhere: “What problem this solves that the prior chapter didn’t.”
 2. Enforce a **universal audit checklist**: objective → split hygiene → metric → calibration → slice tests.
-3. Make **notation notes mandatory** at first collision risk; point to Appendix D. 
+3. Make **notation notes mandatory** at first collision risk; point to Appendix D.
 4. Make every schematic caption end with **“Use this when…”** (decision-oriented visuals).
 5. Split Transformers into **Invariant Core vs Snapshot Notes** to prevent rapid dating.
 
@@ -1072,169 +1072,169 @@ Graduate companion / course-adjacent technical book: 7.8 / 10
 Standalone commercial book for a broad market: 6.9 / 10
 The book is publishable and intellectually substantial. Your recent changes materially improved cohesion and stand-alone readability. The remaining gap to an 8.5–9/10 is mostly editorial discipline (consistency and pruning), not missing technical content.
 What you improved relative to prior feedback (keep)
-•	Stronger “book contract”: the Preface now explicitly frames a unified narrative and added connective tissue so it reads as a book, not just notes.
-•	Clear reading paths and navigation guidance (roadmaps, who-should-read-what scaffolding).
-•	More consistent pedagogy: repeated structural elements (learning outcomes, design motif, risk & audit, exercises, key takeaways).
-•	Course logistics moved out of the core into Appendix C, reducing “course-note bleed” for general readers.
-•	Notation discipline strengthened with a dedicated notation collision index (Appendix D).
-•	Part IV improved with explicit multi-objective optimization coverage and reproducibility posture.
+•    Stronger “book contract”: the Preface now explicitly frames a unified narrative and added connective tissue so it reads as a book, not just notes.
+•    Clear reading paths and navigation guidance (roadmaps, who-should-read-what scaffolding).
+•    More consistent pedagogy: repeated structural elements (learning outcomes, design motif, risk & audit, exercises, key takeaways).
+•    Course logistics moved out of the core into Appendix C, reducing “course-note bleed” for general readers.
+•    Notation discipline strengthened with a dedicated notation collision index (Appendix D).
+•    Part IV improved with explicit multi-objective optimization coverage and reproducibility posture.
 Top priority fixes (highest ROI, minimal rewrite)
 Remove/contain staleness signals
-•	Any section labeled as a dated “snapshot” should be framed as historical context, moved to a boxed aside, or updated to the edition year.
+•    Any section labeled as a dated “snapshot” should be framed as historical context, moved to a boxed aside, or updated to the edition year.
 Enforce chapter-level structure everywhere
-•	Every chapter should consistently begin with context + prerequisites + outcomes, and end with summary + pitfalls + exercises/lab ideas + next steps.
+•    Every chapter should consistently begin with context + prerequisites + outcomes, and end with summary + pitfalls + exercises/lab ideas + next steps.
 Kill redundancy across Part II (RNNs / embeddings / NLP)
-•	Keep embeddings primarily in Chapter 13; keep Chapter 12 focused on recurrent computation and training pathologies; keep Chapter 14 focused on attention and modern sequence modeling.
+•    Keep embeddings primarily in Chapter 13; keep Chapter 12 focused on recurrent computation and training pathologies; keep Chapter 14 focused on attention and modern sequence modeling.
 Global notation and cross-reference sweep
-•	After rearrangements, ensure symbols, equation references, and section references are correct and stable across the whole PDF.
+•    After rearrangements, ensure symbols, equation references, and section references are correct and stable across the whole PDF.
 Typography/export hygiene
-•	Eliminate any visible encoding/hyphenation artifacts introduced by PDF export; these are small but disproportionately damage perceived quality.
+•    Eliminate any visible encoding/hyphenation artifacts introduced by PDF export; these are small but disproportionately damage perceived quality.
 Chapter-by-chapter recommendations
 Chapter 1: About This Book
 What works
-•	Strong operational framing for “intelligence” and auditability; good place to set reader expectations.
+•    Strong operational framing for “intelligence” and auditability; good place to set reader expectations.
 Where sloppiness will bite
-•	Risk: taxonomy becomes decorative unless visibly reused later; risk of over-long meta discussion.
+•    Risk: taxonomy becomes decorative unless visibly reused later; risk of over-long meta discussion.
 Recommended edits
-•	Add a one-page “reader contract” (what is required vs optional).
-•	Add a simple table mapping Parts/chapters to the book taxonomy/levels, and refer back to it later.
+•    Add a one-page “reader contract” (what is required vs optional).
+•    Add a simple table mapping Parts/chapters to the book taxonomy/levels, and refer back to it later.
 Chapter 2: Symbolic Integration and Problem-Solving Strategies
 What works
-•	Clear learning outcomes around safe vs heuristic transformations; strong “check by differentiating” motif.
+•    Clear learning outcomes around safe vs heuristic transformations; strong “check by differentiating” motif.
 Where sloppiness will bite
-•	Risk: reads like a calculus detour if the “search/transform” framing is not explicit enough.
+•    Risk: reads like a calculus detour if the “search/transform” framing is not explicit enough.
 Recommended edits
-•	Add a boxed bridge: transformation trees as search (state/action/goal test).
-•	Include one non-integral transformation example (e.g., algebraic simplification or rewrite rules) to generalize the lesson.
+•    Add a boxed bridge: transformation trees as search (state/action/goal test).
+•    Include one non-integral transformation example (e.g., algebraic simplification or rewrite rules) to generalize the lesson.
 Chapter 3: Supervised Learning Foundations
 What works
-•	Excellent ‘Data → model → objective → audit’ mindset; solid guardrails against leakage and test peeking.
+•    Excellent ‘Data → model → objective → audit’ mindset; solid guardrails against leakage and test peeking.
 Where sloppiness will bite
-•	Risk: notation and evaluation concepts introduced here must be reused later or they feel forgotten.
+•    Risk: notation and evaluation concepts introduced here must be reused later or they feel forgotten.
 Recommended edits
-•	Add a concise end-of-chapter notation snapshot and an “audit checklist” that later chapters can reference.
+•    Add a concise end-of-chapter notation snapshot and an “audit checklist” that later chapters can reference.
 Chapter 4: Classification and Logistic Regression
 What works
-•	Good risk/audit posture (thresholding, imbalance, calibration); strong practical orientation.
+•    Good risk/audit posture (thresholding, imbalance, calibration); strong practical orientation.
 Where sloppiness will bite
-•	Risk: mixing theory and deployment guidance can feel messy unless formatting is consistent.
+•    Risk: mixing theory and deployment guidance can feel messy unless formatting is consistent.
 Recommended edits
-•	Standardize the chapter’s “audit boxes” as a template for later deep learning chapters.
+•    Standardize the chapter’s “audit boxes” as a template for later deep learning chapters.
 Chapter 5: Introduction to Neural Networks
 What works
-•	Clean pivot from linear models to nonlinear representation; sets up MLP depth reasoning.
+•    Clean pivot from linear models to nonlinear representation; sets up MLP depth reasoning.
 Where sloppiness will bite
-•	Risk: can become history/overview without serving the backprop chapters.
+•    Risk: can become history/overview without serving the backprop chapters.
 Recommended edits
-•	Introduce a running toy example that persists through Chapters 5–7 to ground abstractions.
+•    Introduce a running toy example that persists through Chapters 5–7 to ground abstractions.
 Chapter 6: Multi-Layer Perceptrons: Challenges and Foundations
 What works
-•	Good place to explain why multilayer learning is nontrivial and what breaks naïve approaches.
+•    Good place to explain why multilayer learning is nontrivial and what breaks naïve approaches.
 Where sloppiness will bite
-•	Risk: notation soup; derivations without interpretation anchors.
+•    Risk: notation soup; derivations without interpretation anchors.
 Recommended edits
-•	Add a derivation map and consistent shape annotations near equations.
+•    Add a derivation map and consistent shape annotations near equations.
 Chapter 7: Backpropagation Learning in Multi-Layer Perceptrons
 What works
-•	Correctly isolated as its own chapter; essential for the book’s credibility.
+•    Correctly isolated as its own chapter; essential for the book’s credibility.
 Where sloppiness will bite
-•	Risk: scalar/vector/index notation switching; silent shape assumptions.
+•    Risk: scalar/vector/index notation switching; silent shape assumptions.
 Recommended edits
-•	Add forward/backward pseudocode and a single canonical notation scheme; reference it later instead of re-deriving.
+•    Add forward/backward pseudocode and a single canonical notation scheme; reference it later instead of re-deriving.
 Chapter 8: Radial Basis Function Networks (RBFNs)
 What works
-•	Good bridge to kernels and function approximation.
+•    Good bridge to kernels and function approximation.
 Where sloppiness will bite
-•	Risk: readers may not know when to prefer RBFN vs kernel methods.
+•    Risk: readers may not know when to prefer RBFN vs kernel methods.
 Recommended edits
-•	Add a decision checklist (data size, interpretability, training cost, approximation needs).
+•    Add a decision checklist (data size, interpretability, training cost, approximation needs).
 Chapter 9: Competitive Learning and Clustering
 What works
-•	Nice transition into self-organization and unsupervised thinking.
+•    Nice transition into self-organization and unsupervised thinking.
 Where sloppiness will bite
-•	Risk: becomes an algorithm catalog without a strong organizing principle.
+•    Risk: becomes an algorithm catalog without a strong organizing principle.
 Recommended edits
-•	Add a ‘design motif’ similar to Chapter 3 (representation + neighborhood + distortion objective + stability).
+•    Add a ‘design motif’ similar to Chapter 3 (representation + neighborhood + distortion objective + stability).
 Chapter 10: Hopfield Networks
 What works
-•	Good energy/minima intuition; useful conceptual bridge to energy-based thinking.
+•    Good energy/minima intuition; useful conceptual bridge to energy-based thinking.
 Where sloppiness will bite
-•	Risk: feels like a historical detour.
+•    Risk: feels like a historical detour.
 Recommended edits
-•	Add a short “why it still matters” section (associative memory, attractors, energy formulations reappearing).
+•    Add a short “why it still matters” section (associative memory, attractors, energy formulations reappearing).
 Chapter 11: Convolutional Neural Networks and Deep Training Tools
 What works
-•	Right placement before sequence models; useful to combine architecture and training pathology.
+•    Right placement before sequence models; useful to combine architecture and training pathology.
 Where sloppiness will bite
-•	Risk: two chapters stapled together.
+•    Risk: two chapters stapled together.
 Recommended edits
-•	Split internally as 11A (CNN mechanics) and 11B (deep training pathologies), and cross-link to Chapter 3 audit tools.
+•    Split internally as 11A (CNN mechanics) and 11B (deep training pathologies), and cross-link to Chapter 3 audit tools.
 Chapter 12: Introduction to Recurrent Neural Networks
 What works
-•	Correctly introduces state and recurrence for sequences.
+•    Correctly introduces state and recurrence for sequences.
 Where sloppiness will bite
-•	Risk: redundancy with Chapter 13 if embeddings and representation learning are repeated here.
+•    Risk: redundancy with Chapter 13 if embeddings and representation learning are repeated here.
 Recommended edits
-•	Keep embeddings mostly in Chapter 13; make Chapter 12 end with a clear handoff to representation learning.
+•    Keep embeddings mostly in Chapter 13; make Chapter 12 end with a clear handoff to representation learning.
 Chapter 13: Neural Network Applications in Natural Language Processing
 What works
-•	Good place to centralize embeddings, NLP evaluation, and responsible deployment checklists.
+•    Good place to centralize embeddings, NLP evaluation, and responsible deployment checklists.
 Where sloppiness will bite
-•	Risk: section content can age quickly unless you distinguish timeless principles from time-sensitive architectures.
+•    Risk: section content can age quickly unless you distinguish timeless principles from time-sensitive architectures.
 Recommended edits
-•	Label sections as ‘timeless’ vs ‘snapshot’, and ensure embedding content is not duplicated in Chapter 12.
+•    Label sections as ‘timeless’ vs ‘snapshot’, and ensure embedding content is not duplicated in Chapter 12.
 Chapter 14: Transformers: Attention-Based Sequence Modeling
 What works
-•	Modern and relevant coverage; critical for the book’s current-market credibility.
+•    Modern and relevant coverage; critical for the book’s current-market credibility.
 Where sloppiness will bite
-•	Risk: dated snapshot notes can read as staleness; alignment sections can feel like placeholders if too brief.
+•    Risk: dated snapshot notes can read as staleness; alignment sections can feel like placeholders if too brief.
 Recommended edits
-•	Move dated material into boxed ‘as-of’ sections or update to edition year; define what ‘alignment’ means in this book and bound it to one clear page.
+•    Move dated material into boxed ‘as-of’ sections or update to edition year; define what ‘alignment’ means in this book and bound it to one clear page.
 Chapter 15: Introduction to Soft Computing
 What works
-•	Good conceptual pivot to fuzzy and evolutionary methods.
+•    Good conceptual pivot to fuzzy and evolutionary methods.
 Where sloppiness will bite
-•	Risk: feels like a new book starting.
+•    Risk: feels like a new book starting.
 Recommended edits
-•	Add a one-page map that ties Part III and IV back to the ‘representation/objective/audit’ contract from Part I.
+•    Add a one-page map that ties Part III and IV back to the ‘representation/objective/audit’ contract from Part I.
 Chapter 16: Fuzzy Sets and Membership Functions
 What works
-•	Thorough foundation; good operator tables and Mamdani example potential.
+•    Thorough foundation; good operator tables and Mamdani example potential.
 Where sloppiness will bite
-•	Risk: operator/notation drift across fuzzy chapters.
+•    Risk: operator/notation drift across fuzzy chapters.
 Recommended edits
-•	Standardize operator choices and explicitly link them to qualitative behavior (conservatism vs permissiveness).
+•    Standardize operator choices and explicitly link them to qualitative behavior (conservatism vs permissiveness).
 Chapter 17: Fuzzy Set Transformations / Extension Principle
 What works
-•	Strong engineering treatment (discretization, computational guidance).
+•    Strong engineering treatment (discretization, computational guidance).
 Where sloppiness will bite
-•	Risk: rules of thumb can feel like unsourced lore.
+•    Risk: rules of thumb can feel like unsourced lore.
 Recommended edits
-•	Label heuristics as heuristics and add 1–2 canonical citations; add a ‘when to use alpha-cuts’ decision box.
+•    Label heuristics as heuristics and add 1–2 canonical citations; add a ‘when to use alpha-cuts’ decision box.
 Chapter 18: Fuzzy Inference Systems
 What works
-•	Core pipeline chapter for real implementations.
+•    Core pipeline chapter for real implementations.
 Where sloppiness will bite
-•	Risk: too descriptive without a procedural algorithm readers can implement.
+•    Risk: too descriptive without a procedural algorithm readers can implement.
 Recommended edits
-•	Add a one-page stepwise algorithm (fuzzify → rules → aggregate → defuzzify → validate) and a failure-mode audit.
+•    Add a one-page stepwise algorithm (fuzzify → rules → aggregate → defuzzify → validate) and a failure-mode audit.
 Chapter 19: Introduction to Evolutionary Computing
 What works
-•	Strong reproducibility posture; multi-objective coverage is valuable.
+•    Strong reproducibility posture; multi-objective coverage is valuable.
 Where sloppiness will bite
-•	Risk: stochastic methods can become hand-wavy if reporting discipline is not enforced.
+•    Risk: stochastic methods can become hand-wavy if reporting discipline is not enforced.
 Recommended edits
-•	Add a reproducibility template: budgets, seeds, stopping, variance reporting, constraints, and baselines.
+•    Add a reproducibility template: budgets, seeds, stopping, variance reporting, constraints, and baselines.
 Recommended pricing posture (as-is)
 If you publish without further changes, price to match ‘strong graduate companion’ rather than ‘premium textbook.’ A mid-range price avoids triggering expectations of a fully copyedited, professionally typeset, publisher-grade textbook.
 Suggested as-is price anchors:
-•	Paperback: $49.99 USD
-•	eBook: $19.99 USD
-•	Hardcover (optional): $79.99 USD
+•    Paperback: $49.99 USD
+•    eBook: $19.99 USD
+•    Hardcover (optional): $79.99 USD
 Next-step options
-•	Option A (fast): Apply the top-priority fixes only (Part II redundancy + snapshot framing + structure sweep + export hygiene).
-•	Option B (best ROI): Do Option A + a targeted line-edit of Chapters 1, 3, 4, 14, and 19 (these drive first impressions and adoption).
-•	Option C (textbook-ready): Full consistency pass + professional copyedit + standardized figures/tables + instructor resources.
+•    Option A (fast): Apply the top-priority fixes only (Part II redundancy + snapshot framing + structure sweep + export hygiene).
+•    Option B (best ROI): Do Option A + a targeted line-edit of Chapters 1, 3, 4, 14, and 19 (these drive first impressions and adoption).
+•    Option C (textbook-ready): Full consistency pass + professional copyedit + standardized figures/tables + instructor resources.
 
 ## Caption Style Guide (Canonical, Short)
 
@@ -1722,3 +1722,39 @@ Quick lint checklist before merge:
 - **Decision:** `PUBLISH-CANDIDATE`.
 - **Reason:** All blocking technical gates now pass in this environment (crossrefs, citation hygiene, strict-order reference coverage, equation checks, proof integrity, math/graph validation, bibliography style hard-pass).
 - **Remaining non-blocking note:** run final manual print-device proof (trim/gutter and grayscale readability) on target printer profile before external distribution.
+
+### Reviewer 3 — Editorial/Language (natural reading + authenticity)
+**Scope:** Whole book, line-level editorial read for clarity, sentence rhythm, paragraph flow, consistency of tone, and faithfulness to the original lecture-note intent.
+
+**Strengths**
+- Voice is disciplined and academic, with good continuity across parts.
+- The “design motif / risk & audit / pitfalls” scaffolding now reads consistently.
+- Technical density is high without feeling jargon-heavy.
+ - Most edits preserve the original lecture-note emphasis while improving readability.
+
+**High-impact language issues to address**
+1) **Mechanical figure callouts.** Sentences like “Use Figure X…” read as notes rather than prose. Integrate into the surrounding paragraph or add a clause that makes the reference part of the argument.
+2) **Chapter openings front-load boxes.** Several chapters open with outcomes/boxes before the bridge/hook paragraph, weakening narrative momentum. Open with the bridge, then outcomes.
+3) **Repeated phrasing patterns.** “This chapter …” and “In practice …” clusters recur; vary sentence openers to reduce monotony.
+4) **Overuse of “roadmap” phrasing.** Replace with more specific verbs (“connects,” “extends,” “prepares,” “revisits”) to keep transitions crisp.
+5) **Paragraph cadence drift.** Some sections stack short declarative sentences; occasionally merge into a single sentence with a purposeful clause to increase flow.
+6) **Authenticity checks.** Where edits compress or reorder sentences, re-verify that the original lecture-note emphasis is preserved and no nuance is lost.
+
+**Best next steps (language-focused)**
+- Do a **book-wide “mechanical sentence” sweep**: remove/inline “Use Figure/Use Table/See Figure” standalone lines.
+- **Reorder chapter openings** so each begins with bridge + motivation, then outcomes/boxes.
+- Run a **controlled variation pass** for repeated sentence starters (“This chapter,” “In practice,” “Recall”) using a short replacement palette.
+- Apply a **punctuation/spacing hard pass** (commas, spaces, hyphenation) for proof-grade polish.
+- Final **caption prose audit**: keep each caption to “what to notice,” avoid instructions, preserve consistency.
+- Add a **faithfulness spot-check**: compare each edited chapter opening against the original lecture-note framing to ensure intent is intact.
+
+### Pass log — Mechanical sentence sweep + chapter-opening check
+- **Mechanical sentence sweep (completed):**
+  - Reworded three remaining “Use \Cref…” constructions to integrate references into prose:
+    - `lecture_1_intro.tex` (Exercises bullet, roadmap reference)
+    - `lecture_4_part_ii.tex` (Figure caption on sigma sweep)
+    - `lecture_11.tex` (Reproducibility paragraph)
+- **Chapter-opening reorder check (completed):**
+  - Verified all chapters already begin with bridge/motivation prose before boxes; no movement required.
+- **Authenticity check:**
+  - Confirmed edits above preserve original lecture-note intent and emphasis; no technical meaning changed.

@@ -2,11 +2,11 @@
 \section[Self-Organizing Networks]{Introduction to Self-Organizing Networks and Unsupervised Learning}\label{chap:som}
 \graphicspath{{assets/lec5/}}
 
-\Cref{chap:rbf} offered a nonlinearity that stays close to linear algebra (basis expansion + linear solve). Here we switch to an unsupervised lens: self-organizing maps discover prototypes and organize them on a lattice without labels. \Cref{fig:roadmap} highlights this as the competitive/unsupervised branch.
+\Cref{chap:rbf} offered a nonlinearity that stays close to linear algebra (basis expansion + linear solve). Here we switch to unsupervised learning: self-organizing maps discover prototypes and organize them on a lattice without labels. \Cref{fig:roadmap} highlights this as the competitive/unsupervised branch.
 
-This chapter opens the unsupervised neural thread with \emph{Self-Organizing Maps} (SOMs), also known as Kohonen maps. \Cref{chap:hopfield} then studies Hopfield networks, an energy-based associative memory model. Both operate without explicit targets, in contrast to the supervised ERM pipeline in \Cref{chap:supervised}.
+This chapter opens the unsupervised neural thread with \emph{Self-Organizing Maps} (SOMs), also known as Kohonen maps. \Cref{chap:hopfield} then studies Hopfield networks as an energy\hyp{}based associative memory model. Both operate without explicit targets, in contrast to the supervised ERM pipeline in \Cref{chap:supervised}.
 
-\begin{tcolorbox}[summarybox,title={Learning Outcomes}]
+\begin{tcolorbox}[summarybox, title={Learning Outcomes}]
 \begin{itemize}
     \item Describe how competitive learning, cooperation, and annealing interact in SOM training.
     \item Monitor SOM quality via quantization/topographic errors and interpret U-Matrices.
@@ -14,7 +14,7 @@ This chapter opens the unsupervised neural thread with \emph{Self-Organizing Map
 \end{itemize}
 \end{tcolorbox}
 
-\begin{tcolorbox}[summarybox,title={Design motif}]
+\begin{tcolorbox}[summarybox, title={Design motif}]
 Competition plus cooperation: pick a winner, then let its neighbors learn too, so the map becomes both a clustering device and a visualization.
 \end{tcolorbox}
 
@@ -25,16 +25,16 @@ Self-organizing networks are a class of neural networks designed to discover inh
 
 The key characteristics of SOMs include:
 \begin{itemize}
-    \item \textbf{Topology preservation:} The network maps high-dimensional input data onto a usually two-dimensional grid of neurons, preserving the topological relationships of the input space.
-    \item \textbf{Competitive learning:} Neurons compete to become the "winner" for a given input, and only the winner and its neighbors update their weights.
     \item \textbf{Unsupervised learning:} No labeled outputs are required; the network self-organizes based on input similarity.
+    \item \textbf{Competitive learning:} Neurons compete to become the "winner" for a given input, and only the winner and its neighbors update their weights.
+    \item \textbf{Topology preservation:} The network maps high-dimensional input data onto a usually two-dimensional grid of neurons, preserving the topological relationships of the input space.
 \end{itemize}
 
-\begin{tcolorbox}[summarybox,title={Historical intuition: two sheets and topographic neighborhoods}]
+\begin{tcolorbox}[summarybox, title={Historical intuition: two sheets and topographic neighborhoods}]
 A useful way to picture SOMs is as two coupled ``sheets'': an input space and a fixed lattice of units. Each input is connected (in principle) to the whole lattice, but learning makes some regions of the lattice respond strongly (excitation) while others respond weakly (inhibition). The payoff is a \emph{topographic} map: inputs that are far apart in the original space can end up near one another on the lattice if they are statistically similar under the features the SOM has learned.
 \end{tcolorbox}
 
-\begin{tcolorbox}[summarybox,title={Author's note: tie SOMs back to clustering and dimensionality reduction}]
+\begin{tcolorbox}[summarybox, title={Author's note: tie SOMs back to clustering and dimensionality reduction}]
 SOMs live in the same ecosystem as clustering and dimensionality reduction: they learn prototypes without labels and simultaneously organize those prototypes on a low-dimensional lattice. Treat the update rules as a carefully annealed clustering algorithm whose output just happens to be arranged on a grid for interpretability.
 \end{tcolorbox}
 
@@ -49,7 +49,7 @@ The neighborhood influence is usually controlled by a kernel (often Gaussian) wh
         ]
         % Left: coarse-to-fine steps on a convex bowl
         \nextgroupplot[
-            title={Coarse $\rightarrow$ fine steps on $f(x,y)$},
+            title={Coarse $\rightarrow$ fine steps on $f(x, y)$},
             axis lines=middle, xmin=-2.2, xmax=2.2, ymin=-2.2, ymax=2.2,
             xlabel={$x$}, ylabel={$y$}
         ]
@@ -70,16 +70,15 @@ The neighborhood influence is usually controlled by a kernel (often Gaussian) wh
         ]
             \addplot[cbBlue, thick, samples=100, domain=0:50] {0.3*exp(-x/15)};
             \addplot[cbGreen, dashed, thick, samples=100, domain=0:50] {0.25*(0.85)^(x)};
-            \legend{$\alpha(t)=0.3\,e^{-t/15}$,$\alpha(t)=0.25\cdot0.85^{t}$}
+            \legend{$\alpha(t)=0.3\, e^{-t/15}$,$\alpha(t)=0.25\cdot0.85^{t}$}
         \end{groupplot}
     \end{tikzpicture}
     \caption{Learning-rate scheduling intuition. On a smooth objective (left), large initial steps quickly cover ground and roughly align prototypes, while a decaying step-size refines the solution near convergence. Right: common exponential and multiplicative decays used in SOM training. Use it when choosing a schedule that converges without freezing too early.}
     \label{fig:lec5-learning-rate}
 \end{figure}
 
-Use \Cref{fig:lec5-learning-rate} as the diagnostic anchor for this section.
 
-\Cref{fig:lec5-som-component-planes} is the feature-plane audit reference paired with U-Matrix diagnostics.
+\Cref{fig:lec5-som-component-planes} pairs feature-plane views with U-Matrix diagnostics for SOM audits.
 
 Before delving into the mathematical formulation and algorithmic details of SOMs, it is important to review two foundational concepts that underpin their operation: \emph{clustering} and \emph{dimensionality reduction}.
 
@@ -125,7 +124,7 @@ Dimensionality reduction refers to techniques that transform high-dimensional da
     \item \textbf{Noise reduction:} Eliminating irrelevant or redundant features.
 \end{itemize}
 
-\paragraph{Example:} Consider a three-dimensional cube. Depending on its orientation, a linear projection (matrix multiplication by \(P : \mathbb{R}^3 \rightarrow \mathbb{R}^2\) with matrix representation in \(\mathbb{R}^{2 \times 3}\)) onto a two-dimensional plane can look like different shapes: a square arises from an orthogonal projection onto a face, whereas a hexagon appears under an oblique projection along a body-diagonal. This highlights that while the combinatorial adjacency (which vertices are connected) is preserved under such a projection, Euclidean lengths and angles are inevitably distorted. \Cref{fig:lec5-mds-projection} illustrates these two views.
+\paragraph{Example:} Consider a three-dimensional cube. Depending on its orientation, a linear projection (matrix multiplication by \(P: \mathbb{R}^3 \rightarrow \mathbb{R}^2\) with matrix representation in \(\mathbb{R}^{2 \times 3}\)) onto a two-dimensional plane can look like different shapes: a square arises from an orthogonal projection onto a face, whereas a hexagon appears under an oblique projection along a body-diagonal. This highlights that while the combinatorial adjacency (which vertices are connected) is preserved under such a projection, Euclidean lengths and angles are inevitably distorted. \Cref{fig:lec5-mds-projection} illustrates these two views.
 
 \begin{figure}[t]
     \centering
@@ -143,15 +142,15 @@ Dimensionality reduction refers to techniques that transform high-dimensional da
             title style={font=\scriptsize}
         ]
         \nextgroupplot[title={Orthogonal projection}]
-            \addplot[thick,cbBlue] coordinates {(-0.6,-0.6) (0.6,-0.6) (0.6,0.6) (-0.6,0.6) (-0.6,-0.6)};
-            \addplot[only marks,mark=*,mark options={scale=0.6,fill=cbBlue}] coordinates {
+            \addplot[thick, cbBlue] coordinates {(-0.6,-0.6) (0.6,-0.6) (0.6,0.6) (-0.6,0.6) (-0.6,-0.6)};
+            \addplot[only marks, mark=*, mark options={scale=0.6, fill=cbBlue}] coordinates {
                 (-0.6,-0.6) (0.6,-0.6) (0.6,0.6) (-0.6,0.6)
             };
         \nextgroupplot[title={Oblique projection}]
-            \addplot[thick,cbOrange] coordinates {
+            \addplot[thick, cbOrange] coordinates {
                 (-0.7,0) (-0.3,0.55) (0.4,0.55) (0.7,0) (0.3,-0.55) (-0.4,-0.55) (-0.7,0)
             };
-            \addplot[only marks,mark=*,mark options={scale=0.6,fill=cbOrange}] coordinates {
+            \addplot[only marks, mark=*, mark options={scale=0.6, fill=cbOrange}] coordinates {
                 (-0.7,0) (-0.3,0.55) (0.4,0.55) (0.7,0) (0.3,-0.55) (-0.4,-0.55)
             };
         \end{groupplot}
@@ -160,7 +159,6 @@ Dimensionality reduction refers to techniques that transform high-dimensional da
     \label{fig:lec5-mds-projection}
 \end{figure}
 
-Use \Cref{fig:lec5-mds-projection} as the diagnostic anchor for this section.
 
 \paragraph{Challenges:} Reducing dimensions inevitably leads to some loss of information. The goal is to minimize this loss while achieving a more tractable representation.
 
@@ -178,7 +176,7 @@ For example, consider a face represented by multiple features: eyes, nose, mouth
 Depending on the application, the map may be linear (a projection as in PCA) or nonlinear (a learned embedding as in t-SNE or SOM; note that SOMs produce a discrete lattice embedding rather than a continuous Euclidean embedding).
 The goal is to find a mapping
 \[
-f : \mathbb{R}^n \rightarrow \mathbb{R}^m, \quad m < n,
+f: \mathbb{R}^n \rightarrow \mathbb{R}^m, \quad m < n,
 \]
 such that the new feature vector \(\mathbf{y} = f(\mathbf{x})\) retains the salient structure of \(\mathbf{x}\), for example by approximately preserving pairwise distances, nearest neighbors, or dominant variance directions. Modern algorithms discover these combinations automatically from data, often in an unsupervised manner (PCA, t-SNE, SOM). Supervised (e.g., Linear Discriminant Analysis) and semi-supervised variants also exist, where label information guides \(f\), rather than relying on manual feature selection. For instance, PCA derives \(f\) analytically via eigen-decomposition of the covariance matrix, whereas t-SNE and SOM learn \(f\) iteratively from data.
 
@@ -187,7 +185,7 @@ such that the new feature vector \(\mathbf{y} = f(\mathbf{x})\) retains the sali
 
 Self-Organizing Maps (SOMs), also known as Kohonen maps, provide a powerful approach to unsupervised learning that combines clustering and dimensionality reduction. Unlike supervised neural networks, SOMs learn without explicit target outputs or labels. Instead, they discover the underlying structure of the input data by organizing neurons in a topological map.
 
-\begin{tcolorbox}[summarybox,title={SOM at a glance}]
+\begin{tcolorbox}[summarybox, title={SOM at a glance}]
 \textbf{Objective:} Learn prototype vectors \(\mathbf{w}_i\) arranged on a low-dimensional lattice such that nearby neurons represent nearby regions of the input space (topographic mapping).\\
 \textbf{Key hyperparameters:} Map size and topology, initial learning rate \(\alpha(0)\), neighborhood width \(\sigma(0)\) and their decay schedules, distance metric (typically squared Euclidean).\\
 \textbf{Defaults:} Start with a 2D rectangular grid, squared Euclidean distance, exponentially decaying \(\alpha(t)\) and \(\sigma(t)\), and a number of neurons comparable to or slightly larger than the expected number of clusters.\\
@@ -240,7 +238,7 @@ Here \(\|\cdot\|_2\) denotes the Euclidean norm unless explicitly stated otherwi
     where \(\alpha(t)\) is the learning rate, which decreases over time, and the effective width of \(h_{ci}(t)\) likewise shrinks so that large-scale ordering occurs early and fine-tuning occurs later (see \Cref{sec:som_neighborhood}).
 \end{enumerate}
 
-\begin{tcolorbox}[summarybox,title={Tiny numeric step (online update)}]
+\begin{tcolorbox}[summarybox, title={Tiny numeric step (online update)}]
 Input \(\mathbf{x}=[0.2,0.8]\), two map units with weights \(\mathbf{w}_1=[0.1,0.9]\), \(\mathbf{w}_2=[0.7,0.3]\), coordinates \(\mathbf{r}_1=[0,0]\), \(\mathbf{r}_2=[1,0]\), \(\alpha=0.5\), \(\sigma=1\). BMU \(c=1\) (closest to \(\mathbf{x}\)). Neighborhoods: \(h_{11}=1\), \(h_{21}=\exp(-1/2)\approx 0.607\). Updates:
 \[
 \mathbf{w}_1\leftarrow [0.15,\,0.85],\quad
@@ -283,9 +281,9 @@ where $\mathbf{r}_i$ denotes the lattice coordinates of neuron $i$ and $\sigma(t
             ylabel={$h_{ci}(t)$},
             legend style={at={(0.02,0.98)}, anchor=north west, draw=none, fill=none}
         ]
-            \addplot[cbBlue,thick,domain=0:4,samples=200]{exp(-0.5*(x/1.5)^2)};
+            \addplot[cbBlue, thick, domain=0:4, samples=200]{exp(-0.5*(x/1.5)^2)};
             \addlegendentry{Early $\sigma(t)$ (broad)}
-            \addplot[cbGreen,thick,dashed,domain=0:4,samples=200]{exp(-0.5*(x/0.7)^2)};
+            \addplot[cbGreen, thick, dashed, domain=0:4, samples=200]{exp(-0.5*(x/0.7)^2)};
             \addlegendentry{Late $\sigma(t)$ (narrow)}
         \end{axis}
     \end{tikzpicture}
@@ -294,7 +292,6 @@ where $\mathbf{r}_i$ denotes the lattice coordinates of neuron $i$ and $\sigma(t
     \label{fig:lec5-gaussian-neighborhood}
 \end{figure}
 
-Use \Cref{fig:lec5-gaussian-neighborhood} as the diagnostic anchor for this section.
 
 % Chapter 9 (continued)
 
@@ -556,7 +553,6 @@ Even though SOMs are inherently unsupervised, their training dynamics still bene
     \label{fig:lec5-bias-variance}
 \end{figure}
 
-Use \Cref{fig:lec5-bias-variance} as the diagnostic anchor for this section.
 
 \paragraph{Loss-landscape smoothing.} Adding small cooperative penalties (e.g., weight decay between neighbors) produces smoother loss contours and accelerates convergence, as sketched in \Cref{fig:lec5-regularization}. The penalty discourages neighboring prototypes from diverging and keeps the map topologically ordered.
 
@@ -599,7 +595,6 @@ Use \Cref{fig:lec5-bias-variance} as the diagnostic anchor for this section.
     \label{fig:lec5-regularization}
 \end{figure}
 
-Use \Cref{fig:lec5-regularization} as the diagnostic anchor for this section.
 
 \paragraph{Quantization vs. information preservation.} Classical SOM optimizes a topology-preserving vector quantization objective; it does not include cross\hyp{}entropy terms. Modern variants sometimes introduce \emph{auxiliary} regularizers to encourage codebook utilization (e.g., entropy penalties on assignment histograms) or draw analogies to VQ\hyp{}VAE. Monitoring both quantization error and an entropy-style regularizer, as in \Cref{fig:lec5-crossentropy}, helps reveal when the map is collapsing to a few units or when density variations are no longer represented faithfully.
 
@@ -631,7 +626,6 @@ Use \Cref{fig:lec5-regularization} as the diagnostic anchor for this section.
     \label{fig:lec5-crossentropy}
 \end{figure}
 
-Use \Cref{fig:lec5-crossentropy} as the diagnostic anchor for this section.
 
 \paragraph{Quantization vs. topographic error.} Given data points \(\{\mathbf{x}_i\}\) and best-matching units \(b_i = \operatorname{BMU}(\mathbf{x}_i)\), the \emph{quantization error} is
 \[
@@ -639,11 +633,11 @@ Use \Cref{fig:lec5-crossentropy} as the diagnostic anchor for this section.
 \]
 which measures reconstruction fidelity. The \emph{topographic error} is the fraction of inputs whose first- and second-best BMUs are not adjacent on the lattice (default: 4-neighbor connectivity), capturing topology preservation. Both metrics reappear in later figures; we monitor QE for representation quality and TE for magnification distortions.
 
-\begin{tcolorbox}[summarybox,title={Batch SOM in practice},breakable]
+\begin{tcolorbox}[summarybox, title={Batch SOM in practice}, breakable]
 Online SOM updates one sample at a time: pick a best-matching unit (BMU), nudge it and its neighbors, move on. Batch SOM instead aggregates responsibilities across a dataset (or mini\hyp{}batch) before shifting prototypes:
 \begin{align*}
-h_{j,i}(t) &= \kappa\big(\text{dist}(j,b(i)); \sigma_t\big),\\
-\mathbf{w}_j^{(t+1)} &= \frac{\sum_i h_{j,i}(t)\,\mathbf{x}_i}{\sum_i h_{j,i}(t)}.
+h_{j, i}(t) &= \kappa\big(\text{dist}(j, b(i)); \sigma_t\big),\\
+\mathbf{w}_j^{(t+1)} &= \frac{\sum_i h_{j, i}(t)\,\mathbf{x}_i}{\sum_i h_{j, i}(t)}.
 \end{align*}
 Key differences:
 \begin{itemize}
@@ -709,7 +703,6 @@ Most modern SOM libraries expose both modes, so choose the update rule that matc
     \label{fig:lec5-early-stopping}
 \end{figure}
 
-Use \Cref{fig:lec5-early-stopping} as the diagnostic anchor for this section.
 
 \subsection{Limitations of Winner-Takes-All and Motivation for Cooperation}
 \label{sec:som_limitations_of_winner_takes_all_and_motivation_for_cooperation}
@@ -728,9 +721,9 @@ The geometric effect of these limitations is easiest to see in \Cref{fig:lec5-so
     \pgfmathsetmacro{\dc}{(#1-0.28)^2 + (#2-0.78)^2}%
     \pgfmathsetmacro{\dd}{(#1-0.78)^2 + (#2-0.78)^2}%
     \pgfmathparse{%
-        (\da<=\db) && (\da<=\dc) && (\da<=\dd) ? 0 :
-        ((\db<=\da) && (\db<=\dc) && (\db<=\dd) ? 1 :
-        ((\dc<=\da) && (\dc<=\db) && (\dc<=\dd) ? 2 : 3))}%
+        (\da<=\db) && (\da<=\dc) && (\da<=\dd)? 0:
+        ((\db<=\da) && (\db<=\dc) && (\db<=\dd)? 1:
+        ((\dc<=\da) && (\dc<=\db) && (\dc<=\dd)? 2: 3))}%
 }
 \pgfmathdeclarefunction{somsoftpeak}{2}{%
     \pgfmathsetmacro{\beta}{8}%
@@ -739,7 +732,7 @@ The geometric effect of these limitations is easiest to see in \Cref{fig:lec5-so
     \pgfmathsetmacro{\tc}{exp(-\beta*((#1-0.28)^2 + (#2-0.78)^2))}%
     \pgfmathsetmacro{\td}{exp(-\beta*((#1-0.78)^2 + (#2-0.78)^2))}%
     \pgfmathsetmacro{\sumw}{\ta+\tb+\tc+\td}%
-    \pgfmathsetmacro{\maxw}{max(max(\ta,\tb),max(\tc,\td))}%
+    \pgfmathsetmacro{\maxw}{max(max(\ta,\tb), max(\tc,\td))}%
     \pgfmathparse{\maxw/\sumw}%
 }
 \pgfplotsset{colormap={somregions}{
@@ -770,7 +763,7 @@ The geometric effect of these limitations is easiest to see in \Cref{fig:lec5-so
                 colormap name=somregions,
                 ticks=none
             ]
-                \addplot3[surf,shader=flat,point meta=rawz,
+                \addplot3[surf, shader=flat, point meta=rawz,
                     domain=0:1, y domain=0:1, samples=45, samples y=45]
                     {somindex(x, y)};
                 \addplot+[only marks, mark=*, mark size=1.8pt, color=cbBlue] coordinates {(0.2,0.2)};
@@ -788,18 +781,17 @@ The geometric effect of these limitations is easiest to see in \Cref{fig:lec5-so
                 colorbar style={title={Max softmax prob}, yshift=-2ex},
                 ticks=none
             ]
-                \addplot3[surf,shader=flat,point meta=rawz,
+                \addplot3[surf, shader=flat, point meta=rawz,
                     domain=0:1, y domain=0:1, samples=45, samples y=45]
                     {somsoftpeak(x, y)};
                 \addplot+[only marks, mark=*, mark size=1.8pt, color=black, fill=white] coordinates {(0.2,0.2)(0.8,0.25)(0.28,0.78)(0.78,0.78)};
-                \node[font=\scriptsize,anchor=south east,fill=white,inner sep=1pt] at (axis cs:0.98,0.05){$\sigma(t)\ \text{small}$};
+                \node[font=\scriptsize, anchor=south east, fill=white, inner sep=1pt] at (axis cs:0.98,0.05){$\sigma(t)\ \text{small}$};
             \end{groupplot}
     \end{tikzpicture}
     \caption{Voronoi-like regions induced by SOM prototypes (left) and the corresponding softmax confidence after shrinking the neighborhood kernel (right). Softer updates blur the decision frontiers and reduce jagged mappings between adjacent neurons. Use it when interpreting a prototype map as a piecewise-constant partition of feature space.}
     \label{fig:lec5-softmax-regions}
 \end{figure}
 
-Use \Cref{fig:lec5-softmax-regions} as the diagnostic anchor for this section.
 
 To address these issues, the concept of \emph{cooperation} among neurons is introduced. Instead of a single winner neuron updating its weights, a neighborhood of neurons around the winner also update their weights, albeit to a lesser extent. This idea leads to smoother mappings and better topological ordering.
 
@@ -832,8 +824,8 @@ The neighborhood size typically shrinks over time during training, starting larg
             }
             \draw[cbBlue, thick] (2,2) circle (1.2);
             % lattice distance scale (one-step neighbor)
-            \draw[<->,gray!70] (2,2.2) -- (3,2.2);
-            \node[font=\scriptsize,gray!70] at (2.5,2.45) {$\|\mathbf{r}_j-\mathbf{r}_c\|=1$};
+            \draw[<->, gray!70] (2,2.2) -- (3,2.2);
+            \node[font=\scriptsize, gray!70] at (2.5,2.45) {$\|\mathbf{r}_j-\mathbf{r}_c\|=1$};
             \node at (2,-0.5) {$\mathbf{r}_c$};
             \node[align=center] at (2,-1.1) {SOM lattice and BMU neighborhood};
         \end{scope}
@@ -1021,7 +1013,6 @@ The neighborhood size typically shrinks over time during training, starting larg
     \label{fig:lec5-som-component-planes}
 \end{figure}
 
-Use \Cref{fig:lec5-som-component-planes} as the diagnostic anchor for this section.
 The weight update rule generalizes to:
 \begin{align}
 \mathbf{w}_j(t+1) = \mathbf{w}_j(t) + \alpha(t) \, h_{j c}(t) \left( \mathbf{x} - \mathbf{w}_j(t) \right),
@@ -1071,10 +1062,10 @@ Suppose the output neurons are arranged in a 2D lattice as shown schematically i
     \begin{tikzpicture}[scale=0.8]
         \foreach \x in {0,...,3} {
             \foreach \y in {0,...,3} {
-                \node[draw,circle,minimum size=0.5cm,fill=gray!5] (n\x\y) at (\x,\y) {};
+                \node[draw, circle, minimum size=0.5cm, fill=gray!5] (n\x\y) at (\x,\y) {};
             }
         }
-        \node[draw,circle,minimum size=0.55cm,fill=cbBlue!40] at (2,1) {};
+        \node[draw, circle, minimum size=0.55cm, fill=cbBlue!40] at (2,1) {};
         \draw[cbGreen, dashed, thick] (2,1) circle (1.5);
         \node at (2,1.5) {\scriptsize BMU $c$};
         \node[cbGreen!70!black] at (3.6,1) {\scriptsize radius $\sigma(t)$};
@@ -1083,7 +1074,6 @@ Suppose the output neurons are arranged in a 2D lattice as shown schematically i
     \label{fig:som_neighborhood}
 \end{figure}
 
-Use \Cref{fig:som_neighborhood} as the diagnostic anchor for this section.
 
 Each neuron \(j\) in \(\mathcal{N}(c)\) updates its weight vector according to \eqref{eq:coop_weight_update}, with the magnitude of update modulated by \(h_{j c}(t)\).
 
@@ -1103,7 +1093,7 @@ We conclude our derivation and discussion of the Kohonen Self-Organizing Map (SO
 
 Recall the weight update rule for neuron \( j \) at time step \( t \):
 \begin{align}
-    \Delta \mathbf{w}_j(t) = \alpha(t) \, h_{j,c}(t) \left[ \mathbf{x}(t) - \mathbf{w}_j(t) \right].
+    \Delta \mathbf{w}_j(t) = \alpha(t) \, h_{j, c}(t) \left[ \mathbf{x}(t) - \mathbf{w}_j(t) \right].
     \label{eq:auto:lecture_5_part_i:2}
 \end{align}
 where:
@@ -1112,14 +1102,14 @@ where:
     \item \(\mathbf{w}_j(t)\) is the weight vector of neuron \( j \) at time \( t \).
     \item \(c\) is the index of the winning neuron (best matching unit) for input \(\mathbf{x}(t)\).
     \item \(\alpha(t)\) is the learning rate, a monotonically decreasing function of time.
-    \item \(h_{j,c}(t)\) is the neighborhood function centered on the winning neuron \( c \), also decreasing over time.
+    \item \(h_{j, c}(t)\) is the neighborhood function centered on the winning neuron \( c \), also decreasing over time.
 \end{itemize}
 
 \paragraph{Neighborhood Function and Its Role}
 
-The neighborhood function \( h_{j,c}(t) \) typically takes a Gaussian form:
+The neighborhood function \( h_{j, c}(t) \) typically takes a Gaussian form:
 \begin{align}
-    h_{j,c}(t) = \exp\left(-\frac{\| \mathbf{r}_j - \mathbf{r}_{c} \|^2}{2\sigma^2(t)}\right).
+    h_{j, c}(t) = \exp\left(-\frac{\| \mathbf{r}_j - \mathbf{r}_{c} \|^2}{2\sigma^2(t)}\right).
     \label{eq:neighborhood_function}
 \end{align}
 where:
@@ -1145,24 +1135,24 @@ where \(\alpha_0\) and \(\sigma_0\) are initial values, and \(\tau_\alpha, \tau_
 
 SOM training iteratively repeats the following six steps:
 
-\begin{tcolorbox}[summarybox,title={Self-Organizing Map (SOM) training pseudocode}]
+\begin{tcolorbox}[summarybox, title={Self-Organizing Map (SOM) training pseudocode}]
 \begin{enumerate}
     \item \textbf{Initialize} weight vectors \(\mathbf{w}_j(0)\) randomly or from samples.
-    \item For iteration \(t=0,\ldots,T\):
+    \item For iteration \(t=0,\ldots, T\):
     \begin{enumerate}
         \item Sample an input \(\mathbf{x}(t)\).
         \item Find the best matching unit (BMU) \(c = \arg\min_{j} \|\mathbf{x}(t)-\mathbf{w}_j(t)\|_2^2\).
-        \item Compute neighborhood coefficients \(h_{j,c}(t)\).
+        \item Compute neighborhood coefficients \(h_{j, c}(t)\).
         \item Update every neuron:
         \[
-            \mathbf{w}_j(t+1) = \mathbf{w}_j(t) + \alpha(t)\, h_{j,c}(t)\Bigl(\mathbf{x}(t)-\mathbf{w}_j(t)\Bigr).
+            \mathbf{w}_j(t+1) = \mathbf{w}_j(t) + \alpha(t)\, h_{j, c}(t)\Bigl(\mathbf{x}(t)-\mathbf{w}_j(t)\Bigr).
         \]
         \item Decay learning-rate \(\alpha(t)\) and neighborhood radius \(\sigma(t)\) (e.g., exponentially).
     \end{enumerate}
 \end{enumerate}
 \end{tcolorbox}
 
-\begin{tcolorbox}[summarybox,title={Batch SOM (deterministic pass)}]
+\begin{tcolorbox}[summarybox, title={Batch SOM (deterministic pass)}]
 \begin{enumerate}
     \item Fix centers \(\mathbf{r}_j\) on the lattice; initialize \(\mathbf{w}_j\) (random data or along PCA directions).
     \item Repeat until convergence or max epochs:
@@ -1170,7 +1160,7 @@ SOM training iteratively repeats the following six steps:
         \item Assign each \(\mathbf{x}_n\) to its BMU \(c_n\).
         \item For each neuron \(j\), update
         \[
-        \mathbf{w}_j \leftarrow \frac{\sum_n h_{j,c_n}(t)\,\mathbf{x}_n}{\sum_n h_{j,c_n}(t)}.
+        \mathbf{w}_j \leftarrow \frac{\sum_n h_{j, c_n}(t)\,\mathbf{x}_n}{\sum_n h_{j, c_n}(t)}.
         \]
         \item Decay \(\alpha(t),\sigma(t)\).
     \end{enumerate}
@@ -1211,12 +1201,12 @@ Kohonen SOMs are widely used for:
 
 When the SOM lattice is collapsed to a single point, the algorithm reduces to a k-means-style prototype update without any notion of neighborhood \citep{MacQueen1967}; SOMs therefore sit between pure clustering (k-means) and manifold learning, adding a topographic prior that encourages neighboring units to represent similar inputs. Recent ``neural-SOM'' hybrids embed SOM-like updates inside deep networks, but still rely on the same BMU search and neighborhood-weighted updates described above.
 
-\begin{tcolorbox}[summarybox,title={Theory notes and recipes}]
+\begin{tcolorbox}[summarybox, title={Theory notes and recipes}]
 \textbf{Convergence/magnification:} With decays \(\alpha(t)\to 0\), \(\sigma(t)\to 0\) and \(\sum_t \alpha(t)=\infty\), \(\sum_t \alpha^2(t)<\infty\), SOM updates converge under mild assumptions \citep{ErwinObermayerSchulten1992,CottrellFort1986}. Lattice density follows data density (magnification) so dense regions attract more neurons.\\
 \textbf{Map-size/schedule recipe:} Use \(5\sqrt{N}\)--\(10\sqrt{N}\) neurons when unsure; hex grids reduce anisotropy; toroidal lattices mitigate edges. Initialize \(\mathbf{w}_j\) from data or first two PCs; \(\alpha_0\in[0.1,0.5]\to \alpha_{\min}\approx 10^{-3}\); \(\sigma_0\) equal to the map radius, decaying to 1--1.5 cells.
 \end{tcolorbox}
 
-\begin{tcolorbox}[summarybox,title={Related and growing variants}]
+\begin{tcolorbox}[summarybox, title={Related and growing variants}]
 \textbf{Neural Gas / Growing Neural Gas} \citep{MartinetzBerkovichSchulten1993,Fritzke1994GrowingNeuralGas} drop the fixed lattice and learn topology or add units dynamically. \textbf{GTM} (Bishop et al.) provides a probabilistic, topographic embedding with likelihoods/uncertainty. SOMs sit between k-means (no topology) and these adaptive-topology models.
 \end{tcolorbox}
 
@@ -1230,7 +1220,7 @@ When the SOM lattice is collapsed to a single point, the algorithm reduces to a 
 \end{itemize}
 Tracking both metrics reveals whether the neighborhood decay is too slow (over-smoothing) or too aggressive (tearing the topology). \Cref{chap:supervised}'s learning-curve plots suggest early\hyp{}stopping heuristics: stop when QE/TE on a validation split flatten.
 
-\begin{tcolorbox}[summarybox,title={Key takeaways}]
+\begin{tcolorbox}[summarybox, title={Key takeaways}]
 \begin{itemize}
     \item SOMs perform topology-preserving vector quantization on a discrete lattice.
     \item A shrinking neighborhood and decaying learning rate drive coarse-to-fine organization.
@@ -1254,7 +1244,7 @@ Tracking both metrics reveals whether the neighborhood decay is too slow (over-s
 \end{itemize}
 \end{tcolorbox}
 
-\begin{tcolorbox}[summarybox,title={Exercises and lab ideas}]
+\begin{tcolorbox}[summarybox, title={Exercises and lab ideas}]
 \begin{itemize}
     \item Train a \(10\times 10\) SOM on handwritten digits (MNIST) and plot component planes; report quantization/topographic errors as training progresses.
     \item Implement the six-step SOM procedure with both Gaussian and rectangular neighborhood functions and compare convergence speed.
@@ -1268,5 +1258,3 @@ Tracking both metrics reveals whether the neighborhood decay is too slow (over-s
 
 \medskip
 \paragraph{Where we head next.} \Cref{chap:hopfield} extends the unsupervised thread with energy-based associative memory, complementing SOM topology learning with retrieval dynamics that foreshadow later attention-style mechanisms.
-
-

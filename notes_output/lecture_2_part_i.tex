@@ -2,13 +2,13 @@
 \section{Symbolic Integration and Problem-Solving Strategies}\label{chap:symbolic}
 \graphicspath{{assets/lec2_part1/}}
 
-\Cref{chap:intro} treated ``intelligence'' operationally: a system should represent a problem, choose actions, and verify or correct itself under constraints. This chapter makes that concrete with a deliberately small example---symbolic integration---where the system's actions are algebraic transformations. \Cref{fig:roadmap} situates this symbolic strand alongside the data-driven path.
+\Cref{chap:intro} treated ``intelligence'' operationally: represent a problem, choose actions, and verify or correct under constraints. Here we make that concrete with a deliberately small example---symbolic integration---where the system's actions are algebraic transformations. \Cref{fig:roadmap} places this symbolic strand alongside the data-driven path.
 
-We study symbolic problem solving through the lens of \emph{integration-by-transformation}: preserve meaning while rewriting an expression into a form that exposes a solution. The point is not the catalog of tricks in isolation, but the system-level pattern: explicit representations, meaning-preserving actions, heuristic branching with backtracking, and a clear goal test that certifies correctness.
+We study symbolic problem solving through \emph{integration-by-transformation}: preserve meaning while rewriting an expression into a form that exposes a solution. The goal is not a catalog of tricks, but the system pattern: explicit representations, meaning-preserving actions, heuristic branching with backtracking, and a goal test that certifies correctness.
 
-It helps to separate transformations into two tiers: reliable moves that never change the antiderivative class (factoring constants, linear substitutions, polynomial division) and heuristic moves that may succeed only for certain structures. A practical policy is to apply every reliable step first, then branch judiciously through the heuristic catalog while keeping enough state to backtrack.
+We separate transformations into two tiers: reliable moves that never change the antiderivative class (factoring constants, linear substitutions, polynomial division) and heuristic moves that may succeed only for certain structures. A practical policy is to exhaust safe steps first, then branch judiciously through the heuristic catalog while keeping enough state to backtrack.
 
-\begin{tcolorbox}[summarybox,title={Learning Outcomes}]
+\begin{tcolorbox}[summarybox, title={Learning Outcomes}]
 \begin{itemize}
     \item Decompose symbolic integration problems into safe vs.\ heuristic transformations and understand when each is appropriate.
     \item Trace the transformation-tree search (state save/restore, heuristics, termination) and connect it to broader notions of intelligent problem solving.
@@ -16,7 +16,7 @@ It helps to separate transformations into two tiers: reliable moves that never c
 \end{itemize}
 \end{tcolorbox}
 
-\begin{tcolorbox}[summarybox,title={Design motif}]
+\begin{tcolorbox}[summarybox, title={Design motif}]
 Meaning\hyp{}preserving moves plus a mechanical check: if \(F(x)\) is proposed as an antiderivative of \(f(x)\), then differentiating should recover the integrand on the declared domain, i.e., \(F'(x)=f(x)\) (equivalently, \(F'(x)-f(x)=0\)).
 \end{tcolorbox}
 
@@ -35,7 +35,7 @@ These are straightforward and can be solved by direct lookup or simple substitut
 
 However, many integrals encountered in practice do not match any entry in standard integral tables, nor do they succumb easily to elementary techniques. The integration-by-transformation view treats this as a search problem: propose meaning-preserving rewrites, backtrack when a branch gets harder, and verify candidates mechanically by differentiation.
 
-\begin{tcolorbox}[summarybox,title={Aside: the Risch algorithm}]
+\begin{tcolorbox}[summarybox, title={Aside: the Risch algorithm}]
 The Risch algorithm \citep{Risch1969} decides whether an elementary antiderivative exists for a large class of integrands by reducing the problem to algebra over differential fields. Unfortunately its implementation is intricate, requires case explosions, and still leaves many useful nonelementary functions unresolved. Practical computer algebra systems therefore augment Risch-style decision procedures with heuristic transformations---the focus of this chapter---to keep runtimes bounded and to return human-readable answers when possible.
 \end{tcolorbox}
 
@@ -50,9 +50,9 @@ We define \emph{safe transformations} as invertible substitutions that allow bac
 
 \begin{itemize}
   \item \textbf{Constant factor extraction:} If \(G\) is an antiderivative of \(g\), then \(a g\) has antiderivative \(a G\); differentiating confirms \(\frac{d}{dx}[a G(x)] = a g(x)\).
-  \item \textbf{Linear substitution:} Let \(u = ax + b\) with \(a \neq 0\). Differentiating gives \(du = a\,dx\) and hence \(dx = \frac{du}{a}\); substituting shows that
+  \item \textbf{Linear substitution:} Let \(u = ax + b\) with \(a \neq 0\). Differentiating gives \(du = a\, dx\) and hence \(dx = \frac{du}{a}\); substituting shows that
   \[
-    \int f(ax + b)\,dx = \frac{1}{a} \int f(u)\,du.
+    \int f(ax + b)\, dx = \frac{1}{a} \int f(u)\, du.
   \]
   This is the standard change-of-variables formula.
   \item \textbf{Polynomial division:} If \( p(x) \) and \( q(x) \) are polynomials with \(\deg p \geq \deg q\), then perform polynomial division:
@@ -62,7 +62,7 @@ We define \emph{safe transformations} as invertible substitutions that allow bac
   where \(\deg r < \deg q\). Linearity of integration lets us integrate \(s(x)\) term-by-term, while the proper fraction \(\frac{r(x)}{q(x)}\) can be addressed via partial fractions or further substitutions, yielding an equivalent antiderivative.
 \end{itemize}
 
-These transformations are \emph{safe} because they always preserve the integral's value and simplify the problem without introducing ambiguity. When a substitution transforms an integral over \(x \in [0,1]\) into \(\int_0^1 u^{b}(1-u)^{c}\,du\) with \(b,c > -1\), the resulting definite integral evaluates to a Beta function \(B(b+1,c+1)\); the Beta identity applies to that definite integral on \([0,1]\), and it is therefore customary to fall back on it when an elementary antiderivative is unavailable.
+These transformations are \emph{safe} because they always preserve the integral's value and simplify the problem without introducing ambiguity. When a substitution transforms an integral over \(x \in [0,1]\) into \(\int_0^1 u^{b}(1-u)^{c}\, du\) with \(b, c > -1\), the resulting definite integral evaluates to a Beta function \(B(b+1, c+1)\); the Beta identity applies to that definite integral on \([0,1]\), and it is therefore customary to fall back on it when an elementary antiderivative is unavailable.
 
 \paragraph{Example: Applying Safe Transformations}
 
@@ -111,7 +111,7 @@ Similarly, if the integrand involves expressions like \(\sin^2 x + \cos^2 x\), w
 
 The use of heuristic transformations reflects a form of mathematical intelligence: the ability to recognize patterns, apply non-obvious substitutions, and creatively manipulate expressions to reach a solution. Unlike safe transformations, heuristics may fail or lead to dead ends, but they expand the problem-solving repertoire beyond mechanical procedures.
 
-\begin{tcolorbox}[summarybox,title={Absolute values and branches}]
+\begin{tcolorbox}[summarybox, title={Absolute values and branches}]
 \begin{itemize}
     \item \textbf{Square roots:} specify the sign/branch. If you drop \(|\cdot|\), restrict the substitution interval so the sign is fixed (e.g., \(\cos y \ge 0\) on \(y\in(-\pi/2,\pi/2)\) so \(\sqrt{1-\sin^2 y}=\cos y\)).
     \item \textbf{Logarithms:} default to \(\log|f(x)|\) unless you guarantee \(f\) keeps one sign on the declared domain.
@@ -208,11 +208,11 @@ From a cost perspective, Path 1 is cheaper and more direct, so the system priori
 
 \paragraph{Two safe options from here}
 \begin{itemize}
-  \item \textbf{(a) Substitution \(u=\tan y\).} Since \(\sec^4 y\,dy = \sec^2 y\,(\sec^2 y\,dy)\) and \(\sec^2 y = 1 + \tan^2 y\), set \(u=\tan y\), \(du=\sec^2 y\,dy\):
+  \item \textbf{(a) Substitution \(u=\tan y\).} Since \(\sec^4 y\, dy = \sec^2 y\,(\sec^2 y\, dy)\) and \(\sec^2 y = 1 + \tan^2 y\), set \(u=\tan y\), \(du=\sec^2 y\, dy\):
   \[
   \begin{aligned}
-  4 \int \sec^4 y\,dy
-    &= 4 \int (1+u^2)\,du \\
+  4 \int \sec^4 y\, dy
+    &= 4 \int (1+u^2)\, du \\
     &= 4\left(u + \tfrac{u^3}{3}\right)+C \\
     &= 4\tan y + \tfrac{4}{3}\tan^3 y + C.
   \end{aligned}
@@ -233,7 +233,7 @@ F(x) = 4 \left[ x (1 - x^2)^{-1/2} + \frac{x^3}{3(1 - x^2)^{3/2}} \right] + C.
 Differentiating term by term shows \(F'(x)=4(1-x^2)^{-5/2}\) on \(|x|<1\). Outside \((-1,1)\) the principal-branch integrand is complex-valued; a real continuation rewrites the integral as \(\int 4(x^2-1)^{-5/2}dx\) with \(x=\cosh t\).
 
 \paragraph{Pattern rule}
-For integrals of the form \(\int (1 - x^2)^{-k-1/2} dx\), the substitution \(x=\sin y\) reduces them to \(\int \sec^{2k} y\,dy\); apply the even-power reduction accordingly. This is why the \(1 - x^2\) pattern triggers the trigonometric branch.
+For integrals of the form \(\int (1 - x^2)^{-k-1/2} dx\), the substitution \(x=\sin y\) reduces them to \(\int \sec^{2k} y\, dy\); apply the even-power reduction accordingly. This is why the \(1 - x^2\) pattern triggers the trigonometric branch.
 % Part A worked example (continued)
 
 \subsection{Example: Solving an Integral via Transformation Trees}
@@ -252,7 +252,7 @@ The worked integral above shows how the search explored multiple branches (e.g.,
   \item Leaves correspond to either solved expressions or dead ends (no solution).
 \end{itemize}
 
-\Cref{fig:lec3_transform_tree} shows the actual tree explored for \(\int \frac{4}{(1-x^2)^{5/2}}\,dx\). Solid branches denote safe algebraic steps (guaranteed progress), while dashed branches illustrate heuristic substitutions that may fail and trigger backtracking. Computer algebra systems follow similar playbooks \citep{Bronstein2005,Risch1969}: a Risch-style decision core handles provably solvable cases, while a curated bank of heuristics (pattern rewrites, rational substitutions, special-function fallbacks) explores auxiliary branches with explicit depth/time budgets.
+\Cref{fig:lec3_transform_tree} shows the actual tree explored for \(\int \frac{4}{(1-x^2)^{5/2}}\, dx\). Solid branches denote safe algebraic steps (guaranteed progress), while dashed branches illustrate heuristic substitutions that may fail and trigger backtracking. Computer algebra systems follow similar playbooks \citep{Bronstein2005,Risch1969}: a Risch-style decision core handles provably solvable cases, while a curated bank of heuristics (pattern rewrites, rational substitutions, special-function fallbacks) explores auxiliary branches with explicit depth/time budgets.
 
 \begin{figure}[h]
         \centering
@@ -294,7 +294,7 @@ The worked integral above shows how the search explored multiple branches (e.g.,
                 ]
 
                     % Level 0
-                    \node[safe] (root) at (0,0) {\(\displaystyle \int \frac{4}{(1-x^2)^{5/2}}\,dx\)};
+                    \node[safe] (root) at (0,0) {\(\displaystyle \int \frac{4}{(1-x^2)^{5/2}}\, dx\)};
 
                     % Level 1
                     \node[safe] (factor) at (-4.2, -2.8) {Factor constants\\restrict \(|x|<1\)};
@@ -306,8 +306,8 @@ The worked integral above shows how the search explored multiple branches (e.g.,
                     \node[heur] (stall)  at ( 4.2, -6.0) {Heuristic stalls\\backtrack};
 
                     % Level 3
-                    \node[safe] (dx)     at (-8.8, -9.0) {Use \(dx=\cos y\,dy\)};
-                    \node[safe] (reduce) at (-4.2, -9.0) {Reduce to \(4\int \sec^4 y\,dy\)};
+                    \node[safe] (dx)     at (-8.8, -9.0) {Use \(dx=\cos y\, dy\)};
+                    \node[safe] (reduce) at (-4.2, -9.0) {Reduce to \(4\int \sec^4 y\, dy\)};
 
                     % Edges
                     \draw[line] (root.south) -- ++(0,-0.6) -| (factor.north);
@@ -378,7 +378,7 @@ The worked integral above shows how the search explored multiple branches (e.g.,
                 ]
 
                     % Level 0
-                    \node[safe] (root) at (0,0) {\(\displaystyle \int \frac{4}{(1-x^2)^{5/2}}\,dx\)};
+                    \node[safe] (root) at (0,0) {\(\displaystyle \int \frac{4}{(1-x^2)^{5/2}}\, dx\)};
 
                     % Level 1
                     \node[safe] (factor) at (-4.2, -2.8) {Factor constants\\restrict \(|x|<1\)};
@@ -390,8 +390,8 @@ The worked integral above shows how the search explored multiple branches (e.g.,
                     \node[heur] (stall)  at ( 4.2, -6.0) {Heuristic stalls\\backtrack};
 
                     % Level 3
-                    \node[safe] (dx)     at (-8.8, -9.0) {Use \(dx=\cos y\,dy\)};
-                    \node[safe] (reduce) at (-4.2, -9.0) {Reduce to \(4\int \sec^4 y\,dy\)};
+                    \node[safe] (dx)     at (-8.8, -9.0) {Use \(dx=\cos y\, dy\)};
+                    \node[safe] (reduce) at (-4.2, -9.0) {Reduce to \(4\int \sec^4 y\, dy\)};
 
                     % Edges
                     \draw[line] (root.south) -- ++(0,-0.6) -| (factor.north);
@@ -432,7 +432,6 @@ The worked integral above shows how the search explored multiple branches (e.g.,
         \label{fig:lec3_transform_tree}
 \end{figure}
 
-Use \Cref{fig:lec3_transform_tree} as the derivation anchor for this section.
 
 \paragraph{Example:} For the integral problem, the root node is the original integral. From there, we branch into applying different substitutions or algebraic manipulations, such as
 \[
@@ -465,7 +464,7 @@ The general algorithm for solving symbolic problems such as integrals can be sum
   \item \textbf{Define the goal:} For example, express the integral in terms of known functions from a table.
   \item \textbf{Enumerate transformations:} List all possible safe and heuristic transformations applicable to the current expression.
   \item \textbf{Apply safe transformations:} Attempt all safe transformations and check if the problem is solved.
-  \item \textbf{If not solved, apply heuristic transformations:} Attempt heuristic transformations to explore alternative paths; common template hits include \(\int f'(x)/f(x)\,dx \to \log|f(x)|+C\) and \(\int r'(x)e^{r(x)}\,dx \to e^{r(x)}+C\).
+  \item \textbf{If not solved, apply heuristic transformations:} Attempt heuristic transformations to explore alternative paths; common template hits include \(\int f'(x)/f(x)\, dx \to \log|f(x)|+C\) and \(\int r'(x)e^{r(x)}\, dx \to e^{r(x)}+C\).
   \item \textbf{Branch and backtrack:} For each transformation, branch the search tree. If a branch fails, backtrack and try other branches.
   \item \textbf{Use heuristics to guide search:} For example, use functional composition depth or cost metrics to prioritize branches.
   \item \textbf{Terminate cleanly:} Stop when a closed-form antiderivative is found, or when depth/time budgets are exceeded without success; optional numeric residual tests can accept approximate solutions.
@@ -473,7 +472,7 @@ The general algorithm for solving symbolic problems such as integrals can be sum
 
 \paragraph{Note:} This approach resembles a \emph{greedy search} with backtracking, but it does not guarantee an optimal or even successful solution in all cases.
 
-    \begin{tcolorbox}[summarybox,breakable,title={Transformation-tree search (pseudocode)}]
+    \begin{tcolorbox}[summarybox, breakable, title={Transformation-tree search (pseudocode)}]
 \footnotesize
 \begin{verbatim}
 function SolveIntegral(f0,
@@ -521,7 +520,7 @@ The pseudocode mirrors the narrative: record the original integrand \(f_0\), tra
 \paragraph{Residual test implementation.} At each candidate \(F\), sample \(K\) points inside the current domain but away from singularities and branch points, and form \(R=\max_i |F'(x_i)-f_0(x_i)|\). Accept if \(R \le \varepsilon_{\text{abs}}\) or \(R/(1+\max_i |f_0(x_i)|)\le \varepsilon_{\text{rel}}\). Automatic differentiation or a high-order finite difference (step \(h=O(\sqrt{\varepsilon_{\text{machine}}})\)) keeps the check numerically stable. As substitutions shrink the domain, shrink the sample set and log the updated interval alongside the history.
 \end{tcolorbox}
 
-\begin{tcolorbox}[summarybox,title={Termination policies and numeric fallbacks}]
+\begin{tcolorbox}[summarybox, title={Termination policies and numeric fallbacks}]
 \begin{itemize}
     \item \textbf{Budgeting:} Cap depth, number of heuristic branches, and runtime (e.g., depth limit \(D=8\), two-second wall clock). When limits are reached, report ``no elementary antiderivative within budget \(D\)'' rather than looping forever.
     \item \textbf{Residual checks:} Differentiate candidate antiderivatives symbolically and numerically. Sample points inside the declared domain (away from poles) and accept only if \( \max_i |F'(x_i) - f(x_i)| \le \varepsilon_{\text{abs}}\) or the relative tolerance passes; otherwise prune or refine before returning.
@@ -538,10 +537,10 @@ The pseudocode mirrors the narrative: record the original integrand \(f_0\), tra
 \toprule
  & \textbf{Safe} & \textbf{Heuristic} \\
 \midrule
-Constant factor & \(\int a\,g(x)\,dx = a\int g(x)\,dx\) (no domain change). & Completing the square before attempting trig substitutions; track any resulting branch cuts. \\
-Linear substitution & \(u=ax+b,\;dx=du/a\) with \(a\neq0\), invertible on the stated interval. & Trigonometric substitutions \(x=\sin u,\;x=\tan u,\;t=\tan(x/2)\) with domains \(u\in(-\tfrac{\pi}{2},\tfrac{\pi}{2})\) or stated principal branches. \\
+Constant factor & \(\int a\, g(x)\, dx = a\int g(x)\, dx\) (no domain change). & Completing the square before attempting trig substitutions; track any resulting branch cuts. \\
+Linear substitution & \(u=ax+b,\; dx=du/a\) with \(a\neq0\), invertible on the stated interval. & Trigonometric substitutions \(x=\sin u,\; x=\tan u,\; t=\tan(x/2)\) with domains \(u\in(-\tfrac{\pi}{2},\tfrac{\pi}{2})\) or stated principal branches. \\
 Polynomial division / partial fractions & Split improper rational functions into polynomial + proper fraction where denominators stay nonzero on the domain. & Rationalising substitutions such as \(x=1/u\) or \(x=u^2\) to expose hidden symmetry; avoid zeros/poles introduced by the map. \\
-Log-derivative pattern & \(\int f'(x)/f(x)\,dx = \log|f(x)|+C\) when \(f(x)\neq 0\) on the domain. & Template lookups (Beta/Gamma forms with parameter sign conditions, exponential-times-polynomial motifs, etc.). \\
+Log-derivative pattern & \(\int f'(x)/f(x)\, dx = \log|f(x)|+C\) when \(f(x)\neq 0\) on the domain. & Template lookups (Beta/Gamma forms with parameter sign conditions, exponential-times-polynomial motifs, etc.). \\
 \bottomrule
 \end{tabularx}
 \end{table}
@@ -549,9 +548,9 @@ Log-derivative pattern & \(\int f'(x)/f(x)\,dx = \log|f(x)|+C\) when \(f(x)\neq 
 \paragraph{Worked example: Beta template vs.\ numeric fallback}
 Consider the Beta integral
 \[
-I(a,b) = \int_0^1 x^{a-1}(1-x)^{b-1}\,\mathrm{d}x, \qquad a,b>0.
+I(a, b) = \int_0^1 x^{a-1}(1-x)^{b-1}\,\mathrm{d}x, \qquad a, b>0.
 \]
-Safe transformations (factor constants, recognize the Beta template) immediately identify the elementary value \(B(a,b)=\Gamma(a)\Gamma(b)/\Gamma(a+b)\). By contrast, the perturbed integral
+Safe transformations (factor constants, recognize the Beta template) immediately identify the elementary value \(B(a, b)=\Gamma(a)\Gamma(b)/\Gamma(a+b)\). By contrast, the perturbed integral
 \[
 \int_0^1 x^{a-1}(1-x)^{b-1}\log(1+x)\,\mathrm{d}x
 \]
@@ -575,7 +574,7 @@ This contrast helps position the data-driven chapters that follow, where the sys
 % Connection to statistical learning (keep as an in-flow bridge, not a TOC heading).
 \paragraph{Connection to statistical learning.} Symbolic integration is a clean playground for thinking about representations, action sequences, and verification. In data-driven modeling, the objects change (datasets, models, and losses), but the system-level pattern is similar: choose a hypothesis class, optimize an objective under resource constraints, and validate that the result generalizes.
 
-\begin{tcolorbox}[summarybox,title={Connection: transformation search vs.\ empirical risk minimization}]
+\begin{tcolorbox}[summarybox, title={Connection: transformation search vs.\ empirical risk minimization}]
 \begin{itemize}
     \item \textbf{Goal test:} residual check \(\max_{x\in S}|F'-f|\le\varepsilon\) vs.\ performance on held-out data.
     \item \textbf{Inductive bias:} safe/heuristic precedence vs.\ model class and regularization that shape what is learnable.
@@ -584,7 +583,7 @@ This contrast helps position the data-driven chapters that follow, where the sys
 \end{tcolorbox}
 
 \medskip
-\begin{tcolorbox}[summarybox,title={Key takeaways}]
+\begin{tcolorbox}[summarybox, title={Key takeaways}]
 \textbf{Minimum viable mastery}
 \begin{itemize}
     \item Symbolic integration is a compact example of a goal-driven system: represent state, apply meaning-preserving actions, and verify outcomes.
@@ -600,7 +599,7 @@ This contrast helps position the data-driven chapters that follow, where the sys
 \end{itemize}
 \end{tcolorbox}
 
-\begin{tcolorbox}[summarybox,title={Exercises and lab ideas}]
+\begin{tcolorbox}[summarybox, title={Exercises and lab ideas}]
 \begin{itemize}
     \item Implement a minimal example from this chapter and visualize intermediate quantities (plots or diagnostics) to match the pseudocode.
     \item Stress-test a key hyperparameter or design choice discussed here and report the effect on validation performance or stability.
@@ -612,5 +611,4 @@ This contrast helps position the data-driven chapters that follow, where the sys
 
 \medskip
 \paragraph{Where we head next.} For the data-driven thread (datasets, objectives, diagnostics, classification), continue to \Cref{chap:supervised,chap:logistic}. For nonlinear function classes and nonconvex training dynamics, continue through \Crefrange{chap:perceptron}{chap:mlp} and the chapters that follow.
-
 

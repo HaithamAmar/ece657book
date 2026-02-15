@@ -1,6 +1,6 @@
 # LLM Commentary Questions (Build + Editorial Continuity)
 
-Purpose: this file is a handoff scaffold for a second LLM to act as a **commentator/editor**.  
+Purpose: this file is a handoff scaffold for a second LLM to act as a **commentator/editor**.
 They should answer questions inline (under each question) with concrete recommendations, risks, and proposed experiments.
 
 Scope: everything is relative to the repo root `ece657Book/`.

@@ -1,4 +1,4 @@
-\documentclass[11pt,twoside]{article}
+\documentclass[11pt, twoside]{article}
         % KDP print layout: 7x10 in trim, mirrored margins with generous gutter for a long book
         \usepackage[
           paperwidth=7in,
@@ -39,9 +39,9 @@
         \setlist{itemsep=0.25em, topsep=0.25em}
 \usepackage{graphicx}
 \usepackage{adjustbox}
-\usepackage[font=small,labelfont=bf]{caption}
+\usepackage[font=small, labelfont=bf]{caption}
 \usepackage{subcaption}
-\captionsetup{justification=centering,singlelinecheck=false}
+\captionsetup{justification=centering, singlelinecheck=false}
 \captionsetup[figure]{width=0.9\linewidth}
 % Timestamp marker for rebuilds
 % (No effect on content; used to force fresh PDF generation when needed.)
@@ -71,7 +71,7 @@
 \usepackage{booktabs}
 \usepackage{tabularx}
 \usepackage{tikz}
-\usetikzlibrary{positioning,arrows.meta,decorations.pathreplacing,calc,shapes.geometric,matrix,quotes,backgrounds}
+\usetikzlibrary{positioning, arrows.meta, decorations.pathreplacing, calc, shapes.geometric, matrix, quotes, backgrounds}
 \pgfdeclarelayer{background}
 \usepackage{pgfplots}
 \usepackage[authoryear]{natbib}
@@ -79,20 +79,20 @@
 \makeatletter
 \AtBeginDocument{%
   \@ifundefined{pgf@layer@tcb@back}{%
-    \pgfsetlayers{background,main}%
+    \pgfsetlayers{background, main}%
   }{%
-    \pgfsetlayers{background,tcb@back,main,tcb@front}%
+    \pgfsetlayers{background, tcb@back, main, tcb@front}%
   }%
 }%
 \newcommand{\ensuretikzbackgroundlayers}{%
   \@ifundefined{pgf@layer@tcb@back}{%
-    \pgfsetlayers{background,main}%
+    \pgfsetlayers{background, main}%
   }{%
-    \pgfsetlayers{background,tcb@back,main,tcb@front}%
+    \pgfsetlayers{background, tcb@back, main, tcb@front}%
   }%
 }%
 \makeatother
-\usepgfplotslibrary{groupplots,fillbetween}
+\usepgfplotslibrary{groupplots, fillbetween}
 \pgfplotsset{compat=1.18}
         % Avoid vertically stretched pages when content is sparse
         \raggedbottom
@@ -156,7 +156,7 @@
                 },
                 path picture={
                     \ifswitch@open
-                        \draw[white,line width=2\pgflinewidth] (-0.4,0) -- (0.4,0);
+                        \draw[white, line width=2\pgflinewidth] (-0.4,0) -- (0.4,0);
                         \ifswitch@swap
                             \draw (-0.4,0) -- ++(-25:0.8);
                         \else
@@ -173,9 +173,9 @@
         \makeatother
 
         % Summary / pitfall box styles
-        \tcbset{summarybox/.style={colback=gray!5,colframe=gray!40,boxrule=0.4pt,arc=1mm,left=2mm,right=2mm,top=1mm,bottom=1mm,fonttitle=\bfseries,title=Summary,before upper=\raggedright}}
-        \tcbset{pitfallbox/.style={colback=red!3,colframe=red!40,boxrule=0.4pt,arc=1mm,left=2mm,right=2mm,top=1mm,bottom=1mm,fonttitle=\bfseries,title=Pitfall,before upper=\raggedright}}
-\tcbset{perspectivebox/.style={colback=blue!3,colframe=blue!40,boxrule=0.4pt,arc=1mm,left=2mm,right=2mm,top=1mm,bottom=1mm,fonttitle=\bfseries,title=Perspective,before upper=\raggedright}}
+        \tcbset{summarybox/.style={colback=gray!5, colframe=gray!40, boxrule=0.4pt, arc=1mm, left=2mm, right=2mm, top=1mm, bottom=1mm, fonttitle=\bfseries, title=Summary, before upper=\raggedright}}
+        \tcbset{pitfallbox/.style={colback=red!3, colframe=red!40, boxrule=0.4pt, arc=1mm, left=2mm, right=2mm, top=1mm, bottom=1mm, fonttitle=\bfseries, title=Pitfall, before upper=\raggedright}}
+\tcbset{perspectivebox/.style={colback=blue!3, colframe=blue!40, boxrule=0.4pt, arc=1mm, left=2mm, right=2mm, top=1mm, bottom=1mm, fonttitle=\bfseries, title=Perspective, before upper=\raggedright}}
 
 \makeatletter
 \newcommand{\chapnum}[2]{%
@@ -230,7 +230,7 @@
         \input{notation.tex}
         \newpage
 
-	        \input{book_chapters.tex}
+            \input{book_chapters.tex}
 \newpage
 \part*{Back matter}
 \addcontentsline{toc}{part}{Back matter}

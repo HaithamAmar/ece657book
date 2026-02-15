@@ -16,7 +16,7 @@
   \begin{itemize}
     \item Instructor: Haitham Amar- hamar@uwaterloo.ca
     \item Material: learn.uwaterloo.ca
-    \item Lectures:In-Person format.
+    \item Lectures: In-Person format.
      \begin{itemize}
     \item Thursday from 5:30 pm- 8:20 pm, E7 4043
       \end{itemize}
@@ -92,13 +92,13 @@
 \begin{frame} \frametitle{Required Background}
   \begin{itemize}
     \item ECE 650 or equivalent is strongly recommended.
-      \item Math and Linear Algebra : sets, matrices, transpose, cross product, dot product, matrix multiplication, solving system of linear equations
-      \item Programming :
+      \item Math and Linear Algebra: sets, matrices, transpose, cross product, dot product, matrix multiplication, solving system of linear equations
+      \item Programming:
         \begin{itemize}
           \item You should be comfortable programming in some language, not large software applications but lots of calculations, plotting, etc.
         \end{itemize}
 
-      \item Probability and Statistics : (not required, we will define or review these, but it would help)
+      \item Probability and Statistics: (not required, we will define or review these, but it would help)
         \begin{itemize}
           \item definition of probability, Subjective probability, information, entropy, \ldots
         \end{itemize}
@@ -339,7 +339,7 @@ Let's see if this is true?
 \begin{itemize}
 \item  g(sin x, cos x)
   \item   g(tan x, cosec x)
- \item    g(cot x , sec x)
+ \item    g(cot x, sec x)
 \end{itemize}
 
 
@@ -358,7 +358,7 @@ Let's see if this is true?
 %%%%%%%%%%%%%%%%%%%%%%%%% New frame %%%%%%%%%%%%%%%%%%%%%%%%%
 \frame{
   \frametitle{What is an intelligent System}
-  To solve this problem, you need to :
+  To solve this problem, you need to:
   \begin{itemize}
 \item Define your goal(s).
 \item Define the possible transformations.
@@ -493,7 +493,7 @@ Different types of relationships between two variables (you can generalize these
 
 \frame{ \frametitle{Simple Linear Regression}
 \begin{itemize}
-\item Statistical relationships : when there is not mathematical formula (function) that relates y to x.
+\item Statistical relationships: when there is not mathematical formula (function) that relates y to x.
 %\pause
 \item Example for statistical relation: Consider a data set in which
      the Mort variable is the mortality due to
@@ -510,7 +510,7 @@ Different types of relationships between two variables (you can generalize these
 \frame{\frametitle{Simple Linear Regression}
 \begin{itemize}
     \item In the case where we are dealing with statistical relation, we need to use statistical methods to estimate a mathematical relation that best fit the data set (can describe the data set in an efficient way)
-\item Let $(x_{1},Y_{1}),(x_{2},Y_{2}),\cdots,(x_{n},Y_{n})$ be the sample that we observe by conducting an experiment. We define the covariance of Y and x to be
+\item Let $(x_{1}, Y_{1}),(x_{2}, Y_{2}),\cdots,(x_{n}, Y_{n})$ be the sample that we observe by conducting an experiment. We define the covariance of Y and x to be
 \begin{align}
     \text{Cov}=\frac{1}{n-1}\sum_{i=1}^{n}(X_{i}-\bar{X})(Y_{i}-\bar{Y})
     \label{eq:auto:fl-intro:2}
@@ -521,7 +521,7 @@ Different types of relationships between two variables (you can generalize these
 \frame{\frametitle{Simple Linear Regression}
 Next we use the Correlation definition as follows
 \begin{align}
-    \text{Cor}(X,Y)=\frac{\text{Cov}(X,Y)}{S_{x}S_{y}}
+    \text{Cor}(X, Y)=\frac{\text{Cov}(X, Y)}{S_{x}S_{y}}
     \label{eq:auto:fl-intro:3}
 \end{align}
 where $S_{x}$ and $S_{y}$ are the estimates of standard deviations for the $X$ observations and $Y$ observations, respectively.
@@ -530,13 +530,13 @@ where $S_{x}$ and $S_{y}$ are the estimates of standard deviations for the $X$ o
 \begin{itemize}
     \item Fact:
     \begin{align}
-        -1\leq \text{Cor}(X,Y)\leq1
+        -1\leq \text{Cor}(X, Y)\leq1
     \label{eq:auto:fl-intro:4}
 \end{align}
     \item In general, we have two types of statistical relations:
 \begin{enumerate}
-    \item Linear relation: If Cor(Y,X) is close to 1, it means that we have a positive linear relation (The slop is positive). If Cor(Y,X) is close to -1, it means that we have a negative linear relation.
-\item Non-linear relation: If Cor(Y,X) is close to zero, it means that we do not have any linear relation.
+    \item Linear relation: If Cor(Y, X) is close to 1, it means that we have a positive linear relation (The slop is positive). If Cor(Y, X) is close to -1, it means that we have a negative linear relation.
+\item Non-linear relation: If Cor(Y, X) is close to zero, it means that we do not have any linear relation.
 
 \end{enumerate}
 \end{itemize}
@@ -567,7 +567,7 @@ Example of None-Linear Relation: cor(y, x)=0.002
 
 \frame{\frametitle{Simple Linear Regression}
 \begin{itemize}
-    \item Suppose we conduct an experiment and in this experiment we have two variables, y and x. Suppose that y depends on x and y has a linear relation with x (cor(x,y) is close to 1 or -1).  Since y has a linear relation with x, we can find an equation of a line that can describe our data set.
+    \item Suppose we conduct an experiment and in this experiment we have two variables, y and x. Suppose that y depends on x and y has a linear relation with x (cor(x, y) is close to 1 or -1).  Since y has a linear relation with x, we can find an equation of a line that can describe our data set.
 \item The line that can describe our data set in the most efficient way is called linear regression line or model. If the line is describing the relation between two variables (y and x), it is called simple linear regression model or line.
 
 \end{itemize}
@@ -633,10 +633,10 @@ is minimum where $\hat{y}_{i}$ denotes the predicted response
 
 \frame{\frametitle{Maximum Likelihood Estimate (MLE)}
   Given a known distribution $f(x_i,\theta)$\\
-  Given the sample $x=\{x_1,\cdots,x_n\}$ \\
+  Given the sample $x=\{x_1,\cdots, x_n\}$ \\
   The likelihood can be formulated
   \begin{equation*}
-    L(\theta|x_1,\ldots,x_n) = \prod_{i=1}^n f(x_i|\theta)
+    L(\theta|x_1,\ldots, x_n) = \prod_{i=1}^n f(x_i|\theta)
   \end{equation*}
   \note[item]{This formulation of the join probability assumes the individual probabilities are independent, which allows us to mulitply them. Show description of bayes and likelihood?}
 }
@@ -751,7 +751,7 @@ The equation of the line is expressed as follows
 
 \frame{\frametitle{Multivariable regression}
 \begin{itemize}
-\item Now assume instead of having one variable as predictor we have a set of variables such as $\left\{ X_{0},X_{1},\cdots,X_{n}\right\}$. Then the regression model is
+\item Now assume instead of having one variable as predictor we have a set of variables such as $\left\{ X_{0}, X_{1},\cdots, X_{n}\right\}$. Then the regression model is
 \begin{align}
     Y=\beta_{0}+\beta_{1}X_{1}+\cdots+\beta_{n}X_{n}
     \label{eq:auto:fl-intro:13}

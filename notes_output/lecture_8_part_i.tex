@@ -2,11 +2,11 @@
 \section{Neural Network Applications in Natural Language Processing}\label{chap:nlp}
 \graphicspath{{assets/lec8/}{assets/lec14/}}
 
-\Cref{chap:rnn} framed language as prediction under context: the model must assign probability to the next token from a compressed state. That framing makes the bottleneck obvious. Tokens are discrete identifiers, while the model is a continuous function: if the input geometry is unhelpful, the network cannot generalize systematically from one string to another.
+\Cref{chap:rnn} framed language as prediction under context: the model must assign probability to the next token from a compressed state. That framing makes the bottleneck obvious. Tokens are discrete identifiers, while the model is a continuous function; if the input geometry is unhelpful, the network cannot generalize systematically from one string to another.
 
-This chapter supplies that geometry. We build word embeddings and the objectives that train them, then show how to sanity-check the resulting space (neighbors, analogies, and simple audits). Those same representation primitives become inputs to both recurrent and attention-based models; \Cref{chap:transformers} reuses them when recurrence is replaced by attention.
+This chapter supplies that geometry. We build word embeddings and the objectives that train them, then show how to sanity\hyp{}check the resulting space (neighbors, analogies, and simple audits). Those same representation primitives become inputs to both recurrent and attention\hyp{}based models; \Cref{chap:transformers} reuses them when recurrence is replaced by attention.
 
-\begin{tcolorbox}[summarybox,title={Learning Outcomes}]
+\begin{tcolorbox}[summarybox, title={Learning Outcomes}]
 \begin{itemize}
     \item Describe distributional semantics and the motivation for dense word embeddings.
     \item Derive and implement common embedding objectives (CBOW/skip-gram, negative sampling) and evaluate them via analogy tasks.
@@ -14,7 +14,7 @@ This chapter supplies that geometry. We build word embeddings and the objectives
 \end{itemize}
 \end{tcolorbox}
 
-\begin{tcolorbox}[summarybox,title={Design motif}]
+\begin{tcolorbox}[summarybox, title={Design motif}]
 Representation learning as a contract between data and objective---when you train on co-occurrence, you get both useful structure (analogies, clusters) and the biases present in the corpus.
 \end{tcolorbox}
 
@@ -68,7 +68,6 @@ Instead of using the identity basis, we learn a table \(\mathbf{E}\in\mathbb{R}^
 This is the same linear algebra as one-hot, but now the coordinates are \emph{learned} so that similar words end up nearby when that helps prediction.
 
 A useful mental model is to imagine that each word is a \emph{graded bundle of attributes}. If we could write those attributes down explicitly, each word would already be a vector:
-Use \Cref{tab:word_feature_vectorization} as the derivation anchor for this section.
 
 \begin{table}[t]
 \centering
@@ -89,7 +88,7 @@ royal & 0 & 1 & 0.5 & 0 & 0 & 1 & 1 & 0 \\
 \end{tabular}
 \end{table}
 
-\Cref{tab:word_feature_vectorization} is the intuition reference for mapping symbolic tokens into graded feature vectors.
+\Cref{tab:word_feature_vectorization} gives a concrete intuition for mapping symbolic tokens into graded feature vectors.
 
 Of course, hand-crafting features does not scale to large vocabularies, and it bakes in subjective choices. The central move of modern embeddings is to let the \emph{training objective} discover whatever coordinates best support prediction from context.
 
@@ -118,7 +117,7 @@ The practical takeaway is that repeated context patterns reveal latent word prop
 
 This is why modern embedding models treat corpus co-occurrence as supervision.
 
-\begin{tcolorbox}[summarybox,title={Author's note: who chooses the features?}]
+\begin{tcolorbox}[summarybox, title={Author's note: who chooses the features?}]
 A natural student question is: if embeddings represent ``features,'' who decides what the features are? In modern embedding learning, the answer is: nobody writes them down explicitly. The features emerge from the training objective. By training a model to predict nearby words (or to distinguish real context pairs from random ones), the optimization process forces the hidden representation to encode whatever properties are useful for prediction. This is best viewed as \emph{self-supervised} learning: targets come from the text itself via context windows, rather than from human labels.
 \end{tcolorbox}
 
@@ -220,7 +219,7 @@ The hidden layer output \(\mathbf{h}\) is then multiplied by an output matrix \(
 
 These logits are then passed through a softmax function to produce a probability distribution over the vocabulary:
 \begin{align}
-    \hat{\mathbf{y}}_j = \frac{\exp(z_j)}{\sum_{k=1}^V \exp(z_k)}, \quad j=1,\ldots,V. \label{eq:softmax}
+    \hat{\mathbf{y}}_j = \frac{\exp(z_j)}{\sum_{k=1}^V \exp(z_k)}, \quad j=1,\ldots, V. \label{eq:softmax}
 \end{align}
 
 \paragraph{Training Objective}
@@ -339,10 +338,10 @@ Z = \sum_{w=1}^V \exp(\mathbf{h}\,\mathbf{u}_w)
     \label{eq:auto:lecture_8_part_i:4}
 \end{align}
 
-\begin{tcolorbox}[summarybox,title={Recipe: skip-gram with negative sampling}]
+\begin{tcolorbox}[summarybox, title={Recipe: skip-gram with negative sampling}]
 Preprocess: tokenize (BPE/WordPiece or whitespace), lowercase if appropriate, drop rare words below a cutoff, subsample frequent words with \(t\approx 10^{-5}\).\\
 Hyperparameters: window \(c=2\)--\(5\) (often dynamic/symmetric), embedding dim \(d=100\)--\(300\), negatives \(k=5\)--\(20\), unigram noise \(P_n(w)\propto f(w)^{0.75}\), LR on the order of \(10^{-3}\)--\(10^{-2}\).\\
-Per-positive loss (one context word): \(-\log \sigma(\mathbf{h}\,\mathbf{u}_{\text{pos}}) - \sum_{i=1}^k \log \sigma(-\mathbf{h}\,\mathbf{u}_{\text{neg},i})\); complexity \(O(k)\) vs. \(O(V)\) for full softmax.
+Per-positive loss (one context word): \(-\log \sigma(\mathbf{h}\,\mathbf{u}_{\text{pos}}) - \sum_{i=1}^k \log \sigma(-\mathbf{h}\,\mathbf{u}_{\text{neg}, i})\); complexity \(O(k)\) vs. \(O(V)\) for full softmax.
 \end{tcolorbox}
 
 This is computationally expensive, especially when training on large corpora.
@@ -408,7 +407,7 @@ Gradients push \(\mathbf{v}_{\text{brick}}\) closer to \(\mathbf{v}'_{\text{hous
 
 \paragraph{Connection to PMI (Levy \& Goldberg).} A useful theoretical lens relates skip-gram with negative sampling (SGNS) to pointwise mutual information (PMI). Under common choices of windowing and negative sampling distribution, SGNS implicitly factorizes a \emph{shifted} PMI matrix such that inner products approximate:
 \[
-    \mathbf{v}_i\,\mathbf{u}_k \;\approx\; \operatorname{PMI}(i,k) - \log k,\quad \text{where}\quad \operatorname{PMI}(i,k)=\log\frac{P(i,k)}{P(i)P(k)}.
+    \mathbf{v}_i\,\mathbf{u}_k \;\approx\; \operatorname{PMI}(i, k) - \log k,\quad \text{where}\quad \operatorname{PMI}(i, k)=\log\frac{P(i, k)}{P(i)P(k)}.
 \]
 This connection helps explain why SGNS and GloVe often yield similar geometric regularities despite different training objectives: both methods recover statistics of co-occurrence up to monotone transformations and weighting.
 
@@ -472,7 +471,6 @@ Recall that our goal is to obtain a global vector representation for words, capt
     \label{fig:lec8-embedding-clusters}
 \end{figure}
 
-Use \Cref{fig:lec8-embedding-clusters} as the derivation anchor for this section.
 
 \subsubsection{Modeling Co-occurrence Probabilities}
 \label{sec:nlp_modeling_co_occurrence_probabilities_sub}
@@ -522,7 +520,7 @@ This equation suggests that the log co-occurrence counts can be approximated by 
 
 Given the corpus co-occurrence matrix \( X = [X_{ik}] \), our goal is to find word vectors \( \mathbf{v}_i \), \( \mathbf{u}_k \) and biases \( b_i, b_k \) that minimize the reconstruction error:
 \begin{equation}
-    J = \sum_{i,k} f(X_{ik}) \left( \mathbf{v}_i\,\mathbf{u}_k + b_i + b_k - \log X_{ik} \right)^2,
+    J = \sum_{i, k} f(X_{ik}) \left( \mathbf{v}_i\,\mathbf{u}_k + b_i + b_k - \log X_{ik} \right)^2,
 \label{eq:auto_nlp_be1df77f53}
 \end{equation}
 where \( f \) is a weighting function that controls the influence of each co-occurrence pair.
@@ -606,7 +604,7 @@ While SVD provides a closed-form solution, it does not explicitly model the bias
 
 Before moving from geometry to governance, keep the boundary clear: the sections above establish how embeddings are learned and why their vector arithmetic works. The next sections address whether that learned geometry is reliable and safe under real deployment constraints.
 
-\begin{tcolorbox}[summarybox,title={Risk \& audit}]
+\begin{tcolorbox}[summarybox, title={Risk \& audit}]
 \begin{itemize}
     \item \textbf{Evaluation leakage:} similarity/analogy benchmarks can overlap training sources; keep a truly held-out evaluation set and treat ``standard'' datasets as potentially contaminated.
     \item \textbf{Tokenization debt:} preprocessing and vocabulary choices (case, subwords, cutoffs) change what the model can represent; version tokenizers and report them with results.
@@ -646,7 +644,7 @@ Addressing bias in embeddings is an active area of research. Techniques include:
 
 When extending embeddings to multiple languages, biases can manifest differently due to linguistic and cultural variations. For example, gender is grammatically encoded in Romance languages, so direct projection of English debiasing techniques may still leave gendered artifacts in Spanish or French embeddings. Careful consideration is required to ensure fairness and robustness across languages.
 
-\begin{tcolorbox}[summarybox,title={Practical bias checks}]
+\begin{tcolorbox}[summarybox, title={Practical bias checks}]
 \begin{itemize}
     \item \textbf{Dataset audit:} Inspect class balance, label sources, and sensitive attributes; check for under-represented groups and spurious correlations (e.g., profession \(\leftrightarrow\) gender cues).
     \item \textbf{Calibration and reliability:} Evaluate calibration (ECE, reliability diagrams) overall and for key subgroups; severely miscalibrated models magnify harm when used for decision support.
@@ -655,7 +653,7 @@ When extending embeddings to multiple languages, biases can manifest differently
 \end{itemize}
 \end{tcolorbox}
 
-\begin{tcolorbox}[summarybox,title={Author's note: embeddings mix geometry and bias}]
+\begin{tcolorbox}[summarybox, title={Author's note: embeddings mix geometry and bias}]
 Embedding spaces faithfully capture geometry (analogies, clusters) precisely because they also capture the biases present in the data. Treat every downstream use as a combination of those two facets: audit the geometry you need, but also audit the offset directions you would rather suppress. Vector arithmetic makes biases quantifiable, so put that ability to work before shipping a model.
 \end{tcolorbox}
 
@@ -676,7 +674,7 @@ Static embeddings assign a single vector per word type, so polysemous words such
 
 This chapter has developed word-embedding models from co-occurrence statistics, including the role of bias terms and optimization tools such as singular value decomposition. It also emphasized a practical constraint: embeddings inherit social and cultural structure from training corpora, so bias diagnosis and mitigation are part of model quality, not an optional add-on.
 
-\begin{tcolorbox}[summarybox,title={Key takeaways}]
+\begin{tcolorbox}[summarybox, title={Key takeaways}]
 \begin{itemize}
     \item Word embeddings are dense vectors learned from co-occurrence statistics (local windows or global matrices).
     \item Analogies and clustering arise from linear geometry in the embedding space.
@@ -699,7 +697,7 @@ This chapter has developed word-embedding models from co-occurrence statistics, 
 \end{itemize}
 \end{tcolorbox}
 
-\begin{tcolorbox}[summarybox,title={Exercises and lab ideas}]
+\begin{tcolorbox}[summarybox, title={Exercises and lab ideas}]
 \begin{itemize}
     \item Implement a minimal example from this chapter and visualize intermediate quantities (plots or diagnostics) to match the pseudocode.
     \item Stress-test a key hyperparameter or design choice discussed here and report the effect on validation performance or stability.
@@ -713,4 +711,4 @@ This chapter has developed word-embedding models from co-occurrence statistics, 
 \medskip
 \paragraph{Where we head next.} \Cref{chap:transformers} keeps the same token geometry but changes context formation: attention replaces recurrent state, so dependencies are queried directly. The same many\hyp{}to\hyp{}one decisions from \Cref{sec:rnn_sentiment_worked_example} remain, but computational path and scaling behavior change. Keep the same audit lens as you read: tokenization choices, masking correctness, and evaluation protocol matter as much as architecture. After that, \Cref{chap:softcomp} pivots to soft computing (fuzzy logic and evolutionary ideas) as an alternative paradigm for reasoning under uncertainty.
 
-\nocite{Mikolov2013,Pennington2014,LevyGoldberg2014,Devlin2019}
+\nocite{Mikolov2013, Pennington2014, LevyGoldberg2014, Devlin2019}

@@ -1,8 +1,8 @@
 %Chapter 4
 \section{Classification and Logistic Regression}\label{chap:logistic}
-\Cref{chap:symbolic} illustrated one view of intelligent behavior as transformation search with explicit goal tests, while \Cref{chap:supervised} introduced the data-driven view: represent a task with data, choose a hypothesis class, minimize empirical risk under regularization, and audit performance on held-out data. This chapter extends that toolkit from regression to classification. \Cref{fig:roadmap} places this chapter on the core supervised path.
+\Cref{chap:symbolic} illustrated intelligence as transformation search with explicit goal tests. \Cref{chap:supervised} introduced the data\hyp{}driven view: represent a task with data, choose a hypothesis class, minimize empirical risk under regularization, and audit performance on held\hyp{}out data. This chapter extends that toolkit from regression to classification, and \Cref{fig:roadmap} places it on the core supervised path.
 
-\begin{tcolorbox}[summarybox,title={Learning Outcomes}]
+\begin{tcolorbox}[summarybox, title={Learning Outcomes}]
 After this chapter, you should be able to:
 \begin{itemize}
   \item Derive the logistic log\hyp{}likelihood and its gradient.
@@ -11,7 +11,7 @@ After this chapter, you should be able to:
 \end{itemize}
 \end{tcolorbox}
 
-\begin{tcolorbox}[summarybox,title={Design motif}]
+\begin{tcolorbox}[summarybox, title={Design motif}]
 Keep the workflow, swap the likelihood: logistic regression keeps the linear score but changes the probabilistic model (Bernoulli likelihood) and the loss (negative log\hyp{}likelihood, i.e., cross\hyp{}entropy).
 \end{tcolorbox}
 
@@ -21,7 +21,7 @@ Linear regression models a continuous target \(y\) and, under a Gaussian noise m
 
 Throughout this chapter we use \(y\in\{0,1\}\) by default, switching to \(y_{\pm1}=2y-1\) only when margin-based expressions are convenient. Predictions carry hats (e.g., \(\hat{y}\)), \(\varepsilon\) denotes noise, and \(e=y-\hat{y}\) denotes residuals. For a refresher on data splits, learning curves, and the bias--variance vocabulary, see \Cref{chap:supervised}; here we focus on the logistic-specific modeling and diagnostics.
 
-\begin{tcolorbox}[summarybox,title={Worked example: a toy decision boundary}]
+\begin{tcolorbox}[summarybox, title={Worked example: a toy decision boundary}]
 On a two\hyp{}moons binary classification toy, the ideas in this chapter have a visible effect:
 \begin{itemize}
     \item Logistic regression gives a calibrated probabilistic baseline (linear score + sigmoid) that is easy to diagnose.
@@ -47,7 +47,7 @@ and the goal is to estimate \(P(y=c_k\mid \mathbf{x})\) for each \(k\); we retur
 
 A fundamental result in statistical pattern recognition is that the \emph{Bayes classifier} is the optimal classifier in terms of minimizing the expected classification error. The Bayes classifier assigns \(\mathbf{x}\) to the class:
 \[
-\hat{y} = \arg\max_{c_k \in \{c_1,\ldots,c_K\}} P(y = c_k \mid \mathbf{x}).
+\hat{y} = \arg\max_{c_k \in \{c_1,\ldots, c_K\}} P(y = c_k \mid \mathbf{x}).
 \]
 
 Using Bayes' theorem, the posterior probability can be expressed as
@@ -91,7 +91,7 @@ To keep the discussion concrete, we reuse a small toy dataset in \Cref{fig:lec1_
             ylabel={$x_2$},
             axis line style={gray!60},
             tick style={gray!60},
-            legend style={at={(0.02,0.02)},anchor=south west,fill=white,draw=none,font=\scriptsize},
+            legend style={at={(0.02,0.02)}, anchor=south west, fill=white, draw=none, font=\scriptsize},
             legend cell align=left,
             grid=both,
             minor grid style={gray!10},
@@ -128,9 +128,8 @@ To keep the discussion concrete, we reuse a small toy dataset in \Cref{fig:lec1_
     \label{fig:lec1_dataset}
 \end{figure}
 
-Use \Cref{fig:lec1_dataset} as the diagnostic anchor for this section.
 
-\Cref{fig:lec2_sigmoid_bce} is the compact geometry reference for logits, BCE, and regularization strength.
+As shown in \Cref{fig:lec2_sigmoid_bce}, logits, BCE curvature, and regularization strength appear in one compact diagnostic view.
 
 \begin{figure}[!htbp]
     \centering
@@ -180,7 +179,6 @@ Use \Cref{fig:lec1_dataset} as the diagnostic anchor for this section.
     \label{fig:lec1_bayes}
 \end{figure}
 
-Use \Cref{fig:lec1_bayes} as the diagnostic anchor for this section.
 
 \Cref{fig:lec1_mle_map} provides the low-data MAP-versus-MLE comparison used in this discussion.
 
@@ -196,7 +194,7 @@ making the computation and estimation of the likelihood tractable. It is importa
 
 One widely used approach to classification, especially for binary problems, is \emph{logistic regression}. Logistic regression models the posterior probability \(P(y=1 \mid \mathbf{x})\) directly as a function of \(\mathbf{x}\), without explicitly modeling the class-conditional densities.
 
-\begin{tcolorbox}[summarybox,title={Logistic regression at a glance}]
+\begin{tcolorbox}[summarybox, title={Logistic regression at a glance}]
 \textbf{Objective:} Minimize binary cross\hyp{}entropy (negative log-likelihood) between true labels \(y\in\{0,1\}\) and predicted probabilities \(\hat{p}=\sigma(\boldsymbol{\beta}^\top \tilde{\mathbf{x}})\).\\
 \textbf{Key hyperparameters:} Regularization type/strength (L2 or L1, penalty \(\lambda\); many libraries use \(C=1/\lambda\)), feature scaling, optimization settings (step size, iterations).\\
 \textbf{Defaults:} Standardize features; use L2 regularization with moderate strength; start with a 0.5 decision threshold and adjust only if class costs are asymmetric.\\
@@ -221,12 +219,12 @@ This implies that the posterior probability \(\pi(\mathbf{x})\) can be written a
     \label{eq:logistic_probability}
 \end{equation}
 
-\begin{tcolorbox}[summarybox,title={Author's note: why ``logistic'' and why ``regression''?}]
+\begin{tcolorbox}[summarybox, title={Author's note: why ``logistic'' and why ``regression''?}]
 The name \emph{logistic} comes from the logistic (sigmoid) link in \Cref{eq:logistic_probability}, which maps a real\hyp{}valued score to a probability in \([0,1]\). The word \emph{regression} reflects what we model linearly: the \emph{log\hyp{}odds} (logit) in \Cref{eq:logit_linear} is a linear function of the features. The model itself outputs a continuous probability; we turn that probability into a class label by thresholding (or comparing class probabilities in the multiclass extension).
 \end{tcolorbox}
 
 \subsubsection{Likelihood, loss, and gradient}\label{sec:lec2_logistic_likelihood}
-For data \(\{(\mathbf{x}_i,y_i)\}_{i=1}^N\) with \(y_i\in\{0,1\}\), define \(p_i=\pi(\mathbf{x}_i)=\sigma(\boldsymbol{\beta}^\top\tilde{\mathbf{x}}_i)\).
+For data \(\{(\mathbf{x}_i, y_i)\}_{i=1}^N\) with \(y_i\in\{0,1\}\), define \(p_i=\pi(\mathbf{x}_i)=\sigma(\boldsymbol{\beta}^\top\tilde{\mathbf{x}}_i)\).
 Under a Bernoulli model, the likelihood factorizes as
 \begin{equation}
     p(\mathbf{y}\mid X,\boldsymbol{\beta})=\prod_{i=1}^N p_i^{y_i}(1-p_i)^{1-y_i},
@@ -238,7 +236,7 @@ so the log\hyp{}likelihood is
     =\sum_{i=1}^N \Big(y_i\log p_i + (1-y_i)\log(1-p_i)\Big).
     \label{eq:lec2_loglik}
 \end{equation}
-Maximizing \Cref{eq:lec2_loglik} is equivalent to minimizing the negative log\hyp{}likelihood (binary cross\hyp{}entropy). With the design matrix \(X=[\tilde{\mathbf{x}}_1^\top;\ldots;\tilde{\mathbf{x}}_N^\top]\) and vector \(\mathbf{p}=(p_1,\ldots,p_N)^\top\), the gradient of the negative log\hyp{}likelihood is
+Maximizing \Cref{eq:lec2_loglik} is equivalent to minimizing the negative log\hyp{}likelihood (binary cross\hyp{}entropy). With the design matrix \(X=[\tilde{\mathbf{x}}_1^\top;\ldots;\tilde{\mathbf{x}}_N^\top]\) and vector \(\mathbf{p}=(p_1,\ldots, p_N)^\top\), the gradient of the negative log\hyp{}likelihood is
 \begin{equation}
     \nabla_{\boldsymbol{\beta}}\Big(-\log p(\mathbf{y}\mid X,\boldsymbol{\beta})\Big)
     =X^\top(\mathbf{p}-\mathbf{y}).
@@ -308,7 +306,6 @@ The Hessian has the form \(X^\top W X\) where \(W=\mathrm{diag}(p_i(1-p_i))\succ
     \label{fig:lec2_sigmoid_bce}
 \end{figure}
 
-Use \Cref{fig:lec2_sigmoid_bce} as the diagnostic anchor for this section.
 
 \paragraph{Optimization geometry (why iterative solvers)}
 Unlike linear regression, logistic regression does not have a closed-form solution for \(\boldsymbol{\beta}\), even though the objective is convex. In practice we therefore rely on iterative solvers (gradient methods, quasi\hyp{}Newton methods, or Newton/IRLS in moderate dimensions). \Cref{fig:lec1_gd} is a convex quadratic toy that reminds us what an optimization trajectory looks like when we minimize a smooth objective: step size and conditioning shape how quickly iterates contract toward the minimizer.
@@ -375,7 +372,6 @@ Unlike linear regression, logistic regression does not have a closed-form soluti
         \label{fig:lec1_gd}
     \end{figure}
 
-Use \Cref{fig:lec1_gd} as the diagnostic anchor for this section.
 \paragraph{Geometry of the logistic surface.} The decision rule is linear in feature space even though the posterior itself is smoothly varying. \Cref{fig:lec2-logistic-boundary} depicts this duality: the white hyperplane slices the space into two half-spaces while the probability ``ramp'' shows how margins translate into calibrated confidences.
 \begin{figure}[h]
     \centering
@@ -389,7 +385,6 @@ Use \Cref{fig:lec1_gd} as the diagnostic anchor for this section.
     \label{fig:lec2-logistic-boundary}
 \end{figure}
 
-Use \Cref{fig:lec2-logistic-boundary} as the diagnostic anchor for this section.
 
 \FloatBarrier
 
@@ -447,14 +442,13 @@ Two common priors explain the two penalties that appear most often in practice: 
         \label{fig:lec1_mle_map}
     \end{figure}
 
-Use \Cref{fig:lec1_mle_map} as the diagnostic anchor for this section.
 
 \FloatBarrier
 
 \subsection{Confusion Matrices and Derived Metrics}
 \label{sec:logistic_confusion_matrices_and_derived_metrics}
 
-\begin{tcolorbox}[summarybox,title={Risk \& audit}]
+\begin{tcolorbox}[summarybox, title={Risk \& audit}]
 \begin{itemize}
     \item \textbf{Threshold choice:} a high AUC can still yield a poor operating point; pick thresholds using a validation objective that matches the cost.
     \item \textbf{Class imbalance:} report PR curves (or per-class metrics) when positives are rare; audit confusion matrices, not just accuracy.
@@ -480,8 +474,7 @@ On highly imbalanced problems accuracy and AUROC can be misleading; prefer class
     \label{fig:lec1-roc-pr}
 \end{figure}
 
-Use \Cref{fig:lec1-roc-pr} as the diagnostic anchor for this section.
-\begin{tcolorbox}[summarybox,title={Imbalance and thresholds}]
+\begin{tcolorbox}[summarybox, title={Imbalance and thresholds}]
 Use class or sample weights (e.g., inverse prevalence) inside the loss, and pick thresholds via ROC/PR curves or explicit cost ratios rather than defaulting to 0.5. With symmetric priors but asymmetric costs, predict class 1 when the logit exceeds \(\log(c_{10}/c_{01})\); for rare positives, report PR-AUC alongside AUROC.
 \end{tcolorbox}
 
@@ -532,10 +525,9 @@ Use class or sample weights (e.g., inverse prevalence) inside the loss, and pick
         \label{fig:lec1_confusion}
     \end{figure}
 
-Use \Cref{fig:lec1_confusion} as the diagnostic anchor for this section.
 
 \FloatBarrier
-\begin{tcolorbox}[summarybox,title={Key takeaways}]
+\begin{tcolorbox}[summarybox, title={Key takeaways}]
 \textbf{Minimum viable mastery}
 \begin{itemize}
     \item Logistic regression models class probability with a sigmoid link and maximizes a concave log\hyp{}likelihood (equivalently minimizes a convex negative log\hyp{}likelihood); there is no closed-form solution.
@@ -551,7 +543,7 @@ Use \Cref{fig:lec1_confusion} as the diagnostic anchor for this section.
 \end{itemize}
 \end{tcolorbox}
 
-\begin{tcolorbox}[summarybox,title={Probability calibration}]
+\begin{tcolorbox}[summarybox, title={Probability calibration}]
 Discrimination metrics (ROC/PR, AUC) say how well a classifier ranks examples but not how reliable its probabilities are. Calibration methods such as Platt scaling and temperature scaling adjust the logits so that predicted probabilities match empirical frequencies (e.g., 0.8 scores correspond to \(\approx 80\%\) positives), often measured via Expected Calibration Error (ECE) and inspected with reliability diagrams \citep{Platt1999,Guo2017}.
 \end{tcolorbox}
 
@@ -570,7 +562,7 @@ Threshold tuning & Choose a decision threshold based on PR curves or cost ratios
 \end{tabularx}
 \end{table}
 
-\begin{tcolorbox}[summarybox,title={Exercises and lab ideas}]
+\begin{tcolorbox}[summarybox, title={Exercises and lab ideas}]
 \begin{itemize}
     \item Implement a minimal example from this chapter and visualize intermediate quantities (plots or diagnostics) to match the pseudocode.
     \item Stress-test a key hyperparameter or design choice discussed here and report the effect on validation performance or stability.
@@ -582,5 +574,3 @@ Threshold tuning & Choose a decision threshold based on PR curves or cost ratios
 
 \medskip
 \paragraph{Where we head next.} Logistic regression is still linear at the boundary. \Cref{chap:perceptron} introduces trainable neuron models, and stacking nonlinear units then removes that linear ceiling and sets up multilayer networks plus backpropagation.
-
-

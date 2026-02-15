@@ -2,9 +2,11 @@
 \section{Introduction to Evolutionary Computing}\label{chap:evo}
 \graphicspath{{assets/lec19/}}
 
-After the fuzzy trilogy (\Crefrange{chap:softcomp}{chap:fuzzyinference}), this chapter develops the evolutionary-search strand introduced in \Cref{chap:intro}. The focus shifts from rule composition to population-based optimization under constraints, budgets, and stochastic noise.
+Parts I--IV built three complementary toolkits: optimize models against data (ERM), learn representations with gradients, and encode auditable heuristics with fuzzy rules. Each is powerful when you can write a smooth objective or commit to a compact rule base. Many engineering choices, however, live outside that comfort zone: the knobs are discrete or tightly constrained, evaluations are noisy or expensive, and the landscape is rugged enough that local improvement is unreliable.
 
-\begin{tcolorbox}[summarybox,title={Learning Outcomes}]
+Evolutionary computing treats that situation as search. Instead of following gradients or hand\hyp{}tuning rules, we maintain a population of candidate designs, score them with a fitness function, and use selection plus variation to explore and refine solutions within a fixed budget. After the fuzzy trilogy (\Crefrange{chap:softcomp}{chap:fuzzyinference}), this chapter develops the evolutionary strand introduced in \Cref{chap:intro} and focuses on population\hyp{}based optimization under constraints, budgets, and stochastic noise.
+
+\begin{tcolorbox}[summarybox, title={Learning Outcomes}]
 \begin{itemize}
     \item Explain the evolutionary-computation toolbox (GAs, GP, CMA-ES, DE) and when each is well-suited.
     \item Implement population-based optimization loops with selection, crossover/mutation, and constraint handling.
@@ -12,22 +14,16 @@ After the fuzzy trilogy (\Crefrange{chap:softcomp}{chap:fuzzyinference}), this c
 \end{itemize}
 \end{tcolorbox}
 
-\begin{tcolorbox}[summarybox,title={Design motif}]
+\begin{tcolorbox}[summarybox, title={Design motif}]
 When gradients are unavailable or the landscape is rugged, treat design as search: maintain a diverse population, score candidates with a fitness function, and let selection plus variation drive improvement under constraints.
 \end{tcolorbox}
 
 \subsection{Context and Motivation}
 \label{sec:evo_context_and_motivation}
 
-Throughout this book, we have explored several complementary methodologies for building intelligent systems:
+Evolutionary computing is the strand you reach for when the objective is a black box (simulation, experiment, or expensive audit) or when the design space is a mix of continuous and discrete choices. The modeling contract stays simple: pick an encoding, define a fitness function, state the constraints, and commit to an evaluation budget. The algorithm then trades exploration (diversity) against exploitation (selecting what works) as it searches a rugged landscape.
 
-\begin{itemize}
-    \item \textbf{Statistical (data-driven) modeling:} The ERM workflow in \Crefrange{chap:supervised}{chap:logistic} builds models by fitting objectives to datasets and auditing performance on held-out data.
-    \item \textbf{Biological inspiration (neural networks):} The neural strand (\Crefrange{chap:mlp}{chap:transformers}) abstracts neurons and representation learning to build powerful function approximators.
-    \item \textbf{Behavioral/rule-based reasoning (fuzzy systems):} The fuzzy trilogy (\Crefrange{chap:softcomp}{chap:fuzzyinference}) represents knowledge in linguistic terms and composes rules to act under imprecision.
-\end{itemize}
-
-Evolutionary computing adopts a distinct perspective by mimicking the process of natural evolution to tackle complex optimization problems. Readers coming directly from \Cref{chap:fuzzyinference} should read this chapter as the ``search'' complement to the previous ``rule-based'' chapter: here we improve candidate solutions by selection and variation rather than by gradients or explicit rule composition.
+In the fuzzy trilogy, once you commit to membership shapes and a rule base, a practical question remains: how do you tune those choices (and their trade-offs) when hand tweaks do not scale? Evolutionary search provides a disciplined answer: score candidate controllers, select the better ones, perturb/recombine them, and keep iterating until the improvements flatten or the budget runs out.
 
 \subsection{Philosophical and Historical Background}
 \label{sec:evo_philosophical_and_historical_background}
@@ -36,14 +32,14 @@ Evolutionary computing traces its roots back to the 1950s and 1960s, contemporan
 
 \paragraph{Key Insight:} These algorithms are \emph{heuristics}; they provide practical methods to find \emph{good enough} solutions to problems that are otherwise computationally intractable, rather than guaranteed optimal solutions. Consequently, convergence proofs typically ensure improvement in expectation or under restrictive assumptions, but not attainment of the true global optimum.
 
-\begin{tcolorbox}[summarybox,title={Author's note: a pragmatic take on evolution}]
+\begin{tcolorbox}[summarybox, title={Author's note: a pragmatic take on evolution}]
 Evolutionary algorithms borrow the language of biology to provide a disciplined way to search rugged landscapes, not to recreate population genetics. The design mandate is pragmatic: deliver a respectable solution within the computational budget, even if it is only approximately optimal. Keep that lens in mind when evaluating selection, mutation, or recombination operators; they are tuned because they help optimization, not because they are biologically faithful.
 \end{tcolorbox}
 
 \subsection{Problem Setting: Optimization}
 \label{sec:evo_problem_setting_optimization}
 
-\begin{tcolorbox}[summarybox,title={Notation handoff}]
+\begin{tcolorbox}[summarybox, title={Notation handoff}]
 Vectors of candidate solutions are written as \(\mathbf{x}\), objective values as \(f(\mathbf{x})\), and population members as individuals/chromosomes depending on encoding. If symbol reuse from earlier chapters becomes ambiguous, default to local definitions and consult \Cref{app:notation_collisions}.
 \end{tcolorbox}
 
@@ -176,11 +172,11 @@ Generations & Iterative improvement over time \\
 
 The remainder of this section formalizes how candidate solutions are encoded and how genetic operators manipulate those encodings during evolution.
 
-\begin{tcolorbox}[summarybox,title={GA hyperparameters at a glance}]
+\begin{tcolorbox}[summarybox, title={GA hyperparameters at a glance}]
 As a starting point for binary encodings of length \(L\), choose population sizes between \(5L\) and \(10L\), tournament selection with small tournaments (2--4 individuals), one-point or uniform crossover, and mutation probability near \(1/L\) per bit. For real-coded GAs, replace bit-flips with Gaussian mutations on parameters and use simulated binary crossover (SBX) or blend-style crossover to mix parents smoothly \citep{DebAgrawal1995}; then tune population size and mutation scale empirically based on convergence speed and population diversity.
 \end{tcolorbox}
 
-\begin{tcolorbox}[summarybox,title={Author's note: population and mutation heuristics}]
+\begin{tcolorbox}[summarybox, title={Author's note: population and mutation heuristics}]
 Budget dictates population size and diversity mechanisms. If evaluations are cheap, spend them on larger populations to cover the search space; if evaluations are expensive, keep populations modest but invest in diversity-preserving steps (mutation, niching, restarts) to avoid premature convergence. Use the defaults in the box above as a first pass, then tune based on convergence traces and diversity diagnostics.
 \end{tcolorbox}
 
@@ -189,7 +185,7 @@ Budget dictates population size and diversity mechanisms. If evaluations are che
 
 In the previous discussion, we introduced the concept of diversity in genetic algorithms (GAs) and the probabilistic nature of evolutionary processes. We now delve deeper into modeling chromosomes and the mechanisms of genetic inheritance, crossover, and mutation, drawing parallels to optimization problems.
 
-\begin{tcolorbox}[summarybox,title={Genetic algorithm at a glance}]
+\begin{tcolorbox}[summarybox, title={Genetic algorithm at a glance}]
 \textbf{Objective:} Optimize an objective \(J(\mathbf{x})\) over a discrete or continuous search space by evolving a population of encoded candidate solutions according to selection, crossover, and mutation.\\
 \textbf{Key hyperparameters:} Population size, selection pressure (tournament size or selection temperature), crossover and mutation rates, encoding scheme, and stopping criteria (max generations, no-improvement window, target fitness).\\
 \textbf{Common pitfalls:} Premature convergence due to excessive selection pressure or low mutation, deceptive fitness landscapes, constraint violations when mutation or crossover produce infeasible solutions, and overinterpreting stochastic runs without multiple seeds.
@@ -215,7 +211,6 @@ During reproduction, chromosomes from parent individuals combine to form offspri
 
 These mechanisms can be visualized by considering crossover as splicing two parent strings according to a binary mask and mutation as independently flipping bits with a small probability.
 
-Use \Cref{fig:lec11-ea-micro} as the architecture anchor for this section.
 
 \begin{figure}[t]
     \centering
@@ -230,26 +225,26 @@ Use \Cref{fig:lec11-ea-micro} as the architecture anchor for this section.
         ]
             % Selection
             \nextgroupplot[title={Selection}]
-                \node[draw,rounded corners,fill=cbBlue!10,minimum width=1.6cm,minimum height=0.5cm] (p1) {fit};
-                \node[draw,rounded corners,fill=cbBlue!5,minimum width=1.6cm,minimum height=0.5cm, below=0.35cm of p1] (p2) {mid};
-                \node[draw,rounded corners,fill=cbBlue!5,minimum width=1.6cm,minimum height=0.5cm, below=0.35cm of p2] (p3) {low};
+                \node[draw, rounded corners, fill=cbBlue!10, minimum width=1.6cm, minimum height=0.5cm] (p1) {fit};
+                \node[draw, rounded corners, fill=cbBlue!5, minimum width=1.6cm, minimum height=0.5cm, below=0.35cm of p1] (p2) {mid};
+                \node[draw, rounded corners, fill=cbBlue!5, minimum width=1.6cm, minimum height=0.5cm, below=0.35cm of p2] (p3) {low};
                 \draw[->, thick] (p1.east) -- ++(1.0cm,0) node[anchor=west, font=\scriptsize]{higher selection prob.};
                 \draw[->, thick] (p2.east) -- ++(0.8cm,0);
                 \draw[->, thick] (p3.east) -- ++(0.6cm,0);
             % Crossover
             \nextgroupplot[title={Crossover}]
-                \node[draw,rounded corners,fill=cbOrange!15,minimum width=2.1cm,minimum height=0.5cm] (c1) {1011|001};
-                \node[draw,rounded corners,fill=cbOrange!10,minimum width=2.1cm,minimum height=0.5cm, below=0.35cm of c1] (c2) {0100|111};
+                \node[draw, rounded corners, fill=cbOrange!15, minimum width=2.1cm, minimum height=0.5cm] (c1) {1011|001};
+                \node[draw, rounded corners, fill=cbOrange!10, minimum width=2.1cm, minimum height=0.5cm, below=0.35cm of c1] (c2) {0100|111};
                 \draw[->, thick] (c1.east) -- ++(0.6cm,-0.4cm);
                 \draw[->, thick] (c2.east) -- ++(0.6cm,0.4cm);
-                \node[draw,rounded corners,fill=cbGreen!20,minimum width=2.1cm,minimum height=0.5cm, right=1.8cm of c1] (o1) {1011|111};
-                \node[draw,rounded corners,fill=cbGreen!20,minimum width=2.1cm,minimum height=0.5cm, right=1.8cm of c2] (o2) {0100|001};
+                \node[draw, rounded corners, fill=cbGreen!20, minimum width=2.1cm, minimum height=0.5cm, right=1.8cm of c1] (o1) {1011|111};
+                \node[draw, rounded corners, fill=cbGreen!20, minimum width=2.1cm, minimum height=0.5cm, right=1.8cm of c2] (o2) {0100|001};
                 \draw[dashed, gray!70] (c1.east) ++(0.05cm,-0.25cm) -- ++(2.2cm,0);
             % Constraints
             \nextgroupplot[title={Constraints}]
-                \node[draw,rounded corners,fill=cbBlue!10,minimum width=1.4cm,minimum height=0.5cm] (cand) {candidate};
-                \node[draw,rounded corners,fill=cbOrange!20,minimum width=1.5cm,minimum height=0.5cm, right=1.1cm of cand] (repair) {repair};
-                \node[draw,rounded corners,fill=cbGreen!15,minimum width=1.6cm,minimum height=0.5cm, right=1.1cm of repair] (eval) {evaluate};
+                \node[draw, rounded corners, fill=cbBlue!10, minimum width=1.4cm, minimum height=0.5cm] (cand) {candidate};
+                \node[draw, rounded corners, fill=cbOrange!20, minimum width=1.5cm, minimum height=0.5cm, right=1.1cm of cand] (repair) {repair};
+                \node[draw, rounded corners, fill=cbGreen!15, minimum width=1.6cm, minimum height=0.5cm, right=1.1cm of repair] (eval) {evaluate};
                 \draw[->, thick] (cand.east) -- (repair.west);
                 \draw[->, thick] (repair.east) -- (eval.west);
                 \node[font=\scriptsize, below=0.15cm of repair] {or penalty/feasible-first};
@@ -259,7 +254,7 @@ Use \Cref{fig:lec11-ea-micro} as the architecture anchor for this section.
     \label{fig:lec11-ea-micro}
 \end{figure}
 
-\Cref{fig:lec11-ea-micro} is the operator-level visual reference for selection, crossover, and constraint handling.
+\Cref{fig:lec11-ea-micro} summarizes selection, crossover, and constraint handling at the operator level.
 
 \paragraph{Modeling the Genetic Operations}
 
@@ -323,8 +318,8 @@ In GAs, the chromosome encodes the input parameters \( \mathbf{x} \), and the fi
     \item \textbf{Convergence criteria:} Determining when the algorithm has sufficiently optimized the objective.
 \end{itemize}
 
-\begin{tcolorbox}[summarybox,title={Constraint handling in GAs}]
-Realistic optimization problems often involve constraints \(g_j(\mathbf{x})\le 0\) or \(h_k(\mathbf{x})=0\). Common strategies include (i) \emph{repair}, which projects infeasible offspring back into the feasible set; (ii) \emph{penalties}, which modify the fitness as \(\tilde{f}(\mathbf{x}) = f(\mathbf{x}) - \rho \sum_j \max(0,g_j(\mathbf{x}))\) for some \(\rho>0\); and (iii) \emph{feasibility rules}, which prefer feasible individuals over infeasible ones at equal objective value. Penalty methods are simple and mesh well with existing GA code, while repair and feasibility rules are preferable when constraints encode hard physical or safety limits.
+\begin{tcolorbox}[summarybox, title={Constraint handling in GAs}]
+Realistic optimization problems often involve constraints \(g_j(\mathbf{x})\le 0\) or \(h_k(\mathbf{x})=0\). Common strategies include (i) \emph{repair}, which projects infeasible offspring back into the feasible set; (ii) \emph{penalties}, which modify the fitness as \(\tilde{f}(\mathbf{x}) = f(\mathbf{x}) - \rho \sum_j \max(0, g_j(\mathbf{x}))\) for some \(\rho>0\); and (iii) \emph{feasibility rules}, which prefer feasible individuals over infeasible ones at equal objective value. Penalty methods are simple and mesh well with existing GA code, while repair and feasibility rules are preferable when constraints encode hard physical or safety limits.
 \end{tcolorbox}
 
 \paragraph{Fitness as Objective Function Proxy}
@@ -385,10 +380,10 @@ A binary encoding where consecutive numbers differ by only one bit, reducing the
 Suppose we want to encode four parameters \( x_1, x_2, x_3, x_4 \) each represented by a binary string of length \( l_i \). The genotype is the concatenation of these binary strings:
 
 \[
-\underbrace{b_{1,1} b_{1,2} \cdots b_{1,l_1}}_{x_1} \quad
-\underbrace{b_{2,1} b_{2,2} \cdots b_{2,l_2}}_{x_2} \quad
-\underbrace{b_{3,1} b_{3,2} \cdots b_{3,l_3}}_{x_3} \quad
-\underbrace{b_{4,1} b_{4,2} \cdots b_{4,l_4}}_{x_4}
+\underbrace{b_{1,1} b_{1,2} \cdots b_{1, l_1}}_{x_1} \quad
+\underbrace{b_{2,1} b_{2,2} \cdots b_{2, l_2}}_{x_2} \quad
+\underbrace{b_{3,1} b_{3,2} \cdots b_{3, l_3}}_{x_3} \quad
+\underbrace{b_{4,1} b_{4,2} \cdots b_{4, l_4}}_{x_4}
 \]
 
 For example, a genotype might look like:
@@ -485,7 +480,7 @@ Given a population of $N$ chromosomes, each chromosome $i$ has an associated fit
 
 A common approach to selection is to assign each chromosome a probability of being chosen proportional to its fitness. This can be expressed as:
 \begin{align}
-    p_i = \frac{f_i}{\sum_{j=1}^N f_j}, \quad i=1,2,\ldots,N,
+    p_i = \frac{f_i}{\sum_{j=1}^N f_j}, \quad i=1,2,\ldots, N,
     \label{eq:selection_probability}
 \end{align}
 where $p_i$ is the probability that chromosome $i$ is selected.
@@ -547,7 +542,7 @@ Ranking selection can be combined with \emph{elitism}, where the best chromosome
     \item Avoids issues with scaling fitness values.
 \end{itemize}
 
-\begin{tcolorbox}[summarybox,title={Selection pressure and exploration/exploitation}]
+\begin{tcolorbox}[summarybox, title={Selection pressure and exploration/exploitation}]
 \begin{itemize}
     \item \textbf{Knobs:} Tournament size, rank-selection parameter $s$, crossover/mutation rates, and elitism all modulate pressure.
     \item \textbf{High pressure} (large tournaments, strong elitism, low mutation) speeds exploitation but risks premature convergence.
@@ -664,7 +659,7 @@ Tuning these probabilities is critical for balancing exploration and exploitatio
 \subsection{Known Issues in Genetic Algorithms}
 \label{sec:evo_known_issues_in_genetic_algorithms}
 
-\begin{tcolorbox}[summarybox,title={Risk \& audit}]
+\begin{tcolorbox}[summarybox, title={Risk \& audit}]
 \begin{itemize}
     \item \textbf{Premature convergence:} aggressive selection or weak mutation collapses diversity before good regions are explored.
     \item \textbf{Budget mismatch:} comparisons are invalid unless algorithms share evaluation budgets and stopping rules.
@@ -679,7 +674,7 @@ While genetic algorithms (GAs) provide a powerful heuristic framework for optimi
 \paragraph{Premature Convergence}
 Because GAs rely on heuristic search without a global optimality guarantee, they often converge prematurely to local minima rather than the global minimum. This is especially common if the initial population is not diverse or if the selection pressure is too high, causing loss of genetic diversity early on.
 
-\begin{tcolorbox}[summarybox,title={Diversity maintenance}]
+\begin{tcolorbox}[summarybox, title={Diversity maintenance}]
 \begin{itemize}
     \item \textbf{Crowding/sharing:} penalize overly similar individuals to keep multiple niches in multi-modal landscapes.
     \item \textbf{Restarts/islands:} run multiple subpopulations (often in parallel) with occasional migration; robust against stagnation.
@@ -752,7 +747,7 @@ In practice, a combination of these criteria is often used. For example, one mig
                 50 0.82 \\
             };
             \addlegendentry{Mean fitness}
-            \addplot[gray,dash dot] coordinates {(32,0.4) (32,1.0)};
+            \addplot[gray, dash dot] coordinates {(32,0.4) (32,1.0)};
             \node[anchor=south east, font=\scriptsize] at (axis cs:31.5,0.82){Flat region $\Rightarrow$ consider stopping};
         \end{axis}
     \end{tikzpicture}
@@ -760,7 +755,6 @@ In practice, a combination of these criteria is often used. For example, one mig
     \label{fig:lec11-ga-progress}
 \end{figure}
 
-Use \Cref{fig:lec11-ga-progress} as the architecture anchor for this section.
 
 \subsection{Summary of Genetic Algorithm Workflow}
 \label{sec:evo_summary_of_genetic_algorithm_workflow}
@@ -782,7 +776,7 @@ This iterative cycle continues until convergence or stopping criteria are met. T
 
 \begin{figure}[!ht]
 \centering
-\begin{adjustbox}{max width=\linewidth,center}
+\begin{adjustbox}{max width=\linewidth, center}
 \begin{tikzpicture}[
   font=\small,
   >=Stealth,
@@ -817,7 +811,7 @@ This iterative cycle continues until convergence or stopping criteria are met. T
 \draw[flow] (init) -- (fit);
 \draw[flow] (fit) -- (term);
 
-\draw[flow] (term.south) -- node[right,lab,xshift=2pt]{no} (sel.north);
+\draw[flow] (term.south) -- node[right, lab, xshift=2pt]{no} (sel.north);
 \draw[flow] (sel) -- (cross);
 \draw[flow] (cross) -- (mut);
 
@@ -825,14 +819,14 @@ This iterative cycle continues until convergence or stopping criteria are met. T
 \draw[flow] (mut.south) -- ++(0,-10mm) -| (rep.east);
 
 % replacement feeds next generation evaluation (clean dashed loop)
-\draw[loop] (rep.north) -- node[left,lab,pos=0.35,yshift=1pt]{next generation} (fit.south);
+\draw[loop] (rep.north) -- node[left, lab, pos=0.35, yshift=1pt]{next generation} (fit.south);
 
 % optional ``inner loop'' annotation (slightly above for readability)
-\draw[<->, dashed] ([yshift=4mm]sel.east) -- node[above,lab,yshift=2pt]{inner loop} ([yshift=4mm]cross.west);
+\draw[<->, dashed] ([yshift=4mm]sel.east) -- node[above, lab, yshift=2pt]{inner loop} ([yshift=4mm]cross.west);
 
 % yes/stop arrow drawn as overlay so it does not blow up the bounding box
 \begin{scope}[overlay]
-  \draw[flow] (term.north) -- ++(0,12mm) node[above,lab,yshift=1pt]{yes / stop};
+  \draw[flow] (term.north) -- ++(0,12mm) node[above, lab, yshift=1pt]{yes / stop};
 \end{scope}
 
 \end{tikzpicture}
@@ -841,9 +835,7 @@ This iterative cycle continues until convergence or stopping criteria are met. T
 \label{fig:lec11-ga-flow}
 \end{figure}
 
-Use \Cref{fig:lec11-ga-flow} as the architecture anchor for this section.
 
-Use \Cref{tab:ga-toy} as the architecture anchor for this section.
 
 \begin{table}[h]
 \centering
@@ -865,7 +857,7 @@ Mutation (flip one bit) & \(\,0110_2 \to 0111_2\) & 0.4375 & -0.02 \\
 
 \Cref{tab:ga-toy} is the step-by-step toy generation trace used to ground the operator sequence.
 
-\begin{tcolorbox}[summarybox,title={Defaults that work (DE/CMA-ES)}]
+\begin{tcolorbox}[summarybox, title={Defaults that work (DE/CMA-ES)}]
 \textbf{Differential Evolution (DE):} start with population \(10\!-\!20\times D\) (dimension \(D\)), mutation scale \(F\in[0.5,0.8]\), crossover \(C_r\in[0.7,0.9]\).
 \textbf{CMA-ES:} population \(\lambda\approx 4+\lfloor 3\ln D\rfloor\), initial step-size \(\sigma_0 \approx 0.3\) of the variable range. These defaults are robust first tries before tuning.
 \end{tcolorbox}
@@ -938,14 +930,14 @@ A single generation could proceed as follows:
     \item Re-evaluate fitness and retain the best ten individuals for the next generation.
 \end{itemize}
 
-\begin{tcolorbox}[summarybox,title={Constraint handling playbook}]
+\begin{tcolorbox}[summarybox, title={Constraint handling playbook}]
 \begin{itemize}
-    \item \textbf{Penalty methods} soften constraints by augmenting the fitness with a violation term, e.g., \(F(\mathbf{x}) = f(\mathbf{x})+\lambda \sum_k \max\{0,g_k(\mathbf{x})\}^2\); increase \(\lambda\) when infeasible individuals survive too often.
+    \item \textbf{Penalty methods} soften constraints by augmenting the fitness with a violation term, e.g., \(F(\mathbf{x}) = f(\mathbf{x})+\lambda \sum_k \max\{0, g_k(\mathbf{x})\}^2\); increase \(\lambda\) when infeasible individuals survive too often.
     \item \textbf{Repair operators} project infeasible chromosomes back into the feasible region (clip bound violations, renormalize equality constraints, or rerun a problem-specific solver) before evaluation.
 \item \textbf{Feasibility-first selection} ranks feasible candidates ahead of infeasible ones, then compares raw fitness only within each group; among infeasible solutions, select those with the smallest violation.
 \item \textbf{Deb's feasibility rules} \citep{Deb2001Book}: (i) if one solution is feasible and the other is not, pick the feasible one; (ii) if both are feasible, pick the better objective; (iii) if both are infeasible, pick the one with smaller total constraint violation. Adaptive penalties can be layered on top when violations persist.
 \end{itemize}
-\paragraph{Reproducibility and fair comparison} Fix random seeds when debugging, run many seeds (e.g., 20+) for reporting, match evaluation budgets across algorithms, and report mean/median best-so-far with variability bands. Log all hyperparameters and share code/configs to make comparisons fair. Use \Cref{app:repro_standards} as the default reporting template.
+\paragraph{Reproducibility and fair comparison} Fix random seeds when debugging, run many seeds (e.g., 20+) for reporting, match evaluation budgets across algorithms, and report mean/median best-so-far with variability bands. Log all hyperparameters and share code/configs to make comparisons fair, following \Cref{app:repro_standards} as the default reporting template.
 Penalty terms are easy to implement, repair operators exploit domain knowledge, and feasibility-first policies are useful in safety-critical controllers where violating constraints is unacceptable even temporarily.
 \end{tcolorbox}
 
@@ -982,7 +974,7 @@ Bit-string encodings are ideal for combinatorial search, yet most engineering pr
 
 \begin{itemize}
     \item \textbf{Covariance Matrix Adaptation Evolution Strategy (CMA-ES)} \citep{Hansen2001} maintains a multivariate Gaussian search distribution. Successful steps update the mean, adapt the global step size, and rotate the covariance to align with the landscape's principal directions. CMA-ES shines on smooth, ill-conditioned black-box functions where gradients are unavailable but the objective rewards second-order adaptation.
-    \item \textbf{Differential Evolution (DE)} \citep{Storn1997} perturbs a target vector with scaled differences of two other individuals, \(\mathbf{v} = \mathbf{x}_r + F(\mathbf{x}_p - \mathbf{x}_q)\), then mixes \(\mathbf{v}\) with the original via binomial or exponential crossover. This simple mechanism balances exploration/exploitation with only three hyperparameters \((F,\,C_r,\,N)\) and handles noisy, non-smooth objectives well.
+    \item \textbf{Differential Evolution (DE)} \citep{Storn1997} perturbs a target vector with scaled differences of two other individuals, \(\mathbf{v} = \mathbf{x}_r + F(\mathbf{x}_p - \mathbf{x}_q)\), then mixes \(\mathbf{v}\) with the original via binomial or exponential crossover. This simple mechanism balances exploration/exploitation with only three hyperparameters \((F,\, C_r,\, N)\) and handles noisy, non-smooth objectives well.
 \end{itemize}
 
 Both algorithms plug into the same evaluation loop shown earlier and can reuse the constraint-handling policies in the preceding box. In practice many teams prototype with DE (fast, few knobs) and switch to CMA-ES when the problem demands higher precision or adaptive covariance modeling.
@@ -1128,7 +1120,6 @@ Readers are encouraged to explore these topics through further reading and resea
 When two or more objectives conflict, we seek a set of Pareto-optimal solutions rather than a single best point. The Non-dominated Sorting Genetic Algorithm II (NSGA-II) sorts each generation into Pareto fronts: rank-1 individuals are non-dominated, rank-2 are dominated only by rank-1, etc. Replacement preserves all members of the best fronts and uses crowding distance to maintain diversity along the trade-off curve. NSGA-II's combination of elitist survival and \(O(N \log N)\) non-dominated sorting makes it the default baseline for multi-objective evolutionary optimization \citep{Deb2002}.
 \paragraph{Metrics and variants} Hypervolume (area/volume dominated by the front with respect to a reference point) is a common scalar indicator; report it alongside the spread of solutions \citep{Zitzler2002}. MOEA/D decomposes objectives into weighted subproblems; SPEA2/IBEA are popular alternatives. Always plot the Pareto set and budget-matched hypervolume traces when comparing algorithms.
 
-Use \Cref{fig:lec11-pareto} as the architecture anchor for this section.
 
 \begin{figure}[t]
     \centering
@@ -1137,11 +1128,11 @@ Use \Cref{fig:lec11-pareto} as the architecture anchor for this section.
 \label{fig:lec11-pareto}
 \end{figure}
 
-\Cref{fig:lec11-pareto} is the trade-off reference used when interpreting multi-objective runs.
+\Cref{fig:lec11-pareto} is the trade-off view used to interpret multi-objective runs.
 
 \clearpage
 
-\begin{tcolorbox}[summarybox,title={Key takeaways}]
+\begin{tcolorbox}[summarybox, title={Key takeaways}]
 \begin{itemize}
     \item Evolutionary algorithms optimize without gradients by iterating selection, variation, and replacement under a fitness evaluation loop.
     \item Constraint handling is part of the design: penalties, repair, and feasibility-first selection each encode a different notion of ``acceptable'' search.
@@ -1164,7 +1155,7 @@ Use \Cref{fig:lec11-pareto} as the architecture anchor for this section.
 \end{itemize}
 \end{tcolorbox}
 
-\begin{tcolorbox}[summarybox,title={Exercises and lab ideas}]
+\begin{tcolorbox}[summarybox, title={Exercises and lab ideas}]
 \begin{itemize}
     \item Implement a simple GA for $f(x)=\cos(5\pi x)\exp(-x^2)$, experimenting with penalty vs.\ repair strategies for the $[0,0.5]$ constraint.
     \item Prototype a CMA-ES or Differential Evolution solver on a noisy Rosenbrock function and compare convergence traces against the canonical GA.
@@ -1177,5 +1168,4 @@ Use \Cref{fig:lec11-pareto} as the architecture anchor for this section.
 
 \paragraph{Where we head next.} This chapter closes the soft-computing thread. For targeted refreshers, \Cref{app:linear_systems} summarizes linear-systems prerequisites and \Cref{app:kernels} consolidates kernel-method context used earlier in the book.
 
-\nocite{Holland1975,Koza1992,Goldberg1989,Deb2001Book,Mitchell1998}
-
+\nocite{Holland1975, Koza1992, Goldberg1989, Deb2001Book, Mitchell1998}

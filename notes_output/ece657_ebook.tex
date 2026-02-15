@@ -48,9 +48,9 @@
 \else
   \usepackage{adjustbox}
 \fi
-\usepackage[font=small,labelfont=bf]{caption}
+\usepackage[font=small, labelfont=bf]{caption}
 \usepackage{subcaption}
-\captionsetup{justification=centering,singlelinecheck=false}
+\captionsetup{justification=centering, singlelinecheck=false}
 \captionsetup[figure]{width=0.9\linewidth}
 \ifdefined\HCode
   % TeX4ht runs `latex` (DVI mode) and has been observed to hang with `microtype`
@@ -71,7 +71,7 @@
 \usepackage{booktabs}
 \usepackage{tabularx}
 \usepackage{tikz}
-\usetikzlibrary{positioning,arrows.meta,decorations.pathreplacing,calc,shapes.geometric,matrix,backgrounds}
+\usetikzlibrary{positioning, arrows.meta, decorations.pathreplacing, calc, shapes.geometric, matrix, backgrounds}
 \pgfdeclarelayer{background}
 \usepackage{pgfplots}
 \usepackage[authoryear]{natbib}
@@ -79,20 +79,20 @@
 \makeatletter
 \AtBeginDocument{%
   \@ifundefined{pgf@layer@tcb@back}{%
-    \pgfsetlayers{background,main}%
+    \pgfsetlayers{background, main}%
   }{%
-    \pgfsetlayers{background,tcb@back,main,tcb@front}%
+    \pgfsetlayers{background, tcb@back, main, tcb@front}%
   }%
 }%
 \newcommand{\ensuretikzbackgroundlayers}{%
   \@ifundefined{pgf@layer@tcb@back}{%
-    \pgfsetlayers{background,main}%
+    \pgfsetlayers{background, main}%
   }{%
-    \pgfsetlayers{background,tcb@back,main,tcb@front}%
+    \pgfsetlayers{background, tcb@back, main, tcb@front}%
   }%
 }%
 \makeatother
-\usepgfplotslibrary{groupplots,fillbetween}
+\usepgfplotslibrary{groupplots, fillbetween}
 \pgfplotsset{compat=1.18}
 
 % TeX4ht makes `<` and `>` active; that can explode TeX memory when these
@@ -141,9 +141,9 @@
 \numberwithin{equation}{section}
 
 % Summary / pitfall box styles (used throughout the manuscript)
-\tcbset{summarybox/.style={colback=gray!5,colframe=gray!40,boxrule=0.4pt,arc=1mm,left=2mm,right=2mm,top=1mm,bottom=1mm,fonttitle=\bfseries,title=Summary,before upper=\raggedright}}
-\tcbset{pitfallbox/.style={colback=red!3,colframe=red!40,boxrule=0.4pt,arc=1mm,left=2mm,right=2mm,top=1mm,bottom=1mm,fonttitle=\bfseries,title=Pitfall,before upper=\raggedright}}
-\tcbset{perspectivebox/.style={colback=blue!3,colframe=blue!40,boxrule=0.4pt,arc=1mm,left=2mm,right=2mm,top=1mm,bottom=1mm,fonttitle=\bfseries,title=Perspective,before upper=\raggedright}}
+\tcbset{summarybox/.style={colback=gray!5, colframe=gray!40, boxrule=0.4pt, arc=1mm, left=2mm, right=2mm, top=1mm, bottom=1mm, fonttitle=\bfseries, title=Summary, before upper=\raggedright}}
+\tcbset{pitfallbox/.style={colback=red!3, colframe=red!40, boxrule=0.4pt, arc=1mm, left=2mm, right=2mm, top=1mm, bottom=1mm, fonttitle=\bfseries, title=Pitfall, before upper=\raggedright}}
+\tcbset{perspectivebox/.style={colback=blue!3, colframe=blue!40, boxrule=0.4pt, arc=1mm, left=2mm, right=2mm, top=1mm, bottom=1mm, fonttitle=\bfseries, title=Perspective, before upper=\raggedright}}
 
 % Global plot styling for consistency across figures
 \pgfplotsset{every axis/.append style={

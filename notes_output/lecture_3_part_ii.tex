@@ -1,9 +1,11 @@
 % Chapter 6
 \section{Multi-Layer Perceptrons: Challenges and Foundations}\label{chap:mlp}
 
-\Cref{chap:perceptron} introduced the perceptron and Adaline: single units that learn by updating weights from data, with Adaline giving our first explicit glimpse of gradient descent on a smooth performance function. In this chapter we keep the story linear and concrete. We build the smallest possible network (two neurons in series), define a performance function, and ask the core question: \emph{how should the weights change to improve performance?} Answering that question forces us to use derivatives (the chain rule) and leads naturally to gradient descent. Along the way we encounter a practical obstacle: hard thresholds are not differentiable, so they do not support gradient-based learning. We replace them with smooth activations and immediately gain a clean update story. This is the conceptual bridge to full backpropagation in \Cref{chap:backprop}. \Cref{fig:roadmap} shows this as the hinge between single-unit models and multilayer training.
+\Cref{chap:perceptron} introduced the perceptron and Adaline: single units that learn by updating weights from data, with Adaline giving our first explicit glimpse of gradient descent on a smooth performance function.
 
-\begin{tcolorbox}[summarybox,title={Learning Outcomes}]
+In this chapter we keep the story linear and concrete. We build the smallest possible network (two neurons in series), define a performance function, and ask the core question: \emph{how should the weights change to improve performance?} Answering that question forces us to use derivatives (the chain rule) and leads naturally to gradient descent. Along the way we encounter a practical obstacle: hard thresholds are not differentiable, so they do not support gradient-based learning. We replace them with smooth activations and immediately gain a clean update story. This is the conceptual bridge to full backpropagation in \Cref{chap:backprop}. \Cref{fig:roadmap} shows this as the hinge between single-unit models and multilayer training.
+
+\begin{tcolorbox}[summarybox, title={Learning Outcomes}]
 After this chapter, you should be able to:
 \begin{itemize}
     \item Build the smallest multi\hyp{}layer network and write its forward equations.
@@ -14,14 +16,14 @@ After this chapter, you should be able to:
 \end{itemize}
 \end{tcolorbox}
 
-\begin{tcolorbox}[summarybox,title={Design motif}]
+\begin{tcolorbox}[summarybox, title={Design motif}]
 Build the smallest trainable network you can, keep every intermediate quantity visible, and let the chain rule explain how learning signals flow.
 \end{tcolorbox}
 
 \subsection{From a single unit to the smallest network}
 \label{sec:mlp-limitations}
 
-\begin{tcolorbox}[summarybox,title={A short map: building a trainable network}]
+\paragraph{A short map: building a trainable network.}
 The chapter follows one tight loop:
 \begin{itemize}
     \item \textbf{Build:} write the forward computation (a two-neuron chain).
@@ -30,16 +32,13 @@ The chapter follows one tight loop:
     \item \textbf{Fix:} choose a differentiable activation so those derivatives exist and carry signal.
 \end{itemize}
 Once you can execute this loop for two neurons, scaling to many neurons is mostly bookkeeping (\Cref{chap:backprop}).
-\end{tcolorbox}
-
-\begin{tcolorbox}[summarybox,title={How this chapter fits the workflow}]
+\paragraph{How this chapter fits the workflow.}
 The same objective\(\rightarrow\)audit workflow from the supervised toolkit still applies; what changes is the \emph{representation}.
 \begin{itemize}
     \item From \Cref{chap:supervised}: diagnostics (learning curves, bias--variance) tell you \emph{what} is going wrong.
     \item From \Cref{chap:logistic}: a linear probabilistic baseline tells you \emph{how far} you can go without nonlinear features.
     \item Here: we build the smallest nonlinear network and derive its gradient updates, setting up the general backprop machinery in \Cref{chap:backprop}.
 \end{itemize}
-\end{tcolorbox}
 
 \paragraph{Function estimation as the unifying view.}
 Learning is function estimation: approximate some unknown mapping $f: X \to Y$ from examples. A neural network is a structured way to represent a nonlinear $f$ by composing simple units. In this chapter we keep the bookkeeping minimal and use one tiny network plus a simple squared error objective so we can focus on the mechanics of learning.
@@ -57,9 +56,7 @@ The smallest network that is more than a single unit is a \emph{two\hyp{}neuron 
  p_1 &= \mathbf{w}_1^\top \mathbf{x} + b_1, & y_1 &= f(p_1), \\
  p_2 &= w_2 y_1 + b_2, & y_2 &= f(p_2). \label{eq:two_neuron_forward}
 \end{align}
-Even this tiny network introduces the central idea of neural networks: intermediate computations (here $y_1$) are reused and influence the final output $y_2$. A single neuron is a linear classifier; chaining neurons gives a nonlinear representation. With multiple hidden units, that added structure is enough to solve XOR.
-
-Use \Cref{fig:mlp_minimal_chain} as the derivation anchor for this section.
+Even this tiny network introduces the central idea of neural networks: intermediate computations (here $y_1$) are reused and influence the final output $y_2$. A single neuron is a linear classifier; chaining neurons gives a nonlinear representation. With multiple hidden units, that added structure is enough to solve XOR. We will reuse \Cref{fig:mlp_minimal_chain} as the bookkeeping diagram when we apply the chain rule.
 
 \begin{figure}[t]
     \centering
@@ -69,16 +66,16 @@ Use \Cref{fig:mlp_minimal_chain} as the derivation anchor for this section.
         box/.style={draw, rounded corners, minimum width=1.6cm, minimum height=0.9cm, align=center, fill=cbBlue!6},
         neuron/.style={draw, circle, minimum size=1.0cm, align=center, fill=cbGreen!8},
         outbox/.style={draw, rounded corners, minimum width=1.2cm, minimum height=0.9cm, align=center, fill=cbOrange!8},
-        lab/.style={font=\scriptsize, inner sep=1pt, align=center},
+        lab/.style={font=\footnotesize, inner sep=1pt, align=center},
     ]
         \node[box] (x) {$\mathbf{x}$};
         \node[neuron, right=2.6cm of x] (n1) {$f$};
         \node[neuron, right=2.4cm of n1] (n2) {$f$};
         \node[outbox, right=3.0cm of n2] (y) {$y_2$};
 
-        \draw[->] (x) -- node[lab, above, pos=0.55, yshift=6pt, font=\scriptsize] {$p_1=\mathbf{w}_1^\top\mathbf{x}+b_1$} (n1);
+        \draw[->] (x) -- node[lab, above, pos=0.55, yshift=6pt] {$p_1=\mathbf{w}_1^\top\mathbf{x}+b_1$} (n1);
         \draw[->] (n1) -- node[lab, below, pos=0.5, yshift=-2pt] {$y_1=f(p_1)$} (n2);
-        \draw[->] (n2) -- node[lab, above, pos=0.5, xshift=-6pt, yshift=8pt, font=\scriptsize] {$p_2=w_2 y_1+b_2$} (y);
+        \draw[->] (n2) -- node[lab, above, pos=0.5, xshift=-6pt, yshift=8pt] {$p_2=w_2 y_1+b_2$} (y);
         \node[lab, below=4pt of y] {$y_2=f(p_2)$};
     \end{tikzpicture}
     % Avoid inline math in captions; it wraps poorly in some EPUB renderers.
@@ -86,13 +83,10 @@ Use \Cref{fig:mlp_minimal_chain} as the derivation anchor for this section.
     \label{fig:mlp_minimal_chain}
 \end{figure}
 
-\Cref{fig:mlp_gd_surface} is the optimization-geometry reference for vector versus coordinate updates.
-
-\begin{tcolorbox}[summarybox,title={Author's note: why a network changes the story}]
+\paragraph{Author's note: why a network changes the story.}
 With one perceptron, every training example pushes on the same single separator. A network introduces \emph{intermediate representations}: different hidden units can respond to different patterns, and the output unit can combine those responses. That added structure is what lets neural networks model nonlinearity while still using simple building blocks.
-\end{tcolorbox}
 
-\begin{tcolorbox}[summarybox,title={A checklist of what we must settle (and why)}]
+\paragraph{A checklist of what we must settle (and why).}
 To turn ``a diagram of neurons'' into something trainable, we need:
 \begin{itemize}
     \item \textbf{A parameterization:} weights and biases that control the mapping from inputs to outputs.
@@ -101,7 +95,6 @@ To turn ``a diagram of neurons'' into something trainable, we need:
     \item \textbf{Differentiability:} if we want to use gradient descent, every link from parameters to $P$ must be differentiable so the chain rule can propagate credit (and blame).
 \end{itemize}
 The chapter keeps everything small so you can see all four ingredients in one place.
-\end{tcolorbox}
 
 \paragraph{Bias as a learned threshold.}
 A hard threshold $\theta$ can be absorbed into a bias term by writing $p = \mathbf{w}^\top\mathbf{x} - \theta$ and setting $b=-\theta$. In practice we append $x_0=1$ and treat $b$ as another weight $w_0$; the algebra is identical. The bias handles \emph{where} the unit switches, while the weights handle \emph{which direction} it prefers.
@@ -119,12 +112,12 @@ The factor $\tfrac{1}{2}$ makes derivatives cleaner. If you prefer to \emph{maxi
 \paragraph{Why a square?}
 The signed error $e = y_2 - t$ can be positive or negative. Squaring removes the sign and penalizes large deviations more heavily, while keeping $P$ smooth so a small change in a weight produces a small change in performance. That smoothness is exactly what makes derivative-based updates meaningful.
 
-\begin{tcolorbox}[summarybox,title={Author's note: one objective is enough for the first derivation}]
+\begin{tcolorbox}[summarybox, title={Author's note: one objective is enough for the first derivation}]
 We only need a performance function that (1) is easy to differentiate and (2) rewards outputs that move toward the target. The squared error does both, so it is a good stand-in while we learn the mechanics. Once the chain rule story is clear, swapping in other objectives is mostly a matter of changing a few local derivatives at the output layer.
 \end{tcolorbox}
 
 \paragraph{A geometric intuition.}
-For a fixed input, the performance becomes a surface over the weights. If the surface looks like a ``bowl,'' then the bottom is the optimum. The goal is to move weights along this surface in the direction that improves performance.
+For a fixed input, the performance becomes a surface over the weights. If the surface looks like a ``bowl,'' then the bottom is the optimum. The goal is to move weights along this surface in the direction that improves performance. \Cref{fig:mlp_gd_surface} visualizes this geometry and contrasts vector updates with coordinate-wise zig-zag steps.
 
 \subsection{Gradient descent: how do weights move?}
 \label{sec:mlp_gradient_descent_how_do_weights_move}
@@ -187,14 +180,10 @@ The gradient gives a direction; the step size $\eta$ sets the distance. In pract
     \label{fig:mlp_gd_surface}
 \end{figure}
 
-Use \Cref{fig:mlp_gd_surface} as the derivation anchor for this section.
-
-\Cref{fig:mlp_step_vs_sigmoid} is the activation-smoothness reference used to motivate differentiable training.
-
 \subsection{Why hard thresholds block learning}
 \label{sec:mlp_why_hard_thresholds_block_learning}
 
-At this point the story is simple: define $P$, compute $\nabla P$, and update weights. The catch is that computing $\nabla P$ requires derivatives through the activation. When we apply the chain rule to \Cref{eq:two_neuron_forward}, factors like $f'(p_1)$ and $f'(p_2)$ appear immediately.
+At this point the story is simple: define $P$, compute $\nabla P$, and update weights. The catch is that computing $\nabla P$ requires derivatives through the activation. When we apply the chain rule to \Cref{eq:two_neuron_forward}, factors like $f'(p_1)$ and $f'(p_2)$ appear immediately. \Cref{fig:mlp_step_vs_sigmoid} makes this derivative contrast concrete.
 
 If $f$ is a hard threshold (a step function), it is discontinuous and non\hyp{}differentiable at the threshold. That breaks the gradient story: $f'(p)$ either does not exist or is zero almost everywhere, so derivatives cannot guide learning. This is the core reason we replace thresholds with \emph{smooth, differentiable activations}.
 
@@ -241,7 +230,6 @@ The threshold itself can be folded into a bias term, but the discontinuity remai
     \label{fig:mlp_step_vs_sigmoid}
 \end{figure}
 
-Use \Cref{fig:mlp_step_vs_sigmoid} as the derivation anchor for this section.
 
 \subsection{Differentiable activations and the sigmoid trick}
 \label{sec:mlp_differentiable_activations_and_the_sigmoid_trick}
@@ -258,7 +246,7 @@ It maps real inputs to $(0,1)$ and is differentiable everywhere. The key identit
 \end{equation}
 This is a useful trick: the derivative is a function of the \emph{output} itself. If $y=\sigma(p)$ is already computed in the forward pass, then $\sigma'(p)=y(1-y)$ is immediately available in the backward pass. No extra exponentials are needed.
 
-\begin{tcolorbox}[summarybox,title={Author's note: the derivative is already in the forward pass}]
+\begin{tcolorbox}[summarybox, title={Author's note: the derivative is already in the forward pass}]
 In practice you rarely want to recompute expensive expressions during learning. For the sigmoid, once you have computed the output \texttt{y = sigmoid(p)}, you also have its slope for free: \texttt{sigmoid\_prime = y*(1-y)}. This is a small example of a bigger pattern: backpropagation works because we cache intermediate results on the forward pass and reuse them on the backward pass.
 \end{tcolorbox}
 
@@ -315,19 +303,19 @@ with bias derivative
 \paragraph{Error terms (backprop view).}
 Define
 \begin{equation}
-\delta_2 := \frac{\partial P}{\partial p_2} = (y_2 - t) f'(p_2).
+\delta_2:= \frac{\partial P}{\partial p_2} = (y_2 - t) f'(p_2).
 \label{eq:delta2}
 \end{equation}
 Then $\partial P/\partial w_2 = \delta_2 y_1$ and $\partial P/\partial b_2=\delta_2$. The first layer receives a backpropagated error
 \begin{equation}
-\delta_1 := \frac{\partial P}{\partial p_1} = \delta_2 w_2 f'(p_1),
+\delta_1:= \frac{\partial P}{\partial p_1} = \delta_2 w_2 f'(p_1),
 \label{eq:delta1}
 \end{equation}
 so $\partial P/\partial \mathbf{w}_1 = \delta_1 \mathbf{x}$ and $\partial P/\partial b_1 = \delta_1$.
 
 This is the central lesson: once we compute a local error term, it can be reused across many gradients. That reuse is exactly what makes backpropagation efficient and is why deeper networks remain tractable.
 
-\begin{tcolorbox}[summarybox,title={Worked example: one numerical gradient step (sanity check)}]
+\begin{tcolorbox}[summarybox, title={Worked example: one numerical gradient step (sanity check)}]
 Take a single input $x = [1,-1]^\top$, target $t=1$, sigmoid activation $f=\sigma$, and parameters
 $\mathbf{w}_1=[0.8,\,0.2]^\top$, $b_1=0$, $w_2=1$, $b_2=0$.
 \medskip
@@ -353,7 +341,7 @@ Nothing essential changes for deeper networks; we simply apply the same chain ru
 \end{equation}
 where $\circ$ denotes element\hyp{}wise multiplication. This recursion is the heart of backpropagation, which we derive and operationalize in \Cref{chap:backprop}.
 
-\begin{tcolorbox}[summarybox,title={Author's note: what backprop adds}]
+\begin{tcolorbox}[summarybox, title={Author's note: what backprop adds}]
 Conceptually, nothing new happens when you go from two neurons to many layers: it is still the chain rule and the same local derivatives. What changes is the \emph{organization}: we run a forward pass that caches intermediate values, then a backward pass that reuses those caches to compute all gradients efficiently (and stably) for an entire batch. \Cref{chap:backprop} turns the recursion into an implementable algorithm and shows the standard bookkeeping.
 \end{tcolorbox}
 
@@ -368,7 +356,7 @@ Conceptually, nothing new happens when you go from two neurons to many layers: i
     \item The two\hyp{}neuron derivation already contains the backpropagation pattern used in deep networks.
 \end{itemize}
 
-\begin{tcolorbox}[summarybox,title={Derivation closure: implement, cache, fail-fast}]
+\begin{tcolorbox}[summarybox, title={Derivation closure: implement, cache, fail-fast}]
 \begin{itemize}
     \item \textbf{Implement:} treat the chapter equations as a forward function plus a scalar loss; write them once in vector form before batching.
     \item \textbf{Cache:} keep \((\mathbf{x}, p_1, y_1, p_2, y_2)\) from the forward pass so each gradient term is a local reuse, not a re-derivation.
@@ -377,7 +365,7 @@ Conceptually, nothing new happens when you go from two neurons to many layers: i
 \end{itemize}
 \end{tcolorbox}
 
-\begin{tcolorbox}[summarybox,title={Key takeaways}]
+\begin{tcolorbox}[summarybox, title={Key takeaways}]
 \textbf{Minimum viable mastery}
 \begin{itemize}
     \item Training is a loop: define a forward computation, define a scalar performance, then use derivatives to update parameters.
@@ -393,7 +381,7 @@ Conceptually, nothing new happens when you go from two neurons to many layers: i
 \end{itemize}
 \end{tcolorbox}
 
-\begin{tcolorbox}[summarybox,title={Exercises and lab ideas}]
+\begin{tcolorbox}[summarybox, title={Exercises and lab ideas}]
 \noindent\textbf{Setup.} These reinforce the two-neuron derivation and prepare you for the multi-layer bookkeeping in \Cref{chap:backprop}.
 \begin{itemize}
     \item \textbf{Numerical gradient check:} Implement finite differences for the two\hyp{}neuron chain and compare to your analytic gradients; report relative error.
@@ -406,5 +394,3 @@ Conceptually, nothing new happens when you go from two neurons to many layers: i
 
 \medskip
 \paragraph{Where we head next.} \Cref{chap:backprop} lifts this two-neuron derivation to deep networks and shows how to implement the same backward logic efficiently in batch training.
-
-

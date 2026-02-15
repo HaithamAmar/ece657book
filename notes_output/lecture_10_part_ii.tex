@@ -2,9 +2,9 @@
 \section{Fuzzy Inference Systems: Rule Composition and Output Calculation}\label{chap:fuzzyinference}
 \markboth{Fuzzy inference}{}
 
-Building on \Cref{chap:fuzzyrelations}, where transfer operators (projection, composition, and the extension principle) move fuzzy information between related universes, this chapter assembles complete fuzzy inference systems (FIS): rule composition and output calculation. It closes the fuzzy trilogy by turning set/relation machinery into end-to-end decisions.
+Building on \Cref{chap:fuzzyrelations}, where transfer operators (projection, composition, and the extension principle) move fuzzy information between related universes, we now assemble complete fuzzy inference systems (FIS): rule composition and output calculation. This closes the fuzzy trilogy by turning set/relation machinery into end-to-end decisions.
 
-\begin{tcolorbox}[summarybox,title={Learning Outcomes}]
+\begin{tcolorbox}[summarybox, title={Learning Outcomes}]
 \begin{itemize}
     \item Execute full Mamdani/Larsen style inference: antecedent aggregation, implication, aggregation, and defuzzification.
     \item Compare implication/aggregation choices (product vs.\ min, max vs.\ sum) and their impact on the running thermostat/autofocus example.
@@ -12,7 +12,7 @@ Building on \Cref{chap:fuzzyrelations}, where transfer operators (projection, co
 \end{itemize}
 \end{tcolorbox}
 
-\begin{tcolorbox}[summarybox,title={Design motif}]
+\begin{tcolorbox}[summarybox, title={Design motif}]
 Local linguistic rules become a global behavior only after you commit to concrete operators (t\hyp{}norm, implication, aggregation, defuzzifier) and then sanity-check the resulting surface.
 \end{tcolorbox}
 
@@ -22,7 +22,7 @@ For the thermostat, each rule combines the temperature error (\textit{Cold}, \te
 \subsection{Context and Motivation}
 \label{sec:fuzzyinference_context_and_motivation}
 
-\begin{tcolorbox}[summarybox,title={Notation handoff}]
+\begin{tcolorbox}[summarybox, title={Notation handoff}]
 Throughout this chapter we keep the trilogy defaults from \Crefrange{chap:fuzzysets}{chap:fuzzyrelations}: \(\wedge=\min\), \(\vee=\max\), and the standard complement \(1-\mu\). Aggregation over rule consequents defaults to the max s\hyp{}norm unless stated otherwise; alternatives live in \Cref{tab:tnorms}. If symbols conflict with earlier chapters, use local definitions and refer to \Cref{app:notation_collisions}.
 \end{tcolorbox}
 
@@ -34,7 +34,7 @@ Recall that a fuzzy inference system maps crisp inputs to fuzzy outputs by apply
 
 where $A_i$ and $B$ are fuzzy sets defined on the respective universes of discourse. The antecedent (premise) combines multiple fuzzy conditions on inputs, and the consequent (conclusion) specifies the fuzzy output.
 
-\begin{tcolorbox}[summarybox,title={Author's note: rules as lived experience}]
+\begin{tcolorbox}[summarybox, title={Author's note: rules as lived experience}]
 These rules are not immutable physical laws; they are codified experience. We record facts such as ``if it is morning then the sun is in the east,'' yet real observations may arrive at noon. Fuzzy inference exists to bridge that gap: observed memberships are composed with stored rules so that slight deviations in the antecedent produce softened consequents instead of brittle yes/no responses. When you carry out the algebra below, keep that picture of ``experience vs.\ observation'' in mind.
 \end{tcolorbox}
 
@@ -82,8 +82,8 @@ Once the antecedent firing strength $\alpha$ is computed, it is used to modify t
 \end{itemize}
 
 The resulting fuzzy set $B'$ represents the \emph{output fuzzy set} contributed by this particular rule.
-\begin{tcolorbox}[summarybox,title={Implication choices}]
-Mamdani uses min-implication (clipping), Larsen uses product-implication (scaling). Other options include residuated and axiomatic implicators paired with their t\hyp{}norms (e.g., G\"odel, Product/Goguen, \L{}ukasiewicz; see \citealp{Klement2000,Dubois1988}). Pick by desired smoothness: clipping preserves shape and interpretability; scaling yields smoother surfaces and is friendlier to gradient-based tuning.
+\begin{tcolorbox}[summarybox, title={Implication choices}]
+Mamdani uses min-implication (clipping), Larsen uses product-implication (scaling). Other options include residuated and axiomatic implicators paired with their t\hyp{}norms (e.g., G\"odel, Product/Goguen, \L{}ukasiewicz; see \citealp{Klement2000, Dubois1988}). Pick by desired smoothness: clipping preserves shape and interpretability; scaling yields smoother surfaces and is friendlier to gradient-based tuning.
 \end{tcolorbox}
 
 \subsection{Aggregation of Multiple Rules}
@@ -110,7 +110,7 @@ To summarize, the fuzzy inference process for a given input vector $\mathbf{x}$ 
 \item Aggregate all $B'_j$ using \eqref{eq:output_aggregation} to obtain the overall output fuzzy set $B_{\text{agg}}$.
 \end{enumerate}
 
-\begin{tcolorbox}[summarybox,title={Risk \& audit}]
+\begin{tcolorbox}[summarybox, title={Risk \& audit}]
 \begin{itemize}
     \item \textbf{Rule explosion:} too many overlapping rules can make behavior opaque; prune with coverage and conflict diagnostics.
     \item \textbf{Operator mismatch:} min/product implication and max/sum aggregation produce different surfaces; choose once and document why.
@@ -134,16 +134,80 @@ This expression balances all candidate output values $y$ by weighting them accor
 \paragraph{Zero-mass fallback} If the denominator in \eqref{eq:centroid_defuzz} is zero (e.g., all consequents clipped to zero), fall back to a max-membership or rule-based tie-breaker to avoid NaNs; log the condition for debugging.
 \paragraph{Computation note} With uniform sampling over \(m\) output points, centroid costs \(O(mR)\) per evaluation for \(R\) rules. Non-singleton inputs add a convolution step but reuse the same aggregation/defuzz pipeline; refine the grid near peaks to reduce bias.
 
-\begin{tcolorbox}[pitfallbox,title={Centroid stability and tie-breaking}]
+\begin{tcolorbox}[pitfallbox, title={Centroid stability and tie-breaking}]
 \begin{itemize}
-    \item \textbf{Multi-modal sets.} When $B_{\text{agg}}$ has multiple peaks, the centroid may fall between modes. Log numerator and denominator separately and check that $\int \mu_{B_{\text{agg}}}(y)\,dy$ is non-zero; otherwise fall back to max-membership or a rule-based tie-break.
+    \item \textbf{Multi-modal sets.} When $B_{\text{agg}}$ has multiple peaks, the centroid may fall between modes. Log numerator and denominator separately and check that $\int \mu_{B_{\text{agg}}}(y)\, dy$ is non-zero; otherwise fall back to max-membership or a rule-based tie-break.
     \item \textbf{Discretisation.} Sampling the universe with too few points biases the centroid. Use uniform grids for smooth consequents and adaptive refinement near peaks for multi-modal sets. Report the step size (e.g., $0.5^\circ$C) to show numeric fidelity.
 \end{itemize}
 \end{tcolorbox}
 
+\subsection{Worked example: thermostat inference with numbers}
+\label{sec:fuzzyinference_worked_example_thermostat_inference_with_numbers}
+
+We now run one complete inference pass for a compact thermostat rule base with two inputs and one output. The goal is not to defend a particular membership design, but to show how the algebra produces a concrete output that you can compute, audit, and debug.
+
+\paragraph{Universes and memberships.}
+Let temperature error \(e \in [-5,5]\,^\circ\mathrm{C}\) and rate \(r \in [-2,2]\,^\circ\mathrm{C}/\mathrm{min}\). Let the controller output \(u \in [0,1]\) denote heater power as a fraction of maximum.
+We use simple piecewise-linear labels:
+\begin{align*}
+    \mu_{\text{Cold}}(e) &=
+    \begin{cases}
+        1, & e \le -5,\\
+        \frac{0-e}{5}, & -5 < e < 0,\\
+        0, & e \ge 0,
+    \end{cases}
+    &
+    \mu_{\text{Comfy}}(e) &= \max\!\left(0,\; 1-\frac{|e|}{2.5}\right),\\
+    \mu_{\text{Stable}}(r) &= \max\!\left(0,\; 1-|r|\right),
+    &
+    \mu_{\text{Rising}}(r) &=
+    \begin{cases}
+        0, & r \le 0,\\
+        \frac{r}{2}, & 0 < r < 2,\\
+        1, & r \ge 2.
+    \end{cases}
+\end{align*}
+For \(u\), use the standard three-label output family (Low/Medium/High) from \Cref{chap:fuzzysets}:
+\begin{align*}
+    \mu_{\text{Low}}(u) &= \max\!\Big(0,\; 1-\tfrac{u}{0.5}\Big),\\
+    \mu_{\text{Medium}}(u) &= \max\!\Big(0,\; 1-\tfrac{|u-0.5|}{0.25}\Big),\\
+    \mu_{\text{High}}(u) &= \max\!\Big(0,\; \tfrac{u-0.5}{0.5}\Big).
+\end{align*}
+
+\paragraph{Rule base.}
+\begin{enumerate}
+    \item IF \(e\) is Cold AND \(r\) is Stable THEN \(u\) is High.
+    \item IF \(e\) is Cold AND \(r\) is Rising THEN \(u\) is Medium.
+    \item IF \(e\) is Comfy THEN \(u\) is Low.
+\end{enumerate}
+
+\paragraph{Fuzzify inputs and compute firing strengths.}
+For inputs \(e=-2\) and \(r=0.5\),
+\[
+\mu_{\text{Cold}}(-2)=0.4,\quad
+\mu_{\text{Comfy}}(-2)=0.2,\quad
+\mu_{\text{Stable}}(0.5)=0.5,\quad
+\mu_{\text{Rising}}(0.5)=0.25.
+\]
+With \(T=\min\) (\Cref{eq:antecedent_min}), the rule firing strengths are
+\[
+\alpha_1=\min(0.4,0.5)=0.4,\quad
+\alpha_2=\min(0.4,0.25)=0.25,\quad
+\alpha_3=0.2.
+\]
+
+\paragraph{Implication, aggregation, and defuzzification.}
+Using Mamdani min-implication (\Cref{eq:min_implication}), each consequent is clipped at its firing strength (e.g., \(\mu_{\text{High}}'(u)=\min(\alpha_1,\mu_{\text{High}}(u))\)). Aggregating consequents by max (\Cref{eq:output_aggregation}) yields \(\mu_{\text{out}}(u)\).
+Finally, centroid defuzzification (\Cref{eq:centroid_defuzz}) produces a crisp heater-power command. Using a uniform grid on \(u \in [0,1]\) (step \(10^{-4}\)) gives
+\[
+u^\star \approx 0.577.
+\]
+This value is above the midpoint because the \textit{Cold} rules (High/Medium consequents) fire more strongly than the \textit{Comfy} rule, while the positive rate term (\textit{Rising}) tempers full-\textit{High} output.
+In implementations, compute the centroid numerically (and log the grid/step size) rather than relying on heuristic convex combinations when overlap patterns become complex.
+
 \vspace*{1.2\baselineskip}
 \noindent
-\begin{tcolorbox}[summarybox,title={Pipeline at a glance (Mamdani/Larsen)}]
+\begin{tcolorbox}[summarybox, title={Pipeline at a glance (Mamdani/Larsen)}]
 \begin{verbatim}
 for each rule j:
     alpha_j = T( mu_A1(x1), ..., mu_An(xn) )
@@ -158,7 +222,7 @@ y_star = centroid(mu_Bagg(y))
 Defaults: \(T=\min\) or product; \(S=\max\); centroid defuzzification. Non-singleton fuzzification (convolving input uncertainty with \(\mu_{A_i}\)) uses the same pipeline once the input blend is computed.
 \end{tcolorbox}
 
-\begin{tcolorbox}[summarybox,title={Design checklist}]
+\begin{tcolorbox}[summarybox, title={Design checklist}]
 \begin{itemize}
     \item Define universes/labels; ensure coverage and reasonable overlap.
     \item Pick \(T/S/\Rightarrow\) via \Cref{tab:tnorms} to get the smoothness/interpretability you need.
@@ -168,7 +232,7 @@ Defaults: \(T=\min\) or product; \(S=\max\); centroid defuzzification. Non-singl
 \end{itemize}
 \end{tcolorbox}
 
-\begin{tcolorbox}[pitfallbox,title={Common pitfalls}]
+\begin{tcolorbox}[pitfallbox, title={Common pitfalls}]
 \begin{itemize}
     \item Max aggregation can mask contributions from several moderate rules; algebraic sum can over-saturate.
     \item Memberships that are too narrow yield sparse firing; too wide produce mushy outputs.
@@ -199,7 +263,7 @@ eliminating the defuzzification integral. The trade-offs are:
 For the thermostat example, Mamdani rules (``IF error is Cold AND rate is Falling THEN heater power is High'') are ideal when operators must audit decisions, whereas a Sugeno/TSK variant is preferable when embedding the controller into a high-speed or automatically tuned loop.
 \footnote{Classic sources: \citet{Mamdani1975} for clipping implication; \citet{TakagiSugeno1985} for TSK; \citet{Jang1993} for ANFIS; see also \citep{Klement2000,Dubois1988} for operator/implicator theory.}
 
-\begin{tcolorbox}[summarybox,title={Key takeaways}]
+\begin{tcolorbox}[summarybox, title={Key takeaways}]
 \begin{itemize}
     \item Fuzzy inference composes rule antecedents (via a t\hyp{}norm) and modifies consequents by implication.
     \item Aggregation and defuzzification (e.g., centroid) produce crisp outputs from fuzzy rule bases.
@@ -222,7 +286,7 @@ For the thermostat example, Mamdani rules (``IF error is Cold AND rate is Fallin
 \end{itemize}
 \end{tcolorbox}
 
-\begin{tcolorbox}[summarybox,title={Exercises and lab ideas}]
+\begin{tcolorbox}[summarybox, title={Exercises and lab ideas}]
 \begin{itemize}
     \item Implement a Mamdani thermostat with three error labels and two rate labels; experiment with min/product t\hyp{}norms and report the resulting control surfaces.
     \item Build a Sugeno/TSK variant of the same controller and compare outputs to the Mamdani version under identical test trajectories.
@@ -234,5 +298,3 @@ For the thermostat example, Mamdani rules (``IF error is Cold AND rate is Fallin
 \end{tcolorbox}
 
 \paragraph{Where we head next.} \Cref{chap:evo} shifts from fuzzy controllers to evolutionary computing, where population-based search and optimization heuristics form the other major soft-computing pillar.
-
-

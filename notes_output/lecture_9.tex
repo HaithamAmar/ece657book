@@ -2,9 +2,9 @@
 \section{Fuzzy Sets and Membership Functions: Foundations and Representations}\label{chap:fuzzysets}
 \graphicspath{{assets/lec9/}{assets/lec16/}}
 
-\noindent Building on \Cref{chap:softcomp}, this chapter formalizes the foundations of fuzzy logic: universes of discourse, fuzzy sets, membership functions, and the basic operators used throughout the fuzzy trilogy. These tools define the thermostat labels used in later chapters and prepare the transfer/inference steps developed in \Crefrange{chap:fuzzyrelations}{chap:fuzzyinference}.
+\noindent Building on \Cref{chap:softcomp}, we formalize the foundations of fuzzy logic: universes of discourse, fuzzy sets, membership functions, and the operators used throughout the fuzzy trilogy. These tools define the thermostat labels used later and prepare the transfer/inference steps developed in \Crefrange{chap:fuzzyrelations}{chap:fuzzyinference}.
 
-\begin{tcolorbox}[summarybox,title={Learning Outcomes}]
+\begin{tcolorbox}[summarybox, title={Learning Outcomes}]
 After this chapter, you should be able to:
 \begin{itemize}
   \item Distinguish imprecision (uncertain value/boundary) from fuzziness (graded membership).
@@ -14,17 +14,32 @@ After this chapter, you should be able to:
 \end{itemize}
 \end{tcolorbox}
 
-\begin{tcolorbox}[summarybox,title={Design motif}]
+\begin{tcolorbox}[summarybox, title={Design motif}]
 Treat vagueness as a first-class modeling choice: write the membership functions down, pick operators explicitly, and then audit how those choices shape the behavior of a rule base.
 \end{tcolorbox}
 
 \paragraph{Running example checkpoint.}
 For the thermostat scenario introduced in \Cref{chap:softcomp}, the universe of discourse for the inputs is \([-5,5]^\circ\text{C}\) temperature error and \([-2,2]^\circ\text{C}/\text{min}\) rate-of-change. As you study triangular, trapezoidal, and Gaussian membership functions, imagine parameterizing the linguistic labels \textit{Cold}, \textit{Comfy}, and \textit{Hot} for these inputs. We reuse those shapes when composing rules in \Crefrange{chap:fuzzyrelations}{chap:fuzzyinference}.
 
-\subsection{Recap: Fuzzy Sets and the Universe of Discourse}
+\subsection{Motivating example: designing a membership function from measurements}
+\label{sec:fuzzysets_motivating_example_designing_a_membership_function_from_measurements}
+
+Consider the thermostat's temperature error \(e = T_{\text{room}} - T_{\text{set}}\) in degrees Celsius (so \(e<0\) means ``too cold''). We want a linguistic label \textit{Cold} that is clearly true when the room is far below setpoint, clearly false when the room is at/above setpoint, and graded in between. A simple, auditable choice is a piecewise-linear ``shoulder'' membership:
+\begin{equation}
+    \mu_{\text{Cold}}(e)=
+    \begin{cases}
+        1, & e \le -4,\\
+        \frac{0-e}{4}, & -4 < e < 0,\\
+        0, & e \ge 0.
+    \end{cases}
+    \label{eq:fuzzysets_cold_membership_example}
+\end{equation}
+With this design, \(e=-2\) yields \(\mu_{\text{Cold}}(-2)=0.5\): ``cold'' is half true. Later chapters reuse this shoulder \emph{shape} but may shift its breakpoints to reflect different sensors, comfort bands, or operating assumptions. This number is not a probability; it is a degree of truth for a linguistic predicate. The rest of this chapter is about making these mappings explicit (shapes, overlaps, and operators) so they can be inspected and tuned rather than assumed.
+
+\subsection{Fuzzy sets and the universe of discourse}
 \label{sec:fuzzysets_recap_fuzzy_sets_and_the_universe_of_discourse}
 
-Recall that a \emph{fuzzy set} \( A \) in a universe of discourse \( X \) is characterized by a \emph{membership function} \(\mu_A : X \to [0,1]\). This membership function assigns to each element \( x \in X \) a degree of membership \(\mu_A(x)\), which quantifies the extent to which \( x \) belongs to the fuzzy set \( A \).
+A \emph{fuzzy set} \( A \) in a universe of discourse \( X \) is characterized by a \emph{membership function} \(\mu_A: X \to [0,1]\). This membership function assigns to each element \( x \in X \) a degree of membership \(\mu_A(x)\), which quantifies the extent to which \( x \) belongs to the fuzzy set \( A \).
 
 \begin{itemize}
     \item If \(\mu_A(x) = 1\), then \( x \) fully belongs to \( A \).
@@ -101,14 +116,14 @@ This function assigns membership 1 at \( x = c \), decreasing linearly to zero a
 \label{sec:fuzzysets_crisp_sets_versus_fuzzy_sets}
 
 Crisp (classical) sets assign membership values in the binary set \(\{0,1\}\), so each element either belongs to the set or it does not. In contrast, fuzzy sets allow intermediate membership values, enabling gradual transitions between full inclusion and full exclusion. Understanding this contrast highlights why membership functions are central to fuzzy logic.
-\begin{tcolorbox}[title={Imprecision vs. Fuzziness (recap)}, colback=gray!5,colframe=gray!40,boxrule=0.4pt]
+\begin{tcolorbox}[title={Imprecision vs. Fuzziness (recap)}, colback=gray!5, colframe=gray!40, boxrule=0.4pt]
 As discussed in \cref{sec:imprecision-fuzziness}, \textbf{imprecision} concerns uncertainty about the exact value or boundary (e.g., measurement noise or coarse resolution), whereas \textbf{fuzziness} concerns graded membership in a concept (e.g., the degree to which a speed is ``slow'') even when measurements are exact. Probability models uncertainty about events; fuzzy logic models degrees of truth of linguistic predicates.
 \end{tcolorbox}
 
 \subsection{Membership Functions in Fuzzy Sets}
 \label{sec:fuzzysets_membership_functions_in_fuzzy_sets}
 
-Recall that a fuzzy set \( A \) on a universe \( X \) is characterized by a membership function \(\mu_A : X \to [0,1]\) which assigns to each element \( x \in X \) a degree of membership \(\mu_A(x)\) indicating the extent to which \( x \) belongs to \( A \).
+With the universe \(X\) fixed and the concept \(A\) named, the membership function \(\mu_A: X \to [0,1]\) assigns to each element \(x \in X\) a degree of membership \(\mu_A(x)\) indicating the extent to which \(x\) belongs to \(A\).
 
 \paragraph{Triangular Membership Function}
 
@@ -169,7 +184,7 @@ This function allows control over the width and slope of the membership curve, i
 
 Consider a typical university grading scale as an example of fuzzy sets. Traditional crisp sets assign grades as follows:
 \[
-\text{F} : [0, 59], \quad \text{D} : [60, 69], \quad \text{C} : [70, 79], \quad \text{B} : [80, 89], \quad \text{A} : [90, 100].
+\text{F}: [0, 59], \quad \text{D}: [60, 69], \quad \text{C}: [70, 79], \quad \text{B}: [80, 89], \quad \text{A}: [90, 100].
 \]
 In a crisp set, membership is binary: a score of 75 is fully in \(C\) and not in \(B\).
 
@@ -213,17 +228,17 @@ with analogous expressions for the \(A\) and \(D\) categories. These overlapping
             clip=true
         ]
             % Grade C trapezoid
-            \addplot[thick,cbBlue,name path=C] coordinates {
+            \addplot[thick, cbBlue, name path=C] coordinates {
                 (60,0) (65,0) (70,1) (75,1) (80,0) (95,0)
             };
             \addlegendentry{Grade $C$}
             % Grade B trapezoid
-            \addplot[thick,cbOrange,name path=B] coordinates {
+            \addplot[thick, cbOrange, name path=B] coordinates {
                 (60,0) (75,0) (80,1) (85,1) (90,0) (95,0)
             };
             \addlegendentry{Grade $B$}
             % Shaded overlap region
-            \addplot[fill=cbBlue!20,draw=none] fill between[
+            \addplot[fill=cbBlue!20, draw=none] fill between[
                 of=C and B,
                 soft clip={domain=75:80}
             ];
@@ -235,7 +250,6 @@ with analogous expressions for the \(A\) and \(D\) categories. These overlapping
     \label{fig:lec9-grade-trapezoids}
 \end{figure}
 
-Use \Cref{fig:lec9-grade-trapezoids} as the derivation anchor for this section.
 
 \Cref{fig:lec9-membership-overlap} is the overlap diagnostic used when tuning membership coverage.
 
@@ -289,19 +303,18 @@ The overlap reflects the vagueness of the labels: a weight near 22~kg partially 
             \addlegendentry{Medium}
             \addplot[cbGreen, thick] coordinates {(20,0) (25,1) (30,1)};
             \addlegendentry{Large}
-            \addplot[gray,dashed] coordinates {(10,0) (10,1.05)};
-            \addplot[gray,dashed] coordinates {(15,0) (15,1.05)};
-            \addplot[gray,dashed] coordinates {(20,0) (20,1.05)};
-            \addplot[gray,dashed] coordinates {(25,0) (25,1.05)};
+            \addplot[gray, dashed] coordinates {(10,0) (10,1.05)};
+            \addplot[gray, dashed] coordinates {(15,0) (15,1.05)};
+            \addplot[gray, dashed] coordinates {(20,0) (20,1.05)};
+            \addplot[gray, dashed] coordinates {(25,0) (25,1.05)};
         \end{axis}
     \end{tikzpicture}
     \caption[Overlapping membership functions for Small/Medium/Large labels]{Overlapping membership functions for the ``Small'', ``Medium'', and ``Large'' weight labels. The shaded overlaps capture gradual transitions. Use it when tuning membership overlaps so small numeric changes do not cause abrupt rule changes.}
     \label{fig:lec9-membership-overlap}
 \end{figure}
 
-Use \Cref{fig:lec9-membership-overlap} as the derivation anchor for this section.
 
-\Cref{fig:tnorm-surfaces} is the operator-shape reference for choosing conjunction behavior in rule aggregation.
+\Cref{fig:tnorm-surfaces} compares operator shapes when choosing conjunction behavior in rule aggregation.
 
 \paragraph{Quick plotting snippet.} With \texttt{scikit-fuzzy} or plain \texttt{matplotlib} you can visualize overlaps to debug label choices:
 \begin{verbatim}
@@ -321,7 +334,7 @@ plt.legend(); plt.show()
 \subsection{Fuzzy Sets: Core Concepts and Terminology}
 \label{sec:fuzzysets_fuzzy_sets_core_concepts_and_terminology}
 
-Recall that a \emph{fuzzy set} \( A \) on a universe \( X \) is characterized by a membership function \(\mu_A : X \to [0,1]\), where \(\mu_A(x)\) quantifies the degree to which element \( x \) belongs to \( A \). Unlike crisp sets, where membership is binary (0 or 1), fuzzy sets allow partial membership.
+Recall that a \emph{fuzzy set} \( A \) on a universe \( X \) is characterized by a membership function \(\mu_A: X \to [0,1]\), where \(\mu_A(x)\) quantifies the degree to which element \( x \) belongs to \( A \). Unlike crisp sets, where membership is binary (0 or 1), fuzzy sets allow partial membership.
 
 \paragraph{Support Set} The \emph{support} of a fuzzy set \( A \) is the set of all elements with nonzero membership:
 \begin{equation}
@@ -370,7 +383,7 @@ It is crucial to distinguish between \emph{probability} and \emph{possibility} w
 
 Thus, membership functions in fuzzy sets represent \emph{possibility} rather than \emph{probability}. This distinction is fundamental in fuzzy logic and inference (cf.~\Cref{tab:fuzzy-vs-prob} in \Cref{chap:softcomp}). When treating a membership as a possibility distribution \(\pi(x)\), we usually normalize so that \(\sup_x \pi(x)=1\), yielding \(\Pi(A)=\sup_{x\in A}\pi(x)\) and \(N(A)=1-\Pi(A^c)\).
 
-\begin{tcolorbox}[summarybox,title={Alpha-cuts, convexity, and fuzzy numbers}]
+\begin{tcolorbox}[summarybox, title={Alpha-cuts, convexity, and fuzzy numbers}]
 \begin{itemize}
     \item \textbf{Alpha-cut:} \(A_\alpha = \{x\in X \mid \mu_A(x)\ge \alpha\}\) for \(\alpha\in(0,1]\); \(A_0\) is the support. Alpha-cuts turn fuzzy sets into nested crisp sets.
     \item \textbf{Convex fuzzy set:} \(A\) is convex if every alpha-cut \(A_\alpha\) is convex. Normal + convex fuzzy sets with bounded support are called \emph{fuzzy numbers}.
@@ -381,17 +394,17 @@ Thus, membership functions in fuzzy sets represent \emph{possibility} rather tha
 \subsection{Fuzzy Set Operations}
 \label{sec:fuzzysets_fuzzy_set_operations}
 
-\begin{tcolorbox}[summarybox,title={Operator defaults used in \Crefrange{chap:fuzzysets}{chap:fuzzyinference}}]
+\begin{tcolorbox}[summarybox, title={Operator defaults used in \Crefrange{chap:fuzzysets}{chap:fuzzyinference}}]
 Unless stated otherwise, the fuzzy trilogy uses the \emph{standard} operators:
 \begin{itemize}
     \item Complement (negation): \(C(\mu) = 1 - \mu\) (so \(C(C(\mu))=\mu\)).
-    \item Intersection and union: \(T_{\min}(a,b)=\min(a,b)\), \(S_{\max}(a,b)=\max(a,b)\).
+    \item Intersection and union: \(T_{\min}(a, b)=\min(a, b)\), \(S_{\max}(a, b)=\max(a, b)\).
     \item De Morgan's laws are interpreted with this standard complement.
 \end{itemize}
 Alternative t-/s\hyp{}norms or complements are called out explicitly when they appear.
 \end{tcolorbox}
 
-\begin{tcolorbox}[summarybox,title={Notation handoff}]
+\begin{tcolorbox}[summarybox, title={Notation handoff}]
 In the fuzzy trilogy, \(\mu_A(x)\) always denotes membership grade, \(T\) denotes a t\hyp{}norm when generalized conjunction is needed, and \(S\) denotes an s\hyp{}norm for generalized union. If these symbols clash with other parts, use the local chapter meaning and consult \Cref{app:notation_collisions}.
 \end{tcolorbox}
 
@@ -503,7 +516,7 @@ Recall that fuzzy sets are characterized by membership functions assigning to ea
 
 \paragraph{Definition:} The membership function of the Cartesian product $A \times B$ is defined as
 \begin{equation}
-    \mu_{A \times B}(x,y) = \min\big(\mu_A(x), \mu_B(y)\big), \quad \forall x \in X, y \in Y.
+    \mu_{A \times B}(x, y) = \min\big(\mu_A(x), \mu_B(y)\big), \quad \forall x \in X, y \in Y.
     \label{eq:cartesian_product}
 \end{equation}
 
@@ -516,7 +529,7 @@ A = \{(x_1, 1.0), (x_2, 0.8), (x_3, 0.4)\}, \quad B = \{(y_1, 0.6), (y_2, 0.8), 
 Then the Cartesian product $A \times B$ is represented by the matrix of membership values:
 \[
 \begin{array}{c|ccc}
-\mu_{A \times B}(x,y) & y_1 & y_2 & y_3 \\ \hline
+\mu_{A \times B}(x, y) & y_1 & y_2 & y_3 \\ \hline
 x_1 & \min(1.0, 0.6) = 0.6 & \min(1.0, 0.8) = 0.8 & \min(1.0, 1.0) = 1.0 \\
 x_2 & \min(0.8, 0.6) = 0.6 & \min(0.8, 0.8) = 0.8 & \min(0.8, 1.0) = 0.8 \\
 x_3 & \min(0.4, 0.6) = 0.4 & \min(0.4, 0.8) = 0.4 & \min(0.4, 1.0) = 0.4
@@ -626,7 +639,6 @@ These operators allow for a nonlinear mapping of the complement, reflecting diff
     \label{fig:tnorm-surfaces}
 \end{figure}
 
-Use \Cref{fig:tnorm-surfaces} as the derivation anchor for this section.
 
 \paragraph{Properties of Complement Operators}
 A commonly desired set of properties for a complement operator \( C \) is:
@@ -646,7 +658,7 @@ The standard complement satisfies all three. Parameterized complements typically
 In fuzzy logic, the logical \texttt{AND} operation is generalized by \emph{triangular norms} (t\hyp{}norms). These are binary operators that combine membership values while preserving certain desirable properties analogous to intersection in classical set theory.
 
 \paragraph{Definition}
-A \textbf{t\hyp{}norm} is a binary operator \( T: [0,1]^2 \to [0,1] \) satisfying the following properties for all \( x,y,z \in [0,1] \):
+A \textbf{t\hyp{}norm} is a binary operator \( T: [0,1]^2 \to [0,1] \) satisfying the following properties for all \( x, y, z \in [0,1] \):
 
 \begin{enumerate}
     \item \textbf{Commutativity:}
@@ -659,7 +671,7 @@ A \textbf{t\hyp{}norm} is a binary operator \( T: [0,1]^2 \to [0,1] \) satisfyin
     \]
     \item \textbf{Monotonicity:}
     \[
-        x \leq x', \quad y \leq y' \implies T(x,y) \leq T(x', y').
+        x \leq x', \quad y \leq y' \implies T(x, y) \leq T(x', y').
     \]
     \item \textbf{Boundary condition (Identity):}
     \[
@@ -674,19 +686,19 @@ These properties ensure that \( T \) behaves like a generalized intersection ope
 \begin{itemize}
     \item \textbf{Minimum t\hyp{}norm:}
     \[
-        T_{\min}(x,y) = \min(x,y).
+        T_{\min}(x, y) = \min(x, y).
     \]
     This corresponds to the classical intersection in fuzzy sets.
 
     \item \textbf{Algebraic product t\hyp{}norm:}
     \[
-        T_{\text{prod}}(x,y) = x \cdot y.
+        T_{\text{prod}}(x, y) = x \cdot y.
     \]
     This is a smooth, multiplicative generalization of intersection.
 
     \item \textbf{{\L}ukasiewicz t\hyp{}norm:}
     \[
-        T_{\text{Luk}}(x,y) = \max(0, x + y - 1).
+        T_{\text{Luk}}(x, y) = \max(0, x + y - 1).
     \]
 \end{itemize}
 
@@ -714,7 +726,7 @@ The dual concept to t\hyp{}norms is the \textbf{triangular conorm} (t\hyp{}conor
     \item \textbf{Monotonicity:}
     If \(x \le x'\) and \(y \le y'\), then
     \[
-        S(x,y) \le S(x',y').
+        S(x, y) \le S(x', y').
     \]
     \item \textbf{Boundary conditions:}
     \[
@@ -722,8 +734,8 @@ The dual concept to t\hyp{}norms is the \textbf{triangular conorm} (t\hyp{}conor
     \]
 \end{enumerate}
 
-These axioms mirror those of t\hyp{}norms but with \(1\) as the neutral element instead of \(0\). Standard examples include the maximum s\hyp{}norm \(S_{\max}(x,y) = \max(x,y)\), the algebraic sum \(S_{\text{sum}}(x,y) = x + y - xy\), and the bounded sum \(S_{\text{bs}}(x,y) = \min(1, x + y)\); explicit formulas and their dual t\hyp{}norms appear in the next subsection.
-Note that the algebraic sum explicitly enforces \(S_{\text{sum}}(x,y)=x+y-xy \leq 1\) for all \(x,y \in [0,1]\).
+These axioms mirror those of t\hyp{}norms but with \(1\) as the neutral element instead of \(0\). Standard examples include the maximum s\hyp{}norm \(S_{\max}(x, y) = \max(x, y)\), the algebraic sum \(S_{\text{sum}}(x, y) = x + y - xy\), and the bounded sum \(S_{\text{bs}}(x, y) = \min(1, x + y)\); explicit formulas and their dual t\hyp{}norms appear in the next subsection.
+Note that the algebraic sum explicitly enforces \(S_{\text{sum}}(x, y)=x+y-xy \leq 1\) for all \(x, y \in [0,1]\).
 
 \subsection{T-Norms and S-Norms: Complementarity and Properties}
 \label{sec:fuzzysets_t_norms_and_s_norms_complementarity_and_properties}
@@ -763,17 +775,17 @@ Several standard t\hyp{}norms and their corresponding s\hyp{}norms are widely us
 \begin{itemize}
     \item \textbf{Minimum t\hyp{}norm and maximum s\hyp{}norm:}
     \[
-    T_{\min}(x,y) = \min(x,y), \quad S_{\max}(x,y) = \max(x,y).
+    T_{\min}(x, y) = \min(x, y), \quad S_{\max}(x, y) = \max(x, y).
     \]
 
     \item \textbf{Algebraic product t\hyp{}norm and algebraic sum s\hyp{}norm:}
     \[
-    T_{\text{prod}}(x,y) = x \cdot y, \quad S_{\text{sum}}(x,y) = x + y - xy.
+    T_{\text{prod}}(x, y) = x \cdot y, \quad S_{\text{sum}}(x, y) = x + y - xy.
     \]
 
     \item \textbf{Bounded difference t\hyp{}norm and bounded sum s\hyp{}norm:}
     \[
-    T_{\text{bd}}(x,y) = \max(0, x + y - 1), \quad S_{\text{bs}}(x,y) = \min(1, x + y).
+    T_{\text{bd}}(x, y) = \max(0, x + y - 1), \quad S_{\text{bs}}(x, y) = \min(1, x + y).
     \]
 \end{itemize}
 
@@ -802,9 +814,9 @@ Because fuzzy membership values lie in \([0,1]\), the subset relation can be qua
 
 For practical work we often use an \emph{aggregate} measure:
 \[
-\mathrm{incl}(A,B) = \frac{\sum_{x \in X} \min(\mu_A(x), \mu_B(x))}{\sum_{x \in X} \mu_A(x)}
+\mathrm{incl}(A, B) = \frac{\sum_{x \in X} \min(\mu_A(x), \mu_B(x))}{\sum_{x \in X} \mu_A(x)}
 \]
-for discrete universes (integrals for continuous, assuming finite mass). It summarizes how much of the mass of \(A\) lies inside \(B\)'s support. A \emph{pointwise} alternative relies on an implicator \(I\) and defines \(\mathrm{Inc}(A,B)=\inf_x I(\mu_A(x),\mu_B(x))\) (see below); implicator-based grades avoid division by small \(\mu_B\) and behave well when \(B\) has zeros. Both constructions satisfy \(0 \leq \mathrm{incl}(A,B) \leq 1\), where 1 means \(A\) is fully included in \(B\).
+for discrete universes (integrals for continuous, assuming finite mass). It summarizes how much of the mass of \(A\) lies inside \(B\)'s support. A \emph{pointwise} alternative relies on an implicator \(I\) and defines \(\mathrm{Inc}(A, B)=\inf_x I(\mu_A(x),\mu_B(x))\) (see below); implicator-based grades avoid division by small \(\mu_B\) and behave well when \(B\) has zeros. Both constructions satisfy \(0 \leq \mathrm{incl}(A, B) \leq 1\), where 1 means \(A\) is fully included in \(B\).
 
 \subsection{Set Operations and Inclusion Properties}
 \label{sec:fuzzysets_set_operations_and_inclusion_properties}
@@ -818,9 +830,9 @@ Given fuzzy sets $A$, $B$, and $C$, the following properties hold for the standa
         \mu_{A\cap C}(x) = \min(\mu_A(x),\mu_C(x)) \leq \min(\mu_B(x),\mu_C(x)) = \mu_{B\cap C}(x),
     \]
     and analogously for the union/max operator.
-    \item If $A \subseteq B$, applying any t\hyp{}norm $T$ and its dual s\hyp{}norm $S$ preserves inclusion: $T(A,C) \subseteq T(B,C)$ and $S(A,C) \subseteq S(B,C)$. In terms of memberships,
+    \item If $A \subseteq B$, applying any t\hyp{}norm $T$ and its dual s\hyp{}norm $S$ preserves inclusion: $T(A, C) \subseteq T(B, C)$ and $S(A, C) \subseteq S(B, C)$. In terms of memberships,
     \[
-        \mu_{T(A,C)}(x) \leq \mu_{T(B,C)}(x) \quad \text{and} \quad \mu_{S(A,C)}(x) \leq \mu_{S(B,C)}(x),\; \forall x.
+        \mu_{T(A, C)}(x) \leq \mu_{T(B, C)}(x) \quad \text{and} \quad \mu_{S(A, C)}(x) \leq \mu_{S(B, C)}(x),\; \forall x.
     \]
     \item Complements reverse inclusion: $A \subseteq B \Rightarrow B^c \subseteq A^c$ because complements flip the ordering of memberships.
     \(\mu_{B^c}(x) = 1-\mu_B(x) \leq 1-\mu_A(x) = \mu_{A^c}(x)\).
@@ -832,24 +844,24 @@ Recall that in classical set theory, the notion of subset and equality is crisp:
 
 \paragraph{Grade of Inclusion}
 
-Given two fuzzy sets \( A \) and \( B \) defined on the universe \( X \), with membership functions \(\mu_A(x)\) and \(\mu_B(x)\), respectively, the \emph{grade of inclusion} of \( A \) in \( B \), denoted \( \mathrm{Inc}(A,B) \), measures how much \( A \) is a subset of \( B \).
+Given two fuzzy sets \( A \) and \( B \) defined on the universe \( X \), with membership functions \(\mu_A(x)\) and \(\mu_B(x)\), respectively, the \emph{grade of inclusion} of \( A \) in \( B \), denoted \( \mathrm{Inc}(A, B) \), measures how much \( A \) is a subset of \( B \).
 
 One way to define this grade is:
 \begin{equation}
-\mathrm{Inc}(A,B) = \inf_{x \in X} I\big(\mu_A(x), \mu_B(x)\big),
+\mathrm{Inc}(A, B) = \inf_{x \in X} I\big(\mu_A(x), \mu_B(x)\big),
 \label{eq:grade_inclusion}
 \end{equation}
 where \( I \) is an \emph{implicator} function, often derived from a chosen t\hyp{}norm \(T\). A common choice is the G\"odel implicator:
 \[
-I(a,b) = \begin{cases}
+I(a, b) = \begin{cases}
 1, & \text{if } a \leq b, \\
 b, & \text{otherwise}.
 \end{cases}
 \]
 
-Alternatively, if \( T \) is part of a residuated pair \((T,I)\), one sometimes writes
+Alternatively, if \( T \) is part of a residuated pair \((T, I)\), one sometimes writes
 \[
-\mathrm{Inc}(A,B) = \inf_{x \in X} T\big(\mu_A(x), \mu_B(x)\big),
+\mathrm{Inc}(A, B) = \inf_{x \in X} T\big(\mu_A(x), \mu_B(x)\big),
 \]
 which should be interpreted as computing the tightest lower bound obtainable from the chosen \(T\); this coincides with the implicator-based definition when \(I\) is the residuum of \(T\).
 
@@ -867,19 +879,19 @@ so the overall grade of inclusion is \(\inf_{x \in X} I_G(\mu_A(x),\mu_B(x))\). 
 
 \paragraph{Grade of Equality}
 
-Similarly, the \emph{grade of equality} between fuzzy sets \( A \) and \( B \), denoted \( \mathrm{Eq}(A,B) \), measures how close the two sets are to being equal. It can be defined as:
+Similarly, the \emph{grade of equality} between fuzzy sets \( A \) and \( B \), denoted \( \mathrm{Eq}(A, B) \), measures how close the two sets are to being equal. It can be defined as:
 \begin{equation}
-\mathrm{Eq}(A,B) = \inf_{x \in X} J\big(\mu_A(x), \mu_B(x)\big),
+\mathrm{Eq}(A, B) = \inf_{x \in X} J\big(\mu_A(x), \mu_B(x)\big),
 \label{eq:grade_equality}
 \end{equation}
 where \( J \) is an equality function. One convenient choice is
 \[
-J(a,b) = \begin{cases}
+J(a, b) = \begin{cases}
 1, & \text{if } a = b, \\
-T(a,b), & \text{otherwise},
+T(a, b), & \text{otherwise},
 \end{cases}
 \]
-with \( T \) a \( t \)-norm, so that exact agreement receives unit credit while disagreements are down-weighted via \(T\). Other smooth symmetry measures (e.g., \(J(a,b) = 1 - |a-b|\)) can also be used; the key requirement is that \(J\) be symmetric, bounded in \([0,1]\), and reach 1 only when \(a=b\).
+with \( T \) a \( t \)-norm, so that exact agreement receives unit credit while disagreements are down-weighted via \(T\). Other smooth symmetry measures (e.g., \(J(a, b) = 1 - |a-b|\)) can also be used; the key requirement is that \(J\) be symmetric, bounded in \([0,1]\), and reach 1 only when \(a=b\).
 
 This definition allows for a graded notion of equality, reflecting the fuzzy nature of the sets.
 
@@ -1013,7 +1025,6 @@ In a Mamdani-style controller the conjunction ``AND'' is typically modeled by th
 
 The next step is to formalize the \emph{implication} and \emph{aggregation} operators that map these fuzzy inputs to fuzzy outputs, and then perform \emph{defuzzification} to obtain crisp outputs.
 
-Use \Cref{tab:fuzzy-operators} as the derivation anchor for this section.
 
 \begin{table}[t]
 \centering
@@ -1022,16 +1033,16 @@ Use \Cref{tab:fuzzy-operators} as the derivation anchor for this section.
 \label{tab:fuzzy-operators}
 \begin{tabularx}{\linewidth}{@{}>{\raggedright\arraybackslash}X>{\raggedright\arraybackslash}X>{\raggedright\arraybackslash}X>{\raggedright\arraybackslash}X@{}}
 \toprule
-t\hyp{}norm \(T(a,b)\) & s\hyp{}norm \(S(a,b)\) & Implication \(\Rightarrow\) & Qualitative behavior \\
+t\hyp{}norm \(T(a, b)\) & s\hyp{}norm \(S(a, b)\) & Implication \(\Rightarrow\) & Qualitative behavior \\
 \midrule
-\(\min(a,b)\) & \(\max(a,b)\) & Mamdani (clipping: \(\min(\alpha,\mu_B)\)) & Sharp, piecewise-linear surfaces; conservative. \\
+\(\min(a, b)\) & \(\max(a, b)\) & Mamdani (clipping: \(\min(\alpha,\mu_B)\)) & Sharp, piecewise-linear surfaces; conservative. \\
 \(a\cdot b\) & \(a + b - ab\) & Larsen (scaling: \(\alpha\,\mu_B\)) & Smoother transitions; products damp small activations. \\
-\(\max(0,a+b-1)\) & \(\min(1,a+b)\) & Bounded (e.g., {\L}ukasiewicz) & Bounded sums; useful when saturation is desired. \\
+\(\max(0, a+b-1)\) & \(\min(1, a+b)\) & Bounded (e.g., {\L}ukasiewicz) & Bounded sums; useful when saturation is desired. \\
 \bottomrule
 \end{tabularx}
 \end{table}
 
-\Cref{tab:fuzzy-operators} is the operator-choice checklist referenced in the Mamdani design discussion.
+\Cref{tab:fuzzy-operators} serves as the operator-choice checklist in the Mamdani design discussion.
 
 \subsection{Worked Example: Mamdani Fuzzy Inference (End-to-End)}
 \label{sec:fuzzysets_worked_example_mamdani_fuzzy_inference_end_to_end}
@@ -1106,17 +1117,17 @@ Practical tip: libraries such as \texttt{scikit-fuzzy} provide a tested \texttt{
             \nextgroupplot[
                 title={(A) Sets and clipping},
                 title style={at={(0.5,1.22)}, anchor=south},
-                legend style={font=\scriptsize, at={(0.5,1.08)},anchor=south,legend columns=3}
+                legend style={font=\scriptsize, at={(0.5,1.08)}, anchor=south, legend columns=3}
             ]
             \addplot[cbBlue, thick] coordinates {(0,1) (0.5,0)}; \addlegendentry{Low}
             \addplot[cbOrange, thick] coordinates {(0.25,0) (0.5,1) (0.75,0)}; \addlegendentry{Medium}
             \addplot[cbGreen, thick] coordinates {(0.5,0) (1,1)}; \addlegendentry{High}
             \addplot[gray, dashed] coordinates {(0,0.3) (1,0.3)};
             \addplot[gray, dashed] coordinates {(0,0.133) (1,0.133)};
-            \node[font=\scriptsize,anchor=south east,fill=white,inner sep=1pt] at (axis cs:0.98,0.3){$0.3$};
-            \node[font=\scriptsize,anchor=north east,fill=white,inner sep=1pt] at (axis cs:0.98,0.133){$0.133$};
-            \node[font=\scriptsize,anchor=south west,fill=white,inner sep=1pt] at (axis cs:0.02,0.3){$0.3$};
-            \node[font=\scriptsize,anchor=north west,fill=white,inner sep=1pt] at (axis cs:0.02,0.133){$0.133$};
+            \node[font=\scriptsize, anchor=south east, fill=white, inner sep=1pt] at (axis cs:0.98,0.3){$0.3$};
+            \node[font=\scriptsize, anchor=north east, fill=white, inner sep=1pt] at (axis cs:0.98,0.133){$0.133$};
+            \node[font=\scriptsize, anchor=south west, fill=white, inner sep=1pt] at (axis cs:0.02,0.3){$0.3$};
+            \node[font=\scriptsize, anchor=north west, fill=white, inner sep=1pt] at (axis cs:0.02,0.133){$0.133$};
             % Panel B: aggregated output + centroid
             \nextgroupplot[
                 title={(B) Aggregated $\mu_\text{out}$ and centroid},
@@ -1126,19 +1137,19 @@ Practical tip: libraries such as \texttt{scikit-fuzzy} provide a tested \texttt{
             \addplot[name path=axisLeft, draw=none] coordinates {(0.25,0) (0.75,0)};
             \addplot[name path=axisRight, draw=none] coordinates {(0.5,0) (1,0)};
             % Truncated Medium (peak 0.3)
-            \addplot[name path=truncMLeft, cbOrange, thick, domain=0.25:0.5, samples=100] { (x-0.25)/0.25 <= 0.3 ? (x-0.25)/0.25 : 0.3 };
-            \addplot[name path=truncMRight, cbOrange, thick, domain=0.5:0.75, samples=100] { (0.75-x)/0.25 <= 0.3 ? (0.75-x)/0.25 : 0.3 };
+            \addplot[name path=truncMLeft, cbOrange, thick, domain=0.25:0.5, samples=100] { (x-0.25)/0.25 <= 0.3? (x-0.25)/0.25: 0.3 };
+            \addplot[name path=truncMRight, cbOrange, thick, domain=0.5:0.75, samples=100] { (0.75-x)/0.25 <= 0.3? (0.75-x)/0.25: 0.3 };
             % Fill under truncated Medium
             \addplot[cbOrange!30, draw=none] fill between[of=truncMLeft and axisLeft];
             \addplot[cbOrange!30, draw=none] fill between[of=truncMRight and axisLeft];
             % Truncated High (peak 0.133)
-            \addplot[name path=truncH, cbGreen, thick, domain=0.5:1, samples=100] { (x-0.5)/0.5 <= 0.133 ? (x-0.5)/0.5 : 0.133 };
+            \addplot[name path=truncH, cbGreen, thick, domain=0.5:1, samples=100] { (x-0.5)/0.5 <= 0.133? (x-0.5)/0.5: 0.133 };
             % Fill under truncated High
             \addplot[cbGreen!30, draw=none] fill between[of=truncH and axisRight];
             % Aggregated (max) as envelope (approximate by plotting both truncations)
             % Centroid marker
             \addplot[red, dashed] coordinates {(0.58,0) (0.58,0.35)};
-            \node[font=\scriptsize,anchor=south,fill=white,inner sep=1pt] at (axis cs:0.58,0.36){$s^{\star}\approx 0.58$};
+            \node[font=\scriptsize, anchor=south, fill=white, inner sep=1pt] at (axis cs:0.58,0.36){$s^{\star}\approx 0.58$};
         \end{groupplot}
     \end{tikzpicture}
     % Avoid inline math in captions; it wraps poorly in some EPUB renderers.
@@ -1146,9 +1157,8 @@ Practical tip: libraries such as \texttt{scikit-fuzzy} provide a tested \texttt{
     \label{fig:fuzzy-end-to-end}
 \end{figure}
 
-Use \Cref{fig:fuzzy-end-to-end} as the derivation anchor for this section.
 
-\begin{tcolorbox}[summarybox,title={Key takeaways}]
+\begin{tcolorbox}[summarybox, title={Key takeaways}]
 \begin{itemize}
     \item Fuzzy sets map elements to degrees in \([0,1]\); membership shapes (triangular, trapezoidal, Gaussian) encode semantics.
     \item Support/core and set operations (intersection/union/complement) generalize crisp logic.
@@ -1171,7 +1181,7 @@ Use \Cref{fig:fuzzy-end-to-end} as the derivation anchor for this section.
 \end{itemize}
 \end{tcolorbox}
 
-\begin{tcolorbox}[summarybox,title={Exercises and lab ideas}]
+\begin{tcolorbox}[summarybox, title={Exercises and lab ideas}]
 \begin{itemize}
     \item Define fuzzy labels for a new universe (e.g., vehicle speed); sketch overlapping memberships and compute degrees for 3 sample points.
     \item Using two different t\hyp{}norm/s\hyp{}norm pairs, compute the union/intersection of two fuzzy sets at specific points; comment on differences.
@@ -1184,5 +1194,3 @@ Use \Cref{fig:fuzzy-end-to-end} as the derivation anchor for this section.
 \end{tcolorbox}
 
 \paragraph{Where we head next.} \Cref{chap:fuzzyrelations} moves from fuzzification/defuzzification mechanics to system-level design and adaptive fuzzy controllers; relation operators and projections there connect these set-level tools to control and hybrid schemes.
-
-

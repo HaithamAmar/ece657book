@@ -27,7 +27,7 @@ Here \(\lambda>0\) regularizes the solution and stabilizes the linear system whe
 
 For binary labels \(y_i\in\{-1,+1\}\), the (linear) soft-margin SVM solves \citep{Cortes1995}
 \begin{align}
-    \min_{\mathbf{w},b,\boldsymbol{\xi}} \quad & \frac{1}{2}\|\mathbf{w}\|_2^2 + C\sum_{i=1}^N \xi_i \\
+    \min_{\mathbf{w}, b,\boldsymbol{\xi}} \quad & \frac{1}{2}\|\mathbf{w}\|_2^2 + C\sum_{i=1}^N \xi_i \\
     \text{s.t.}\quad & y_i(\mathbf{w}^\top \mathbf{x}_i + b)\ge 1-\xi_i,\quad \xi_i\ge 0.
     \label{eq:auto:appendix_kernel_methods:1}
 \end{align}

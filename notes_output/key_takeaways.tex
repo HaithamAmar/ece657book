@@ -2,7 +2,7 @@
 \addcontentsline{toc}{section}{Key Takeaways}
 \begin{sloppypar}
 {\raggedright
-\begin{description}[leftmargin=3.6cm,labelwidth=3.2cm,labelsep=0.3cm,style=nextline]
+\begin{description}[leftmargin=3.6cm, labelwidth=3.2cm, labelsep=0.3cm, style=nextline]
 \item[\Cref{chap:intro}] \textit{About This Book} explains how to read the book, points to the notation/figure conventions, and motivates the four-level taxonomy for systems thinking across chapters.
 \item[\Cref{chap:symbolic}] \textit{Symbolic Integration and Problem-Solving Strategies} shows how safe substitutions, heuristic branches, and numeric fallbacks cooperate in a transformation tree, giving a procedural view of algebraic problem solving.
 \item[\Cref{chap:supervised}] \textit{Supervised Learning Foundations} develops ERM/MLE/MAP, contrasts loss families, and grounds diagnostics such as learning curves, calibration, and proper scoring rules.
@@ -26,20 +26,19 @@
 }
 \end{sloppypar}
 
-\begin{tcolorbox}[summarybox,title={Four-level taxonomy in practice}]
+\begin{tcolorbox}[summarybox, title={Four-level taxonomy in practice}]
 \textbf{Level 1 (reactive systems):} Feedback loops and associative memories that respond instantly, e.g., Hopfield dynamics in \Cref{chap:hopfield} or the thermostat-style fuzzy controllers introduced across \Crefrange{chap:fuzzysets}{chap:fuzzyinference}.\\
 \textbf{Level 2 (deliberative planners):} Rule-based systems that reason over an internal linguistic state before acting; see the fuzzy relation and inference machinery of \Crefrange{chap:fuzzysets}{chap:fuzzyinference}, where conditions aggregate before a crisp recommendation is issued.\\
 \textbf{Level 3 (adaptive learners):} Data-driven models that update parameters from data, spanning the ERM toolkit (\Crefrange{chap:supervised}{chap:logistic}), perceptrons/MLPs/RBFs/CNNs (\Crefrange{chap:perceptron}{chap:rbf} and \Cref{chap:cnn}), sequence models and Transformers (\Crefrange{chap:rnn}{chap:transformers}), SOMs (\Cref{chap:som}), and population heuristics (\Cref{chap:evo}).\\
 \textbf{Level 4 (meta-cognitive agents):} Algorithms that reason about their own learning loops: calibration and uncertainty estimation (\Crefrange{chap:supervised}{chap:logistic}), training diagnostics and early-stop policies (\Cref{chap:backprop}), alignment/PEFT tooling for Transformers (\Cref{chap:transformers}), and self-adaptive evolutionary strategies (\Cref{chap:evo}). These illustrate early steps toward systems that refine their own policies.
 \end{tcolorbox}
 
-Use \Cref{fig:big-picture-map} as the roadmap anchor for this section.
 
 \begin{figure}[!hb]
     \centering
     % Auto-fit the taxonomy diagram to the text width to avoid clipping
-    \begin{adjustbox}{max width=\linewidth,center}
-    \begin{tikzpicture}[x=2.6cm,y=1.35cm]
+    \begin{adjustbox}{max width=\linewidth, center}
+    \begin{tikzpicture}[x=2.6cm, y=1.35cm]
         % Column labels (levels)
         \foreach \L/\X in {1/1,2/2,3/3,4/4}{
             \node[font=\footnotesize] at (\X,6.6) {Level \L};
@@ -53,7 +52,7 @@ Use \Cref{fig:big-picture-map} as the roadmap anchor for this section.
             {Fuzzy rule-based}/3,
             {Evolutionary / search}/2,
             {Energy-based}/1} {
-            \node[anchor=east,font=\footnotesize] at (0.05,\Y) {\N};
+            \node[anchor=east, font=\footnotesize] at (0.05,\Y) {\N};
         }
 
         % Light grid
@@ -65,46 +64,46 @@ Use \Cref{fig:big-picture-map} as the roadmap anchor for this section.
         }
 
         % Style for model cells
-        \tikzset{model/.style={draw,rounded corners=1pt,minimum width=2.4cm,minimum height=0.9cm,font=\scriptsize,align=center}}
+        \tikzset{model/.style={draw, rounded corners=1pt, minimum width=2.4cm, minimum height=0.9cm, font=\scriptsize, align=center}}
 
         % Legend (clean block centered below the grid, with generous spacing)
-        \node[draw,rounded corners=2pt,fill=white,inner sep=6pt] at (2.5,-1.15) (legend) {%
-            \begin{tikzpicture}[x=0.6cm,y=0.6cm]
+        \node[draw, rounded corners=2pt, fill=white, inner sep=6pt] at (2.5,-1.15) (legend) {%
+            \begin{tikzpicture}[x=0.6cm, y=0.6cm]
                 \matrix[matrix of nodes,
-                        nodes={anchor=west,font=\scriptsize},
+                        nodes={anchor=west, font=\scriptsize},
                         row sep=3pt,
                         column sep=8pt] {
-                    \node[font=\scriptsize\bfseries,anchor=west] {Legend:}; &
-                    \node[draw,rounded corners=1pt,fill=cbBlue!20,draw=cbBlue,minimum width=0.55cm,minimum height=0.3cm] {}; & supervised; &
-                    \node[draw,rounded corners=1pt,fill=cbGreen!20,draw=cbGreen,minimum width=0.55cm,minimum height=0.3cm] {}; & self-/unsupervised; \\
-                    & \node[draw,rounded corners=1pt,fill=cbOrange!20,draw=cbOrange,minimum width=0.55cm,minimum height=0.3cm] {}; & rules / hybrid; &
-                    \node[draw,rounded corners=1pt,fill=cbPink!20,draw=cbPink,minimum width=0.55cm,minimum height=0.3cm] {}; & search / associative; \\
+                    \node[font=\scriptsize\bfseries, anchor=west] {Legend:}; &
+                    \node[draw, rounded corners=1pt, fill=cbBlue!20, draw=cbBlue, minimum width=0.55cm, minimum height=0.3cm] {}; & supervised; &
+                    \node[draw, rounded corners=1pt, fill=cbGreen!20, draw=cbGreen, minimum width=0.55cm, minimum height=0.3cm] {}; & self-/unsupervised; \\
+                    & \node[draw, rounded corners=1pt, fill=cbOrange!20, draw=cbOrange, minimum width=0.55cm, minimum height=0.3cm] {}; & rules / hybrid; &
+                    \node[draw, rounded corners=1pt, fill=cbPink!20, draw=cbPink, minimum width=0.55cm, minimum height=0.3cm] {}; & search / associative; \\
                 };
             \end{tikzpicture}
         };
 
         % Model families (aligned to columns/rows)
         % Probabilistic / kernel row (y=6)
-        \node[model,fill=cbBlue!20,draw=cbBlue] at (2.0,6.0) {Linear /\\ logistic};
-        \node[model,fill=cbBlue!20,draw=cbBlue] at (3.0,6.0) {Kernel SVMs /\\ RBF nets};
+        \node[model, fill=cbBlue!20, draw=cbBlue] at (2.0,6.0) {Linear /\\ logistic};
+        \node[model, fill=cbBlue!20, draw=cbBlue] at (3.0,6.0) {Kernel SVMs /\\ RBF nets};
 
         % Connectionist row (y=5)
-        \node[model,fill=cbBlue!20,draw=cbBlue]   at (2.0,5.0) {MLPs / CNNs};
-        \node[model,fill=cbGreen!20,draw=cbGreen] at (3.0,5.0) {RNNs /\\ seq.\ models};
-        \node[model,fill=cbGreen!20,draw=cbGreen] at (4.0,5.0) {Transformers /\\ LMs};
+        \node[model, fill=cbBlue!20, draw=cbBlue]   at (2.0,5.0) {MLPs / CNNs};
+        \node[model, fill=cbGreen!20, draw=cbGreen] at (3.0,5.0) {RNNs /\\ seq.\ models};
+        \node[model, fill=cbGreen!20, draw=cbGreen] at (4.0,5.0) {Transformers /\\ LMs};
 
         % Unsupervised / competitive row (y=4)
-        \node[model,fill=cbGreen!20,draw=cbGreen] at (2.5,4.0) {SOMs};
+        \node[model, fill=cbGreen!20, draw=cbGreen] at (2.5,4.0) {SOMs};
 
         % Fuzzy rule-based row (y=3)
-        \node[model,fill=cbOrange!20,draw=cbOrange] at (1.8,3.0) {Fuzzy\\ controllers};
-        \node[model,fill=cbOrange!20,draw=cbOrange] at (2.6,3.0) {Fuzzy\\ inference};
+        \node[model, fill=cbOrange!20, draw=cbOrange] at (1.8,3.0) {Fuzzy\\ controllers};
+        \node[model, fill=cbOrange!20, draw=cbOrange] at (2.6,3.0) {Fuzzy\\ inference};
 
         % Evolutionary / search row (y=2)
-        \node[model,fill=cbPink!20,draw=cbPink] at (2.5,2.0) {GA / GP};
+        \node[model, fill=cbPink!20, draw=cbPink] at (2.5,2.0) {GA / GP};
 
         % Energy-based row (y=1)
-        \node[model,fill=cbPink!20,draw=cbPink] at (2.5,1.0) {Hopfield /\\ energy models};
+        \node[model, fill=cbPink!20, draw=cbPink] at (2.5,1.0) {Hopfield /\\ energy models};
     \end{tikzpicture}
     \end{adjustbox}
     \caption[Map of model families]{Color\hyp{}coded map of model families across agent level, model nature, and learning signal. Use this when deciding which family matches a required capability and where to read next.}
@@ -113,7 +112,6 @@ Use \Cref{fig:big-picture-map} as the roadmap anchor for this section.
 
 \Cref{fig:big-picture-map} provides the visual map for this chapter-level taxonomy.
 
-Use \Cref{tab:big-picture-models} as the roadmap anchor for this section.
 
 \begin{table}[b]
 \centering

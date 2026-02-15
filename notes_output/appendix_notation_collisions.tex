@@ -3,7 +3,7 @@
 
 This appendix lists the most common \emph{notation collisions} in this book: symbols that appear in multiple domains (probability, optimization, deep learning) with different meanings. The goal is not to eliminate reuse---that is unrealistic---but to make the disambiguation rule explicit so reading remains fast and consistent.
 
-\begin{tcolorbox}[summarybox,title={Disambiguation rule (used throughout the book)}]
+\begin{tcolorbox}[summarybox, title={Disambiguation rule (used throughout the book)}]
 \begin{itemize}
     \item \textbf{Function argument wins:} \(\sigma(x)\) is the sigmoid; \(f(\cdot)\) is an activation; \(p(\cdot)\) is a density/pmf.
     \item \textbf{Plain scalars default to the local domain:} \(\sigma\) without an argument is a width/scale unless the paragraph is explicitly about the sigmoid.
@@ -20,9 +20,9 @@ This appendix lists the most common \emph{notation collisions} in this book: sym
 \hline
 \(\sigma\) & Sigmoid nonlinearity; standard deviation / scale; RBF width & \(\sigma(x)\) is always sigmoid; plain \(\sigma\) is a width/scale (e.g., RBFNs) unless the section is explicitly about activations. \\
 \(\lambda\) & Regularization strength; eigenvalue; Lagrange multiplier & Regularization uses \(\lambda\) alongside an objective; spectral topics use \(\lambda\) with matrices/operators; constraints use \(\lambda\) as a multiplier. \\
-\(p\) & Probability / density; padding (CNNs); momentum/\allowbreak parameter name in code & \(p(y\mid x)\) is probability; convolution padding is stated as \(p\) in the output-size formula with \(n,k,s\). \\
-\(L\) & Number of layers; sequence length; loss & Layer count uses \(L\) with indices \(l=1,\dots,L\); loss is \(\mathcal{L}\); sequence length is usually \(T\). \\
-\(t\) & Time index; target vector/component & Time is \(t\) with sequences \(x_t,h_t\); targets use \(\mathbf{t}\) (bold) or \(t_k\) in loss definitions. \\
+\(p\) & Probability / density; padding (CNNs); momentum/\allowbreak parameter name in code & \(p(y\mid x)\) is probability; convolution padding is stated as \(p\) in the output-size formula with \(n, k, s\). \\
+\(L\) & Number of layers; sequence length; loss & Layer count uses \(L\) with indices \(l=1,\dots, L\); loss is \(\mathcal{L}\); sequence length is usually \(T\). \\
+\(t\) & Time index; target vector/component & Time is \(t\) with sequences \(x_t, h_t\); targets use \(\mathbf{t}\) (bold) or \(t_k\) in loss definitions. \\
 \(h\) & Hypothesis function \(h_\theta\); hidden state \(h_t\) / hidden units \(h\) & Hypotheses appear as \(h_\theta(\cdot)\) in supervised chapters; hidden state uses a time index \(h_t\); hidden width uses a dimension symbol (e.g., \(h\) or \(d_h\)) in network-shape context. \\
 \end{tabular}
 }
