@@ -58,3 +58,9 @@ This log records figure/layout fixes applied in the LaTeX sources along with the
 - Render proof:
   - PDF page: 182
   - Screenshot: `notes_output/review/screenshots/fig_fixes_2025-12-19_v16/p182-182.png`
+
+## 2026-02-16 — `fig:hopfield-energy-descent` (cross-reference wrap)
+
+- Source: `notes_output/lecture_5_part_ii.tex` (`\label{fig:hopfield-energy-descent}`)
+- Changes:
+  - Added a short paragraph immediately after the float linking the descent trace to the subsequent formal convergence proof so the figure gains both a “before” and “after” in-text reference, satisfying the strict-order coverage requirements.
