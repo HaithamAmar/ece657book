@@ -197,14 +197,7 @@ The choice between these paths is nontrivial, especially for an automated system
 
 \paragraph{Step 3: Functional Composition and Path Selection}
 
-To automate the choice, the system evaluates the \emph{functional composition} of the integral expressions along each path (e.g., measuring expression-tree depth, symbolic coefficient growth, or the number of distinct functions involved):
-
-\begin{itemize}
-  \item \textbf{Path 1:} Substitution \(u = \tan y\) reduces the integral to a polynomial in \(u\), which is straightforward to integrate.
-  \item \textbf{Path 2:} Direct reduction of \(\sec^4 y\) may involve more complex recursive steps.
-\end{itemize}
-
-From a cost perspective, Path 1 is cheaper and more direct, so the system prioritizes it. However, if this path fails to yield a solution, the system must backtrack and attempt Path 2.
+To automate the choice, the system applies the cost heuristic defined above (tree depth, nonlinearity, symbol count) to the two safe paths listed in Step 2; the substitution route typically scores lower and is tried first, with the reduction formula held as a fallback if substitution stalls.
 
 \paragraph{Two safe options from here}
 \begin{itemize}
@@ -611,4 +604,3 @@ This contrast helps position the data-driven chapters that follow, where the sys
 
 \medskip
 \paragraph{Where we head next.} For the data-driven thread (datasets, objectives, diagnostics, classification), continue to \Cref{chap:supervised,chap:logistic}. For nonlinear function classes and nonconvex training dynamics, continue through \Crefrange{chap:perceptron}{chap:mlp} and the chapters that follow.
-
