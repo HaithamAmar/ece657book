@@ -11,6 +11,7 @@
 - [x] Resolve Mamdani clipping vs scaling contradiction + remove stray line break in `lecture_10_part_ii.tex`.
 - [x] Complete truncated sentences in `lecture_11.tex` (fitness/exploration, crossover, GP summary).
 - [x] Scan other `lecture_*.tex` files for mid-sentence truncations and malformed labels (fixed fragment in `lecture_9.tex`; no other truncations found in regex scan).
+- [x] Re-verified `lecture_9.tex` fragment ("Consider two fuzzy sets") is replaced with a reference sentence; no occurrences remain (2026-02-17).
 
 Build notes (2026-02-17):
 - Release checks run. Playwright-based PDF-vs-EPUB spot-check and EPUB layout audit failed due to Chromium launch permission (TargetClosedError). Remaining EPUB checks completed and reported OK.
@@ -32,19 +33,20 @@ Build notes (2026-02-17):
 - Release checks re-run after P1 dedup updates in `lecture_8_part_ii.tex` and `lecture_9.tex`. All checks completed; warning gate passed. EPUBCheck passed.
 - Release checks re-run after P1 dedup updates in `lecture_10_part_ii.tex`, `lecture_transformers.tex`, and `lecture_11.tex`. All checks completed; warning gate passed. EPUBCheck passed.
 - Release checks re-run after P0 truncation scan fix in `lecture_9.tex`. All checks completed; warning gate passed. EPUBCheck passed.
+- Release checks re-run after key-takeaways cleanup + fuzzy/evo consistency edits (`key_takeaways.tex`, `lecture_10_part_i.tex`, `lecture_10_part_ii.tex`, `lecture_11.tex`). All checks completed; warning gate passed. EPUBCheck passed.
 
 ### P1 (global consistency / cross-ref hygiene)
-- [ ] Notation consistency sweeps (vector bolding; objective symbol; x/X casing) across chapters. (Progress: objective symbol standardized in `lecture_11.tex`; vector/matrix notation normalized in `lecture_3_part_i.tex` and `lecture_8_part_i.tex`; W/A/Z/b notation normalized in `lecture_3_part_ii.tex`, `lecture_4_part_i.tex`, and `lecture_6.tex`; \(\delta\)/\(D\)/\(K\)/\(\Phi\) notation normalized in `lecture_3_part_ii.tex`, `lecture_4_part_i.tex`, `lecture_4_part_ii.tex`, and `lecture_6.tex`; \(\Sigma\) notation normalized in `lecture_8_part_i.tex`; vector bolding sweep applied in `lecture_supervised.tex`, `lecture_4_part_i.tex`, `lecture_7.tex`, `lecture_8_part_i.tex`, `lecture_1_intro.tex`, `lecture_3_part_ii.tex`, `lecture_5_part_ii.tex` after manual pass beyond co-occurrence section. y/\hat{y} sweep found no vector/scalar mismatches. H/G/J/\(\Lambda\)/\(\Psi\) sweep found no vector/scalar mismatches.)
+- [x] Notation consistency sweeps (vector bolding; objective symbol; x/X casing) across chapters. (Progress: objective symbol standardized in `lecture_11.tex`; vector/matrix notation normalized in `lecture_3_part_i.tex` and `lecture_8_part_i.tex`; W/A/Z/b notation normalized in `lecture_3_part_ii.tex`, `lecture_4_part_i.tex`, and `lecture_6.tex`; \(\delta\)/\(D\)/\(K\)/\(\Phi\) notation normalized in `lecture_3_part_ii.tex`, `lecture_4_part_i.tex`, `lecture_4_part_ii.tex`, and `lecture_6.tex`; \(\Sigma\) notation normalized in `lecture_8_part_i.tex`; vector bolding sweep applied in `lecture_supervised.tex`, `lecture_4_part_i.tex`, `lecture_7.tex`, `lecture_8_part_i.tex`, `lecture_1_intro.tex`, `lecture_3_part_ii.tex`, `lecture_5_part_ii.tex` after manual pass beyond co-occurrence section. y/\hat{y} sweep found no vector/scalar mismatches. H/G/J/\(\Lambda\)/\(\Psi\) sweep found no vector/scalar mismatches. Data-matrix \(X\) standardized to \(\mathbf{X}\) in `lecture_supervised.tex` and `lecture_2_part_ii.tex`; regex scan found no other x/X casing conflicts.)
 - [x] Cross-reference macro consistency (\Cref vs \cref) and label convention normalization.
-- [ ] Deduplicate repeated definitions/boxes (notably `lecture_10_part_i.tex`, `lecture_11.tex`).
-- [ ] Terminology consistency across examples (e.g., rate rising/falling; r vs \dot{e}).
-- [ ] Normalize operator terminology (t-norm/t-conorm/s-norm) and hyphenation.
+- [x] Deduplicate repeated definitions/boxes (notably `lecture_10_part_i.tex`, `lecture_11.tex`).
+- [x] Terminology consistency across examples (e.g., rate rising/falling; r vs \dot{e}).
+- [x] Normalize operator terminology (t\hyp{}norm/t\hyp{}conorm/s\hyp{}norm) and hyphenation.
 
 ### P2 (typography / style polish)
-- [ ] List punctuation and parallelism; remove fragments and telegraphic phrasing.
-- [ ] Title capitalization consistency; reduce repeated headings.
-- [ ] Caption phrasing polish and figure lead-ins; reduce template fatigue.
-- [ ] Tone smoothing (avoid informal contractions and imperative instructions).
+- [x] List punctuation and parallelism; remove fragments and telegraphic phrasing.
+- [x] Title capitalization consistency; reduce repeated headings.
+- [x] Caption phrasing polish and figure lead-ins; reduce template fatigue.
+- [x] Tone smoothing (avoid informal contractions and imperative instructions).
 
 ## Global sweeps (run these once, then apply locally)
 

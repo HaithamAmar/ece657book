@@ -432,13 +432,13 @@ where \(\mu_{\tilde{A}}(x)\) quantifies the degree to which \(x\) belongs to \(\
 \subsubsection*{Example: Sizes as fuzzy sets}
 Consider the linguistic labels \texttt{Small}, \texttt{Medium}, and \texttt{Large} for weights (in kilograms). A crisp partition such as \([0,10],[11,20],[21,30]\) is disjoint; fuzzy sets allow these labels to overlap smoothly so a weight can belong to both \texttt{Medium} and \texttt{Large} to different degrees. See \Cref{chap:fuzzysets} (especially \Cref{sec:weight-membership}) for the explicit membership formulas and plots; here keep the intuition that fuzzy labels overlap and map a universe of discourse into \([0,1]\).
 
-\paragraph{Thermostat at a glance.} Throughout \Crefrange{chap:fuzzysets}{chap:fuzzyinference} we reuse a fuzzy thermostat: inputs are temperature error and rate (linguistic labels such as \texttt{Cold}, \texttt{Warm}, \texttt{Hot}; \texttt{Cooling}, \texttt{Stable}, \texttt{Heating}); rules map these to heater power; defuzzification turns the fuzzy action into a crisp control signal. Keep this loop in mind as membership functions and operators are introduced.
+\paragraph{Thermostat at a glance.} Throughout \Crefrange{chap:fuzzysets}{chap:fuzzyinference} we reuse a fuzzy thermostat: inputs are temperature error and rate (linguistic labels such as \texttt{Cold}, \texttt{Warm}, \texttt{Hot}; \texttt{Falling}, \texttt{Stable}, \texttt{Rising}); rules map these to heater power; defuzzification turns the fuzzy action into a crisp control signal. Keep this loop in mind as membership functions and operators are introduced.
 
 \begin{tcolorbox}[summarybox, title={Lab prep: fuzzy thermostat starter}]
 \begin{itemize}
     \item Install \texttt{scikit-fuzzy} and \texttt{matplotlib}.
     \item Define triangular membership functions for \texttt{Cold}/\texttt{Warm}/\texttt{Hot} over a temperature universe; plot the overlap.
-    \item Write one rule: IF error is \texttt{Cold} AND rate is \texttt{Heating} THEN power is \texttt{Low}; preview centroid defuzzification.
+    \item Write one rule: IF error is \texttt{Cold} AND rate is \texttt{Rising} THEN power is \texttt{Low}; preview centroid defuzzification.
 \end{itemize}
 \end{tcolorbox}
 

@@ -227,22 +227,22 @@ The name \emph{logistic} comes from the logistic (sigmoid) link in \eqref{eq:log
 For data \(\{(\mathbf{x}_i, y_i)\}_{i=1}^N\) with \(y_i\in\{0,1\}\), define \(p_i=\pi(\mathbf{x}_i)=\sigma(\boldsymbol{\beta}^\top\tilde{\mathbf{x}}_i)\).
 Under a Bernoulli model, the likelihood factorizes as
 \begin{equation}
-    p(\mathbf{y}\mid X,\boldsymbol{\beta})=\prod_{i=1}^N p_i^{y_i}(1-p_i)^{1-y_i},
+    p(\mathbf{y}\mid \mathbf{X},\boldsymbol{\beta})=\prod_{i=1}^N p_i^{y_i}(1-p_i)^{1-y_i},
     \label{eq:lec2_bernoulli_likelihood}
 \end{equation}
 so the log\hyp{}likelihood is
 \begin{equation}
-    \log p(\mathbf{y}\mid X,\boldsymbol{\beta})
+    \log p(\mathbf{y}\mid \mathbf{X},\boldsymbol{\beta})
     =\sum_{i=1}^N \Big(y_i\log p_i + (1-y_i)\log(1-p_i)\Big).
     \label{eq:lec2_loglik}
 \end{equation}
-Maximizing the log\hyp{}likelihood in \eqref{eq:lec2_loglik} is equivalent to minimizing the negative log\hyp{}likelihood (binary cross\hyp{}entropy). With the design matrix \(X=[\tilde{\mathbf{x}}_1^\top;\ldots;\tilde{\mathbf{x}}_N^\top]\) and vector \(\mathbf{p}=(p_1,\ldots, p_N)^\top\), the gradient of the negative log\hyp{}likelihood is
+Maximizing the log\hyp{}likelihood in \eqref{eq:lec2_loglik} is equivalent to minimizing the negative log\hyp{}likelihood (binary cross\hyp{}entropy). With the design matrix \(\mathbf{X}=[\tilde{\mathbf{x}}_1^\top;\ldots;\tilde{\mathbf{x}}_N^\top]\) and vector \(\mathbf{p}=(p_1,\ldots, p_N)^\top\), the gradient of the negative log\hyp{}likelihood is
 \begin{equation}
-    \nabla_{\boldsymbol{\beta}}\Big(-\log p(\mathbf{y}\mid X,\boldsymbol{\beta})\Big)
-    =X^\top(\mathbf{p}-\mathbf{y}).
+    \nabla_{\boldsymbol{\beta}}\Big(-\log p(\mathbf{y}\mid \mathbf{X},\boldsymbol{\beta})\Big)
+    =\mathbf{X}^\top(\mathbf{p}-\mathbf{y}).
     \label{eq:lec2_logistic_grad}
 \end{equation}
-The Hessian has the form \(X^\top W X\) where \(W=\mathrm{diag}(p_i(1-p_i))\succeq 0\), which makes the objective convex and explains why second-order methods work well for moderate feature dimensions.
+The Hessian has the form \(\mathbf{X}^\top \mathbf{W} \mathbf{X}\) where \(\mathbf{W}=\mathrm{diag}(p_i(1-p_i))\succeq 0\), which makes the objective convex and explains why second-order methods work well for moderate feature dimensions.
 
 \begin{figure}[!htbp]
     \centering

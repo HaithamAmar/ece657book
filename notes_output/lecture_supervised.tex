@@ -545,12 +545,12 @@ Up to this point, the supervised-learning pipeline has been described in abstrac
 
 \noindent A useful habit, before you commit to any model family, is to ask whether there is any signal to model in the first place. If the relationship were deterministic (like Celsius \(\leftrightarrow\) Fahrenheit), there would be nothing to learn. In supervised learning we assume the relationship is statistical: the same input can map to different outputs because of noise, missing variables, or genuine uncertainty. For simple problems, a scatter plot and a correlation coefficient can reveal whether a linear trend is even plausible. For high-dimensional data, analogous sanity checks (feature scaling, collinearity) help you decide whether linear regression is a sensible starting point or merely a baseline.
 
-\noindent In this section, the coefficients \(\boldsymbol{\beta}\) are the knobs we turn. ``Learning'' means using training pairs \((X,\mathbf{y})\) to estimate \(\boldsymbol{\beta}\) so predictions match observed targets as well as they can under the chosen objective. Because least squares is a convex, closed-form problem, repeating the fit with the same data returns the same solution (up to numerical tolerance). That transparency is exactly why linear regression is worth treating carefully: it makes the ideas of losses, optimization, regularization, and validation feel concrete before we move on to models where the same pipeline is less visible.
+\noindent In this section, the coefficients \(\boldsymbol{\beta}\) are the knobs we turn. ``Learning'' means using training pairs \((\mathbf{X},\mathbf{y})\) to estimate \(\boldsymbol{\beta}\) so predictions match observed targets as well as they can under the chosen objective. Because least squares is a convex, closed-form problem, repeating the fit with the same data returns the same solution (up to numerical tolerance). That transparency is exactly why linear regression is worth treating carefully: it makes the ideas of losses, optimization, regularization, and validation feel concrete before we move on to models where the same pipeline is less visible.
 
 \paragraph{Model.}
 Given inputs \(\mathbf{x}_i\in\mathbb{R}^d\) and continuous targets \(y_i\in\mathbb{R}\), the linear model predicts
 \begin{equation}
-    \hat{\mathbf{y}} = X\boldsymbol{\beta}, \qquad X\in\mathbb{R}^{N\times d}.
+    \hat{\mathbf{y}} = \mathbf{X}\boldsymbol{\beta}, \qquad \mathbf{X}\in\mathbb{R}^{N\times d}.
     \label{eq:linear_model}
 \end{equation}
 Equivalently, \(\hat{y}_i = \mathbf{x}_i^\top \boldsymbol{\beta}\) for each data point. The vector \(\boldsymbol{\beta}\) is the set of adjustable parameters: \emph{fitting} the model means choosing \(\boldsymbol{\beta}\) so that predictions align with observed outputs. The residual \(\mathbf{e}=\mathbf{y}-\hat{\mathbf{y}}\) captures what the model fails to explain on the data at hand.
@@ -569,12 +569,12 @@ where \(\varepsilon_i\) is observation noise (sensor noise, unmodeled effects, a
 \end{equation}
 and (assuming i.i.d.\ observations) the likelihood factorizes:
 \begin{equation}
-    p(\mathbf{y}\mid X,\boldsymbol{\beta})=\prod_{i=1}^N p(y_i\mid \mathbf{x}_i,\boldsymbol{\beta}).
+    p(\mathbf{y}\mid \mathbf{X},\boldsymbol{\beta})=\prod_{i=1}^N p(y_i\mid \mathbf{x}_i,\boldsymbol{\beta}).
 \label{eq:auto_supervised_bb73b50b8f}
 \end{equation}
 Maximizing the (log) likelihood is equivalent to minimizing the negative log-likelihood, and for Gaussian noise that becomes (up to constants and a scale factor \(1/(2\sigma^2)\)) the familiar sum of squared errors:
 \begin{equation}
-    -\log p(\mathbf{y}\mid X,\boldsymbol{\beta})
+    -\log p(\mathbf{y}\mid \mathbf{X},\boldsymbol{\beta})
     = \frac{1}{2\sigma^2}\sum_{i=1}^N (y_i-\mathbf{x}_i^\top\boldsymbol{\beta})^2 + \text{const}.
 \label{eq:auto_supervised_18a9c6ace6}
 \end{equation}
@@ -583,28 +583,28 @@ This is the simplest example of a recurring theme: if you propose an ``educated 
 \paragraph{Objective.}
 To fit \(\boldsymbol{\beta}\), we need a grading rubric. Squared error is the standard starting point because it is smooth and strongly penalizes large mistakes:
 \begin{equation}
-    L(\boldsymbol{\beta}) = \tfrac{1}{2}\|\mathbf{y}-X\boldsymbol{\beta}\|_2^2.
+    L(\boldsymbol{\beta}) = \tfrac{1}{2}\|\mathbf{y}-\mathbf{X}\boldsymbol{\beta}\|_2^2.
 \label{eq:auto_supervised_57c930d476}
 \end{equation}
 The gradient is simple,
 \begin{equation}
-    \nabla_{\boldsymbol{\beta}}L(\boldsymbol{\beta}) = X^\top(X\boldsymbol{\beta}-\mathbf{y}),
+    \nabla_{\boldsymbol{\beta}}L(\boldsymbol{\beta}) = \mathbf{X}^\top(\mathbf{X}\boldsymbol{\beta}-\mathbf{y}),
 \label{eq:auto_supervised_9bb8d7206b}
 \end{equation}
-so gradient descent is explicit: \(\boldsymbol{\beta}\leftarrow \boldsymbol{\beta}-\eta X^\top(X\boldsymbol{\beta}-\mathbf{y})\). This same loop reappears later when the model is no longer linear and the loss is no longer quadratic.
+so gradient descent is explicit: \(\boldsymbol{\beta}\leftarrow \boldsymbol{\beta}-\eta \mathbf{X}^\top(\mathbf{X}\boldsymbol{\beta}-\mathbf{y})\). This same loop reappears later when the model is no longer linear and the loss is no longer quadratic.
 
 \paragraph{Closed form and geometry.}
 Least squares is convex and satisfies the normal equations:
 \begin{equation}
-    X^\top X\,\hat{\boldsymbol{\beta}} = X^\top \mathbf{y}.
+    \mathbf{X}^\top \mathbf{X}\,\hat{\boldsymbol{\beta}} = \mathbf{X}^\top \mathbf{y}.
 \label{eq:auto_supervised_bce6291d37}
 \end{equation}
-When \(X^\top X\) is invertible, the solution can be written explicitly as
+When \(\mathbf{X}^\top \mathbf{X}\) is invertible, the solution can be written explicitly as
 \begin{equation}
-    \hat{\boldsymbol{\beta}} = (X^\top X)^{-1}X^\top \mathbf{y}.
+    \hat{\boldsymbol{\beta}} = (\mathbf{X}^\top \mathbf{X})^{-1}\mathbf{X}^\top \mathbf{y}.
 \label{eq:auto_supervised_44e6ba213f}
 \end{equation}
-Geometrically, the prediction \(\hat{\mathbf{y}}\) is the orthogonal projection of \(\mathbf{y}\) onto the column space of \(X\). In code, solve the linear system (QR/SVD) rather than forming \((X^\top X)^{-1}\) explicitly; collinearity can make \(X^\top X\) poorly conditioned even when the mathematics is correct.
+Geometrically, the prediction \(\hat{\mathbf{y}}\) is the orthogonal projection of \(\mathbf{y}\) onto the column space of \(\mathbf{X}\). In code, solve the linear system (QR/SVD) rather than forming \((\mathbf{X}^\top \mathbf{X})^{-1}\) explicitly; collinearity can make \(\mathbf{X}^\top \mathbf{X}\) poorly conditioned even when the mathematics is correct.
 
 \paragraph{Where overfitting enters.}
 With raw features, a linear model may underfit; with aggressive feature expansions (polynomials, splines, kernels, learned features), the same least-squares machinery can overfit. This is where the earlier tools matter. Regularization (ridge, lasso, elastic net) makes memorization harder; validation selects hyperparameters; learning curves diagnose whether error is limited by bias, variance, or data.

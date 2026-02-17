@@ -55,7 +55,9 @@ where \(\mathcal{D} \subseteq \mathbb{R}^n\) is the feasible domain incorporatin
 
 \begin{itemize}
     \item The function \( J \) may be \emph{non-convex}, exhibiting multiple local minima and maxima.
-    \item There may be no closed-form or deterministic method to find the global optimum.
+    \item The objective or constraints may be undefined or discontinuous in parts of the domain, breaking gradient assumptions.
+    \item The feasible set may include combinatorial or integer constraints that resist continuous methods.
+    \item There may be no closed-form or deterministic method to find the global optimum, especially for NP-hard variants.
     \item The search space \(\mathcal{D}\) can be large or complex, making exhaustive search (brute force) computationally prohibitive.
     \item Real-time or practical constraints often require solutions within limited time frames.
 \end{itemize}
@@ -93,17 +95,9 @@ This ``rugged landscape'' picture is a useful mental model when you later interp
 
 In many continuous optimization problems, the objective function may be undefined or discontinuous in certain regions of the domain. For example, consider a function with singularities or points where the function value is not defined (akin to division by zero). Such characteristics pose significant challenges for classical optimization methods such as gradient descent or hill climbing, which rely on smoothness and continuity to navigate the search space effectively.
 
-\paragraph{Issues with Traditional Methods}
-\begin{itemize}
-    \item \textbf{Undefined regions:} The presence of undefined or discontinuous regions means that the gradient or directional derivatives may not exist, preventing the use of gradient-based methods.
-    \item \textbf{Local optima and plateaus:} Even when the function is defined, it may have multiple local optima or flat regions where the gradient is zero, causing algorithms to get stuck.
-    \item \textbf{Complex constraints:} Problems such as integer programming introduce combinatorial constraints that are not amenable to continuous optimization techniques.
-    \item \textbf{Computational complexity:} Many optimization problems are NP-hard, meaning no known deterministic polynomial-time algorithm can solve them exactly.
-\end{itemize}
+These issues compound the nonconvexity and constraint challenges above: discontinuities and combinatorial feasibility break gradient assumptions, and global guarantees are out of reach for many NP-hard variants. Given these challenges, deterministic approaches may be infeasible or computationally expensive. Instead, we can tolerate approximate solutions and employ heuristic or metaheuristic methods that explore the search space more flexibly. This motivates the use of \emph{evolutionary computing} methods.
 
-Given these challenges, deterministic approaches may be infeasible or computationally expensive. Instead, we can tolerate approximate solutions and employ heuristic or metaheuristic methods that explore the search space more flexibly. This motivates the use of \emph{evolutionary computing} methods.
-
-\subsection{Introduction to Evolutionary Computing}
+\subsection{Evolutionary Computing at a Glance}
 \label{sec:evo_introduction_to_evolutionary_computing}
 
 Evolutionary computing (EC) is a class of algorithms inspired by the process of natural evolution. These algorithms are designed to iteratively improve candidate solutions to optimization problems by mimicking mechanisms such as selection, reproduction, and mutation observed in biological evolution.
@@ -130,8 +124,7 @@ In biology, an organism's genetic information is encoded in chromosomes, which a
 
 \paragraph{Genetic Recombination and Variation}
 \begin{sloppypar}
-During meiosis, chromosomes undergo \emph{crossover} events. Segments of genetic material are exchanged between paired chromosomes.\\
-Recombination increases genetic diversity.
+During meiosis, chromosomes undergo \emph{crossover} events. Segments of genetic material are exchanged between paired chromosomes. Recombination increases genetic diversity.
 \end{sloppypar}
 
 \paragraph{Inheritance and Heredity}
@@ -186,8 +179,8 @@ Budget dictates population size and diversity mechanisms. If evaluations are che
 In the previous discussion, we introduced the concept of diversity in genetic algorithms (GAs) and the probabilistic nature of evolutionary processes. We now delve deeper into modeling chromosomes and the mechanisms of genetic inheritance, crossover, and mutation, drawing parallels to optimization problems.
 
 \begin{tcolorbox}[summarybox, title={Genetic algorithm at a glance}]
-\textbf{Objective:} Optimize an objective \(J(\mathbf{x})\) over a discrete or continuous search space by evolving a population of encoded candidate solutions according to selection, crossover, and mutation.\\
-\textbf{Key hyperparameters:} Population size, selection pressure (tournament size or selection temperature), crossover and mutation rates, encoding scheme, and stopping criteria (max generations, no-improvement window, target fitness).\\
+\textbf{Objective:} Optimize an objective \(J(\mathbf{x})\) over a discrete or continuous search space by evolving a population of encoded candidate solutions according to selection, crossover, and mutation.\par
+\textbf{Key hyperparameters:} Population size, selection pressure (tournament size or selection temperature), crossover and mutation rates, encoding scheme, and stopping criteria (max generations, no-improvement window, target fitness).\par
 \textbf{Common pitfalls:} Premature convergence due to excessive selection pressure or low mutation, deceptive fitness landscapes, constraint violations when mutation or crossover produce infeasible solutions, and overinterpreting stochastic runs without multiple seeds.
 \end{tcolorbox}
 
@@ -250,7 +243,7 @@ These mechanisms can be visualized by considering crossover as splicing two pare
                 \node[font=\scriptsize, below=0.15cm of repair] {or penalty/feasible-first};
         \end{groupplot}
     \end{tikzpicture}
-    \caption{Evolutionary micro-operators. Left: fitter individuals get sampled more often (roulette/tournament). Middle: crossover splices parents by a mask (one-point shown). Right: constraint handling routes offspring through repair/penalty/feasibility before evaluation. Use it when mapping an implementation to the canonical operator loop.}
+    \caption{Evolutionary micro-operators. Left: fitter individuals get sampled more often (roulette/tournament). Middle: crossover splices parents by a mask (one-point shown). Right: constraint handling routes offspring through repair/penalty/feasibility before evaluation. Use this to map an implementation to the canonical operator loop.}
     \label{fig:lec11-ea-micro}
 \end{figure}
 
@@ -749,7 +742,7 @@ In practice, a combination of these criteria is often used. For example, one mig
             \node[anchor=south east, font=\scriptsize] at (axis cs:31.5,0.82){Flat region $\Rightarrow$ consider stopping};
         \end{axis}
     \end{tikzpicture}
-    \caption{Illustrative GA run showing the best and mean normalized fitness over 50 generations. Flat regions motivate ``no improvement'' stopping rules, while steady separation between best and mean indicates ongoing selection pressure. Use it when diagnosing premature convergence versus ongoing exploration.}
+    \caption{Illustrative GA run showing the best and mean normalized fitness over 50 generations. Flat regions motivate ``no improvement'' stopping rules, while steady separation between best and mean indicates ongoing selection pressure. Helpful for diagnosing premature convergence versus ongoing exploration.}
     \label{fig:lec11-ga-progress}
 \end{figure}
 
@@ -829,7 +822,7 @@ This iterative cycle continues until convergence or stopping criteria are met. T
 
 \end{tikzpicture}
 \end{adjustbox}
-\caption{GA flowchart showing the iterative process: initialization leads to fitness evaluation and a termination check. If not terminated, the algorithm proceeds through selection, crossover, mutation, and replacement, which then feeds the next generation's fitness evaluation. Use it when verifying that your implementation preserves the intended control flow.}
+\caption{GA flowchart showing the iterative process: initialization leads to fitness evaluation and a termination check. If not terminated, the algorithm proceeds through selection, crossover, mutation, and replacement, which then feeds the next generation's fitness evaluation. Reference when verifying that your implementation preserves the intended control flow.}
 \label{fig:lec11-ga-flow}
 \end{figure}
 
@@ -849,7 +842,7 @@ Mutation (flip one bit) & \(\,0110_2 \to 0111_2\) & 0.4375 & -0.02 \\
 \bottomrule
 \end{tabularx}
 % Avoid inline math in captions; it wraps poorly in some EPUB renderers.
-\caption{Toy GA generation on a bounded interval. One crossover and mutation illustrate how the fitness function guides selection before the next generation. Use it when explaining how variation operators interact with selection pressure.}
+\caption{Toy GA generation on a bounded interval. One crossover and mutation illustrate how the fitness function guides selection before the next generation. Use this to explain how variation operators interact with selection pressure.}
 \label{tab:ga-toy}
 \end{table}
 
@@ -1103,7 +1096,7 @@ When two or more objectives conflict, we seek a set of Pareto-optimal solutions 
 \begin{figure}[t]
     \centering
     \includegraphics[width=0.58\linewidth]{lec19_pareto}
-\caption{Sample Pareto front for two objectives. NSGA-II keeps all non-dominated points (blue) while pushing dominated solutions (orange) toward the front via selection, yielding a spread of trade-offs in one run. Use it when interpreting multi-objective results as trade-offs, not a single optimum.}
+\caption{Sample Pareto front for two objectives. NSGA-II keeps all non-dominated points (blue) while pushing dominated solutions (orange) toward the front via selection, yielding a spread of trade-offs in one run. Use this when interpreting multi-objective results as trade-offs, not a single optimum.}
 \label{fig:lec11-pareto}
 \end{figure}
 

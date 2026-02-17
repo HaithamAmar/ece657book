@@ -3,11 +3,11 @@
 \begin{sloppypar}
 {\raggedright
 \begin{description}[leftmargin=3.6cm, labelwidth=3.2cm, labelsep=0.3cm, style=nextline]
-\item[\Cref{chap:intro}] \textit{About This Book} explains how to read the book, points to the notation/figure conventions, and motivates the four-level taxonomy for systems thinking across chapters.
+\item[\Cref{chap:intro}] \textit{About This Book} explains how to read the book, summarizes the notation and figure conventions, and motivates the four-level taxonomy for systems thinking across chapters.
 \item[\Cref{chap:symbolic}] \textit{Symbolic Integration and Problem-Solving Strategies} shows how safe substitutions, heuristic branches, and numeric fallbacks cooperate in a transformation tree, giving a procedural view of algebraic problem solving.
 \item[\Cref{chap:supervised}] \textit{Supervised Learning Foundations} develops ERM/MLE/MAP, contrasts loss families, and grounds diagnostics such as learning curves, calibration, and proper scoring rules.
-\item[\Cref{chap:logistic}] \textit{Classification and Logistic Regression} reuses the \Cref{chap:supervised} toolkit to build probabilistic classifiers, emphasize ROC/PR analysis, and reason about class imbalance, calibration, and optimization choices (Newton vs.\ first-order).
-\item[\Cref{chap:perceptron}] \textit{Introduction to Neural Networks} casts the perceptron as a thresholded linear classifier (vs.\ logistic as the smooth probabilistic counterpart), proves convergence guarantees, and catalogues practical pitfalls such as poor feature scaling or non-separable data.
+\item[\Cref{chap:logistic}] \textit{Classification and Logistic Regression} builds probabilistic classifiers using the \Cref{chap:supervised} toolkit, emphasizes ROC/PR analysis, and reasons about class imbalance, calibration, and optimization choices (Newton vs.\ first-order).
+\item[\Cref{chap:perceptron}] \textit{Introduction to Neural Networks} casts the perceptron as a thresholded linear classifier (vs.\ logistic as the smooth probabilistic counterpart), proves convergence guarantees, and catalogs practical pitfalls such as poor feature scaling or non-separable data.
 \item[\Cref{chap:mlp}] \textit{MLP Foundations} formalizes forward/backward passes with matrix-calculus identities, highlights caching/normalization for numerical stability, and frames bias--variance behavior for deep linear stacks.
 \item[\Cref{chap:backprop}] \textit{Backpropagation in Practice} turns the derivatives into SGD/mini\hyp{}batch pseudocode, adds early\hyp{}stopping heuristics, and compares optimization tweaks (momentum, adaptive schedules) against the diagnostics from \Cref{chap:supervised}.
 \item[\Cref{chap:rbf}] \textit{Radial Basis Function Networks} interprets RBFs as local ``bubbles,'' covers center/width selection (including practical \(\sigma\) rules), contrasts primal vs.\ dual training formulations, and connects the finite-basis view to kernel methods (e.g., kernel ridge regression and SVMs with RBF kernels).
@@ -30,7 +30,7 @@
 \textbf{Level 1 (reactive systems):} Feedback loops and associative memories that respond instantly, e.g., Hopfield dynamics in \Cref{chap:hopfield} or the thermostat-style fuzzy controllers introduced across \Crefrange{chap:fuzzysets}{chap:fuzzyinference}.\\
 \textbf{Level 2 (deliberative planners):} Rule-based systems that reason over an internal linguistic state before acting; see the fuzzy relation and inference machinery of \Crefrange{chap:fuzzysets}{chap:fuzzyinference}, where conditions aggregate before a crisp recommendation is issued.\\
 \textbf{Level 3 (adaptive learners):} Data-driven models that update parameters from data, spanning the ERM toolkit (\Crefrange{chap:supervised}{chap:logistic}), perceptrons/MLPs/RBFs/CNNs (\Crefrange{chap:perceptron}{chap:rbf} and \Cref{chap:cnn}), sequence models and Transformers (\Crefrange{chap:rnn}{chap:transformers}), SOMs (\Cref{chap:som}), and population heuristics (\Cref{chap:evo}).\\
-\textbf{Level 4 (meta-cognitive agents):} Algorithms that reason about their own learning loops: calibration and uncertainty estimation (\Crefrange{chap:supervised}{chap:logistic}), training diagnostics and early-stop policies (\Cref{chap:backprop}), alignment/PEFT tooling for Transformers (\Cref{chap:transformers}), and self-adaptive evolutionary strategies (\Cref{chap:evo}). These illustrate early steps toward systems that refine their own policies.
+\textbf{Level 4 (meta-cognitive agents):} Algorithms that reason about their own learning loops: calibration and uncertainty estimation (\Crefrange{chap:supervised}{chap:logistic}), training diagnostics and early-stop policies (\Cref{chap:backprop}), alignment/PEFT tooling for Transformers (\Cref{chap:transformers}), and self-adaptive evolutionary strategies (\Cref{chap:evo}). These examples illustrate early steps toward systems that refine their own policies.
 \end{tcolorbox}
 
 
@@ -89,7 +89,7 @@
 
         % Connectionist row (y=5)
         \node[model, fill=cbBlue!20, draw=cbBlue]   at (2.0,5.0) {MLPs / CNNs};
-        \node[model, fill=cbGreen!20, draw=cbGreen] at (3.0,5.0) {RNNs /\\ seq.\ models};
+        \node[model, fill=cbGreen!20, draw=cbGreen] at (3.0,5.0) {RNNs /\\ sequence models};
         \node[model, fill=cbGreen!20, draw=cbGreen] at (4.0,5.0) {Transformers /\\ LMs};
 
         % Unsupervised / competitive row (y=4)
@@ -106,17 +106,16 @@
         \node[model, fill=cbPink!20, draw=cbPink] at (2.5,1.0) {Hopfield /\\ energy models};
     \end{tikzpicture}
     \end{adjustbox}
-    \caption[Map of model families]{Color\hyp{}coded map of model families across agent level, model nature, and learning signal. Use this when deciding which family matches a required capability and where to read next.}
+    \caption[Map of model families]{Color\hyp{}coded map of model families across agent level, model nature, and learning signal, highlighting where each family sits in the taxonomy and where to read next.}
     \label{fig:big-picture-map}
 \end{figure}
 
-\Cref{fig:big-picture-map} provides the visual map for this chapter-level taxonomy.
-
+\Cref{fig:big-picture-map} provides the visual map; \Cref{tab:big-picture-models} serves as a compact lookup for model-family placement across levels and learning signals.
 
 \begin{table}[b]
 \centering
 \captionsetup{width=.92\linewidth}
-\caption{Big-picture view of model families across the taxonomy and learning paradigms. Each entry represents a family introduced in the book; supervision labels indicate the dominant training signal rather than strict exclusivity. Use this when you want to locate which model family matches a needed capability and what learning signal it relies on.}
+\caption{Big-picture view of model families across the taxonomy and learning paradigms. Each entry represents a family introduced in the book; supervision labels indicate the dominant training signal rather than strict exclusivity. The table serves as a compact lookup for model-family placement across levels and learning signals.}
 \label{tab:big-picture-models}
 \begin{tabularx}{\linewidth}{@{}>{\raggedright\arraybackslash}X c c >{\raggedright\arraybackslash}X@{}}
 \toprule
@@ -134,5 +133,3 @@ Hopfield and modern Hopfield variants & 1--3 & energy-based & associative / unsu
 \bottomrule
 \end{tabularx}
 \end{table}
-
-\Cref{tab:big-picture-models} is the compact lookup for model-family placement across levels and learning signals.

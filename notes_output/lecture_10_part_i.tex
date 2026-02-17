@@ -1,4 +1,4 @@
-% Chapter 17
+% Lecture 10
 \section{Fuzzy Set Transformations Between Related Universes}\label{chap:fuzzyrelations}
 \graphicspath{{assets/lec10/}}
 
@@ -7,7 +7,7 @@ Building on \Cref{chap:fuzzysets}, we address a fundamental question: \emph{How 
 \begin{tcolorbox}[summarybox, title={Learning Outcomes}]
 \begin{itemize}
     \item Apply the extension principle (single and multi-variable) to transport fuzzy knowledge across domains.
-    \item Select appropriate t\hyp{}norms/s\hyp{}norms and understand how those choices affect projection, dilation, and composition.
+    \item Select appropriate t\hyp{}norms/t\hyp{}conorms and understand how those choices affect projection, dilation, and composition.
     \item Tie these transformations to the running thermostat/autofocus example to anticipate how inference rules will behave in \Cref{chap:fuzzyinference}.
 \end{itemize}
 \end{tcolorbox}
@@ -92,7 +92,7 @@ The strongest pre-image membership determines the membership of \(y\). When the 
 \subsection{Interpretation}
 \label{sec:fuzzyrelations_interpretation}
 
-Equation~\eqref{eq:membership-transform} states that the membership degree of \( y \) in \( B \) is the supremum over all membership degrees of \( x \) in \( A \) such that \( f(x) = y \). For single-input mappings no additional combination is necessary; when multiple fuzzy inputs are involved we first combine their memberships with a chosen T-norm (cf. \eqref{eq:extension-two-var}) and then take the supremum. Intuitively, this means:
+Equation~\eqref{eq:membership-transform} states that the membership degree of \( y \) in \( B \) is the supremum over all membership degrees of \( x \) in \( A \) such that \( f(x) = y \). For single-input mappings no additional combination is necessary; when multiple fuzzy inputs are involved we first combine their memberships with a chosen t\hyp{}norm (cf. \eqref{eq:extension-two-var}) and then take the supremum. Intuitively, this means:
 
 \begin{quote}
 \emph{The degree to which \( y \) belongs to the transformed fuzzy set \( B \) is determined by the strongest membership degree among all \( x \) values that map to \( y \), appropriately combined.}
@@ -119,10 +119,7 @@ Define the transformation \( y = x^2 \). The image universe \( Y \) consists of:
 Y = \{0^2, (-1)^2, 1^2, 2^2\} = \{0, 1, 4\}.
 \]
 
-To find the membership function \(\mu_B(y)\) of the transformed fuzzy set \( B \) on \( Y \), we use the extension principle:
-\[
-\mu_B(y) = \sup_{x \in X: f(x) = y} \mu_A(x).
-\]
+To find the membership function \(\mu_B(y)\) of the transformed fuzzy set \( B \) on \( Y \), use the extension principle in \eqref{eq:membership-transform}.
 
 Calculating explicitly:
 \begin{align*}
@@ -176,7 +173,7 @@ Let \(A=\text{Comfortable}_C\) be triangular on Celsius with breakpoints \((21,2
         \end{groupplot}
     \end{tikzpicture}
     % Avoid inline math in captions; it wraps poorly in some EPUB renderers.
-    \caption{Mapping a fuzzy set through the function ``y = x-squared''. The membership at an output value y is the supremum over all pre-images x that map to y; shared images such as x = +/-1 map to y = 1 using the maximum membership. Use it when applying the extension principle to a non-invertible function.}
+    \caption{Mapping a fuzzy set through the function ``y = x-squared''. The membership at an output value y is the supremum over all pre-images x that map to y; shared images such as x = +/-1 map to y = 1 using the maximum membership. Helpful when applying the extension principle to a non-invertible function.}
     \label{fig:lec10-extension}
 \end{figure}
 
@@ -238,7 +235,7 @@ Taking the supremum over all contributing pairs gives
 \[
 \mu_B(1) = \max\{0.1, 0.5, 0.1, 0.4\} = 0.5.
 \]
-% Chapter 17 Part I (continued)
+% Lecture 10 Part I (continued)
 
 \subsection{Extension Principle Recap and Projection Operations}
 \label{sec:fuzzyrelations_extension_principle_recap_and_projection_operations}
@@ -303,12 +300,12 @@ For discrete universes the extension principle costs \(O(|X|)\) per \(y\) (or \(
         \end{axis}
     \end{tikzpicture}
     % Avoid inline math in captions; it wraps poorly in some EPUB renderers.
-    \caption{Alpha-cuts under the non-monotone map ``y = x-squared''. A symmetric triangular fuzzy set on X maps to a right-skewed fuzzy set on Y. Each alpha-cut on A splits into two intervals whose images union to the output alpha-cut. Use it when propagating a fuzzy set through a non-monotone map via alpha-cuts.}
+    \caption{Alpha-cuts under the non-monotone map ``y = x-squared''. A symmetric triangular fuzzy set on X maps to a right-skewed fuzzy set on Y. Each alpha-cut on A splits into two intervals whose images union to the output alpha-cut. Use this to propagate a fuzzy set through a non-monotone map via alpha-cuts.}
     \label{fig:alpha-cut-nonmonotone}
 \end{figure}
 
 
-\Cref{fig:lec17_projection_matrix} visualizes how relation entries project into the corresponding marginals.
+\Cref{fig:lec10_projection_matrix} visualizes how relation entries project into the corresponding marginals.
 
 \subsection{Projection of Fuzzy Relations}
 \label{sec:fuzzyrelations_projection_of_fuzzy_relations}
@@ -336,11 +333,11 @@ A \emph{t\hyp{}norm} is any binary operator \(T: [0,1]^2 \to [0,1]\) that is com
 
 \begin{table}[h]
 \centering
-\caption{Popular t\hyp{}norms and their typical roles. Use it when choosing a default conjunction operator and understanding its qualitative behavior.}
+\caption{Popular t\hyp{}norms and their typical roles. Reference when choosing a default conjunction operator and understanding its qualitative behavior.}
 \label{tab:tnorms}
 \begin{tabularx}{0.94\linewidth}{@{}>{\raggedright\arraybackslash}p{0.23\linewidth} >{\raggedright\arraybackslash}p{0.3\linewidth} >{\raggedright\arraybackslash}X@{}}
 \toprule
-\textbf{T-norm} & \textbf{Dual t\hyp{}conorm / identity} & \textbf{When to use} \\
+\textbf{t\hyp{}norm} & \textbf{Dual t\hyp{}conorm / identity} & \textbf{When to use} \\
 \midrule
 Minimum \(T_{\min}(a, b)=\min(a, b)\) & Dual: $\max(a, b)$; idempotent & Linguistic rules mirroring classical AND; preserves interpretability. \\
 Product \(T_{\Pi}(a, b)=ab\) & Dual: probabilistic sum \(a+b-ab\) & Smooth gradients, probabilistic semantics, differentiable control. \\
@@ -394,10 +391,11 @@ The \emph{total projection} of \( R \) is the maximum membership value over the 
 \end{equation}
 
 \paragraph{Interpretation}
-
-- The projection onto \( X \) collapses the \( Y \)-dimension by taking the maximum membership value along each fixed \( x \).
-- The projection onto \( Y \) collapses the \( X \)-dimension similarly.
-- The total projection gives the single highest membership value in the relation.
+\begin{itemize}
+    \item The projection onto \( X \) collapses the \( Y \)-dimension by taking the maximum membership value along each fixed \( x \).
+    \item The projection onto \( Y \) collapses the \( X \)-dimension similarly.
+    \item The total projection gives the single highest membership value in the relation.
+\end{itemize}
 
 \begin{figure}[h]
     \centering
@@ -425,8 +423,8 @@ The \emph{total projection} of \( R \) is the maximum membership value over the 
         0.5 \\
     \end{tabular}
     % Avoid inline math in captions; it wraps poorly in some EPUB renderers.
-    \caption{Illustrative fuzzy relation table (left) together with its projections onto the error universe (middle) and the rate-of-change universe (right). These are the exact quantities used in the running thermostat example before composing rules. Use it when building rule antecedents from a relation and checking which universes each projection lives on.}
-    \label{fig:lec17_projection_matrix}
+    \caption{Illustrative fuzzy relation table (left) together with its projections onto the error universe (middle) and the rate-of-change universe (right). These are the exact quantities used in the running thermostat example before composing rules. Use it to build rule antecedents from a relation and verify which universe each projection inhabits.}
+    \label{fig:lec10_projection_matrix}
 \end{figure}
 
 
@@ -451,7 +449,7 @@ and
     \mu_{\pi_{\text{total}}(R)} = \max\{0.5, 0.8, 0.5, 0.9\} = 0.9.
 \]
 
-% Chapter 17 Part I (continued)
+% Lecture 10 Part I (continued)
 
 \subsection{Dimensional Extension and Projection in Fuzzy Set Operations}
 \label{sec:fuzzyrelations_dimensional_extension_and_projection_in_fuzzy_set_operations}
@@ -506,9 +504,10 @@ The composition \(R = R_1 \circ R_2\) is defined by:
 We default to the \emph{sup--min} (max--min) composition by taking \(T(a,b)=\min(a,b)\); other t\hyp{}norms are listed in \Cref{tab:tnorms}.
 
 \paragraph{Interpretation}
-
-- The \(\min\) operator captures the degree to which \(x\) is related to \(y\) and \(y\) is related to \(z\) simultaneously.
-- The \(\sup\) (maximum) over all intermediate \(y\) aggregates all possible "paths" from \(x\) to \(z\) through \(y\).
+\begin{itemize}
+    \item The \(\min\) operator captures the degree to which \(x\) is related to \(y\) and \(y\) is related to \(z\) simultaneously.
+    \item The \(\sup\) (maximum) over all intermediate \(y\) aggregates all possible "paths" from \(x\) to \(z\) through \(y\).
+\end{itemize}
 
 \paragraph{Dimensional Considerations}
 
@@ -553,9 +552,9 @@ for i in range(|X|):
         R[i, k] = acc
 return R  # the composition R1 o R2
 \end{verbatim}
-Swap \(\min\) for another \(T\) (product, \L{}ukasiewicz) and \(\max\) for the corresponding s\hyp{}norm to instantiate other composition families.
+Swap \(\min\) for another \(T\) (product, \L{}ukasiewicz) and \(\max\) for the corresponding t\hyp{}conorm to instantiate other composition families.
 \end{tcolorbox}
-% Chapter 17 Part I: Closure of Composition and Fuzzy Relation Operations
+% Lecture 10 Part I: Closure of Composition and Fuzzy Relation Operations
 
 \subsection{Recap and Motivation}
 \label{sec:fuzzyrelations_recap_and_motivation}
@@ -572,33 +571,7 @@ Equation \eqref{eq:composition_general} already defines the general sup--\(T\) c
 \subsection{Example Calculation of Composition}
 \label{sec:fuzzyrelations_example_calculation_of_composition}
 
-Consider discrete sets \(X = \{x_1, x_2\}\), \(Y = \{y_1, y_2\}\), and \(Z = \{z_1, z_2\}\), with membership values:
-
-\[
-\mu_{R_1} =
-\begin{bmatrix}
-0.5 & 0.6 \\
-0.5 & 0.5
-\end{bmatrix}, \quad
-\mu_{R_2} =
-\begin{bmatrix}
-0.5 & 0.1 \\
-0.2 & 0.5
-\end{bmatrix},
-\]
-where rows correspond to \(X\) or \(Y\) elements and columns to \(Y\) or \(Z\) elements respectively.
-
-To compute \(\mu_R(x_1, z_1)\), we evaluate:
-\[
-\mu_R(x_1, z_1) = \max \left\{ \min(0.5, 0.5), \min(0.6, 0.2) \right\} = \max \{0.5, 0.2\} = 0.5.
-\]
-
-Similarly, for \(\mu_R(x_1, z_2)\):
-\[
-\mu_R(x_1, z_2) = \max \left\{ \min(0.5, 0.1), \min(0.6, 0.5) \right\} = \max \{0.1, 0.5\} = 0.5.
-\]
-
-This process continues for all pairs \((x_i, z_j)\) to form the composed relation matrix.
+The max--min example in \Cref{sec:fuzzyrelations_fuzzy_inference_via_composition_of_relations} already walks through a concrete composition; here we move directly to the algebraic properties that hold for any valid sup--\(T\) operator.
 
 \subsection{Properties of Fuzzy Relation Composition}
 \label{sec:fuzzyrelations_properties_of_fuzzy_relation_composition}

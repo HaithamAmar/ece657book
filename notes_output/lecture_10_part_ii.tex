@@ -206,9 +206,9 @@ In implementations, compute the centroid numerically (and log the grid/step size
 for each rule j:
     alpha_j = T( mu_A1(x1), ..., mu_An(xn) )
         # firing strength
-    mu_Bj_prime(y) = implication(alpha_j, mu_Bj(y))
+    mu_Bprime_j(y) = implication(alpha_j, mu_Bj(y))
         # clip or scale
-mu_Bagg(y) = S( mu_B1_prime(y), ..., mu_BR_prime(y) )
+mu_Bagg(y) = S( mu_Bprime_1(y), ..., mu_Bprime_R(y) )
     # aggregate
 y_star = centroid(mu_Bagg(y))
     # or another defuzzifier
@@ -248,12 +248,10 @@ Each rule still produces a firing strength $\lambda_i$ via a t\hyp{}norm, but th
 u^\ast = \frac{\sum_i \lambda_i u_i}{\sum_i \lambda_i},
 \]
 eliminating the defuzzification integral. The trade-offs are:
-{\raggedright
 \begin{itemize}
     \item \textbf{Mamdani:} transparent consequents, straightforward incorporation of expert knowledge, but higher computational cost due to aggregation and centroid evaluation.
     \item \textbf{Sugeno/TSK:} faster evaluation (weighted averages), amenable to gradient-based tuning of the consequent parameters, yet less interpretable because consequents are numerical functions rather than linguistic labels.
 \end{itemize}
-}
 For the thermostat example, Mamdani rules (``IF error is Cold AND rate is Falling THEN heater power is High'') are ideal when operators must audit decisions, whereas a Sugeno/TSK variant is preferable when embedding the controller into a high-speed or automatically tuned loop.
 \footnote{Classic sources: \citet{Mamdani1975} for clipping implication; \citet{TakagiSugeno1985} for TSK; \citet{Jang1993} for ANFIS; see also \citep{Klement2000,Dubois1988} for operator/implicator theory.}
 
