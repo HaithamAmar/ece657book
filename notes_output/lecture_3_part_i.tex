@@ -97,7 +97,7 @@ Mathematically, if we denote the input vector as \(\mathbf{x}\), the output of l
     \label{eq:feedforward}
 \end{align}
 where \(\mathbf{b}^{(l)}\) is the bias vector and \(f(\cdot)\) is the activation function applied element-wise.
-\paragraph{Shapes and convention.} We use the row-major (deep-learning) convention. A single example is a row vector \(\mathbf{a}^{(l)}\in\mathbb{R}^{1\times n_l}\), a mini\hyp{}batch stacks examples by rows \(A^{(l)}\in\mathbb{R}^{B\times n_l}\), and weights map features by right multiplication \(W^{(l)}\in\mathbb{R}^{n_{l-1}\times n_l}\). Biases \(b^{(l)}\in\mathbb{R}^{n_l}\) broadcast across the batch: \(Z^{(l)}=A^{(l-1)}W^{(l)}+\mathbf{1}(b^{(l)})^\top\). We reserve \(\phi(\cdot)\) for kernel feature maps (\Cref{app:kernels}).
+\paragraph{Shapes and convention.} We use the row-major (deep-learning) convention. A single example is a row vector \(\mathbf{a}^{(l)}\in\mathbb{R}^{1\times n_l}\), a mini\hyp{}batch stacks examples by rows \(\mathbf{A}^{(l)}\in\mathbb{R}^{B\times n_l}\), and weights map features by right multiplication \(\mathbf{W}^{(l)}\in\mathbb{R}^{n_{l-1}\times n_l}\). Biases \(\mathbf{b}^{(l)}\in\mathbb{R}^{n_l}\) broadcast across the batch: \(\mathbf{Z}^{(l)}=\mathbf{A}^{(l-1)}\mathbf{W}^{(l)}+\mathbf{1}(\mathbf{b}^{(l)})^\top\). We reserve \(\phi(\cdot)\) for kernel feature maps (\Cref{app:kernels}).
 
 \paragraph{Recurrent Neural Networks}
 

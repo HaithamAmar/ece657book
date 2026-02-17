@@ -196,25 +196,25 @@ We consider a simple feedforward neural network with:
 
 The weight matrix between the input and hidden layer is denoted as
 \[
-W \in \mathbb{R}^{V \times d}.
+\mathbf{W} \in \mathbb{R}^{V \times d}.
 \]
-Each row \(W_{i,:}\) corresponds to the embedding vector of the \(i\)-th word.
+Each row \(\mathbf{W}_{i,:}\) corresponds to the embedding vector of the \(i\)-th word.
 
 \paragraph{Forward Pass}
 
 Given an input word represented by \(\mathbf{x}\), the hidden layer output \(\mathbf{h} \in \mathbb{R}^d\) is computed as:
 \begin{align}
-    \mathbf{h} &= \mathbf{x} W, \label{eq:hidden_layer}
+    \mathbf{h} &= \mathbf{x} \mathbf{W}, \label{eq:hidden_layer}
 \end{align}
-where \(\mathbf{x}\) is a \(1 \times V\) vector and \(W\) is \(V \times d\), resulting in \(\mathbf{h}\) of size \(1 \times d\).
+where \(\mathbf{x}\) is a \(1 \times V\) vector and \(\mathbf{W}\) is \(V \times d\), resulting in \(\mathbf{h}\) of size \(1 \times d\).
 
-Because \(\mathbf{x}\) is one-hot, this operation simply selects the row of \(W\) corresponding to the input word, i.e., the embedding vector for that word.
+Because \(\mathbf{x}\) is one-hot, this operation simply selects the row of \(\mathbf{W}\) corresponding to the input word, i.e., the embedding vector for that word.
 
 \paragraph{Output Layer}
 
-The hidden layer output \(\mathbf{h}\) is then multiplied by an output matrix \(W_{\text{out}} \in \mathbb{R}^{d \times V}\) to produce the output logits \(\mathbf{z} \in \mathbb{R}^V\):
+The hidden layer output \(\mathbf{h}\) is then multiplied by an output matrix \(\mathbf{W}_{\text{out}} \in \mathbb{R}^{d \times V}\) to produce the output logits \(\mathbf{z} \in \mathbb{R}^V\):
 \begin{align}
-    \mathbf{z} &= \mathbf{h} W_{\text{out}}. \label{eq:output_logits}
+    \mathbf{z} &= \mathbf{h} \mathbf{W}_{\text{out}}. \label{eq:output_logits}
 \end{align}
 
 These logits are then passed through a softmax function to produce a probability distribution over the vocabulary:
@@ -256,7 +256,7 @@ The hidden representations \(\mathbf{h}^{(i)}\) for each context word can be com
 
 Note that the input vectors \(\mathbf{x}_{t+j}\) are extremely sparse (one-hot), and the embedding matrix \(\mathbf{W}\) is large (\(10{,}000 \times 300\), for example). However, the multiplication \(\mathbf{x}_{t+j}\mathbf{W}\) is efficient because it selects a single row of \(\mathbf{W}\) per input word.
 
-\paragraph{Interpretation of the weight matrix \texorpdfstring{\(W\)}{W}.}
+\paragraph{Interpretation of the weight matrix \texorpdfstring{\(\mathbf{W}\)}{W}.}
 \label{sec:nlp_interpretation_of_the_weight_matrix_w_w}
 
 The matrix \(\mathbf{W}\) can be interpreted as a lookup table: the \(i\)-th row is the embedding for word \(w_i\), and \(\mathbf{x}\mathbf{W}\) (with one-hot \(\mathbf{x}\)) selects that row directly.
