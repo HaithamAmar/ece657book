@@ -189,7 +189,7 @@ For inputs \(e=-2\) and \(r=0.5\),
 \mu_{\text{Stable}}(0.5)=0.5,\quad
 \mu_{\text{Rising}}(0.5)=0.25.
 \]
-With \(T=\min\) (\Cref{eq:antecedent_min}), the rule firing strengths are
+With \(T=\min\) (\eqref{eq:antecedent_min}), the rule firing strengths are
 \[
 \alpha_1=\min(0.4,0.5)=0.4,\quad
 \alpha_2=\min(0.4,0.25)=0.25,\quad
@@ -197,8 +197,8 @@ With \(T=\min\) (\Cref{eq:antecedent_min}), the rule firing strengths are
 \]
 
 \paragraph{Implication, aggregation, and defuzzification.}
-Using Mamdani min-implication (\Cref{eq:min_implication}), each consequent is clipped at its firing strength (e.g., \(\mu_{\text{High}}'(u)=\min(\alpha_1,\mu_{\text{High}}(u))\)). Aggregating consequents by max (\Cref{eq:output_aggregation}) yields \(\mu_{\text{out}}(u)\).
-Finally, centroid defuzzification (\Cref{eq:centroid_defuzz}) produces a crisp heater-power command. Using a uniform grid on \(u \in [0,1]\) (step \(10^{-4}\)) gives
+Using Mamdani min-implication (\eqref{eq:min_implication}), each consequent is clipped at its firing strength (e.g., \(\mu_{\text{High}}'(u)=\min(\alpha_1,\mu_{\text{High}}(u))\)). Aggregating consequents by max (\eqref{eq:output_aggregation}) yields \(\mu_{\text{out}}(u)\).
+Finally, centroid defuzzification (\eqref{eq:centroid_defuzz}) produces a crisp heater-power command. Using a uniform grid on \(u \in [0,1]\) (step \(10^{-4}\)) gives
 \[
 u^\star \approx 0.577.
 \]

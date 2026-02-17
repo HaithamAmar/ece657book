@@ -40,13 +40,13 @@ Evolutionary algorithms borrow the language of biology to provide a disciplined 
 \label{sec:evo_problem_setting_optimization}
 
 \begin{tcolorbox}[summarybox, title={Notation handoff}]
-Vectors of candidate solutions are written as \(\mathbf{x}\), objective values as \(f(\mathbf{x})\), and population members as individuals/chromosomes depending on encoding. If symbol reuse from earlier chapters becomes ambiguous, default to local definitions and consult \Cref{app:notation_collisions}.
+Vectors of candidate solutions are written as \(\mathbf{x}\), objective values as \(J(\mathbf{x})\), and population members as individuals/chromosomes depending on encoding. If symbol reuse from earlier chapters becomes ambiguous, default to local definitions and consult \Cref{app:notation_collisions}.
 \end{tcolorbox}
 
-Consider an optimization problem where the goal is to find an input vector \( \mathbf{x} \in \mathbb{R}^n \) that minimizes (or maximizes) a given objective function \( f: \mathbb{R}^n \to \mathbb{R} \). Formally, we want to solve
+Consider an optimization problem where the goal is to find an input vector \( \mathbf{x} \in \mathbb{R}^n \) that minimizes (or maximizes) a given objective function \( J: \mathbb{R}^n \to \mathbb{R} \). Formally, we want to solve
 
 \begin{align}
-    \mathbf{x}^* = \arg \min_{\mathbf{x} \in \mathcal{D}} f(\mathbf{x}), \label{eq:optimization_problem}
+    \mathbf{x}^* = \arg \min_{\mathbf{x} \in \mathcal{D}} J(\mathbf{x}), \label{eq:optimization_problem}
 \end{align}
 
 where \(\mathcal{D} \subseteq \mathbb{R}^n\) is the feasible domain incorporating any bound, equality, or inequality constraints required by the application.
@@ -54,7 +54,7 @@ where \(\mathcal{D} \subseteq \mathbb{R}^n\) is the feasible domain incorporatin
 \paragraph{Challenges:}
 
 \begin{itemize}
-    \item The function \( f \) may be \emph{non-convex}, exhibiting multiple local minima and maxima.
+    \item The function \( J \) may be \emph{non-convex}, exhibiting multiple local minima and maxima.
     \item There may be no closed-form or deterministic method to find the global optimum.
     \item The search space \(\mathcal{D}\) can be large or complex, making exhaustive search (brute force) computationally prohibitive.
     \item Real-time or practical constraints often require solutions within limited time frames.
@@ -63,7 +63,7 @@ where \(\mathcal{D} \subseteq \mathbb{R}^n\) is the feasible domain incorporatin
 \subsection{Illustrative Example}
 \label{sec:evo_illustrative_example}
 
-Imagine a function \( f \) with multiple peaks and valleys (local maxima and minima). The global minimum is the lowest valley, but many local minima exist that can trap naive optimization methods.
+Imagine a function \( J \) with multiple peaks and valleys (local maxima and minima). The global minimum is the lowest valley, but many local minima exist that can trap naive optimization methods.
 
 \paragraph{Goal:} Instead of guaranteeing the global optimum, evolutionary computing aims to find a \emph{good enough} solution---one that is sufficiently close to optimal and found within a reasonable computational budget.
 

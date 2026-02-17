@@ -325,7 +325,7 @@ where \( T \) is the sequence length.
 
 The forward pass involves propagating inputs through the network over time steps \( t = 1, \ldots, T \), producing outputs \( \hat{y}_t \) at each step. After computing the loss, the backward pass computes gradients with respect to parameters by backpropagating errors through time, a process known as \emph{Backpropagation Through Time} (BPTT).
 
-BPTT unfolds the RNN across time steps and applies standard backpropagation through this unrolled network. The key insight is that parameters are shared across time steps, so gradients accumulate contributions from all time steps; \cref{fig:lec7-bptt} highlights the simultaneous forward flow (black) and backward gradients (pink) that piggyback across every copy.
+BPTT unfolds the RNN across time steps and applies standard backpropagation through this unrolled network. The key insight is that parameters are shared across time steps, so gradients accumulate contributions from all time steps; \Cref{fig:lec7-bptt} highlights the simultaneous forward flow (black) and backward gradients (pink) that piggyback across every copy.
 
 \begin{tcolorbox}[summarybox, title={Truncated BPTT in practice}]
 Unroll \(K\) steps, accumulate loss, backprop through those \(K\) steps, then detach the hidden state to stop graph growth:
@@ -917,7 +917,7 @@ This probability can be modeled using an RNN, which maintains a hidden state \( 
     \mathbf{h}_t &= f(\mathbf{h}_{t-1}, \mathbf{x}_t; \theta), \\
     P(w_{t+1} \mid w_1, \ldots, w_t) &= g(\mathbf{h}_t; \theta), \label{eq:rnn_output_prob}
 \end{align}
-where \( \mathbf{x}_t \) is the input representation (e.g., word embedding) of the word \( w_t \), \( f \) is the recurrent update function parameterized by \(\theta\), and \( g \) maps the hidden state to a probability distribution over the vocabulary. Because the hidden state is computed recursively, \(\mathbf{h}_t\) already aggregates information about the entire prefix \((w_1,\ldots, w_t)\); predicting \(w_{t+1}\) from \(\mathbf{h}_t\) therefore reflects the Markovian summary that RNNs maintain. Explicitly, repeatedly substituting \Cref{eq:rnn_hidden_state} reveals that \(\mathbf{h}_t=f(f(\cdots f(\mathbf{h}_0,\mathbf{x}_1),\ldots),\mathbf{x}_t)\), so no information is lost other than the compression inherent to the finite-dimensional state vector.
+where \( \mathbf{x}_t \) is the input representation (e.g., word embedding) of the word \( w_t \), \( f \) is the recurrent update function parameterized by \(\theta\), and \( g \) maps the hidden state to a probability distribution over the vocabulary. Because the hidden state is computed recursively, \(\mathbf{h}_t\) already aggregates information about the entire prefix \((w_1,\ldots, w_t)\); predicting \(w_{t+1}\) from \(\mathbf{h}_t\) therefore reflects the Markovian summary that RNNs maintain. Explicitly, repeatedly substituting \eqref{eq:rnn_hidden_state} reveals that \(\mathbf{h}_t=f(f(\cdots f(\mathbf{h}_0,\mathbf{x}_1),\ldots),\mathbf{x}_t)\), so no information is lost other than the compression inherent to the finite-dimensional state vector.
 
 \paragraph{Training Objective}
 

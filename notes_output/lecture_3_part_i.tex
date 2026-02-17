@@ -325,7 +325,7 @@ Convert with \texttt{y\_pm = 2*y01 - 1} and \texttt{y01 = (y\_pm + 1)/2}.
 Perceptron updates below use the \texttt{\{-1,+1\}} encoding.
 \end{tcolorbox}
 
-The perceptron learning rule iteratively updates weights to reduce classification errors, enabling the model to learn from data rather than relying on manual parameter selection. With labels \(y_i\in\{-1,+1\}\), a mistake triggers \( \mathbf{w}\leftarrow \mathbf{w} + \eta y_i \mathbf{x}_i\) and \( b\leftarrow b + \eta y_i\). The induced separating hyperplane and signed distance are illustrated in \cref{fig:lec3-perceptron-geometry}.
+The perceptron learning rule iteratively updates weights to reduce classification errors, enabling the model to learn from data rather than relying on manual parameter selection. With labels \(y_i\in\{-1,+1\}\), a mistake triggers \( \mathbf{w}\leftarrow \mathbf{w} + \eta y_i \mathbf{x}_i\) and \( b\leftarrow b + \eta y_i\). The induced separating hyperplane and signed distance are illustrated in \Cref{fig:lec3-perceptron-geometry}.
 
 \paragraph{Perceptron update from the signed margin.} Let \(d_i = y_i(\mathbf{w}^\top \mathbf{x}_i + b)\) be the signed margin. If \(d_i \ge 0\) the example is correctly classified; if \(d_i < 0\) the example is misclassified. A common perceptron criterion is
 \[

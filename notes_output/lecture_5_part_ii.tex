@@ -191,7 +191,7 @@ where \(\operatorname{sign}(\cdot)\) returns \(+1\) for positive inputs and \(-1
 Each single-neuron update satisfies \(\Delta E \le 0\) by \eqref{eq:deltaE}, so the loop converges to a local minimum of \eqref{eq:energy_function}.
 \end{tcolorbox}
 
-When neurons are updated \emph{asynchronously} (one at a time) in any order, each step is guaranteed not to increase the energy \(E\), ensuring convergence to a local minimum. Random or cyclic update orders satisfy the classic convergence conditions (any single flip obeys \(\Delta E \le 0\) by \Cref{eq:deltaE}). Synchronous updates of all neurons, by contrast, can oscillate and are discussed in more detail in \Cref{sec:hopfield_async_vs_sync}.
+When neurons are updated \emph{asynchronously} (one at a time) in any order, each step is guaranteed not to increase the energy \(E\), ensuring convergence to a local minimum. Random or cyclic update orders satisfy the classic convergence conditions (any single flip obeys \(\Delta E \le 0\) by \eqref{eq:deltaE}). Synchronous updates of all neurons, by contrast, can oscillate and are discussed in more detail in \Cref{sec:hopfield_async_vs_sync}.
 
 \subsection{Example: Energy Calculation and State Updates}
 \label{sec:hopfield_example_energy_calculation_and_state_updates}

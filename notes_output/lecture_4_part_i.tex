@@ -36,7 +36,7 @@ The forward pass through the network is given by:
     z_j^{(l)} &= \sum_i a_i^{(l-1)} w_{ij}^{(l)} + b_j^{(l)}, \label{eq:forward_z} \\
     a_j^{(l)} &= f\big(z_j^{(l)}\big), \label{eq:forward_a}
 \end{align}
-where $b_j^{(l)}$ is the bias term for neuron $j$ in layer $l$, and $f(\cdot)$ is the activation function, typically nonlinear (e.g., sigmoid, ReLU). \Cref{eq:forward_z} makes it explicit that we sum over every incoming neuron $i$ in layer $l-1$ to form the affine pre-activation $z_j^{(l)}$.
+where $b_j^{(l)}$ is the bias term for neuron $j$ in layer $l$, and $f(\cdot)$ is the activation function, typically nonlinear (e.g., sigmoid, ReLU). Equation~\eqref{eq:forward_z} makes it explicit that we sum over every incoming neuron $i$ in layer $l-1$ to form the affine pre-activation $z_j^{(l)}$.
 
 \subsection{Loss and Objective}
 \label{sec:backprop_loss_and_objective}

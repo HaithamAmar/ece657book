@@ -17,7 +17,7 @@ Keep the workflow, swap the likelihood: logistic regression keeps the linear sco
 
 \subsection{From regression to classification}
 \label{sec:logistic_from_regression_to_classification}
-Linear regression models a continuous target \(y\) and, under a Gaussian noise model, yields a closed-form solution via the normal equations (\Cref{chap:supervised}, \cref{sec:linear_regression_closed}). Classification changes the output space: \(y\) is a discrete label, and the model predicts class probabilities rather than raw responses. The ERM pipeline remains the same, but the loss becomes the negative log-likelihood (binary cross\hyp{}entropy) and optimization is typically iterative.
+Linear regression models a continuous target \(y\) and, under a Gaussian noise model, yields a closed-form solution via the normal equations (\Cref{chap:supervised}, \Cref{sec:linear_regression_closed}). Classification changes the output space: \(y\) is a discrete label, and the model predicts class probabilities rather than raw responses. The ERM pipeline remains the same, but the loss becomes the negative log-likelihood (binary cross\hyp{}entropy) and optimization is typically iterative.
 
 Throughout this chapter we use \(y\in\{0,1\}\) by default, switching to \(y_{\pm1}=2y-1\) only when margin-based expressions are convenient. Predictions carry hats (e.g., \(\hat{y}\)), \(\varepsilon\) denotes noise, and \(e=y-\hat{y}\) denotes residuals. For a refresher on data splits, learning curves, and the bias--variance vocabulary, see \Cref{chap:supervised}; here we focus on the logistic-specific modeling and diagnostics.
 
@@ -62,7 +62,7 @@ Here
     \item \(P(\mathbf{x}) = \sum_{j=1}^K P(\mathbf{x} \mid y = c_j) P(y = c_j)\) is the marginal likelihood of the input.
 \end{itemize}
 
-\Cref{eq:bayes_theorem} provides a principled way to compute the posterior probabilities, and thus the optimal classification rule.
+Equation~\eqref{eq:bayes_theorem} provides a principled way to compute the posterior probabilities, and thus the optimal classification rule.
 
 \paragraph{Challenges in Practice}
 
@@ -220,7 +220,7 @@ This implies that the posterior probability \(\pi(\mathbf{x})\) can be written a
 \end{equation}
 
 \begin{tcolorbox}[summarybox, title={Author's note: why ``logistic'' and why ``regression''?}]
-The name \emph{logistic} comes from the logistic (sigmoid) link in \Cref{eq:logistic_probability}, which maps a real\hyp{}valued score to a probability in \([0,1]\). The word \emph{regression} reflects what we model linearly: the \emph{log\hyp{}odds} (logit) in \Cref{eq:logit_linear} is a linear function of the features. The model itself outputs a continuous probability; we turn that probability into a class label by thresholding (or comparing class probabilities in the multiclass extension).
+The name \emph{logistic} comes from the logistic (sigmoid) link in \eqref{eq:logistic_probability}, which maps a real\hyp{}valued score to a probability in \([0,1]\). The word \emph{regression} reflects what we model linearly: the \emph{log\hyp{}odds} (logit) in \eqref{eq:logit_linear} is a linear function of the features. The model itself outputs a continuous probability; we turn that probability into a class label by thresholding (or comparing class probabilities in the multiclass extension).
 \end{tcolorbox}
 
 \subsubsection{Likelihood, loss, and gradient}\label{sec:lec2_logistic_likelihood}
@@ -236,7 +236,7 @@ so the log\hyp{}likelihood is
     =\sum_{i=1}^N \Big(y_i\log p_i + (1-y_i)\log(1-p_i)\Big).
     \label{eq:lec2_loglik}
 \end{equation}
-Maximizing \Cref{eq:lec2_loglik} is equivalent to minimizing the negative log\hyp{}likelihood (binary cross\hyp{}entropy). With the design matrix \(X=[\tilde{\mathbf{x}}_1^\top;\ldots;\tilde{\mathbf{x}}_N^\top]\) and vector \(\mathbf{p}=(p_1,\ldots, p_N)^\top\), the gradient of the negative log\hyp{}likelihood is
+Maximizing the log\hyp{}likelihood in \eqref{eq:lec2_loglik} is equivalent to minimizing the negative log\hyp{}likelihood (binary cross\hyp{}entropy). With the design matrix \(X=[\tilde{\mathbf{x}}_1^\top;\ldots;\tilde{\mathbf{x}}_N^\top]\) and vector \(\mathbf{p}=(p_1,\ldots, p_N)^\top\), the gradient of the negative log\hyp{}likelihood is
 \begin{equation}
     \nabla_{\boldsymbol{\beta}}\Big(-\log p(\mathbf{y}\mid X,\boldsymbol{\beta})\Big)
     =X^\top(\mathbf{p}-\mathbf{y}).

@@ -327,7 +327,7 @@ Only the winning neuron and its neighbors in the lattice update their weights to
 where the learning rate symbol matches the one used in the conceptual outline,
 \begin{itemize}
     \item \(\alpha(t)\) is the learning rate at iteration \(t\),
-    \item \(h_{ci}(t)\) is the neighborhood function centered on the winning neuron \(c\), typically a Gaussian kernel that decreases with the lattice distance between neurons \(c\) and \(i\) (see \Cref{eq:gaussian_neighborhood_short}).
+    \item \(h_{ci}(t)\) is the neighborhood function centered on the winning neuron \(c\), typically a Gaussian kernel that decreases with the lattice distance between neurons \(c\) and \(i\) (see \eqref{eq:gaussian_neighborhood_short}).
 \end{itemize}
 
 This update rule ensures that the winning neuron and its neighbors move closer to the input vector, preserving topological relationships in the input space.
@@ -804,7 +804,7 @@ Consider the output layer arranged in a 2D grid (or lattice) of neurons. For eac
 
 The neighborhood size typically shrinks over time during training, starting large to encourage global ordering and gradually reducing to fine-tune local details.
 
-\paragraph{Weight Update with Neighborhood Cooperation} The lattice structure and how the best matching unit (BMU) influences nearby neurons are visualized in \cref{fig:lec5-som-lattice-umatrix}. The U-Matrix on the right provides a quick diagnostic for cluster boundaries during training.
+\paragraph{Weight Update with Neighborhood Cooperation} The lattice structure and how the best matching unit (BMU) influences nearby neurons are visualized in \Cref{fig:lec5-som-lattice-umatrix}. The U-Matrix on the right provides a quick diagnostic for cluster boundaries during training.
 
 \begin{figure}[t]
     \centering

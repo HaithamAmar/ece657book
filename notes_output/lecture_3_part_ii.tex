@@ -183,7 +183,7 @@ The gradient gives a direction; the step size $\eta$ sets the distance. In pract
 \subsection{Why hard thresholds block learning}
 \label{sec:mlp_why_hard_thresholds_block_learning}
 
-At this point the story is simple: define $P$, compute $\nabla P$, and update weights. The catch is that computing $\nabla P$ requires derivatives through the activation. When we apply the chain rule to \Cref{eq:two_neuron_forward}, factors like $f'(p_1)$ and $f'(p_2)$ appear immediately. \Cref{fig:mlp_step_vs_sigmoid} makes this derivative contrast concrete.
+At this point the story is simple: define $P$, compute $\nabla P$, and update weights. The catch is that computing $\nabla P$ requires derivatives through the activation. When we apply the chain rule to the forward-pass equations in \eqref{eq:two_neuron_forward}, factors like $f'(p_1)$ and $f'(p_2)$ appear immediately. \Cref{fig:mlp_step_vs_sigmoid} makes this derivative contrast concrete.
 
 If $f$ is a hard threshold (a step function), it is discontinuous and non\hyp{}differentiable at the threshold. That breaks the gradient story: $f'(p)$ either does not exist or is zero almost everywhere, so derivatives cannot guide learning. This is the core reason we replace thresholds with \emph{smooth, differentiable activations}.
 
@@ -264,7 +264,7 @@ This is the exact algebraic shortcut used in neural networks.
 
 The diagram in \Cref{fig:mlp_minimal_chain} is also a derivative map: to update a weight, follow how a small change in that weight would flow forward to the output and then back to the performance. The chain rule turns that story into algebra.
 
-We now compute the gradients in \Cref{eq:two_neuron_forward} using the chain rule. First note the easy derivatives:
+We now compute the gradients from the forward-pass equations in \eqref{eq:two_neuron_forward} using the chain rule. First note the easy derivatives:
 \begin{itemize}
     \item $\displaystyle \frac{\partial P}{\partial y_2} = y_2 - t$.
     \item $\displaystyle \frac{\partial y_i}{\partial p_i} = f'(p_i)$.

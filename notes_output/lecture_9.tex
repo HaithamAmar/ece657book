@@ -117,7 +117,7 @@ This function assigns membership 1 at \( x = c \), decreasing linearly to zero a
 
 Crisp (classical) sets assign membership values in the binary set \(\{0,1\}\), so each element either belongs to the set or it does not. In contrast, fuzzy sets allow intermediate membership values, enabling gradual transitions between full inclusion and full exclusion. Understanding this contrast highlights why membership functions are central to fuzzy logic.
 \begin{tcolorbox}[title={Imprecision vs. Fuzziness (recap)}, colback=gray!5, colframe=gray!40, boxrule=0.4pt]
-As discussed in \cref{sec:imprecision-fuzziness}, \textbf{imprecision} concerns uncertainty about the exact value or boundary (e.g., measurement noise or coarse resolution), whereas \textbf{fuzziness} concerns graded membership in a concept (e.g., the degree to which a speed is ``slow'') even when measurements are exact. Probability models uncertainty about events; fuzzy logic models degrees of truth of linguistic predicates.
+As discussed in \Cref{sec:imprecision-fuzziness}, \textbf{imprecision} concerns uncertainty about the exact value or boundary (e.g., measurement noise or coarse resolution), whereas \textbf{fuzziness} concerns graded membership in a concept (e.g., the degree to which a speed is ``slow'') even when measurements are exact. Probability models uncertainty about events; fuzzy logic models degrees of truth of linguistic predicates.
 \end{tcolorbox}
 
 \subsection{Membership Functions in Fuzzy Sets}
@@ -608,7 +608,7 @@ In classical logic, the complement of a proposition \( A \) is simply \( 1 - \mu
 
 \paragraph{Standard Complement}
 The standard complement operator is defined as:
-the standard fuzzy negation \(C(\mu)=1-\mu\), so \(\mu_{A^c}(x)=1-\mu_A(x)\) as in \Cref{eq:fuzzy_complement}. This operator is linear and intuitive but may not capture all nuances of uncertainty.
+the standard fuzzy negation \(C(\mu)=1-\mu\), so \(\mu_{A^c}(x)=1-\mu_A(x)\) as in \eqref{eq:fuzzy_complement}. This operator is linear and intuitive but may not capture all nuances of uncertainty.
 
 \paragraph{Parameterized Complement Operators}
 To generalize the complement, choose a negation operator \(C_p:[0,1]\to[0,1]\) and apply it pointwise: \(\mu_{C_p(A)}(x)=C_p(\mu_A(x))\). One common (Sugeno-type) family is
@@ -1101,7 +1101,7 @@ For symmetric triangles, the centroid of a truncated Medium set remains at $0.5$
 \[
     s^{\star} \approx \frac{0.3\cdot 0.5 + 0.133\cdot 0.833}{0.3+0.133} \approx 0.58.
 \]
-An exact centroid can be computed analytically or numerically by integrating the clipped shapes; the approximation above matches a direct trapezoidal integration on a uniform grid (10k points), which yields $s^\star \approx 0.580$ to three decimals. See \cref{fig:fuzzy-end-to-end} for the membership functions and clipping levels used in this example.
+An exact centroid can be computed analytically or numerically by integrating the clipped shapes; the approximation above matches a direct trapezoidal integration on a uniform grid (10k points), which yields $s^\star \approx 0.580$ to three decimals. See \Cref{fig:fuzzy-end-to-end} for the membership functions and clipping levels used in this example.
 Practical tip: libraries such as \texttt{scikit-fuzzy} provide a tested \texttt{defuzz} (centroid) routine; when in doubt, compute the centroid numerically rather than relying on heuristic convex combinations.
 
 \begin{figure}[t]
