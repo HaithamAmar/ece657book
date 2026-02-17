@@ -323,9 +323,7 @@ where \( T \) is the sequence length.
 
 \paragraph{Forward and Backward Passes in RNNs}
 
-The forward pass involves propagating inputs through the network over time steps \( t = 1, \ldots, T \), producing outputs \( \hat{y}_t \) at each step. After computing the loss, the backward pass computes gradients with respect to parameters by backpropagating errors through time, a process known as \emph{Backpropagation Through Time} (BPTT).
-
-BPTT unfolds the RNN across time steps and applies standard backpropagation through this unrolled network. The key insight is that parameters are shared across time steps, so gradients accumulate contributions from all time steps; \Cref{fig:lec7-bptt} highlights the simultaneous forward flow (black) and backward gradients (pink) that piggyback across every copy.
+The forward pass produces outputs \(\hat{y}_t\) and the loss accumulates over time; gradients are computed via BPTT on the unrolled graph (see the unrolling discussion in \Cref{sec:rnn_mathematical_formulation_of_a_simple_rnn_cell} and the flow in \Cref{fig:lec7-bptt}).
 
 \begin{tcolorbox}[summarybox, title={Truncated BPTT in practice}]
 Unroll \(K\) steps, accumulate loss, backprop through those \(K\) steps, then detach the hidden state to stop graph growth:

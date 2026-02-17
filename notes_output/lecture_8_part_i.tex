@@ -355,9 +355,7 @@ This is computationally expensive, especially when training on large corpora.
 \subsection{Efficient Training of Word Embeddings: Hierarchical Softmax and Negative Sampling}
 \label{sec:nlp_efficient_training_of_word_embeddings_hierarchical_softmax_and_negative_sampling}
 
-Recall from the previous discussion that computing the full softmax over a large vocabulary is computationally expensive. Specifically, given an input word, calculating the probability distribution over all possible output words in the vocabulary requires a normalization over potentially millions of terms, which is prohibitive in practice.
-
-There are two primary strategies to address this computational bottleneck:
+We now expand the two approximations introduced above---hierarchical softmax and negative sampling---and use them throughout the rest of the section.
 
 \paragraph{1. Hierarchical Softmax}
 Hierarchical softmax replaces the flat softmax layer with a binary tree representation of the vocabulary. Each word corresponds to a leaf node, and the probability of a word is decomposed into the probabilities of traversing the path from the root to that leaf. This reduces the computational complexity from \(O(V)\) to \(O(\log V)\), where \(V\) is the vocabulary size.
@@ -572,16 +570,7 @@ Let the target embeddings be rows \( \mathbf{v}_i \in \mathbb{R}^{1\times d} \),
     J = \sum_{i=1}^{V}\sum_{k=1}^{V} f(X_{ik}) \left( \mathbf{v}_i\,\mathbf{u}_k + b_i + b_k - \log X_{ik} \right)^2,
     \label{eq:objective}
 \end{equation}
-where \( f(x) \) is the weighting function that downweights rare (or extremely common) co-occurrences to improve robustness. GloVe, for instance, uses the piecewise definition
-\begin{equation}
-    f(x) = \begin{cases}
-        \left(\frac{x}{x_{\max}}\right)^\alpha & \text{if } x < x_{\max}, \\
-        1 & \text{otherwise},
-    \end{cases}
-    \qquad 0 < \alpha \leq 1,
-    \label{eq:glove_weight}
-\end{equation}
-so that very small counts contribute little to the loss while still allowing moderately frequent pairs to influence the fit. In the original paper, practical defaults such as \(\alpha \approx 0.75\) and \(x_{\max}\approx 100\) were found to work well across a range of corpora \citep{Pennington2014}; keeping those guardrails explicit also explains why the same weighting recipe keeps reappearing in derived models.
+where \( f(x) \) is the weighting function that downweights rare (or extremely common) co-occurrences to improve robustness. GloVe uses the piecewise definition in \eqref{eq:weighting_function}, so very small counts contribute little to the loss while moderately frequent pairs still influence the fit. In the original paper, practical defaults such as \(\alpha \approx 0.75\) and \(x_{\max}\approx 100\) were found to work well across a range of corpora \citep{Pennington2014}; keeping those guardrails explicit also explains why the same weighting recipe keeps reappearing in derived models.
 
 \paragraph{Singular Value Decomposition (SVD) Connection}
 
