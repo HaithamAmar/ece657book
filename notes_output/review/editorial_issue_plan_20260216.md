@@ -10,7 +10,7 @@
 - [x] Resolve layer-indexing contradiction (l=1..L vs l=0..L) in `lecture_4_part_i.tex`.
 - [x] Resolve Mamdani clipping vs scaling contradiction + remove stray line break in `lecture_10_part_ii.tex`.
 - [x] Complete truncated sentences in `lecture_11.tex` (fitness/exploration, crossover, GP summary).
-- [ ] Scan other `lecture_*.tex` files for mid-sentence truncations and malformed labels.
+- [x] Scan other `lecture_*.tex` files for mid-sentence truncations and malformed labels (fixed fragment in `lecture_9.tex`; no other truncations found in regex scan).
 
 Build notes (2026-02-17):
 - Release checks run. Playwright-based PDF-vs-EPUB spot-check and EPUB layout audit failed due to Chromium launch permission (TargetClosedError). Remaining EPUB checks completed and reported OK.
@@ -31,6 +31,7 @@ Build notes (2026-02-17):
 - Release checks re-run after P1 dedup updates in `lecture_7.tex` and `lecture_8_part_i.tex`. All checks completed; warning gate passed. EPUBCheck passed.
 - Release checks re-run after P1 dedup updates in `lecture_8_part_ii.tex` and `lecture_9.tex`. All checks completed; warning gate passed. EPUBCheck passed.
 - Release checks re-run after P1 dedup updates in `lecture_10_part_ii.tex`, `lecture_transformers.tex`, and `lecture_11.tex`. All checks completed; warning gate passed. EPUBCheck passed.
+- Release checks re-run after P0 truncation scan fix in `lecture_9.tex`. All checks completed; warning gate passed. EPUBCheck passed.
 
 ### P1 (global consistency / cross-ref hygiene)
 - [ ] Notation consistency sweeps (vector bolding; objective symbol; x/X casing) across chapters. (Progress: objective symbol standardized in `lecture_11.tex`; vector/matrix notation normalized in `lecture_3_part_i.tex` and `lecture_8_part_i.tex`; W/A/Z/b notation normalized in `lecture_3_part_ii.tex`, `lecture_4_part_i.tex`, and `lecture_6.tex`; \(\delta\)/\(D\)/\(K\)/\(\Phi\) notation normalized in `lecture_3_part_ii.tex`, `lecture_4_part_i.tex`, `lecture_4_part_ii.tex`, and `lecture_6.tex`; \(\Sigma\) notation normalized in `lecture_8_part_i.tex`; vector bolding sweep applied in `lecture_supervised.tex`, `lecture_4_part_i.tex`, `lecture_7.tex`, `lecture_8_part_i.tex`, `lecture_1_intro.tex`, `lecture_3_part_ii.tex`, `lecture_5_part_ii.tex` after manual pass beyond co-occurrence section. y/\hat{y} sweep found no vector/scalar mismatches. H/G/J/\(\Lambda\)/\(\Psi\) sweep found no vector/scalar mismatches.)
