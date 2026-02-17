@@ -333,9 +333,9 @@ Thus $\nabla_{\mathbf{w}_1}P=\delta_1 \mathbf{x} \approx [-0.018,\,+0.018]^\top$
 \label{sec:mlp_from_two_neurons_to_multi}layer networks}
 \label{sec:mlp_from_two_neurons_to_multi_sec_mlp_from_two_neurons_to_multi_layer_networks}
 
-Nothing essential changes for deeper networks; we simply apply the same chain rule repeatedly. For a layer $l$ with pre\hyp{}activations $\mathbf{p}^{(l)}$ and weights $W^{(l+1)}$, the error signal satisfies
+Nothing essential changes for deeper networks; we simply apply the same chain rule repeatedly. For a layer $l$ with pre\hyp{}activations $\mathbf{p}^{(l)}$ and weights $\mathbf{W}^{(l+1)}$, the error signal satisfies
 \begin{equation}
-\delta^{(l)} = \bigl(\delta^{(l+1)} (W^{(l+1)})^\top\bigr) \circ f'(\mathbf{p}^{(l)}),
+\delta^{(l)} = \bigl(\delta^{(l+1)} (\mathbf{W}^{(l+1)})^\top\bigr) \circ f'(\mathbf{p}^{(l)}),
 \label{eq:delta_recursion}
 \end{equation}
 where $\circ$ denotes element\hyp{}wise multiplication. This recursion is the heart of backpropagation, which we derive and operationalize in \Cref{chap:backprop}.

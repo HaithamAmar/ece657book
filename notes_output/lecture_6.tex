@@ -258,12 +258,12 @@ Recall from the previous discussion that when training deep neural networks, the
 
 Consider a deep network with $L$ layers. Let $\delta \mathbf{W}^{(\ell)} = \nabla_{\mathbf{W}^{(\ell)}} \mathcal{L}$ denote the gradient of the loss with respect to the weights at layer $\ell$. If we assume the weights are initialized identically and the derivative of the activation function is approximately constant, then the gradient at the first layer can be expressed schematically as:
 \begin{equation}
-    \delta \mathbf{W}^{(1)} \approx \left( W^{(2)} D^{(2)} \right) \left( W^{(3)} D^{(3)} \right) \cdots \left( W^{(L)} D^{(L)} \right) \delta \mathbf{W}^{(L)}.
+\delta \mathbf{W}^{(1)} \approx \left( \mathbf{W}^{(2)} D^{(2)} \right) \left( \mathbf{W}^{(3)} D^{(3)} \right) \cdots \left( \mathbf{W}^{(L)} D^{(L)} \right) \delta \mathbf{W}^{(L)}.
     \label{eq:gradient_chain}
 \end{equation}
-where $W$ represents the weight matrix and $f'$ is the derivative of the activation function.
+where $\mathbf{W}$ represents the weight matrix and $f'$ is the derivative of the activation function.
 
-Here $W^{(\ell)}$ denotes the weight matrix connecting layers $\ell-1$ and $\ell$, while $D^{(\ell)} = \operatorname{diag}\!\big(f'(z^{(\ell)})\big)$ collects the activation derivatives at layer $\ell$. The product therefore chains together Jacobians from layers $2$ through $L$. If the spectral norm (largest singular value) of each factor \(W^{(\ell)} D^{(\ell)}\) exceeds one, then $\|\delta \mathbf{W}^{(1)}\|$ grows exponentially with $L$, causing \textbf{exploding gradients}. Conversely, norms less than one cause $\|\delta \mathbf{W}^{(1)}\|$ to shrink exponentially, leading to \textbf{vanishing gradients}.
+Here $\mathbf{W}^{(\ell)}$ denotes the weight matrix connecting layers $\ell-1$ and $\ell$, while $D^{(\ell)} = \operatorname{diag}\!\big(f'(z^{(\ell)})\big)$ collects the activation derivatives at layer $\ell$. The product therefore chains together Jacobians from layers $2$ through $L$. If the spectral norm (largest singular value) of each factor \(\mathbf{W}^{(\ell)} D^{(\ell)}\) exceeds one, then $\|\delta \mathbf{W}^{(1)}\|$ grows exponentially with $L$, causing \textbf{exploding gradients}. Conversely, norms less than one cause $\|\delta \mathbf{W}^{(1)}\|$ to shrink exponentially, leading to \textbf{vanishing gradients}.
 
 \paragraph{Consequences}
 

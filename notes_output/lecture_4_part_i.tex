@@ -123,10 +123,10 @@ The elementwise product \texttt{*} mirrors the Hadamard notation from \Crefrange
 
 \begin{tcolorbox}[summarybox, title={Shape ledger for an $L$-layer MLP (batch size $B$)}]
 \begin{itemize}
-    \item \(A^{(l-1)}\in\mathbb{R}^{B\times n_{l-1}},\; Z^{(l)},\delta^{(l)}\in\mathbb{R}^{B\times n_l}\)
-    \item \(W^{(l)}\in\mathbb{R}^{n_{l-1}\times n_l},\; b^{(l)}\in\mathbb{R}^{n_l}\)
-    \item \(\partial L/\partial W^{(l)} = (A^{(l-1)})^\top \delta^{(l)} / B \in \mathbb{R}^{n_{l-1}\times n_l}\)
-    \item \(\partial L/\partial b^{(l)} = \mathrm{batch\_mean}(\delta^{(l)}) \in \mathbb{R}^{n_l}\)
+    \item \(\mathbf{A}^{(l-1)}\in\mathbb{R}^{B\times n_{l-1}},\; \mathbf{Z}^{(l)},\delta^{(l)}\in\mathbb{R}^{B\times n_l}\)
+    \item \(\mathbf{W}^{(l)}\in\mathbb{R}^{n_{l-1}\times n_l},\; \mathbf{b}^{(l)}\in\mathbb{R}^{n_l}\)
+    \item \(\partial L/\partial \mathbf{W}^{(l)} = (\mathbf{A}^{(l-1)})^\top \delta^{(l)} / B \in \mathbb{R}^{n_{l-1}\times n_l}\)
+    \item \(\partial L/\partial \mathbf{b}^{(l)} = \mathrm{batch\_mean}(\delta^{(l)}) \in \mathbb{R}^{n_l}\)
 \end{itemize}
 Layers share this structure; convolutional/sequence models reuse the same calculus with different bookkeeping.
 \end{tcolorbox}
@@ -175,7 +175,7 @@ where we define the \emph{error term}
 \[
 \delta_j^{(l+1)}:= \frac{\partial \mathcal{L}}{\partial z_j^{(l+1)}}.
 \]
-Collecting the \(\delta_j^{(l+1)}\) for all neurons in layer \(l+1\) forms a vector \(\boldsymbol{\delta}^{(l+1)}\) with the same dimension as \(z^{(l+1)}\), ensuring the gradient \(\frac{\partial \mathcal{L}}{\partial W^{(l)}}\) has the same shape as the weight matrix.
+Collecting the \(\delta_j^{(l+1)}\) for all neurons in layer \(l+1\) forms a vector \(\boldsymbol{\delta}^{(l+1)}\) with the same dimension as \(z^{(l+1)}\), ensuring the gradient \(\frac{\partial \mathcal{L}}{\partial \mathbf{W}^{(l)}}\) has the same shape as the weight matrix.
 
 \paragraph{Interpretation of \(\delta_j^{(l+1)}\)}
 
@@ -365,15 +365,15 @@ SGD remains the backbone; momentum and Adam/AdamW from \Cref{chap:cnn} accelerat
     ]
         \node[var] (x) {$\mathbf{x}$};
 
-        \node[block, right=of x] (Z1) {$Z^{(1)}$};
-        \node[param, above=1.5cm of Z1] (W1) {$W^{(1)},\, b^{(1)}$};
-        \node[act, right=0.8cm of Z1] (A1) {$A^{(1)}$\\[-2pt]{\scriptsize $f(\cdot)$}};
+        \node[block, right=of x] (Z1) {$\mathbf{Z}^{(1)}$};
+        \node[param, above=1.5cm of Z1] (W1) {$\mathbf{W}^{(1)},\, \mathbf{b}^{(1)}$};
+        \node[act, right=0.8cm of Z1] (A1) {$\mathbf{A}^{(1)}$\\[-2pt]{\scriptsize $f(\cdot)$}};
 
         \node[right=0.8cm of A1, font=\large\bfseries, text=gray!40] (dots) {$\cdots$};
 
-        \node[block, right=0.8cm of dots] (ZL) {$Z^{(L)}$};
-        \node[param, above=1.5cm of ZL] (WL) {$W^{(L)},\, b^{(L)}$};
-        \node[act, right=0.8cm of ZL] (AL) {$A^{(L)}$\\[-2pt]{\scriptsize $\sigma(\cdot)$}};
+        \node[block, right=0.8cm of dots] (ZL) {$\mathbf{Z}^{(L)}$};
+        \node[param, above=1.5cm of ZL] (WL) {$\mathbf{W}^{(L)},\, \mathbf{b}^{(L)}$};
+        \node[act, right=0.8cm of ZL] (AL) {$\mathbf{A}^{(L)}$\\[-2pt]{\scriptsize $\sigma(\cdot)$}};
 
         \node[loss, right=1.2cm of AL] (L) {$\mathcal{L}$};
         \node[var, above=1.5cm of L] (t) {$t$};
@@ -412,7 +412,7 @@ SGD remains the backbone; momentum and Adam/AdamW from \Cref{chap:cnn} accelerat
 
         % Backward pass
         \draw[bwd] (L.south) |- ++(0,-1.3) -|
-            node[pos=0.25, below, font=\scriptsize] {$\frac{\partial \mathcal{L}}{\partial A^{(L)}}$} (AL.south);
+            node[pos=0.25, below, font=\scriptsize] {$\frac{\partial \mathcal{L}}{\partial \mathbf{A}^{(L)}}$} (AL.south);
         \draw[bwd] (AL.south) |- ++(0,-1.3) -|
             node[pos=0.25, below, font=\scriptsize] {$\delta^{(L)}$} (ZL.south);
         \draw[bwd] (ZL.south) |- ++(0,-1.3) -|
@@ -422,10 +422,10 @@ SGD remains the backbone; momentum and Adam/AdamW from \Cref{chap:cnn} accelerat
         % Gradient extraction (curved to avoid overlaps)
         \draw[grad] (ZL.north) to[bend right=45]
             node[midway, right, font=\tiny, text=cbGreen!75!black, align=left, xshift=2pt]
-            {$\nabla_{W^{(L)}}$\\$\nabla_{b^{(L)}}$} (WL.south);
+            {$\nabla_{\mathbf{W}^{(L)}}$\\$\nabla_{\mathbf{b}^{(L)}}$} (WL.south);
         \draw[grad] (Z1.north) to[bend right=45]
             node[midway, right, font=\tiny, text=cbGreen!75!black, align=left, xshift=2pt]
-            {$\nabla_{W^{(1)}}$\\$\nabla_{b^{(1)}}$} (W1.south);
+            {$\nabla_{\mathbf{W}^{(1)}}$\\$\nabla_{\mathbf{b}^{(1)}}$} (W1.south);
     \end{tikzpicture}%
     }
     % Avoid dense inline math in captions; it wraps poorly in EPUB renderers.
@@ -437,9 +437,9 @@ SGD remains the backbone; momentum and Adam/AdamW from \Cref{chap:cnn} accelerat
 \begin{tcolorbox}[summarybox, title={Debugging and gradient-check checklist}]
 \begin{itemize}
     \item \textbf{Overfit a tiny batch:} Ensure the loss can be driven near zero on a handful of samples.
-    \item \textbf{Gradient norms:} Track \(\|\nabla W^{(l)}\|\) per layer; look for dead layers (all zeros) or explosions.
+    \item \textbf{Gradient norms:} Track \(\|\nabla \mathbf{W}^{(l)}\|\) per layer; look for dead layers (all zeros) or explosions.
     \item \textbf{Finite-difference check:} Compare analytic gradients to numerical finite differences on a tiny network with fixed seeds; relative error should be \(<10^{-6}\).
-    \item \textbf{Shape assertions:} Verify that \(Z^{(l)}, A^{(l)},\delta^{(l)}\) have the expected batch shapes and that bias broadcasts correctly.
+    \item \textbf{Shape assertions:} Verify that \(\mathbf{Z}^{(l)}, \mathbf{A}^{(l)},\delta^{(l)}\) have the expected batch shapes and that bias broadcasts correctly.
     \item \textbf{Layerwise sanity:} For a one-layer linear model, backprop gradients should match the closed-form linear-regression gradients.
 \end{itemize}
 \end{tcolorbox}
@@ -449,8 +449,8 @@ SGD remains the backbone; momentum and Adam/AdamW from \Cref{chap:cnn} accelerat
 
 For a quick sanity check, take a tiny 2--2--1 network with sigmoid output and cross\hyp{}entropy loss. Using
 \begin{align*}
-W^{(1)}&=\begin{bmatrix}0.5&-0.3\\0.8&0.2\end{bmatrix},\quad b^{(1)}=[0.1,-0.2],\\
-W^{(2)}&=\begin{bmatrix}0.7\\-0.4\end{bmatrix},\quad b^{(2)}=0.05,\\
+\mathbf{W}^{(1)}&=\begin{bmatrix}0.5&-0.3\\0.8&0.2\end{bmatrix},\quad \mathbf{b}^{(1)}=[0.1,-0.2],\\
+\mathbf{W}^{(2)}&=\begin{bmatrix}0.7\\-0.4\end{bmatrix},\quad \mathbf{b}^{(2)}=0.05,\\
 \mathbf{x}&=[0.6,-1.2],\quad t=1,
 \end{align*}
 the forward pass yields
@@ -463,17 +463,17 @@ a^{(2)}=0.5411,
 with loss \(\mathcal{L}\approx 0.6142\). The cross\hyp{}entropy output error is \(\delta^{(2)}=a^{(2)}-t=-0.4590\). Backpropagating gives
 \[
 \delta^{(1)}=[-0.0743,0.0418],\quad
-\nabla_{W^{(2)}}=[-0.1669,-0.1605]^\top,\quad
-\nabla_{b^{(2)}}=-0.4590,
+\nabla_{\mathbf{W}^{(2)}}=[-0.1669,-0.1605]^\top,\quad
+\nabla_{\mathbf{b}^{(2)}}=-0.4590,
 \]
 and
 \[
-\nabla_{W^{(1)}}=
+\nabla_{\mathbf{W}^{(1)}}=
 \begin{bmatrix}
 -0.0446&0.0251\\
 0.0892&-0.0501
 \end{bmatrix},\quad
-\nabla_{b^{(1)}}=[-0.0743,0.0418].
+\nabla_{\mathbf{b}^{(1)}}=[-0.0743,0.0418].
 \]
 Finite-difference checks on the same network match to numerical precision, validating the implementation.
 
@@ -560,11 +560,11 @@ w_{ij}(n) = w_{ij}(n-1) + \Delta w_{ij}(n).
 \textbf{Inputs:} mini\hyp{}batch \(\{\mathbf{x}_b,\mathbf{t}_b\}_{b=1}^B\), learning rate \(\eta\), L2 coefficient \(\lambda\), dropout keep probability \(q=1-p\).
 \begin{enumerate}[leftmargin=*]
     \item \textbf{Forward pass:} propagate activations layer by layer; for each hidden layer draw a dropout mask \(\mathbf{m}\sim \operatorname{Bernoulli}(q)\), apply \(\tilde{\mathbf{a}}=\mathbf{m}\odot \mathbf{a}/q\), and cache \(\mathbf{m}\) for the backward step.
-    \item \textbf{Backward pass:} compute \(\nabla_{W^{(\ell)}} \mathcal{L}\) using the cached activations/masks so that dropped units contribute zero gradient.
+    \item \textbf{Backward pass:} compute \(\nabla_{\mathbf{W}^{(\ell)}} \mathcal{L}\) using the cached activations/masks so that dropped units contribute zero gradient.
     \item \textbf{Update block (per layer):}
     \[
-        \mathbf{g}_\ell = \frac{1}{B}\nabla_{W^{(\ell)}} \mathcal{L} + \lambda W^{(\ell)}, \qquad
-        W^{(\ell)} \leftarrow W^{(\ell)} - \eta\, \mathbf{g}_\ell.
+        \mathbf{g}_\ell = \frac{1}{B}\nabla_{\mathbf{W}^{(\ell)}} \mathcal{L} + \lambda \mathbf{W}^{(\ell)}, \qquad
+        \mathbf{W}^{(\ell)} \leftarrow \mathbf{W}^{(\ell)} - \eta\, \mathbf{g}_\ell.
     \]
     Biases skip the weight-decay term. With Adam/SGD+momentum, \(\mathbf{g}_\ell\) replaces the raw gradient inside the optimizer step so L2 regularization and dropout are always enforced explicitly.
 \end{enumerate}
@@ -697,27 +697,27 @@ Recall that the MLP consists of multiple layers of neurons, each performing an a
 
 The backpropagation algorithm efficiently computes the gradient of the loss function with respect to all network parameters by applying the chain rule of calculus through the network layers. For a network with \( L \) layers, denote by:
 \[
-Z^{(l)} = A^{(l-1)}W^{(l)} + \mathbf{1}(b^{(l)})^\top,\quad A^{(l)} = \phi^{(l)}(Z^{(l)}),
+\mathbf{Z}^{(l)} = \mathbf{A}^{(l-1)}\mathbf{W}^{(l)} + \mathbf{1}(\mathbf{b}^{(l)})^\top,\quad \mathbf{A}^{(l)} = \phi^{(l)}(\mathbf{Z}^{(l)}),
 \]
-where \(W^{(l)}\) and \(b^{(l)}\) are the weights and biases of layer \( l \), \(A^{(l-1)}\) is the previous layer activation (rows are samples), and \(\phi^{(l)}\) is the activation function.
+where \(\mathbf{W}^{(l)}\) and \(\mathbf{b}^{(l)}\) are the weights and biases of layer \( l \), \(\mathbf{A}^{(l-1)}\) is the previous layer activation (rows are samples), and \(\phi^{(l)}\) is the activation function.
 
 The error term at layer \( l \) is defined as:
 \[
-\delta^{(l)} = \frac{\partial \mathcal{L}}{\partial Z^{(l)}}.
+\delta^{(l)} = \frac{\partial \mathcal{L}}{\partial \mathbf{Z}^{(l)}}.
 \]
 
 Using the chain rule, the error terms propagate backward as:
 \begin{align}
-\delta^{(L)} &= \nabla_{A^{(L)}} \mathcal{L} \odot \phi^{(L)\prime}(Z^{(L)}), \\
-\delta^{(l-1)} &= \left(\delta^{(l)}(W^{(l)})^\top\right) \odot \phi^{(l-1)\prime}(Z^{(l-1)}), \quad l = L, \ldots, 2,
+\delta^{(L)} &= \nabla_{\mathbf{A}^{(L)}} \mathcal{L} \odot \phi^{(L)\prime}(\mathbf{Z}^{(L)}), \\
+\delta^{(l-1)} &= \left(\delta^{(l)}(\mathbf{W}^{(l)})^\top\right) \odot \phi^{(l-1)\prime}(\mathbf{Z}^{(l-1)}), \quad l = L, \ldots, 2,
     \label{eq:auto:lecture_4_part_i:2}
 \end{align}
 where \(\odot\) denotes element-wise multiplication and \(\phi^{(l)\prime}\) is the derivative of the activation function at layer \( l \).
 
 The gradients of the loss with respect to the parameters are then:
 \begin{align}
-\frac{\partial \mathcal{L}}{\partial W^{(l)}} &= (A^{(l-1)})^\top \delta^{(l)}, \label{eq:grad_W}\\
-\frac{\partial \mathcal{L}}{\partial b^{(l)}} &= \mathbf{1}^\top \delta^{(l)}. \label{eq:grad_b}
+\frac{\partial \mathcal{L}}{\partial \mathbf{W}^{(l)}} &= (\mathbf{A}^{(l-1)})^\top \delta^{(l)}, \label{eq:grad_W}\\
+\frac{\partial \mathcal{L}}{\partial \mathbf{b}^{(l)}} &= \mathbf{1}^\top \delta^{(l)}. \label{eq:grad_b}
 \end{align}
 
 These gradients are used in gradient-based optimization methods (e.g., stochastic gradient descent) to update the parameters and minimize the loss. \Cref{fig:lec4_backprop_flow} complements the algebra by showing how cached activations (blue) line up with the backward error signals (orange) in a simple two-layer network.
@@ -918,8 +918,8 @@ This closes the core backpropagation story for MLPs. Next we summarize practical
 
 \begin{tcolorbox}[summarybox, title={Derivation closure: implement, cache, fail-fast}]
 \begin{itemize}
-    \item \textbf{Implement:} encode one canonical forward signature \((A^{(l-1)}, W^{(l)}, b^{(l)}) \mapsto (Z^{(l)}, A^{(l)})\), then reuse it for every layer.
-    \item \textbf{Cache:} store \((A^{(l-1)}, Z^{(l)})\) per layer so backward passes only apply local Jacobians and matrix multiplications.
+    \item \textbf{Implement:} encode one canonical forward signature \((\mathbf{A}^{(l-1)}, \mathbf{W}^{(l)}, \mathbf{b}^{(l)}) \mapsto (\mathbf{Z}^{(l)}, \mathbf{A}^{(l)})\), then reuse it for every layer.
+    \item \textbf{Cache:} store \((\mathbf{A}^{(l-1)}, \mathbf{Z}^{(l)})\) per layer so backward passes only apply local Jacobians and matrix multiplications.
     \item \textbf{Fail-fast checks:} do a numerical gradient check on one mini-batch, then verify gradient norms and validation curves before long runs.
     \item \textbf{Reproducibility:} log seed, optimizer, schedule, and stopping rule with each run; the reporting template in \Cref{app:repro_standards} keeps comparisons fair.
 \end{itemize}
