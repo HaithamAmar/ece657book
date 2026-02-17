@@ -267,25 +267,16 @@ o_i = \begin{cases}
 
 Mutation introduces random changes with a small probability \( \mu \), altering gene \( o_i \) to a different value.
 
-\paragraph{Fitness and Selection}
-
-Each gene or chromosome corresponds to a phenotype, representing a candidate solution with an associated fitness value \( f(\mathbf{o}) \). Fitness quantifies the quality or suitability of the solution, guiding the selection process for reproduction.
-
-Consider a set of objects (e.g., facial features such as nose, eyes, lips) encoded by chromosomes. Each object variant has a fitness value reflecting its quality or adaptation. For example, fitness values might be:
+\paragraph{Fitness and selection (preview)}
+Chromosomes encode candidate solutions (phenotypes), and fitness scores quantify how well each candidate meets the objective. For example, consider chromosomes representing facial feature variants with fitness values
 \[
-f = \{80, 75, 60, 65, 40, 20\}
+f = \{80, 75, 60, 65, 40, 20\}.
 \]
-
-Over many generations, chromosomes with higher fitness values have a higher probability of surviving and reproducing, while those with lower fitness tend to be eliminated.
-
-\paragraph{Probabilistic Survival and Evolution}
-
-The survival probability \( P_s \) of a chromosome depends on its fitness and the evolutionary dynamics:
+Higher-fitness chromosomes are more likely to survive and reproduce. A common proportional rule assigns
 \[
-P_s(\mathbf{c}) \approx \frac{f(\mathbf{c})}{\sum_{\mathbf{c}'} f(\mathbf{c}')}.
+P_s(\mathbf{c}) \approx \frac{f(\mathbf{c})}{\sum_{\mathbf{c}'} f(\mathbf{c}')},
 \]
-
-Over multiple generations, this leads to the propagation of fitter chromosomes and the gradual improvement of the population.
+so that fitter candidates appear more frequently in the parent pool over generations. The detailed selection mechanics (roulette, ranking, elitism) and a numeric roulette example follow in \Cref{sec:evo_selection_in_genetic_algorithms}.
 
 \subsection{Mapping Genetic Algorithms to Optimization Problems}
 \label{sec:evo_mapping_genetic_algorithms_to_optimization_problems}
@@ -707,7 +698,7 @@ In practice, a combination of these criteria is often used. For example, one mig
 \subsection{Summary of Genetic Algorithm Workflow}
 \label{sec:evo_summary_of_genetic_algorithm_workflow}
 
-The GA loop alternates fitness evaluation with selection, crossover, mutation, and replacement until a stopping criterion is met. The flow diagram in \Cref{fig:lec11-ga-flow} and the pseudocode in \Cref{sec:evo_pseudocode_representation} capture the control structure for quick reference.
+The GA loop alternates fitness evaluation with selection, crossover, mutation, and replacement until a stopping criterion is met. Use \Cref{fig:lec11-ga-flow} to verify control flow, \Cref{tab:ga-toy} for a numeric trace of one generation, and \Cref{sec:evo_pseudocode_representation} for a direct implementation template; all three describe the same loop at different levels of detail.
 
 \begin{figure}[!ht]
 \centering

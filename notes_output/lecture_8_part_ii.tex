@@ -127,12 +127,12 @@ For example, reading $24.5^\circ$C from a thermometer with $\pm 1^\circ$C resolu
 \subsection{Soft Computing: Motivation and Overview}
 \label{sec:softcomp_soft_computing_motivation_and_overview}
 
-Soft computing is not a monolithic framework but rather a coalition of distinct methods unified by a common goal: to exploit tolerance for imprecision, uncertainty, and partial truth to achieve tractability, robustness, and low solution cost. Unlike traditional hard computing, which demands exact inputs and produces precise outputs, soft computing embraces the inherent vagueness of many real-world problems, particularly those involving human reasoning and perception. The constituents mirror the probabilistic and connectionist tools from \Crefrange{chap:supervised}{chap:transformers} but favour interpretability and rule-based reasoning:
+Soft computing is defined in \Cref{sec:softcomp_soft_computing_motivation_and_definition}; here we map its constituents to where they are developed in this book so you can follow the learning outcomes above without re-reading the same motivation.
 \begin{itemize}
-    \item \textbf{Fuzzy Logic:} Captures human knowledge and reasoning expressed in linguistic terms, allowing approximate reasoning with imprecise concepts.
-    \item \textbf{Neurocomputing (Neural Networks):} Learning from data and pattern recognition; hybrids such as ANFIS \citep{Jang1993} blend fuzzy rules with trainable neural layers.
-    \item \textbf{Probabilistic modeling (already covered):} Bayesian/MAP views from \Crefrange{chap:supervised}{chap:logistic} remain complementary to fuzzy possibility views \citep{Dubois1988}, but the emphasis in this block is on rule-based reasoning rather than probabilistic inference.
-    \item \textbf{Genetic/Evolutionary Computation:} \Cref{chap:evo} shows how evolutionary search tunes rule bases and membership parameters \citep{Herrera2008,Ishibuchi2007}.
+    \item \textbf{Fuzzy logic:} this chapter and the fuzzy trilogy \Crefrange{chap:fuzzysets}{chap:fuzzyinference} build membership functions, rules, and inference pipelines.
+    \item \textbf{Neurocomputing and hybrids:} neural models live in \Crefrange{chap:supervised}{chap:transformers}; neuro-fuzzy hybrids such as ANFIS \citep{Jang1993} sit at the interface.
+    \item \textbf{Probabilistic modeling:} the statistical strand in \Crefrange{chap:supervised}{chap:logistic} remains complementary to fuzzy possibility views \citep{Dubois1988}.
+    \item \textbf{Evolutionary computation:} \Cref{chap:evo} shows how evolutionary search tunes rule bases and membership parameters \citep{Herrera2008,Ishibuchi2007}.
 \end{itemize}
 
 
