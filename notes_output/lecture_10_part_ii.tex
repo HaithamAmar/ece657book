@@ -244,7 +244,7 @@ Defaults: \(T=\min\) or product; \(S=\max\); centroid defuzzification. Non-singl
 \subsection{Mamdani vs.\ Sugeno/Takagi--Sugeno systems}
 \label{sec:fuzzyinference_mamdani_vs_sugeno_takagi_sugeno_systems}
 
-Mamdani-style inference (scaled fuzzy consequents, centroid defuzzification) excels when linguistic interpretability is a priority and when rule consequents must remain human-readable.\\
+Mamdani-style inference (clipped fuzzy consequents, centroid defuzzification) excels when linguistic interpretability is a priority and when rule consequents must remain human-readable.
 Sugeno/Takagi--Sugeno (TSK) systems replace fuzzy consequents with crisp functions such as affine models,
 \[
 \text{IF } e \text{ is } A_i \text{ AND } \dot{e} \text{ is } B_i \text{ THEN } u_i = p_i e + q_i \dot{e} + r_i.

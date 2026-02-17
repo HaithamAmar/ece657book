@@ -29,7 +29,7 @@ A practical MLP rarely updates one coordinate at a time; gradients are treated a
 \subsection{Problem Setup}
 \label{sec:backprop_problem_setup}
 
-Consider a multi-layer perceptron with layers indexed by $l = 1, 2, \ldots, L$, where $L$ is the output layer. Each layer $l$ contains neurons indexed by $i$, and the output of neuron $i$ in layer $l$ is denoted by $a_i^{(l)}$. The input to this neuron before activation is denoted by $z_i^{(l)}$. The weights connecting neuron $i$ in layer $l-1$ to neuron $j$ in layer $l$ are denoted by $w_{ij}^{(l)}$.
+Consider a multi-layer perceptron with layers indexed by $l = 0, 1, \ldots, L$, where $l=0$ is the input layer and $L$ is the output layer. Each layer $l$ contains neurons indexed by $i$, and the output of neuron $i$ in layer $l$ is denoted by $a_i^{(l)}$. The input to this neuron before activation is denoted by $z_i^{(l)}$. The weights connecting neuron $i$ in layer $l-1$ to neuron $j$ in layer $l$ are denoted by $w_{ij}^{(l)}$.
 
 The forward pass through the network is given by:
 \begin{align}
