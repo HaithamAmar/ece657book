@@ -17,7 +17,7 @@ Local linguistic rules become a global behavior only after you commit to concret
 \end{tcolorbox}
 
 \paragraph{Running example checkpoint.}
-For the thermostat, each rule combines the temperature error (\textit{Cold}, \textit{Slightly Warm}, \ldots) and rate-of-change to set heater power. As you work through antecedent aggregation, implication, and defuzzification, keep one concrete rule base (e.g., ``IF error is Cold AND rate is Falling THEN heater power is High'') in mind; the formulas below map directly onto that setup.
+For the thermostat, each rule combines the temperature error (\textit{Cold}, \textit{Slightly Warm}, \ldots) and rate-of-change to set heater power. As you work through antecedent aggregation, implication, and defuzzification, keep one concrete rule base (e.g., ``IF error is Cold AND rate is Stable THEN heater power is High'') in mind; the formulas below map directly onto that setup.
 
 \subsection{Context and Motivation}
 \label{sec:fuzzyinference_context_and_motivation}
@@ -95,6 +95,7 @@ When multiple rules are present, each produces an output fuzzy set $B'_j$ with m
 \mu_{B_{\text{agg}}}(y) = \max_j \mu_{B'_j}(y).
 \label{eq:output_aggregation}
 \end{equation}
+We denote this aggregated set by \(\mu_{B_{\text{agg}}}\); in the worked thermostat example we write \(\mu_{\text{out}}(u)\) for the same quantity to emphasize the output variable.
 
 The \emph{max} operator corresponds to the fuzzy union of the individual rule outputs, capturing the overall inference result.
 \paragraph{Other aggregations} Algebraic sum or bounded sum (\Cref{tab:tnorms}) are used when max is too brittle; they can over-saturate when many rules fire, so start with max unless smooth blending is required.
@@ -209,9 +210,9 @@ for each rule j:
         # firing strength
     mu_Bprime_j(y) = implication(alpha_j, mu_Bj(y))
         # clip or scale
-mu_Bagg(y) = S( mu_Bprime_1(y), ..., mu_Bprime_R(y) )
-    # aggregate
-y_star = centroid(mu_Bagg(y))
+mu_out(y) = S( mu_Bprime_1(y), ..., mu_Bprime_R(y) )
+    # aggregate (mu_out == mu_Bagg)
+y_star = centroid(mu_out(y))
     # or another defuzzifier
 \end{verbatim}
 Defaults: \(T=\min\) or product; \(S=\max\); centroid defuzzification. Non-singleton fuzzification (convolving input uncertainty with \(\mu_{A_i}\)) uses the same pipeline once the input blend is computed.
@@ -240,9 +241,9 @@ Defaults: \(T=\min\) or product; \(S=\max\); centroid defuzzification. Non-singl
 \label{sec:fuzzyinference_mamdani_vs_sugeno_takagi_sugeno_systems}
 
 Mamdani-style inference (clipped fuzzy consequents, centroid defuzzification) excels when linguistic interpretability is a priority and when rule consequents must remain human-readable.
-Sugeno/Takagi--Sugeno (TSK) systems replace fuzzy consequents with crisp functions such as affine models,
+Sugeno/Takagi--Sugeno (TSK) systems replace fuzzy consequents with crisp functions such as affine models. Let \(r\) denote the rate-of-change (\(r=\dot{e}\)):
 \[
-\text{IF } e \text{ is } A_i \text{ AND } \dot{e} \text{ is } B_i \text{ THEN } u_i = p_i e + q_i \dot{e} + r_i.
+\text{IF } e \text{ is } A_i \text{ AND } r \text{ is } B_i \text{ THEN } u_i = p_i e + q_i r + r_i.
 \]
 Each rule still produces a firing strength $\lambda_i$ via a t\hyp{}norm, but the final output becomes the weighted average
 \[
@@ -253,7 +254,7 @@ eliminating the defuzzification integral. The trade-offs are:
     \item \textbf{Mamdani:} transparent consequents, straightforward incorporation of expert knowledge, but higher computational cost due to aggregation and centroid evaluation.
     \item \textbf{Sugeno/TSK:} faster evaluation (weighted averages), amenable to gradient-based tuning of the consequent parameters, yet less interpretable because consequents are numerical functions rather than linguistic labels.
 \end{itemize}
-For the thermostat example, Mamdani rules (``IF error is Cold AND rate is Falling THEN heater power is High'') are ideal when operators must audit decisions, whereas a Sugeno/TSK variant is preferable when embedding the controller into a high-speed or automatically tuned loop.
+For the thermostat example, Mamdani rules (``IF error is Cold AND rate is Stable THEN heater power is High'') are ideal when operators must audit decisions, whereas a Sugeno/TSK variant is preferable when embedding the controller into a high-speed or automatically tuned loop.
 \footnote{Classic sources: \citet{Mamdani1975} for clipping implication; \citet{TakagiSugeno1985} for TSK; \citet{Jang1993} for ANFIS; see also \citep{Klement2000,Dubois1988} for operator/implicator theory.}
 
 \begin{tcolorbox}[summarybox, title={Key takeaways}]

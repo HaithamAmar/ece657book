@@ -38,7 +38,7 @@ In such cases, the new universe is a function of the original universe, and we w
 Unless stated otherwise in \Crefrange{chap:fuzzysets}{chap:fuzzyinference}, we use the standard De Morgan triple: \(\wedge=\min\), \(\vee=\max\), and complement \(C(\mu)=1-\mu\). Parameterized complements (Yager/Sugeno) are noted when used, but they generally lose involution (\(C(C(\mu))\neq \mu\)) unless the parameter is zero.
 \end{tcolorbox}
 
-\paragraph{Notation.} Throughout this chapter we use the operator defaults stated in the box above. When we introduce a general t\hyp{}norm \(T\), it appears explicitly (e.g., in \eqref{eq:extension-two-var} and \eqref{eq:composition_general}). For symbol overloads when reading across parts, see \Cref{app:notation_collisions}.
+\paragraph{Notation.} When we introduce a general t\hyp{}norm \(T\), it appears explicitly (e.g., in \eqref{eq:extension-two-var} and \eqref{eq:composition_general}). For symbol overloads when reading across parts, see \Cref{app:notation_collisions}.
 
 
 \subsection{Problem Statement}
@@ -79,20 +79,20 @@ Given the fuzzy set \( A \subseteq X \) with membership function \(\mu_A\), and 
     \mu_B(y) = \sup_{x \in X: f(x) = y} \mu_A(x)
     \label{eq:membership-transform}
 \end{equation}
-The strongest pre-image membership determines the membership of \(y\). When the mapping depends on multiple fuzzy variables (e.g., \(f(x_1, x_2)\)), the individual memberships are combined with a chosen t\hyp{}norm before taking the supremum, as shown later in \eqref{eq:extension-two-var}.
+The strongest preimage membership determines the membership of \(y\). When the mapping depends on multiple fuzzy variables (e.g., \(f(x_1, x_2)\)), the individual memberships are combined with a chosen t\hyp{}norm before taking the supremum, as shown later in \eqref{eq:extension-two-var}.
 
 \paragraph{Remarks:}
 \begin{itemize}
     \item The \(\sup\) (supremum) operator generalizes the maximum operator, capturing the highest membership value among all \( x \) mapping to \( y \); when \(X\) is finite the supremum collapses to an ordinary maximum.
     \item If no \( x \in X \) maps to \( y \), then \(\mu_B(y) = 0\).
     \item For single-input transformations no additional t\hyp{}norm is needed; the aggregation shows up only when several input memberships must be combined before mapping through \(f\).
-    \item In continuous settings we assume \(f\) is measurable so that the pre-image sets \(\{x \mid f(x)=y\}\) are well-defined and the supremum exists.
+    \item In continuous settings we assume \(f\) is measurable so that the preimage sets \(\{x \mid f(x)=y\}\) are well-defined and the supremum exists.
 \end{itemize}
 
 \subsection{Interpretation}
 \label{sec:fuzzyrelations_interpretation}
 
-Equation~\eqref{eq:membership-transform} states that the membership degree of \( y \) in \( B \) is the supremum over all membership degrees of \( x \) in \( A \) such that \( f(x) = y \). For single-input mappings no additional combination is necessary; when multiple fuzzy inputs are involved we first combine their memberships with a chosen t\hyp{}norm (cf. \eqref{eq:extension-two-var}) and then take the supremum. Intuitively, this means:
+For single-input mappings, the output membership is the strongest preimage; when multiple fuzzy inputs are involved we first combine their memberships with a chosen t\hyp{}norm (cf. \eqref{eq:extension-two-var}) and then take the supremum. Intuitively, this means:
 
 \begin{quote}
 \emph{The degree to which \( y \) belongs to the transformed fuzzy set \( B \) is determined by the strongest membership degree among all \( x \) values that map to \( y \), appropriately combined.}
@@ -131,11 +131,11 @@ Thus, the transformed fuzzy set \( B \) on \( Y \) is:
 B = \{(0, 0.141), (1, 0.340), (4, 0.4)\}.
 \]
 
-Even on this very small domain the mapping \(f(x)=x^2\) is \emph{many-to-one}, because \(x=-1\) and \(x=1\) both map to \(y=1\); the example therefore highlights how the supremum handles multiple pre-images.
+Even on this very small domain the mapping \(f(x)=x^2\) is \emph{many-to-one}, because \(x=-1\) and \(x=1\) both map to \(y=1\); the example therefore highlights how the supremum handles multiple preimages.
 \begin{tcolorbox}[summarybox, title={Worked example: monotone map (Celsius \(\to\) Fahrenheit)}]
 Let \(A=\text{Comfortable}_C\) be triangular on Celsius with breakpoints \((21,23,25)\). For the affine map \(f(x)=1.8x+32\), the image \(B=f(A)\) is triangular with breakpoints \(f(21)=69.8\), \(f(23)=73.4\), \(f(25)=77.0\). Because \(f\) is strictly increasing, \(\mu_B(y)=\mu_A(f^{-1}(y))\) and every \(\alpha\)-cut maps directly: \(B_\alpha = f(A_\alpha)\). This is the fastest way to reuse the same linguistic label across units without recomputing via \eqref{eq:membership-transform}.
 \end{tcolorbox}
-\paragraph{Visual intuition.} \Cref{fig:lec10-extension} walks through a simple mapping \(y=x^2\), showing how memberships on \(X\) lift to memberships on \(Y\) via the supremum over all pre-images that map to the same point.
+\paragraph{Visual intuition.} \Cref{fig:lec10-extension} walks through a simple mapping \(y=x^2\), showing how memberships on \(X\) lift to memberships on \(Y\) via the supremum over all preimages that map to the same point.
 
 \begin{figure}[t]
     \centering
@@ -171,7 +171,7 @@ Let \(A=\text{Comfortable}_C\) be triangular on Celsius with breakpoints \((21,2
         \end{groupplot}
     \end{tikzpicture}
     % Avoid inline math in captions; it wraps poorly in some EPUB renderers.
-    \caption{Mapping a fuzzy set through the function ``y = x-squared''. The membership at an output value y is the supremum over all pre-images x that map to y; shared images such as x = +/-1 map to y = 1 using the maximum membership. Helpful when applying the extension principle to a non-invertible function.}
+    \caption{Mapping a fuzzy set through the function ``y = x-squared''. The membership at an output value y is the supremum over all preimages x that map to y; shared images such as \(x=\pm 1\) map to y = 1 using the maximum membership. Helpful when applying the extension principle to a non-invertible function.}
     \label{fig:lec10-extension}
 \end{figure}
 
