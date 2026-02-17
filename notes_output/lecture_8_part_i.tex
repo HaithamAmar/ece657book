@@ -587,14 +587,14 @@ so that very small counts contribute little to the loss while still allowing mod
 
 One approach to solving this problem is to perform a low-rank approximation of the matrix \( \log X \), where \( X = [X_{ik}] \) is the co-occurrence matrix and the logarithm is applied elementwise (with small smoothing constants, e.g., \(\epsilon = 10^{-8}\), added to avoid \(\log 0\)). The singular value decomposition (SVD) provides a principled method to find such a factorization:
 \begin{equation}
-    \log X \approx U_r \Sigma_r V_r^\top,
+    \log X \approx \mathbf{U}_r \boldsymbol{\Sigma}_r \mathbf{V}_r^\top,
     \label{eq:svd}
 \end{equation}
-where \(U_r \in \mathbb{R}^{V \times r}\) and \(V_r \in \mathbb{R}^{V \times r}\) contain the top-\(r\) singular vectors (for the desired embedding dimension \(d=r\)), and \(\Sigma_r \in \mathbb{R}^{r \times r}\) is a diagonal matrix of the corresponding singular values. The truncation rank \(r\), often between 100 and 300 in practice, acts exactly like the embedding dimensionality knob in neural models.
+where \(\mathbf{U}_r \in \mathbb{R}^{V \times r}\) and \(\mathbf{V}_r \in \mathbb{R}^{V \times r}\) contain the top-\(r\) singular vectors (for the desired embedding dimension \(d=r\)), and \(\boldsymbol{\Sigma}_r \in \mathbb{R}^{r \times r}\) is a diagonal matrix of the corresponding singular values. The truncation rank \(r\), often between 100 and 300 in practice, acts exactly like the embedding dimensionality knob in neural models.
 
 By setting
 \[
-\mathbf{v}_i = (U_r)_i \Sigma_r^{1/2}, \quad \mathbf{u}_k = (V_r)_k \Sigma_r^{1/2},
+\mathbf{v}_i = (\mathbf{U}_r)_i \boldsymbol{\Sigma}_r^{1/2}, \quad \mathbf{u}_k = (\mathbf{V}_r)_k \boldsymbol{\Sigma}_r^{1/2},
 \]
 we obtain embeddings that approximate the log co-occurrence matrix in a least-squares sense.
 
