@@ -101,7 +101,7 @@ The sequence is: architecture and state updates, unrolling/BPTT, instability sou
 
 \paragraph{Simple RNN at a glance.}
 \begin{itemize}
-    \item \textbf{Objective:} Minimize cross\hyp{}entropy (or another sequence loss) between targets and \(p_\theta(y_t\mid h_t)\), with \(h_t = f(x_t W_{xh} + h_{t-1} W_{hh} + b_h)\).
+    \item \textbf{Objective:} Minimize cross\hyp{}entropy (or another sequence loss) between targets and \(p_\theta(y_t\mid \mathbf{h}_t)\), with \(\mathbf{h}_t = f(\mathbf{x}_t W_{xh} + \mathbf{h}_{t-1} W_{hh} + b_h)\).
     \item \textbf{Key hyperparameters:} hidden state size, BPTT truncation window, optimizer/learning rate, regularization (dropout, weight decay), and clipping threshold.
     \item \textbf{Defaults:} \(\tanh\) or ReLU activations, hidden size 128--512, Adam or SGD+momentum with clipping, and layer norm or gating (LSTM/GRU) for long sequences.
     \item \textbf{Common pitfalls:} vanishing/exploding gradients on long sequences, too-small hidden states, and train/test mismatch when teacher forcing is not reflected at inference.
@@ -223,7 +223,7 @@ Unless there is a compelling reason to run to numerical convergence, stop as soo
 
 
 \begin{tcolorbox}[summarybox, title={LayerNorm and residual RNN tips}]
-Layer Normalization~\citep{Ba2016} stabilizes recurrent dynamics by normalizing each hidden vector \(h_t\) across features before applying the nonlinearity; unlike BatchNorm it works with batch size 1 and handles variable-length sequences gracefully. Residual RNN stacks (adding the input of a layer back to its output) keep gradients flowing even when depth increases, mirroring the skip-connections that make deep CNNs trainable. Together, LayerNorm + residual links curb exploding/vanishing gradients and are the default when building multi-layer RNN/LSTM stacks.
+Layer Normalization~\citep{Ba2016} stabilizes recurrent dynamics by normalizing each hidden vector \(\mathbf{h}_t\) across features before applying the nonlinearity; unlike BatchNorm it works with batch size 1 and handles variable-length sequences gracefully. Residual RNN stacks (adding the input of a layer back to its output) keep gradients flowing even when depth increases, mirroring the skip-connections that make deep CNNs trainable. Together, LayerNorm + residual links curb exploding/vanishing gradients and are the default when building multi-layer RNN/LSTM stacks.
 \end{tcolorbox}
 
 \paragraph{Historical Note: Hopfield Networks}
@@ -237,17 +237,17 @@ Bidirectional extensions run two RNNs in opposite directions and concatenate the
 
 RNNs can map sequences to sequences in several ways:
 \begin{itemize}
-    \item Many-to-one (e.g., sentiment classification): consume \(x_{1: T}\), emit one label after the final state.
+    \item Many-to-one (e.g., sentiment classification): consume \(\mathbf{x}_{1: T}\), emit one label after the final state.
     \item One-to-many (e.g., conditional generation): condition on a context vector, then autoregressively emit a sequence.
-    \item Many-to-many (e.g., tagging, ASR): emit \(y_t\) at every step; encoder--decoder variants compress \(x_{1: T}\) then decode.
+    \item Many-to-many (e.g., tagging, ASR): emit \(\mathbf{y}_t\) at every step; encoder--decoder variants compress \(\mathbf{x}_{1: T}\) then decode.
     \item Bidirectional encoders: run a forward and backward RNN and concatenate the states for sequence labeling or as encoder context.
     \end{itemize}
 
-Consider an input sequence \(\{x_1, x_2, \ldots, x_T\}\), where each \(x_t \in \mathbb{R}^d\). The RNN computes hidden states \(\{h_1, h_2, \ldots, h_T\}\) and outputs \(\{y_1, y_2, \ldots, y_T\}\) as follows:
+Consider an input sequence \(\{\mathbf{x}_1, \mathbf{x}_2, \ldots, \mathbf{x}_T\}\), where each \(\mathbf{x}_t \in \mathbb{R}^d\). The RNN computes hidden states \(\{\mathbf{h}_1, \mathbf{h}_2, \ldots, \mathbf{h}_T\}\) and outputs \(\{\mathbf{y}_1, \mathbf{y}_2, \ldots, \mathbf{y}_T\}\) as follows:
 \begin{align}
-h_0 &= \mathbf{0} \quad \text{(initial hidden state)} \\
-h_t &= f(x_t W_{xh} + h_{t-1} W_{hh} + b_h), \quad t=1,\ldots, T \label{eq:rnn_hidden_state}\\
-y_t &= g(h_t W_{hy} + b_y), \quad t=1,\ldots, T \label{eq:rnn_output_state}
+\mathbf{h}_0 &= \mathbf{0} \quad \text{(initial hidden state)} \\
+\mathbf{h}_t &= f(\mathbf{x}_t W_{xh} + \mathbf{h}_{t-1} W_{hh} + b_h), \quad t=1,\ldots, T \label{eq:rnn_hidden_state}\\
+\mathbf{y}_t &= g(\mathbf{h}_t W_{hy} + b_y), \quad t=1,\ldots, T \label{eq:rnn_output_state}
 \end{align}
 
 \begin{tcolorbox}[summarybox, title={Shapes and masks (batch $B$, time $T$)}]
@@ -594,7 +594,7 @@ Spectral norm \(\|\mathbf{W}_{hh}\|_2 \approx 1\) keeps gradients roughly stable
 \end{figure}
 
 
-\paragraph{Gated cells.} LSTMs \citep{Hochreiter1997,Gers2000} and GRUs \citep{Cho2014} alleviate vanishing gradients by introducing additive memory paths guarded by gates. \Cref{fig:lec7-lstm,fig:lec7-gru} present the canonical cell diagrams used later in the chapter when deriving the update equations. Intuitively, LSTM forget/input/output gates control retention, writing, and exposure of the memory \(c_t\); GRU update/reset gates interpolate between \(h_{t-1}\) and a candidate \(\tilde h_t\) and decide how much past context influences the candidate. In an LSTM, the state updates as \(c_t = f_t \odot c_{t-1} + i_t \odot \tilde c_t\) and \(h_t = o_t \odot \tanh(c_t)\). In a GRU, the hidden state updates as \(h_t = (1-z_t)\odot h_{t-1} + z_t \odot \tilde h_t\), with the reset gate \(r_t\) shaping the candidate computation. In both figures, \(x_t\) denotes the input at time \(t\), and \(h_{t-1}\) / \(c_{t-1}\) denote the carried state(s).
+\paragraph{Gated cells.} LSTMs \citep{Hochreiter1997,Gers2000} and GRUs \citep{Cho2014} alleviate vanishing gradients by introducing additive memory paths guarded by gates. \Cref{fig:lec7-lstm,fig:lec7-gru} present the canonical cell diagrams used later in the chapter when deriving the update equations. Intuitively, LSTM forget/input/output gates control retention, writing, and exposure of the memory \(c_t\); GRU update/reset gates interpolate between \(\mathbf{h}_{t-1}\) and a candidate \(\tilde{\mathbf{h}}_t\) and decide how much past context influences the candidate. In an LSTM, the state updates as \(c_t = f_t \odot c_{t-1} + i_t \odot \tilde c_t\) and \(\mathbf{h}_t = o_t \odot \tanh(c_t)\). In a GRU, the hidden state updates as \(\mathbf{h}_t = (1-z_t)\odot \mathbf{h}_{t-1} + z_t \odot \tilde{\mathbf{h}}_t\), with the reset gate \(r_t\) shaping the candidate computation. In both figures, \(\mathbf{x}_t\) denotes the input at time \(t\), and \(\mathbf{h}_{t-1}\) / \(c_{t-1}\) denote the carried state(s).
 
 % LSTM cell: clean routing (no overlaps/crossings; no ambiguous "buses")
 % Use an aggressive top-float spec so this can stack with the following GRU cell
@@ -806,8 +806,8 @@ Spectral norm \(\|\mathbf{W}_{hh}\|_2 \approx 1\) keeps gradients roughly stable
             \clearpage
 
             \begin{tcolorbox}[summarybox, title={Vanilla RNN vs.\ GRU vs.\ LSTM}]
-\textbf{Vanilla RNN:} Single hidden state \(h_t\) updated via \(h_t=f(x_tW_{xh}+h_{t-1}W_{hh}+b_h)\); simplest and parameter\hyp{}efficient but most prone to vanishing/exploding gradients on long sequences.\\
-\textbf{GRU:} Uses update and reset gates to interpolate between \(h_{t-1}\) and a candidate state; fewer parameters than LSTM, often a good default when sequences are moderately long.\\
+\textbf{Vanilla RNN:} Single hidden state \(\mathbf{h}_t\) updated via \(\mathbf{h}_t=f(\mathbf{x}_tW_{xh}+\mathbf{h}_{t-1}W_{hh}+b_h)\); simplest and parameter\hyp{}efficient but most prone to vanishing/exploding gradients on long sequences.\\
+\textbf{GRU:} Uses update and reset gates to interpolate between \(\mathbf{h}_{t-1}\) and a candidate state; fewer parameters than LSTM, often a good default when sequences are moderately long.\\
 \textbf{LSTM:} Maintains a separate cell state \(c_t\) and uses input/forget/output gates; highest parameter count but most robust on very long-range dependencies and widely used in legacy sequence models.
 \end{tcolorbox}
 

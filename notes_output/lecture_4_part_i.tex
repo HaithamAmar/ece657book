@@ -330,15 +330,15 @@ where \( x_i \) is the output from the previous layer neuron \( i \).
 \subsection{Batch and Stochastic Gradient Descent}
 \label{sec:backprop_batch_and_stochastic_gradient_descent}
 
-Given a training set of \( N \) examples \(\{(x^{(n)}, t^{(n)})\}_{n=1}^N\), the weight updates can be computed in different ways:
+Given a training set of \( N \) examples \(\{(\mathbf{x}^{(n)}, t^{(n)})\}_{n=1}^N\), the weight updates can be computed in different ways:
 
 \begin{itemize}
     \item \textbf{Batch gradient descent:} Compute the gradient over the entire dataset and update weights once per epoch:
     \[
-        \Delta w = -\frac{\eta}{N} \sum_{n=1}^N \delta^{(n)} x^{(n)}.
+        \Delta w = -\frac{\eta}{N} \sum_{n=1}^N \delta^{(n)} \mathbf{x}^{(n)}.
     \]
 
-    \item \textbf{Stochastic gradient descent (SGD):} Update weights after each training example using the instantaneous gradient \(-\eta \, \delta^{(n)} x^{(n)}\). Although the updates are noisy, SGD often converges faster in practice and can escape shallow local minima.
+    \item \textbf{Stochastic gradient descent (SGD):} Update weights after each training example using the instantaneous gradient \(-\eta \, \delta^{(n)} \mathbf{x}^{(n)}\). Although the updates are noisy, SGD often converges faster in practice and can escape shallow local minima.
 \end{itemize}
 
 \begin{tcolorbox}[summarybox, title={Optimizer and stability notes}]
