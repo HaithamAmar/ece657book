@@ -4,7 +4,7 @@
 
 \Cref{chap:hopfield} used energy to make recurrence stable: dynamics settle, memories persist, and failure has a concrete signature. Vision problems have a different flavor. The system must form a representation that is rich enough to support decisions, yet structured enough to learn from finite data.
 
-Convolutional networks are the simplest version of that bargain. They keep the ERM workflow from \Crefrange{chap:supervised}{chap:logistic} and the gradient\hyp{}training machinery from \Cref{chap:mlp}, but move a large fraction of the ``modeling bias'' into architecture. Local connectivity and weight sharing make images tractable: the model spends capacity on patterns that actually recur across a grid.
+Convolutional networks are the simplest version of that bargain. They keep the ERM workflow from \Crefrange{chap:supervised}{chap:logistic} and the gradient\hyp{}training machinery from \Cref{chap:mlp}, but make images tractable by enforcing locality and weight sharing, so the model spends capacity on patterns that recur across the grid.
 
 The second thread in this chapter is pragmatic. Deep models are only useful when they train. After the CNN mechanics, we transition into the deep\hyp{}training toolkit (initialization, activations, normalization, regularization, and optimizers) that will reappear in \Crefrange{chap:rnn}{chap:transformers}.
 
@@ -194,7 +194,7 @@ One practical variant is to run multiple filter sizes in parallel (for example \
 
 At scale, this architectural prior became decisive once large labeled datasets and GPU training matured: the sample-efficiency and compute-efficiency gap versus classical kernel pipelines narrowed and then flipped in favor of deep convolutional stacks.
 
-\paragraph{Stack depth versus receptive field.} Stacking identical \(3\times3\) filters still grows the effective receptive field: each stage wraps a thicker box around the original pixels, which explains why deep-but-narrow CNNs can capture wide spatial context without enormous kernels even when individual kernels remain small.
+\paragraph{Stack depth versus receptive field.} Stacking identical \(3\times3\) filters still grows the effective receptive field: each stage wraps a thicker box around the original pixels, which explains why deep-but-narrow CNNs can capture wide spatial context without enormous kernels even when individual kernels remain small. \Cref{fig:cnn_receptive_field_growth} sketches the nested growth across depth.
 
 
 \begin{figure}[t]
@@ -215,8 +215,6 @@ At scale, this architectural prior became decisive once large labeled datasets a
     \caption{Receptive field growth across depth. Even with small \(3\times3\) kernels, stacking layers expands the spatial context seen by deeper units. Use it when explaining why depth can replace very large kernels.}
     \label{fig:cnn_receptive_field_growth}
 \end{figure}
-
-\Cref{fig:cnn_receptive_field_growth} provides the receptive-field intuition used in the depth discussion.
 
 With the architectural motivation in place, we now focus on how these models are trained and why deep optimization remains delicate.
 
@@ -239,20 +237,12 @@ The gradient $\frac{\partial \mathcal{L}}{\partial w}$ is computed efficiently u
 \paragraph{Preview: why deep optimization needs extra care}
 As depth grows, gradient flow becomes fragile (vanishing/exploding gradients). The next sections make that failure mode explicit and summarize the mitigation toolkit used in modern CNN stacks.
 
-\paragraph{Deep optimization challenges.}
-\label{sec:cnn_deep_network_optimization_challenges}
-
-Deep networks are difficult to optimize because the objective is highly nonconvex and the
-gradient signal can be distorted as it flows through many layers. We begin with the most
-basic pathology---vanishing and exploding gradients---and then summarize practical
-mitigations.
-
 % Chapter 11 (continued)
 
 \subsection{Vanishing and Exploding Gradients in Deep Networks}
 \label{sec:cnn_vanishing_and_exploding_gradients_in_deep_networks}
 
-Recall from the previous discussion that when training deep neural networks, the backpropagation algorithm involves repeated multiplication of gradients through many layers. This repeated multiplication can cause gradients to either vanish (approach zero) or explode (grow exponentially large), leading to significant training difficulties.
+Backpropagation multiplies Jacobians through many layers, so gradients can either vanish (approach zero) or explode (grow exponentially large), leading to significant training difficulties.
 
 \paragraph{Mathematical intuition}
 
@@ -280,8 +270,6 @@ Consider the sigmoid activation function $\sigma(x) = \frac{1}{1 + e^{-x}}$. Its
 \]
 Note that $\sigma'(x)$ approaches zero when $\sigma(x)$ is near 0 or 1, i.e., when the neuron output saturates. This saturation leads to very small gradients, exacerbating the vanishing gradient problem.
 The derivative is maximized at $\sigma(x)=0.5$, where $\sigma'(x)=0.25$, so repeatedly multiplying sigmoid derivatives can shrink gradients roughly like $0.25^L$ across $L$ layers.
-
-\paragraph{Notation note.} In this chapter $\sigma(\cdot)$ always denotes the logistic sigmoid nonlinearity, whereas symbols such as $\sigma^2$ are reserved for variances in earlier statistical chapters; context (function of an argument vs. squared scalar) distinguishes them.
 
 \begin{tcolorbox}[summarybox, title={Training failure signatures (symptom $\rightarrow$ likely fixes)}]
 \begin{itemize}
@@ -338,6 +326,7 @@ Taken together, these tools stabilize optimization; the figures below highlight 
 \end{itemize}
 \end{tcolorbox}
 
+As a concrete diagnostic, \Cref{fig:lec6-dropout} shows how dropout can flatten the validation curve relative to the no-dropout baseline.
 
 
 \begin{figure}[t]
@@ -346,8 +335,6 @@ Taken together, these tools stabilize optimization; the figures below highlight 
     \caption[Dropout effect on training/validation curves (validation flattening)]{Illustrative dropout effect on training/validation curves. Compared to a no\hyp{}dropout baseline, validation curves flatten and generalization improves. Use it when diagnosing variance and deciding whether dropout is likely to help versus simpler regularization.}
     \label{fig:lec6-dropout}
 \end{figure}
-
-\Cref{fig:lec6-dropout} provides the validation-curve diagnostic view used for dropout decisions.
 
 \paragraph{Batch normalization.} BN accelerates convergence by normalizing mini\hyp{}batch statistics and learning scale/shift parameters. \Cref{fig:lec6-bn} contrasts the pre- and post\hyp{}normalization activation distributions; whitening the distribution keeps gradients in a well-behaved range and reduces covariate shift. In deep Transformer stacks, a closely related design choice is \emph{pre-LN} versus \emph{post-LN}: modern architectures typically place layer normalization \emph{before} the residual block (pre-LN) to improve training stability on very deep networks.
 
