@@ -327,7 +327,7 @@ loss.backward()
 clip_grad_norm_(model.parameters(), 1.0)
 opt.step(); opt.zero_grad()
 \end{verbatim}
-At inference, reuse cached K/V states per layer instead of recomputing attention over the full prefix.
+At inference, reuse cached K/V states (see \Cref{fig:lec13_micro_figures} and \Cref{sec:transformers_advanced_attention_and_efficiency_notes_2024_snapshot}).
 \end{tcolorbox}
 \paragraph{Code--math dictionary.} In code blocks, \texttt{x} is the token-index tensor (input IDs), \texttt{h} is the hidden-state array \(\mathbf{H}\), \texttt{mask} is the attention mask, and \texttt{embed(x)} denotes an embedding lookup into the learned matrix \(\mathbf{E}\) (written algebraically as a row-selection or \(\mathbf{E}[w_t]\) in \Cref{chap:nlp}).
 
@@ -337,9 +337,9 @@ Memory and compute scale quadratically with sequence length. Practical systems t
 \begin{itemize}
     \item \textbf{Sparse or local attention} (e.g., Longformer, BigBird) to limit each query to a sliding or block-sparse neighborhood.
     \item \textbf{Low-rank/kernelized approximations} and recurrent chunking (Performer, Transformer-XL) so that computation/storage grows roughly linearly in context length.
-    \item \textbf{Relative/rotary positions and cache reuse} to extrapolate beyond training lengths and avoid recomputing past keys/values during autoregressive decoding.
     \item \textbf{I/O-aware kernels} such as FlashAttention that stream tiles through SRAM so the quadratic pattern remains exact without exhausting memory.
 \end{itemize}
+Relative/rotary position schemes and KV caching are summarized in \Cref{sec:transformers_advanced_attention_and_efficiency_notes_2024_snapshot} and \Cref{fig:lec13_micro_figures}.
 
 \subsection{Fine-Tuning and Parameter-Efficient Adaptation}
 \label{sec:transformers_fine_tuning_and_parameter_efficient_adaptation}
@@ -460,9 +460,9 @@ Post-training alignment shapes model behavior to human preferences. RLHF optimiz
     \item \textbf{KV-cache management.} Decoder-only inference stores per-layer key/value tensors; chunked caching, paged attention, and sliding windows keep memory linear in context length. Speculative decoding and assisted decoding reuse a lightweight draft model to propose tokens that the full model verifies before committing.
     \item \textbf{Efficient kernels.} FlashAttention \citep{Dao2022FlashAttention} computes attention blocks in streaming tiles to keep activations in SRAM. Long-context variants mix windowed attention, recurrent memory, or low-rank adapters; state-space models such as Mamba \citep{Gu2023Mamba} provide linear-time alternatives that back-propagate through implicitly defined kernels.
     \item \textbf{Mixture-of-experts and routing.} Sparse MoE layers \citep{Shazeer2017MoE} add conditional capacity; router z-losses, capacity factors, and load-balancing losses are essential to avoid expert collapse.
-    \item \textbf{Parameter-efficient tuning.} LoRA/QLoRA \citep{Hu2022LoRA,Dettmers2023QLoRA} insert low-rank adapters; DoRA/LoRA-FA refine the decomposition by separating direction and magnitude to better preserve pretrained weights. Adapter stacks and prefix tuning remain competitive for small target datasets.
     \item \textbf{Test-time scaling.} Curriculum-based sampling (nucleus, temperature annealing), classifier-free guidance, and beam-search variants all tune the accuracy/latency frontier; plan to log decoding hyperparameters alongside checkpoints so experiments are reproducible.
 \end{itemize}
+Parameter-efficient tuning methods are covered in \Cref{sec:transformers_fine_tuning_and_parameter_efficient_adaptation}.
 
 \subsection{RNNs vs. Transformers: When and Why}
 \label{sec:transformers_rnns_vs_transformers_when_and_why}
@@ -527,4 +527,3 @@ Terminology: masked-LM and next-token LM are \emph{self-supervised} (targets der
 
 \medskip
 \paragraph{Where we head next.} \Cref{chap:softcomp} steps away from neural sequence models and re-enters the broader soft-computing toolkit (fuzzy logic and evolutionary ideas) previewed in \Cref{chap:intro}. Read this chapter as the endpoint of the neural sequence thread: representation objectives from \Cref{chap:nlp} plus masking/calibration discipline from \Crefrange{chap:rnn}{chap:transformers}.
-

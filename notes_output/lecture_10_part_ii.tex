@@ -102,13 +102,7 @@ The \emph{max} operator corresponds to the fuzzy union of the individual rule ou
 \subsection{Summary of the Fuzzy Inference Process}
 \label{sec:fuzzyinference_summary_of_the_fuzzy_inference_process}
 
-To summarize, the fuzzy inference process for a given input vector $\mathbf{x}$ proceeds as follows:
-
-\begin{enumerate}
-    \item For each rule $j$, compute the antecedent membership degree $\alpha_j$ using \eqref{eq:antecedent_min} or \eqref{eq:antecedent_prod}.
-\item Modify the consequent fuzzy set $B_j$ by applying the implication operator \eqref{eq:min_implication} or \eqref{eq:prod_implication} to obtain $B'_j$.
-\item Aggregate all $B'_j$ using \eqref{eq:output_aggregation} to obtain the overall output fuzzy set $B_{\text{agg}}$.
-\end{enumerate}
+For a compact algorithmic view, see the pipeline box after the worked example; it instantiates these same steps with explicit operators.
 
 \begin{tcolorbox}[summarybox, title={Risk \& audit}]
 \begin{itemize}
