@@ -546,9 +546,9 @@ where \( \alpha \in (0,1) \) and \( x_{\max} \) is a cutoff parameter.
 
 In the previous sections, we explored the formulation of word embeddings through co-occurrence statistics and matrix factorization approaches. This section closes the derivation arc and clarifies the role of bias terms and optimization strategies.
 
-Recall the key equation relating the word vectors \( \mathbf{v}_i \) and context vectors \( \mathbf{u}_k \) to the co-occurrence counts \( x_{ik} \):
+Recall the key equation relating the word vectors \( \mathbf{v}_i \) and context vectors \( \mathbf{u}_k \) to the co-occurrence counts \( X_{ik} \):
 \begin{equation}
-    \mathbf{v}_i\,\mathbf{u}_k + b_i + b_k = \log x_{ik},
+    \mathbf{v}_i\,\mathbf{u}_k + b_i + b_k = \log X_{ik},
     \label{eq:cooccurrence_log}
 \end{equation}
 where \( b_i \) and \( b_k \) are bias terms associated with the word and context, respectively.
@@ -559,7 +559,7 @@ Initially, two separate bias terms \( b_i \) and \( b_k \) were introduced to ac
 
 Hence, the equation can be rewritten as
 \begin{equation}
-    \mathbf{v}_i\,\mathbf{u}_k = \log x_{ik} - b_i - b_k.
+    \mathbf{v}_i\,\mathbf{u}_k = \log X_{ik} - b_i - b_k.
     \label{eq:cooccurrence_log_bias}
 \end{equation}
 
@@ -567,9 +567,9 @@ In practice, the biases \( b_i \) and \( b_k \) are learned jointly with the emb
 
 \paragraph{Objective Function and Optimization}
 
-Let the target embeddings be rows \( \mathbf{v}_i \in \mathbb{R}^{1\times d} \), the context embeddings be columns \( \mathbf{u}_k \in \mathbb{R}^{d\times 1} \), and the biases scalars \( b_i, b_k \in \mathbb{R} \). The scalar score \( \mathbf{v}_i\,\mathbf{u}_k \) therefore measures the alignment between the target and context embeddings. The goal is to find \( \{\mathbf{v}_i, \mathbf{u}_k, b_i, b_k\} \) that minimize the reconstruction error of the log co-occurrence matrix. Because raw counts span several orders of magnitude, the loss must behave like plain least squares for large \(x_{ik}\) yet dampen the influence of very small counts. Enforcing the limits \(f(x) \to 0\) as \(x \to 0\) and \(f(x) \to 1\) for \(x \ge x_{\max}\) yields the weighting scheme used by GloVe. The final weighted least-squares loss is
+Let the target embeddings be rows \( \mathbf{v}_i \in \mathbb{R}^{1\times d} \), the context embeddings be columns \( \mathbf{u}_k \in \mathbb{R}^{d\times 1} \), and the biases scalars \( b_i, b_k \in \mathbb{R} \). The scalar score \( \mathbf{v}_i\,\mathbf{u}_k \) therefore measures the alignment between the target and context embeddings. The goal is to find \( \{\mathbf{v}_i, \mathbf{u}_k, b_i, b_k\} \) that minimize the reconstruction error of the log co-occurrence matrix. Because raw counts span several orders of magnitude, the loss must behave like plain least squares for large \(X_{ik}\) yet dampen the influence of very small counts. Enforcing the limits \(f(x) \to 0\) as \(x \to 0\) and \(f(x) \to 1\) for \(x \ge x_{\max}\) yields the weighting scheme used by GloVe. The final weighted least-squares loss is
 \begin{equation}
-    J = \sum_{i=1}^{V}\sum_{k=1}^{V} f(x_{ik}) \left( \mathbf{v}_i\,\mathbf{u}_k + b_i + b_k - \log x_{ik} \right)^2,
+    J = \sum_{i=1}^{V}\sum_{k=1}^{V} f(X_{ik}) \left( \mathbf{v}_i\,\mathbf{u}_k + b_i + b_k - \log X_{ik} \right)^2,
     \label{eq:objective}
 \end{equation}
 where \( f(x) \) is the weighting function that downweights rare (or extremely common) co-occurrences to improve robustness. GloVe, for instance, uses the piecewise definition
@@ -585,7 +585,7 @@ so that very small counts contribute little to the loss while still allowing mod
 
 \paragraph{Singular Value Decomposition (SVD) Connection}
 
-One approach to solving this problem is to perform a low-rank approximation of the matrix \( \log X \), where \( X = [x_{ik}] \) is the co-occurrence matrix and the logarithm is applied elementwise (with small smoothing constants, e.g., \(\epsilon = 10^{-8}\), added to avoid \(\log 0\)). The singular value decomposition (SVD) provides a principled method to find such a factorization:
+One approach to solving this problem is to perform a low-rank approximation of the matrix \( \log X \), where \( X = [X_{ik}] \) is the co-occurrence matrix and the logarithm is applied elementwise (with small smoothing constants, e.g., \(\epsilon = 10^{-8}\), added to avoid \(\log 0\)). The singular value decomposition (SVD) provides a principled method to find such a factorization:
 \begin{equation}
     \log X \approx U_r \Sigma_r V_r^\top,
     \label{eq:svd}

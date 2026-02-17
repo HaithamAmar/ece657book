@@ -16,9 +16,10 @@ Build notes (2026-02-17):
 - Release checks run. Playwright-based PDF-vs-EPUB spot-check and EPUB layout audit failed due to Chromium launch permission (TargetClosedError). Remaining EPUB checks completed and reported OK.
 - Release checks re-run after P1 updates. Playwright PDF-vs-EPUB spot-check and EPUB layout audit still failed (Chromium permission); remaining checks OK.
 - Release checks re-run after P1 notation sweep (x/X + vector bolding). Playwright PDF-vs-EPUB spot-check and EPUB layout audit still failed (Chromium permission); remaining checks OK.
+- Release checks re-run after P1 x/X casing sweep in `lecture_8_part_i.tex`. Playwright PDF-vs-EPUB spot-check and EPUB layout audit still failed (Chromium permission); remaining checks OK.
 
 ### P1 (global consistency / cross-ref hygiene)
-- [ ] Notation consistency sweeps (vector bolding; objective symbol; x/X casing) across chapters. (Progress: objective symbol standardized in `lecture_11.tex`; vector bolding sweep applied in `lecture_supervised.tex`, `lecture_4_part_i.tex`, `lecture_7.tex`.)
+- [ ] Notation consistency sweeps (vector bolding; objective symbol; x/X casing) across chapters. (Progress: objective symbol standardized in `lecture_11.tex`; vector bolding sweep applied in `lecture_supervised.tex`, `lecture_4_part_i.tex`, `lecture_7.tex`, `lecture_8_part_i.tex`.)
 - [x] Cross-reference macro consistency (\Cref vs \cref) and label convention normalization.
 - [ ] Deduplicate repeated definitions/boxes (notably `lecture_10_part_i.tex`, `lecture_11.tex`).
 - [ ] Terminology consistency across examples (e.g., rate rising/falling; r vs \dot{e}).
