@@ -210,6 +210,7 @@ Similarly, the membership for grade \(B\) could be written as
 0, & x > 90,
 \end{cases}
 \]
+so a borderline score such as \(x=79\) yields \(\mu_C(79)=(80-79)/5=0.2\) and \(\mu_B(79)=(79-75)/5=0.8\): mostly \(B\) but still partially \(C\).
 with analogous expressions for the \(A\) and \(D\) categories. These overlapping trapezoids capture the intuition that a borderline score (e.g., \(79\)) can simultaneously belong to both \(C\) and \(B\) to different degrees, as sketched in \Cref{fig:lec9-grade-trapezoids}.
 \begin{figure}[ht]
     \centering
@@ -509,6 +510,17 @@ An alternative definition of difference is the bounded difference:
 \label{sec:fuzzysets_example_union_and_intersection_of_fuzzy_sets}
 
 Use the pointwise definitions in \eqref{eq:fuzzy_union}--\eqref{eq:fuzzy_intersection} to compute unions or intersections for any pair of fuzzy sets; the next subsection lifts these operations to relations via Cartesian products.
+\paragraph{Example.}
+Let \(X=\{x_1,x_2,x_3\}\) and define memberships in the order \((x_1,x_2,x_3)\):
+\[
+\mu_A=\{0.2,\,0.7,\,0.4\}, \qquad \mu_B=\{0.6,\,0.3,\,0.9\}.
+\]
+Then
+\begin{align*}
+\mu_{A\cup B} &= \{\max(0.2,0.6),\; \max(0.7,0.3),\; \max(0.4,0.9)\} = \{0.6,\,0.7,\,0.9\},\\
+\mu_{A\cap B} &= \{\min(0.2,0.6),\; \min(0.7,0.3),\; \min(0.4,0.9)\} = \{0.2,\,0.3,\,0.4\}.
+\end{align*}
+The union keeps the larger membership at each point, while the intersection keeps the smaller.
 
 \subsection{Cartesian Product of Fuzzy Sets}
 \label{sec:fuzzysets_cartesian_product_of_fuzzy_sets}

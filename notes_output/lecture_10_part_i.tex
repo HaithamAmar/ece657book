@@ -470,7 +470,15 @@ Consider a fuzzy set \(A\) on \(X = \{x_1, x_2\}\) with membership values \(\mu_
 \[
 \mu_{A^*}(x_i, y_j) = \mu_A(x_i), \quad i=1,2; \quad j=1,2,3.
 \]
-Thus, the membership values are replicated along the \(Y\)-axis. In practice this extension step is often paired with projections to reconcile relation dimensions before composing rules and, later, to marginalize the inferred relation back onto the universe of interest.
+Thus, the membership values are replicated along the \(Y\)-axis, i.e.,
+\[
+\mu_{A^*} =
+\begin{bmatrix}
+0.5 & 0.5 & 0.5\\
+0.7 & 0.7 & 0.7
+\end{bmatrix},
+\]
+with rows corresponding to \(x_1,x_2\) and columns to \(y_1,y_2,y_3\). In practice this extension step is often paired with projections to reconcile relation dimensions before composing rules and, later, to marginalize the inferred relation back onto the universe of interest.
 
 \subsection{Fuzzy Inference via Composition of Relations}
 \label{sec:fuzzyrelations_fuzzy_inference_via_composition_of_relations}
