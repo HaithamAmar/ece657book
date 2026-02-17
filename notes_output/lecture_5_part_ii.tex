@@ -103,7 +103,7 @@ Typically, thresholds \(\theta_i\) are set to zero or learned as part of the mod
 \subsection{Encoding conventions}
 \label{sec:hopfield_encoding_conventions}
 
-Two binary encodings are common. We primarily use \(s_i \in \{-1,+1\}\) because it simplifies the energy function, but many software libraries work with \(x_i \in \{0,1\}\). Define \(s = 2x - 1\) and \(x = (s+1)/2\); then
+Two binary encodings are common. We primarily use \(s_i \in \{-1,+1\}\) because it simplifies the energy function, but many software libraries work with \(x_i \in \{0,1\}\). Define \(\mathbf{s} = 2\mathbf{x} - \mathbf{1}\) and \(\mathbf{x} = (\mathbf{s}+\mathbf{1})/2\); then
 \[
 E_{\pm1}(\mathbf{s}) = -\frac{1}{2}\sum_{i\neq j} w_{ij} s_i s_j + \sum_i \theta_i s_i
 \]
@@ -125,7 +125,7 @@ Update rule & \(s_i \leftarrow \operatorname{sign}(h_i - \theta_i)\) & \(x_i \le
 \end{tabular}
 \end{center}
 
-Whenever an equation later in the chapter uses \(s_i\) you can translate it to \(x_i\) via this affine mapping; we call out both forms only when the distinction matters. As a concrete example, the pattern \(x=[1,0,1,0]\) in the \(\{0,1\}\) encoding maps to \(s=2x-1=[+1,-1,+1,-1]\); conversely \(s=[-1,+1,+1]\) corresponds to \(x=[0,1,1]\).
+Whenever an equation later in the chapter uses \(s_i\) you can translate it to \(x_i\) via this affine mapping; we call out both forms only when the distinction matters. As a concrete example, the pattern \(\mathbf{x}=[1,0,1,0]\) in the \(\{0,1\}\) encoding maps to \(\mathbf{s}=2\mathbf{x}-\mathbf{1}=[+1,-1,+1,-1]\); conversely \(\mathbf{s}=[-1,+1,+1]\) corresponds to \(\mathbf{x}=[0,1,1]\).
 
 \subsection{Energy Function and Stability}
 \label{sec:hopfield_energy_function_and_stability}

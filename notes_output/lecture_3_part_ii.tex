@@ -315,7 +315,7 @@ so $\partial P/\partial \mathbf{w}_1 = \delta_1 \mathbf{x}$ and $\partial P/\par
 This is the central lesson: once we compute a local error term, it can be reused across many gradients. That reuse is exactly what makes backpropagation efficient and is why deeper networks remain tractable.
 
 \begin{tcolorbox}[summarybox, title={Worked example: one numerical gradient step (sanity check)}]
-Take a single input $x = [1,-1]^\top$, target $t=1$, sigmoid activation $f=\sigma$, and parameters
+Take a single input $\mathbf{x} = [1,-1]^\top$, target $t=1$, sigmoid activation $f=\sigma$, and parameters
 $\mathbf{w}_1=[0.8,\,0.2]^\top$, $b_1=0$, $w_2=1$, $b_2=0$.
 \medskip
 
@@ -323,7 +323,7 @@ $\mathbf{w}_1=[0.8,\,0.2]^\top$, $b_1=0$, $w_2=1$, $b_2=0$.
 \medskip
 
 \noindent\textbf{Backward:} $\sigma'(p)=y(1-y)$, so $\delta_2=(y_2-t)\sigma'(p_2)\approx -0.078$ and $\delta_1=\delta_2 w_2 \sigma'(p_1)\approx -0.018$.
-Thus $\nabla_{\mathbf{w}_1}P=\delta_1 x \approx [-0.018,\,+0.018]^\top$ and $\nabla_{w_2}P=\delta_2 y_1\approx -0.050$.
+Thus $\nabla_{\mathbf{w}_1}P=\delta_1 \mathbf{x} \approx [-0.018,\,+0.018]^\top$ and $\nabla_{w_2}P=\delta_2 y_1\approx -0.050$.
 \medskip
 
 \noindent\textbf{Update:} with $\eta=0.5$, gradient descent increases $w_2$ slightly (since the gradient is negative) and nudges $\mathbf{w}_1$ in a direction that increases $y_2$ toward the target.

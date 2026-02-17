@@ -231,7 +231,7 @@ Both approaches have merits and limitations, and hybrid models often combine ele
 
 Swarm systems consist of multiple agents solving subproblems independently but collectively achieving a global objective. Each agent follows simple rules without a global world model, yet the emergent behavior can be intelligent. This contrasts with monolithic systems possessing explicit internal representations.
 
-Swarm intelligence can be formalized via decentralized update laws of the form $x_i(t+1) = f\big(x_i(t),\{x_j(t)\}_{j \in \mathcal{N}_i}\big)$, where each agent $i$ interacts only with its neighborhood $\mathcal{N}_i$. Similar update patterns appear again in \Cref{chap:evo}, but we do not focus on stability proofs in this book.
+Swarm intelligence can be formalized via decentralized update laws of the form $\mathbf{x}_i(t+1) = f\big(\mathbf{x}_i(t),\{\mathbf{x}_j(t)\}_{j \in \mathcal{N}_i}\big)$, where each agent $i$ interacts only with its neighborhood $\mathcal{N}_i$. Similar update patterns appear again in \Cref{chap:evo}, but we do not focus on stability proofs in this book.
 
 \paragraph{Examples of Input and Output Variables in Dynamic Systems}
 
