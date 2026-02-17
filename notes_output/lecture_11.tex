@@ -395,6 +395,7 @@ subject to
 \[
 0 < x \leq 15
 \]
+For example, \(x=5\) gives \(f(x)=5/2+125/5=27.5\).
 
 \paragraph{Encoding Strategy}
 \begin{itemize}
@@ -705,20 +706,7 @@ In practice, a combination of these criteria is often used. For example, one mig
 \subsection{Summary of Genetic Algorithm Workflow}
 \label{sec:evo_summary_of_genetic_algorithm_workflow}
 
-To summarize the GA process:
-
-\begin{enumerate}
-    \item \textbf{Initialization:} Generate an initial population of chromosomes (candidate solutions).
-    \item \textbf{Fitness Evaluation:} Compute the fitness value for each chromosome based on the objective function.
-    \item \textbf{Termination Check:} If a satisfactory solution is found or a stopping criterion is met, terminate.
-    \item \textbf{Selection:} Select parent chromosomes based on fitness (e.g., roulette wheel, tournament).
-    \item \textbf{Crossover:} Apply crossover operators to parents to produce offspring.
-    \item \textbf{Mutation:} Apply mutation operators to offspring to maintain diversity.
-    \item \textbf{Replacement:} Form the new population from offspring (and possibly some parents).
-    \item \textbf{Repeat:} Return to step 2.
-\end{enumerate}
-
-This iterative cycle continues until convergence or stopping criteria are met. The flow diagram in \Cref{fig:lec11-ga-flow} summarizes the control structure on a single page for quick reference.
+The GA loop alternates fitness evaluation with selection, crossover, mutation, and replacement until a stopping criterion is met. The flow diagram in \Cref{fig:lec11-ga-flow} and the pseudocode in \Cref{sec:evo_pseudocode_representation} capture the control structure for quick reference.
 
 \begin{figure}[!ht]
 \centering
@@ -781,7 +769,7 @@ This iterative cycle continues until convergence or stopping criteria are met. T
 \label{fig:lec11-ga-flow}
 \end{figure}
 
-
+For the toy generation in \Cref{tab:ga-toy}, fitness values are computed using \(f(x)=\cos(5\pi x)\exp(-x^2)\) from \Cref{sec:evo_example_ga_for_a_constrained_optimization_problem}.
 
 \begin{table}[h]
 \centering
@@ -790,10 +778,10 @@ This iterative cycle continues until convergence or stopping criteria are met. T
 \toprule
 Step & Example bitstrings & Decoded \(x\) & Fitness \(f(x)\) \\
 \midrule
-Initial (subset) & \(\,0001_2\), \(\,0010_2\), \(\,0101_2\), \(\,0111_2\) & 0.0625, 0.125, 0.3125, 0.4375 & 0.40, 0.13, -0.52, -0.02 \\
-Select parents (example) & \(\,0010_2\), \(\,0101_2\) & 0.125, 0.3125 & 0.13, -0.52 \\
-Crossover (one-point) & Parents: \(\,00|10\), \(\,01|01\) \(\to\) offspring: \(\,00|01\), \(\,01|10\) & 0.0625, 0.3750 & 0.40, 0.29 \\
-Mutation (flip one bit) & \(\,0110_2 \to 0111_2\) & 0.4375 & -0.02 \\
+Initial (subset) & \(\,0001_2\), \(\,0010_2\), \(\,0101_2\), \(\,0111_2\) & 0.0625, 0.125, 0.3125, 0.4375 & 0.553, -0.377, 0.177, 0.687 \\
+Select parents (example) & \(\,0010_2\), \(\,0101_2\) & 0.125, 0.3125 & -0.377, 0.177 \\
+Crossover (one-point) & Parents: \(\,00|10\), \(\,01|01\) \(\to\) offspring: \(\,00|01\), \(\,01|10\) & 0.0625, 0.3750 & 0.553, 0.803 \\
+Mutation (flip one bit) & \(\,0110_2 \to 0111_2\) & 0.4375 & 0.687 \\
 \bottomrule
 \end{tabularx}
 % Avoid inline math in captions; it wraps poorly in some EPUB renderers.
@@ -862,10 +850,21 @@ Apply selection, crossover, and mutation to produce new offspring, then evaluate
 \paragraph{Remarks:}
 In practice, some initial chromosomes may fall outside the constraint bounds due to rounding or mutation; these should be clipped or repaired to maintain feasibility.
 
-As an illustration, consider an initial population with fitness values computed directly from \(f(x)\):
+As an illustration, if the initial population contains
 \[
-\{0.041,\;0.178,\;0.203,\;0.247,\;0.311,\;0.328,\;0.359,\;0.402,\;0.435,\;0.496\}.
+\begin{aligned}
+x &\in \{0.04,\;0.09,\;0.13,\;0.18,\;0.22,\;0.27,\\
+&\qquad 0.31,\;0.36,\;0.42,\;0.48\},
+\end{aligned}
 \]
+then the corresponding objective values are
+\[
+\begin{aligned}
+f(x) &\in \{0.808,\;0.155,\;-0.446,\;-0.921,\;-0.906,\;-0.422,\\
+&\qquad 0.142,\;0.711,\;0.797,\;0.245\},
+\end{aligned}
+\]
+rounded to three decimals.
 Each chromosome uses a 9\text{-}bit fixed-point code (3 fractional digits), decoded by interpreting the bits as an integer \(n\) and scaling via \(x=n/1000\). Chromosomes decoding to \(x=0\) are discarded or repaired.
 
 A single generation could proceed as follows:

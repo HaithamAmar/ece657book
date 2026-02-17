@@ -38,7 +38,7 @@ In such cases, the new universe is a function of the original universe, and we w
 Unless stated otherwise in \Crefrange{chap:fuzzysets}{chap:fuzzyinference}, we use the standard De Morgan triple: \(\wedge=\min\), \(\vee=\max\), and complement \(C(\mu)=1-\mu\). Parameterized complements (Yager/Sugeno) are noted when used, but they generally lose involution (\(C(C(\mu))\neq \mu\)) unless the parameter is zero.
 \end{tcolorbox}
 
-\paragraph{Notation.} Throughout this chapter we use the trilogy defaults stated in the box above: \(\wedge=\min\), \(\vee=\max\), and complement \(1-\mu\). When we introduce a general t\hyp{}norm \(T\), it appears explicitly (e.g., in \eqref{eq:extension-two-var} and \eqref{eq:composition_general}). For symbol overloads when reading across parts, see \Cref{app:notation_collisions}.
+\paragraph{Notation.} Throughout this chapter we use the operator defaults stated in the box above. When we introduce a general t\hyp{}norm \(T\), it appears explicitly (e.g., in \eqref{eq:extension-two-var} and \eqref{eq:composition_general}). For symbol overloads when reading across parts, see \Cref{app:notation_collisions}.
 
 
 \subsection{Problem Statement}
@@ -119,8 +119,6 @@ Define the transformation \( y = x^2 \). The image universe \( Y \) consists of:
 Y = \{0^2, (-1)^2, 1^2, 2^2\} = \{0, 1, 4\}.
 \]
 
-To find the membership function \(\mu_B(y)\) of the transformed fuzzy set \( B \) on \( Y \), use the extension principle in \eqref{eq:membership-transform}.
-
 Calculating explicitly:
 \begin{align*}
 \mu_B(0) &= \mu_A(0) = 0.141, \\
@@ -186,9 +184,6 @@ Suppose now we have two fuzzy sets \( A_1 \) and \( A_2 \) defined on the same u
 \[
 \mu_{A_1} = \{0.4, 0.7, 0.5, 0.13\}, \quad \mu_{A_2} = \{0.5, 0.1, 0.4, 0.7\}.
 \]
-Equivalently, for $A_1$ we have $\mu_{A_1}(-1)=0.4$, $\mu_{A_1}(0)=0.7$, $\mu_{A_1}(1)=0.5$, $\mu_{A_1}(2)=0.13$.
-For $A_2$ we have $\mu_{A_2}(-1)=0.5$, $\mu_{A_2}(0)=0.1$, $\mu_{A_2}(1)=0.4$, $\mu_{A_2}(2)=0.7$.
-
 Define a function \( y = f(x_1, x_2) = x_1^2 + x_2^2 \), where \( x_1, x_2 \in X \) and their degrees of membership are taken from \(A_1\) and \(A_2\) respectively.\allowbreak
 
 The universe \( Y \) is the set of all possible sums of squares:
@@ -203,16 +198,18 @@ For example, some values in \( Y \) include:
 
 \paragraph{Computing Membership Values in \( Y \)}
 
-The membership function \(\mu_B(y)\) is given by Zadeh's extension principle for two variables:
+For two variables, the extension principle becomes:
 \begin{equation}
 \mu_B(y) = \sup_{(x_1, x_2): f(x_1, x_2) = y} \min\{\mu_{A_1}(x_1), \mu_{A_2}(x_2)\}.
 \label{eq:extension-two-var}
 \end{equation}
 The minimum t\hyp{}norm plays the role of the generic operator \(\otimes\); any other t\hyp{}norm could be substituted so long as the same choice is applied throughout the inference pipeline.
 
+The numeric workflow is consistent: list all preimages \((x_1,x_2)\) with \(f(x_1,x_2)=y\), compute the minimum membership for each pair, then take the maximum.
+
 \textbf{Example:} Compute \(\mu_B(0)\).
 
-The pairs \((x_1, x_2)\) such that \(x_1^2 + x_2^2 = 0\) are only \((0,0)\). Then,
+The only pair with \(x_1^2+x_2^2=0\) is \((0,0)\), so
 \[
 \mu_B(0) = \min\{\mu_{A_1}(0), \mu_{A_2}(0)\} = \min\{0.7, 0.1\} = 0.1.
 \]
@@ -223,24 +220,20 @@ The pairs \((x_1, x_2)\) such that \(x_1^2 + x_2^2 = 1\) are:
 \[
 (-1,0), \quad (0,-1), \quad (1,0), \quad (0,1).
 \]
-
-Calculate the minimum membership values for each pair:
+The minimum membership values for each pair are
 \begin{align*}
     \min\{\mu_{A_1}(-1), \mu_{A_2}(0)\} &= \min\{0.4, 0.1\} = 0.1, \\
     \min\{\mu_{A_1}(0), \mu_{A_2}(-1)\} &= \min\{0.7, 0.5\} = 0.5, \\
     \min\{\mu_{A_1}(1), \mu_{A_2}(0)\} &= \min\{0.5, 0.1\} = 0.1, \\
     \min\{\mu_{A_1}(0), \mu_{A_2}(1)\} &= \min\{0.7, 0.4\} = 0.4.
 \end{align*}
-Taking the supremum over all contributing pairs gives
-\[
-\mu_B(1) = \max\{0.1, 0.5, 0.1, 0.4\} = 0.5.
-\]
+Taking the supremum gives \(\mu_B(1)=\max\{0.1,0.5,0.1,0.4\}=0.5\).
 % Lecture 10 Part I (continued)
 
 \subsection{Extension Principle Recap and Projection Operations}
 \label{sec:fuzzyrelations_extension_principle_recap_and_projection_operations}
 
-Recall the extension principle definition in \eqref{eq:membership-transform}. Here we focus on computational choices (discretization vs.\ alpha\hyp{}cuts) before moving on to projection operations.
+We now focus on computational choices (discretization vs.\ alpha\hyp{}cuts) before moving on to projection operations.
 
 \begin{tcolorbox}[summarybox, title={Computation and discretisation tips}]
 For discrete universes the extension principle costs \(O(|X|)\) per \(y\) (or \(O(|X|^n)\) for \(n\)-ary maps) because we evaluate every preimage tuple. In discrete settings \(\sup\) reduces to a \(\max\). Continuous universes require discretisation: sample each input axis on a uniform or adaptive grid (typical 200--500 points per dimension), apply the t\hyp{}norm/aggregation on that mesh, and approximate the supremum via \(\max\). Sparse grids or Monte Carlo sampling reduce the curse of dimensionality; always report the resolution so readers understand numeric fidelity.
