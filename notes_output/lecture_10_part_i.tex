@@ -100,15 +100,11 @@ Equation~\eqref{eq:membership-transform} states that the membership degree of \(
 
 This approach preserves the logical interpretation of membership values and respects the structure of the mapping \( f \).
 
-\subsection{Example Setup}
-\label{sec:fuzzyrelations_example_setup}
-
-Consider the universe \( X = \mathbb{R} \) and the fuzzy set \( A \)
-
 \subsection{Transformation of Fuzzy Sets Between Universes}
 \label{sec:fuzzyrelations_transformation_of_fuzzy_sets_between_universes}
 
 We continue our discussion on fuzzy set transformations, focusing on mapping fuzzy sets from one universe to another via a function \( y = f(x) \).
+The extension principle itself was defined in \eqref{eq:membership-transform}; here we work through a concrete discrete example that instantiates that definition.
 
 \paragraph{Example: Mapping via \( y = x^2 \)}
 
@@ -247,14 +243,7 @@ Taking the supremum over all contributing pairs gives
 \subsection{Extension Principle Recap and Projection Operations}
 \label{sec:fuzzyrelations_extension_principle_recap_and_projection_operations}
 
-Recall from the previous discussion that the \emph{extension principle} allows us to extend a fuzzy set defined on one universe to another universe via a known function. For example, if we have a fuzzy set \( A \subseteq X \) and a function \( f: X \to Y \), then the image fuzzy set \( B = f(A) \subseteq Y \) is defined by
-\begin{equation}
-    \mu_B(y) = \sup_{x \in X: f(x) = y} \mu_A(x).
-    \label{eq:extension_principle}
-\end{equation}
-This corresponds to taking the maximum membership value among all preimages of \( y \) under \( f \). In discrete settings the supremum reduces to a maximum over the (finite) preimage of \(y\); for multi-input maps \(f(x_1,\ldots, x_n)\) we first combine input memberships with a chosen t\hyp{}norm and then take the supremum over all tuples mapping to \(y\).
-
-In the continuous universe, this can become challenging because multiple \( x \) values may map to the same \( y \), requiring careful evaluation of the supremum. The extension principle thus generalizes the image of fuzzy sets under arbitrary mappings.
+Recall the extension principle definition in \eqref{eq:membership-transform}. Here we focus on computational choices (discretization vs.\ alpha\hyp{}cuts) before moving on to projection operations.
 
 \begin{tcolorbox}[summarybox, title={Computation and discretisation tips}]
 For discrete universes the extension principle costs \(O(|X|)\) per \(y\) (or \(O(|X|^n)\) for \(n\)-ary maps) because we evaluate every preimage tuple. In discrete settings \(\sup\) reduces to a \(\max\). Continuous universes require discretisation: sample each input axis on a uniform or adaptive grid (typical 200--500 points per dimension), apply the t\hyp{}norm/aggregation on that mesh, and approximate the supremum via \(\max\). Sparse grids or Monte Carlo sampling reduce the curse of dimensionality; always report the resolution so readers understand numeric fidelity.
@@ -329,6 +318,7 @@ Now, consider the case where we have a fuzzy relation \( R \subseteq X \times Y 
     \mu_R: X \times Y \to [0,1].
 \]
 This relation can be viewed as a fuzzy set on the Cartesian product \( X \times Y \).
+We define projection operators in this section and later reuse them in the dimensional extension discussion; the goal here is to fix notation and walk a concrete table example.
 
 \paragraph{Cartesian Product of Fuzzy Sets}
 
@@ -376,8 +366,6 @@ Then the Cartesian product membership values are
     \end{bmatrix}.
 \]
 Here the first row corresponds to \(x_1\), the second row to \(x_2\), and the columns correspond to \(y_1\) and \(y_2\). Keeping that indexing explicit avoids ambiguity when reading off the projected membership values.
-
-\paragraph{Projection of Fuzzy Relations}
 
 Often, we are interested in reducing the dimensionality of a fuzzy relation by projecting it onto one of its component universes. The projection operation extracts a fuzzy set on \( X \) or \( Y \) from the fuzzy relation \( R \).
 
@@ -483,8 +471,7 @@ This operation "copies" the membership values of \(A\) uniformly along the \(Y\)
 
 \paragraph{Projection}
 
-Conversely, the \emph{projection} operation reduces the dimension of a fuzzy set by aggregating membership values over one or more dimensions. For a fuzzy set \(R \subseteq X \times Y\) with membership function \(\mu_R: X \times Y \to [0,1]\), the projection onto \(X\) is again given by \(\mu_{\pi_X(R)}(x) = \sup_{y \in Y} \mu_R(x, y)\) as in \eqref{eq:projection_x}.
-This operation captures the maximum membership value over all \(y \in Y\) for each fixed \(x\), effectively "collapsing" the \(Y\)-dimension.
+Projection collapses relations back onto a target universe; we reuse the definitions in \eqref{eq:projection_x}--\eqref{eq:projection_y}. This operation captures the maximum membership value over all \(y \in Y\) for each fixed \(x\), effectively "collapsing" the \(Y\)-dimension.
 
 \paragraph{Example}
 
@@ -513,10 +500,10 @@ The question is: can we infer a fuzzy relation \(R \subseteq X \times Z\) that r
 
 The composition \(R = R_1 \circ R_2\) is defined by:
 \begin{equation}
-    \mu_R(x, z) = \sup_{y \in Y} \min \big( \mu_{R_1}(x, y), \mu_{R_2}(y, z) \big).
-    \label{eq:fuzzy_composition}
+    \mu_R(x, z) = \sup_{y \in Y} T \big( \mu_{R_1}(x, y), \mu_{R_2}(y, z) \big).
+    \label{eq:composition_general}
 \end{equation}
-This is known as the \emph{sup--min composition} (or max--min composition) of fuzzy relations; replacing \(\min\) with another t\hyp{}norm \(T\) swaps in the chosen operator from \Cref{tab:tnorms}.
+We default to the \emph{sup--min} (max--min) composition by taking \(T(a,b)=\min(a,b)\); other t\hyp{}norms are listed in \Cref{tab:tnorms}.
 
 \paragraph{Interpretation}
 
@@ -580,29 +567,7 @@ The goal of this final part is to wrap up the derivations related to fuzzy relat
 \subsection{Generalization of Fuzzy Relation Composition}
 \label{sec:fuzzyrelations_generalization_of_fuzzy_relation_composition}
 
-Suppose we have two fuzzy relations:
-\[
-R_1 \subseteq X \times Y, \quad R_2 \subseteq Y \times Z,
-\]
-with membership functions \(\mu_{R_1}(x, y)\) and \(\mu_{R_2}(y, z)\), respectively.
-
-The \emph{composition} \(R = R_1 \circ R_2\) is a fuzzy relation from \(X\) to \(Z\) defined by:
-\begin{equation}
-\mu_R(x, z) = \sup_{y \in Y} T\big(\mu_{R_1}(x, y), \mu_{R_2}(y, z)\big),
-\label{eq:composition_general}
-\end{equation}
-where \(T\) is a chosen t\hyp{}norm (triangular norm) representing fuzzy conjunction (e.g., minimum, product). Recall that a t\hyp{}norm \(T: [0,1]^2 \to [0,1]\) is commutative, associative, monotone in each argument, and satisfies \(T(a,1)=a\); popular choices include the minimum, product, and \L{}ukasiewicz operators.
-
-\paragraph{Max--min Composition:} The most common choice is the max--min composition where
-\[
-T(a, b) = \min(a, b),
-\]
-and the supremum is replaced by maximum:
-\[
-\mu_R(x, z) = \max_{y \in Y} \min\big(\mu_{R_1}(x, y), \mu_{R_2}(y, z)\big).
-\]
-
-This operation generalizes the classical composition of crisp relations to fuzzy sets.
+Equation \eqref{eq:composition_general} already defines the general sup--\(T\) composition. A valid t\hyp{}norm \(T: [0,1]^2 \to [0,1]\) is commutative, associative, monotone in each argument, and satisfies \(T(a,1)=a\); common choices include the minimum, product, and \L{}ukasiewicz operators. Setting \(T(a,b)=\min(a,b)\) recovers the standard max--min composition used in the examples below.
 
 \subsection{Example Calculation of Composition}
 \label{sec:fuzzyrelations_example_calculation_of_composition}

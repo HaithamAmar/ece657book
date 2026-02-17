@@ -944,26 +944,7 @@ Penalty terms are easy to implement, repair operators exploit domain knowledge, 
 \subsection{Genetic Algorithms: Iterative Process and Convergence}
 \label{sec:evo_genetic_algorithms_iterative_process_and_convergence}
 
-Recall that in genetic algorithms (GAs), we start with an initial population of candidate solutions, each represented by a chromosome encoding a potential solution vector. The fitness of each candidate is evaluated by plugging the encoded values into the objective function. Based on these fitness values, selection probabilities are assigned, favoring candidates with higher fitness (for maximization problems) or lower fitness (for minimization problems).
-
-\paragraph{Selection and Reproduction}
-
-Selection is typically stochastic but biased towards fitter individuals. For example, in a population of size $N=10$, some individuals may be selected multiple times, while others may not be selected at all. This process ensures that better solutions have a higher chance of propagating their genetic material to the next generation.
-
-\paragraph{Crossover and Mutation}
-
-After selection, genetic operators such as crossover and mutation are applied:
-
-\begin{itemize}
-    \item \textbf{Crossover:} With a certain probability (e.g., 25\%), pairs of selected chromosomes exchange segments of their genetic code to produce offspring. This recombination explores new regions of the solution space by mixing existing solutions.
-    \item \textbf{Mutation:} With a smaller probability (e.g., 10\%), random changes are introduced to individual genes in the chromosomes. Mutation maintains genetic diversity and helps prevent premature convergence to local optima.
-\end{itemize}
-
-\paragraph{Evolution Over Generations}
-
-By iterating the cycle of selection, crossover, and mutation over multiple generations, the population gradually evolves towards better solutions. Early generations may have widely dispersed candidate solutions, but as evolution proceeds, solutions cluster around local maxima or minima of the fitness landscape.
-
-In practice, after a sufficient number of generations (e.g., 16 in the example), the algorithm often converges to a solution with the highest fitness value found so far. While this is not guaranteed to be the global optimum, it often provides a very good approximation.
+This section focuses on convergence behavior; the GA cycle itself is summarized in \Cref{sec:evo_summary_of_genetic_algorithm_workflow} and the control flow in \Cref{fig:lec11-ga-flow}. Over generations, populations tend to cluster around better regions of the fitness landscape; flat best\hyp{}fitness curves signal stagnation, while a persistent gap between best and mean indicates ongoing selection pressure (see \Cref{fig:lec11-ga-progress}). Convergence typically occurs after a problem\hyp{}dependent number of generations, and the best\hyp{}so\hyp{}far solution should be treated as a high\hyp{}quality approximation rather than a guaranteed global optimum. For the concrete step sequence and operator details, use the workflow summary and the operator subsections above.
 
 \subsection{Beyond canonical GAs: real-coded strategies}
 \label{sec:evo_beyond_canonical_gas_real_coded_strategies}
