@@ -164,12 +164,7 @@ Once you have the architecture in mind, it helps to visualize what the hidden la
 
 \Cref{fig:rbf_primal_dual} clarifies primal-versus-dual trade-offs as basis count grows and Nystr\"om approximations become attractive.
 
-\begin{enumerate}
-    \item \textbf{Input layer:} Receives the input vector \(\mathbf{x} \in \mathbb{R}^n\).
-    \item \textbf{Hidden layer:} Applies a set of \(M\) nonlinear radial basis functions \(\{G_i(\mathbf{x})\}_{i=1}^M\) to the input. These functions serve as feature mappings.
-    \item \textbf{Output layer:} Computes a weighted sum of the hidden layer outputs to produce the final output vector \(\mathbf{y} \in \mathbb{R}^K\).
-\end{enumerate}
-
+\Cref{fig:rbf_architecture_weights} plus the overview above summarize the three-layer flow; we now formalize it algebraically.
 The key distinction is that the input-to-hidden layer connections do not have trainable weights; instead, the hidden layer units themselves perform nonlinear transformations of the input.
 
 \subsubsection{Mathematical Formulation}
@@ -250,7 +245,7 @@ Applying the transformation to the inputs yields new points in the \(g_1\)-\(g_2
 \subsection{Finding the Optimal Weight Vector \texorpdfstring{\(\mathbf{w}\)}{w}}
 \label{sec:rbf_finding_the_optimal_weight_vector_w_w}
 
-Given the transformed data \(\mathbf{g}(\mathbf{x})\) and desired outputs \(\mathbf{d}\), we want to find \(\mathbf{w}\) that minimizes the squared error between the predicted output and the target. Let \(\boldsymbol{\Phi}\in\mathbb{R}^{N\times M}\) be the design matrix with entries \(\boldsymbol{\Phi}_{ji}=\varphi_i(\mathbf{x}_j)=G_i(\mathbf{x}_j)\). The model predicts \(\hat{\mathbf{d}}=\boldsymbol{\Phi}\mathbf{w}\), and the least-squares objective is
+Given the transformed data \(\mathbf{g}(\mathbf{x})\) and desired outputs \(\mathbf{d}\), we want to find \(\mathbf{w}\) that minimizes the squared error between the predicted output and the target. Using the design matrix \(\boldsymbol{\Phi}\) defined in the notation box, the model predicts \(\hat{\mathbf{d}}=\boldsymbol{\Phi}\mathbf{w}\), and the least-squares objective is
 \begin{equation}
 J(\mathbf{w}) = \|\mathbf{d} - \boldsymbol{\Phi} \mathbf{w}\|^2.
 \label{eq:cost_function}
@@ -269,11 +264,7 @@ When \(\boldsymbol{\Phi}^\top\boldsymbol{\Phi}\) is well conditioned, the closed
 \subsection{The Role of the Transformation Function \texorpdfstring{\(g(\cdot)\)}{g(.)}}
 \label{sec:rbf_the_role_of_the_transformation_function_g_g}
 
-The design matrix \(\boldsymbol{\Phi}\) is constructed by applying a nonlinear transformation \(g(\cdot)\) to the input data points relative to a set of centroids \(\{\mathbf{v}_i\}\). Each element of \(\boldsymbol{\Phi}\) is typically defined as:
-\[
-\boldsymbol{\Phi}_{ji} = g_i(\mathbf{x}_j) = g\left(\|\mathbf{x}_j - \mathbf{v}_i\|\right).
-\]
-where \(\|\cdot\|\) denotes a norm (usually Euclidean distance), and \(g(\cdot)\) is a nonlinear kernel or activation function.
+The nonlinear map \(g(\cdot)\) and its role in constructing \(\boldsymbol{\Phi}\) were defined in the transformation example above; here we focus on its parameters and how to choose it.
 
 Two parameters characterize \(g(\cdot)\):
 \begin{itemize}

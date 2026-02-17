@@ -169,16 +169,7 @@ Dimensionality reduction refers to techniques that transform high-dimensional da
 \subsection{Dimensionality Reduction and Feature Mapping}
 \label{sec:som_dimensionality_reduction_and_feature_mapping}
 
-Recall from the previous discussion that dimensionality reduction aims to map a high-dimensional feature space into a lower-dimensional representation while preserving as much information as possible. This is crucial in many applications such as image processing, speech recognition, and pattern analysis, where the original data may have many correlated or redundant features yet the geometric relationships (distances, variance directions, neighborhoods) must remain meaningful.
-
-For example, consider a face represented by multiple features: eyes, nose, mouth, ears, shape of the face, etc. If we want to reduce this to three dimensions, we must carefully choose which features to combine or discard so that the essential characteristics of the face remain recognizable. A naive reduction that drops important features arbitrarily will result in poor representation.
-
-Depending on the application, the map may be linear (a projection as in PCA) or nonlinear (a learned embedding as in t-SNE or SOM; note that SOMs produce a discrete lattice embedding rather than a continuous Euclidean embedding).
-The goal is to find a mapping
-\[
-f: \mathbb{R}^n \rightarrow \mathbb{R}^m, \quad m < n,
-\]
-such that the new feature vector \(\mathbf{y} = f(\mathbf{x})\) retains the salient structure of \(\mathbf{x}\), for example by approximately preserving pairwise distances, nearest neighbors, or dominant variance directions. Modern algorithms discover these combinations automatically from data, often in an unsupervised manner (PCA, t-SNE, SOM). Supervised (e.g., Linear Discriminant Analysis) and semi-supervised variants also exist, where label information guides \(f\), rather than relying on manual feature selection. For instance, PCA derives \(f\) analytically via eigen-decomposition of the covariance matrix, whereas t-SNE and SOM learn \(f\) iteratively from data.
+The dimensionality-reduction goals were covered in \Cref{sec:som_dimensionality_reduction_simplifying_high_dimensional_data}; here we only note that SOMs implement a discrete lattice embedding rather than a continuous Euclidean map. The mapping \(f:\mathbb{R}^n \rightarrow \mathbb{R}^m\) is realized implicitly by the learned prototypes and their lattice coordinates, which we define in the SOM construction below.
 
 \subsection{Self-Organizing Maps (SOMs): Introduction}
 \label{sec:som_self_organizing_maps_soms_introduction}
@@ -256,10 +247,7 @@ Let the input space be \(\mathcal{X} \subseteq \mathbb{R}^n\), and the output ma
 
 \paragraph{Best Matching Unit (BMU)}
 
-Given an input \(\mathbf{x}\), the BMU is found by minimizing the squared distance:
-\begin{equation*}
-    c = \arg\min_{i} \|\mathbf{x} - \mathbf{w}_i\|_2^2.
-\end{equation*}
+We reuse the BMU definition in \eqref{eq:bmu}; the same squared-distance criterion carries into the formal derivation here.
 
 \paragraph{Neighborhood Function}
 
@@ -302,33 +290,17 @@ Building on the inspiration from perceptrons, Kohonen Self-Organizing Maps (SOMs
 
 \paragraph{Network Structure}
 
-\begin{itemize}
-    \item \textbf{Input layer:} The input vector \(\mathbf{x} \in \mathbb{R}^n\) represents the feature space, where \(n\) is the input dimension.
-    \item \textbf{Output layer (map):} A fixed lattice of neurons arranged in a low-dimensional grid, e.g., a \(6 \times 4\) or \(3 \times 3\) grid, independent of the input dimension.
-    \item \textbf{Connectivity:} Each neuron in the output layer is fully connected to all input components via a weight vector \(\mathbf{w}_i \in \mathbb{R}^n\), where \(i\) indexes the neuron.
-\end{itemize}
+The network structure follows \Cref{sec:som_self_organizing_maps_soms_introduction}: input vectors, a fixed low-dimensional lattice with coordinates \(\mathbf{r}_i\), and weight vectors \(\mathbf{w}_i\) connecting every input to every lattice unit.
 
 \paragraph{Mapping and Competition}
 
 The SOM maps the high-dimensional input \(\mathbf{x}\) to a single neuron in the output lattice that best represents the input. This is achieved by measuring the similarity between \(\mathbf{x}\) and each neuron's weight vector \(\mathbf{w}_i\). The neuron with the highest similarity (or equivalently, the smallest distance) is declared the \emph{winner}.
 
-Formally, the winning neuron \(c\) for input \(\mathbf{x}\) is given by
-\begin{align}
-    c = \arg \min_i \|\mathbf{x} - \mathbf{w}_i\|_2^2, \label{eq:winner_neuron}
-\end{align}
-where \(\|\cdot\|_2\) denotes the Euclidean norm. Squaring the norm leaves the minimizer unchanged (\(\arg\min_{i} \|\mathbf{x}-\mathbf{w}_i\|_2 = \arg\min_{i} \|\mathbf{x}-\mathbf{w}_i\|_2^2\)), but simplifies derivatives in the subsequent learning rule. Alternative similarity metrics (e.g., cosine distance) can replace \(\|\mathbf{x}-\mathbf{w}_i\|_2\) when appropriate.
+Formally, the winning neuron \(c\) is defined by the BMU criterion in \eqref{eq:bmu}; we use squared Euclidean distance for derivative convenience, though alternative similarity metrics (e.g., cosine distance) can be substituted when appropriate.
 
 \paragraph{Weight Update Rule}
 
-Only the winning neuron and its neighbors in the lattice update their weights to better represent the input. This competitive learning rule can be expressed as
-\begin{align}
-    \mathbf{w}_i(t+1) = \mathbf{w}_i(t) + \alpha(t) \, h_{ci}(t) \, \big(\mathbf{x}(t) - \mathbf{w}_i(t)\big), \label{eq:som_weight_update}
-\end{align}
-where the learning rate symbol matches the one used in the conceptual outline,
-\begin{itemize}
-    \item \(\alpha(t)\) is the learning rate at iteration \(t\),
-    \item \(h_{ci}(t)\) is the neighborhood function centered on the winning neuron \(c\), typically a Gaussian kernel that decreases with the lattice distance between neurons \(c\) and \(i\) (see \eqref{eq:gaussian_neighborhood_short}).
-\end{itemize}
+Only the winning neuron and its neighbors in the lattice update their weights to better represent the input; the update rule is the SOM step in \eqref{eq:som_update}, with \(\alpha(t)\) and \(h_{ci}(t)\) defined there.
 
 This update rule ensures that the winning neuron and its neighbors move closer to the input vector, preserving topological relationships in the input space.
 Intuitively, simultaneous adaptation of the BMU and its nearby units keeps neighboring weight vectors in similar regions of the input space, so the lattice retains the ordering of the data manifold.
@@ -363,7 +335,7 @@ c =
 
 \paragraph{Weight Initialization and Update}
 
-Weights \(\mathbf{w}_i\) are typically initialized randomly or sampled from the input distribution. During training, for each input \(\mathbf{x}\), the winning neuron \(c\) and its neighbors update their weights according to \eqref{eq:som_weight_update}.
+Weights \(\mathbf{w}_i\) are typically initialized randomly or sampled from the input distribution. During training, for each input \(\mathbf{x}\), the winning neuron \(c\) and its neighbors update their weights according to \eqref{eq:som_update}.
 
 \paragraph{Illustration}
 
@@ -371,7 +343,7 @@ Weights \(\mathbf{w}_i\) are typically initialized randomly or sampled from the 
     \item Suppose the input \(\mathbf{x}\) is presented.
     \item Compute \(y_i = \mathbf{w}_i^T \mathbf{x}\) for all neurons \(i\).
     \item Identify the winning neuron \(c\) with the highest \(y_i\).
-    \item Update \(\mathbf{w}_c\) and neighboring weights \(\mathbf{w}_i\) using \eqref{eq:som_weight_update}.
+    \item Update \(\mathbf{w}_c\) and neighboring weights \(\mathbf{w}_i\) using \eqref{eq:som_update}.
 \end{itemize}
 
 This process repeats over many inputs, gradually organizing the map such that neighboring neurons respond to similar inputs, effectively performing a topology-preserving dimensionality reduction.
@@ -397,50 +369,11 @@ Recall that in competitive learning networks, the neuron with the highest discri
 
 \paragraph{Discriminant Function and Similarity Measures}
 
-The discriminant value for neuron \(j\) is typically computed from a similarity or distance measure between the input \(\mathbf{x}\) and the neuron's weight vector \(\mathbf{w}_j\). Two common formulations are:
-
-\begin{itemize}
-    \item \textbf{Maximizing similarity:}
-    \[
-    g_j(\mathbf{x}) = \mathbf{w}_j^\top \mathbf{x}.
-    \]
-    where a higher inner product indicates greater similarity.
-
-    \item \textbf{Minimizing distance:}
-    \[
-    d_j(\mathbf{x}) = \|\mathbf{x} - \mathbf{w}_j\|_2^2.
-    \]
-    where a smaller Euclidean distance indicates greater similarity.
-\end{itemize}
-
-While both are valid, minimizing the Euclidean distance is often preferred for weight updates because it leads to more tractable learning rules.
+The discriminant measures in \eqref{eq:neuron_activation} (dot-product similarity) and \eqref{eq:neuron_distance} (squared Euclidean distance) are the same ones used in the earlier example; we reuse them here, favoring the distance form when deriving updates.
 
 \paragraph{Weight Update Rule}
 
-Once the winning neuron \(c\) is identified, its weight vector \(\mathbf{w}_{c}\) is updated to better represent the input \(\mathbf{x}\). The general update rule is:
-
-\begin{equation}
-\mathbf{w}_{c}(t+1) = \mathbf{w}_{c}(t) + \Delta \mathbf{w}_{c}(t).
-\label{eq:weight_update_general}
-\end{equation}
-
-where \(t\) indexes the iteration or training cycle and \(\Delta \mathbf{w}_{c}(t) = \mathbf{w}_{c}(t+1) - \mathbf{w}_{c}(t)\).
-
-The increment \(\Delta \mathbf{w}_{c}(t)\) is chosen to reduce the distance between \(\mathbf{w}_{c}\) and \(\mathbf{x}\), but not to make them identical immediately. This is because:
-
-\begin{itemize}
-    \item Multiple inputs \(\mathbf{x}\) may be represented by the same neuron.
-    \item Immediate convergence to a single input would prevent generalization.
-\end{itemize}
-
-Hence, the update is typically proportional to the difference between \(\mathbf{x}\) and \(\mathbf{w}_{c}\):
-
-\begin{equation}
-\Delta \mathbf{w}_{c}(t) = \alpha(t) \left( \mathbf{x} - \mathbf{w}_{c}(t) \right).
-\label{eq:weight_update_delta}
-\end{equation}
-
-where \(\alpha(t) \in [0,1)\) is the \emph{learning rate} at iteration \(t\). The learning rate controls the step size so that \(\mathbf{w}_c\) moves toward \(\mathbf{x}\) gradually rather than collapsing to it in a single update.
+Once the winning neuron \(c\) is identified, WTA is the SOM update \eqref{eq:som_update} with a collapsed neighborhood: set \(h_{ci}(t)=1\) for \(i=c\) and \(h_{ci}(t)=0\) otherwise. The learning rate \(\alpha(t)\) still controls step size so the winner moves toward \(\mathbf{x}\) gradually rather than collapsing to it in a single update.
 
 \paragraph{Learning Rate Schedule}
 
@@ -464,7 +397,7 @@ Practitioners often start with \(\alpha(0)\) in the range \(0.05\)--\(0.5\) and 
         \[
         c = \arg \max_j g_j(\mathbf{x}) \quad \text{or} \quad c = \arg \min_j d_j(\mathbf{x})
         \]
-        \item Update the winning neuron's weights using \eqref{eq:weight_update_general} and \eqref{eq:weight_update_delta}.
+        \item Update the winning neuron's weights using \eqref{eq:som_update} with \(h_{ci}(t)\) collapsed to a winner-only update.
     \end{enumerate}
     \item Decrease learning rate \(\alpha(t)\) according to schedule.
     \item Repeat until convergence or maximum iterations reached.
@@ -502,21 +435,7 @@ where row \(j\) contains the initial weight vector \(\mathbf{w}_j(0)\) for neuro
 \subsection{Winner-Takes-All Learning Recap}
 \label{sec:som_winner_takes_all_learning_recap}
 
-Recall from the previous discussion that in the Winner-Takes-All (WTA) learning scheme, for each input vector \(\mathbf{x}\), we compute the similarity (or distance) between \(\mathbf{x}\) and each neuron's weight vector \(\mathbf{w}_j\). The neuron \(c\) with the minimum distance (or maximum similarity) is declared the winner:
-\begin{align}
-c = \arg \min_j \|\mathbf{x} - \mathbf{w}_j\|_2^2.
-    \label{eq:auto:lecture_5_part_i:1}
-\end{align}
-
-Only the weights of the winning neuron are updated according to:
-\begin{align}
-\mathbf{w}_{c}(t+1) = \mathbf{w}_{c}(t) + \alpha(t) \left( \mathbf{x} - \mathbf{w}_{c}(t) \right),
-\label{eq:wta_weight_update}
-\end{align}
-where \(\alpha(t)\) is the learning rate (constant or decaying).
-In the full SOM update of \eqref{eq:som_weight_update}, this increment is additionally scaled by the neighborhood kernel \(h_{ci}(t)\) so that only units with lattice coordinates \(\mathbf{r}_i\) near the BMU location \(\mathbf{r}_c\) receive appreciable adjustments.
-
-This process is repeated for each input in the training set, and multiple epochs are run with a gradually decreasing \(\alpha\) until convergence.
+The WTA selection and update were defined in \Cref{sec:som_winner_takes_all_learning_and_weight_update_rules}; the numerical example above uses the same BMU criterion \eqref{eq:bmu} and the winner-only form of the update in \eqref{eq:som_update}.
 
 \paragraph{Practical considerations} In both SOMs and WTA networks, input vectors are commonly normalized (e.g., zero mean and unit variance) so that distance comparisons are meaningful. Training is typically terminated when weight changes fall below a small threshold or after a prescribed number of epochs.
 
