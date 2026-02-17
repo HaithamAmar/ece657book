@@ -24,6 +24,7 @@ Build notes (2026-02-17):
 - Release checks re-run after P1 \(\Sigma\) notation sweep in `lecture_8_part_i.tex`. All checks completed; warning gate passed.
 - Release checks re-run after P1 dedup follow-up reference sentences in `lecture_10_part_i.tex` and `lecture_11.tex`. All checks completed; warning gate passed.
 - Release checks re-run after P1 dedup updates in `lecture_1_intro.tex` and `lecture_2_part_i.tex`. All checks completed; warning gate passed.
+- Release checks re-run after P1 dedup updates in `lecture_2_part_ii.tex` and `lecture_3_part_i.tex`. All checks completed; warning gate passed.
 
 ### P1 (global consistency / cross-ref hygiene)
 - [ ] Notation consistency sweeps (vector bolding; objective symbol; x/X casing) across chapters. (Progress: objective symbol standardized in `lecture_11.tex`; vector/matrix notation normalized in `lecture_3_part_i.tex` and `lecture_8_part_i.tex`; W/A/Z/b notation normalized in `lecture_3_part_ii.tex`, `lecture_4_part_i.tex`, and `lecture_6.tex`; \(\delta\)/\(D\)/\(K\)/\(\Phi\) notation normalized in `lecture_3_part_ii.tex`, `lecture_4_part_i.tex`, `lecture_4_part_ii.tex`, and `lecture_6.tex`; \(\Sigma\) notation normalized in `lecture_8_part_i.tex`; vector bolding sweep applied in `lecture_supervised.tex`, `lecture_4_part_i.tex`, `lecture_7.tex`, `lecture_8_part_i.tex`, `lecture_1_intro.tex`, `lecture_3_part_ii.tex`, `lecture_5_part_ii.tex` after manual pass beyond co-occurrence section. y/\hat{y} sweep found no vector/scalar mismatches. H/G/J/\(\Lambda\)/\(\Psi\) sweep found no vector/scalar mismatches.)

@@ -73,7 +73,7 @@ The concept of artificial neural networks dates back to the early 1940s, with pi
 \subsection{Outline of Neural Network Study}
 \label{sec:perceptron_outline_of_neural_network_study}
 
-This chapter introduces perceptrons and common activation functions. \Cref{chap:mlp} then develops multilayer perceptrons and the backpropagation machinery needed to train them; \Cref{chap:rnn} returns to sequence models with recurrent connections.
+As summarized in the opening paragraph, this chapter starts the neural strand with perceptrons and activation functions. \Cref{chap:mlp} then develops multilayer perceptrons and the backpropagation machinery needed to train them; \Cref{chap:rnn} returns to sequence models with recurrent connections.
 
 Formal definitions of the perceptron neuron model (activation functions, weighted sums, and thresholds) follow in \Cref{sec:perceptron}. Refer back to the biological narrative above when interpreting the abstractions.
 
@@ -273,15 +273,7 @@ This model laid the groundwork for later developments in neural networks, includ
 \subsection{McCulloch-Pitts neuron: examples and limits}
 \label{sec:perceptron_mcculloch_pitts_neuron_examples_and_limits}
 
-Recall that the McCulloch-Pitts (MP) neuron model is defined by a weighted sum of binary inputs compared against a threshold to produce a binary output. Formally, for inputs \(x_i \in \{0,1\}\) and weights \(w_i\), the neuron output \(y\) is given by
-\begin{align}
-    y = \begin{cases}
-    1 & \text{if } \sum_{i=1}^n w_i x_i \geq \theta, \\
-    0 & \text{otherwise},
-    \end{cases}
-    \label{eq:mp-neuron}
-\end{align}
-where \(\theta\) is the threshold.
+Recall the MP neuron definition in \eqref{eq:weighted_sum}--\eqref{eq:threshold_output} (equivalently \eqref{eq:neuron_output}); here we focus on logic-gate examples and the limitations that motivate learnable variants.
 
 \paragraph{Example: AND and OR gates}
 
@@ -325,7 +317,7 @@ Convert with \texttt{y\_pm = 2*y01 - 1} and \texttt{y01 = (y\_pm + 1)/2}.
 Perceptron updates below use the \texttt{\{-1,+1\}} encoding.
 \end{tcolorbox}
 
-The perceptron learning rule iteratively updates weights to reduce classification errors, enabling the model to learn from data rather than relying on manual parameter selection. With labels \(y_i\in\{-1,+1\}\), a mistake triggers \( \mathbf{w}\leftarrow \mathbf{w} + \eta y_i \mathbf{x}_i\) and \( b\leftarrow b + \eta y_i\). The induced separating hyperplane and signed distance are illustrated in \Cref{fig:lec3-perceptron-geometry}.
+The perceptron learning rule iteratively updates weights to reduce classification errors, enabling the model to learn from data rather than relying on manual parameter selection. The signed-margin derivation below yields the update used in practice; the induced separating hyperplane and signed distance are illustrated in \Cref{fig:lec3-perceptron-geometry}.
 
 \paragraph{Perceptron update from the signed margin.} Let \(d_i = y_i(\mathbf{w}^\top \mathbf{x}_i + b)\) be the signed margin. If \(d_i \ge 0\) the example is correctly classified; if \(d_i < 0\) the example is misclassified. A common perceptron criterion is
 \[
