@@ -123,10 +123,10 @@ The elementwise product \texttt{*} mirrors the Hadamard notation from \Crefrange
 
 \begin{tcolorbox}[summarybox, title={Shape ledger for an $L$-layer MLP (batch size $B$)}]
 \begin{itemize}
-    \item \(\mathbf{A}^{(l-1)}\in\mathbb{R}^{B\times n_{l-1}},\; \mathbf{Z}^{(l)},\delta^{(l)}\in\mathbb{R}^{B\times n_l}\)
+    \item \(\mathbf{A}^{(l-1)}\in\mathbb{R}^{B\times n_{l-1}},\; \mathbf{Z}^{(l)},\boldsymbol{\delta}^{(l)}\in\mathbb{R}^{B\times n_l}\)
     \item \(\mathbf{W}^{(l)}\in\mathbb{R}^{n_{l-1}\times n_l},\; \mathbf{b}^{(l)}\in\mathbb{R}^{n_l}\)
-    \item \(\partial L/\partial \mathbf{W}^{(l)} = (\mathbf{A}^{(l-1)})^\top \delta^{(l)} / B \in \mathbb{R}^{n_{l-1}\times n_l}\)
-    \item \(\partial L/\partial \mathbf{b}^{(l)} = \mathrm{batch\_mean}(\delta^{(l)}) \in \mathbb{R}^{n_l}\)
+    \item \(\partial L/\partial \mathbf{W}^{(l)} = (\mathbf{A}^{(l-1)})^\top \boldsymbol{\delta}^{(l)} / B \in \mathbb{R}^{n_{l-1}\times n_l}\)
+    \item \(\partial L/\partial \mathbf{b}^{(l)} = \mathrm{batch\_mean}(\boldsymbol{\delta}^{(l)}) \in \mathbb{R}^{n_l}\)
 \end{itemize}
 Layers share this structure; convolutional/sequence models reuse the same calculus with different bookkeeping.
 \end{tcolorbox}
@@ -414,10 +414,10 @@ SGD remains the backbone; momentum and Adam/AdamW from \Cref{chap:cnn} accelerat
         \draw[bwd] (L.south) |- ++(0,-1.3) -|
             node[pos=0.25, below, font=\scriptsize] {$\frac{\partial \mathcal{L}}{\partial \mathbf{A}^{(L)}}$} (AL.south);
         \draw[bwd] (AL.south) |- ++(0,-1.3) -|
-            node[pos=0.25, below, font=\scriptsize] {$\delta^{(L)}$} (ZL.south);
+            node[pos=0.25, below, font=\scriptsize] {$\boldsymbol{\delta}^{(L)}$} (ZL.south);
         \draw[bwd] (ZL.south) |- ++(0,-1.3) -|
             node[pos=0.5, below, font=\scriptsize, fill=white, inner sep=3pt] {chain rule via $W^\top, f'$} (Z1.south);
-        \node[font=\scriptsize, text=cbOrange!85!black, below=0.1cm of Z1.south, xshift=0.4cm, yshift=-0.5cm] {$\delta^{(1)}$};
+        \node[font=\scriptsize, text=cbOrange!85!black, below=0.1cm of Z1.south, xshift=0.4cm, yshift=-0.5cm] {$\boldsymbol{\delta}^{(1)}$};
 
         % Gradient extraction (curved to avoid overlaps)
         \draw[grad] (ZL.north) to[bend right=45]
@@ -439,7 +439,7 @@ SGD remains the backbone; momentum and Adam/AdamW from \Cref{chap:cnn} accelerat
     \item \textbf{Overfit a tiny batch:} Ensure the loss can be driven near zero on a handful of samples.
     \item \textbf{Gradient norms:} Track \(\|\nabla \mathbf{W}^{(l)}\|\) per layer; look for dead layers (all zeros) or explosions.
     \item \textbf{Finite-difference check:} Compare analytic gradients to numerical finite differences on a tiny network with fixed seeds; relative error should be \(<10^{-6}\).
-    \item \textbf{Shape assertions:} Verify that \(\mathbf{Z}^{(l)}, \mathbf{A}^{(l)},\delta^{(l)}\) have the expected batch shapes and that bias broadcasts correctly.
+    \item \textbf{Shape assertions:} Verify that \(\mathbf{Z}^{(l)}, \mathbf{A}^{(l)},\boldsymbol{\delta}^{(l)}\) have the expected batch shapes and that bias broadcasts correctly.
     \item \textbf{Layerwise sanity:} For a one-layer linear model, backprop gradients should match the closed-form linear-regression gradients.
 \end{itemize}
 \end{tcolorbox}
@@ -703,21 +703,21 @@ where \(\mathbf{W}^{(l)}\) and \(\mathbf{b}^{(l)}\) are the weights and biases o
 
 The error term at layer \( l \) is defined as:
 \[
-\delta^{(l)} = \frac{\partial \mathcal{L}}{\partial \mathbf{Z}^{(l)}}.
+\boldsymbol{\delta}^{(l)} = \frac{\partial \mathcal{L}}{\partial \mathbf{Z}^{(l)}}.
 \]
 
 Using the chain rule, the error terms propagate backward as:
 \begin{align}
-\delta^{(L)} &= \nabla_{\mathbf{A}^{(L)}} \mathcal{L} \odot \phi^{(L)\prime}(\mathbf{Z}^{(L)}), \\
-\delta^{(l-1)} &= \left(\delta^{(l)}(\mathbf{W}^{(l)})^\top\right) \odot \phi^{(l-1)\prime}(\mathbf{Z}^{(l-1)}), \quad l = L, \ldots, 2,
+\boldsymbol{\delta}^{(L)} &= \nabla_{\mathbf{A}^{(L)}} \mathcal{L} \odot \phi^{(L)\prime}(\mathbf{Z}^{(L)}), \\
+\boldsymbol{\delta}^{(l-1)} &= \left(\boldsymbol{\delta}^{(l)}(\mathbf{W}^{(l)})^\top\right) \odot \phi^{(l-1)\prime}(\mathbf{Z}^{(l-1)}), \quad l = L, \ldots, 2,
     \label{eq:auto:lecture_4_part_i:2}
 \end{align}
 where \(\odot\) denotes element-wise multiplication and \(\phi^{(l)\prime}\) is the derivative of the activation function at layer \( l \).
 
 The gradients of the loss with respect to the parameters are then:
 \begin{align}
-\frac{\partial \mathcal{L}}{\partial \mathbf{W}^{(l)}} &= (\mathbf{A}^{(l-1)})^\top \delta^{(l)}, \label{eq:grad_W}\\
-\frac{\partial \mathcal{L}}{\partial \mathbf{b}^{(l)}} &= \mathbf{1}^\top \delta^{(l)}. \label{eq:grad_b}
+\frac{\partial \mathcal{L}}{\partial \mathbf{W}^{(l)}} &= (\mathbf{A}^{(l-1)})^\top \boldsymbol{\delta}^{(l)}, \label{eq:grad_W}\\
+\frac{\partial \mathcal{L}}{\partial \mathbf{b}^{(l)}} &= \mathbf{1}^\top \boldsymbol{\delta}^{(l)}. \label{eq:grad_b}
 \end{align}
 
 These gradients are used in gradient-based optimization methods (e.g., stochastic gradient descent) to update the parameters and minimize the loss. \Cref{fig:lec4_backprop_flow} complements the algebra by showing how cached activations (blue) line up with the backward error signals (orange) in a simple two-layer network.

@@ -46,7 +46,7 @@ The hidden layer of an RBF network is easiest to understand when its centers are
 The RBFN consists of three layers:
 
 \begin{tcolorbox}[summarybox, title={Notation and shapes}]
-We denote each basis response by \(\varphi_i(\mathbf{x})\); stacking them yields \(\mathbf{G}(\mathbf{x})\in\mathbb{R}^M\) with entries \(G_i(\mathbf{x})=\varphi_i(\mathbf{x})\). For a dataset of \(N\) samples, the corresponding design matrix \(\Phi\in\mathbb{R}^{N\times M}\) stacks one transformed sample per row, with entries \(\Phi_{ji}=\varphi_i(\mathbf{x}_j)=G_i(\mathbf{x}_j)\). This matches the design-matrix convention used in \Cref{chap:supervised}.
+We denote each basis response by \(\varphi_i(\mathbf{x})\); stacking them yields \(\mathbf{G}(\mathbf{x})\in\mathbb{R}^M\) with entries \(G_i(\mathbf{x})=\varphi_i(\mathbf{x})\). For a dataset of \(N\) samples, the corresponding design matrix \(\boldsymbol{\Phi}\in\mathbb{R}^{N\times M}\) stacks one transformed sample per row, with entries \(\boldsymbol{\Phi}_{ji}=\varphi_i(\mathbf{x}_j)=G_i(\mathbf{x}_j)\). This matches the design-matrix convention used in \Cref{chap:supervised}.
 \end{tcolorbox}
 
 
@@ -250,28 +250,28 @@ Applying the transformation to the inputs yields new points in the \(g_1\)-\(g_2
 \subsection{Finding the Optimal Weight Vector \texorpdfstring{\(\mathbf{w}\)}{w}}
 \label{sec:rbf_finding_the_optimal_weight_vector_w_w}
 
-Given the transformed data \(\mathbf{g}(\mathbf{x})\) and desired outputs \(\mathbf{d}\), we want to find \(\mathbf{w}\) that minimizes the squared error between the predicted output and the target. Let \(\Phi\in\mathbb{R}^{N\times M}\) be the design matrix with entries \(\Phi_{ji}=\varphi_i(\mathbf{x}_j)=G_i(\mathbf{x}_j)\). The model predicts \(\hat{\mathbf{d}}=\Phi\mathbf{w}\), and the least-squares objective is
+Given the transformed data \(\mathbf{g}(\mathbf{x})\) and desired outputs \(\mathbf{d}\), we want to find \(\mathbf{w}\) that minimizes the squared error between the predicted output and the target. Let \(\boldsymbol{\Phi}\in\mathbb{R}^{N\times M}\) be the design matrix with entries \(\boldsymbol{\Phi}_{ji}=\varphi_i(\mathbf{x}_j)=G_i(\mathbf{x}_j)\). The model predicts \(\hat{\mathbf{d}}=\boldsymbol{\Phi}\mathbf{w}\), and the least-squares objective is
 \begin{equation}
-J(\mathbf{w}) = \|\mathbf{d} - \Phi \mathbf{w}\|^2.
+J(\mathbf{w}) = \|\mathbf{d} - \boldsymbol{\Phi} \mathbf{w}\|^2.
 \label{eq:cost_function}
 \end{equation}
 
 \paragraph{Normal Equations for the Weights:}
 Differentiating \eqref{eq:cost_function} with respect to \(\mathbf{w}\) and setting the gradient to zero yields
 \begin{equation}
-\Phi^\top \Phi \,\mathbf{w} = \Phi^\top \mathbf{d}.
+\boldsymbol{\Phi}^\top \boldsymbol{\Phi} \,\mathbf{w} = \boldsymbol{\Phi}^\top \mathbf{d}.
 \label{eq:normal_eq_weights}
 \end{equation}
-When \(\Phi^\top\Phi\) is well conditioned, the closed-form solution is \(\mathbf{w}^\star=(\Phi^\top\Phi)^{-1}\Phi^\top\mathbf{d}\); in practice we almost always add ridge regularization as described in the training section below.
+When \(\boldsymbol{\Phi}^\top\boldsymbol{\Phi}\) is well conditioned, the closed-form solution is \(\mathbf{w}^\star=(\boldsymbol{\Phi}^\top\boldsymbol{\Phi})^{-1}\boldsymbol{\Phi}^\top\mathbf{d}\); in practice we almost always add ridge regularization as described in the training section below.
 
-\paragraph{Conditioning and capacity.} When \(M\) is large and Gaussians overlap heavily, \(\Phi^\top\Phi\) can become ill-conditioned. Ridge regularization (adding \(\lambda I\)) stabilizes the solve and controls variance, mirroring the bias--variance trade-off from \Cref{chap:supervised}. Choosing \(M\), \(\sigma\), and \(\lambda\) together is essential for good generalization; \Cref{chap:supervised}'s learning-curve diagnostics apply directly, and kernel methods (e.g., kernel ridge regression or SVMs) interpret the same trade-off via RBF kernels.
+\paragraph{Conditioning and capacity.} When \(M\) is large and Gaussians overlap heavily, \(\boldsymbol{\Phi}^\top\boldsymbol{\Phi}\) can become ill-conditioned. Ridge regularization (adding \(\lambda I\)) stabilizes the solve and controls variance, mirroring the bias--variance trade-off from \Cref{chap:supervised}. Choosing \(M\), \(\sigma\), and \(\lambda\) together is essential for good generalization; \Cref{chap:supervised}'s learning-curve diagnostics apply directly, and kernel methods (e.g., kernel ridge regression or SVMs) interpret the same trade-off via RBF kernels.
 
 \subsection{The Role of the Transformation Function \texorpdfstring{\(g(\cdot)\)}{g(.)}}
 \label{sec:rbf_the_role_of_the_transformation_function_g_g}
 
-The design matrix \(\Phi\) is constructed by applying a nonlinear transformation \(g(\cdot)\) to the input data points relative to a set of centroids \(\{\mathbf{v}_i\}\). Each element of \(\Phi\) is typically defined as:
+The design matrix \(\boldsymbol{\Phi}\) is constructed by applying a nonlinear transformation \(g(\cdot)\) to the input data points relative to a set of centroids \(\{\mathbf{v}_i\}\). Each element of \(\boldsymbol{\Phi}\) is typically defined as:
 \[
-\Phi_{ji} = g_i(\mathbf{x}_j) = g\left(\|\mathbf{x}_j - \mathbf{v}_i\|\right).
+\boldsymbol{\Phi}_{ji} = g_i(\mathbf{x}_j) = g\left(\|\mathbf{x}_j - \mathbf{v}_i\|\right).
 \]
 where \(\|\cdot\|\) denotes a norm (usually Euclidean distance), and \(g(\cdot)\) is a nonlinear kernel or activation function.
 
@@ -356,7 +356,7 @@ which serve as localized similarity measures to each centroid \(v_i\). When \(\s
 
 \Cref{fig:rbf_boundary} shows how the RBF model bends the boundary on the XOR-style toy example.
 
-\paragraph{Notation note.} In this chapter we write radial basis functions as \(\varphi_i(\cdot)\) and use \(\Phi\) for the associated design matrix. When we need a generic kernel feature map, we use \(\phi(\cdot)\) (consistent with \Cref{app:kernels}); when probability density functions are needed, we write them as \(p(\cdot)\). This avoids overloading a single symbol.
+\paragraph{Notation note.} In this chapter we write radial basis functions as \(\varphi_i(\cdot)\) and use \(\boldsymbol{\Phi}\) for the associated design matrix. When we need a generic kernel feature map, we use \(\phi(\cdot)\) (consistent with \Cref{app:kernels}); when probability density functions are needed, we write them as \(p(\cdot)\). This avoids overloading a single symbol.
 
 % Chapter 8
 
@@ -395,27 +395,27 @@ where
 
     The training problem reduces to solving the linear system:
 \begin{align}
-\min_{\mathbf{w}} \| \mathbf{y} - \Phi \mathbf{w} \|^2,
+\min_{\mathbf{w}} \| \mathbf{y} - \boldsymbol{\Phi} \mathbf{w} \|^2,
 \label{eq:rbf_weight_training}
 \end{align}
-where \(\mathbf{y}\) is the vector of target outputs and \(\Phi\) is the design matrix with entries \(\Phi_{ji} = \varphi_i(\mathbf{x}_j)\).
-When \(\Phi^\top\Phi\) is well-conditioned, the ordinary least-squares solution is
+where \(\mathbf{y}\) is the vector of target outputs and \(\boldsymbol{\Phi}\) is the design matrix with entries \(\boldsymbol{\Phi}_{ji} = \varphi_i(\mathbf{x}_j)\).
+When \(\boldsymbol{\Phi}^\top\boldsymbol{\Phi}\) is well-conditioned, the ordinary least-squares solution is
 \[
-    \mathbf{w}^\star = (\Phi^\top \Phi)^{-1}\Phi^\top \mathbf{y}.
+    \mathbf{w}^\star = (\boldsymbol{\Phi}^\top \boldsymbol{\Phi})^{-1}\boldsymbol{\Phi}^\top \mathbf{y}.
 \]
 
 \begin{tcolorbox}[summarybox, title={Dual viewpoint: RBFN vs.\ kernel ridge regression}]
 Fixing the RBF centers and widths makes the hidden layer a finite basis expansion. Training restricts itself to the \(M\) coefficients \(\mathbf{w}\) and resembles kernel ridge regression with a truncated basis. In the dual view, kernel ridge regression solves
 \[
-\min_{\boldsymbol{\alpha}} \|\mathbf{y} - K \boldsymbol{\alpha}\|^2 + \lambda \boldsymbol{\alpha}^\top K \boldsymbol{\alpha},
+\min_{\boldsymbol{\alpha}} \|\mathbf{y} - \mathbf{K} \boldsymbol{\alpha}\|^2 + \lambda \boldsymbol{\alpha}^\top \mathbf{K} \boldsymbol{\alpha},
 \]
-where \(K_{ij} = k(\mathbf{x}_i,\mathbf{x}_j)\) uses the same Gaussian kernel. Setting \(M=N\) and letting the RBF centers coincide with the training points recovers this dual form exactly. Finite \(M\) acts like Nystr\"om approximation: \(\Phi \mathbf{w}\) projects onto a subset of kernel features.
+where \(\mathbf{K}_{ij} = k(\mathbf{x}_i,\mathbf{x}_j)\) uses the same Gaussian kernel. Setting \(M=N\) and letting the RBF centers coincide with the training points recovers this dual form exactly. Finite \(M\) acts like Nystr\"om approximation: \(\boldsymbol{\Phi} \mathbf{w}\) projects onto a subset of kernel features.
 
-Numerically, \(\Phi^\top \Phi\) can be ill-conditioned if the bases overlap excessively or if centers cluster tightly; kernel ridge has the same issue via \(K\). Regularization is therefore essential: add \(\lambda I\) before inversion,
+Numerically, \(\boldsymbol{\Phi}^\top \boldsymbol{\Phi}\) can be ill-conditioned if the bases overlap excessively or if centers cluster tightly; kernel ridge has the same issue via \(\mathbf{K}\). Regularization is therefore essential: add \(\lambda I\) before inversion,
 \[
-\mathbf{w}^\star = (\Phi^\top \Phi + \lambda I)^{-1} \Phi^\top \mathbf{y},
+\mathbf{w}^\star = (\boldsymbol{\Phi}^\top \boldsymbol{\Phi} + \lambda I)^{-1} \boldsymbol{\Phi}^\top \mathbf{y},
 \]
-mirroring the \(\lambda \boldsymbol{\alpha}^\top K \boldsymbol{\alpha}\) term in the dual problem. Larger \(\lambda\) damps coefficients when \(\sigma\) is large (heavy overlap) or when data are noisy, while smaller \(\lambda\) preserves sharper fits at the cost of conditioning. Choosing \(\lambda\) via cross-validation keeps both primal (RBFN) and dual (kernel ridge) systems stable.
+mirroring the \(\lambda \boldsymbol{\alpha}^\top \mathbf{K} \boldsymbol{\alpha}\) term in the dual problem. Larger \(\lambda\) damps coefficients when \(\sigma\) is large (heavy overlap) or when data are noisy, while smaller \(\lambda\) preserves sharper fits at the cost of conditioning. Choosing \(\lambda\) via cross-validation keeps both primal (RBFN) and dual (kernel ridge) systems stable.
 \end{tcolorbox}
 
 \begin{figure}[t]
@@ -423,11 +423,11 @@ mirroring the \(\lambda \boldsymbol{\alpha}^\top K \boldsymbol{\alpha}\) term in
     \begin{tikzpicture}[scale=0.95]
         \node at (-3,1.4) {\scriptsize Primal};
         \draw[gray!40] (-4,0) rectangle (-2,1);
-        \node[font=\scriptsize] at (-3,0.5) {$\Phi\in\mathbb{R}^{N\times M}$};
+        \node[font=\scriptsize] at (-3,0.5) {$\boldsymbol{\Phi}\in\mathbb{R}^{N\times M}$};
         \node[font=\scriptsize] at (-3,-0.1) {build features};
         \draw[->, thick] (-1.5,0.5) -- (-0.5,0.5);
         \node[font=\scriptsize] at (0.5,0.8) {solve};
-        \node[font=\scriptsize] at (0.5,0.4) {$(\Phi^\top\Phi+\lambda I)w=\Phi^\top y$};
+        \node[font=\scriptsize] at (0.5,0.4) {$(\boldsymbol{\Phi}^\top\boldsymbol{\Phi}+\lambda I)w=\boldsymbol{\Phi}^\top y$};
         \draw[gray!40] (2,0) rectangle (4,1);
         \node[font=\scriptsize] at (3,0.5) {$w\in\mathbb{R}^{M}$};
 
@@ -451,9 +451,9 @@ mirroring the \(\lambda \boldsymbol{\alpha}^\top K \boldsymbol{\alpha}\) term in
 
     To improve numerical stability or control model complexity, a Tikhonov (ridge) regulariser can be added,
     \[
-        \mathbf{w}_\lambda^\star = (\Phi^\top \Phi + \lambda I)^{-1}\Phi^\top \mathbf{y}, \qquad \lambda>0,
+        \mathbf{w}_\lambda^\star = (\boldsymbol{\Phi}^\top \boldsymbol{\Phi} + \lambda I)^{-1}\boldsymbol{\Phi}^\top \mathbf{y}, \qquad \lambda>0,
     \]
-    or more generally one can use the Moore--Penrose pseudoinverse \(\Phi^{+}\) when \(\Phi^\top\Phi\) is singular, yielding \(\mathbf{w}^\star = \Phi^{+}\mathbf{y}\). A quick dimensional sanity check is that \(\Phi\in\mathbb{R}^{N\times M}\), \(\mathbf{w}\in\mathbb{R}^M\), and \(\mathbf{y}\in\mathbb{R}^N\); all matrix products above respect these shapes.
+    or more generally one can use the Moore--Penrose pseudoinverse \(\boldsymbol{\Phi}^{+}\) when \(\boldsymbol{\Phi}^\top\boldsymbol{\Phi}\) is singular, yielding \(\mathbf{w}^\star = \boldsymbol{\Phi}^{+}\mathbf{y}\). A quick dimensional sanity check is that \(\boldsymbol{\Phi}\in\mathbb{R}^{N\times M}\), \(\mathbf{w}\in\mathbb{R}^M\), and \(\mathbf{y}\in\mathbb{R}^N\); all matrix products above respect these shapes.
 
 \paragraph{Iterative Optimization of \(\sigma_i\) and \( w_i \):}
 Since both \( \sigma_i \) and \( w_i \) affect the network output, an alternating optimization procedure can be employed:
@@ -474,8 +474,8 @@ where \( d \) is the input dimension.
 \begin{enumerate}
     \item Use clustering (e.g., K-means) to find centers \( \mathbf{v}_i \) (or sample centers uniformly at random).
     \item Set widths \(\sigma_i\) via a rule-of-thumb (global \(\sigma\) from average center spacing or per-cluster covariance).
-    \item Build \(\Phi\) with entries \(\Phi_{ji}=\varphi_i(\mathbf{x}_j)\); choose a small grid of \(\lambda\) values and solve \((\Phi^\top\Phi+\lambda I)\mathbf{w}=\Phi^\top\mathbf{y}\).
-    \item Evaluate on a validation set and pick \((\sigma,\lambda, M)\) that minimizes validation loss; for classification, CE/hinge losses are also feasible with the same design matrix \(\Phi\).
+    \item Build \(\boldsymbol{\Phi}\) with entries \(\boldsymbol{\Phi}_{ji}=\varphi_i(\mathbf{x}_j)\); choose a small grid of \(\lambda\) values and solve \((\boldsymbol{\Phi}^\top\boldsymbol{\Phi}+\lambda I)\mathbf{w}=\boldsymbol{\Phi}^\top\mathbf{y}\).
+    \item Evaluate on a validation set and pick \((\sigma,\lambda, M)\) that minimizes validation loss; for classification, CE/hinge losses are also feasible with the same design matrix \(\boldsymbol{\Phi}\).
 \end{enumerate}
 
 \begin{tcolorbox}[summarybox, title={Practical RBFN training (pseudocode)}]
@@ -497,7 +497,7 @@ Predict: yhat(x) = phi(x, Centers, sigma)^T w_lambda_star
 \mathbf{x}_1=(0,0),\;\mathbf{x}_2=(0,1),\;\mathbf{x}_3=(1,0),\;\mathbf{x}_4=(1,1),
 \qquad \mathbf{t}=[0,1,1,0].
 \]
-Choose \(M=4\) centers at the data and set a global \(\sigma\) from the mean inter-center distance (here \(\sigma\approx 0.8\)). Build \(\Phi\) with entries \(\Phi_{ji}=\exp\!\big(-\|\mathbf{x}_j-\mathbf{c}_i\|^2/(2\sigma^2)\big)\) and solve \((\Phi^\top\Phi+\lambda I)\mathbf{w}=\Phi^\top\mathbf{t}\) over a small grid \(\lambda\in\{10^{-4},10^{-3},10^{-2}\}\). The best \(\lambda\) yields a linear separator in the lifted \(\Phi\)-space that perfectly classifies XOR; widening \(\sigma\) underfits, while shrinking \(\sigma\) without ridge overfits via an ill-conditioned \(\Phi^\top\Phi\).
+Choose \(M=4\) centers at the data and set a global \(\sigma\) from the mean inter-center distance (here \(\sigma\approx 0.8\)). Build \(\boldsymbol{\Phi}\) with entries \(\boldsymbol{\Phi}_{ji}=\exp\!\big(-\|\mathbf{x}_j-\mathbf{c}_i\|^2/(2\sigma^2)\big)\) and solve \((\boldsymbol{\Phi}^\top\boldsymbol{\Phi}+\lambda I)\mathbf{w}=\boldsymbol{\Phi}^\top\mathbf{t}\) over a small grid \(\lambda\in\{10^{-4},10^{-3},10^{-2}\}\). The best \(\lambda\) yields a linear separator in the lifted \(\boldsymbol{\Phi}\)-space that perfectly classifies XOR; widening \(\sigma\) underfits, while shrinking \(\sigma\) without ridge overfits via an ill-conditioned \(\boldsymbol{\Phi}^\top\boldsymbol{\Phi}\).
 
     \begin{figure}[t]
         \centering
