@@ -386,7 +386,7 @@ This transitive property of implication allows chaining of logical statements.
 \subsection{Fuzzy Logic as a New Mathematical Language}
 \label{sec:softcomp_fuzzy_logic_as_a_new_mathematical_language}
 
-Zadeh's insight was to synthesize these classical mathematical languages into a new framework that could handle degrees of truth rather than binary true/false values. Fuzzy logic generalizes Boolean algebra by allowing truth values to range continuously over the interval $[0,1]$, representing partial truth
+Zadeh's insight was to synthesize these classical mathematical languages into a framework with graded truth values; the next section builds the intuition and contrasts crisp versus fuzzy reasoning.
 
 % Chapter 15 (continued)
 
@@ -462,20 +462,7 @@ Consider the linguistic labels \texttt{Small}, \texttt{Medium}, and \texttt{Larg
 In this final part of the chapter, we conclude our introduction to fuzzy sets and fuzzy logic by summarizing key concepts and clarifying the open points from the previous discussion.
 
 \paragraph{Fuzzy Sets Recap}
-
-Recall that a \emph{fuzzy set} \( A \) defined on a universe of discourse \( X \) is characterized by a \emph{membership function}
-\[
-\mu_A: X \to [0,1],
-\]
-which assigns to each element \( x \in X \) a degree of membership \(\mu_A(x)\) indicating the extent to which \( x \) belongs to the set \( A \). Unlike classical (crisp) sets where membership is binary (0 or 1), fuzzy sets allow partial membership, capturing the inherent vagueness of many real-world concepts.
-
-\paragraph{Universe of Discourse}
-
-The \emph{universe of discourse} \( X \) is the domain over which fuzzy sets are defined. For example, if \( X \) represents the set of all students, fuzzy subsets could be ``tall students,'' ``medium height students,'' and ``short students,'' each with overlapping membership functions reflecting the subjective nature of these categories.
-
-\paragraph{Fuzziness and Degrees of Truth}
-
-Fuzzy logic extends classical Boolean logic by allowing truth values to range continuously between 0 and 1. This enables reasoning with imprecise or approximate information, such as the statement ``the water is warm,'' which is neither absolutely true nor false but has a degree of truthfulness.
+See \Cref{sec:softcomp_from_crisp_sets_to_fuzzy_sets} for the membership-function definition and \Cref{sec:softcomp_fuzzy_logic_motivation_and_intuition} for the crisp-versus-fuzzy intuition; here we keep a final example and the forward pointer.
 
 \paragraph{Example: Height Classification}
 
