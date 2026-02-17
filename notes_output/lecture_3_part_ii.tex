@@ -365,12 +365,7 @@ Conceptually, nothing new happens when you go from two neurons to many layers: i
 \end{tcolorbox}
 
 \begin{tcolorbox}[summarybox, title={Key takeaways}]
-\textbf{Minimum viable mastery}
-\begin{itemize}
-    \item Training is a loop: define a forward computation, define a scalar performance, then use derivatives to update parameters.
-    \item Hard thresholds break the gradient story; smooth activations (e.g., sigmoid) restore informative derivatives.
-    \item The two-neuron derivation already contains the reusable ``local error'' pattern that scales to deep networks.
-\end{itemize}
+\textbf{Minimum viable mastery.} The summary in \Cref{sec:mlp_summary} captures the core loop (two-neuron chain, smooth activations, and the backprop pattern). The pitfalls below highlight where implementations fail most often.
 \medskip
 \textbf{Common pitfalls}
 \begin{itemize}
