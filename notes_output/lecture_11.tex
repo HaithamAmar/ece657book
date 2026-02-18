@@ -194,15 +194,7 @@ where each gene \( c_i \) encodes a particular trait or parameter, and \( L \) i
 
 \paragraph{Inheritance and Crossover}
 
-During reproduction, chromosomes from parent individuals combine to form offspring. This process involves:
-
-\begin{itemize}
-    \item \textbf{Passing genes as-is:} Some genes may be inherited unchanged from a parent.
-    \item \textbf{Crossover:} Portions of chromosomes from two parents are recombined to produce new gene sequences in offspring.
-    \item \textbf{Mutation:} Occasionally, genes may undergo random changes, introducing new genetic material.
-\end{itemize}
-
-These mechanisms can be visualized by considering crossover as splicing two parent strings according to a binary mask and mutation as independently flipping bits with a small probability.
+During reproduction, offspring inherit genes from parents via crossover and mutation (with some genes passing through unchanged). The next figure gives an intuitive operator-level picture; full selection and crossover details follow in \Cref{sec:evo_selection_in_genetic_algorithms} and \Cref{sec:evo_crossover_operator}.
 
 
 \begin{figure}[t]
@@ -432,7 +424,7 @@ Selection is detailed in \Cref{sec:evo_selection_in_genetic_algorithms}, crossov
 \subsection{Selection in Genetic Algorithms}
 \label{sec:evo_selection_in_genetic_algorithms}
 
-After encoding candidate solutions as chromosomes (e.g., binary strings), the next step in a genetic algorithm (GA) is \emph{selection}, which determines which chromosomes will be chosen to reproduce and form the next generation. The goal is to favor chromosomes with higher fitness, thereby guiding the search toward better solutions.
+We now formalize selection: how fitness scores translate into parent choice and survival probabilities so the search favors better solutions without collapsing diversity.
 
 \subsubsection{Fitness and Selection Probability}
 \label{sec:evo_fitness_and_selection_probability_sub}
@@ -516,7 +508,7 @@ Ranking selection can be combined with \emph{elitism}, where the best chromosome
 \subsection{Crossover Operator}
 \label{sec:evo_crossover_operator}
 
-After selection, the \emph{crossover} operator generates new offspring chromosomes by recombining parts of two parent chromosomes. This mimics biological reproduction and promotes exploration of the solution space.
+After selection, the \emph{crossover} operator generates new offspring chromosomes by recombining parts of two parent chromosomes; this formalizes the intuition previewed above and supports controlled exploration.
 
 \subsubsection{One-Point Crossover}
 \label{sec:evo_one_point_crossover_sub}
