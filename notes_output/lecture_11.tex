@@ -84,11 +84,13 @@ For example, in control systems, one might want to tune parameters to regulate t
 \subsection{Summary}
 \label{sec:evo_summary}
 
-Evolutionary computing provides a framework to address complex optimization problems by mimicking evolutionary processes. It embraces the notion of \emph{approximate} solutions that are computationally feasible and practically useful.
+Checkpoint: you now have the \emph{why} for evolutionary search---rugged landscapes, constraints, discontinuities, and budgets that make local improvement unreliable. The rest of this chapter builds one canonical template in three passes:
+(i) a big-picture story (population + evaluation + variation),
+(ii) operator-level definitions (selection/crossover/mutation and constraint handling),
+and (iii) an implementation-facing sanity-check (flowchart, pseudocode, and a one-generation numeric trace).
+Read repeated mentions of ``the GA loop'' as \emph{preview \(\rightarrow\) formalization \(\rightarrow\) checklist}, not as duplication.
 
-The sections that follow develop the core components of evolutionary algorithms: representations, selection, crossover/mutation operators, constraint handling, and representative applications.
-
-This ``rugged landscape'' picture is a useful mental model when you later interpret convergence traces, premature stagnation, and diversity metrics in population-based search.
+Keep the ``rugged landscape'' picture in mind when you later interpret convergence traces, premature stagnation, and diversity metrics in population-based search.
 
 \subsection{Challenges in Continuous Optimization and Motivation for Evolutionary Computing}
 \label{sec:evo_challenges_in_continuous_optimization_and_motivation_for_evolutionary_computing}
@@ -100,16 +102,18 @@ These issues compound the nonconvexity and constraint challenges above: disconti
 \subsection{Evolutionary Computing at a Glance}
 \label{sec:evo_introduction_to_evolutionary_computing}
 
-Evolutionary computing (EC) is a class of algorithms inspired by the process of natural evolution. These algorithms are designed to iteratively improve candidate solutions to optimization problems by mimicking mechanisms such as selection, reproduction, and mutation observed in biological evolution.
+Evolutionary computing (EC) is best viewed as a \emph{budgeted optimizer}: maintain a population of candidates, evaluate them with a fitness function, bias sampling toward better candidates (selection), generate variation (crossover/mutation), handle constraints, and replace the population. Repeat until a stopping rule triggers (budget, target quality, or no-improvement window).
 
 \paragraph{Key Idea}
-The goal is to design an algorithm that can solve parameter estimation or optimization problems by evolving a population of candidate solutions over successive generations. Unlike deterministic methods, evolutionary algorithms do not require gradient information or continuity and can handle complex, multimodal, and constrained problems.
+We evolve a \emph{set} of candidate solutions over successive generations. Unlike gradient-based methods, evolutionary algorithms do not require differentiability, and unlike brute force, they trade guarantees for tractable performance under noise, discontinuities, and combinatorial feasibility.
 
 \paragraph{Genetic Algorithms (GAs)}
 One of the most well-known evolutionary algorithms is the Genetic Algorithm (GA). GAs \emph{loosely} mimic evolutionary ideas using a simplified, abstracted model of mechanisms such as selection, crossover, and mutation.
 
 \subsection{Biological Inspiration: Evolutionary Concepts}
 \label{sec:evo_biological_inspiration_evolutionary_concepts}
+
+This section is terminology and motivation. If you already think of a GA as ``selection + variation + replacement under a fitness budget,'' feel free to skim; the algorithmic details begin in \Cref{sec:evo_genetic_algorithms_modeling_chromosomes}.
 
 To understand GAs, we briefly review relevant biological concepts:
 
@@ -138,6 +142,7 @@ The biological processes suggest several principles that GAs incorporate:
 \begin{itemize}
     \item \textbf{Population-based search:} Maintain a population of candidate solutions (analogous to organisms).
     \item \textbf{Selection:} Preferentially choose better solutions to reproduce, mimicking survival of the fittest.
+    \item \textbf{Replacement/elitism:} Form the next generation by replacing some individuals with offspring; optionally preserve the best solutions explicitly.
     \item \textbf{Crossover (Recombination):} Combine parts of two or more parent solutions to create offspring solutions, promoting exploration of new regions in the search space.
     \item \textbf{Mutation:} Introduce random changes to offspring to maintain diversity and avoid premature convergence.
     \item \textbf{Generational evolution:} Repeat the process over multiple generations, gradually improving solution quality.
@@ -264,11 +269,7 @@ Chromosomes encode candidate solutions (phenotypes), and fitness scores quantify
 \[
 f = \{80, 75, 60, 65, 40, 20\}.
 \]
-Higher-fitness chromosomes are more likely to survive and reproduce. A common proportional rule assigns
-\[
-P_s(\mathbf{c}) \approx \frac{f(\mathbf{c})}{\sum_{\mathbf{c}'} f(\mathbf{c}')},
-\]
-so that fitter candidates appear more frequently in the parent pool over generations. The detailed selection mechanics (roulette, ranking, elitism) and a numeric roulette example follow in \Cref{sec:evo_selection_in_genetic_algorithms}.
+Higher-fitness chromosomes should be sampled more often, but not deterministically: occasional selection of weaker candidates preserves diversity and reduces premature convergence. A simple baseline is roulette selection: normalize nonnegative fitness values into probabilities and sample with replacement. The point is the \emph{bias} toward what works (not biological fidelity); we formalize selection and work a roulette example in \Cref{sec:evo_selection_in_genetic_algorithms}.
 
 \subsection{Mapping Genetic Algorithms to Optimization Problems}
 \label{sec:evo_mapping_genetic_algorithms_to_optimization_problems}
@@ -570,24 +571,23 @@ x_i' = \begin{cases}
 \subsection{Summary of Genetic Operators and Their Probabilities}
 \label{sec:evo_summary_of_genetic_operators_and_their_probabilities}
 
-The three main genetic operators in a genetic algorithm are:
-
+You have now seen each operator in isolation. When you implement a GA, you typically configure the loop with a small set of \emph{operator knobs}:
 \begin{itemize}
-    \item \textbf{Selection:} Chooses chromosomes for reproduction based on fitness.
-    \item \textbf{Crossover:} Combines genetic material from two parents to produce offspring.
-    \item \textbf{Mutation:} Introduces random changes to chromosomes to maintain diversity.
+    \item \textbf{Selection scheme + pressure:} roulette/ranking/tournament selection, plus an explicit pressure parameter (e.g., fitness scaling, rank parameter \(s\), tournament size) and often an elitism rate (top \(k\) or top \(e\%\) copied forward).
+    \item \textbf{Crossover probability \(p_c\):} with probability \(p_c\), recombine two parents; otherwise copy parents forward (and still allow mutation).
+    \item \textbf{Mutation probability \(p_m\):} for binary encodings, mutate each bit independently with probability \(p_m\) (a common default is \(p_m \approx 1/L\) for length \(L\)); for real encodings, \(p_m\) usually corresponds to a mutation \emph{scale} (e.g., Gaussian noise standard deviation) rather than bit flips.
 \end{itemize}
 
-Each operator is governed by a probability parameter:
+To keep notation compact later, we write these scheme-dependent settings abstractly as
 \[
 \begin{aligned}
-p_s &= \text{probability of selection},\\
-p_c &= \text{probability of crossover},\\
-p_m &= \text{probability of mutation}
+p_s &\equiv \text{selection pressure parameter(s) (scheme-dependent)},\\
+p_c &= \text{probability of applying crossover},\\
+p_m &= \text{mutation probability (per gene/bit, unless stated otherwise)}.
 \end{aligned}
 \]
 
-Tuning these probabilities is critical for balancing exploration and exploitation and for avoiding premature convergence.
+Tuning these settings controls exploration versus exploitation and strongly affects whether the algorithm stagnates early or continues to make progress.
 
 % Chapter 19 (continued)
 
@@ -694,7 +694,7 @@ In practice, a combination of these criteria is often used. For example, one mig
 \subsection{Summary of Genetic Algorithm Workflow}
 \label{sec:evo_summary_of_genetic_algorithm_workflow}
 
-The GA loop alternates fitness evaluation with selection, crossover, mutation, and replacement until a stopping criterion is met. Use \Cref{fig:lec11-ga-flow} to verify control flow, \Cref{tab:ga-toy} for a numeric trace of one generation, and \Cref{sec:evo_pseudocode_representation} for a direct implementation template; all three describe the same loop at different levels of detail.
+This is the implementation-facing assembly of the GA loop. Earlier sections motivated the need for population-based search and defined each operator; here we put them back together and give three complementary sanity-check views: \Cref{fig:lec11-ga-flow} for control flow, \Cref{tab:ga-toy} for a one-generation numeric trace, and \Cref{sec:evo_pseudocode_representation} for a minimal implementation template. All three describe the same loop at different levels of detail.
 
 \begin{figure}[!ht]
 \centering
@@ -787,7 +787,7 @@ Mutation (flip one bit) & \(\,0110_2 \to 0111_2\) & 0.4375 & 0.687 \\
 \subsection{Pseudocode Representation}
 \label{sec:evo_pseudocode_representation}
 
-The GA can be expressed in pseudocode as follows:
+The GA can be expressed in pseudocode as follows. Treat this as the ``minimum viable'' skeleton; a production implementation additionally records random seeds, evaluation budgets, constraint handling decisions, and per-generation diagnostics (best/mean fitness, diversity) so results are reproducible and interpretable.
 
 \begin{verbatim}
 Initialize population P with N chromosomes
