@@ -2,7 +2,7 @@
 \section{Introduction to Recurrent Neural Networks}\label{chap:rnn}
 \graphicspath{{assets/lec7/}{assets/lec9/}{assets/lec14/}}
 
-\Cref{chap:cnn} showed how architectural bias (convolution/pooling) improves sample efficiency while preserving the same optimization loop. This chapter keeps that loop but changes the axis from space to time: sequence models need memory so present predictions can depend on prior tokens. \Cref{fig:roadmap} flags this as the sequential branch of the neural strand.
+\Cref{chap:cnn} showed how architectural bias (convolution/pooling) improves sample efficiency while preserving the same optimization loop. This chapter keeps that loop but changes the axis from space to time: sequence models need memory so present predictions can depend on prior tokens. A useful continuity is \emph{parameter sharing}: CNNs reuse one filter across spatial locations, while RNNs reuse one transition rule across time steps. \Cref{fig:roadmap} flags this as the sequential branch of the neural strand.
 
 \begin{tcolorbox}[summarybox, title={Learning Outcomes}]
 \begin{itemize}

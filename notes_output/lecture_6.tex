@@ -6,6 +6,8 @@
 
 Convolutional networks are the simplest version of that bargain. They keep the ERM workflow from \Crefrange{chap:supervised}{chap:logistic} and the gradient\hyp{}training machinery from \Cref{chap:mlp}, but make images tractable by enforcing locality and weight sharing, so the model spends capacity on patterns that recur across the grid.
 
+There is also a useful continuity lens from earlier chapters: a convolutional filter is a learned \emph{local template} that is reused everywhere. In that sense it rhymes with the prototype/basis ideas from \Cref{chap:rbf,chap:som}---but with strict weight sharing and end-to-end gradient training, so the templates are shaped by the final task loss rather than chosen or tuned in isolation.
+
 The second thread in this chapter is pragmatic. Deep models are only useful when they train. After the CNN mechanics, we transition into the deep\hyp{}training toolkit (initialization, activations, normalization, regularization, and optimizers) that will reappear in \Crefrange{chap:rnn}{chap:transformers}.
 
 \begin{tcolorbox}[summarybox, title={Learning Outcomes}]
