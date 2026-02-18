@@ -2,7 +2,7 @@
 \section{Fuzzy Sets and Membership Functions: Foundations and Representations}\label{chap:fuzzysets}
 \graphicspath{{assets/lec9/}{assets/lec16/}}
 
-\noindent Building on \Cref{chap:softcomp}, we formalize the foundations of fuzzy logic: universes of discourse, fuzzy sets, membership functions, and the operators used throughout the fuzzy trilogy. These tools define the thermostat labels used later and prepare the transfer/inference steps developed in \Crefrange{chap:fuzzyrelations}{chap:fuzzyinference}.
+\noindent Building on \Cref{chap:softcomp}, we formalize the foundations of fuzzy logic: universes of discourse, fuzzy sets, membership functions, and the operators used throughout the fuzzy trilogy. You will see some ideas from \Cref{chap:softcomp} again, but now in a form you can compute and sanity-check numerically (a deliberate preview\(\rightarrow\)formalization pattern). These tools define the thermostat labels used later and prepare the transfer/inference steps developed in \Crefrange{chap:fuzzyrelations}{chap:fuzzyinference}.
 
 \begin{tcolorbox}[summarybox, title={Learning Outcomes}]
 After this chapter, you should be able to:
@@ -663,9 +663,8 @@ A commonly desired set of properties for a complement operator \( C \) is:
 
 The standard complement satisfies all three. Parameterized complements typically satisfy the first two, while involution may be relaxed to gain extra modeling flexibility; one should check involution explicitly if it is required by a particular application.
 
-\subsection{Triangular norms (t\hyp{}
-\label{sec:fuzzysets_triangular_norms_t}norms)}
-\label{sec:fuzzysets_triangular_norms_t_sec_fuzzysets_triangular_norms_t_norms}
+\subsection{Triangular norms (t\hyp{}norms)}
+\label{sec:fuzzysets_triangular_norms_t_norms}
 
 \paragraph{Motivation}
 In fuzzy logic, the logical \texttt{AND} operation is generalized by \emph{triangular norms} (t\hyp{}norms). These are binary operators that combine membership values while preserving certain desirable properties analogous to intersection in classical set theory.
@@ -720,9 +719,8 @@ Each t\hyp{}norm captures different semantics of conjunction in fuzzy logic.
 \paragraph{Interpretation}
 The t\hyp{}norm generalizes the classical intersection operator to fuzzy sets by ensuring the output membership value remains within \([0,1]\) and respects the ordering and boundary conditions expected of an intersection.
 
-\subsection{Triangular conorms (t\hyp{}
-\label{sec:fuzzysets_triangular_conorms_t}conorms / s\hyp{}norms)}
-\label{sec:fuzzysets_triangular_conorms_t_sec_fuzzysets_triangular_conorms_t_conorms_s_norms}
+\subsection{Triangular conorms (t\hyp{}conorms / s\hyp{}norms)}
+\label{sec:fuzzysets_triangular_conorms_t_conorms_s_norms}
 
 \paragraph{Definition}
 The dual concept to t\hyp{}norms is the \textbf{triangular conorm} (t\hyp{}conorm), also called an \emph{s\hyp{}norm}, which generalizes the logical \texttt{OR} operation. A t\hyp{}conorm \( S: [0,1]^2 \to [0,1] \) satisfies:
@@ -1199,4 +1197,4 @@ Practical tip: libraries such as \texttt{scikit-fuzzy} provide a tested \texttt{
 \noindent\textbf{If you are skipping ahead.} The rest of the fuzzy chapters build on these primitives. If you find later rule outputs unstable, the first place to revisit is the universe scaling and overlap choices here.
 \end{tcolorbox}
 
-\paragraph{Where we head next.} \Cref{chap:fuzzyrelations} moves from fuzzification/defuzzification mechanics to system-level design and adaptive fuzzy controllers; relation operators and projections there connect these set-level tools to control and hybrid schemes.
+\paragraph{Where we head next.} \Cref{chap:fuzzyrelations} moves from set-level primitives to \emph{transfer}: how to push fuzzy labels through mappings between related universes (extension principle, projection, and composition). \Cref{chap:fuzzyinference} then uses those relation tools to assemble complete rule composition and defuzzification pipelines.

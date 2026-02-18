@@ -81,6 +81,8 @@ The key insight behind soft computing is to exploit the \emph{tolerance for impr
 
 This output is \emph{not precise} in the classical sense; it expresses uncertainty and partial belief. The system tolerates this imprecision and still makes a decision based on the highest probability, demonstrating robustness and flexibility.
 
+This is a probability story (uncertainty about which class is true). Fuzzy logic addresses a different interface: degrees of truth for linguistic predicates such as ``warm'' or ``slightly fast,'' even when measurements are exact. \Cref{chap:fuzzysets} makes that distinction concrete by writing membership functions and checking them at specific inputs.
+
 \subsection{Relationship Between Hard and Soft Computing}
 \label{sec:softcomp_relationship_between_hard_and_soft_computing}
 
@@ -452,14 +454,14 @@ Consider the linguistic labels \texttt{Small}, \texttt{Medium}, and \texttt{Larg
 \end{itemize}
 \end{tcolorbox}
 
-\noindent\textbf{Forward pointer.} \Cref{chap:fuzzysets} builds the membership functions and universes for the thermostat inputs/outputs; \Crefrange{chap:fuzzyrelations}{chap:fuzzyinference} assemble full inference and defuzzification, and \Cref{chap:evo} shows how evolutionary search can tune rule bases and memberships.
+\noindent\textbf{Forward pointer.} \Cref{chap:fuzzysets} builds the membership functions and universes for the thermostat inputs/outputs; \Cref{chap:fuzzyrelations} provides the transfer operators (extension principle, projection, composition) that move fuzzy labels between related variables; and \Cref{chap:fuzzyinference} assembles full inference and defuzzification. \Cref{chap:evo} later returns to the other soft-computing pillar: evolutionary search as a tuning tool for rule bases and memberships.
 
 % Chapter 15: Conclusion and Closure
 
-\subsection{Wrapping Up Fuzzy Sets and Fuzzy Logic}
+\subsection{Wrapping up soft computing and previewing the fuzzy trilogy}
 \label{sec:softcomp_wrapping_up_fuzzy_sets_and_fuzzy_logic}
 
-In this final part of the chapter, we conclude our introduction to fuzzy sets and fuzzy logic by summarizing key concepts and clarifying the open points from the previous discussion.
+This chapter set the motivation: when specifications are linguistic and boundaries are negotiable, it is often better to model that vagueness explicitly than to force brittle crisp thresholds. The next three chapters turn that motivation into a workflow you can execute and audit.
 
 \paragraph{Fuzzy Sets Recap}
 See \Cref{sec:softcomp_from_crisp_sets_to_fuzzy_sets} for the membership-function definition and \Cref{sec:softcomp_fuzzy_logic_motivation_and_intuition} for the crisp-versus-fuzzy intuition; here we keep a final example and the forward pointer.
@@ -472,9 +474,9 @@ Consider the linguistic variables ``short,'' ``medium,'' and ``tall.'' In classi
 
 In intelligent control systems, such as automotive braking, fuzzy logic allows the control actions to be fuzzy themselves. Instead of a binary decision to ``hit the brakes'' or ``not hit the brakes,'' the system can decide to apply the brakes ``somewhat,'' ``moderately,'' or ``strongly,'' based on fuzzy inputs like distance and speed. This leads to smoother, more adaptive control.
 
-\paragraph{Next Steps: Membership Functions and Fuzzy Inference Systems}
+\paragraph{Next steps: membership functions, transformations, and inference}
 
-\Crefrange{chap:fuzzysets}{chap:fuzzyinference} pick up the thermostat running example and formalize each stage: \Cref{chap:fuzzysets} constructs the membership functions for error/rate labels, \Cref{chap:fuzzyrelations} shows how relations and projections move information between universes, and \Cref{chap:fuzzyinference} assembles the full Mamdani/Sugeno inference pipeline. Keep this soft-computing overview handy as a conceptual map while those chapters work through the algebra.
+\Crefrange{chap:fuzzysets}{chap:fuzzyinference} pick up the thermostat running example end to end. \Cref{chap:fuzzysets} constructs membership functions and operators (the primitives). \Cref{chap:fuzzyrelations} transports fuzzy labels across related universes via the extension principle (the transfer layer). \Cref{chap:fuzzyinference} then assembles complete Mamdani/Sugeno inference and defuzzification (the decision layer). Keep this overview handy: it is the conceptual map, while the fuzzy trilogy works through the algebra and the numeric sanity checks.
 
 \begin{tcolorbox}[summarybox, title={Key takeaways}]
 \begin{itemize}
