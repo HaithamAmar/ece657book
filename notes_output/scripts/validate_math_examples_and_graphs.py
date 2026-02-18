@@ -323,8 +323,245 @@ def check_fig_ga_progress() -> dict[str, float]:
     }
 
 
+def check_ch1_transitivity() -> dict[str, float]:
+    values = range(-3, 4)
+    total = 0
+    premise_true = 0
+    violations = 0
+    for a in values:
+        for b in values:
+            for c in values:
+                total += 1
+                if a == b and b == c:
+                    premise_true += 1
+                    if a != c:
+                        violations += 1
+    _assert(violations == 0, "Transitivity check found counterexample")
+    return {"triples": float(total), "premise_true": float(premise_true), "violations": float(violations)}
+
+
+def check_ch3_mp_gates() -> dict[str, float]:
+    inputs = [(0, 0), (0, 1), (1, 0), (1, 1)]
+    w1 = w2 = 1.0
+
+    def step(z: float) -> int:
+        return 1 if z >= 0 else 0
+
+    and_out = []
+    or_out = []
+    for x1, x2 in inputs:
+        and_out.append(step(w1 * x1 + w2 * x2 - 2.0))
+        or_out.append(step(w1 * x1 + w2 * x2 - 1.0))
+    _assert(and_out == [0, 0, 0, 1], "MP AND gate truth table mismatch")
+    _assert(or_out == [0, 1, 1, 1], "MP OR gate truth table mismatch")
+    return {"and_out_sum": float(sum(and_out)), "or_out_sum": float(sum(or_out))}
+
+
+def check_ch3_two_neuron_gradient() -> dict[str, float]:
+    def sigmoid(z: float) -> float:
+        return 1 / (1 + np.exp(-z))
+
+    x = np.array([1.0, -1.0])
+    w1 = np.array([0.8, 0.2])
+    b1 = 0.0
+    w2 = 1.0
+    b2 = 0.0
+    t = 1.0
+
+    p1 = float(w1 @ x + b1)
+    y1 = sigmoid(p1)
+    p2 = w2 * y1 + b2
+    y2 = sigmoid(p2)
+    P = 0.5 * (y2 - t) ** 2
+
+    delta2 = (y2 - t) * (y2 * (1 - y2))
+    delta1 = delta2 * w2 * (y1 * (1 - y1))
+    grad_w1 = delta1 * x
+    grad_w2 = delta2 * y1
+
+    _assert_close(p1, 0.6, 1e-9, "p1 mismatch")
+    _assert_close(y1, 0.645656, 1e-6, "y1 mismatch")
+    _assert_close(y2, 0.656031, 1e-6, "y2 mismatch")
+    _assert_close(P, 0.059157, 1e-6, "P mismatch")
+    _assert_close(delta2, -0.077618, 1e-6, "delta2 mismatch")
+    _assert_close(delta1, -0.017758, 1e-6, "delta1 mismatch")
+    _assert_close(float(grad_w1[0]), -0.017758, 1e-6, "grad_w1[0] mismatch")
+    _assert_close(float(grad_w1[1]), 0.017758, 1e-6, "grad_w1[1] mismatch")
+    _assert_close(float(grad_w2), -0.050115, 1e-6, "grad_w2 mismatch")
+
+    return {
+        "p1": float(p1),
+        "y2": float(y2),
+        "P": float(P),
+        "grad_w2": float(grad_w2),
+    }
+
+
+def check_ch4_backprop_numeric() -> dict[str, float]:
+    def sigmoid(z: np.ndarray) -> np.ndarray:
+        return 1 / (1 + np.exp(-z))
+
+    W1 = np.array([[0.5, -0.3], [0.8, 0.2]])
+    b1 = np.array([0.1, -0.2])
+    W2 = np.array([[0.7], [-0.4]])
+    b2 = 0.05
+    x = np.array([0.6, -1.2])
+    t = 1.0
+
+    z1 = W1.T @ x + b1
+    a1 = sigmoid(z1)
+    z2 = float((W2.T @ a1 + b2).item())
+    a2 = float(sigmoid(z2))
+    loss = float(-np.log(a2))
+
+    delta2 = a2 - t
+    delta1 = (W2.flatten() * delta2) * (a1 * (1 - a1))
+    grad_W2 = a1 * delta2
+    grad_W1 = np.outer(x, delta1)
+
+    _assert_close(float(z1[0]), -0.56, 1e-6, "z1[0] mismatch")
+    _assert_close(float(z1[1]), -0.62, 1e-6, "z1[1] mismatch")
+    _assert_close(float(a1[0]), 0.363547, 1e-6, "a1[0] mismatch")
+    _assert_close(float(a1[1]), 0.349781, 1e-6, "a1[1] mismatch")
+    _assert_close(z2, 0.164571, 1e-6, "z2 mismatch")
+    _assert_close(a2, 0.541050, 1e-6, "a2 mismatch")
+    _assert_close(loss, 0.614243, 1e-6, "loss mismatch")
+    _assert_close(delta2, -0.458950, 1e-6, "delta2 mismatch")
+    _assert_close(float(delta1[0]), -0.074335, 1e-6, "delta1[0] mismatch")
+    _assert_close(float(delta1[1]), 0.041752, 1e-6, "delta1[1] mismatch")
+    _assert_close(float(grad_W2[0]), -0.166850, 1e-6, "grad_W2[0] mismatch")
+    _assert_close(float(grad_W2[1]), -0.160532, 1e-6, "grad_W2[1] mismatch")
+
+    return {"loss": loss, "delta2": float(delta2)}
+
+
+def check_ch4_rbf_transform() -> dict[str, float]:
+    sigma2 = 1.0
+    v1 = np.array([0.0, 0.0])
+    v2 = np.array([1.0, 1.0])
+
+    def g(x: np.ndarray, v: np.ndarray) -> float:
+        return float(np.exp(-np.sum((x - v) ** 2) / (2 * sigma2)))
+
+    x00 = np.array([0.0, 0.0])
+    x11 = np.array([1.0, 1.0])
+    g1_00 = g(x00, v1)
+    g2_00 = g(x00, v2)
+    g1_11 = g(x11, v1)
+    g2_11 = g(x11, v2)
+
+    _assert_close(g1_00, 1.0, 1e-9, "g1(0,0) mismatch")
+    _assert_close(g2_00, np.exp(-1.0), 1e-9, "g2(0,0) mismatch")
+    _assert_close(g1_11, np.exp(-1.0), 1e-9, "g1(1,1) mismatch")
+    _assert_close(g2_11, 1.0, 1e-9, "g2(1,1) mismatch")
+
+    return {"g2_00": float(g2_00), "g1_11": float(g1_11)}
+
+
+def check_ch5_som_update() -> dict[str, float]:
+    x = np.array([0.2, 0.8])
+    w1 = np.array([0.1, 0.9])
+    w2 = np.array([0.7, 0.3])
+    alpha = 0.5
+    h11 = 1.0
+    h21 = float(np.exp(-0.5))
+
+    w1_new = w1 + alpha * h11 * (x - w1)
+    w2_new = w2 + alpha * h21 * (x - w2)
+
+    _assert_close(h21, 0.606531, 1e-6, "h21 mismatch")
+    _assert_close(float(w1_new[0]), 0.15, 1e-9, "w1_new[0] mismatch")
+    _assert_close(float(w1_new[1]), 0.85, 1e-9, "w1_new[1] mismatch")
+    _assert_close(float(w2_new[0]), 0.548, 1e-3, "w2_new[0] mismatch")
+    _assert_close(float(w2_new[1]), 0.452, 1e-3, "w2_new[1] mismatch")
+
+    return {"w2_new_0": float(w2_new[0]), "w2_new_1": float(w2_new[1])}
+
+
+def check_ch8_softcomp_probs() -> dict[str, float]:
+    probs = np.array([0.60, 0.20, 0.20])
+    _assert(np.all((probs >= 0) & (probs <= 1)), "Probabilities must be in [0,1]")
+    _assert_close(float(probs.sum()), 1.0, 1e-12, "Probabilities do not sum to 1")
+    return {"prob_sum": float(probs.sum())}
+
+
+def check_ch9_overlap_memberships() -> dict[str, float]:
+    x = 22.0
+
+    def mu_medium(val: float) -> float:
+        if val <= 10:
+            return 0.0
+        if val < 15:
+            return (val - 10) / 5.0
+        if val <= 20:
+            return 1.0
+        if val < 25:
+            return (25 - val) / 5.0
+        return 0.0
+
+    def mu_large(val: float) -> float:
+        if val <= 20:
+            return 0.0
+        if val < 25:
+            return (val - 20) / 5.0
+        return 1.0
+
+    m = mu_medium(x)
+    l = mu_large(x)
+    _assert_close(m, 0.6, 1e-9, "mu_medium(22) mismatch")
+    _assert_close(l, 0.4, 1e-9, "mu_large(22) mismatch")
+    return {"mu_medium": float(m), "mu_large": float(l)}
+
+
+def check_ch13_micro_attention() -> dict[str, float]:
+    Q = np.eye(2)
+    K = np.eye(2)
+    V = np.eye(2)
+    dk = 2.0
+    scores = Q @ K.T / np.sqrt(dk)
+    mask = np.array([[0.0, -1e9], [0.0, 0.0]])
+    scores = scores + mask
+    exp_scores = np.exp(scores - scores.max(axis=1, keepdims=True))
+    weights = exp_scores / exp_scores.sum(axis=1, keepdims=True)
+
+    _assert_close(float(weights[0, 0]), 1.0, 1e-9, "row1 weight mismatch")
+    _assert_close(float(weights[0, 1]), 0.0, 1e-9, "row1 weight mismatch")
+    _assert_close(float(weights[1, 0]), 0.330238, 1e-6, "row2 weight mismatch")
+    _assert_close(float(weights[1, 1]), 0.669762, 1e-6, "row2 weight mismatch")
+
+    out = weights @ V
+    _assert_close(float(out[1, 0]), float(weights[1, 0]), 1e-9, "Output mismatch")
+    return {"row2_w1": float(weights[1, 0]), "row2_w2": float(weights[1, 1])}
+
+
+def check_fig_learning_curves() -> dict[str, float]:
+    tex = _read(ROOT / "lecture_supervised.tex")
+    fig = _extract_figure_block(tex, "fig:lec1_learning_curves")
+    tables = _extract_table_blocks(fig)
+    _assert(len(tables) >= 2, "Expected train/val tables in learning curves figure")
+
+    train = np.array([y for _, y in _parse_xy_table(tables[0])], dtype=float)
+    val = np.array([y for _, y in _parse_xy_table(tables[1])], dtype=float)
+
+    _assert(np.all(np.diff(train) < 0), "Training error should decrease with more data")
+    _assert(np.all(np.diff(val) < 0), "Validation error should decrease with more data")
+    _assert(np.all(val >= train), "Validation error should be no lower than training error")
+
+    return {"train_final": float(train[-1]), "val_final": float(val[-1])}
+
+
 def run_checks() -> list[CheckResult]:
     checks: list[tuple[str, Callable[[], dict[str, float]]]] = [
+        ("chapter1_transitivity", check_ch1_transitivity),
+        ("chapter3_mp_gates", check_ch3_mp_gates),
+        ("chapter3_two_neuron_gradient", check_ch3_two_neuron_gradient),
+        ("chapter4_backprop_numeric", check_ch4_backprop_numeric),
+        ("chapter4_rbf_transform", check_ch4_rbf_transform),
+        ("chapter5_som_update", check_ch5_som_update),
+        ("chapter8_softcomp_probs", check_ch8_softcomp_probs),
+        ("chapter9_overlap_memberships", check_ch9_overlap_memberships),
+        ("chapter13_micro_attention", check_ch13_micro_attention),
+        ("figure_learning_curves", check_fig_learning_curves),
         ("numeric_examples_pack", check_numeric_examples_pack),
         ("integral_result_derivative", check_integral_result_derivative),
         ("figure_sigmoid_bce", check_fig_sigmoid_bce_curves),

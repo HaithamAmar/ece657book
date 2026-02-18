@@ -975,19 +975,13 @@ In this final segment of the chapter, we conclude our discussion on genetic algo
 
 \paragraph{Recap of Genetic Algorithms}
 
-Genetic algorithms are population-based metaheuristic optimization methods inspired by natural selection and genetics. They operate on a population of candidate solutions, iteratively applying genetic operators such as selection, crossover, and mutation to evolve solutions toward optimality. The key components include:
-
+Genetic algorithms are population-based metaheuristics; the earlier sections already define selection, crossover, mutation, and the loop in detail. For recap, keep the design levers in view and revisit the worked traces when needed:
 \begin{itemize}
-    \item \textbf{Representation:} Encoding candidate solutions as chromosomes (bit strings, real vectors, etc.).
-    \item \textbf{Fitness Function:} Quantifies the quality of each candidate solution.
-    \item \textbf{Genetic Operators:}
-    \begin{itemize}
-        \item \emph{Selection} favors fitter individuals.
-        \item \emph{Crossover} recombines genetic material from parents.
-        \item \emph{Mutation} introduces random variations.
-    \end{itemize}
-    \item \textbf{Evolutionary Cycle:} Repeat selection and genetic operations until convergence or stopping criteria are met.
+    \item \textbf{Representation:} How solutions are encoded (bit strings, real vectors, trees) and what constraints must be preserved.
+    \item \textbf{Fitness and evaluation:} What you reward, how you handle noisy measurements, and how constraints enter the score.
+    \item \textbf{Operator/loop settings:} Selection pressure, crossover/mutation rates, and stopping criteria.
 \end{itemize}
+See \Cref{sec:evo_summary_of_genetic_algorithm_workflow} for control flow, \Cref{tab:ga-toy} for a numeric generation trace, and \Crefrange{sec:evo_selection_in_genetic_algorithms}{sec:evo_mutation_operator} for operator details.
 
 \paragraph{Genetic Programming: Structure over Parameters}
 
