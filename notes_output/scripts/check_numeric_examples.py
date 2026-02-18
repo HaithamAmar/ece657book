@@ -47,6 +47,40 @@ def check_stride_pad():
     return dict(L=L, xp=xp.tolist(), y=y.tolist())
 
 
+def _softmax_row(x: np.ndarray) -> np.ndarray:
+    x = np.asarray(x, dtype=float)
+    x = x - np.max(x)
+    ex = np.exp(x)
+    return ex / np.sum(ex)
+
+
+def check_tiny_causal_attention():
+    """
+    Two-token, one-head causal self-attention sanity check (Ch. 14).
+
+    Q = [[1,0],[0,1]]
+    K = [[1,0],[1,1]]
+    V = [[1,0],[0,2]]
+
+    Scores = Q K^T / sqrt(2) = [[0.707, 0.707], [0, 0.707]]
+    Causal mask forces token 1 to attend only to itself.
+    """
+    Q = np.array([[1.0, 0.0], [0.0, 1.0]])
+    K = np.array([[1.0, 0.0], [1.0, 1.0]])
+    V = np.array([[1.0, 0.0], [0.0, 2.0]])
+    dk = Q.shape[1]
+
+    scores = (Q @ K.T) / np.sqrt(dk)
+
+    # Causal mask: disallow attending to future positions (upper triangle).
+    masked = scores.copy()
+    masked[np.triu(np.ones_like(masked, dtype=bool), k=1)] = -1e9
+
+    weights = np.vstack([_softmax_row(masked[i]) for i in range(masked.shape[0])])
+    out = weights @ V
+    return dict(scores=scores.tolist(), weights=weights.tolist(), out=out.tolist())
+
+
 def sigmoid(z: float) -> float:
     return 1 / (1 + exp(-z))
 

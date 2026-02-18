@@ -20,6 +20,7 @@ from check_numeric_examples import (
     check_mamdani_centroid,
     check_roulette_selection,
     check_sgns,
+    check_tiny_causal_attention,
     check_stride_pad,
 )
 
@@ -118,6 +119,18 @@ def check_numeric_examples_pack() -> dict[str, float]:
     _assert(int(stride["L"]) == 3, "Stride/padding L must be 3")
     _assert(stride["y"] == [-2, -1, 3], "Stride/padding output mismatch")
 
+    attn = check_tiny_causal_attention()
+    # Token 1 can only attend to itself under a causal mask.
+    _assert_close(float(attn["weights"][0][0]), 1.0, 1e-9, "Tiny attention w11")
+    _assert_close(float(attn["weights"][0][1]), 0.0, 1e-9, "Tiny attention w12")
+    # Token 2 attends to both tokens; numbers come from softmax([0, 1/sqrt(2)]).
+    _assert_close(float(attn["weights"][1][0]), 0.330238, 2e-6, "Tiny attention w21")
+    _assert_close(float(attn["weights"][1][1]), 0.669762, 2e-6, "Tiny attention w22")
+    _assert_close(float(attn["out"][0][0]), 1.0, 1e-9, "Tiny attention y1[0]")
+    _assert_close(float(attn["out"][0][1]), 0.0, 1e-9, "Tiny attention y1[1]")
+    _assert_close(float(attn["out"][1][0]), 0.330238, 2e-6, "Tiny attention y2[0]")
+    _assert_close(float(attn["out"][1][1]), 1.339524, 2e-6, "Tiny attention y2[1]")
+
     sgns = check_sgns()
     _assert_close(float(sgns["loss"]), 1.050621, 1e-6, "SGNS toy loss mismatch")
 
@@ -140,6 +153,7 @@ def check_numeric_examples_pack() -> dict[str, float]:
     return {
         "hopfield_s0": float(hopfield["s0"]),
         "stride_L": float(stride["L"]),
+        "tiny_attn_w22": float(attn["weights"][1][1]),
         "sgns_loss": float(sgns["loss"]),
         "mamdani_centroid": float(centroid["centroid"]),
         "roulette_sum": float(roulette["prob_sum"]),
