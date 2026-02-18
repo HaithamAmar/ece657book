@@ -1,6 +1,9 @@
 # macOS
 .DS_Store
 
+# Local secrets
+.env
+
 # Safety: ignore local git backups
 .git_backup_*/
 .git_trash_*/
