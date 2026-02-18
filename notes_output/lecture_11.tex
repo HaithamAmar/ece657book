@@ -6,6 +6,9 @@ Parts I--III built three complementary toolkits: optimize models against data (E
 
 Evolutionary computing treats that situation as search. Instead of following gradients or hand\hyp{}tuning rules, we maintain a population of candidate designs, score them with a fitness function, and use selection plus variation to explore and refine solutions within a fixed budget. After the fuzzy trilogy (\Crefrange{chap:softcomp}{chap:fuzzyinference}), this chapter develops the evolutionary strand introduced in \Cref{chap:intro} and focuses on population\hyp{}based optimization under constraints, budgets, and stochastic noise.
 
+\paragraph{A distinct paradigm (and what ``nature-inspired'' means here).}
+Fuzzy inference systems are a behavioral modeling tool: we write down the reasoning logic directly so a human can audit why a particular decision was made. Evolutionary computing aims at a different target. It encodes \emph{candidate designs} and uses a simplified selection--variation loop to search for designs that perform well under a fixed evaluation budget. The point is not to be faithful to evolutionary biology; the point is that this algorithmic process can yield high-performing, situation-responsive designs even when gradients are unavailable and the knobs are mixed discrete/continuous.
+
 \begin{tcolorbox}[summarybox, title={Learning Outcomes}]
 \begin{itemize}
     \item Explain the evolutionary-computation toolbox (GAs, GP, CMA-ES, DE) and when each is well-suited.
