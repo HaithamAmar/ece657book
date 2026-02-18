@@ -257,7 +257,7 @@ o_i = \begin{cases}
 \end{cases}
 \]
 
-Mutation introduces random changes with a small probability \( \mu \), altering gene \( o_i \) to a different value.
+Mutation (see \Cref{sec:evo_mutation_operator}) perturbs genes with a small probability \( \mu \).
 
 \paragraph{Fitness and selection (preview)}
 Chromosomes encode candidate solutions (phenotypes), and fitness scores quantify how well each candidate meets the objective. For example, consider chromosomes representing facial feature variants with fitness values
@@ -875,7 +875,7 @@ Penalty terms are easy to implement, repair operators exploit domain knowledge, 
 \subsection{Genetic Algorithms: Iterative Process and Convergence}
 \label{sec:evo_genetic_algorithms_iterative_process_and_convergence}
 
-This section focuses on convergence behavior; the GA cycle itself is summarized in \Cref{sec:evo_summary_of_genetic_algorithm_workflow} and the control flow in \Cref{fig:lec11-ga-flow}. Over generations, populations tend to cluster around better regions of the fitness landscape; flat best\hyp{}fitness curves signal stagnation, while a persistent gap between best and mean indicates ongoing selection pressure (see \Cref{fig:lec11-ga-progress}). Convergence typically occurs after a problem\hyp{}dependent number of generations, and the best\hyp{}so\hyp{}far solution should be treated as a high\hyp{}quality approximation rather than a guaranteed global optimum. For the concrete step sequence and operator details, use the workflow summary and the operator subsections above.
+This section focuses on convergence behavior; the GA cycle itself is summarized in \Cref{sec:evo_summary_of_genetic_algorithm_workflow} and the control flow in \Cref{fig:lec11-ga-flow}. Over generations, populations tend to cluster around better regions of the fitness landscape; flat best\hyp{}fitness curves signal stagnation, while a persistent gap between best and mean indicates ongoing selection pressure (see \Cref{fig:lec11-ga-progress}). Convergence typically occurs after a problem\hyp{}dependent number of generations, and the best\hyp{}so\hyp{}far solution should be treated as a high\hyp{}quality approximation rather than a guaranteed global optimum.
 
 \subsection{Beyond canonical GAs: real-coded strategies}
 \label{sec:evo_beyond_canonical_gas_real_coded_strategies}
