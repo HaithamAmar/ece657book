@@ -19,6 +19,9 @@ Preserve meaning while changing representation: the extension principle is a dis
 \paragraph{Running example checkpoint.}
 We treat the thermostat's heater power as the target universe while the inputs remain error/rate. When mapping ``Comfortable'' from Celsius to Fahrenheit or translating error/rate pairs into control actions, the extension principle tells us how those fuzzy labels transfer; keep that single example in mind as you work through the upcoming dilation and projection formulas.
 
+\paragraph{Rolling-window note (what changes vs.\ \Cref{chap:fuzzysets}).}
+In \Cref{chap:fuzzysets}, the main design work was \emph{within} a universe: choose membership shapes, overlaps, and operators. Here the memberships are assumed given; the new question is \emph{between} universes: how does a fuzzy label move through a mapping without losing meaning? Treat this chapter as the transfer layer that makes the later inference pipeline (\Cref{chap:fuzzyinference}) reusable across sensors, units, and derived variables.
+
 \subsection{Context and Motivation}
 \label{sec:fuzzyrelations_context_and_motivation}
 
