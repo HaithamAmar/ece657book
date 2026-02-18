@@ -197,6 +197,51 @@ def check_ga_initial_population():
     return dict(size=len(pop), min=float(pop.min()), max=float(pop.max()), within_bounds=bool((pop >= 0).all() and (pop <= 0.5).all()))
 
 
+def _ga_example_fx(x: np.ndarray) -> np.ndarray:
+    """Fitness/objective used in the Ch. 19 toy examples: f(x)=cos(5*pi*x)*exp(-x^2)."""
+    x = np.asarray(x, dtype=float)
+    return np.cos(5.0 * np.pi * x) * np.exp(-(x * x))
+
+
+def check_ga_fx_values():
+    """Verify the rounded f(x) values used in the Ch. 19 GA toy traces."""
+    toy_x = np.array([0.0625, 0.125, 0.3125, 0.4375], dtype=float)
+    toy_fx = _ga_example_fx(toy_x)
+
+    init_x = np.array([0.04, 0.09, 0.13, 0.18, 0.22, 0.27, 0.31, 0.36, 0.42, 0.48], dtype=float)
+    init_fx = _ga_example_fx(init_x)
+
+    return dict(
+        toy_x=toy_x.tolist(),
+        toy_fx_fmt=[f"{v:.3f}" for v in toy_fx.tolist()],
+        init_x=init_x.tolist(),
+        init_fx_fmt=[f"{v:.3f}" for v in init_fx.tolist()],
+    )
+
+
+def check_ga_fixedpoint_crossover():
+    """
+    Verify the fixed-point one-point crossover example (Ch. 19).
+
+    Encoding: x = n/1000 with n in [0,500], stored as a 9-bit binary integer (since 2^9=512).
+    Example: parents 0.203 (n=203) and 0.359 (n=359), one-point cut after 5 MSB bits.
+    """
+    bits = 9
+    cut = 5  # MSB-first: keep the first 5 bits, swap the last 4 bits
+    n1, n2 = 203, 359
+    b1 = format(n1, f"0{bits}b")
+    b2 = format(n2, f"0{bits}b")
+    o1 = b1[:cut] + b2[cut:]
+    o2 = b2[:cut] + b1[cut:]
+    n_o1 = int(o1, 2)
+    n_o2 = int(o2, 2)
+    return dict(
+        parent_bits=(b1, b2),
+        offspring_bits=(o1, o2),
+        offspring_decoded=(n_o1 / 1000.0, n_o2 / 1000.0),
+    )
+
+
 if __name__ == "__main__":
     print("Hopfield energies (Ch.10 example):", check_hopfield())
     print("1D stride/pad attention toy (Ch.11):", check_stride_pad())
@@ -206,3 +251,5 @@ if __name__ == "__main__":
     print("Mamdani centroid (Ch.18):", check_mamdani_centroid())
     print("Roulette selection (Ch.19):", check_roulette_selection())
     print("GA toy initial population (Ch.19):", check_ga_initial_population())
+    print("GA toy f(x) values (Ch.19):", check_ga_fx_values())
+    print("GA fixed-point crossover (Ch.19):", check_ga_fixedpoint_crossover())

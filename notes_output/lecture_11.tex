@@ -2,7 +2,7 @@
 \section{Introduction to Evolutionary Computing}\label{chap:evo}
 \graphicspath{{assets/lec19/}}
 
-Parts I--IV built three complementary toolkits: optimize models against data (ERM), learn representations with gradients, and encode auditable heuristics with fuzzy rules. Each is powerful when you can write a smooth objective or commit to a compact rule base. Many engineering choices, however, live outside that comfort zone: the knobs are discrete or tightly constrained, evaluations are noisy or expensive, and the landscape is rugged enough that local improvement is unreliable.
+Parts I--III built three complementary toolkits: optimize models against data (ERM), learn representations with gradients, and encode auditable heuristics with fuzzy rules. Each is powerful when you can write a smooth objective or commit to a compact rule base. Many engineering choices, however, live outside that comfort zone: the knobs are discrete or tightly constrained, evaluations are noisy or expensive, and the landscape is rugged enough that local improvement is unreliable.
 
 Evolutionary computing treats that situation as search. Instead of following gradients or hand\hyp{}tuning rules, we maintain a population of candidate designs, score them with a fitness function, and use selection plus variation to explore and refine solutions within a fixed budget. After the fuzzy trilogy (\Crefrange{chap:softcomp}{chap:fuzzyinference}), this chapter develops the evolutionary strand introduced in \Cref{chap:intro} and focuses on population\hyp{}based optimization under constraints, budgets, and stochastic noise.
 
@@ -106,7 +106,7 @@ Evolutionary computing (EC) is a class of algorithms inspired by the process of 
 The goal is to design an algorithm that can solve parameter estimation or optimization problems by evolving a population of candidate solutions over successive generations. Unlike deterministic methods, evolutionary algorithms do not require gradient information or continuity and can handle complex, multimodal, and constrained problems.
 
 \paragraph{Genetic Algorithms (GAs)}
-One of the most well-known evolutionary algorithms is the Genetic Algorithm (GA). GAs attempt to \emph{naively mimic} the process of biological evolution, albeit with a simplified and abstracted model of genetic mechanisms.
+One of the most well-known evolutionary algorithms is the Genetic Algorithm (GA). GAs \emph{loosely} mimic evolutionary ideas using a simplified, abstracted model of mechanisms such as selection, crossover, and mutation.
 
 \subsection{Biological Inspiration: Evolutionary Concepts}
 \label{sec:evo_biological_inspiration_evolutionary_concepts}
@@ -395,7 +395,7 @@ x = \text{decimal value of binary string}
 If the decoded value is zero, it is invalid due to division by zero, so such genotypes are discarded or penalized.
 
 \paragraph{Fitness Evaluation}
-The fitness function corresponds to the objective function \( f(x) \), possibly with penalties for constraint violations.
+For minimization problems, selection still expects ``higher is better,'' so define fitness as a monotone transform of the cost (e.g., \(F(x)=-f(x)\) or \(F(x)=1/(1+f(x))\)), and then incorporate penalties or feasibility rules for constraint violations.
 
 \subsection{Population Initialization and Size}
 \label{sec:evo_population_initialization_and_size}
@@ -437,6 +437,10 @@ A common approach to selection is to assign each chromosome a probability of bei
     \label{eq:selection_probability}
 \end{align}
 where $p_i$ is the probability that chromosome $i$ is selected.
+
+\paragraph{Practical note (fitness scaling).}
+Proportional (roulette) selection assumes \emph{nonnegative} fitness values. If your objective can be negative (as in \Cref{tab:ga-toy}) or you are minimizing a cost, define a shifted/scaled fitness, e.g.,
+\(\tilde f_i = f_i - \min_j f_j + \varepsilon\) with \(\varepsilon>0\), or use rank/tournament selection, which only relies on order comparisons.
 
 \paragraph{Roulette Wheel Selection}
 
@@ -803,7 +807,7 @@ Return best chromosome found
 \subsection{Example: GA for a Constrained Optimization Problem}
 \label{sec:evo_example_ga_for_a_constrained_optimization_problem}
 
-Consider the problem of minimizing the function:
+Consider the problem of \emph{maximizing} the function:
 \[
 f(x) = \cos(5 \pi x) \cdot \exp(-x^2)
 \]
@@ -826,7 +830,7 @@ with a precision of three decimal places.
 Generate 10 random values of \(x\) uniformly distributed in \([0, 0.5]\), each rounded to three decimal places. When prior designs or surrogate models exist, \emph{warm start} a few chromosomes with those known-good solutions before filling the rest randomly; seeding accelerates convergence without losing diversity if you keep most of the population stochastic.
 
 \paragraph{Fitness Evaluation:}
-Calculate \(f(x)\) for each chromosome. Since this is a minimization problem, fitness can be defined as the negative of the function value or by using a suitable transformation to ensure higher fitness corresponds to better solutions.
+Calculate \(f(x)\) for each chromosome and treat it as a fitness score (higher is better). If instead you are minimizing a cost, convert it to fitness via a monotone transform (e.g., \(-J(x)\), a shifted score, or a rank-based scheme) so that selection still prefers better candidates.
 
 \paragraph{Evolutionary Cycle:}
 Apply selection, crossover, and mutation to produce new offspring, then evaluate their fitness. Repeat this process for multiple generations until convergence criteria are met.
@@ -854,7 +858,7 @@ Each chromosome uses a 9\text{-}bit fixed-point code (3 fractional digits), deco
 A single generation could proceed as follows:
 \begin{itemize}
     \item Select the top five chromosomes by fitness.
-    \item Apply one-point crossover at the 5th bit to produce offspring (e.g., parents 0.203 and 0.359 yield 0.209 and 0.353).
+    \item Apply one-point crossover on the 9-bit fixed-point codes (MSB-first). For example, \(0.203 \mapsto 011001011_2\) and \(0.359 \mapsto 101100111_2\); cutting after 5 bits and swapping tails yields offspring \(011000111_2 \mapsto 0.199\) and \(101101011_2 \mapsto 0.363\).
     \item Mutate each bit with probability 0.1, ensuring all decoded values remain within \([0,\,0.5]\).
     \item Re-evaluate fitness and retain the best ten individuals for the next generation.
 \end{itemize}

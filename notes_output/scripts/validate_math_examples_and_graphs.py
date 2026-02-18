@@ -15,6 +15,8 @@ import numpy as np
 from check_numeric_examples import (
     check_alpha_cut_mapping,
     check_fuzzy_composition,
+    check_ga_fixedpoint_crossover,
+    check_ga_fx_values,
     check_ga_initial_population,
     check_hopfield,
     check_mamdani_centroid,
@@ -149,6 +151,30 @@ def check_numeric_examples_pack() -> dict[str, float]:
 
     ga_pop = check_ga_initial_population()
     _assert(bool(ga_pop["within_bounds"]), "GA initial population out of bounds")
+
+    ga_fx = check_ga_fx_values()
+    _assert(
+        ga_fx["toy_fx_fmt"] == ["0.553", "-0.377", "0.177", "0.687"],
+        "GA toy f(x) values mismatch (tab:ga-toy)",
+    )
+    _assert(
+        ga_fx["init_fx_fmt"] == ["0.808", "0.155", "-0.446", "-0.921", "-0.906", "-0.422", "0.142", "0.711", "0.797", "0.245"],
+        "GA constrained example f(x) values mismatch",
+    )
+
+    ga_cross = check_ga_fixedpoint_crossover()
+    _assert(
+        list(ga_cross["parent_bits"]) == ["011001011", "101100111"],
+        "GA fixed-point parent bitstrings mismatch",
+    )
+    _assert(
+        list(ga_cross["offspring_bits"]) == ["011000111", "101101011"],
+        "GA fixed-point offspring bitstrings mismatch",
+    )
+    _assert(
+        [f"{v:.3f}" for v in ga_cross["offspring_decoded"]] == ["0.199", "0.363"],
+        "GA fixed-point crossover decoded values mismatch",
+    )
 
     return {
         "hopfield_s0": float(hopfield["s0"]),
