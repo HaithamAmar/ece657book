@@ -2,7 +2,7 @@
 \section{Symbolic Integration and Problem-Solving Strategies}\label{chap:symbolic}
 \graphicspath{{assets/lec2_part1/}}
 
-\Cref{chap:intro} treated ``intelligence'' operationally: represent a problem, choose actions, and verify or correct under constraints. Here we make that concrete with a deliberately small example---symbolic integration---where the system's actions are algebraic transformations. \Cref{fig:roadmap} places this symbolic strand alongside the data-driven path.
+\Cref{chap:intro} treated ``intelligence'' operationally: represent a problem, choose actions, and verify or correct under constraints. Here we make that concrete with a deliberately small example---symbolic integration---where the system's actions are algebraic transformations. \Cref{fig:roadmap} places this symbolic strand alongside the data-driven path, and we use it as a rehearsal for the same audit discipline that appears later in ERM, fuzzy inference, and evolutionary search.
 
 We study symbolic problem solving through \emph{integration-by-transformation}: preserve meaning while rewriting an expression into a form that exposes a solution. The goal is not a catalog of tricks, but the system pattern: explicit representations, meaning-preserving actions, heuristic branching with backtracking, and a goal test that certifies correctness.
 
@@ -214,7 +214,7 @@ To automate the choice, the system applies the cost heuristic defined above (tre
   \[
     \int \sec^{n} y \, dy = \frac{\sec^{n-2} y \tan y}{n-1} + \frac{n-2}{n-1} \int \sec^{n-2} y \, dy.
   \]
-  Applying this with \(n=4\) gives \(\int \sec^{4} y \, dy = \tan y + \tfrac{1}{3}\tan^{3} y + C\), reproducing the same primitive without the \(u\)-substitution.
+  Applying this with \(n=4\) gives \(\int \sec^{4} y \, dy = \tan y + \tfrac{1}{3}\tan^{3} y + C\), confirming the first branch by an independent reduction route rather than \(u\)-substitution.
   \end{itemize}
 
 \paragraph{Back-substitution and check}
@@ -232,7 +232,7 @@ For integrals of the form \(\int (1 - x^2)^{-k-1/2} dx\), the substitution \(x=\
 \subsection{Example: Solving an Integral via Transformation Trees}
 \label{sec:symbolic_example_solving_an_integral_via_transformation_trees}
 
-The worked integral above shows how the search explored multiple branches (e.g., \(x=\sin y\) vs.\ \(x=\tanh u\)) while respecting the declared domain. Heuristic branches that do not fit the domain are pruned; competing safe branches (substitution vs.\ reduction) converge to the same antiderivative. The key insight is that solving integrals can be viewed as traversing a \emph{decision tree} of transformations, with goal tests supplied by residual checks and domain conditions.
+The worked integral above already showed the branch behavior (e.g., \(x=\sin y\) vs.\ \(x=\tanh u\)) under domain constraints. Here we keep that example as a template and make the search logic explicit: domain-incompatible heuristic branches are pruned, safe branches can converge to the same antiderivative, and residual checks provide the goal test at each accepted leaf.
 
 \subsection{Transformation Trees and Search Strategies}
 \label{sec:symbolic_transformation_trees_and_search_strategies}
@@ -599,8 +599,8 @@ This contrast helps position the data-driven chapters that follow, where the sys
     \item Re-derive one core equation or update rule by hand and check it numerically against your implementation.
 \end{itemize}
 \medskip
-\noindent\textbf{If you are skipping ahead.} Keep the pattern vocabulary: safe vs.\ heuristic moves, explicit budgets, and residual/verification checks. The data-driven chapters reuse the same discipline (objective, constraints, and validation) even though the ``actions'' become parameter updates.
+\noindent\textbf{If you are skipping ahead.} Keep the pattern vocabulary: safe vs.\ heuristic moves, explicit budgets, and residual/verification checks. The data-driven chapters reuse the same discipline (objective, constraints, and validation) even though the ``actions'' become parameter updates; the fuzzy and evolutionary chapters reuse it again when tuning operators and rule systems under constraints.
 \end{tcolorbox}
 
 \medskip
-\paragraph{Where we head next.} For the data-driven thread (datasets, objectives, diagnostics, classification), continue to \Cref{chap:supervised,chap:logistic}. For nonlinear function classes and nonconvex training dynamics, continue through \Crefrange{chap:perceptron}{chap:mlp} and the chapters that follow.
+\paragraph{Where we head next.} For the data-driven thread (datasets, objectives, diagnostics, classification), continue to \Cref{chap:supervised,chap:logistic}. For nonlinear function classes and nonconvex training dynamics, continue through \Crefrange{chap:perceptron}{chap:mlp}. Later, when you reach fuzzy inference and evolutionary search, reuse this chapter's core habit: define admissible moves, track budgets, and verify outcomes against explicit criteria.

@@ -1,7 +1,7 @@
 % Chapter 3
 \section{Supervised Learning Foundations}\label{chap:supervised}
 
-\Cref{chap:symbolic} illustrated a non-statistical lens: solve problems by transformation search, with explicit goal tests. Here we shift to the data-driven lens. \Cref{fig:roadmap} marks this as the core supervised strand.
+\Cref{chap:symbolic} illustrated a non-statistical lens: solve problems by transformation search, with explicit goal tests. Here we shift to the data-driven lens. \Cref{fig:roadmap} marks this as the core supervised strand, but the continuity is intentional: we still specify state, define actions, set a budget, and verify outcomes.
 
 When a mapping is known, we use the formula: Celsius and Fahrenheit are linked by a simple rule, and many physical laws give direct input--output relationships. The problems that motivate machine learning do not. The mapping is unknown, messy, or only partially understood, so we settle for an approximation. That approximation might be statistical (learned from data), rule-based (encoded from experience), biologically inspired (neural computation), behavioral (fuzzy rules), or evolutionary (search over candidate solutions). This chapter focuses on the statistical, data-driven strand: supervised learning.
 
@@ -541,11 +541,11 @@ Regularization trades model complexity for generalization; \Cref{fig:lec1_ridge}
 
 \subsection{Linear regression: a first full case study}\label{sec:linear_regression_closed}
 
-Up to this point, the supervised-learning pipeline has been described in abstract terms: a dataset, a hypothesis class, an objective, and an audit. Linear regression is where those pieces become concrete enough that you can see every moving part at once.
+Up to this point, the supervised-learning pipeline has been described in abstract terms: a dataset, a hypothesis class, an objective, and an audit. Linear regression keeps the same pipeline but makes each component explicit enough to inspect end to end.
 
 \noindent A useful habit, before you commit to any model family, is to ask whether there is any signal to model in the first place. If the relationship were deterministic (like Celsius \(\leftrightarrow\) Fahrenheit), there would be nothing to learn. In supervised learning we assume the relationship is statistical: the same input can map to different outputs because of noise, missing variables, or genuine uncertainty. For simple problems, a scatter plot and a correlation coefficient can reveal whether a linear trend is even plausible. For high-dimensional data, analogous sanity checks (feature scaling, collinearity) help you decide whether linear regression is a sensible starting point or merely a baseline.
 
-\noindent In this section, the coefficients \(\boldsymbol{\beta}\) are the knobs we turn. ``Learning'' means using training pairs \((\mathbf{X},\mathbf{y})\) to estimate \(\boldsymbol{\beta}\) so predictions match observed targets as well as they can under the chosen objective. Because least squares is a convex, closed-form problem, repeating the fit with the same data returns the same solution (up to numerical tolerance). That transparency is exactly why linear regression is worth treating carefully: it makes the ideas of losses, optimization, regularization, and validation feel concrete before we move on to models where the same pipeline is less visible.
+\noindent In this section, the coefficients \(\boldsymbol{\beta}\) are the knobs we turn. ``Learning'' means estimating \(\boldsymbol{\beta}\) from \((\mathbf{X},\mathbf{y})\) so predictions align with observed targets under the chosen objective. Because least squares is convex with a closed form, repeating the fit on the same data returns the same solution (up to numerical tolerance). That determinism is the teaching benefit: it lets us isolate the roles of loss design, optimization, regularization, and validation before moving to models where those roles are harder to disentangle.
 
 \paragraph{Model.}
 Given inputs \(\mathbf{x}_i\in\mathbb{R}^d\) and continuous targets \(y_i\in\mathbb{R}\), the linear model predicts
@@ -642,7 +642,7 @@ Ridge adds \(\lambda\|\boldsymbol{\beta}\|_2^2\) to the objective, shrinking coe
 \end{tcolorbox}
 
 \medskip
-\paragraph{Where we head next.} \Cref{chap:logistic} extends this ERM setup from continuous targets to discrete labels: outputs become class probabilities, the loss becomes cross\hyp{}entropy, and evaluation adds confusion matrices, ROC/PR curves, and threshold selection.
+\paragraph{Where we head next.} \Cref{chap:logistic} extends this ERM setup from continuous targets to discrete labels: outputs become class probabilities, the loss becomes cross\hyp{}entropy, and evaluation adds confusion matrices, ROC/PR curves, and threshold selection. Keep this chapter's audit loop close; the same split hygiene and validation logic are reused in later neural chapters and remain relevant when tuning fuzzy and evolutionary systems.
 
 
 \FloatBarrier

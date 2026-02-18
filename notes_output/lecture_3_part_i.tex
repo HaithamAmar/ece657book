@@ -379,6 +379,13 @@ Therefore the perceptron halts after finitely many mistakes on separable data. I
 \end{itemize}
 \end{tcolorbox}
 
+\begin{tcolorbox}[summarybox, title={Geometry intuition: beyond XOR (two triangles)}]
+XOR is the canonical non-separable toy, but the limitation is geometric, not specific to a truth table. A second picture to keep in mind is \emph{two interleaved triangles}: one class occupies the vertices of a large triangle, while the other occupies the vertices of a smaller triangle rotated inside it. No single line separates the two sets; any separating boundary must ``bend'' or be assembled from multiple linear pieces.
+\medskip
+
+\noindent\textbf{Why this matters.} A perceptron draws exactly one hyperplane, so it cannot represent such boundaries. \Cref{chap:mlp} restores expressivity by composing units so the overall decision boundary can be piecewise-linear (or curved) while still being trainable by gradients.
+\end{tcolorbox}
+
 \begin{figure}[t]
     \centering
     \begin{tikzpicture}

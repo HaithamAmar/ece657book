@@ -23,6 +23,10 @@ Multi\hyp{}layer networks raise a specific question: \emph{How do we update the 
 
 Shallow networks (one hidden layer) already move beyond linear separability, but more complex tasks demand deeper hierarchies of features. The multi\hyp{}layer perceptron stacks these layers to learn richer decision boundaries, and backpropagation is the mechanism that makes that depth trainable.
 
+\begin{tcolorbox}[summarybox, title={Intuition: backprop as a controlled ripple effect}]
+Changing one early weight perturbs the hidden activations, which perturbs every downstream pre\hyp{}activation, which perturbs the final loss. The influence is a ``ripple'' through the computation graph. Backpropagation does not change that cause-and-effect; it just computes the ripple efficiently via the chain rule: cache forward values (and local slopes) once, then sweep backward reusing them. For example, \Cref{chap:mlp} highlighted the sigmoid identity \(\sigma'(p)=y(1-y)\) as a small instance of this cache\(\rightarrow\)reuse pattern.
+\end{tcolorbox}
+
 \paragraph{Implementation lens.}
 A practical MLP rarely updates one coordinate at a time; gradients are treated as full vectors so every weight moves coherently. Backpropagation is what turns a multilayer diagram into a trainable model: it reuses local error signals so you can compute \emph{all} gradients efficiently, making it practical to learn hidden representations (not just tune a final linear layer) while keeping the same validation\(\rightarrow\)audit discipline (learning curves, early stopping, and slice checks).
 

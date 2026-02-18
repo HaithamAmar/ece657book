@@ -82,7 +82,14 @@ def get_encoder(model: str):
     try:  # pragma: no cover - depends on local tiktoken version.
         return tiktoken.encoding_for_model(model)
     except KeyError:
-        return tiktoken.get_encoding("cl100k_base")
+        try:
+            return tiktoken.get_encoding("cl100k_base")
+        except Exception:
+            return None
+    except Exception:
+        # If tokenizer files cannot be fetched (offline or DNS issues), fall back
+        # to rough character-based chunk sizing.
+        return None
 
 
 def count_tokens(text: str, encoder) -> int:
@@ -133,14 +140,14 @@ def chunk_text(
         yield Chunk(idx, total, chunk_start, chunk_end, chunk_text)
 
 
-def review_chunk(client: OpenAI, model: str, chunk: Chunk) -> str:
+def review_chunk(client: OpenAI, model: str, chunk: Chunk, system_prompt: str) -> str:
     """Send a chunk to the OpenAI model and return its critique."""
     response = client.responses.create(
         model=model,
         input=[
             {
                 "role": "system",
-                "content": [{"type": "input_text", "text": SYSTEM_PROMPT}],
+                "content": [{"type": "input_text", "text": system_prompt}],
             },
             {
                 "role": "user",
@@ -226,6 +233,11 @@ def parse_args(argv: Optional[Sequence[str]] = None) -> argparse.Namespace:
         default=1,
         help="Start reviewing from this 1-based chunk index (chunks below this index are skipped).",
     )
+    parser.add_argument(
+        "--system-prompt",
+        default=SYSTEM_PROMPT,
+        help="Override the default system prompt used for review.",
+    )
     return parser.parse_args(argv)
 
 
@@ -265,7 +277,7 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
     reviews: List[Tuple[Chunk, str]] = []
     for chunk in chunks:
         print(f"[+] Reviewing chunk {chunk.index}/{chunk.total}...")
-        critique = review_chunk(client, args.model, chunk)
+        critique = review_chunk(client, args.model, chunk, args.system_prompt)
         reviews.append((chunk, critique))
 
     args.report.parent.mkdir(parents=True, exist_ok=True)

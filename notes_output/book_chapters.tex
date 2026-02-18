@@ -22,6 +22,13 @@
 \end{tcolorbox}
 \part*{Part II: Neural networks, sequence modeling, and NLP}
 \addcontentsline{toc}{part}{Part II: Neural networks, sequence modeling, and NLP}
+\begin{tcolorbox}[summarybox, title={How to read Part II (rolling window)}]
+\begin{itemize}
+  \item \textbf{One loop, many architectures:} define a loss, run a forward pass, cache intermediates, backprop gradients, validate, then iterate.
+  \item \textbf{Two bottlenecks reappear:} expressivity (can the model represent the boundary?) and trainability (can gradients reach the parameters?).
+  \item \textbf{Continuity checks:} watch shapes and caching in feedforward models, watch masking in sequence models, and keep calibration/slice audits alongside accuracy.
+\end{itemize}
+\end{tcolorbox}
 \input{lecture_3_part_i.tex}
 \input{lecture_3_part_ii.tex}
 \input{lecture_4_part_i.tex}

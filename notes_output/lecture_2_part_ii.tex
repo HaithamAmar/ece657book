@@ -17,7 +17,7 @@ Keep the workflow, swap the likelihood: logistic regression keeps the linear sco
 
 \subsection{From regression to classification}
 \label{sec:logistic_from_regression_to_classification}
-Linear regression models a continuous target \(y\) and, under a Gaussian noise model, yields a closed-form solution via the normal equations (\Cref{chap:supervised}, \Cref{sec:linear_regression_closed}). Classification changes the output space: \(y\) is a discrete label, and the model predicts class probabilities rather than raw responses. The ERM pipeline remains the same, but the loss becomes the negative log-likelihood (binary cross\hyp{}entropy) and optimization is typically iterative.
+Linear regression models a continuous target \(y\) and, under a Gaussian noise model, yields a closed-form solution via the normal equations (\Cref{chap:supervised}, \Cref{sec:linear_regression_closed}). Classification changes the output space: \(y\) is a discrete label, and the model predicts class probabilities rather than raw responses. The ERM pipeline is unchanged, but the likelihood/loss pair changes to Bernoulli plus negative log-likelihood (binary cross\hyp{}entropy), and optimization is typically iterative.
 
 Throughout this chapter we use \(y\in\{0,1\}\) by default, switching to \(y_{\pm1}=2y-1\) only when margin-based expressions are convenient. Predictions carry hats (e.g., \(\hat{y}\)), \(\varepsilon\) denotes noise, and \(e=y-\hat{y}\) denotes residuals. For a refresher on data splits, learning curves, and the bias--variance vocabulary, see \Cref{chap:supervised}; here we focus on the logistic-specific modeling and diagnostics.
 
@@ -32,7 +32,7 @@ On a two\hyp{}moons binary classification toy, the ideas in this chapter have a 
 \subsection{Classification problem statement}
 \label{sec:logistic_classification_problem_statement}
 
-This chapter shifts from regression to \emph{classification}. Unlike regression, where \(y\) is continuous, classification predicts a \emph{discrete label}. We start with the binary case \(y\in\{0,1\}\), where the goal is to estimate a probability
+With that setup in place, we now formalize the classification target. Unlike regression, where \(y\) is continuous, classification predicts a \emph{discrete label}. We start with the binary case \(y\in\{0,1\}\), where the goal is to estimate a probability
 \[
 \pi(\mathbf{x}) = P(y=1\mid \mathbf{x}),
 \]
@@ -569,8 +569,8 @@ Threshold tuning & Choose a decision threshold based on PR curves or cost ratios
     \item Re-derive one core equation or update rule by hand and check it numerically against your implementation.
 \end{itemize}
 \medskip
-\noindent\textbf{If you are skipping ahead.} Keep three ideas: (i) Bayes-optimal boundaries are a conceptual anchor, (ii) logistic regression is the first practical probabilistic baseline, and (iii) evaluation depends on costs, thresholds, and calibration. Those recur throughout the neural and deployment chapters.
+\noindent\textbf{If you are skipping ahead.} Keep three ideas: (i) Bayes-optimal boundaries are a conceptual anchor, (ii) logistic regression is the first practical probabilistic baseline, and (iii) evaluation depends on costs, thresholds, and calibration. Those recur throughout the neural and deployment chapters and remain important whenever later chapters output scores that must be turned into decisions.
 \end{tcolorbox}
 
 \medskip
-\paragraph{Where we head next.} Logistic regression is still linear at the boundary. \Cref{chap:perceptron} introduces trainable neuron models, and stacking nonlinear units then removes that linear ceiling and sets up multilayer networks plus backpropagation.
+\paragraph{Where we head next.} Logistic regression is still linear at the boundary. \Cref{chap:perceptron} introduces trainable neuron models, and stacking nonlinear units then removes that linear ceiling and sets up multilayer networks plus backpropagation. Carry this chapter's decision discipline forward: probability quality, threshold choice, and class-imbalance handling remain core checks even when the model family changes.
