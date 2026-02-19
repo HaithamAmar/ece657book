@@ -28,6 +28,12 @@ Evolutionary computing is the strand you reach for when the objective is a black
 
 In the fuzzy trilogy, once you commit to membership shapes and a rule base, a practical question remains: how do you tune those choices (and their trade-offs) when hand tweaks do not scale? Evolutionary search provides a disciplined answer: score candidate controllers, select the better ones, perturb/recombine them, and keep iterating until the improvements flatten or the budget runs out.
 
+\begin{tcolorbox}[summarybox, title={Vignette: budgeted search in the wild (locomotion, ML/LLMs, and physical experiments)}]
+\textbf{Robot gait / locomotion.} Suppose we want a legged robot to move forward robustly across slightly different terrains. The design has mixed knobs: continuous parameters (gains, trajectory coefficients, penalty weights) and discrete choices (controller mode, safety logic, constraint-handling policy). A single trial is expensive and noisy (contact dynamics, initial conditions, sensor noise), so it is natural to treat performance as a black-box fitness, average over multiple seeds, and search under a strict evaluation budget.\par
+\textbf{Hyperparameter and pipeline tuning (including LLM systems).} Many modern learning pipelines have the same structure: discrete design choices (model family, prompt/toolchain variant, data filters) plus continuous knobs (learning rates, thresholds, temperatures), measured by an empirical score with variance across runs. Evolutionary search is attractive when gradients are unavailable, the evaluation surface is rugged, or the objective invites silent failure modes (metric gaming, constraint violations).\par
+\textbf{Physical-world analogy (jet nozzle).} Classic evolution-strategy examples describe optimizing a jet-nozzle shape via random mutations plus selection: you do not differentiate the wind tunnel; you spend a limited trial budget to evolve better designs. The point of the analogy is not biology, but budgeted optimization under constraints.
+\end{tcolorbox}
+
 \subsection{Philosophical and Historical Background}
 \label{sec:evo_philosophical_and_historical_background}
 
@@ -893,6 +899,14 @@ Bit-string encodings are ideal for combinatorial search, yet most engineering pr
     \item \textbf{Covariance Matrix Adaptation Evolution Strategy (CMA-ES)} \citep{Hansen2001} maintains a multivariate Gaussian search distribution. Successful steps update the mean, adapt the global step size, and rotate the covariance to align with the landscape's principal directions. CMA-ES shines on smooth, ill-conditioned black-box functions where gradients are unavailable but the objective rewards second-order adaptation.
     \item \textbf{Differential Evolution (DE)} \citep{Storn1997} perturbs a target vector with scaled differences of two other individuals, \(\mathbf{v} = \mathbf{x}_r + F(\mathbf{x}_p - \mathbf{x}_q)\), then mixes \(\mathbf{v}\) with the original via binomial or exponential crossover. This simple mechanism balances exploration/exploitation with only three hyperparameters \((F,\, C_r,\, N)\) and handles noisy, non-smooth objectives well.
 \end{itemize}
+
+\begin{tcolorbox}[summarybox, title={Evolution strategies (ES): step-size adaptation and self-adaptation}]
+Evolution strategies are a real-coded evolutionary family that makes one engineering idea explicit: \emph{mutation step size is part of the algorithm's state, not a fixed constant.} In a simple isotropic form,
+\[
+\mathbf{x}'=\mathbf{x}+\boldsymbol{\epsilon},\qquad \boldsymbol{\epsilon}\sim\mathcal{N}(\mathbf{0},\,\sigma^2\mathbf{I}),
+\]
+where \(\sigma\) controls exploration (large \(\sigma\)) versus local refinement (small \(\sigma\)). A classic adaptive heuristic is the ``1/5 success rule'': if more than 20\% of recent mutations improve fitness, increase \(\sigma\); if fewer than 20\% succeed, decrease \(\sigma\). Self-adaptive variants go one step further by embedding \(\sigma\) (and sometimes covariance structure) into the chromosome itself so selection pressure co-evolves the search behavior alongside the solution parameters.
+\end{tcolorbox}
 
 Both algorithms plug into the same evaluation loop shown earlier and can reuse the constraint-handling policies in the preceding box. In practice many teams prototype with DE (fast, few knobs) and switch to CMA-ES when the problem demands higher precision or adaptive covariance modeling.
 

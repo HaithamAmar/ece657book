@@ -22,6 +22,7 @@ epub_builder/artifacts/
 epub_builder/dist/
 
 notes_output/artifacts/
+notes_output/review/ece457a_slide_extract_*.md
 notes_output/scripts/node_modules/
 notes_output/.venv_render/
 notes_output/.venv*/
