@@ -72,6 +72,13 @@ Notes / potential enrichments:
   If desired, we can add one short “transfer cue” sentence at the start of the Hopfield chapter tying its
   associative-memory energy view to later attention-style retrieval (the analogy already appears in prose).
 
+Rolling-window scrub note (2026-02-19):
+- Removed a few time-anchored, “snapshot”-style phrases that read like temporally scoped notes rather than book prose,
+  particularly in `lecture_transformers.tex` (e.g., removed “(2024 snapshot)”/“(decoder-only, 2024)” phrasing) and kept
+  the content as an evergreen “practitioner snapshot” instead.
+- Removed a source-tree file-path reference in a worked attention example and replaced it with a book-level statement
+  (“verified by the book’s numeric example harness”) to avoid internal build/repo leakage.
+
 ## Part III rolling window (Introduction + soft computing + fuzzy sets/relations/inference)
 
 Window:
@@ -113,4 +120,3 @@ Notes / potential enrichments:
 
 If you want to enrich continuity beyond strict reference correctness, see:
 - `notes_output/review/writeup_tasks_from_codex_20260218.md`
-
