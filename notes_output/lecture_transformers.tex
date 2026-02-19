@@ -53,7 +53,7 @@ Let \(d_k=d_v=2\) and
 \mathbf{K}=\begin{bmatrix}1&0\\1&1\end{bmatrix},\quad
 \mathbf{V}=\begin{bmatrix}1&0\\0&2\end{bmatrix}.
 \]
-The unmasked scores are \(\mathbf{Q}\mathbf{K}^\top/\sqrt{2}=\begin{bmatrix}0.707&0.707\\0&0.707\end{bmatrix}\). With a causal mask, token 1 cannot attend to token 2, so its weights are \([1,0]\) and its output is \([1,0]\). Token 2 attends to both tokens with weights \(\operatorname{softmax}([0,0.707])\approx[0.330,0.670]\), yielding output \([0.330,1.340]\). (Verified by the book's numeric example harness.)
+The unmasked scores are \(\mathbf{Q}\mathbf{K}^\top/\sqrt{2}=\begin{bmatrix}0.707&0.707\\0&0.707\end{bmatrix}\). With a causal mask, token 1 cannot attend to token 2, so its weights are \([1,0]\) and its output is \([1,0]\). Token 2 attends to both tokens with weights \(\operatorname{softmax}([0,0.707])\approx[0.330,0.670]\), yielding output \([0.330,1.340]\).
 \end{tcolorbox}
 
 \begin{tcolorbox}[summarybox, title={Shape ledger}]
