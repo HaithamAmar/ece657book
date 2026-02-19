@@ -257,21 +257,21 @@ During reproduction, offspring inherit genes from parents via crossover and muta
 
 \paragraph{Modeling the Genetic Operations}
 
-Let \(\mathbf{p}_1\) and \(\mathbf{p}_2\) be parent chromosomes. The offspring chromosome \(\mathbf{o}\) is formed by combining segments from \(\mathbf{p}_1\) and \(\mathbf{p}_2\) according to a crossover pattern \( \mathbf{x} \), and then applying mutation \( \mathbf{m} \):
+Let \(\mathbf{p}_1\) and \(\mathbf{p}_2\) be parent chromosomes. The offspring chromosome \(\mathbf{o}\) is formed by combining segments from \(\mathbf{p}_1\) and \(\mathbf{p}_2\) according to a crossover pattern, and then applying mutation:
 \begin{align}
-    \mathbf{o} = \text{Mutate} \big( \text{Crossover}(\mathbf{p}_1, \mathbf{p}_2, \mathbf{x}) \big).
-    \label{eq:auto:lecture_11:1}
+    \mathbf{o} = \text{Mutate}\big(\text{Crossover}(\mathbf{p}_1, \mathbf{p}_2, \mathbf{u})\big).
+    \label{eq:evo_offspring_from_parents}
 \end{align}
 
-The crossover operator selects which genes come from which parent, often modeled by a binary mask \( \mathbf{x} \in \{0,1\}^L \), where
+The crossover operator selects which genes come from which parent, often modeled by a binary mask \(\mathbf{u}\in\{0,1\}^L\), where
 \[
 o_i = \begin{cases}
-(p_1)_i, & \text{if } x_i = 0, \\
-(p_2)_i, & \text{if } x_i = 1.
+(p_1)_i, & \text{if } u_i = 0, \\
+(p_2)_i, & \text{if } u_i = 1.
 \end{cases}
 \]
 
-Mutation (see \Cref{sec:evo_mutation_operator}) perturbs genes with a small probability \( \mu \).
+Mutation (see \Cref{sec:evo_mutation_operator}) perturbs genes with a small probability \(p_m\).
 
 \paragraph{Fitness and selection (preview)}
 Chromosomes encode candidate solutions (phenotypes), and fitness scores quantify how well each candidate meets the objective. For example, consider chromosomes representing facial feature variants with fitness values
@@ -569,11 +569,12 @@ Mutation introduces random alterations to individual chromosomes, mimicking biol
 \]
 The mutation is applied with a small \emph{mutation probability} \(p_m\), often on the order of \(10^{-3}\) to \(10^{-1}\).
 
-\paragraph{Mutation operator formalization} Given a chromosome \(\mathbf{x}\in\{0,1\}^n\), mutation produces \(\mathbf{x}'\) by mutating each gene \(x_i\) independently with probability \(p_m\):
+\paragraph{Mutation operator formalization}
+Given a binary chromosome \(\mathbf{c}\in\{0,1\}^L\), mutation produces \(\mathbf{c}'\) by mutating each bit \(c_i\) independently with probability \(p_m\):
 \[
-x_i' = \begin{cases}
-1 - x_i, & \text{with probability } p_m, \\
- x_i, & \text{with probability } 1 - p_m
+c_i' = \begin{cases}
+1 - c_i, & \text{with probability } p_m, \\
+c_i, & \text{with probability } 1 - p_m.
 \end{cases}
 \]
 
@@ -829,10 +830,10 @@ with a precision of three decimal places.
 \paragraph{GA Parameters:}
 \begin{itemize}
     \item Population size: 10 chromosomes
-    \item Encoding: Real-valued \(x\) encoded with 3 decimal places (i.e., precision of 0.001)
+    \item Encoding: Fixed-point with resolution 0.001: store an integer \(n\in\{0,1,\ldots,500\}\) and decode via \(x=n/1000\) (a 9-bit representation covers 0--511)
     \item Crossover probability: 25\%
     \item Mutation probability: 10\%
-    \item Selection: All chromosomes are selected for crossover or mutation (no explicit selection probability)
+    \item Selection: Truncation selection (example): select the top five chromosomes by fitness as parents each generation
 \end{itemize}
 
 \paragraph{Initialization:}
@@ -862,7 +863,7 @@ f(x) &\in \{0.808,\;0.155,\;-0.446,\;-0.921,\;-0.906,\;-0.422,\\
 \end{aligned}
 \]
 rounded to three decimals.
-Each chromosome uses a 9\text{-}bit fixed-point code (3 fractional digits), decoded by interpreting the bits as an integer \(n\) and scaling via \(x=n/1000\). Chromosomes decoding to \(x=0\) are discarded or repaired.
+Each chromosome uses a 9\text{-}bit fixed-point code (3 fractional digits), decoded by interpreting the bits as an integer \(n\) and scaling via \(x=n/1000\). Any decoded values outside \([0,\,0.5]\) are repaired (e.g., clipped to bounds); note that \(x=0\) is allowed in this example.
 
 A single generation could proceed as follows:
 \begin{itemize}
@@ -876,8 +877,8 @@ A single generation could proceed as follows:
 \begin{itemize}
     \item \textbf{Penalty methods} soften constraints by augmenting the fitness with a violation term, e.g., \(F(\mathbf{x}) = f(\mathbf{x})+\lambda \sum_k \max\{0, g_k(\mathbf{x})\}^2\); increase \(\lambda\) when infeasible individuals survive too often.
     \item \textbf{Repair operators} project infeasible chromosomes back into the feasible region (clip bound violations, renormalize equality constraints, or rerun a problem-specific solver) before evaluation.
-\item \textbf{Feasibility-first selection} ranks feasible candidates ahead of infeasible ones, then compares raw fitness only within each group; among infeasible solutions, select those with the smallest violation.
-\item \textbf{Deb's feasibility rules} \citep{Deb2001Book}: (i) if one solution is feasible and the other is not, pick the feasible one; (ii) if both are feasible, pick the better objective; (iii) if both are infeasible, pick the one with smaller total constraint violation. Adaptive penalties can be layered on top when violations persist.
+    \item \textbf{Feasibility-first selection} ranks feasible candidates ahead of infeasible ones, then compares raw fitness only within each group; among infeasible solutions, select those with the smallest violation.
+    \item \textbf{Deb's feasibility rules} \citep{Deb2001Book}: (i) if one solution is feasible and the other is not, pick the feasible one; (ii) if both are feasible, pick the better objective; (iii) if both are infeasible, pick the one with smaller total constraint violation. Adaptive penalties can be layered on top when violations persist.
 \end{itemize}
 \paragraph{Reproducibility and fair comparison} Fix random seeds when debugging, run many seeds (e.g., 20+) for reporting, match evaluation budgets across algorithms, and report mean/median best-so-far with variability bands. Log all hyperparameters and share code/configs to make comparisons fair, following \Cref{app:repro_standards} as the default reporting template.
 Penalty terms are easy to implement, repair operators exploit domain knowledge, and feasibility-first policies are useful in safety-critical controllers where violating constraints is unacceptable even temporarily.
