@@ -57,7 +57,7 @@ The unmasked scores are \(\mathbf{Q}\mathbf{K}^\top/\sqrt{2}=\begin{bmatrix}0.70
 \end{tcolorbox}
 
 \begin{tcolorbox}[summarybox, title={Shape ledger}]
-We treat mini\hyp{}batches as \(\mathbf{X}\in\mathbb{R}^{B\times n \times d_{\text{model}}}\) (batch, sequence, features). After the linear projections each head carries \(\mathbf{Q},\mathbf{K}\in\mathbb{R}^{B\times h \times n \times d_k}\), \(\mathbf{V}\in\mathbb{R}^{B\times h \times n \times d_v}\), and the attention weights live in \(\mathbb{R}^{B\times h \times n \times n}\). Reading dimensions in this order avoids confusion when mixing frameworks; \(h\cdot d_k = d_{\text{model}}\) (often \(d_v=d_k\)). FFN inner widths typically 2--4\(\times d_{\text{model}}\).
+We treat mini\hyp{}batches as \(\mathbf{X}\in\mathbb{R}^{B\times n \times d_{\text{model}}}\) (batch, sequence, features). After the linear projections each head carries \(\mathbf{Q},\mathbf{K}\in\mathbb{R}^{B\times h \times n \times d_k}\), \(\mathbf{V}\in\mathbb{R}^{B\times h \times n \times d_v}\), and the attention weights live in \(\mathbb{R}^{B\times h \times n \times n}\). Reading dimensions in this order avoids confusion when mixing frameworks; \(h\cdot d_k = d_{\text{model}}\) (often \(d_v=d_k\)). FFN inner widths typically 2--4$\times d_{\text{model}}$.
 \end{tcolorbox}
 
 \begin{tcolorbox}[summarybox, title={Complexity and memory}]
@@ -179,11 +179,11 @@ with \(\mathbf{W}_i^Q \in \mathbb{R}^{d_{\text{model}} \times d_k}\), \(\mathbf{
         \draw[->, dotted, gray!60] (postln.west) -- (add2_real.east);
     \end{tikzpicture}}
     % Avoid dense inline math in captions; it wraps poorly in EPUB renderers.
-    \caption{Schematic: Reference schematic for the Transformer. Left: scaled dot-product attention. Center: multi-head concatenation with an output projection. Right: pre-LN encoder block combining attention, FFN, and residual connections; a post-LN variant simply moves each LayerNorm after its residual add (dotted alternative, not shown).}
+    \caption{Reference schematic for the Transformer. Left: scaled dot-product attention. Center: multi-head concatenation with an output projection. Right: pre-LN encoder block combining attention, FFN, and residual connections; a post-LN variant simply moves each LayerNorm after its residual add (dotted alternative, not shown).}
     \label{fig:lec13_transformer_block}
 \end{figure}
 
-\Cref{fig:lec13_micro_figures} is the compact visual bridge for positional encoding, KV cache reuse, and LoRA adapters.
+\Cref{fig:lec13_micro_figures} provides a quick visual summary of positional encoding, KV cache reuse, and LoRA adapters.
 
 \begin{figure}[t]
     \centering
@@ -257,16 +257,16 @@ with \(\mathbf{W}_i^Q \in \mathbb{R}^{d_{\text{model}} \times d_k}\), \(\mathbf{
     \end{tikzpicture}
     }%
     % Avoid inline math in captions; it wraps poorly in some EPUB renderers.
-    \caption{Schematic: Transformer micro-views. Left: positional encodings (sinusoidal/rotary) add order information. Center: KV cache stores past keys/values so decoding a new token reuses prior context. Right: LoRA inserts low-rank adapters (B A) on top of a frozen weight matrix W for parameter-efficient tuning.}
+    \caption{Transformer micro-views. Left: positional encodings (sinusoidal/rotary) add order information. Center: KV cache stores past keys/values so decoding a new token reuses prior context. Right: LoRA inserts low-rank adapters (B A) on top of a frozen weight matrix W for parameter-efficient tuning.}
     \label{fig:lec13_micro_figures}
 \end{figure}
 
 
-\Cref{fig:lec13-masks} shows how padding and causal masks constrain attention patterns.
+\Cref{fig:lec13_masks} shows how padding and causal masks constrain attention patterns.
 
 \paragraph{Micro attention example (2 tokens, causal mask).}
 Let \(Q=K=V=\begin{bmatrix}1&0\\0&1\end{bmatrix}\) and \(d_k=2\).
-Use a causal mask that sets all logits \emph{above} the diagonal to \(-\infty\), so those entries vanish after the softmax.
+This example makes the mask in \Cref{fig:lec13_masks} concrete: for query index \(i\) (row), mask out all keys with index \(j>i\) (future positions) by setting those logits to \(-\infty\), so they vanish after the softmax.
 The unscaled score matrix is \(\begin{bmatrix}1&0\\0&1\end{bmatrix}\); after masking and dividing by \(\sqrt{2}\), the first row softmaxes to \([1,0]\) and the second to \([\tfrac{e^{0}}{e^{0}+e^{1/\sqrt{2}}},\tfrac{e^{1/\sqrt{2}}}{e^{0}+e^{1/\sqrt{2}}}]\).
 These are exactly the attention weights, and because \(V\) is the identity the attention output equals the weight matrix:
 \[
@@ -306,7 +306,8 @@ Each block uses residual connections and layer normalization:
 \end{align}
 The feed-forward sublayer (FFN) is position-wise, typically two linear layers with a nonlinearity (e.g., GELU). Dropout and label smoothing are common.
 
-\begin{tcolorbox}[summarybox, title={Transformer block (pre-LN) pseudocode}]
+\begin{tcolorbox}[summarybox, breakable, title={Implementation snapshot: block pseudocode, training defaults, and one step}]
+\noindent\textbf{Block pseudocode (pre-LN).}
 \begin{verbatim}
 function Block(H):
     # Pre-normalize inputs (pre-LN stabilizes deep stacks)
@@ -318,13 +319,12 @@ function Block(H):
     return H + Dropout(ff)
 \end{verbatim}
 Decoder blocks add causal masks and cross-attention with encoder states. Pre-LN (shown here) is now common because it keeps gradients well behaved for very deep stacks; post-LN (original Transformer) is still used in smaller models.
-\end{tcolorbox}
+\medskip
+\noindent\textbf{Training defaults (decoder-only, 2024).}
+AdamW with cosine decay and 1--3\% warmup; LR \(\sim 10^{-3}\) for small models, \(1\text{--}2\times 10^{-4}\) for mid-size. Weight decay \(\approx 0.01\) (exclude biases/LayerNorm gains). Attention/MLP dropout \(\approx 0.1\); clip global norm to 1.0. Mixed precision (FP16/BF16) plus gradient checkpointing for long contexts; tie input embeddings to the LM head; use causal masks for CLM and padding masks for packed batches.
 
-\begin{tcolorbox}[summarybox, title={Training defaults (decoder-only, 2024)}]
-AdamW with cosine decay and 1--3\% warmup; LR \(\sim10^{-3}\) for small models, \(1{-}2\times10^{-4}\) for mid-size. Weight decay \(\approx 0.01\) (exclude biases/LayerNorm gains). Attention/MLP dropout \(\approx0.1\); clip global norm to 1.0. Mixed precision (FP16/BF16) plus gradient checkpointing for long contexts; tie input embeddings to the LM head; use causal masks for CLM, padding masks for packed batches.
-\end{tcolorbox}
-
-\begin{tcolorbox}[summarybox, title={One training step (decoder-only, causal mask)}]
+\medskip
+\noindent\textbf{One training step (decoder-only, causal mask).}
 \begin{verbatim}
 x = tokenizer(batch_text)                # [B, T]
 mask = causal_mask(x)                    # [B, 1, T, T]
@@ -347,7 +347,7 @@ Memory and compute scale quadratically with sequence length. Practical systems t
 \begin{itemize}
     \item \textbf{Sparse or local attention} (e.g., Longformer, BigBird) to limit each query to a sliding or block-sparse neighborhood.
     \item \textbf{Low-rank/kernelized approximations} and recurrent chunking (Performer, Transformer-XL) so that computation/storage grows roughly linearly in context length.
-    \item \textbf{I/O-aware kernels} such as FlashAttention that stream tiles through SRAM so the quadratic pattern remains exact without exhausting memory.
+    \item \textbf{I/O-aware kernels} such as FlashAttention that stream tiles through SRAM so the \(O(n^2)\) attention computation remains exact while memory stays manageable.
 \end{itemize}
 Relative/rotary position schemes and KV caching are summarized in \Cref{sec:transformers_advanced_attention_and_efficiency_notes_2024_snapshot} and \Cref{fig:lec13_micro_figures}.
 
@@ -359,7 +359,7 @@ Full fine-tuning updates all weights. Parameter-efficient methods (LoRA, IA3, ad
 \label{sec:transformers_decoding_and_evaluation}
 Autoregressive generation uses greedy, beam search, top-\(p\) (nucleus), or top-\(k\) sampling. For safety and quality, monitor repetition, degeneration, and calibration. For classification tasks, prefer metrics aligned with class balance (AUPRC on imbalanced sets).
 
-\paragraph{When to use which.} Beam search suits short factual tasks; top-\(p\)/top-\(k\) sampling suits open-ended generation; temperature controls diversity/style. Track perplexity for language modeling (see \Cref{chap:nlp}) and win-rates or task metrics for downstream tasks.
+\paragraph{When to use which.} Beam search suits short factual tasks; top-\(p\) (nucleus) or top-\(k\) sampling suits open-ended generation; temperature controls diversity/style. Track perplexity for language modeling (see \Cref{chap:nlp}) and win-rates or task metrics for downstream tasks.
 
 \begin{figure}[t]
     \centering
@@ -454,8 +454,8 @@ Autoregressive generation uses greedy, beam search, top-\(p\) (nucleus), or top-
                 \node[font=\scriptsize, anchor=north east] at (axis cs:4.4,4.4) {future masked};
         \end{groupplot}
     \end{tikzpicture}
-    \caption{Schematic: Attention masks visualized as heatmaps (queries on rows, keys on columns). Left: padding mask zeroes attention into padded positions of a shorter sequence in a packed batch. Right: causal mask enforces autoregressive flow by blocking attention to future tokens.}
-    \label{fig:lec13-masks}
+    \caption{Attention masks as heatmaps (queries on rows, keys on columns). Left: padding mask zeroes out attention to padded positions of a shorter sequence in a packed batch. Right: causal mask enforces autoregressive flow by blocking attention to future tokens.}
+    \label{fig:lec13_masks}
 \end{figure}
 
 
@@ -491,9 +491,9 @@ Equivariance & N/A & Permutation-equivariant until positions (cf. conv translati
 \end{center}
 
 \begin{tcolorbox}[summarybox, title={Practitioner box: pitfalls and checks}]
-\textbf{Pitfalls:} training instability (lr too high), attention collapse, over-length inputs.\newline
-\textbf{Checks:} monitor loss/entropy, validation perplexity, and attention patterns on probes.\newline
-\textbf{Hyperparams:} heads (4--16), depth (6--24), \(d_{\text{model}}\) (256--2048), FFN multiplier (\(\times 2\)--\(\times 4\)).
+\textbf{Pitfalls:} training instability (learning rate (LR) too high), attention collapse, inputs longer than the context window.\newline
+\textbf{Checks:} monitor loss and entropy, validation perplexity, and attention patterns on probes.\newline
+\textbf{Hyperparams:} heads (4--16), depth (6--24), \(d_{\text{model}}\) (256--2048), FFN multiplier (2--4$\times$).
 \end{tcolorbox}
 
 \subsection*{Notes}
@@ -516,7 +516,7 @@ Terminology: masked-LM and next-token LM are \emph{self-supervised} (targets der
 
 \noindent\textbf{Common pitfalls.}
 \begin{itemize}
-    \item Incorrect masking (future leakage) or inconsistent tokenization between train and evaluation.
+    \item Incorrect masking (future leakage) or inconsistent tokenization between training and evaluation.
     \item Reporting speed or memory without stating context length, batch size, and caching assumptions.
     \item Treating decoding strategy as an afterthought; greedy, beam, and sampling regimes change observed quality.
 \end{itemize}
@@ -526,7 +526,7 @@ Terminology: masked-LM and next-token LM are \emph{self-supervised} (targets der
 \begin{itemize}
     \item Hand-compute a 2-token attention step with masking; verify against a short script.
     \item Implement a single-block decoder-only transformer (embed + pos + pre-LN MHA + FFN) and train on a tiny character corpus; report perplexity.
-    \item Compare naive attention vs.\ FlashAttention on \(n \in \{256, 1024, 4096\}\); log peak memory and tokens/sec.
+    \item Compare naive attention vs.\ FlashAttention on \(n \in \{256, 1024, 4096\}\); log peak memory and tokens/s.
     \item Fine-tune a base model with RoPE vs.\ ALiBi and evaluate extrapolation to 2\(\times\) the training context.
     \item Implement DPO on a small preference dataset; report win-rates versus the SFT baseline.
 \end{itemize}
