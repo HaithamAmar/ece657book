@@ -29,6 +29,26 @@
   \item \textbf{Continuity checks:} watch shapes and caching in feedforward models, watch masking in sequence models, and keep calibration/slice audits alongside accuracy.
 \end{itemize}
 \end{tcolorbox}
+\begin{tcolorbox}[summarybox, title={Part II bridge: from ERM to trainable architectures}]
+Part I treated learning as disciplined self-correction: represent the problem, define what ``wrong'' means
+(loss), improve systematically (optimization), and verify with honest splits and diagnostics. In Part II we
+keep that loop, but we make a second design choice explicit: we choose architectures that make learning
+possible at scale.
+
+The guiding question becomes: ``given this computation graph, can signals flow through it during both the
+forward pass (information) and the backward pass (gradients)?'' That is why we begin with the perceptron,
+build to multi-layer networks and backpropagation, then add structure that matches common data: convolution
+for images, recurrence and associative memory for state and recall, and attention for content-based retrieval
+in language and other sequences.
+
+Read the repeated ideas as purposeful: the ERM loop stays fixed, while the model class changes the kinds of
+generalization you can get and the kinds of bugs you can accidentally introduce (shape and caching mistakes,
+masking mistakes, and evaluation leakage).
+
+Payoffs to watch for: (i) backprop as reusable local error signals, (ii) inductive bias as the reason CNNs,
+RNNs, and attention behave differently under the same ERM procedure, and (iii) auditing beyond accuracy as
+the difference between a model with a low loss and a system that makes good decisions.
+\end{tcolorbox}
 \input{lecture_3_part_i.tex}
 \input{lecture_3_part_ii.tex}
 \input{lecture_4_part_i.tex}

@@ -787,3 +787,5 @@ Build notes (2026-02-17):
   additional authorial bridges would strengthen introductions and section-to-section connections.
 - Logged concrete write-up tasks + micro-section flags (TOC noise / tiny subsections) in:
   `notes_output/review/writeup_tasks_from_codex_20260218.md`.
+- Implemented the first bridge: added a Part II transition box to `notes_output/book_chapters.tex` (right after the
+  Part II "How to read" rolling-window box) to improve continuity into the neural-network chapters.
