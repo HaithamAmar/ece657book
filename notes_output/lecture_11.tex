@@ -425,16 +425,33 @@ For the problem above, a population of 50 individuals with 4-bit genotypes repre
 \subsection{Genetic Operators}
 \label{sec:evo_genetic_operators}
 
-After initialization, genetic operators are applied to evolve the population.
+After initialization, genetic operators are applied to evolve the population. In practice, these operators
+are the \emph{control knobs} that decide how aggressively the search exploits what looks good versus how
+much it explores new regions of the design space.
 
-Selection is detailed in \Cref{sec:evo_selection_in_genetic_algorithms}, crossover in \Cref{sec:evo_crossover_operator}, and mutation in \Cref{sec:evo_mutation_operator}.
+\paragraph{Where operators sit in the GA loop.}
+At a high level, each generation repeats the same pipeline:
+\begin{enumerate}
+    \item Evaluate fitness (and apply penalties/feasibility rules if constrained).
+    \item Select parents (controls \emph{selection pressure}).
+    \item Generate variation via crossover and mutation (controls \emph{mixing} and \emph{novelty}).
+    \item Form the next population (often with elitism or replacement rules).
+\end{enumerate}
+
+The next subsections unpack these pieces: selection in \Cref{sec:evo_selection_in_genetic_algorithms}, crossover in \Cref{sec:evo_crossover_operator}, and mutation in \Cref{sec:evo_mutation_operator}.
 
 % Chapter 19 (continued)
 
 \subsection{Selection in Genetic Algorithms}
 \label{sec:evo_selection_in_genetic_algorithms}
 
-We now formalize selection: how fitness scores translate into parent choice and survival probabilities so the search favors better solutions without collapsing diversity.
+Selection answers the question: \emph{who gets to reproduce?} It is the main mechanism that biases sampling
+toward better candidates, and it therefore determines the algorithm's \emph{selection pressure}. Too much
+pressure collapses diversity and risks premature convergence; too little reduces the GA to near-random
+search. In this section we formalize how fitness values translate into parent choice (roulette-style
+probabilities), then compare alternatives (ranking and tournament selection) that are often more stable when
+raw fitness values are poorly scaled. The goal is to connect the big-picture GA loop to implementable parent
+selection rules you can audit and tune.
 
 \subsubsection{Fitness and Selection Probability}
 \label{sec:evo_fitness_and_selection_probability_sub}

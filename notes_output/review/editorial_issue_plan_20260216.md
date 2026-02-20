@@ -801,3 +801,7 @@ Build notes (2026-02-17):
 - `notes_output/lecture_10_part_i.tex`: consolidated three tiny wrap-up subsections (Recap/Motivation, Generalization,
   Example Calculation) into paragraphs inside the Properties section, preserving labels to avoid breaking any references.
 - Ran `python3 notes_output/scripts/validate_math_examples_and_graphs.py --strict` after the edit: PASS.
+- `notes_output/lecture_11.tex`: expanded the umbrella "Genetic Operators" subsection and the "Selection" subsection
+  intro so they stand on their own (instead of acting as one-line jump points), keeping the existing substructure.
+- 2026-02-20: Ran `bash notes_output/scripts/run_production_checks.sh` after the `lecture_11.tex` operator-section edits.
+  Result: PASS (PDF build + EPUB builds + Apple gatekeeper audits + EPUBCheck all OK).
