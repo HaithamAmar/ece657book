@@ -35,11 +35,11 @@ The chapter follows one tight loop:
 \end{itemize}
 Once you can execute this loop for two neurons, scaling to many neurons is mostly bookkeeping; we return to the organization when we scale up.
 \paragraph{How this chapter fits the workflow.}
-The same objective\(\rightarrow\)audit workflow from the supervised toolkit still applies; what changes is the \emph{representation}. You still define what ``good'' means, optimize for it, and then verify. Here, verification starts with fail-fast checks (sign conventions, cached intermediates, numerical gradient sanity checks) before you scale up.
+The objective-and-audit loop still applies; what changes is the \emph{representation}. Once a model has internal computations, you have to keep track of intermediate variables and make sure the learning signal can actually pass through them. Before you scale up, do a few small sanity checks: confirm the forward pass, confirm the gradient signs, and check one tiny numerical update.
 \begin{itemize}
     \item From \Cref{chap:supervised}: diagnostics (learning curves, bias--variance) tell you \emph{what} is going wrong.
     \item From \Cref{chap:logistic}: a linear probabilistic baseline tells you \emph{how far} you can go without nonlinear features.
-    \item Here: we build the smallest nonlinear network and derive its gradient updates, setting up the general multilayer training machinery.
+    \item Here: we build the smallest multi-layer network and derive its update rules, so the mechanics feel concrete.
 \end{itemize}
 
 \paragraph{Function estimation as the unifying view.}
