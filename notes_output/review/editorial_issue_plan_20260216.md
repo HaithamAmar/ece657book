@@ -826,3 +826,9 @@ Build notes (2026-02-17):
   labeled paragraph and expanded the intro of the convergence subsection to make the proof's assumptions and role explicit.
 - 2026-02-20: Ran `bash notes_output/scripts/run_production_checks.sh` after the `lecture_5_part_ii.tex` edits.
   Result: PASS (PDF build + EPUB builds + Apple gatekeeper audits + EPUBCheck all OK).
+- `notes_output/lecture_transformers.tex`: expanded the "Fine-Tuning and Parameter-Efficient Adaptation" and "Alignment"
+  subsections so they read as substantive book prose rather than one-line notes; added explicit audit hooks (no numeric changes).
+- `notes_output/lecture_4_part_i.tex`: demoted the short "Challenges in Weight Updates" subsection to a labeled paragraph,
+  added a one-sentence bridge to backprop's \(\delta\) intuition, and fixed a truncated sentence in the forward-pass recap.
+- 2026-02-20: Ran `bash notes_output/scripts/run_production_checks.sh` after the Transformer/backprop edits.
+  Result: PASS (PDF build + EPUB builds + Apple gatekeeper audits + EPUBCheck all OK).

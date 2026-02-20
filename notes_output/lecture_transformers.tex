@@ -353,7 +353,12 @@ Relative/rotary position schemes and KV caching are summarized in \Cref{sec:tran
 
 \subsection{Fine-Tuning and Parameter-Efficient Adaptation}
 \label{sec:transformers_fine_tuning_and_parameter_efficient_adaptation}
-Full fine-tuning updates all weights. Parameter-efficient methods (LoRA, IA3, adapters, prefix/prompt tuning) inject small trainable modules while freezing most of the base model, enabling rapid adaptation. Beyond RLHF, preference-based objectives such as DPO, KTO, or ORPO optimize alignment directly from ranked pairs without a full reinforcement-learning loop.
+Pre-training gives you a general-purpose language model; fine-tuning adapts that model to a task, domain, or interaction style. \emph{Full fine-tuning} updates all weights, which can yield the best performance when you have enough high-quality data and a stable objective, but it is also the easiest to overfit or to accidentally ``forget'' useful general behavior.
+
+\emph{Parameter-efficient} methods (LoRA, IA3, adapters, prefix/prompt tuning) inject small trainable modules while freezing most of the base model, enabling rapid adaptation with lower memory and more predictable changes. Practically, PEFT is attractive when you want many task-specific variants of a shared base model, or when you need to keep the base weights fixed for deployment and auditing.
+
+\paragraph{Audit hooks for adaptation.}
+Regardless of whether you update all weights or only a small adapter, treat fine-tuning like any other ERM pipeline: keep a held-out evaluation set that matches the deployment slice, monitor calibration and failure modes (not just loss), and log the exact base checkpoint, tokenizer, and data snapshot so results are reproducible. When fine-tuning for instruction-following or conversational behavior, add explicit tests for regressions (refusals, hallucinations on factual probes, and brittleness to prompt variants) rather than relying on a single aggregate score.
 
 \subsection{Decoding and Evaluation}
 \label{sec:transformers_decoding_and_evaluation}
@@ -461,7 +466,12 @@ Autoregressive generation uses greedy, beam search, top-\(p\) (nucleus), or top-
 
 \subsection{Alignment (Brief)}
 \label{sec:transformers_alignment_brief}
-Post-training alignment shapes model behavior to human preferences. RLHF optimizes a policy against a learned reward model; DPO offers a simpler objective based on preference pairs.
+Post-training \emph{alignment} shapes model behavior to match human preferences, safety constraints, and interaction norms. In broad terms, alignment objectives do not change the Transformer mechanics; they change what you reward during optimization (and therefore what behaviors are reinforced).
+
+RLHF optimizes a policy against a learned reward model (with careful regularization to avoid drifting too far from the base model). Preference-based objectives such as DPO, KTO, or ORPO optimize directly from ranked pairs without a full reinforcement-learning loop.
+
+\paragraph{Alignment is not a proof of correctness.}
+Alignment can improve helpfulness and reduce obvious failures, but it can also introduce new ones (reward hacking, over-refusal, brittleness to prompt phrasing, or degraded performance off-distribution). Treat it as an engineering stage with explicit test suites and logging: evaluate on held-out tasks, check calibration and refusal behavior, and track changes relative to the pre-alignment model.
 
 \subsection{Advanced attention and efficiency notes (practitioner snapshot)}
 \label{sec:transformers_advanced_attention_and_efficiency_notes_snapshot}

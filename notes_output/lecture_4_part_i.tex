@@ -51,12 +51,14 @@ To keep the story linear (and aligned with \Cref{chap:mlp}), we will use a simpl
 \end{equation}
 The goal of learning is to adjust the weights \(\{w_{ij}^{(l)}\}\) to minimize \(\mathcal{L}\). Later in this chapter, we briefly note how common alternatives (notably cross\hyp{}entropy with sigmoid/softmax outputs) simplify the output\hyp{}layer error term; the backprop recursion itself does not change.
 
-\subsection{Challenges in Weight Updates}
+\paragraph{Challenges in weight updates}
 \label{sec:backprop_challenges_in_weight_updates}
 
 In a shallow network, weight updates can be computed directly from the output error. However, in a deep network, the output error depends on all weights in a complex way. A change in a weight in an earlier layer affects the activations of subsequent layers, ultimately influencing the output.
 
 For example, consider a weight $w_{ij}^{(l)}$ connecting neuron $i$ in layer $l-1$ to neuron $j$ in layer $l$. Changing this weight affects $z_j^{(l)}$, which affects $a_j^{(l)}$, which in turn affects all neurons in layers $l+1, l+2, \ldots, L$. Therefore, the total effect of changing $w_{ij}^{(l)}$ on the loss is a composition of many intermediate effects.
+
+Backpropagation is the bookkeeping device that makes this tractable: it packages those intermediate effects into reusable local error terms (the \(\delta\)'s) so you can compute all gradients with one backward sweep.
 
 \subsection{Notation for Layers and Neurons}
 \label{sec:backprop_notation_for_layers_and_neurons}
@@ -83,13 +85,13 @@ Across this chapter, \(a\) denotes activations and \(z\) denotes pre-activations
 The forward pass computes activations layer by layer:
 \begin{align}
     z_j^{(l)} &= \sum_i a_i^{(l-1)} w_{ij}^{(l)} + b_j^{(l)}, \\
-    a_j^{(l)} &= f\big(z_j^{(l)}\big).
-    \label{eq:auto:lecture_4_part_i:1}
-\end{align}
-
-The output layer activations $a_k^{(L)}$ are compared to the
-
-\begin{tcolorbox}[summarybox, title={Mini example: two-layer backprop in practice}]
+	    a_j^{(l)} &= f\big(z_j^{(l)}\big).
+	    \label{eq:auto:lecture_4_part_i:1}
+	\end{align}
+	
+	The output layer activations \(a_k^{(L)}\) are compared to the targets \(t_k\) to form a loss (e.g., \Cref{eq:error_function}), and backpropagation propagates that output error backward through the layers to compute every weight gradient efficiently.
+	
+	\begin{tcolorbox}[summarybox, title={Mini example: two-layer backprop in practice}]
 \footnotesize
 \begin{verbatim}
 # Shapes: X in R^{B x d}, W1 in R^{d x h}, W2 in R^{h x c}
