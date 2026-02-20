@@ -869,3 +869,12 @@ Build notes (2026-02-17):
   rewrite in `lecture_3_part_ii.tex`. Result: PASS.
 - 2026-02-20: Ran `bash notes_output/scripts/run_production_checks.sh` after the template/voice rewrite in
   `lecture_3_part_ii.tex`. Result: PASS.
+
+- `notes_output/lecture_3_part_ii.tex`: reduced the over-emphasis on backpropagation framing throughout the chapter
+  (kept a single explicit handoff in ``Where we head next.''), and removed the banned course-voice phrase ``next chapter''.
+- 2026-02-20: Ran `python3 notes_output/scripts/validate_math_examples_and_graphs.py --strict` after the backprop
+  de-emphasis rewrite in `lecture_3_part_ii.tex`. Result: PASS.
+- 2026-02-20: Ran `bash notes_output/scripts/run_production_checks.sh` after the backprop de-emphasis rewrite in
+  `lecture_3_part_ii.tex`. Result: PASS (PDF build + EPUB builds + Apple gatekeeper audits + EPUBCheck all OK).
+- 2026-02-20: Ran `python3 notes_output/scripts/chapter_format_audit.py --write` to confirm the course-voice warning was
+  cleared. Result: PASS (no ``next chapter'' warning).

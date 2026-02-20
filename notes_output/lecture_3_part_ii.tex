@@ -3,9 +3,9 @@
 
 \Cref{chap:perceptron} introduced the perceptron and Adaline: single units that learn by updating weights from data, with Adaline giving our first explicit glimpse of gradient descent on a smooth performance function.
 
-In this chapter we keep the story linear and concrete. We build the smallest possible network (two neurons in series), define a performance function, and ask the core question: \emph{how should the weights change to improve performance?} Answering that question forces us to use derivatives (the chain rule) and leads naturally to gradient descent. Along the way we encounter a practical obstacle: hard thresholds are not differentiable, so they do not support gradient-based learning. We replace them with smooth activations and immediately gain a clean update story.
+We now take the smallest step beyond a single unit. We connect two neurons in series, treat the whole diagram as one trainable model, and choose a simple performance function that tells us when the output is moving in the right direction. This is the step where the simple unit becomes itself a building block. The central question is practical: \emph{if performance improves when the output moves one way, how should each weight move?}
 
-The representation is now a small computation graph (units composed into a system), but the workflow stays familiar: define what ``good'' means (an objective), optimize it, and then verify with quick sanity checks before you scale up. This chapter focuses on the training mechanics, and \Cref{chap:backprop} generalizes them to deep networks. \Cref{fig:roadmap} shows this as the hinge between single-unit models and multilayer training.
+As soon as we try to compute those derivatives, a key obstacle appears: hard thresholds do not carry useful gradient information. Replacing them with smooth activations fixes the learning signal and gives us a clean update story. We keep the network small enough that every intermediate quantity is visible and derive the update rules once in full; scaling the same logic to deeper models is then a matter of organization.
 
 \begin{tcolorbox}[summarybox, title={Learning Outcomes}]
 By the end of this chapter, you should be able to:
@@ -33,13 +33,13 @@ The chapter follows one tight loop:
     \item \textbf{Move:} update parameters using the direction given by derivatives (gradient descent).
     \item \textbf{Fix:} pick an activation that actually lets gradients flow (smooth and differentiable).
 \end{itemize}
-Once you can execute this loop for two neurons, scaling to many neurons is mostly bookkeeping (\Cref{chap:backprop}).
+Once you can execute this loop for two neurons, scaling to many neurons is mostly bookkeeping; we return to the organization when we scale up.
 \paragraph{How this chapter fits the workflow.}
 The same objective\(\rightarrow\)audit workflow from the supervised toolkit still applies; what changes is the \emph{representation}. You still define what ``good'' means, optimize for it, and then verify. Here, verification starts with fail-fast checks (sign conventions, cached intermediates, numerical gradient sanity checks) before you scale up.
 \begin{itemize}
     \item From \Cref{chap:supervised}: diagnostics (learning curves, bias--variance) tell you \emph{what} is going wrong.
     \item From \Cref{chap:logistic}: a linear probabilistic baseline tells you \emph{how far} you can go without nonlinear features.
-    \item Here: we build the smallest nonlinear network and derive its gradient updates, setting up the general backprop machinery in \Cref{chap:backprop}.
+    \item Here: we build the smallest nonlinear network and derive its gradient updates, setting up the general multilayer training machinery.
 \end{itemize}
 
 \paragraph{Function estimation as the unifying view.}
@@ -139,7 +139,7 @@ For a weight vector, the update is a vector step:
 This is the ``move the weights in the right direction'' story made precise: we do not guess the direction; we compute it from the derivative of performance. Importantly, we update \emph{all} weights at once (a vector step), not one coordinate at a time.
 
 \paragraph{Step size is a design choice.}
-The gradient gives a direction; the step size $\eta$ sets the distance. In practice you pick $\eta$ small enough to avoid oscillation and large enough to make progress. \Cref{chap:backprop} returns to this choice (learning-rate schedules, momentum, and other practical stabilizers) once the core derivative story is solid.
+The gradient gives a direction; the step size $\eta$ sets the distance. In practice you pick $\eta$ small enough to avoid oscillation and large enough to make progress. We return to this choice (learning-rate schedules, momentum, and other practical stabilizers) after the core derivative story is solid.
 
 \begin{figure}[t]
     \centering
@@ -301,20 +301,20 @@ with bias derivative
 \label{eq:grad_b1}
 \end{equation}
 
-\paragraph{Error terms (backprop view).}
+\paragraph{Error terms (reusable local signals).}
 Define
 \begin{equation}
 \delta_2:= \frac{\partial P}{\partial p_2} = (y_2 - t) f'(p_2).
 \label{eq:delta2}
 \end{equation}
-Then $\partial P/\partial w_2 = \delta_2 y_1$ and $\partial P/\partial b_2=\delta_2$. The first layer receives a backpropagated error
+Then $\partial P/\partial w_2 = \delta_2 y_1$ and $\partial P/\partial b_2=\delta_2$. The first layer receives an error signal propagated backward:
 \begin{equation}
 \delta_1:= \frac{\partial P}{\partial p_1} = \delta_2 w_2 f'(p_1),
 \label{eq:delta1}
 \end{equation}
 so $\partial P/\partial \mathbf{w}_1 = \delta_1 \mathbf{x}$ and $\partial P/\partial b_1 = \delta_1$.
 
-This is the central lesson: once we compute a local error term, it can be reused across many gradients. That reuse is exactly what makes backpropagation efficient and is why deeper networks remain tractable.
+This is the central lesson: once we compute a local error term, it can be reused across many gradients. That reuse is what makes multi-layer training efficient and is why deeper networks remain tractable.
 
 \begin{tcolorbox}[summarybox, title={Worked example: one numerical gradient step (sanity check)}]
 Take a single input $\mathbf{x} = [1,-1]^\top$, target $t=1$, sigmoid activation $f=\sigma$, and parameters
@@ -339,10 +339,10 @@ Nothing essential changes for deeper networks; we simply apply the same chain ru
 \boldsymbol{\delta}^{(l)} = \bigl(\boldsymbol{\delta}^{(l+1)} (\mathbf{W}^{(l+1)})^\top\bigr) \circ f'(\mathbf{p}^{(l)}),
 \label{eq:delta_recursion}
 \end{equation}
-where $\circ$ denotes element\hyp{}wise multiplication. This recursion is the heart of backpropagation, which we derive and operationalize in \Cref{chap:backprop}.
+where $\circ$ denotes element\hyp{}wise multiplication. This recursion is the basic backward update pattern in multi-layer networks; the only real challenge is organizing the computation so you can evaluate it efficiently.
 
-\begin{tcolorbox}[summarybox, title={Author's note: what backprop adds}]
-Conceptually, nothing magical happens when you go from two neurons to many layers: it is still the chain rule and the same local derivatives. What changes is the \emph{organization}. You run a forward pass that saves what you will need later, then a backward pass that reuses those saved values to compute every gradient efficiently for a whole batch. \Cref{chap:backprop} turns the recursion into an implementable algorithm and shows the bookkeeping that keeps it sane.
+\begin{tcolorbox}[summarybox, title={Author's note: what changes when you scale up}]
+Conceptually, nothing magical happens when you go from two neurons to many layers: it is still the chain rule and the same local derivatives. What changes is the \emph{organization}. You run a forward pass that saves what you will need later, then a backward pass that reuses those saved values to compute every gradient efficiently for a whole batch. Later we turn that idea into an implementable algorithm and show the bookkeeping that keeps it sane.
 \end{tcolorbox}
 
 \subsection{Summary}
@@ -353,7 +353,7 @@ Conceptually, nothing magical happens when you go from two neurons to many layer
     \item Gradient descent uses derivatives to choose the correct update direction.
     \item Hard thresholds obstruct gradients; smooth activations fix the problem.
     \item The sigmoid derivative $\sigma'(p)=\sigma(p)(1-\sigma(p))$ is a convenient identity because it reuses the output.
-    \item The two\hyp{}neuron derivation already contains the backpropagation pattern used in deep networks.
+    \item The two\hyp{}neuron derivation already contains the backward-recursion pattern used in deep networks.
 \end{itemize}
 
 \begin{tcolorbox}[summarybox, title={Derivation closure: implement, cache, fail-fast}]
@@ -361,7 +361,7 @@ Conceptually, nothing magical happens when you go from two neurons to many layer
     \item \textbf{Implement:} treat the chapter equations as a forward function plus a scalar loss; write them once in vector form before batching.
     \item \textbf{Cache:} keep \((\mathbf{x}, p_1, y_1, p_2, y_2)\) from the forward pass so each gradient term is a local reuse, not a re-derivation.
     \item \textbf{Fail-fast checks:} run finite-difference gradient checks on a tiny example, then track train/validation divergence to catch update-sign or step-size mistakes early.
-    \item \textbf{Handoff:} the same cache-then-backward discipline scales directly in \Cref{chap:backprop}; only bookkeeping grows.
+    \item \textbf{Handoff:} the same cache-then-backward discipline scales directly; only bookkeeping grows.
 \end{itemize}
 \end{tcolorbox}
 
@@ -377,14 +377,14 @@ Conceptually, nothing magical happens when you go from two neurons to many layer
 \end{tcolorbox}
 
 \begin{tcolorbox}[summarybox, title={Exercises and lab ideas}]
-\noindent\textbf{Try these while the network is still small.} These reinforce the two\hyp{}neuron derivation and prepare you for the multi-layer bookkeeping in \Cref{chap:backprop}.
+\noindent\textbf{Try these while the network is still small.} These reinforce the two\hyp{}neuron derivation and prepare you for multi-layer bookkeeping.
 \begin{itemize}
     \item \textbf{Numerical gradient check:} Implement finite differences for the two\hyp{}neuron chain and compare to your analytic gradients; report relative error and track down the first mismatch.
     \item \textbf{Step vs.\ sigmoid:} Replace the smooth activation with a hard threshold and observe what breaks when you try to compute updates via derivatives.
     \item \textbf{XOR with two hidden units:} Train a tiny MLP on XOR and plot its decision regions; note sensitivity to initialization and step size.
 \end{itemize}
 \medskip
-\noindent\textbf{If you are reading for implementation.} Be able to read a forward graph and a backward recursion: local derivatives, cached activations, and a scalar loss driving parameter updates. That is exactly what \Cref{chap:backprop} scales up.
+\noindent\textbf{If you are reading for implementation.} Be able to read a forward graph and a backward recursion: local derivatives, cached activations, and a scalar loss driving parameter updates. That is exactly what gets scaled up in deeper networks.
 \end{tcolorbox}
 
 \medskip
