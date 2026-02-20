@@ -72,10 +72,9 @@ Suppose we have an integral of the form
 \]
 where \(a, b, c\) are constants. A safe transformation might be to factor out the constant \(a\) and then consider substitutions or binomial expansions that reduce the powers to known integrals (e.g., Beta-function evaluations when \(b\) and \(c\) are integers).
 
-\subsection{Limitations of Safe Transformations}
+\paragraph{Limitations of safe transformations}
 \label{sec:symbolic_limitations_of_safe_transformations}
-
-After exhaustively applying all safe transformations, we may still encounter integrals that do not match any known solvable form. At this point, the system must decide whether the problem is solvable by known methods or if alternative strategies are necessary.
+Safe transformations preserve meaning and allow back-substitution, but they are not a complete solution strategy: after exhausting the invertible rewrites you know, you can still end up with an integrand that does not match any template you can finish. At that point the system has to make an explicit decision: stop (declare ``unknown'' under the current rule set), or branch into heuristic moves that may succeed but are not guaranteed.
 
 \subsection{Heuristic Transformations}
 \label{sec:symbolic_heuristic_transformations}
@@ -229,10 +228,9 @@ Differentiating term by term shows \(F'(x)=4(1-x^2)^{-5/2}\) on \(|x|<1\). Outsi
 For integrals of the form \(\int (1 - x^2)^{-k-1/2} dx\), the substitution \(x=\sin y\) reduces them to \(\int \sec^{2k} y\, dy\); apply the even-power reduction accordingly. This is why the \(1 - x^2\) pattern triggers the trigonometric branch.
 % Part A worked example (continued)
 
-\subsection{Example: Solving an Integral via Transformation Trees}
+\paragraph{Example: solving an integral via transformation trees}
 \label{sec:symbolic_example_solving_an_integral_via_transformation_trees}
-
-The worked integral above already showed the branch behavior (e.g., \(x=\sin y\) vs.\ \(x=\tanh u\)) under domain constraints. Here we keep that example as a template and make the search logic explicit: domain-incompatible heuristic branches are pruned, safe branches can converge to the same antiderivative, and residual checks provide the goal test at each accepted leaf.
+The worked integral above already showed branch behavior (e.g., \(x=\sin y\) vs.\ \(x=\tanh u\)) under domain constraints. We keep that example as a template and now make the search logic explicit: domain-incompatible heuristic branches are pruned, safe branches can converge to the same antiderivative, and residual checks provide the goal test at each accepted leaf.
 
 \subsection{Transformation Trees and Search Strategies}
 \label{sec:symbolic_transformation_trees_and_search_strategies}

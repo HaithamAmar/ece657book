@@ -817,3 +817,8 @@ Build notes (2026-02-17):
   fuzzy relations/composition (transfer cues + audit checklist; no numeric changes).
 - 2026-02-20: Ran `bash notes_output/scripts/run_production_checks.sh` after the `lecture_9.tex` edits.
   Result: PASS (PDF build + EPUB builds + Apple gatekeeper audits + EPUBCheck all OK).
+- `notes_output/lecture_2_part_i.tex`: demoted two tiny TOC subsections ("Limitations of Safe Transformations" and
+  "Example: Solving an Integral via Transformation Trees") into labeled paragraphs to reduce TOC noise, and expanded
+  the limitations paragraph to better motivate the switch from safe to heuristic moves (no math changes).
+- 2026-02-20: Ran `bash notes_output/scripts/run_production_checks.sh` after the `lecture_2_part_i.tex` edits.
+  Result: PASS (PDF build + EPUB builds + Apple gatekeeper audits + EPUBCheck all OK).
