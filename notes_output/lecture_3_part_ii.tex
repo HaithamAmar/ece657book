@@ -43,7 +43,7 @@ The objective-and-audit loop still applies; what changes is the \emph{representa
 \end{itemize}
 
 \paragraph{Function estimation as the unifying view.}
-Learning is function estimation: approximate some unknown mapping $f: X \to Y$ from examples. A neural network is a structured way to represent a nonlinear $f$ by composing simple units. In this chapter we keep the bookkeeping minimal and use one tiny network plus a simple squared error objective so we can focus on the mechanics of learning.
+Learning is about building a usable input\(\rightarrow\)output mapping from examples. The difference from linear models is not the goal, but the \emph{representation}: a neural network builds the mapping by composing simple units, so intermediate signals become part of the model. Each unit implements its own local mapping (from its input to its pre-activation and activation), and these local maps accumulate into a successful nonlinear mapping \(f: X \to Y\). In this chapter we keep the bookkeeping minimal---one tiny network and a simple squared-error objective---so we can focus on how the update rules emerge.
 
 \paragraph{From one unit to a chain of units.}
 A perceptron computes a weighted sum and then applies an activation (often a threshold in the classical presentation):
