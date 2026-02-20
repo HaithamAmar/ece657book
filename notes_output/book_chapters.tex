@@ -79,6 +79,27 @@ the difference between a model with a low loss and a system that makes good deci
   \item \textbf{Audit like an engineer:} keep universes/units explicit, pick operators explicitly, and verify edge cases numerically before tuning aesthetics.
 \end{itemize}
 \end{tcolorbox}
+\begin{tcolorbox}[summarybox, title={Part III bridge: specification becomes the model}]
+Parts I--II trained models by minimizing losses: we picked a hypothesis class, optimized it, and then audited
+generalization with careful validation. That approach is powerful when (i) you can collect enough data and
+(ii) the target behavior is well captured by a smooth objective.
+
+Part III is about a different pain point: in many engineered systems the bottleneck is not data, but
+\emph{specification}. The concepts you need are linguistic (``too warm'', ``slightly fast'', ``acceptable
+risk''), the boundaries are negotiable, and the decision logic often needs to remain auditable. Fuzzy
+reasoning treats that interface explicitly: we write membership functions to represent concepts, pick
+operators to combine them, and assemble rules whose effects you can inspect. Everyday language is good at
+expressing graded categories; fuzzy logic turns that graded meaning into a mathematical object you can test,
+debug, and tune.
+
+Read the repetition in this part as intentional: it is there to build familiarity with the machinery and to
+separate intuition from algebra. We revisit the same thermostat-style scenario as a preview, then as formal
+derivations, then as end-to-end behavior. Each pass adds one layer: fuzzy sets (building blocks), fuzzy
+relations (transfer and composition), and fuzzy inference (a complete controller).
+
+When you get stuck, debug like an engineer: keep universes and units explicit, state your operator defaults,
+and test edge cases numerically before you tune aesthetics.
+\end{tcolorbox}
 \input{lecture_8_part_ii.tex}
 \input{lecture_9.tex}
 \input{lecture_10_part_i.tex}

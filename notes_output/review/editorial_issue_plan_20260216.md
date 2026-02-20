@@ -789,3 +789,9 @@ Build notes (2026-02-17):
   `notes_output/review/writeup_tasks_from_codex_20260218.md`.
 - Implemented the first bridge: added a Part II transition box to `notes_output/book_chapters.tex` (right after the
   Part II "How to read" rolling-window box) to improve continuity into the neural-network chapters.
+- Implemented the second bridge: added a Part III transition box to `notes_output/book_chapters.tex` (right after the
+  Part III "How to read" rolling-window box) to frame fuzzy reasoning as auditable specification and to set expectations
+  for intentional repetition (preview -> algebra -> behavior).
+- 2026-02-20: Ran `bash notes_output/scripts/run_production_checks.sh` after adding the Part III bridge.
+  Result: PASS (PDF build + EPUB builds + Apple gatekeeper audits + EPUBCheck all OK). Non-gating TeX warnings remain
+  (underfull hbox in LOF/Bib; overfull vbox in `lecture_6.tex` and `lecture_9.tex`).
