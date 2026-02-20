@@ -812,3 +812,8 @@ Build notes (2026-02-17):
   Result: PASS (PDF build + EPUB builds + Apple gatekeeper audits + EPUBCheck all OK). Note: the "PDF vs EPUB spot-check
   bundle (Apple)" step logged a transient Playwright `Page.goto` timeout on one XHTML page but the overall script still
   exited successfully and all production gates passed.
+- `notes_output/lecture_9.tex`: demoted the short "Graphical Interpretation" subsection to a labeled paragraph and
+  expanded the "Closure of Membership Function Derivations" subsection so it stands as a real closing handoff into
+  fuzzy relations/composition (transfer cues + audit checklist; no numeric changes).
+- 2026-02-20: Ran `bash notes_output/scripts/run_production_checks.sh` after the `lecture_9.tex` edits.
+  Result: PASS (PDF build + EPUB builds + Apple gatekeeper audits + EPUBCheck all OK).

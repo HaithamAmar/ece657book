@@ -452,10 +452,9 @@ Throughout the book we adopt $\wedge=\min$ and $\vee=\max$ as the default t-/s\h
 
 \Crefrange{eq:fuzzy_union}{eq:fuzzy_complement} already define the max/min/standard-complement pair that we use by default. Rather than restate them, we emphasise their practical role: unions aggregate rule consequents, intersections combine antecedents, and complements capture linguistic negations. The thermostat example later in the chapter uses these defaults unless stated otherwise.
 
-\subsection{Graphical Interpretation}
+\paragraph{Graphical interpretation}
 \label{sec:fuzzysets_graphical_interpretation}
-
-For continuous universes, the union and intersection membership functions can be visualized as the pointwise maximum and minimum of the two membership curves, respectively. The complement is obtained by reflecting the membership function about the horizontal line \(\mu = 0.5\): every membership degree \(m\) is mapped to \(1-m\).
+For continuous universes, the union and intersection membership functions are the pointwise maximum and minimum of the two curves, respectively. A complement mirrors memberships around \(\mu=0.5\): every membership degree \(m\) maps to \(1-m\). When you sketch these operations quickly, plot both curves on the same axes and take the upper (union) or lower (intersection) envelope. The same pointwise definitions apply to discrete universes; you simply compute the max/min values at each listed \(x_i\).
 
 \subsection{Additional Fuzzy Set Operations}
 \label{sec:fuzzysets_additional_fuzzy_set_operations}
@@ -935,6 +934,10 @@ Note that:
 \label{sec:fuzzysets_closure_of_membership_function_derivations}
 
 This chapter completes the toolkit for generating new membership functions from existing ones via fuzzy-set operations. Membership functions encode graded belonging over a universe of discourse, and algebraic manipulation of those functions is central to fuzzy logic and fuzzy inference.
+
+Two transfer cues matter for what comes next. First, treat membership functions as \emph{objects you can manipulate}: once the shapes are written down, you can reason about overlaps, negations, and edge cases without guessing. Second, the same max/min mindset will reappear when we move from sets to \emph{relations}: we will build fuzzy relations over Cartesian products and then compose them (a matrix-like operation) to propagate graded information between universes.
+
+As you generate new membership functions below, keep a short audit checklist: verify the output stays in \([0,1]\), check endpoints and monotonicity where intended, and confirm that the universe/units match the linguistic meaning. Those checks are invariants you will want to preserve later when you tune breakpoints, operator defaults, or rule bases.
 
 \subsubsection{Generating New Membership Functions via Set Operations}
 \label{sec:fuzzysets_generating_new_membership_functions_via_set_operations_sub}
