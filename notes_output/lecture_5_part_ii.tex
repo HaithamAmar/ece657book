@@ -138,10 +138,10 @@ Hopfield defined an energy function \(E: \{-1, +1\}^N \to \mathbb{R}\) associate
 Because the weights are symmetric and satisfy \(w_{ii}=0\), the double sum may equivalently be written as \(\sum_{i<j} w_{ij} s_i s_j\); the \(\tfrac{1}{2}\) factor explicitly prevents counting each unordered pair twice, so removing it would scale the energy by two. Thresholds \(\theta_i\) act like biases; many texts write the second term as \(-\sum_i b_i s_i\) with \(b_i = \theta_i\).
 % Chapter 10 (continued)
 
-\subsection{Hopfield Network States and Energy Function}
+\paragraph{Hopfield network states and the energy view (handoff)}
 \label{sec:hopfield_hopfield_network_states_and_energy_function}
 
-Encoding choices and the corresponding energy forms were laid out in \Cref{sec:hopfield_encoding_conventions} and \Cref{sec:hopfield_energy_function_and_stability}; we now focus on how the energy decreases under asynchronous updates.
+Encoding choices and the corresponding energy forms were laid out in \Cref{sec:hopfield_encoding_conventions} and \Cref{sec:hopfield_energy_function_and_stability}. The key continuity idea is that Hopfield dynamics are not ``mysterious recurrence'': with symmetric weights, the update rule becomes a descent process on \(E(\cdot)\). We now make that concrete by (i) stating what it means for a state to be stable, (ii) tracing a short numeric example, and (iii) proving that asynchronous single-neuron updates never increase the energy.
 
 \subsection{Energy Minimization and Stable States}
 \label{sec:hopfield_energy_minimization_and_stable_states}
@@ -252,7 +252,11 @@ As \Cref{fig:hopfield-energy-descent} shows, the energy trace never increases wh
 \subsection{Energy Function and Convergence of Hopfield Networks}
 \label{sec:hopfield_energy_function_and_convergence_of_hopfield_networks}
 
-We use the energy in \eqref{eq:energy_function}; the goal is to show that asynchronous updates never increase it.
+The figure and pseudo-code above already suggest the main claim: under the symmetry constraints that make \(E(\cdot)\) well defined, asynchronous updates are guaranteed to move ``downhill'' (or stay flat) in energy. This is the formal reason Hopfield networks converge to a fixed point: the state space is finite, and you cannot decrease a bounded quantity forever.
+
+In this subsection we prove the monotonicity step that the rest of the convergence story rests on. The only assumptions you should keep in view are the ones you would implement anyway: symmetric weights with zero diagonal, and an asynchronous update rule (one neuron at a time). When these assumptions are violated (e.g., synchronous updates or asymmetric weights), the energy argument no longer guarantees convergence.
+
+We use the energy in \eqref{eq:energy_function}; the goal is to show that each single-neuron update never increases it.
 
 \paragraph{Goal:} Show that asynchronous updates of neuron states always decrease (or leave unchanged) the energy \( E \), guaranteeing convergence to a local minimum.
 

@@ -822,3 +822,7 @@ Build notes (2026-02-17):
   the limitations paragraph to better motivate the switch from safe to heuristic moves (no math changes).
 - 2026-02-20: Ran `bash notes_output/scripts/run_production_checks.sh` after the `lecture_2_part_i.tex` edits.
   Result: PASS (PDF build + EPUB builds + Apple gatekeeper audits + EPUBCheck all OK).
+- `notes_output/lecture_5_part_ii.tex`: demoted the one-line "Hopfield Network States and Energy Function" subsection to a
+  labeled paragraph and expanded the intro of the convergence subsection to make the proof's assumptions and role explicit.
+- 2026-02-20: Ran `bash notes_output/scripts/run_production_checks.sh` after the `lecture_5_part_ii.tex` edits.
+  Result: PASS (PDF build + EPUB builds + Apple gatekeeper audits + EPUBCheck all OK).
