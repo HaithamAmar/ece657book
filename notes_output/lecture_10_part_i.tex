@@ -558,27 +558,22 @@ return R  # the composition R1 o R2
 \end{verbatim}
 Swap \(\min\) for another \(T\) (product, \L{}ukasiewicz) and \(\max\) for the corresponding t\hyp{}conorm to instantiate other composition families.
 \end{tcolorbox}
-% Chapter 17: Closure of Composition and Fuzzy Relation Operations
-
-\subsection{Recap and Motivation}
-\label{sec:fuzzyrelations_recap_and_motivation}
-
-Earlier in this chapter, we introduced fuzzy relations and their compositions, focusing on max--min composition as a fundamental operation. We saw how fuzzy relations can represent uncertain or imprecise mappings between sets, and how compositions allow chaining these relations to infer new relationships.
-
-The goal of this final part is to wrap up the derivations related to fuzzy relation composition, clarify the generalization of these operations, and highlight key properties that enable their effective use in fuzzy inference systems.
-
-\subsection{Generalization of Fuzzy Relation Composition}
-\label{sec:fuzzyrelations_generalization_of_fuzzy_relation_composition}
-
-Equation \eqref{eq:composition_general} already defines the general sup--\(T\) composition. A valid t\hyp{}norm \(T: [0,1]^2 \to [0,1]\) is commutative, associative, monotone in each argument, and satisfies \(T(a,1)=a\); common choices include the minimum, product, and \L{}ukasiewicz operators. Setting \(T(a,b)=\min(a,b)\) recovers the standard max--min composition used in the examples below.
-
-\subsection{Example Calculation of Composition}
-\label{sec:fuzzyrelations_example_calculation_of_composition}
-
-The max--min example in \Cref{sec:fuzzyrelations_fuzzy_inference_via_composition_of_relations} already walks through a concrete composition; here we move directly to the algebraic properties that hold for any valid sup--\(T\) operator.
-
 \subsection{Properties of Fuzzy Relation Composition}
 \label{sec:fuzzyrelations_properties_of_fuzzy_relation_composition}
+
+\paragraph{Recap and motivation}
+\label{sec:fuzzyrelations_recap_and_motivation}
+Earlier in this chapter, we introduced fuzzy relations and their compositions, focusing on max--min composition as a fundamental operation. We saw how fuzzy relations can represent uncertain or imprecise mappings between sets, and how compositions allow chaining these relations to infer new relationships.
+
+The goal of this closing section is to wrap up fuzzy relation composition, connect max--min to its general sup--\(T\) form, and record the algebraic properties that will later matter when relations are used as building blocks for fuzzy inference systems.
+
+\paragraph{Generalization: sup--\(T\) composition}
+\label{sec:fuzzyrelations_generalization_of_fuzzy_relation_composition}
+Equation \eqref{eq:composition_general} already defines the general sup--\(T\) composition. A valid t\hyp{}norm \(T: [0,1]^2 \to [0,1]\) is commutative, associative, monotone in each argument, and satisfies \(T(a,1)=a\); common choices include the minimum, product, and \L{}ukasiewicz operators. Setting \(T(a,b)=\min(a,b)\) recovers the standard max--min composition used throughout this chapter.
+
+\paragraph{Example pointer}
+\label{sec:fuzzyrelations_example_calculation_of_composition}
+The max--min example in \Cref{sec:fuzzyrelations_fuzzy_inference_via_composition_of_relations} already walks through a concrete composition; with that numeric pattern in mind, we now focus on the properties that hold for any valid sup--\(T\) operator.
 
 The composition operation inherits several important algebraic properties, analogous to classical relations:
 

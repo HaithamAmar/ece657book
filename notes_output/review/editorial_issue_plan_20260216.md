@@ -795,3 +795,9 @@ Build notes (2026-02-17):
 - 2026-02-20: Ran `bash notes_output/scripts/run_production_checks.sh` after adding the Part III bridge.
   Result: PASS (PDF build + EPUB builds + Apple gatekeeper audits + EPUBCheck all OK). Non-gating TeX warnings remain
   (underfull hbox in LOF/Bib; overfull vbox in `lecture_6.tex` and `lecture_9.tex`).
+
+## 2026-02-20 micro-section consolidation (in-chapter TOC hygiene)
+
+- `notes_output/lecture_10_part_i.tex`: consolidated three tiny wrap-up subsections (Recap/Motivation, Generalization,
+  Example Calculation) into paragraphs inside the Properties section, preserving labels to avoid breaking any references.
+- Ran `python3 notes_output/scripts/validate_math_examples_and_graphs.py --strict` after the edit: PASS.
