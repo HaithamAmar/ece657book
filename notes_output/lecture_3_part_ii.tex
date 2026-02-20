@@ -3,7 +3,9 @@
 
 \Cref{chap:perceptron} introduced the perceptron and Adaline: single units that learn by updating weights from data, with Adaline giving our first explicit glimpse of gradient descent on a smooth performance function.
 
-In this chapter we keep the story linear and concrete. We build the smallest possible network (two neurons in series), define a performance function, and ask the core question: \emph{how should the weights change to improve performance?} Answering that question forces us to use derivatives (the chain rule) and leads naturally to gradient descent. Along the way we encounter a practical obstacle: hard thresholds are not differentiable, so they do not support gradient-based learning. We replace them with smooth activations and immediately gain a clean update story. This is the conceptual bridge to full backpropagation in \Cref{chap:backprop}. \Cref{fig:roadmap} shows this as the hinge between single-unit models and multilayer training.
+In this chapter we keep the story linear and concrete. We build the smallest possible network (two neurons in series), define a performance function, and ask the core question: \emph{how should the weights change to improve performance?} Answering that question forces us to use derivatives (the chain rule) and leads naturally to gradient descent. Along the way we encounter a practical obstacle: hard thresholds are not differentiable, so they do not support gradient-based learning. We replace them with smooth activations and immediately gain a clean update story.
+
+The representation is now a small computation graph (units composed into a system), but the workflow stays familiar: define what ``good'' means (an objective), optimize it, and then verify with quick sanity checks before you scale up. This chapter focuses on the training mechanics, and \Cref{chap:backprop} generalizes them to deep networks. \Cref{fig:roadmap} shows this as the hinge between single-unit models and multilayer training.
 
 \begin{tcolorbox}[summarybox, title={Learning Outcomes}]
 After this chapter, you should be able to:
@@ -33,7 +35,7 @@ The chapter follows one tight loop:
 \end{itemize}
 Once you can execute this loop for two neurons, scaling to many neurons is mostly bookkeeping (\Cref{chap:backprop}).
 \paragraph{How this chapter fits the workflow.}
-The same objective\(\rightarrow\)audit workflow from the supervised toolkit still applies; what changes is the \emph{representation}.
+The same objective\(\rightarrow\)audit workflow from the supervised toolkit still applies; what changes is the \emph{representation}. In ERM language: we choose a hypothesis class (a network), define a loss, optimize it, and then verify. In this chapter, verification starts with fail-fast checks (sign conventions, cached intermediates, numerical gradient sanity checks) before you scale up.
 \begin{itemize}
     \item From \Cref{chap:supervised}: diagnostics (learning curves, bias--variance) tell you \emph{what} is going wrong.
     \item From \Cref{chap:logistic}: a linear probabilistic baseline tells you \emph{how far} you can go without nonlinear features.

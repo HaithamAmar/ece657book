@@ -854,3 +854,10 @@ Build notes (2026-02-17):
   Chapter 5 polish (Learning Outcomes cross-ref + shapes/dimensions concrete check). Result: PASS.
 - 2026-02-20: Ran `bash notes_output/scripts/run_production_checks.sh` after the latest Part II Chapter 5 edits.
   Result: PASS (PDF build + EPUB builds + Apple gatekeeper audits + EPUBCheck all OK).
+
+- `notes_output/lecture_3_part_ii.tex`: adjusted the chapter opening and workflow paragraph to use book voice (no meta
+  ``Part II contract'' phrasing) while still making the objective\(\rightarrow\)optimize\(\rightarrow\)verify loop explicit.
+- 2026-02-20: Ran `python3 notes_output/scripts/validate_math_examples_and_graphs.py --strict` after the wording pass in
+  `lecture_3_part_ii.tex`. Result: PASS.
+- 2026-02-20: Ran `bash notes_output/scripts/run_production_checks.sh` after the wording pass in `lecture_3_part_ii.tex`.
+  Result: PASS (PDF build + EPUB builds + Apple gatekeeper audits + EPUBCheck all OK).
