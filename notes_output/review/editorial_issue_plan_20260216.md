@@ -805,3 +805,10 @@ Build notes (2026-02-17):
   intro so they stand on their own (instead of acting as one-line jump points), keeping the existing substructure.
 - 2026-02-20: Ran `bash notes_output/scripts/run_production_checks.sh` after the `lecture_11.tex` operator-section edits.
   Result: PASS (PDF build + EPUB builds + Apple gatekeeper audits + EPUBCheck all OK).
+- `notes_output/lecture_8_part_ii.tex`: demoted the one-sentence "Fuzzy Logic as a New Mathematical Language" subsection
+  to a labeled paragraph directly before the Motivation/Intuition subsection to reduce TOC noise while preserving the
+  transition sentence and label.
+- 2026-02-20: Ran `bash notes_output/scripts/run_production_checks.sh` after the `lecture_8_part_ii.tex` micro-section edit.
+  Result: PASS (PDF build + EPUB builds + Apple gatekeeper audits + EPUBCheck all OK). Note: the "PDF vs EPUB spot-check
+  bundle (Apple)" step logged a transient Playwright `Page.goto` timeout on one XHTML page but the overall script still
+  exited successfully and all production gates passed.
