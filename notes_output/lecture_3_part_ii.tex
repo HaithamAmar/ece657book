@@ -8,18 +8,18 @@ In this chapter we keep the story linear and concrete. We build the smallest pos
 The representation is now a small computation graph (units composed into a system), but the workflow stays familiar: define what ``good'' means (an objective), optimize it, and then verify with quick sanity checks before you scale up. This chapter focuses on the training mechanics, and \Cref{chap:backprop} generalizes them to deep networks. \Cref{fig:roadmap} shows this as the hinge between single-unit models and multilayer training.
 
 \begin{tcolorbox}[summarybox, title={Learning Outcomes}]
-After this chapter, you should be able to:
+By the end of this chapter, you should be able to:
 \begin{itemize}
-    \item Build the smallest multi\hyp{}layer network and write its forward equations.
-    \item Define a simple performance (loss) function for the network output.
-    \item Explain why gradient descent is the right tool for weight updates.
-    \item Show why hard thresholds block gradients and motivate smooth activations.
-    \item Derive the weight updates for the two\hyp{}neuron network using the chain rule.
+    \item Write a complete forward pass for a two\hyp{}neuron chain, including intermediate quantities \((p_1,y_1,p_2,y_2)\).
+    \item Choose a simple scalar performance function \(P\) and explain what ``improving performance'' means in that setting.
+    \item Use the chain rule to derive the gradients for \(w_2,b_2,\mathbf{w}_1,b_1\) and interpret the \(\delta\) notation as reusable local error signals.
+    \item Explain (concretely) why hard thresholds break derivative-based updates and why smooth activations fix the learning signal.
+    \item Sanity-check an update with one tiny numerical example before you scale the same logic to many layers.
 \end{itemize}
 \end{tcolorbox}
 
 \begin{tcolorbox}[summarybox, title={Design motif}]
-Build the smallest trainable network you can, keep every intermediate quantity visible, and let the chain rule explain how learning signals flow.
+Start small. Keep every intermediate quantity visible. Let the chain rule explain how the learning signal moves, and use quick numerical checks to catch sign and bookkeeping mistakes early.
 \end{tcolorbox}
 
 \subsection{From a single unit to the smallest network}
@@ -28,14 +28,14 @@ Build the smallest trainable network you can, keep every intermediate quantity v
 \paragraph{A short map: building a trainable network.}
 The chapter follows one tight loop:
 \begin{itemize}
-    \item \textbf{Build:} write the forward computation (a two-neuron chain).
-    \item \textbf{Judge:} define a performance function $P$ (we use squared error).
-    \item \textbf{Move:} use derivatives to update parameters via gradient descent.
-    \item \textbf{Fix:} choose a differentiable activation so those derivatives exist and carry signal.
+    \item \textbf{Build:} write the forward computation (a two\hyp{}neuron chain).
+    \item \textbf{Judge:} define a scalar performance function \(P\) (we use squared error).
+    \item \textbf{Move:} update parameters using the direction given by derivatives (gradient descent).
+    \item \textbf{Fix:} pick an activation that actually lets gradients flow (smooth and differentiable).
 \end{itemize}
 Once you can execute this loop for two neurons, scaling to many neurons is mostly bookkeeping (\Cref{chap:backprop}).
 \paragraph{How this chapter fits the workflow.}
-The same objective\(\rightarrow\)audit workflow from the supervised toolkit still applies; what changes is the \emph{representation}. In ERM language: we choose a hypothesis class (a network), define a loss, optimize it, and then verify. In this chapter, verification starts with fail-fast checks (sign conventions, cached intermediates, numerical gradient sanity checks) before you scale up.
+The same objective\(\rightarrow\)audit workflow from the supervised toolkit still applies; what changes is the \emph{representation}. You still define what ``good'' means, optimize for it, and then verify. Here, verification starts with fail-fast checks (sign conventions, cached intermediates, numerical gradient sanity checks) before you scale up.
 \begin{itemize}
     \item From \Cref{chap:supervised}: diagnostics (learning curves, bias--variance) tell you \emph{what} is going wrong.
     \item From \Cref{chap:logistic}: a linear probabilistic baseline tells you \emph{how far} you can go without nonlinear features.
@@ -115,7 +115,7 @@ The factor $\tfrac{1}{2}$ makes derivatives cleaner. If you prefer to \emph{maxi
 The signed error $e = y_2 - t$ can be positive or negative. Squaring removes the sign and penalizes large deviations more heavily, while keeping $P$ smooth so a small change in a weight produces a small change in performance. That smoothness is exactly what makes derivative-based updates meaningful.
 
 \begin{tcolorbox}[summarybox, title={Author's note: one objective is enough for the first derivation}]
-We only need a performance function that (1) is easy to differentiate and (2) rewards outputs that move toward the target. The squared error does both, so it is a good stand-in while we learn the mechanics. Once the chain rule story is clear, swapping in other objectives is mostly a matter of changing a few local derivatives at the output layer.
+We start with squared error here for a simple reason: it keeps the algebra short, so you can see the chain rule without distractions. The point of the chapter is not ``squared error is always the right loss''; the point is learning to turn a forward computation into correct weight updates. Once that story is clear, you can swap the objective and redo only the small set of derivatives that touch the output layer.
 \end{tcolorbox}
 
 \paragraph{A geometric intuition.}
@@ -249,7 +249,7 @@ It maps real inputs to $(0,1)$ and is differentiable everywhere. The key identit
 This is a useful trick: the derivative is a function of the \emph{output} itself. If $y=\sigma(p)$ is already computed in the forward pass, then $\sigma'(p)=y(1-y)$ is immediately available in the backward pass. No extra exponentials are needed.
 
 \begin{tcolorbox}[summarybox, title={Author's note: the derivative is already in the forward pass}]
-In practice you rarely want to recompute expensive expressions during learning. For the sigmoid, once you have computed the output \texttt{y = sigmoid(p)}, you also have its slope for free: \texttt{sigmoid\_prime = y*(1-y)}. This is a small example of a bigger pattern: backpropagation works because we cache intermediate results on the forward pass and reuse them on the backward pass.
+In practice you do not want to recompute expensive expressions during learning. For the sigmoid, once you have computed the output \(y=\sigma(p)\), you also have its slope for free: \(\sigma'(p)=y(1-y)\). This is a small example of a bigger pattern: the forward pass is not just for predictions; it also produces the cached intermediate values that the backward pass reuses.
 \end{tcolorbox}
 
 \paragraph{Derivation sketch.}
@@ -342,7 +342,7 @@ Nothing essential changes for deeper networks; we simply apply the same chain ru
 where $\circ$ denotes element\hyp{}wise multiplication. This recursion is the heart of backpropagation, which we derive and operationalize in \Cref{chap:backprop}.
 
 \begin{tcolorbox}[summarybox, title={Author's note: what backprop adds}]
-Conceptually, nothing new happens when you go from two neurons to many layers: it is still the chain rule and the same local derivatives. What changes is the \emph{organization}: we run a forward pass that caches intermediate values, then a backward pass that reuses those caches to compute all gradients efficiently (and stably) for an entire batch. \Cref{chap:backprop} turns the recursion into an implementable algorithm and shows the standard bookkeeping.
+Conceptually, nothing magical happens when you go from two neurons to many layers: it is still the chain rule and the same local derivatives. What changes is the \emph{organization}. You run a forward pass that saves what you will need later, then a backward pass that reuses those saved values to compute every gradient efficiently for a whole batch. \Cref{chap:backprop} turns the recursion into an implementable algorithm and shows the bookkeeping that keeps it sane.
 \end{tcolorbox}
 
 \subsection{Summary}
@@ -366,25 +366,25 @@ Conceptually, nothing new happens when you go from two neurons to many layers: i
 \end{tcolorbox}
 
 \begin{tcolorbox}[summarybox, title={Key takeaways}]
-\textbf{Minimum viable mastery.} The summary in \Cref{sec:mlp_summary} captures the core loop (two-neuron chain, smooth activations, and the backprop pattern). The pitfalls below highlight where implementations fail most often.
+\textbf{If you remember only a few things.} The summary in \Cref{sec:mlp_summary} is the core loop: a tiny computation graph, a scalar loss, and gradients that tell you how to move weights. The pitfalls below are the places people usually lose a sign, a factor, or a cached value.
 \medskip
 \textbf{Common pitfalls}
 \begin{itemize}
-    \item Trying to differentiate through discontinuities (step functions) and then ``patching'' gradients by hand.
-    \item Losing the chain rule in bookkeeping: cache intermediate values and reuse them consistently.
-    \item Confusing notation: distinguish pre-activation vs.\ activation, and keep shapes explicit when batching.
+    \item Treating a step function like a differentiable activation and then trying to ``repair'' gradients by hand.
+    \item Dropping a cached intermediate (or reusing the wrong one) and silently breaking the chain rule.
+    \item Mixing up pre\hyp{}activations and activations; when you batch, also keep shapes explicit so you do not rely on accidental broadcasting.
 \end{itemize}
 \end{tcolorbox}
 
 \begin{tcolorbox}[summarybox, title={Exercises and lab ideas}]
-\noindent\textbf{Setup.} These reinforce the two-neuron derivation and prepare you for the multi-layer bookkeeping in \Cref{chap:backprop}.
+\noindent\textbf{Try these while the network is still small.} These reinforce the two\hyp{}neuron derivation and prepare you for the multi-layer bookkeeping in \Cref{chap:backprop}.
 \begin{itemize}
-    \item \textbf{Numerical gradient check:} Implement finite differences for the two\hyp{}neuron chain and compare to your analytic gradients; report relative error.
+    \item \textbf{Numerical gradient check:} Implement finite differences for the two\hyp{}neuron chain and compare to your analytic gradients; report relative error and track down the first mismatch.
     \item \textbf{Step vs.\ sigmoid:} Replace the smooth activation with a hard threshold and observe what breaks when you try to compute updates via derivatives.
     \item \textbf{XOR with two hidden units:} Train a tiny MLP on XOR and plot its decision regions; note sensitivity to initialization and step size.
 \end{itemize}
 \medskip
-\noindent\textbf{If you are skipping ahead.} Be able to read a forward graph and a backward recursion: local derivatives, cached activations, and a scalar loss driving parameter updates. That is exactly what \Cref{chap:backprop} scales up.
+\noindent\textbf{If you are reading for implementation.} Be able to read a forward graph and a backward recursion: local derivatives, cached activations, and a scalar loss driving parameter updates. That is exactly what \Cref{chap:backprop} scales up.
 \end{tcolorbox}
 
 \medskip

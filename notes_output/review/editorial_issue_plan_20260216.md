@@ -861,3 +861,11 @@ Build notes (2026-02-17):
   `lecture_3_part_ii.tex`. Result: PASS.
 - 2026-02-20: Ran `bash notes_output/scripts/run_production_checks.sh` after the wording pass in `lecture_3_part_ii.tex`.
   Result: PASS (PDF build + EPUB builds + Apple gatekeeper audits + EPUBCheck all OK).
+
+- `notes_output/lecture_3_part_ii.tex`: rewrote the templated boxes (Learning Outcomes / Design motif / Author's notes /
+  Key takeaways / Exercises) to read in a more natural book voice and to be more specific to the two-neuron chain and
+  fail-fast verification habits (kept all math unchanged).
+- 2026-02-20: Ran `python3 notes_output/scripts/validate_math_examples_and_graphs.py --strict` after the template/voice
+  rewrite in `lecture_3_part_ii.tex`. Result: PASS.
+- 2026-02-20: Ran `bash notes_output/scripts/run_production_checks.sh` after the template/voice rewrite in
+  `lecture_3_part_ii.tex`. Result: PASS.
