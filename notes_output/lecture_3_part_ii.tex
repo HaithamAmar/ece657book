@@ -31,7 +31,7 @@ The chapter follows one tight loop:
     \item \textbf{Build:} write the forward computation (a two\hyp{}neuron chain).
     \item \textbf{Judge:} define a scalar performance function \(P\) (we use squared error).
     \item \textbf{Move:} update parameters using the direction given by derivatives (gradient descent).
-    \item \textbf{Fix:} pick an activation that actually lets gradients flow (smooth and differentiable).
+    \item \textbf{Fix:} Take out the threshold and make the unit differentiable so the learning signal can pass through it.
 \end{itemize}
 Once you can execute this loop for two neurons, scaling to many neurons is mostly bookkeeping; we return to the organization when we scale up.
 \paragraph{How this chapter fits the workflow.}
