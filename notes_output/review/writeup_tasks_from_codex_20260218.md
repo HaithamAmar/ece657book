@@ -116,3 +116,105 @@ Idea bank (optional) to spark brainstorming:
   - "fitness is probability"; "membership degree is probability"; "one run proves optimality";
     "attention implies memory"; "good loss implies good decisions without calibration".
 
+---
+
+## 2026-02-20 update: Rolling-window continuity scan (all Parts) + micro-section flags
+
+I did a new rolling-window scan across the full manuscript *Part by Part* (always mentally including
+`lecture_1_intro.tex` as the anchor) with a different goal than the earlier promise/cross-ref audit:
+
+- Identify places where *authorial glue* would materially improve continuity (stronger openings, clearer
+  section-to-section handoffs, and better "why now / what transfers later" cues).
+- Flag clusters of very small subsections that do not stand well as independently discoverable TOC entries.
+
+This section turns those findings into *write-up tasks* (so you can provide prose in your voice), plus a
+separate "micro-section consolidation" list (so we can merge/reshape headings without losing content).
+
+## Task D: Part-level "bridges" (short author prefaces)
+
+Write three short part-bridge inserts (200--300 words each). These are meant to be placed right after the
+Part-level "How to read Part X (rolling window)" tcolorbox in `notes_output/book_chapters.tex`.
+
+Each bridge should:
+- Name the *one thread* you want students to keep across the part (e.g., "audit hooks" or "budgeted optimization").
+- Give a 2--3 sentence "what you already know" reminder (from earlier parts).
+- Preview 2--3 concrete payoffs later in the part (specific concepts, not just chapter names).
+- End with a single sentence that tells the reader what to *do* when confused (e.g., "check shapes/masks" or
+  "check units/universes/operators").
+
+Bridges requested:
+
+1) Part II bridge (Neural nets / sequence / NLP): connect Part I's ERM + split hygiene to "deep models are still ERM,
+   but now the bottleneck is gradient flow + caching + masking discipline."
+2) Part III bridge (Soft computing / fuzzy): frame "specification is linguistic and auditable" as the motivation and
+   set expectations for intentional repetition (preview -> algebra -> behavior).
+3) Part IV bridge (Evolutionary optimization): emphasize the "optimizer lens" (not biology), and connect it directly
+   to "tuning the knobs you just introduced in the fuzzy trilogy under noise/budget/constraints."
+
+Idea bank (optional):
+- Part II: "same loop, different state"; "bugs are shape bugs and leakage bugs."
+- Part III: "degrees of truth are interface variables"; "operator choice is an engineering dial."
+- Part IV: "reporting is part of correctness"; "one run is an anecdote."
+
+## Task E: Chapter/section handoffs that would benefit from author material
+
+Write short handoff inserts (90--160 words each) for the specific locations below. These are not new technical content;
+they are *continuity glue* (what transfers, what to watch for, why the next topic appears now).
+
+1) `notes_output/lecture_5_part_i.tex`: add a short bridge that motivates the "dimensionality reduction / feature mapping"
+   tangent in SOMs as more than a definition (what the reader should carry into U-Matrices / visualization).
+2) `notes_output/lecture_5_part_ii.tex`: add a short bridge that explicitly ties Hopfield energy descent to later "retrieval"
+   intuition (and warns what *doesn't* transfer to Transformers).
+3) `notes_output/lecture_8_part_i.tex`: add a short "handoff paragraph" that cleanly transitions from Word2Vec objectives to
+   "why Transformers are the next step" (what the objective keeps, what the architecture changes).
+4) `notes_output/lecture_transformers.tex`: add one short bridge that places fine-tuning/PEFT and alignment into the book's
+   narrative (when a practitioner would use each; what to log/audit to avoid self-deception).
+5) `notes_output/lecture_9.tex`: strengthen the chapter closing with a forward pointer that names exactly which membership
+   operations will be reused immediately in fuzzy relations and in inference (so the toolkit feels "activated", not just listed).
+
+If you prefer, you can write these as a single "Where we head next (extended)" paragraph per chapter rather than a tcolorbox.
+
+## Micro-section flags (very small subsections that do not stand alone)
+
+Below are the subsections/subsubsections that are currently *too small to be useful as separate TOC units* (<=2 non-empty
+content lines by a quick structural scan). Most of these are either (a) transitional sentences that can be folded into the
+next subsection, or (b) headings that deserve 1--2 extra paragraphs to justify their existence.
+
+Default recommendation (unless you tell me otherwise): merge these headings into their neighbors and keep the signposting as
+`\paragraph{...}` or as a lead-in sentence (so we keep readability without TOC noise).
+
+Flagged micro-sections (n<=2):
+- `notes_output/lecture_2_part_i.tex:75` "Limitations of Safe Transformations"
+- `notes_output/lecture_2_part_i.tex:232` "Example: Solving an Integral via Transformation Trees"
+- `notes_output/lecture_3_part_i.tex:73` "Outline of Neural Network Study"
+- `notes_output/lecture_4_part_i.tex:54` "Challenges in Weight Updates"
+- `notes_output/lecture_5_part_i.tex:169` "Dimensionality Reduction and Feature Mapping"
+- `notes_output/lecture_5_part_i.tex:435` "Winner-Takes-All Learning Recap"
+- `notes_output/lecture_5_part_ii.tex:141` "Hopfield Network States and Energy Function"
+- `notes_output/lecture_5_part_ii.tex:252` "Energy Function and Convergence of Hopfield Networks"
+- `notes_output/lecture_8_part_i.tex:266` "Word2Vec objectives in detail"
+- `notes_output/lecture_8_part_ii.tex:265` "Mathematical Languages as Foundations for Fuzzy Logic"
+- `notes_output/lecture_8_part_ii.tex:388` "Fuzzy Logic as a New Mathematical Language"
+- `notes_output/lecture_9.tex:71` "Discrete vs. Continuous Universes of Discourse"
+- `notes_output/lecture_9.tex:455` "Graphical Interpretation"
+- `notes_output/lecture_9.tex:934` "Closure of Membership Function Derivations"
+- `notes_output/lecture_10_part_i.tex:563` "Recap and Motivation"
+- `notes_output/lecture_10_part_i.tex:570` "Generalization of Fuzzy Relation Composition"
+- `notes_output/lecture_10_part_i.tex:575` "Example Calculation of Composition"
+- `notes_output/lecture_11.tex:74` "Illustrative Example"
+- `notes_output/lecture_11.tex:104` "Challenges in Continuous Optimization and Motivation for Evolutionary Computing"
+- `notes_output/lecture_11.tex:425` "Genetic Operators"
+- `notes_output/lecture_11.tex:434` "Selection in Genetic Algorithms"
+- `notes_output/lecture_11.tex:522` "Crossover Operator"
+- `notes_output/lecture_11.tex:889` "Genetic Algorithms: Iterative Process and Convergence"
+- `notes_output/lecture_transformers.tex:354` "Fine-Tuning and Parameter-Efficient Adaptation"
+- `notes_output/lecture_transformers.tex:462` "Alignment (Brief)"
+
+Highest-impact clusters (multiple tiny headings in a row):
+- `notes_output/lecture_10_part_i.tex:563` / `:570` / `:575` (three tiny wrap-up subsections back-to-back)
+- `notes_output/lecture_11.tex:425` / `:434` / `:522` (operator headings that likely want either expansion or demotion)
+- `notes_output/lecture_8_part_ii.tex:388` (a one-sentence bridge that should probably be absorbed into the next subsection)
+
+If you want any of the micro-sections above to be *expanded instead of merged*, mark it with:
+- "EXPAND" and provide 120--200 words to justify the subsection and add a concrete transfer cue, OR
+- "MERGE OK" if you're happy with me folding it into the neighbor and keeping the signpost as a paragraph header.

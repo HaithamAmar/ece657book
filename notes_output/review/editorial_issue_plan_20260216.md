@@ -780,3 +780,10 @@ Build notes (2026-02-17):
 
 - Files with actionable editorial issues: `23`
 - Files with no issues spotted: `0`
+
+## 2026-02-20 continuity enrichment scan (author input requests)
+
+- Ran a rolling-window continuity scan (Part-by-Part, anchored on `lecture_1_intro.tex`) to identify places where
+  additional authorial bridges would strengthen introductions and section-to-section connections.
+- Logged concrete write-up tasks + micro-section flags (TOC noise / tiny subsections) in:
+  `notes_output/review/writeup_tasks_from_codex_20260218.md`.
