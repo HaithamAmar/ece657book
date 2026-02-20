@@ -20,6 +20,7 @@ from check_numeric_examples import (
     check_ga_initial_population,
     check_hopfield,
     check_mamdani_centroid,
+    check_perceptron_or_gate_trace,
     check_roulette_selection,
     check_sgns,
     check_tiny_causal_attention,
@@ -51,6 +52,42 @@ def _assert_close(actual: float, expected: float, tol: float, msg: str) -> None:
 
 def _read(path: Path) -> str:
     return path.read_text(encoding="utf-8", errors="ignore")
+
+
+def _extract_qc_block(tex_text: str, name: str) -> list[str]:
+    begin = f"% QC-BEGIN: {name}"
+    end = f"% QC-END: {name}"
+    i0 = tex_text.find(begin)
+    if i0 == -1:
+        raise AssertionError(f"Missing QC block begin marker for {name}")
+    i1 = tex_text.find(end, i0)
+    if i1 == -1:
+        raise AssertionError(f"Missing QC block end marker for {name}")
+    block = tex_text[i0 + len(begin) : i1].splitlines()
+    lines = []
+    for raw in block:
+        s = raw.strip()
+        if not s.startswith("%"):
+            continue
+        payload = s.lstrip("%").strip()
+        if not payload or payload.lower().startswith("step "):
+            continue
+        lines.append(payload)
+    return lines
+
+
+def _parse_perceptron_or_qc(lines: list[str]) -> list[dict[str, int]]:
+    out: list[dict[str, int]] = []
+    for line in lines:
+        # step epoch idx x1 x2 y w1 w2 b
+        parts = line.split()
+        if len(parts) != 9:
+            raise AssertionError(f"Malformed perceptron QC line: {line!r}")
+        step, epoch, idx, x1, x2, y, w1, w2, b = map(int, parts)
+        out.append(
+            dict(step=step, epoch=epoch, idx=idx, x1=x1, x2=x2, y=y, w1=w1, w2=w2, b=b)
+        )
+    return out
 
 
 def _extract_figure_block(tex_text: str, label: str) -> str:
@@ -111,6 +148,17 @@ def _curve(a: float, b: float, c: float, x: np.ndarray) -> np.ndarray:
 
 
 def check_numeric_examples_pack() -> dict[str, float]:
+    # Chapter 5: perceptron OR-gate update trace (verified against the QC comment block).
+    p_or = check_perceptron_or_gate_trace()
+    _assert(tuple(p_or["final_w"]) == (2, 2), "Perceptron OR final w mismatch")
+    _assert(int(p_or["final_b"]) == -1, "Perceptron OR final b mismatch")
+    _assert(int(p_or["num_updates"]) == 9, "Perceptron OR number of updates mismatch")
+
+    lec3 = _read(ROOT / "lecture_3_part_i.tex")
+    qc_lines = _extract_qc_block(lec3, "perceptron_or_trace")
+    qc_trace = _parse_perceptron_or_qc(qc_lines)
+    _assert(qc_trace == p_or["trace"], "Perceptron OR QC trace does not match computed trace")
+
     hopfield = check_hopfield()
     _assert_close(float(hopfield["s0"]), -5.0, 1e-9, "Hopfield E(s0)")
     _assert_close(float(hopfield["flip_s1"]), 9.0, 1e-9, "Hopfield flip s1")
@@ -177,6 +225,7 @@ def check_numeric_examples_pack() -> dict[str, float]:
     )
 
     return {
+        "perceptron_or_updates": float(p_or["num_updates"]),
         "hopfield_s0": float(hopfield["s0"]),
         "stride_L": float(stride["L"]),
         "tiny_attn_w22": float(attn["weights"][1][1]),

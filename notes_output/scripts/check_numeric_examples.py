@@ -2,6 +2,7 @@
 Quick sanity checks for numerical examples up to Chapter 18.
 
 - Hopfield 3-neuron energy monotonicity (Ch. 10)
+- Perceptron OR-gate update trace (Ch. 5)
 - 1D stride/padding attention toy (Ch. 11)
 - Skip-gram with negative sampling loss (Ch. 14)
 - Max–min fuzzy relation composition matrix (Ch. 17)
@@ -13,6 +14,62 @@ Quick sanity checks for numerical examples up to Chapter 18.
 
 import numpy as np
 from math import exp
+
+
+def check_perceptron_or_gate_trace():
+    """
+    Perceptron mistake-driven update trace for the OR gate (Ch. 5).
+
+    Setup:
+      - Inputs in fixed cycle order: (0,0),(0,1),(1,0),(1,1)
+      - Targets y in {-1,+1}: (-1,+1,+1,+1)
+      - Learning rate eta=1
+      - Initialize w=(0,0), b=0
+      - Update on margin <= 0: w <- w + y x, b <- b + y
+
+    Returns the post-update (w,b) states for each mistake.
+    """
+    X = np.array([[0, 0], [0, 1], [1, 0], [1, 1]], dtype=float)
+    y = np.array([-1, 1, 1, 1], dtype=float)
+
+    w = np.zeros(2, dtype=float)
+    b = 0.0
+    eta = 1.0
+
+    trace = []
+    step = 0
+    for epoch in range(1, 51):
+        mistakes = 0
+        for idx, (x, yi) in enumerate(zip(X, y), start=1):
+            margin = yi * (float(w @ x) + b)
+            if margin <= 0.0:
+                w = w + eta * yi * x
+                b = b + eta * yi
+                step += 1
+                mistakes += 1
+                trace.append(
+                    dict(
+                        step=step,
+                        epoch=epoch,
+                        idx=idx,
+                        x1=int(x[0]),
+                        x2=int(x[1]),
+                        y=int(yi),
+                        w1=int(w[0]),
+                        w2=int(w[1]),
+                        b=int(b),
+                    )
+                )
+        if mistakes == 0:
+            break
+
+    return dict(
+        final_w=(int(w[0]), int(w[1])),
+        final_b=int(b),
+        epochs=epoch,
+        num_updates=step,
+        trace=trace,
+    )
 
 
 def hopfield_energy(w, s, theta=None):

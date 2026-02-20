@@ -169,7 +169,21 @@ Dimensionality reduction refers to techniques that transform high-dimensional da
 \subsection{Dimensionality Reduction and Feature Mapping}
 \label{sec:som_dimensionality_reduction_and_feature_mapping}
 
-The dimensionality-reduction goals were covered in \Cref{sec:som_dimensionality_reduction_simplifying_high_dimensional_data}; here we only note that SOMs implement a discrete lattice embedding rather than a continuous Euclidean map. The mapping \(f:\mathbb{R}^n \rightarrow \mathbb{R}^m\) is realized implicitly by the learned prototypes and their lattice coordinates, which we define in the SOM construction below.
+The dimensionality-reduction goals were covered in \Cref{sec:som_dimensionality_reduction_simplifying_high_dimensional_data}; here we make explicit what kind of ``mapping'' a SOM actually learns. A SOM does not return a continuous coordinate system like PCA or classical MDS. Instead, it learns a \emph{finite set} of prototype vectors \(\{\mathbf{w}_i\}\) arranged on a low-dimensional lattice with coordinates \(\{\mathbf{r}_i\}\). Each input \(\mathbf{x}\in\mathbb{R}^n\) is mapped to the lattice by choosing its best matching unit (BMU),
+\[
+c(\mathbf{x})=\operatorname*{argmin}_i \|\mathbf{x}-\mathbf{w}_i\|_2^2,
+\]
+and then using \(\mathbf{r}_{c(\mathbf{x})}\) (or a neighborhood-smoothed variant) as the reduced representation. In that sense, the map \(f:\mathbb{R}^n \to \mathbb{R}^m\) is \emph{implicit}: it is realized by nearest-prototype assignment plus fixed lattice coordinates.
+
+This ``discrete embedding'' view is the reason SOMs are useful for visualization and clustering at the same time: nearby lattice locations represent nearby regions of the input space, but the lattice distance is only an \emph{approximate} proxy for geometry. Read the lattice primarily as topology and neighborhood structure, not as a metric-preserving chart.
+
+\begin{tcolorbox}[summarybox, title={How to interpret a SOM as a feature map}]
+\begin{itemize}
+    \item \textbf{Out-of-sample mapping:} a new point maps to its BMU index \(c(\mathbf{x})\) and lattice coordinate \(\mathbf{r}_{c(\mathbf{x})}\).
+    \item \textbf{What transfers from PCA/MDS:} you can still ask whether neighborhoods are preserved and whether the embedding is stable across runs.
+    \item \textbf{What does \emph{not} transfer:} do not treat lattice distance as true Euclidean distance in data space; the embedding is discrete and only approximately geometry-preserving.
+\end{itemize}
+\end{tcolorbox}
 
 \subsection{Self-Organizing Maps (SOMs): Introduction}
 \label{sec:som_self_organizing_maps_soms_introduction}
@@ -436,6 +450,9 @@ where row \(j\) contains the initial weight vector \(\mathbf{w}_j(0)\) for neuro
 \label{sec:som_winner_takes_all_learning_recap}
 
 The WTA selection and update were defined in \Cref{sec:som_winner_takes_all_learning_and_weight_update_rules}; the numerical example above uses the same BMU criterion \eqref{eq:bmu} and the winner-only form of the update in \eqref{eq:som_update}.
+
+\paragraph{How WTA relates to SOMs.}
+You can view WTA learning as a limiting case of SOM training where the neighborhood collapses to a single unit: \(h_{ci}(t)=\mathbf{1}[i=c]\). Adding a nontrivial neighborhood \(h_{ci}(t)\) is what turns pure prototype learning into a \emph{topographic} map: neighbors are encouraged to represent similar inputs, and the lattice becomes a structured visualization rather than an unstructured codebook.
 
 \paragraph{Practical considerations} In both SOMs and WTA networks, input vectors are commonly normalized (e.g., zero mean and unit variance) so that distance comparisons are meaningful. Training is typically terminated when weight changes fall below a small threshold or after a prescribed number of epochs.
 

@@ -832,3 +832,25 @@ Build notes (2026-02-17):
   added a one-sentence bridge to backprop's \(\delta\) intuition, and fixed a truncated sentence in the forward-pass recap.
 - 2026-02-20: Ran `bash notes_output/scripts/run_production_checks.sh` after the Transformer/backprop edits.
   Result: PASS (PDF build + EPUB builds + Apple gatekeeper audits + EPUBCheck all OK).
+
+## 2026-02-20 Part II rollover editorial scan (global issues)
+
+- Wrote a Part II rollover analysis (global continuity + TOC fragmentation policy + start-of-Part-II chapter packet) to:
+  `notes_output/review/part_ii_rollover_editorial_20260220.md`.
+
+- `notes_output/lecture_3_part_i.tex`: inserted the approved Part II local roadmap box as a labeled paragraph
+  (`\paragraph{Where this fits in Part II.}`) to reduce TOC fragmentation while preserving the existing label
+  `sec:perceptron_outline_of_neural_network_study`.
+- `notes_output/lecture_3_part_i.tex`: added a worked, numeric OR-gate perceptron update trace (kept compact and
+  mistake-driven) and wired it into strict validation via a QC comment block + Python check.
+- 2026-02-20: Ran `python3 notes_output/scripts/validate_math_examples_and_graphs.py --strict` after the perceptron
+  OR-gate walkthrough addition. Result: PASS.
+- 2026-02-20: Ran `bash notes_output/scripts/run_production_checks.sh` after the `lecture_3_part_i.tex` perceptron
+  OR-gate walkthrough + roadmap paragraph/label change. Result: PASS (PDF build + EPUB builds + Apple gatekeeper audits
+  + EPUBCheck all OK).
+- 2026-02-20: Re-ran `bash notes_output/scripts/run_production_checks.sh` after a minor wording clarification inside the
+  perceptron OR-gate box (explicit \(\ge 0\) prediction rule). Result: PASS.
+- 2026-02-20: Ran `python3 notes_output/scripts/validate_math_examples_and_graphs.py --strict` after small Part II
+  Chapter 5 polish (Learning Outcomes cross-ref + shapes/dimensions concrete check). Result: PASS.
+- 2026-02-20: Ran `bash notes_output/scripts/run_production_checks.sh` after the latest Part II Chapter 5 edits.
+  Result: PASS (PDF build + EPUB builds + Apple gatekeeper audits + EPUBCheck all OK).
