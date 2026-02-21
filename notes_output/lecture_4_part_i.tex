@@ -54,11 +54,11 @@ The goal of learning is to adjust the weights \(\{w_{ij}^{(l)}\}\) to minimize \
 \paragraph{Challenges in weight updates}
 \label{sec:backprop_challenges_in_weight_updates}
 
-In a shallow network, weight updates can be computed directly from the output error. However, in a deep network, the output error depends on all weights in a complex way. A change in a weight in an earlier layer affects the activations of subsequent layers, ultimately influencing the output.
+With more than one layer, the error you measure at the output does not tell each earlier weight what to do directly. Each weight affects the loss only through a chain of intermediate quantities: it shifts a pre\hyp{}activation, changes an activation, and that change fans out through downstream units.
 
-For example, consider a weight $w_{ij}^{(l)}$ connecting neuron $i$ in layer $l-1$ to neuron $j$ in layer $l$. Changing this weight affects $z_j^{(l)}$, which affects $a_j^{(l)}$, which in turn affects all neurons in layers $l+1, l+2, \ldots, L$. Therefore, the total effect of changing $w_{ij}^{(l)}$ on the loss is a composition of many intermediate effects.
+One way to phrase the bottleneck is \emph{credit assignment}. If a small change in \(w_{ij}^{(l)}\) would make the loss smaller, we want that weight to move in that direction; if it would make the loss larger, we want it to move the other way. The chain rule gives both the sign and the magnitude, but only if we compute the right intermediate sensitivities.
 
-Backpropagation is the bookkeeping device that makes this tractable: it packages those intermediate effects into reusable local error terms (the \(\delta\)'s) so you can compute all gradients with one backward sweep.
+Backpropagation is the bookkeeping that makes those sensitivities reusable: it defines a local error signal (the \(\delta\)'s), computes them once from the output back toward the input, and then turns them into gradients for every weight and bias.
 
 \subsection{Notation for Layers and Neurons}
 \label{sec:backprop_notation_for_layers_and_neurons}
@@ -341,7 +341,7 @@ SGD remains the backbone; momentum and Adam/AdamW from \Cref{chap:cnn} accelerat
     \end{tikzpicture}%
     }
     % Avoid dense inline math in captions; it wraps poorly in EPUB renderers.
-    \caption[Computational graph for backpropagation (reverse-mode AD)]{Computational graph for a feedforward network. Backpropagation is reverse\hyp{}mode AD: the forward sweep caches intermediate values, and the reverse sweep propagates deltas while accumulating weight/bias gradients from those cached values. Use it when debugging backprop implementations and tracing each gradient term.}
+    \caption[Computational graph for backpropagation (reverse-mode AD)]{Computational graph for a feedforward network. Backpropagation is reverse\hyp{}mode AD: the forward sweep caches intermediate values, and the reverse sweep propagates deltas while accumulating weight/bias gradients from those cached values.}
     \label{fig:backprop-computational-graph}
 \end{figure}
 
@@ -715,7 +715,7 @@ These gradients are used in gradient-based optimization methods (e.g., stochasti
     \end{tikzpicture}
     \fi
     % Avoid inline math in captions; it wraps poorly in some EPUB renderers.
-    \caption{Forward (blue) and backward (orange) flows for a two-layer MLP. Cached activations and layerwise deltas travel along these arrows; backward signals use next-layer weights and activation derivatives. Use it when implementing backprop to confirm what to cache and where gradients flow.}
+    \caption{Forward (blue) and backward (orange) flows for a two-layer MLP. Cached activations and layerwise deltas travel along these arrows; backward signals use next-layer weights and activation derivatives.}
     \label{fig:lec4_backprop_flow}
 \end{figure}
 
@@ -791,7 +791,7 @@ With the full MLP and backpropagation machinery in place, it is useful to compar
     \ensuretikzbackgroundlayers
 \end{tikzpicture}
     % Avoid inline math in captions; it wraps poorly in some EPUB renderers.
-    \caption{Canonical activation functions on a common axis. Solid curves show the activation; dashed curves show its derivative. Use it when choosing an activation and checking whether its derivative will saturate or die out.}
+    \caption{Canonical activation functions on a common axis. Solid curves show the activation; dashed curves show its derivative.}
     \label{fig:lec4-activations}
 \end{figure}
 

@@ -900,3 +900,12 @@ Build notes (2026-02-17):
   figure caption (`fig:lec3-perceptron-geometry`).
 - 2026-02-21: Ran `python3 notes_output/scripts/validate_math_examples_and_graphs.py --strict` after the boundary
   micro-tweaks. Result: PASS.
+
+## 2026-02-21 Part II Chapter 7 (Backprop) initial sweep
+
+- `notes_output/lecture_4_part_i.tex`: rewrote `\paragraph{Challenges in weight updates}` to emphasize credit assignment
+  and the chain-rule sensitivity story in book voice (enrichment, not deletion).
+- `notes_output/lecture_4_part_i.tex`: removed the LLM-y ``Use it when ...'' sentence from three figure captions
+  (`fig:backprop-computational-graph`, `fig:lec4_backprop_flow`, `fig:lec4-activations`).
+- 2026-02-21: Ran `python3 notes_output/scripts/validate_math_examples_and_graphs.py --strict` after the Chapter 7 edits.
+  Result: PASS.
