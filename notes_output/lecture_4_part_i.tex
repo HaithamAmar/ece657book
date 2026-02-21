@@ -2,13 +2,14 @@
 \section{Backpropagation Learning in Multi-Layer Perceptrons}\label{chap:backprop}
 \graphicspath{{assets/lec4/}}
 
-Building on the two\hyp{}neuron derivation in \Cref{chap:mlp}, we derive backpropagation for an $L$-layer network as a systematic application of the chain rule. The idea is unchanged: compute local error terms (the \(\delta\)'s), then reuse them to obtain all weight gradients efficiently. \Cref{fig:roadmap} marks this chapter as the training engine for deep models.
+Building on the two\hyp{}neuron derivation in \Cref{chap:mlp}, we scale the same idea to an \(L\)\hyp{}layer network. Nothing new is introduced: it is still the chain rule. What changes is the bookkeeping. We compute local error signals (the \(\delta\)'s) once, reuse them to obtain every weight and bias gradient, and do it in an order that is efficient enough to train deep models in practice.
 
 \begin{tcolorbox}[summarybox, title={Learning Outcomes}]
 \begin{itemize}
-    \item Derive the layerwise backpropagation recursions for arbitrary-depth MLPs.
-    \item Connect theoretical gradients to implementation details (vectorization, caching, numerical stability).
-    \item Translate training diagnostics (learning curves, early stopping) into concrete optimization policies.
+    \item Derive the layerwise \(\boldsymbol{\delta}\) recursion for an \(L\)\hyp{}layer MLP and use it to write gradients for \(\mathbf{W}^{(l)}\) and \(\mathbf{b}^{(l)}\).
+    \item Keep a consistent ``shape ledger'' for activations, pre\hyp{}activations, and error signals so vectorized code matches the algebra.
+    \item Run one tiny numeric trace and one finite\hyp{}difference gradient check to confirm your implementation before scaling up.
+    \item Recognize the two common output\hyp{}layer patterns: squared error (general) and softmax + cross\hyp{}entropy (simplified \(\delta\)).
 \end{itemize}
 \end{tcolorbox}
 
@@ -457,33 +458,16 @@ For hidden neurons, the error term is computed by backpropagating the weighted s
 \end{equation}
 where the sum is over neurons \( k \) in the next layer and \( w_{kj} \) denotes the weight from neuron \( j \) to neuron \( k \).
 
-\paragraph{Weight Update Rule}
-
-Weights are updated using gradient descent with momentum:
+\paragraph{Weight update rule (with momentum).}
+Once you have \(\delta\)'s, turning them into weight updates is straightforward. For a weight \(w_{ij}^{(l)}\) that connects unit \(i\) in layer \(l-1\) to unit \(j\) in layer \(l\), the gradient is proportional to ``input times local error'': \(a_i^{(l-1)}\delta_j^{(l)}\). With momentum, one common update is
 \begin{equation}
-    \Delta w_{ij}(n) = -\eta \, \delta_j x_i + \gamma \Delta w_{ij}(n-1),
+    \Delta w_{ij}^{(l)}(n) = -\eta \, a_i^{(l-1)}(n)\,\delta_j^{(l)}(n) + \gamma \Delta w_{ij}^{(l)}(n-1),
     \label{eq:weight_update}
 \end{equation}
-where
-\begin{itemize}
-    \item \(\eta\) is the learning rate,
-    \item \(\gamma\) is the momentum coefficient (typically \(0 \leq \gamma < 1\)),
-    \item \(\Delta w_{ij}(n-1)\) is the previous weight change,
-    \item \(n\) indexes the update step (e.g., the current training example in stochastic gradient descent).
-\end{itemize}
-The leading negative sign ensures that the update follows the negative gradient direction because each \(\delta_j\) equals \(\partial \mathcal{L}_{\text{SE}} / \partial z_j\).
+followed by \(w_{ij}^{(l)}(n)=w_{ij}^{(l)}(n-1)+\Delta w_{ij}^{(l)}(n)\). Here \(\eta\) is the step size and \(\gamma\in[0,1)\) is the momentum coefficient. (For the first hidden layer, \(a_i^{(0)}\) is just the input feature \(x_i\).)
 
-The new weight is then:
-\[
-w_{ij}(n) = w_{ij}(n-1) + \Delta w_{ij}(n).
-\]
-
-\paragraph{Interpretation of Learning Rate and Momentum}
-
-\begin{itemize}
-    \item The \textbf{learning rate} \(\eta\) controls the step size in the weight update. A small \(\eta\) leads to slow convergence, while a large \(\eta\) can cause oscillations or divergence.
-    \item The \textbf{momentum} term \(\gamma\) helps smooth the updates by incorporating a fraction of the previous weight change, reducing oscillations and potentially accelerating convergence.
-\end{itemize}
+\paragraph{A practical reading of \(\eta\) and \(\gamma\).}
+The learning rate sets the basic step scale; momentum averages recent gradient directions so updates do not zig\hyp{}zag as much across narrow valleys. If training oscillates, reduce \(\eta\); if it is painfully slow along a consistent direction, momentum can help.
 
 \paragraph{Step-by-Step Example}
 
@@ -521,50 +505,46 @@ w_{ij}(n) = w_{ij}(n-1) + \Delta w_{ij}(n).
 \subsection{Training Procedure and Epochs in Multi-Layer Perceptrons}
 \label{sec:backprop_training_procedure_and_epochs_in_multi_layer_perceptrons}
 
-Recall that during training of a multi-layer perceptron (MLP), we iteratively update the weights based on each training pattern. The process for one epoch can be summarized as follows:
+An epoch is one complete pass over the training set. In practice you almost never update one example at a time; you shuffle the data and iterate over mini\hyp{}batches so the gradient estimates are both noisy enough to explore and cheap enough to compute.
 
 \begin{enumerate}
-    \item Present the first input pattern to the network.
-    \item Perform a forward pass to compute the output.
-    \item Calculate the error between the actual output and the desired output.
-    \item Use backpropagation to compute the gradients and update the weights accordingly.
-    \item Repeat steps 1--4 for all training patterns.
+    \item Shuffle the training examples (or shuffle within class strata for imbalanced problems).
+    \item For each mini\hyp{}batch: run a forward pass, compute the loss, run a backward pass, and update parameters.
+    \item At the end of the epoch: evaluate on a validation split, checkpoint the best model, and apply an early\hyp{}stopping rule if needed.
 \end{enumerate}
 
-After completing one epoch (i.e., one full pass through all training patterns), we evaluate the overall error. If the error is greater than a predefined tolerance, we continue training for additional epochs until the error converges below the threshold or a maximum number of epochs is reached.
+After each epoch, look at both training and validation curves. A training loss that keeps falling while validation stalls is your cue to regularize, stop, or change capacity.
 
-\paragraph{Remarks:}
+\paragraph{Common habits that prevent wasted runs.}
 \begin{itemize}
-    \item The weight updates after each pattern are typically small adjustments aimed at reducing the error.
-    \item The initial weights strongly influence the convergence behavior and final solution.
-    \item This iterative process is computationally intensive but essential for learning complex mappings.
+    \item Start by overfitting a tiny batch and running a gradient check (the checklist box earlier in the chapter).
+    \item Log the random seed and the full optimizer recipe; without it, ``it did not train'' is not a reproducible diagnosis.
+    \item If you change one thing (activation, initialization, step size), keep everything else fixed so you can attribute cause and effect.
 \end{itemize}
 
 \subsection{Role and Design of Hidden Layers}
 \label{sec:backprop_role_and_design_of_hidden_layers}
 
-In an MLP, the architecture consists of an input layer, one or more hidden layers, and an output layer. The hidden layers are crucial because they enable the network to learn nonlinear mappings.
+Hidden layers are where an MLP earns its flexibility. They do not just add parameters; they add intermediate representations, so different units can specialize and a later layer can combine those specializations.
 
-\paragraph{Key Questions Regarding Hidden Layers:}
+\paragraph{Design questions you actually have to answer.}
 \begin{itemize}
-    \item \textbf{How many hidden layers should be used?} There is no fixed rule; it depends on the complexity of the problem.
-    \item \textbf{How many neurons per hidden layer?} This choice affects the network's capacity and generalization ability.
-    \item \textbf{What activation functions to use in each layer?} Different layers can use different activation functions, such as sigmoid, ReLU, or tanh.
+    \item \textbf{Depth vs.\ width:} do you want a few wide layers or many narrow layers?
+    \item \textbf{Capacity vs.\ data:} how much flexibility can your dataset support before you overfit?
+    \item \textbf{Activation choice:} will gradients flow (ReLU family), or will they saturate (sigmoid/tanh) for the scale of your pre\hyp{}activations?
 \end{itemize}
 
-\paragraph{Design Considerations:}
+\paragraph{A simple, defensible starting point.}
 \begin{itemize}
-    \item \textbf{Number of neurons:} More neurons increase the capacity to learn complex functions but also increase the risk of overfitting and computational cost.
-    \item \textbf{Number of layers:} Deeper networks can represent more complex functions but are harder to train.
-    \item \textbf{Activation functions:} Choice affects gradient flow and convergence.
+    \item Pick one or two hidden layers and a moderate width, then let validation performance tell you whether you need more capacity.
+    \item Choose an activation that keeps gradients alive (ReLU or a leaky ReLU are common defaults in practice).
+    \item Use early stopping and weight decay as your first line of defense against overfitting.
 \end{itemize}
 
-Ultimately, these design choices are made by the practitioner based on experimentation, domain knowledge, and validation performance.
-
-\paragraph{Trade-offs:}
+\paragraph{Trade-offs to keep in mind.}
 \begin{itemize}
-    \item \textbf{Too many neurons/layers:} Requires more training data to avoid overfitting; increases computational burden.
-    \item \textbf{Too few neurons/layers:} Limits the network's ability to approximate complex functions.
+    \item \textbf{Too much capacity:} training loss drops quickly, validation does not; the model memorizes details you did not intend it to learn.
+    \item \textbf{Too little capacity:} both training and validation plateau early; the model cannot represent the function you are asking for.
 \end{itemize}
 
 \subsection{Case Study: Learning the Function \texorpdfstring{\( y = x \sin x \)}{y = x sin x}}
@@ -575,33 +555,31 @@ Consider the problem of training an MLP to approximate the function
 y = x \sin x.
 \]
 
-\paragraph{Setup:}
+\paragraph{Setup.}
 \begin{itemize}
     \item Generate a dataset of input-output pairs \(\{(x_i, y_i)\}\) where \(y_i = x_i \sin x_i\).
     \item Use this dataset to train an MLP regressor.
     \item Evaluate the network's ability to generalize by testing on inputs not seen during training.
 \end{itemize}
 
-\paragraph{Questions to Explore:}
+\paragraph{What to look for.}
 \begin{itemize}
-    \item How many hidden layers and neurons per layer are needed to approximate this nonlinear function well?
-    \item What activation functions yield better performance?
-    \item How does the size of the training set affect generalization?
+    \item \textbf{Capacity vs.\ fit:} if the model is too small, the best\hyp{}fit curve will miss structure; if it is too large for your data density, it will fit noise or interpolation artifacts.
+    \item \textbf{Activation effects:} saturated activations can make learning look ``stuck'' even when the model has enough parameters.
+    \item \textbf{Data density:} uniform sampling over \([-3\pi,3\pi]\) reveals whether your model interpolates smoothly between points or produces oscillatory artifacts.
 \end{itemize}
 
-\paragraph{Remarks:}
+\paragraph{Practical notes.}
 \begin{itemize}
     \item This is a regression problem, not a classification problem.
-    \item The function is nonlinear and periodic, which challenges the network's approximation capabilities.
-    \item Experimentation with different architectures and hyperparameters is essential.
+    \item The target is nonlinear and oscillatory; underfitting and overfitting are both easy to see in a plot.
+    \item If you report performance, report it as a reproducible experiment (seed, split, optimizer recipe). Avoid quoting a single ``typical'' number unless you can regenerate it.
 \end{itemize}
-
-As a representative example (illustrative; depends on initialization and the training recipe), a two-hidden-layer MLP with widths $[64, 32]$, ReLU activations, Adam optimization, and early stopping on a validation split can achieve mean absolute error on the order of $10^{-3}$ on held-out samples when trained on 2{,}000 uniformly spaced points in $[-3\pi, 3\pi]$.
 
 \subsection{Applications of Multi-Layer Perceptrons}
 \label{sec:backprop_applications_of_multi_layer_perceptrons}
 
-Multi-layer perceptrons have found widespread applications across various domains due to their ability to approximate complex nonlinear functions. Some notable applications include:
+MLPs are often used as general-purpose function approximators, either as standalone models or as learnable blocks inside larger systems. Common examples include:
 
 \begin{itemize}
     \item \textbf{Signal processing:} Noise reduction, filtering, and feature extraction.
@@ -613,7 +591,8 @@ Multi-layer perceptrons have found widespread applications across various domain
     \item \textbf{Voice recognition:} Speech-to-text and speaker identification.
 \end{itemize}
 
-\paragraph{Summary:} MLPs are versatile and powerful tools that serve as foundational building blocks in many machine learning systems.
+\paragraph{Summary.}
+The details change across domains, but the pattern is the same: a model that composes nonlinear units becomes a flexible mapping, and backpropagation is what makes that mapping trainable.
 
 \subsection{Limitations of Multi-Layer Perceptrons}
 \label{sec:backprop_limitations_of_multi_layer_perceptrons}
@@ -629,13 +608,10 @@ Despite their versatility, MLPs have several limitations that practitioners must
 \subsection{Conclusion of Multi-Layer Perceptron Derivations}
 \label{sec:backprop_conclusion_of_multi_layer_perceptron_derivations}
 
-In this final segment of the chapter, we complete the derivations and discussions related to the multi-layer perceptron (MLP) and its learning algorithm, backpropagation.
+At this point we can summarize backpropagation as an algorithmic recipe: a forward pass that produces and caches intermediate quantities, followed by a backward pass that reuses those caches to produce gradients for every layer.
 
-Recall that the MLP consists of multiple layers of neurons, each performing an affine transformation followed by a nonlinear activation. The key to training the MLP is to minimize a loss \(\mathcal{L}\) defined over outputs and targets.
-
-\paragraph{Backpropagation Algorithm Recap}
-
-The backpropagation algorithm efficiently computes the gradient of the loss function with respect to all network parameters by applying the chain rule of calculus through the network layers. For a network with \( L \) layers, denote by:
+\paragraph{Backpropagation algorithm recap.}
+For a network with \(L\) layers, it is often convenient to write the forward pass in matrix form:
 \[
 \mathbf{Z}^{(l)} = \mathbf{A}^{(l-1)}\mathbf{W}^{(l)} + \mathbf{1}(\mathbf{b}^{(l)})^\top,\quad \mathbf{A}^{(l)} = \phi^{(l)}(\mathbf{Z}^{(l)}),
 \]

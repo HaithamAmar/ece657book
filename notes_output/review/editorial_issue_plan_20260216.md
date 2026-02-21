@@ -948,3 +948,15 @@ Build notes (2026-02-17):
   Result: PASS.
 - 2026-02-21: Ran `bash notes_output/scripts/run_production_checks.sh` after the box rewrite.
   Result: PASS (PDF build + EPUB builds + Apple gatekeeper audits + EPUBCheck all OK).
+
+## 2026-02-21 Part II Chapter 7 (Backprop) mid/late chapter de-templating + verification hygiene
+
+- `notes_output/lecture_4_part_i.tex`: rewrote the opening paragraph and several mid/late sections (momentum update,
+  epochs/training procedure, hidden-layer design, case-study framing, applications summary, conclusion lead-in) to reduce
+  transcript/template tone.
+- `notes_output/lecture_4_part_i.tex`: removed an unverified empirical performance claim in the \(y=x\sin x\) case study
+  (replaced with reproducibility guidance instead of quoting a single MAE number).
+- 2026-02-21: Ran `python3 notes_output/scripts/validate_math_examples_and_graphs.py --strict` after the mid/late sweep.
+  Result: PASS.
+- 2026-02-21: Ran `bash notes_output/scripts/run_production_checks.sh` after the mid/late sweep.
+  Result: PASS (PDF build + EPUB builds + Apple gatekeeper audits + EPUBCheck all OK).
