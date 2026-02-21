@@ -938,3 +938,13 @@ Build notes (2026-02-17):
   Result: PASS.
 - 2026-02-21: Ran `bash notes_output/scripts/run_production_checks.sh` after the voice sweep.
   Result: PASS (PDF build + EPUB builds + Apple gatekeeper audits + EPUBCheck all OK).
+
+## 2026-02-21 Part II Chapter 7 (Backprop) box de-templating pass (start-to-end)
+
+- `notes_output/lecture_4_part_i.tex`: rewrote the chapter's tcolorbox content (design motif, intuition, shape ledger,
+  optimizer notes, debugging checklist, mini-batch regularization recipe, key takeaways, early stopping, derivation
+  closure, exercises) into a more specific, book-voice style while preserving math and cross-refs.
+- 2026-02-21: Ran `python3 notes_output/scripts/validate_math_examples_and_graphs.py --strict` after the box rewrite.
+  Result: PASS.
+- 2026-02-21: Ran `bash notes_output/scripts/run_production_checks.sh` after the box rewrite.
+  Result: PASS (PDF build + EPUB builds + Apple gatekeeper audits + EPUBCheck all OK).

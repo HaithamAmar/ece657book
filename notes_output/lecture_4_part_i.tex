@@ -13,7 +13,7 @@ Building on the two\hyp{}neuron derivation in \Cref{chap:mlp}, we derive backpro
 \end{tcolorbox}
 
 \begin{tcolorbox}[summarybox, title={Design motif}]
-Compute local error signals once, then reuse them to update every parameter efficiently. The organization (cache forward values, then sweep backward) is the algorithm.
+Treat the network as a computation you can trace. Cache what the forward pass computes, then sweep backward once and reuse the same local error signals to update every parameter.
 \end{tcolorbox}
 
 \subsection{Context and Motivation}
@@ -24,7 +24,7 @@ Multi\hyp{}layer networks raise a specific question: \emph{How do we update the 
 Shallow networks (one hidden layer) already move beyond linear separability, but more complex tasks demand deeper hierarchies of features. The multi\hyp{}layer perceptron stacks these layers to learn richer decision boundaries, and backpropagation is the mechanism that makes that depth trainable.
 
 \begin{tcolorbox}[summarybox, title={Intuition: backprop as a controlled ripple effect}]
-Changing one early weight perturbs the hidden activations, which perturbs every downstream pre\hyp{}activation, which perturbs the final loss. The influence is a ``ripple'' through the computation graph. Backpropagation does not change that cause-and-effect; it just computes the ripple efficiently via the chain rule: cache forward values (and local slopes) once, then sweep backward reusing them. For example, \Cref{chap:mlp} highlighted the sigmoid identity \(\sigma'(p)=y(1-y)\) as a small instance of this cache\(\rightarrow\)reuse pattern.
+Changing one early weight can only affect the loss by moving the intermediate quantities it feeds into. Backpropagation does not introduce a new idea; it is the chain rule written in an efficient order: run the forward pass once, cache the intermediates you will need, then flow sensitivities backward so each layer gets its own local error signal. Identities like \(\sigma'(p)=y(1-y)\) (from \Cref{chap:mlp}) are valuable because they let you compute a derivative from cached forward values.
 \end{tcolorbox}
 
 \paragraph{Implementation lens.}
@@ -122,6 +122,7 @@ The elementwise product \texttt{*} mirrors the Hadamard notation from \Crefrange
 \end{tcolorbox}
 
 \begin{tcolorbox}[summarybox, title={Shape ledger for an $L$-layer MLP (batch size $B$)}]
+\noindent\textbf{If your gradients look ``plausible'' but training fails, check shapes first.} For each layer:
 \begin{itemize}
     \item \(\mathbf{A}^{(l-1)}\in\mathbb{R}^{B\times n_{l-1}},\; \mathbf{Z}^{(l)},\boldsymbol{\delta}^{(l)}\in\mathbb{R}^{B\times n_l}\)
     \item \(\mathbf{W}^{(l)}\in\mathbb{R}^{n_{l-1}\times n_l},\; \mathbf{b}^{(l)}\in\mathbb{R}^{n_l}\)
@@ -248,7 +249,7 @@ Given a training set of \( N \) examples \(\{(\mathbf{x}^{(n)}, t^{(n)})\}_{n=1}
 \end{itemize}
 
 \begin{tcolorbox}[summarybox, title={Optimizer and stability notes}]
-SGD remains the backbone; momentum and Adam/AdamW from \Cref{chap:cnn} accelerate convergence. Add L2 weight decay to the gradient or decouple it (AdamW) to avoid biasing adaptive steps. For deep or ill-conditioned nets, gradient clipping can prevent explosions; for classification, pair these with cross\hyp{}entropy and the log-sum-exp stability tricks introduced alongside CNNs in \Cref{chap:cnn}. Reverse-mode AD underlies all of these updates.
+Start with plain SGD so you can see the learning signal clearly, then add the tools that improve stability. Momentum and Adam/AdamW (see \Cref{chap:cnn}) usually reduce sensitivity to curvature and step-size tuning. If you use weight decay, be explicit about whether it is implemented as an L2 term inside the gradient or decoupled (AdamW). For deep or ill-conditioned nets, gradient clipping can prevent explosions. For classification, cross\hyp{}entropy with the usual log\hyp{}sum\hyp{}exp stabilization is the default recipe (\Cref{chap:cnn}).
 \end{tcolorbox}
 
 \begin{tcolorbox}[summarybox, title={Implementation pattern (modern practice): softmax + cross-entropy}]
@@ -375,11 +376,11 @@ This uses the same bookkeeping as the squared\hyp{}error derivation; only the ou
 
 \begin{tcolorbox}[summarybox, title={Debugging and gradient-check checklist}]
 \begin{itemize}
-    \item \textbf{Overfit a tiny batch:} Ensure the loss can be driven near zero on a handful of samples.
-    \item \textbf{Gradient norms:} Track \(\|\nabla \mathbf{W}^{(l)}\|\) per layer; look for dead layers (all zeros) or explosions.
-    \item \textbf{Finite-difference check:} Compare analytic gradients to numerical finite differences on a tiny network with fixed seeds; relative error should be \(<10^{-6}\).
-    \item \textbf{Shape assertions:} Verify that \(\mathbf{Z}^{(l)}, \mathbf{A}^{(l)},\boldsymbol{\delta}^{(l)}\) have the expected batch shapes and that bias broadcasts correctly.
-    \item \textbf{Layerwise sanity:} For a one-layer linear model, backprop gradients should match the closed-form linear-regression gradients.
+    \item \textbf{Overfit a tiny batch:} Drive the loss near zero on a handful of samples; if you cannot, the issue is almost always code or setup, not generalization.
+    \item \textbf{Finite differences on a tiny net:} Fix seeds, perturb one parameter, and compare analytic vs.\ numerical gradients. Do this before running long experiments.
+    \item \textbf{Track per-layer gradient norms:} \(\|\nabla \mathbf{W}^{(l)}\|\) that vanish (all zeros) or explode are early warnings.
+    \item \textbf{Assert shapes and broadcasts:} Verify \(\mathbf{Z}^{(l)}, \mathbf{A}^{(l)}, \boldsymbol{\delta}^{(l)}\) shapes and bias broadcasting explicitly.
+    \item \textbf{Sanity baselines:} For a one-layer linear model, backprop should match the closed-form gradient you already know.
 \end{itemize}
 \end{tcolorbox}
 
@@ -496,16 +497,16 @@ w_{ij}(n) = w_{ij}(n-1) + \Delta w_{ij}(n).
 \end{enumerate}
 
 \begin{tcolorbox}[summarybox, title={Mini\hyp{}batch backprop with explicit regularization}]
-\textbf{Inputs:} mini\hyp{}batch \(\{\mathbf{x}_b,\mathbf{t}_b\}_{b=1}^B\), learning rate \(\eta\), L2 coefficient \(\lambda\), dropout keep probability \(q=1-p\).
+\textbf{Inputs:} mini\hyp{}batch \(\{(\mathbf{x}_b,\mathbf{t}_b)\}_{b=1}^B\), learning rate \(\eta\), L2 coefficient \(\lambda\), dropout keep probability \(q=1-p\).
 \begin{enumerate}[leftmargin=*]
-    \item \textbf{Forward pass:} propagate activations layer by layer; for each hidden layer draw a dropout mask \(\mathbf{m}\sim \operatorname{Bernoulli}(q)\), apply \(\tilde{\mathbf{a}}=\mathbf{m}\odot \mathbf{a}/q\), and cache \(\mathbf{m}\) for the backward step.
-    \item \textbf{Backward pass:} compute \(\nabla_{\mathbf{W}^{(\ell)}} \mathcal{L}\) using the cached activations/masks so that dropped units contribute zero gradient.
+    \item \textbf{Forward pass:} propagate activations layer by layer. If you use dropout in a hidden layer, draw a mask \(\mathbf{m}\sim \operatorname{Bernoulli}(q)\), apply \(\tilde{\mathbf{a}}=\mathbf{m}\odot \mathbf{a}/q\), and cache \(\mathbf{m}\) for the backward step.
+    \item \textbf{Backward pass:} compute \(\nabla_{\mathbf{W}^{(\ell)}} \mathcal{L}\) using cached activations (and cached dropout masks) so dropped units contribute zero gradient.
     \item \textbf{Update block (per layer):}
     \[
         \mathbf{g}_\ell = \frac{1}{B}\nabla_{\mathbf{W}^{(\ell)}} \mathcal{L} + \lambda \mathbf{W}^{(\ell)}, \qquad
         \mathbf{W}^{(\ell)} \leftarrow \mathbf{W}^{(\ell)} - \eta\, \mathbf{g}_\ell.
     \]
-    Biases skip the weight-decay term. With Adam/SGD+momentum, \(\mathbf{g}_\ell\) replaces the raw gradient inside the optimizer step so L2 regularization and dropout are always enforced explicitly.
+    Biases skip the weight-decay term. With Adam or SGD+momentum, \(\mathbf{g}_\ell\) is what you feed into the optimizer update so regularization stays explicit.
 \end{enumerate}
 \end{tcolorbox}
 
@@ -833,44 +834,47 @@ At this point the core backpropagation story for MLPs is complete. The remainder
 \clearpage
 
     \begin{tcolorbox}[summarybox, title={Key takeaways}]
-    \textbf{Minimum viable mastery}
+    \textbf{If you remember only a few things}
     \begin{itemize}
-        \item MLP training relies on stable optimization: proper initialization, learning\hyp{}rate schedules, and normalization help.
-        \item Regularization (weight decay, dropout) reduces overfitting; validation curves guide early stopping.
-        \item Despite power, MLPs remain sensitive to hyperparameters, so debugging and audits matter.
+        \item Backpropagation is the chain rule organized: cache \(\mathbf{Z}^{(l)}\) and \(\mathbf{A}^{(l)}\), compute \(\boldsymbol{\delta}^{(L)}\) at the output, then propagate \(\boldsymbol{\delta}\) backward with \((\mathbf{W}^{(l)})^\top\) and \(f'(\mathbf{Z}^{(l)})\).
+        \item The \(\delta\)'s are not mysterious: they are sensitivities (\(\partial \mathcal{L}/\partial \mathbf{Z}^{(l)}\)) that you reuse to form every weight and bias gradient.
+        \item For softmax + cross\hyp{}entropy, the output-layer error simplifies to \((\hat{\mathbf{Y}}-\mathbf{Y})/B\), which is why that pairing is so popular in code.
+        \item When training misbehaves, debug like an engineer: overfit a tiny batch, run a finite-difference check, then inspect per-layer gradient norms and shapes.
     \end{itemize}
     \medskip
     \textbf{Common pitfalls}
     \begin{itemize}
-        \item Silent shape mistakes: mismatched dimensions can yield plausible but wrong gradients.
-        \item Learning-rate pathologies: too large diverges, too small stalls; diagnose with train/val curves.
-        \item Overfitting by optimization: improving training loss without validation gains is a signal to stop or regularize.
+        \item Dropping a transpose: \((\mathbf{W}^{(l)})^\top\) is easy to miss and produces gradients that look ``reasonable'' but train the wrong model.
+        \item Mixing up pre\hyp{}activations and activations: \(f'(\mathbf{Z})\) depends on what you cache.
+        \item Losing the batch scaling: decide whether you average over the batch (\(/B\)) and do it consistently.
+        \item Silent broadcasting mistakes: bias terms and per-example deltas can accidentally align in NumPy/PyTorch and hide a bug.
     \end{itemize}
     \end{tcolorbox}
 
     \begin{tcolorbox}[summarybox, title={Practical early stopping and checkpointing}]
     \begin{itemize}
-        \item Maintain a validation split distinct from the training mini\hyp{}batches. After each epoch, record the validation loss \(L_{\text{val}}^{(e)}\).
-        \item Stop training when \(L_{\text{val}}\) has not improved for \(k\) consecutive epochs (typical patience \(k \in [5,10]\)). Optionally require a minimum relative improvement (e.g., \(0.1\%\)) to smooth noise.
-    \item Always checkpoint the parameters that achieved the best validation score and restore them before testing; averaging the last \(m\) checkpoints (``Polyak averaging'') can further stabilize performance.
+        \item Keep a validation split separate from the training mini\hyp{}batches, and record \(L_{\text{val}}^{(e)}\) after each epoch.
+        \item Stop when \(L_{\text{val}}\) has not improved for \(k\) consecutive epochs (a patience of \(k\in[5,10]\) is a common starting point). If the curve is noisy, require a small minimum improvement before you reset patience.
+        \item Always checkpoint the parameters that achieved the best validation score and restore them before testing. If training is noisy, averaging the last few checkpoints can stabilize performance.
 \end{itemize}
 \end{tcolorbox}
 
 \begin{tcolorbox}[summarybox, title={Derivation closure: implement, cache, fail-fast}]
 \begin{itemize}
-    \item \textbf{Implement:} encode one canonical forward signature \((\mathbf{A}^{(l-1)}, \mathbf{W}^{(l)}, \mathbf{b}^{(l)}) \mapsto (\mathbf{Z}^{(l)}, \mathbf{A}^{(l)})\), then reuse it for every layer.
-    \item \textbf{Cache:} store \((\mathbf{A}^{(l-1)}, \mathbf{Z}^{(l)})\) per layer so backward passes only apply local Jacobians and matrix multiplications.
-    \item \textbf{Fail-fast checks:} do a numerical gradient check on one mini-batch, then verify gradient norms and validation curves before long runs.
-    \item \textbf{Reproducibility:} log seed, optimizer, schedule, and stopping rule with each run; the reporting template in \Cref{app:repro_standards} keeps comparisons fair.
+    \item \textbf{Implement:} write one clean layer routine \((\mathbf{A}^{(l-1)}, \mathbf{W}^{(l)}, \mathbf{b}^{(l)}) \mapsto (\mathbf{Z}^{(l)}, \mathbf{A}^{(l)})\), then reuse it for every layer.
+    \item \textbf{Cache:} store what backprop needs later (at minimum \(\mathbf{A}^{(l-1)}\) and \(\mathbf{Z}^{(l)}\)). Do not recompute forward quantities during the backward pass.
+    \item \textbf{Fail fast:} gradient-check one tiny network and overfit one tiny batch before you trust results on a real dataset.
+    \item \textbf{Make runs comparable:} record seeds, optimizer, schedule, and stopping rule. The reporting template in \Cref{app:repro_standards} helps keep comparisons honest.
 \end{itemize}
 \end{tcolorbox}
 
 \begin{tcolorbox}[summarybox, title={Exercises and lab ideas}]
 \begin{itemize}
-    \item Implement a minimal example from this chapter and visualize intermediate quantities (plots or diagnostics) to match the pseudocode.
-    \item Stress-test a key hyperparameter or design choice discussed here and report the effect on validation performance or stability.
-    \item Re-derive one core equation or update rule by hand and check it numerically against your implementation.
-    \end{itemize}
+    \item \textbf{A full trace on paper:} pick a tiny network and write out the forward values and \(\delta\)'s by hand, then match them against a short script.
+    \item \textbf{Finite differences:} implement a gradient check for one layer and report the worst relative error; track down the first mismatch.
+    \item \textbf{Activation choice:} run the same task with sigmoid/tanh/ReLU and compare gradient norms by layer; relate what you see to \Cref{fig:lec4-activations}.
+    \item \textbf{Early stopping:} train until overfitting is visible, then add early stopping and report how the best checkpoint changes.
+\end{itemize}
     \end{tcolorbox}
     \medskip
     \noindent\textbf{If you are skipping ahead.} Keep one practical habit: do a gradient check on a tiny case before scaling up. That discipline mirrors residual checks in \Cref{chap:symbolic} and prevents most wasted training runs in later deep chapters.
