@@ -911,3 +911,18 @@ Build notes (2026-02-17):
   Result: PASS.
 - 2026-02-21: Ran `bash notes_output/scripts/run_production_checks.sh` after the Chapter 7 edits.
   Result: PASS (PDF build + EPUB builds + Apple gatekeeper audits + EPUBCheck all OK).
+
+## 2026-02-21 Part II Chapter 7 (Backprop) mini-example split + verification
+
+- `notes_output/lecture_4_part_i.tex`: split the early ``Mini example'' box into two pedagogical roles:
+  (i) a minimal MSE-aligned backprop step (consistent with the main derivation), and (ii) a later
+  ``modern practice'' implementation pattern box (softmax + cross-entropy, dropout, weight decay).
+- `notes_output/lecture_4_part_i.tex`: replaced the placeholder ``Example Execution'' paragraph with a short,
+  book-voice prompt to run the numeric trace and a finite-difference check.
+- `notes_output/scripts/validate_math_examples_and_graphs.py`: added `chapter4_softmax_ce_grad`, a finite-difference
+  gradient check that verifies the softmax+cross-entropy identity \(\delta^{(L)} = ( \hat{Y} - Y )/B\) (with ReLU and
+  L2 penalty) for a tiny network.
+- 2026-02-21: Ran `python3 notes_output/scripts/validate_math_examples_and_graphs.py --strict` after the example split
+  and new check. Result: PASS.
+- 2026-02-21: Ran `bash notes_output/scripts/run_production_checks.sh` after fixing an overfull line in the verbatim code
+  box (warning gate). Result: PASS (PDF build + EPUB builds + Apple gatekeeper audits + EPUBCheck all OK).

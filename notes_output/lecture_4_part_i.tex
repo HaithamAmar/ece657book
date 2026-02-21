@@ -91,40 +91,34 @@ The forward pass computes activations layer by layer:
 	
 	The output layer activations \(a_k^{(L)}\) are compared to the targets \(t_k\) to form a loss (e.g., \Cref{eq:error_function}), and backpropagation propagates that output error backward through the layers to compute every weight gradient efficiently.
 	
-	\begin{tcolorbox}[summarybox, title={Mini example: two-layer backprop in practice}]
+	\begin{tcolorbox}[summarybox, title={Mini example (aligned with this chapter): MSE backprop on a two-layer MLP}]
 \footnotesize
 \begin{verbatim}
-# Shapes: X in R^{B x d}, W1 in R^{d x h}, W2 in R^{h x c}
-def step(X, Y, params, eta, wd=1e-4, p_drop=0.1):
+# Shapes: X in R^{B x d}, W1 in R^{d x h}, W2 in R^{h x 1}
+# Activations: H = f(Z1), y = f(Z2)  (use a smooth f)
+def step_mse(X, t, params, eta):
     W1, b1, W2, b2 = params
     B = X.shape[0]
     # Forward pass
     Z1 = X @ W1 + b1
-    H1 = relu(Z1)
-    mask1 = (np.random.rand(*H1.shape) > p_drop).astype(
-        H1.dtype
-    )
-    # inverted dropout
-    H1 = H1 * mask1 / (1 - p_drop)
-    Z2 = H1 @ W2 + b2
-    Yhat = softmax(Z2)
-    # Backward pass
-    delta2 = (Yhat - Y) / B            # CE output error
-    grad_W2 = H1.T @ delta2
-    grad_W2 += wd * W2              # L2 decay
+    H  = f(Z1)
+    Z2 = H @ W2 + b2
+    y  = f(Z2)
+    # Loss (mean squared error over batch)
+    P = 0.5 * ((y - t)**2).mean()
+    # Backward pass (delta = dP/dZ)
+    delta2 = (y - t) * fprime(Z2) / B
+    grad_W2 = H.T @ delta2
     grad_b2 = delta2.sum(axis=0)
-    delta1 = (delta2 @ W2.T) * relu_deriv(Z1)
-    # dropout backprop
-    delta1 = delta1 * mask1 / (1 - p_drop)
+    delta1 = (delta2 @ W2.T) * fprime(Z1)
     grad_W1 = X.T @ delta1
-    grad_W1 += wd * W1
     grad_b1 = delta1.sum(axis=0)
-    # SGD step
+    # GD step
     return (W1 - eta * grad_W1, b1 - eta * grad_b1,
             W2 - eta * grad_W2, b2 - eta * grad_b2)
 \end{verbatim}
 \normalsize
-The elementwise product \texttt{*} mirrors the Hadamard notation from \Crefrange{eq:forward_z}{eq:forward_a}. This miniature example bridges the algebra to vectorized code before we scale to \(L\)-layer MLPs later in the chapter.
+The elementwise product \texttt{*} mirrors the Hadamard notation from \Crefrange{eq:forward_z}{eq:forward_a}. The key technical point is the \texttt{fprime} factors: this is exactly where hard thresholds break the learning signal.
 \end{tcolorbox}
 
 \begin{tcolorbox}[summarybox, title={Shape ledger for an $L$-layer MLP (batch size $B$)}]
@@ -255,6 +249,39 @@ Given a training set of \( N \) examples \(\{(\mathbf{x}^{(n)}, t^{(n)})\}_{n=1}
 
 \begin{tcolorbox}[summarybox, title={Optimizer and stability notes}]
 SGD remains the backbone; momentum and Adam/AdamW from \Cref{chap:cnn} accelerate convergence. Add L2 weight decay to the gradient or decouple it (AdamW) to avoid biasing adaptive steps. For deep or ill-conditioned nets, gradient clipping can prevent explosions; for classification, pair these with cross\hyp{}entropy and the log-sum-exp stability tricks introduced alongside CNNs in \Cref{chap:cnn}. Reverse-mode AD underlies all of these updates.
+\end{tcolorbox}
+
+\begin{tcolorbox}[summarybox, title={Implementation pattern (modern practice): softmax + cross-entropy}]
+\footnotesize
+\begin{verbatim}
+# Shapes: X in R^{B x d}, Y in R^{B x c} (one-hot)
+#         W1 in R^{d x h}, W2 in R^{h x c}
+def step_ce_softmax(X, Y, params, eta, wd=1e-4, p_drop=0.1):
+    W1, b1, W2, b2 = params
+    B = X.shape[0]
+    # Forward pass
+    Z1 = X @ W1 + b1
+    H1 = relu(Z1)
+    mask1 = (np.random.rand(*H1.shape) > p_drop).astype(H1.dtype)
+    # Inverted dropout
+    H1 = H1 * mask1 / (1 - p_drop)
+    Z2 = H1 @ W2 + b2
+    Yhat = softmax(Z2)
+    # Backward pass: for softmax + CE, delta2 = Yhat - Y
+    delta2 = (Yhat - Y) / B
+    grad_W2 = H1.T @ delta2 + wd * W2
+    grad_b2 = delta2.sum(axis=0)
+    delta1 = (delta2 @ W2.T) * relu_deriv(Z1)
+    # Dropout backprop: reuse mask + scale
+    delta1 = delta1 * mask1 / (1 - p_drop)
+    grad_W1 = X.T @ delta1 + wd * W1
+    grad_b1 = delta1.sum(axis=0)
+    # SGD step
+    return (W1 - eta * grad_W1, b1 - eta * grad_b1,
+            W2 - eta * grad_W2, b2 - eta * grad_b2)
+\end{verbatim}
+\normalsize
+This uses the same bookkeeping as the squared\hyp{}error derivation; only the output-layer error simplifies.
 \end{tcolorbox}
 
 
@@ -722,7 +749,7 @@ These gradients are used in gradient-based optimization methods (e.g., stochasti
 
 \paragraph{Example Execution}
 
-An example was provided illustrating the forward pass computation of activations and the backward pass calculation of gradients for a simple MLP with one hidden layer. This example concretely demonstrated how the chain rule is applied layer-by-layer and how the error signals are propagated backward.
+Before you scale this to larger models, run one tiny network end-to-end and check each ingredient: compute the forward values, compute the output \(\delta\), push it one layer back, and confirm one gradient numerically. The explicit numbers in \Cref{sec:backprop_backpropagation_algorithm_brief_numerical_check} can serve as a reference trace when you debug your own implementation.
 
 \paragraph{Remarks on Convergence and Practical Considerations}
 
@@ -734,7 +761,7 @@ While the backpropagation algorithm provides the exact gradients for the MLP, pr
     \item Optimization algorithms (momentum, Adam) to accelerate convergence.
 \end{itemize}
 
-These topics will be explored in subsequent chapters; for now, we compare the canonical activation choices in one place.
+We return to these practicalities in later deep-learning chapters; for now, we compare the canonical activation choices in one place.
 
 \paragraph{Comparing canonical nonlinearities}
 

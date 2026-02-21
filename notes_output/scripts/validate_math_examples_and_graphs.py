@@ -524,6 +524,94 @@ def check_ch4_backprop_numeric() -> dict[str, float]:
     return {"loss": loss, "delta2": float(delta2)}
 
 
+def check_ch4_softmax_ce_grad() -> dict[str, float]:
+    """
+    Verify the "modern practice" softmax+cross-entropy gradient pattern used in Ch. 7.
+
+    We compare analytic gradients (delta2 = (Yhat - Y)/B) against finite differences on a tiny
+    ReLU MLP, including an L2 penalty whose gradient is wd*W.
+    """
+
+    def relu(z: np.ndarray) -> np.ndarray:
+        return np.maximum(0.0, z)
+
+    def relu_deriv(z: np.ndarray) -> np.ndarray:
+        return (z > 0.0).astype(float)
+
+    def softmax(z: np.ndarray) -> np.ndarray:
+        z = z - z.max(axis=1, keepdims=True)
+        ez = np.exp(z)
+        return ez / ez.sum(axis=1, keepdims=True)
+
+    def loss_and_grads(
+        X: np.ndarray,
+        Y: np.ndarray,
+        W1: np.ndarray,
+        b1: np.ndarray,
+        W2: np.ndarray,
+        b2: np.ndarray,
+        wd: float,
+    ) -> tuple[float, tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]]:
+        B = X.shape[0]
+        Z1 = X @ W1 + b1
+        H1 = relu(Z1)
+        Z2 = H1 @ W2 + b2
+        Yhat = softmax(Z2)
+        ce = -np.sum(Y * np.log(Yhat + 1e-12)) / B
+        l2 = 0.5 * wd * (np.sum(W1 * W1) + np.sum(W2 * W2))
+        L = float(ce + l2)
+
+        delta2 = (Yhat - Y) / B
+        grad_W2 = H1.T @ delta2 + wd * W2
+        grad_b2 = delta2.sum(axis=0)
+        delta1 = (delta2 @ W2.T) * relu_deriv(Z1)
+        grad_W1 = X.T @ delta1 + wd * W1
+        grad_b1 = delta1.sum(axis=0)
+        return L, (grad_W1, grad_b1, grad_W2, grad_b2)
+
+    # Tiny, fixed setup chosen to avoid ReLU kinks at 0.
+    X = np.array([[0.6, -1.2], [1.1, 0.4], [-0.3, 0.9]], dtype=float)
+    Y = np.array([[1, 0, 0], [0, 1, 0], [0, 0, 1]], dtype=float)
+    W1 = np.array([[0.4, -0.2, 0.1], [0.7, 0.3, -0.5]], dtype=float)
+    # Bias values chosen so Z1 stays away from 0 (avoid ReLU kinks for finite differences).
+    b1 = np.array([0.8, 0.6, 0.7], dtype=float)
+    W2 = np.array([[0.2, -0.1, 0.3], [-0.4, 0.5, 0.2], [0.1, 0.2, -0.2]], dtype=float)
+    b2 = np.array([0.05, -0.1, 0.02], dtype=float)
+    wd = 1e-3
+
+    base_loss, (gW1, gb1, gW2, gb2) = loss_and_grads(X, Y, W1, b1, W2, b2, wd)
+
+    eps = 1e-6
+    max_abs_err = 0.0
+
+    def fd_param(param: np.ndarray, grad: np.ndarray, setter: Callable[[np.ndarray], None]) -> None:
+        nonlocal max_abs_err
+        it = np.nditer(param, flags=["multi_index"], op_flags=["readwrite"])
+        while not it.finished:
+            idx = it.multi_index
+            orig = float(param[idx])
+            param[idx] = orig + eps
+            setter(param)
+            lp, _ = loss_and_grads(X, Y, W1, b1, W2, b2, wd)
+            param[idx] = orig - eps
+            setter(param)
+            lm, _ = loss_and_grads(X, Y, W1, b1, W2, b2, wd)
+            param[idx] = orig
+            setter(param)
+            fd = (lp - lm) / (2.0 * eps)
+            err = abs(fd - float(grad[idx]))
+            max_abs_err = max(max_abs_err, err)
+            it.iternext()
+
+    fd_param(W1, gW1, lambda v: None)
+    fd_param(b1, gb1, lambda v: None)
+    fd_param(W2, gW2, lambda v: None)
+    fd_param(b2, gb2, lambda v: None)
+
+    _assert(max_abs_err < 5e-5, f"Softmax+CE finite-diff grad mismatch; max_abs_err={max_abs_err}")
+    return {"loss": float(base_loss), "max_abs_grad_err": float(max_abs_err)}
+
+
 def check_ch4_rbf_transform() -> dict[str, float]:
     sigma2 = 1.0
     v1 = np.array([0.0, 0.0])
@@ -645,6 +733,7 @@ def run_checks() -> list[CheckResult]:
         ("chapter3_mp_gates", check_ch3_mp_gates),
         ("chapter3_two_neuron_gradient", check_ch3_two_neuron_gradient),
         ("chapter4_backprop_numeric", check_ch4_backprop_numeric),
+        ("chapter4_softmax_ce_grad", check_ch4_softmax_ce_grad),
         ("chapter4_rbf_transform", check_ch4_rbf_transform),
         ("chapter5_som_update", check_ch5_som_update),
         ("chapter8_softcomp_probs", check_ch8_softcomp_probs),
