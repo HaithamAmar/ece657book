@@ -971,3 +971,10 @@ Build notes (2026-02-17):
   Result: PASS.
 - 2026-02-21: Ran `bash notes_output/scripts/run_production_checks.sh` after the tail sweep.
   Result: PASS (PDF build + EPUB builds + Apple gatekeeper audits + EPUBCheck all OK).
+
+## 2026-02-21 Part II Chapter 5 (Perceptron) author-voice paragraph swap
+
+- `notes_output/lecture_3_part_i.tex`: replaced ``Complexities and Unknowns'' with an author-voice paragraph that
+  clarifies the biology\(\rightarrow\)engineering abstraction (what we keep vs.\ what we ignore) and anchors it with a
+  circuit-design analogy.
+- 2026-02-21: Ran `python3 notes_output/scripts/validate_math_examples_and_graphs.py --strict` after the swap. Result: PASS.

@@ -34,18 +34,12 @@ A biological neuron can be viewed as a processing unit that receives multiple in
 
 Incoming signals can excite or inhibit the neuron. When the combined influence crosses a threshold, the neuron ``fires'' and sends an impulse down the axon to connected neurons. Real neurons are richer than this sketch (timing, frequency, and graded effects matter), but the abstraction is enough to motivate an artificial unit that combines inputs, applies a nonlinearity, and emits an output.
 
-\paragraph{Complexities and Unknowns}
+\paragraph{Complexities and unknowns (and what we steal anyway).}
+Real neural tissue is a biophysical system: spikes, timing, chemistry, adaptation, and many interacting feedback loops. We do not pretend to model that faithfully here. Instead, we borrow an engineering abstraction that has two virtues: (i) it is composable, and (ii) it gives us a learning rule we can write down, debug, and scale.
 
-Despite extensive research, many aspects of neural function remain poorly understood. For our purposes, what matters is that even simple descriptions raise practical questions:
+So what do we \emph{keep} from biology? The idea that many small units, each doing a simple computation, can be wired into a larger system whose behavior is richer than any single unit. And what do we \emph{let go} of? The detailed mechanisms (spike timing, ion channels, and biological realism) that matter for neuroscience but are not necessary to build useful learning machines.
 
-\begin{itemize}
-    \item How signals arriving at different dendrites simultaneously interact.
-    \item The effect of signal timing and frequency on neuron firing.
-    \item The mechanisms of cooperation and competition among neurons.
-    \item How neural activity culminates in complex behaviors.
-\end{itemize}
-
-These uncertainties highlight why we do not try to copy biology literally. Instead, we build simplified artificial models that preserve the compositional story (many units, many connections) while making the update rule explicit and learnable.
+A good analogy is circuit design: you can build powerful systems out of simple, idealized components without simulating electron physics at every wire. In the same spirit, we keep the compositional story (many units, many connections) and insist that the update rule is explicit and learnable. This is a recurring theme in the book: we look to nature for candidate mechanisms behind intelligent behavior, describe them in scientific terms, and then simplify them until they become concrete engineering problems we can test and improve.
 
 \subsection{From Biological to Artificial Neural Networks}
 \label{sec:perceptron_from_biological_to_artificial_neural_networks}
