@@ -174,6 +174,78 @@ they are *continuity glue* (what transfers, what to watch for, why the next topi
 
 If you prefer, you can write these as a single "Where we head next (extended)" paragraph per chapter rather than a tcolorbox.
 
+## Task F (NEW, 2026-02-21): Author-voice rewrites across chapters (paragraph targets)
+
+Purpose: identify specific paragraphs that currently read "generic" (template/transcript tone) where I do not want to
+guess your intent. If you provide 1--2 paragraphs per item (or even bullet prose), I will rewrite/merge the existing
+paragraphs in-place so the chapter reads like it was written by a single author.
+
+Guidance:
+- Keep it in book voice (no "lecture/today/next chapter").
+- If you suggest any numeric claim, either (i) provide a citation you want, or (ii) phrase it as qualitative; I will not
+  add/keep "typical performance numbers" unless we can verify them in Python (or they are clearly a known theorem with a
+  textbook citation).
+
+Targets (write directly under each; 120--220 words each unless noted):
+
+1) Ch. 5 Perceptron: Biology-to-engineering stance
+   - Location: `notes_output/lecture_3_part_i.tex:37` (\paragraph{Complexities and Unknowns} + the transition paragraph after it).
+   - What I need from you: your stance on "biology as inspiration" (what we steal, what we ignore), and one concrete
+     engineering analogy students will remember.
+
+2) Ch. 10 CNNs: Data requirements reality check
+   - Location: `notes_output/lecture_6.tex:90` (\paragraph{Data Requirements} through \paragraph{Overfitting Risk}).
+   - What I need from you: how you want to frame the parameter-count heuristic vs modern practice (augmentation,
+     transfer learning, pretraining, synthetic data), and what "good enough" dataset sizing means in a course project.
+   - Optional: a short "audit hook" you want students to run (e.g., calibration + slices).
+
+3) Ch. 8 RBFs: Training algorithm summary in your voice
+   - Location: `notes_output/lecture_4_part_ii.tex:450` (\paragraph{Summary of the Training Algorithm:} and nearby text).
+   - What I need from you: how you explain the split between "choose centers/widths" vs "solve output weights", and what
+     students should log/plot when it fails.
+
+4) Ch. 9 SOMs: Competitive learning summary (what to watch for)
+   - Location: `notes_output/lecture_5_part_i.tex:403` (\paragraph{Summary of the Competitive Learning Algorithm}).
+   - What I need from you: a compact mental model (prototypes + neighborhood) and one "failure mode" + fix (learning rate,
+     neighborhood schedule, initialization).
+
+5) Ch. 9 SOMs: Six-step procedure (reduce checklist tone)
+   - Location: `notes_output/lecture_5_part_i.tex:1069` (\paragraph{Summary of the Six Learning Steps}).
+   - What I need from you: rewrite as a short narrative "what happens in an epoch" (keep the steps, but make it read like
+     deliberate prose).
+
+6) Ch. 10 Hopfield: Capacity/limitations in context
+   - Location: `notes_output/lecture_5_part_ii.tex:384` (capacity sentence) and `notes_output/lecture_5_part_ii.tex:417`
+     (limitations block).
+   - What I need from you: how you want to interpret the capacity fact pedagogically (what it means, what it does not mean),
+     plus a short bridge back to the earlier debug habits (energy descent, local minima).
+
+7) Ch. 12 RNNs: Opening motivation in your voice
+   - Location: `notes_output/lecture_7.tex:905` (chapter opening paragraph block).
+   - What I need from you: your favorite example of "state matters" (beyond language modeling), and one sentence that
+     foreshadows what will later motivate attention.
+
+8) Ch. 13 NLP embeddings: Closing reflection + ethics hook
+   - Location: `notes_output/lecture_8_part_i.tex:664` (chapter closing).
+   - What I need from you: a short authorial closing that treats embedding geometry as a tool, and bias diagnosis as part
+     of correctness (not an add-on).
+
+9) Ch. 14 Transformers: Practitioner box rewrite (less list-y)
+   - Location: `notes_output/lecture_transformers.tex:503` (Practitioner box: pitfalls/checks/hyperparams).
+   - What I need from you: your preferred "what to check first" ordering, and one concrete failure story you want to warn
+     students about (masking mistake, leakage, decoding mismatch, etc.).
+
+10) Ch. 16 Fuzzy sets: Chapter opening reframe
+   - Location: `notes_output/lecture_9.tex:339` (the early "Recall that a fuzzy set..." re-introduction).
+   - What I need from you: a more natural re-entry sentence and one compact example concept you like (thermostat, grading,
+     "slightly fast", etc.).
+
+11) Ch. 19 GA/GP: Wrap-up in your voice
+   - Location: `notes_output/lecture_11.tex:1013` (wrapping-up subsection opening).
+   - What I need from you: a closing paragraph that frames evolution as an optimizer lens (not biology), ties back to the
+     tuning vignette you care about (robot gait/locomotion, hyperparameter tuning, nozzle experiment), and says what
+     students should do to report runs honestly.
+
 ## Micro-section flags (very small subsections that do not stand alone)
 
 Below are the subsections/subsubsections that are currently *too small to be useful as separate TOC units* (<=2 non-empty
