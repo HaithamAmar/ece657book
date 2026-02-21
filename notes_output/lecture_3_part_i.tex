@@ -86,11 +86,11 @@ many simple units. Used on its own, a perceptron-like unit still induces a linea
 original feature space (as in logistic regression). Its importance is that it is \emph{composable}: by changing
 how units are connected, what nonlinearities they apply, and what signals drive learning, we can move from a
 single linear boundary to richer nonlinear decision surfaces when the task demands it. Many of these design
-choices are loosely inspired by how we think biological systems process information (as sketched in the next
-section), but the target remains an engineering model, not a faithful brain simulation.
+choices are loosely inspired by how we think biological systems process information (as sketched in the
+section that follows), but the target remains an engineering model, not a faithful brain simulation.
 
 \medskip
-\textbf{How the next chapters build.}
+\textbf{How the rest of Part II builds.}
 \begin{itemize}
   \item \textbf{Units \(\rightarrow\) multilayer systems:} \Cref{chap:mlp} chains units into multilayer networks;
   \Cref{chap:backprop} shows how to compute all gradients efficiently (the training engine).
@@ -488,7 +488,7 @@ XOR is the canonical non-separable toy, but the limitation is geometric, not spe
         \end{axis}
     \end{tikzpicture}
     % Avoid inline math in captions; it wraps poorly in some EPUB renderers.
-    \caption{Perceptron geometry. Points on opposite sides of the separating hyperplane receive different labels, and signed distance to the boundary controls both prediction and update magnitude. Compare with \Cref{fig:lec2-logistic-boundary} in \Cref{chap:logistic}: both are linear separators, but logistic smooths the boundary into calibrated probabilities. Use it when relating margin geometry to update size and convergence.}
+    \caption{Perceptron geometry. Points on opposite sides of the separating hyperplane receive different labels, and signed distance to the boundary controls both prediction and update magnitude. Compare with \Cref{fig:lec2-logistic-boundary} in \Cref{chap:logistic}: both are linear separators, but logistic smooths the boundary into calibrated probabilities.}
     \label{fig:lec3-perceptron-geometry}
 \end{figure}
 

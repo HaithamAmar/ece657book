@@ -890,3 +890,13 @@ Build notes (2026-02-17):
   voice pass in `lecture_3_part_ii.tex`. Result: PASS.
 - 2026-02-21: Ran `bash notes_output/scripts/run_production_checks.sh` after the paragraph/caption voice pass in
   `lecture_3_part_ii.tex`. Result: PASS (PDF build + EPUB builds + Apple gatekeeper audits + EPUBCheck all OK).
+
+## 2026-02-21 Part II Chapters 5--6 boundary micro-tweaks
+
+- `notes_output/lecture_3_part_i.tex`: adjusted Part II roadmap phrasing to avoid course-voice ``next ...'' framing
+  (``How the next chapters build.'' $\rightarrow$ ``How the rest of Part II builds.''), and softened ``next section''
+  to ``section that follows''.
+- `notes_output/lecture_3_part_i.tex`: removed the LLM-y ``Use it when ...'' sentence from the perceptron-geometry
+  figure caption (`fig:lec3-perceptron-geometry`).
+- 2026-02-21: Ran `python3 notes_output/scripts/validate_math_examples_and_graphs.py --strict` after the boundary
+  micro-tweaks. Result: PASS.
