@@ -909,3 +909,5 @@ Build notes (2026-02-17):
   (`fig:backprop-computational-graph`, `fig:lec4_backprop_flow`, `fig:lec4-activations`).
 - 2026-02-21: Ran `python3 notes_output/scripts/validate_math_examples_and_graphs.py --strict` after the Chapter 7 edits.
   Result: PASS.
+- 2026-02-21: Ran `bash notes_output/scripts/run_production_checks.sh` after the Chapter 7 edits.
+  Result: PASS (PDF build + EPUB builds + Apple gatekeeper audits + EPUBCheck all OK).
