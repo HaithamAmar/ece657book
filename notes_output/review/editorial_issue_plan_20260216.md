@@ -978,3 +978,15 @@ Build notes (2026-02-17):
   clarifies the biology\(\rightarrow\)engineering abstraction (what we keep vs.\ what we ignore) and anchors it with a
   circuit-design analogy.
 - 2026-02-21: Ran `python3 notes_output/scripts/validate_math_examples_and_graphs.py --strict` after the swap. Result: PASS.
+
+## 2026-02-21 Part II Chapter 11 (CNN) data/compute/overfitting framing polish
+
+- `notes_output/lecture_6.tex`: rewrote the CNN ``Data requirements'' block to treat the ``10x parameters'' heuristic as
+  a warning sign (not a law), and to explicitly connect sample efficiency to inductive bias (convolutions), regularization,
+  augmentation, and pretraining.
+- `notes_output/lecture_6.tex`: tightened the computational/storage paragraph to keep it architecture-first (what dense
+  layers cost vs.\ what convolution buys) without drifting into generic ``hardware'' notes.
+- `notes_output/lecture_6.tex`: rewrote the overfitting paragraph into concrete audits (train/val gap, calibration, and
+  slice checks) rather than treating ``high training accuracy'' as evidence.
+- 2026-02-21: Ran `bash notes_output/scripts/run_production_checks.sh` after the CNN edits. Result: PASS (release checks,
+  Apple gatekeeper audits, and EPUBCheck all OK).

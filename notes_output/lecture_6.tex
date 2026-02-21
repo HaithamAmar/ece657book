@@ -87,30 +87,27 @@ and between the hidden and output layer (assuming 4 output classes) is:
 
 Thus, the first layer alone requires learning just over 7 million parameters before we even consider deeper architectures. Coupled with the additional 400 output weights (plus biases), the optimization problem quickly becomes data-hungry and computationally expensive.
 
-\paragraph{Data Requirements}
-
-To reliably learn these parameters, the amount of training data must be sufficiently large. A common heuristic is that the number of training samples should be at least 10 times the number of parameters:
+\paragraph{Data requirements (a sanity check).}
+When a model has millions of free parameters and no strong architectural prior, you are asking the data to do most of the work: it must fit the mapping and also implicitly teach the model what kinds of patterns are worth representing. A crude sanity check sometimes used in practice is to compare the number of labeled examples to the number of parameters:
 \begin{equation}
 N_{\text{samples}} \geq 10 \times N_{\text{parameters}}.
 \label{eq:auto_cnn_acca81a25c}
 \end{equation}
 
-This rule-of-thumb is intentionally conservative and should be read as guidance rather than a hard requirement; in practice, regularization, data augmentation, and strong inductive biases often permit useful models with fewer samples.
+Read this as a warning sign, not a requirement. Inductive bias (convolutions), regularization, and augmentation reduce the effective degrees of freedom, and pretraining changes the problem entirely because you are no longer learning all features from scratch.
 
-For the first layer, this implies roughly:
+For the dense first layer in this example calculation, the back-of-the-envelope lands in the tens of millions of labeled images:
 \begin{equation}
 N_{\text{samples}} \gtrsim 10 \times 7,000,000 \approx 70,000,000,
 \label{eq:auto_cnn_a651e49be4}
 \end{equation}
-meaning on the order of seventy million labeled images. This is an impractical requirement for most projects.
+The point is not the exact number; it is the scale mismatch between dense connectivity and the datasets most people can realistically label. Without additional structure, many very different parameter settings can fit the same training set; the architecture and the training recipe decide whether any of those settings generalize in a way you can trust.
 
-\paragraph{Computational and Storage Constraints}
+\paragraph{Computational and storage constraints.}
+Even if you could collect that many labeled examples, training cost becomes part of the model design. Each epoch is a full sweep over the dataset; each sweep costs time, memory bandwidth, and usually specialized hardware. Large models also cost money to store and to run: inference latency, memory footprint, and energy use become constraints that matter as much as accuracy. This is another reason architectural bias matters: it reduces degrees of freedom and makes it possible to spend computation on structure that transfers across images.
 
-Storing and processing such a large dataset requires enormous storage and computational resources. Training on hundreds of millions of images is typically infeasible for most research groups or applications without specialized infrastructure.
-
-\paragraph{Overfitting Risk}
-
-With millions of parameters, the model has high capacity and can easily memorize the training data, leading to overfitting. This means the network may not generalize well to unseen data, as it learns to fit noise or irrelevant details rather than meaningful features.
+\paragraph{Overfitting risk (what to watch for).}
+With high capacity, ``training accuracy goes up'' is not evidence of learning the right thing. Watch the gap between training and validation curves, check calibration (are probabilities meaningful?), and run slice audits (lighting, viewpoint, background, demographic proxies) to detect memorization or shortcut learning early.
 
 \subsection{Sparse connectivity and parameter sharing}
 \label{sec:cnn_sparse_connectivity_and_parameter_sharing}
