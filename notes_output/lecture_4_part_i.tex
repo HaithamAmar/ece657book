@@ -753,19 +753,20 @@ Before you scale this to larger models, run one tiny network end-to-end and chec
 
 \paragraph{Remarks on Convergence and Practical Considerations}
 
-While the backpropagation algorithm provides the exact gradients for the MLP, practical training involves additional considerations such as:
+Backpropagation gives the \emph{right} gradients; whether those gradients turn into learning depends on a handful of design and optimization choices. When training stalls or becomes unstable, the usual levers are:
 \begin{itemize}
-    \item Initialization of weights to avoid vanishing or exploding gradients.
-    \item Choice of activation functions (e.g., ReLU, sigmoid, tanh) affecting gradient flow.
-    \item Regularization techniques (dropout, weight decay) to prevent overfitting.
-    \item Optimization algorithms (momentum, Adam) to accelerate convergence.
+    \item \textbf{Initialization scale:} keep pre\hyp{}activations in a regime where derivatives are not all near zero (or wildly large).
+    \item \textbf{Activation choice:} saturation (sigmoid/tanh) and dead regions (ReLU) show up directly as weak gradients.
+    \item \textbf{Step size and schedule:} too large diverges, too small crawls; schedules and momentum smooth the path.
+    \item \textbf{Regularization:} weight decay and dropout trade training fit for generalization.
+    \item \textbf{Optimizer details:} momentum/Adam change the effective step direction and can rescue poorly conditioned problems.
 \end{itemize}
 
-We return to these practicalities in later deep-learning chapters; for now, we compare the canonical activation choices in one place.
+We return to these practicalities in the later deep\hyp{}learning chapters; for now, it helps to see the canonical activation choices in one place.
 
 \paragraph{Comparing canonical nonlinearities}
 
-With the full MLP and backpropagation machinery in place, it is useful to compare the most common nonlinearities side-by-side. \Cref{fig:lec4-activations} overlays the step, sigmoid, tanh, and ReLU curves so the saturation regions and derivative behavior are visually apparent before we move on to deeper architectures.
+With the MLP and backpropagation machinery in place, it is useful to compare the most common nonlinearities side-by-side. \Cref{fig:lec4-activations} overlays the step, sigmoid, tanh, and ReLU curves so saturation regions and derivative behavior are visually apparent in one view.
 
 \begin{figure}[t]
     \centering
@@ -827,7 +828,7 @@ For reference, \(\sigma'(z)=\sigma(z)\bigl(1-\sigma(z)\bigr)\), \(\tanh'(z)=1-\t
 
 \paragraph{Trade-offs}
 While some activation functions are inspired by biological neurons, others are chosen for mathematical convenience and training efficiency. Sigmoid and tanh saturate at large magnitude inputs, which slows gradients in deep networks. ReLU avoids saturation on the positive side but can produce ``dying ReLUs'' when biases push units negative and the gradients become zero; if many units stall, use He initialization, reduce the learning rate, or swap to a leaky ReLU with a small negative slope (e.g., 0.01).
-This closes the core backpropagation story for MLPs. Next we summarize practical stability considerations and the key takeaways that guide real training.
+At this point the core backpropagation story for MLPs is complete. The remainder of the chapter collects practical stability habits and a short set of takeaways you can use when training starts behaving badly.
 
 \clearpage
 
@@ -868,7 +869,7 @@ This closes the core backpropagation story for MLPs. Next we summarize practical
 \begin{itemize}
     \item Implement a minimal example from this chapter and visualize intermediate quantities (plots or diagnostics) to match the pseudocode.
     \item Stress-test a key hyperparameter or design choice discussed here and report the effect on validation performance or stability.
-        \item Re-derive one core equation or update rule by hand and check it numerically against your implementation.
+    \item Re-derive one core equation or update rule by hand and check it numerically against your implementation.
     \end{itemize}
     \end{tcolorbox}
     \medskip

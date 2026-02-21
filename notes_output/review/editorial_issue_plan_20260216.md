@@ -926,3 +926,15 @@ Build notes (2026-02-17):
   and new check. Result: PASS.
 - 2026-02-21: Ran `bash notes_output/scripts/run_production_checks.sh` after fixing an overfull line in the verbatim code
   box (warning gate). Result: PASS (PDF build + EPUB builds + Apple gatekeeper audits + EPUBCheck all OK).
+
+## 2026-02-21 Part II Chapter 7 (Backprop) activation + convergence voice sweep
+
+- `notes_output/lecture_4_part_i.tex`: rewrote ``Remarks on Convergence and Practical Considerations'' and the short
+  activation-comparison lead-in to reduce templated phrasing while keeping the same technical intent.
+- `notes_output/lecture_4_part_i.tex`: removed course-voice ``this closes... next we...'' phrasing after the activation
+  trade-offs paragraph; replaced with book voice that points into the closing stability/takeaway boxes.
+- `notes_output/lecture_4_part_i.tex`: fixed a minor list formatting indentation issue in ``Exercises and lab ideas''.
+- 2026-02-21: Ran `python3 notes_output/scripts/validate_math_examples_and_graphs.py --strict` after the voice sweep.
+  Result: PASS.
+- 2026-02-21: Ran `bash notes_output/scripts/run_production_checks.sh` after the voice sweep.
+  Result: PASS (PDF build + EPUB builds + Apple gatekeeper audits + EPUBCheck all OK).
