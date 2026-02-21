@@ -46,19 +46,19 @@ The objective-and-audit loop still applies; what changes is the \emph{representa
 Learning is about building a usable input\(\rightarrow\)output mapping from examples. The difference from linear models is not the goal, but the \emph{representation}: a neural network builds the mapping by composing simple units, so intermediate signals become part of the model. Each unit implements its own local mapping (from its input to its pre-activation and activation), and these local maps accumulate into a successful nonlinear mapping \(f: X \to Y\). In this chapter we keep the bookkeeping minimal---one tiny network and a simple squared-error objective---so we can focus on how the update rules emerge.
 
 \paragraph{From one unit to a chain of units.}
-A perceptron computes a weighted sum and then applies an activation (often a threshold in the classical presentation):
+A single unit (the perceptron) computes a weighted sum and then applies an activation:
 \begin{equation}
  y = f(p), \qquad p = \mathbf{w}^\top\mathbf{x} + b,
  \label{eq:perceptron_forward}
 \end{equation}
-where $\mathbf{x}\in\mathbb{R}^n$, $\mathbf{w}\in\mathbb{R}^n$, and $b$ is a bias (threshold). Because the boundary $\mathbf{w}^\top\mathbf{x} + b = 0$ is a hyperplane, a single unit can only represent linear separations. This explains the classic XOR failure and motivates building a network of units.
+where $\mathbf{x}\in\mathbb{R}^n$, $\mathbf{w}\in\mathbb{R}^n$, and $b$ is a bias. With one unit, the decision boundary $\mathbf{w}^\top\mathbf{x}+b=0$ is a hyperplane, so a single unit can only produce linear separations; XOR is the canonical reminder of that limitation.
 
-The smallest network that is more than a single unit is a \emph{two\hyp{}neuron chain}: one neuron feeds another. Write
+The smallest step beyond a single unit is a \emph{two\hyp{}neuron chain}: one unit feeds another. Write
 \begin{align}
  p_1 &= \mathbf{w}_1^\top \mathbf{x} + b_1, & y_1 &= f(p_1), \\
  p_2 &= w_2 y_1 + b_2, & y_2 &= f(p_2). \label{eq:two_neuron_forward}
 \end{align}
-Even this tiny network introduces the central idea of neural networks: intermediate computations (here $y_1$) are reused and influence the final output $y_2$. A single neuron is a linear classifier; chaining neurons gives a nonlinear representation. With multiple hidden units, that added structure is enough to solve XOR. We will reuse \Cref{fig:mlp_minimal_chain} as the bookkeeping diagram when we apply the chain rule.
+This is the point where the unit becomes a building block: an intermediate signal $y_1$ is computed, reused, and then transformed again. Complexity now comes not only from what each block does in isolation, but from how the blocks connect, and how a change in one propagates to the other. We will reuse \Cref{fig:mlp_minimal_chain} as our bookkeeping diagram when we apply the chain rule.
 
 \begin{figure}[t]
     \centering
@@ -86,20 +86,20 @@ Even this tiny network introduces the central idea of neural networks: intermedi
 \end{figure}
 
 \paragraph{Author's note: why a network changes the story.}
-With one perceptron, every training example pushes on the same single separator. A network introduces \emph{intermediate representations}: different hidden units can respond to different patterns, and the output unit can combine those responses. That added structure is what lets neural networks model nonlinearity while still using simple building blocks.
+With one perceptron, every training example pushes on the same single separator. A network changes the situation by creating intermediate signals that can specialize: some units respond to one pattern, others respond to another, and a later unit can combine their responses. That internal structure is what turns simple units into a flexible nonlinear model. You can read the intermediate signals as learned transformations of the input whose job is to make the final separation easier.
 
 \paragraph{A checklist of what we must settle (and why).}
-To turn ``a diagram of neurons'' into something trainable, we need:
+A diagram becomes a learning machine only after we make four choices explicit:
 \begin{itemize}
-    \item \textbf{A parameterization:} weights and biases that control the mapping from inputs to outputs.
-    \item \textbf{A performance function:} a scalar $P$ that is lower when the output is better.
-    \item \textbf{An update rule:} a systematic way to change parameters to reduce $P$.
-    \item \textbf{Differentiability:} if we want to use gradient descent, every link from parameters to $P$ must be differentiable so the chain rule can propagate credit (and blame).
+    \item \textbf{Parameters:} which numbers we are allowed to change (weights and biases).
+    \item \textbf{Performance:} a single scalar \(P\) that measures how wrong the current output is.
+    \item \textbf{Update:} a rule that changes parameters to reduce \(P\).
+    \item \textbf{Differentiability:} if the update is derivative-based, the path from parameters to \(P\) must be differentiable so the chain rule can assign credit (and blame).
 \end{itemize}
-The chapter keeps everything small so you can see all four ingredients in one place.
+We keep the network tiny so you can see all four ingredients at the same time.
 
 \paragraph{Bias as a learned threshold.}
-A hard threshold $\theta$ can be absorbed into a bias term by writing $p = \mathbf{w}^\top\mathbf{x} - \theta$ and setting $b=-\theta$. In practice we append $x_0=1$ and treat $b$ as another weight $w_0$; the algebra is identical. The bias handles \emph{where} the unit switches, while the weights handle \emph{which direction} it prefers.
+A threshold can be written as a bias. If \(p=\mathbf{w}^\top\mathbf{x}-\theta\), define \(b=-\theta\) and write \(p=\mathbf{w}^\top\mathbf{x}+b\). In practice we append \(x_0=1\) and treat \(b\) as an extra weight \(w_0\); the algebra is identical. Intuitively, the bias controls \emph{where} the unit switches, while the weights control \emph{which directions} in input space push the unit toward switching. This simple trick lets us treat the bias exactly like another weight in both notation and updates.
 
 \subsection{Performance: what are we trying to improve?}
 \label{sec:mlp_performance_what_are_we_trying_to_improve}
@@ -112,14 +112,14 @@ Once we have a forward computation, we need a performance function that tells us
 The factor $\tfrac{1}{2}$ makes derivatives cleaner. If you prefer to \emph{maximize} a score rather than minimize an error, you could take $-\tfrac{1}{2}(y_2-t)^2$ instead. The math below is identical up to a sign. We will minimize $P$.
 
 \paragraph{Why a square?}
-The signed error $e = y_2 - t$ can be positive or negative. Squaring removes the sign and penalizes large deviations more heavily, while keeping $P$ smooth so a small change in a weight produces a small change in performance. That smoothness is exactly what makes derivative-based updates meaningful.
+The signed error \(e=y_2-t\) can be positive or negative. Squaring removes the sign, penalizes large mistakes more than small ones, and keeps \(P\) smooth. That smoothness matters: if \(P\) changes continuously with the weights, derivatives can give a reliable direction for improvement. It is also easy to interpret and explain.
 
 \begin{tcolorbox}[summarybox, title={Author's note: one objective is enough for the first derivation}]
 We start with squared error here for a simple reason: it keeps the algebra short, so you can see the chain rule without distractions. The point of the chapter is not ``squared error is always the right loss''; the point is learning to turn a forward computation into correct weight updates. Once that story is clear, you can swap the objective and redo only the small set of derivatives that touch the output layer.
 \end{tcolorbox}
 
 \paragraph{A geometric intuition.}
-For a fixed input, the performance becomes a surface over the weights. If the surface looks like a ``bowl,'' then the bottom is the optimum. The goal is to move weights along this surface in the direction that improves performance. \Cref{fig:mlp_gd_surface} visualizes this geometry and contrasts vector updates with coordinate-wise zig-zag steps.
+For a fixed input, the performance becomes a surface over the weights. If the surface is bowl-shaped, the best parameters sit near the bottom. Learning is then ``navigation'': move the weights in a direction that reduces performance. This is why it is preferable to use an algorithm that follows the local slope rather than guessing directions coordinate by coordinate. \Cref{fig:mlp_gd_surface} visualizes why moving in one vector direction is typically more efficient than changing one coordinate at a time.
 
 \subsection{Gradient descent: how do weights move?}
 \label{sec:mlp_gradient_descent_how_do_weights_move}
@@ -139,7 +139,7 @@ For a weight vector, the update is a vector step:
 This is the ``move the weights in the right direction'' story made precise: we do not guess the direction; we compute it from the derivative of performance. Importantly, we update \emph{all} weights at once (a vector step), not one coordinate at a time.
 
 \paragraph{Step size is a design choice.}
-The gradient gives a direction; the step size $\eta$ sets the distance. In practice you pick $\eta$ small enough to avoid oscillation and large enough to make progress. We return to this choice (learning-rate schedules, momentum, and other practical stabilizers) after the core derivative story is solid.
+The gradient gives a direction; the step size \(\eta\) sets how far you move. Too large and you bounce around (or diverge); too small and learning crawls. Many practical tricks are really ways of managing this tradeoff while keeping updates stable. In more uneven landscapes with multiple valleys, step size also affects \emph{which} valley you settle into: aggressive steps can jump across good regions, while timid steps can get you stuck early.
 
 \begin{figure}[t]
     \centering
@@ -190,7 +190,7 @@ At this point the story is simple: define $P$, compute $\nabla P$, and update we
 If $f$ is a hard threshold (a step function), it is discontinuous and non\hyp{}differentiable at the threshold. That breaks the gradient story: $f'(p)$ either does not exist or is zero almost everywhere, so derivatives cannot guide learning. This is the core reason we replace thresholds with \emph{smooth, differentiable activations}.
 
 \paragraph{Absorbing the threshold.}
-The threshold itself can be folded into a bias term, but the discontinuity remains. We remove the discontinuity by choosing a smooth $f$.
+Folding the threshold into a bias simplifies notation, but it does not remove the real issue: a hard step is still discontinuous. When you try to compute how a weight changes performance, the chain rule immediately introduces a derivative of the activation---terms of the form \(f'(p)\) appear. With a step function, that derivative is either undefined (at the threshold) or zero almost everywhere, so the learning signal cannot pass through the unit in a useful way. This is why we replace the step with a smooth activation.
 
 \begin{figure}[t]
     \centering
@@ -253,13 +253,13 @@ In practice you do not want to recompute expensive expressions during learning. 
 \end{tcolorbox}
 
 \paragraph{Derivation sketch.}
-Let $\beta = \sigma(\alpha) = (1+e^{-\alpha})^{-1}$. Differentiate:
+Let \(\beta=\sigma(\alpha)=(1+e^{-\alpha})^{-1}\). Differentiate and rewrite the result in terms of \(\beta\):
 \[
 \frac{d\beta}{d\alpha} = \frac{e^{-\alpha}}{(1+e^{-\alpha})^2}
 = \left(\frac{1}{1+e^{-\alpha}}\right)\left(1-\frac{1}{1+e^{-\alpha}}\right)
  = \beta(1-\beta).
 \]
-This is the exact algebraic shortcut used in neural networks.
+The key point is that once you have computed \(\beta\) on the forward pass, you can compute the slope from \(\beta\) alone, without recomputing exponentials.
 
 \subsection{Deriving weight updates for the two\hyp{}neuron network}
 \label{sec:mlp_deriving_weight_updates_for_the_two_neuron_network}
@@ -388,4 +388,5 @@ Conceptually, nothing magical happens when you go from two neurons to many layer
 \end{tcolorbox}
 
 \medskip
-\paragraph{Where we head next.} \Cref{chap:backprop} lifts this two-neuron derivation to deep networks and shows how to implement the same backward logic efficiently in batch training.
+\paragraph{Where we head next.}
+\Cref{chap:backprop} answers the practical scaling question: how to go from the smallest network in this chapter to networks with many layers and many units per layer. It uses the same ideas, but organizes them into a general recipe---a forward pass that caches intermediate quantities, and a backward pass that reuses those caches to compute gradients efficiently for deep, batched models.

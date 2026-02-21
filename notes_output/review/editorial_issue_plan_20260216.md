@@ -878,3 +878,15 @@ Build notes (2026-02-17):
   `lecture_3_part_ii.tex`. Result: PASS (PDF build + EPUB builds + Apple gatekeeper audits + EPUBCheck all OK).
 - 2026-02-20: Ran `python3 notes_output/scripts/chapter_format_audit.py --write` to confirm the course-voice warning was
   cleared. Result: PASS (no ``next chapter'' warning).
+
+## 2026-02-21 Part II Chapter 6 (MLP) voice pass
+
+- `notes_output/lecture_3_part_ii.tex`: replaced 10 key paragraphs with author-edited book-voice prose (unit-to-chain
+  framing, network intuition, checklist, bias explanation, squared-error intuition, geometry/step-size intuition,
+  threshold/differentiability motivation, sigmoid derivative sketch, and the end-of-chapter handoff).
+- `notes_output/lecture_3_part_ii.tex`: removed the LLM-y ``Use it when ...'' sentence from three figure captions
+  (`fig:mlp_minimal_chain`, `fig:mlp_gd_surface`, `fig:mlp_step_vs_sigmoid`).
+- 2026-02-21: Ran `python3 notes_output/scripts/validate_math_examples_and_graphs.py --strict` after the paragraph/caption
+  voice pass in `lecture_3_part_ii.tex`. Result: PASS.
+- 2026-02-21: Ran `bash notes_output/scripts/run_production_checks.sh` after the paragraph/caption voice pass in
+  `lecture_3_part_ii.tex`. Result: PASS (PDF build + EPUB builds + Apple gatekeeper audits + EPUBCheck all OK).
