@@ -960,3 +960,14 @@ Build notes (2026-02-17):
   Result: PASS.
 - 2026-02-21: Ran `bash notes_output/scripts/run_production_checks.sh` after the mid/late sweep.
   Result: PASS (PDF build + EPUB builds + Apple gatekeeper audits + EPUBCheck all OK).
+
+## 2026-02-21 Part II Chapter 7 (Backprop) tail cohesion pass (case study/applications/limitations/conclusion)
+
+- `notes_output/lecture_4_part_i.tex`: rewrote ``Limitations'' to tie directly to the earlier shape ledger, gradient
+  checks, and activation diagnostics (so the limitations read as actionable failure modes, not generic warnings).
+- `notes_output/lecture_4_part_i.tex`: tightened the ``Conclusion'' recap prose (kept the matrix-form equations and
+  labels intact) and reduced duplication by pointing the key-takeaway box back to the recap equations.
+- 2026-02-21: Ran `python3 notes_output/scripts/validate_math_examples_and_graphs.py --strict` after the tail sweep.
+  Result: PASS.
+- 2026-02-21: Ran `bash notes_output/scripts/run_production_checks.sh` after the tail sweep.
+  Result: PASS (PDF build + EPUB builds + Apple gatekeeper audits + EPUBCheck all OK).
