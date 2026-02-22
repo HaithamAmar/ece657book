@@ -1048,6 +1048,12 @@ Build notes (2026-02-17):
 - `notes_output/lecture_4_part_ii.tex`: collapsed the Wiener-filter refresher from a full derivation into a single boxed
   paragraph mapping Wiener normal equations to the RBF design-matrix solve (so it is easy to ignore without losing the
   main thread). Removed now-unused Wiener equation labels.
+- `notes_output/lecture_4_part_ii.tex`: added a before/after XOR figure that places input-space geometry next to the
+  transformed \((g_1,g_2)\) feature space (with one explicit separating border), to visually drive home the
+  ``transform-then-separate'' story. The numeric coordinates and the separator were verified in Python.
+- `notes_output/scripts/validate_math_examples_and_graphs.py`: extended the Chapter 8 RBF transform check to verify all four
+  XOR corners in feature space (including the off-diagonal coincidence) and to confirm a valid separating border
+  (\(g_1+g_2=1.3\), i.e., \(w=[1,1]\), \(b=-1.3\)).
 - 2026-02-22: Ran `python3 notes_output/scripts/validate_math_examples_and_graphs.py --strict` after the edits. Result: PASS.
 - 2026-02-22: Ran `bash notes_output/scripts/run_production_checks.sh` after the edits. Result: PASS (release checks, Apple
   gatekeeper audits, and EPUBCheck all OK).

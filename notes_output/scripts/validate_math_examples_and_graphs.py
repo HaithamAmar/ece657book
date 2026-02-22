@@ -621,9 +621,15 @@ def check_ch4_rbf_transform() -> dict[str, float]:
         return float(np.exp(-np.sum((x - v) ** 2) / (2 * sigma2)))
 
     x00 = np.array([0.0, 0.0])
+    x01 = np.array([0.0, 1.0])
+    x10 = np.array([1.0, 0.0])
     x11 = np.array([1.0, 1.0])
     g1_00 = g(x00, v1)
     g2_00 = g(x00, v2)
+    g1_01 = g(x01, v1)
+    g2_01 = g(x01, v2)
+    g1_10 = g(x10, v1)
+    g2_10 = g(x10, v2)
     g1_11 = g(x11, v1)
     g2_11 = g(x11, v2)
 
@@ -632,7 +638,34 @@ def check_ch4_rbf_transform() -> dict[str, float]:
     _assert_close(g1_11, np.exp(-1.0), 1e-9, "g1(1,1) mismatch")
     _assert_close(g2_11, 1.0, 1e-9, "g2(1,1) mismatch")
 
-    return {"g2_00": float(g2_00), "g1_11": float(g1_11)}
+    # Off-diagonal corners coincide in this two-center example.
+    _assert_close(g1_01, np.exp(-0.5), 1e-9, "g1(0,1) mismatch")
+    _assert_close(g2_01, np.exp(-0.5), 1e-9, "g2(0,1) mismatch")
+    _assert_close(g1_10, np.exp(-0.5), 1e-9, "g1(1,0) mismatch")
+    _assert_close(g2_10, np.exp(-0.5), 1e-9, "g2(1,0) mismatch")
+    _assert_close(g1_01, g1_10, 1e-12, "g1(0,1) != g1(1,0)")
+    _assert_close(g2_01, g2_10, 1e-12, "g2(0,1) != g2(1,0)")
+
+    # One valid separating border in feature space is g1 + g2 = 1.3, i.e., w=[1,1], b=-1.3.
+    w = np.array([1.0, 1.0])
+    b = -1.3
+
+    def score(g1: float, g2: float) -> float:
+        return float(w[0] * g1 + w[1] * g2 + b)
+
+    # XOR labels: diagonal corners are class 0; off-diagonals are class 1.
+    _assert(score(g1_00, g2_00) > 0.0, "Separator misclassifies (0,0)")
+    _assert(score(g1_11, g2_11) > 0.0, "Separator misclassifies (1,1)")
+    _assert(score(g1_01, g2_01) < 0.0, "Separator misclassifies (0,1)")
+    _assert(score(g1_10, g2_10) < 0.0, "Separator misclassifies (1,0)")
+
+    return {
+        "g2_00": float(g2_00),
+        "g1_11": float(g1_11),
+        "g_01": float(g1_01),
+        "margin_pos": float(min(score(g1_00, g2_00), score(g1_11, g2_11))),
+        "margin_neg": float(max(score(g1_01, g2_01), score(g1_10, g2_10))),
+    }
 
 
 def check_ch5_som_update() -> dict[str, float]:

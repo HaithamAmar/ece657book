@@ -235,7 +235,80 @@ g_i(\mathbf{x}) = \exp\left(-\frac{\|\mathbf{x} - \mathbf{v}_i\|^2}{2\sigma^2}\r
 \]
 
 \paragraph{Transformation Results:}
-Applying the transformation to the inputs yields new points in the \(g_1\)-\(g_2\) space. For example, the input \(\mathbf{x} = (0,0)\) maps to \((g_1, g_2) = (1, e^{-1})\), and \(\mathbf{x} = (1,1)\) maps to \((e^{-1}, 1)\). This transformation often results in the classes becoming linearly separable in the $g_1$--$g_2$ plane; plotting the four transformed points reveals that samples from different classes occupy opposite corners of the square, allowing a single linear decision boundary to separate them.
+Applying the transformation to the inputs yields new points in the \(g_1\)-\(g_2\) space. For example, the input \(\mathbf{x}=(0,0)\) maps to \((g_1,g_2)=(1,e^{-1})\), and \(\mathbf{x}=(1,1)\) maps to \((e^{-1},1)\). The two off-diagonal corners \((0,1)\) and \((1,0)\) map to the same feature point \((e^{-1/2},e^{-1/2})\). In this feature plane the XOR labels become linearly separable; for instance, the separator \(g_1+g_2=1.3\) places the diagonal corners on one side and the off-diagonal corners on the other (\Cref{fig:rbf_xor_feature_map}).
+
+\begin{figure}[t]
+    \centering
+\begin{tikzpicture}[background rectangle/.style={fill=white}, show background rectangle]
+        \begin{groupplot}[
+            group style={group size=2 by 1, horizontal sep=1.3cm},
+            width=0.44\linewidth,
+            height=0.34\linewidth,
+            axis lines=middle,
+            tick label style={font=\scriptsize},
+            label style={font=\scriptsize},
+            title style={font=\scriptsize, align=center},
+            axis background/.style={fill=white},
+            clip=false,
+        ]
+        \nextgroupplot[
+            title={Input space \((x_1,x_2)\)},
+            xlabel={$x_1$},
+            ylabel={$x_2$},
+            xmin=-0.1, xmax=1.1,
+            ymin=-0.1, ymax=1.1,
+            xtick={0,1},
+            ytick={0,1},
+        ]
+            % Class 0: (0,0) and (1,1)
+            \addplot[
+                only marks,
+                mark=o,
+                mark options={fill=white, draw=black},
+                mark size=2.6pt,
+            ] coordinates {(0,0) (1,1)};
+            % Class 1: (0,1) and (1,0)
+            \addplot[
+                only marks,
+                mark=square*,
+                mark options={fill=black, draw=black},
+                mark size=2.6pt,
+            ] coordinates {(0,1) (1,0)};
+            \node[font=\scriptsize, text=black!60, anchor=south] at (axis cs:0.5,0.05) {no single line separates XOR};
+
+        \nextgroupplot[
+            title={Feature space \((g_1,g_2)\)},
+            xlabel={$g_1$},
+            ylabel={$g_2$},
+            xmin=0.3, xmax=1.05,
+            ymin=0.3, ymax=1.05,
+            xtick={0.368,0.607,1.0},
+            ytick={0.368,0.607,1.0},
+        ]
+            % Class 0 in feature space.
+            \addplot[
+                only marks,
+                mark=o,
+                mark options={fill=white, draw=black},
+                mark size=2.6pt,
+            ] coordinates {(1.000000,0.367879) (0.367879,1.000000)};
+            % Class 1 corners coincide at the same feature point for this two-center example.
+            \addplot[
+                only marks,
+                mark=square*,
+                mark options={fill=black, draw=black},
+                mark size=2.6pt,
+            ] coordinates {(0.606531,0.606531)};
+            \node[font=\scriptsize, text=black!60, anchor=south] at (axis cs:0.606531,0.62) {(0,1) and (1,0) coincide};
+            % One valid separating border in feature space: g1 + g2 = 1.3.
+            \addplot[black!70, dashed, domain=0.3:1.05, samples=2] {1.3 - x};
+            \node[font=\scriptsize, text=black!60, anchor=north] at (axis cs:0.78,0.52) {$g_1+g_2=1.3$};
+        \end{groupplot}
+    \end{tikzpicture}
+    \caption{XOR before and after an RBF feature map. Left: in \((x_1,x_2)\), no single line separates the labels. Right: in \((g_1,g_2)\), the transformed points are linearly separable; one valid separating border is \(g_1+g_2=1.3\) (equivalently \(w=[1,1]\), \(b=-1.3\)).}
+    \label{fig:rbf_xor_feature_map}
+\end{figure}
+\FloatBarrier
 
 \subsection{Finding the Optimal Weight Vector \texorpdfstring{\(\mathbf{w}\)}{w}}
 \label{sec:rbf_finding_the_optimal_weight_vector_w_w}
