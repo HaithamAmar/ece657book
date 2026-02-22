@@ -1037,3 +1037,17 @@ Build notes (2026-02-17):
 - 2026-02-22: Ran `python3 notes_output/scripts/validate_math_examples_and_graphs.py --strict` after the edits. Result: PASS.
 - 2026-02-22: Ran `bash notes_output/scripts/run_production_checks.sh` after the edits. Result: PASS (release checks, Apple
   gatekeeper audits, and EPUBCheck all OK).
+
+## 2026-02-22 Part II Chapter 8 (RBFNs) de-templating + XOR narrative thread + Wiener sidebar collapse
+
+- `notes_output/lecture_4_part_ii.tex`: rewrote the opening roadmap/motivation blocks to reduce template tone and align the
+  narrative with the chapter's core idea: nonlinear representation (kernel-like radial features) plus a linear readout.
+- `notes_output/lecture_4_part_ii.tex`: introduced an explicit XOR running thread early in the chapter to anchor intuition:
+  the hidden layer performs the transformation; the output weights define the separating border in the transformed space.
+- `notes_output/lecture_4_part_ii.tex`: renamed ``Author's note'' headings to read like book prose (kept the content).
+- `notes_output/lecture_4_part_ii.tex`: collapsed the Wiener-filter refresher from a full derivation into a single boxed
+  paragraph mapping Wiener normal equations to the RBF design-matrix solve (so it is easy to ignore without losing the
+  main thread). Removed now-unused Wiener equation labels.
+- 2026-02-22: Ran `python3 notes_output/scripts/validate_math_examples_and_graphs.py --strict` after the edits. Result: PASS.
+- 2026-02-22: Ran `bash notes_output/scripts/run_production_checks.sh` after the edits. Result: PASS (release checks, Apple
+  gatekeeper audits, and EPUBCheck all OK).

@@ -1,7 +1,7 @@
 % Chapter 8
 \section{Radial Basis Function Networks (RBFNs)}\label{chap:rbf}
 
-Building on the multilayer perceptron (MLP) architecture (\Cref{chap:mlp}) and its training machinery (\Cref{chap:backprop}), we now introduce radial basis function networks (RBFNs): three\hyp{}layer models with fixed nonlinear bases and a linear readout. \Cref{fig:roadmap} places this as the kernel/prototype branch alongside the MLP path.
+Building on the multilayer perceptron (MLP) architecture (\Cref{chap:mlp}) and its training machinery (\Cref{chap:backprop}), this chapter introduces radial basis function networks (RBFNs): three\hyp{}layer models with fixed nonlinear bases and a linear readout. \Cref{fig:roadmap} places this as the kernel/prototype branch alongside the MLP path.
 
 \begin{tcolorbox}[summarybox, title={Learning Outcomes}]
 \begin{itemize}
@@ -19,25 +19,18 @@ Make the nonlinearity explicit: use a fixed (or lightly tuned) basis expansion i
 \label{sec:rbf_overview_and_motivation}
 
 \paragraph{How to read this chapter.}
-\begin{itemize}
-    \item \textbf{Core thread (RBFNs):} architecture $\rightarrow$ basis functions and widths $\rightarrow$ linear solve (least squares / ridge) $\rightarrow$ kernel view and practical tuning.
-    \item \textbf{Optional bridge:} a short Wiener-filter refresher connects the RBFN linear solve to classical linear estimation; it is provided for context and can be skimmed without loss of continuity.
-\end{itemize}
+We start with the three-layer picture and the basis-function intuition, then write the model in matrix form and show how training becomes a regularized least-squares solve. Near the end we connect the finite-basis view to the kernel viewpoint. The Wiener-filter box is optional context if you want the signal-processing parallel.
 
-Unlike MLPs, which learn weights in every layer, an RBFN fixes the hidden nonlinearity and learns only the output weights. Concretely:
+Unlike MLPs, which learn weights in every layer, an RBFN separates the job into two parts. The hidden layer provides a fixed nonlinear feature map (set by centers and widths). The output layer then learns a linear combination of those features. That split is the main story in this chapter: choose the basis, then solve for the readout.
 
-\begin{itemize}
-    \item It has exactly three layers: an input layer, a single hidden layer, and an output layer.
-    \item The input layer simply forwards the raw feature vector to every hidden unit; there are no trainable weights on these connections because the hidden units encode their own parameters (centers and widths).
-    \item The hidden layer applies a nonlinear transformation to the input vector via a set of radial basis functions.
-    \item The output layer is a linear combination of the hidden layer outputs, with trainable weights.
-\end{itemize}
-
-The RBFN was originally developed as a method to model nonlinear static processes by mapping data from a lower\hyp{}dimensional input space to a higher\hyp{}dimensional feature space. The key idea is that data which are \emph{not linearly separable} in the original input space can become \emph{linearly separable} after a suitable nonlinear transformation into a higher\hyp{}dimensional space. This concept is closely related to the kernel trick used in support vector machines (SVMs); \Cref{app:kernels} collects the classical kernel/SVM viewpoint in one place.
+The key idea is that ``nonlinear'' can come from the representation rather than the readout. Radial basis functions act like localized, kernel-style features; once you lift inputs into that feature space, the output layer is still linear, and the weights are responsible for finding the separating border. This is closely related to the kernel trick used in SVMs; \Cref{app:kernels} collects the classical kernel viewpoint.
 
 \Cref{chap:supervised} frames this as a bias--variance tuning problem (choose capacity, regularization, and diagnostics via learning curves). Kernel methods such as kernel ridge regression and SVMs interpret the same trade-off through an RBF kernel matrix; here we keep the bases explicit, then connect to the dual/kernel view later in the chapter.
 
-\paragraph{Author's note: centers come from clustering.}
+\paragraph{Running example: XOR as a representation problem.}
+XOR is the smallest reminder that a single line in the input space is not always enough. The point of RBF networks is not that the output layer becomes complicated; it stays linear. The complication is pushed into the feature map: the hidden units apply localized, kernel-like transforms, and the output weights are responsible for finding the separating border in that transformed space. We will return to XOR twice: first to see the feature map, then to see how the linear solve chooses the readout weights.
+
+\paragraph{Centers from clustering (a practical default).}
 The hidden layer of an RBF network is easiest to understand when its centers are viewed as K-means prototypes: pick a coverage of the input space that reflects the data distribution, assign widths accordingly, and let the output layer learn the linear weights on top of those prototypes. Unsupervised clustering up front makes the later supervised solve far more stable.
 
 \subsection{Architecture of RBFNs}
@@ -167,7 +160,7 @@ Once you have the architecture in mind, it helps to visualize what the hidden la
 
 Later in the chapter we contrast this finite-basis (``primal'') view with the kernel (``dual'') view and show how Nystr\"om-style approximations fit into the same story.
 
-\Cref{fig:rbf_architecture_weights} plus the overview above summarize the three-layer flow; we now formalize it algebraically.
+\Cref{fig:rbf_architecture_weights} plus the overview above summarize the three-layer flow. Next we write the same story algebraically, so the training step becomes a linear solve with shapes you can check.
 The key distinction is that the input-to-hidden layer connections do not have trainable weights; instead, the hidden layer units themselves perform nonlinear transformations of the input.
 
 \subsubsection{Mathematical Formulation}
@@ -221,18 +214,17 @@ Other choices of radial basis functions are possible, but the Gaussian is the mo
 \subsection{Transforming Nonlinearly Separable Data into Linearly Separable Space}
 \label{sec:rbf_transforming_nonlinearly_separable_data_into_linearly_separable_space}
 
-Recall from the previous discussion that certain datasets are not linearly separable in their original input space. However, by applying nonlinear transformations, we can map the data into a new feature space where linear separation becomes possible.
+Some datasets are not linearly separable in the original input space. A nonlinear feature map can move the same points into a space where a single linear boundary is enough.
 
 Consider a nonlinear transformation function \( g(\cdot) \) applied to the input vector \( \mathbf{x} \in \mathbb{R}^n \), producing a transformed vector \( \mathbf{g}(\mathbf{x}) \in \mathbb{R}^m \). The goal is to find a weight vector \( \mathbf{w} \in \mathbb{R}^m \) such that the linear combination \( \mathbf{w}^\top \mathbf{g}(\mathbf{x}) \) separates the classes.
 
-\paragraph{Example Setup:}
-- Input vectors: \(\mathbf{x} \in \{0,1\}^2\) (e.g., \((0,0), (0,1), (1,0), (1,1)\))
-- Two neurons in the hidden layer, each associated with weight vectors \(\mathbf{v}_1\) and \(\mathbf{v}_2\).
-- Activation functions \(g_1(\mathbf{x})\) and \(g_2(\mathbf{x})\) correspond to these neurons.
-- Output is a linear combination of these activations:
-\[
-y = \mathbf{w}^\top \mathbf{g}(\mathbf{x}) = w_1 g_1(\mathbf{x}) + w_2 g_2(\mathbf{x}).
-\]
+\paragraph{Example setup (XOR).}
+\begin{itemize}
+    \item Inputs: \(\mathbf{x}\in\{0,1\}^2\) with the four corners \((0,0),(0,1),(1,0),(1,1)\).
+    \item Two radial units centered at \(\mathbf{v}_1=(0,0)^\top\) and \(\mathbf{v}_2=(1,1)^\top\).
+    \item Feature map: \(\mathbf{g}(\mathbf{x})=[g_1(\mathbf{x}),g_2(\mathbf{x})]^\top\) with Gaussian \(g_i\).
+    \item Linear readout: \(y = \mathbf{w}^\top \mathbf{g}(\mathbf{x})\).
+\end{itemize}
 
 \paragraph{Assumptions:}
 - For simplicity, set \(\sigma^2 = 1\) (so \(2\sigma^2 = 2\)) in the Gaussian kernel activation function.
@@ -292,7 +284,7 @@ g(r) = \exp\left(-\frac{r^2}{2\sigma^2}\right).
 \]
 This function is smooth, bounded, and has a clear interpretation as a localized receptive field centered at \(\mathbf{v}\) with width \(\sigma\). It is the most commonly used kernel in RBF networks.
 
-\begin{tcolorbox}[summarybox, title={Author's note: why ``radial'' and why a Gaussian?}]
+\begin{tcolorbox}[summarybox, title={Why ``radial''? Why a Gaussian?}]
 An RBF unit is called \emph{radial} because its response depends primarily on distance from a center: points at the same radius (in the chosen metric) produce the same activation. The Gaussian basis is popular because it is smooth, has a clear center, and its width parameter \(\sigma\) directly controls locality: large \(\sigma\) makes each unit ``see'' broadly (risking underfit), while small \(\sigma\) makes units highly local (risking overfit and poor conditioning). The practical art is to pick centers that cover the data and then tune \(\sigma\) (and ridge \(\lambda\)) by validation, as in \Cref{fig:rbf_sigma_sweep}.
 \end{tcolorbox}
 
@@ -586,69 +578,9 @@ Choose \(M=4\) centers at the data and set a global \(\sigma\) from the mean int
 
 % Chapter 8: Finalizing Derivations and Closure
 
-\subsection*{Optional sidebar: Wiener filter refresher}
-
-\paragraph{Sidebar: why include Wiener filtering here?} RBF networks inherit many ideas from linear estimation (projection onto bases, Gaussian kernels). The short Wiener-filter recap below is optional; feel free to skim or treat it as context that connects kernelized least-squares estimators to the localized nonlinear networks that opened this chapter.
-
-Recall from the previous discussion that the Wiener filter aims to minimize the mean squared error (MSE) between the desired signal \( d(t) \) and the filter output \( y(t) \), where
-\[
-y(t) = \mathbf{w}^T \mathbf{x}(t),
-\]
-with \(\mathbf{w}\) the filter coefficient vector and \(\mathbf{x}(t)\) the input vector.
-
-The MSE cost function is
-\begin{equation}
-J(\mathbf{w}) = \mathbb{E}\left[ |d(t) - \mathbf{w}^T \mathbf{x}(t)|^2 \right].
-\label{eq:mse_cost}
-\end{equation}
-
-To find the optimal \(\mathbf{w}^\star\), we set the gradient of \(J(\mathbf{w})\) with respect to \(\mathbf{w}\) to zero:
-\[
-\nabla_{\mathbf{w}} J(\mathbf{w}) = -2 \mathbf{p} + 2 \mathbf{R} \mathbf{w} = \mathbf{0},
-\]
-where
-\[
-\mathbf{R} = \mathbb{E}[\mathbf{x}(t) \mathbf{x}^T(t)], \quad \mathbf{p} = \mathbb{E}[d(t) \mathbf{x}(t)].
-\]
-
-Solving for \(\mathbf{w}\), we obtain the Wiener-Hopf equation:
-\begin{equation}
-\mathbf{R} \mathbf{w}^\star = \mathbf{p}.
-\label{eq:wiener_hopf}
-\end{equation}
-
-Assuming \(\mathbf{R}\) is invertible, the optimal filter coefficients are
-\begin{equation}
-\mathbf{w}^\star = \mathbf{R}^{-1} \mathbf{p}.
-\label{eq:wiener_solution}
-\end{equation}
-
-This completes the derivation of the Wiener filter solution.
-
-\paragraph{Optional: interpretation and properties}
-
-\paragraph{Interpretation:} The Wiener filter can be viewed as the linear estimator that projects the desired signal \(d(t)\) onto the subspace spanned by the input vector \(\mathbf{x}(t)\) in the least-squares sense.
-
-\paragraph{Properties:}
-\begin{itemize}
-    \item \textbf{Optimality:} Minimizes the MSE among all linear filters.
-    \item \textbf{Stationarity:} Requires knowledge of the second-order statistics \(\mathbf{R}\) and \(\mathbf{p}\), which are assumed stationary.
-    \item \textbf{Causality:} The Wiener filter as derived is non-causal; causal versions require additional constraints.
-\end{itemize}
-
-\paragraph{Optional: frequency-domain form}
-
-For stationary processes, the Wiener filter can be equivalently expressed in the frequency domain. Let \(S_{xx}(\omega)\) and \(S_{dx}(\omega)\) denote the power spectral density (PSD) of the input and the cross-PSD between desired and input signals, respectively. Then the frequency response of the Wiener filter is
-\begin{equation}
-H(\omega) = \frac{S_{dx}(\omega)}{S_{xx}(\omega)}.
-\label{eq:wiener_freq}
-\end{equation}
-
-This expression provides insight into the filter's behavior as a frequency-selective operator that emphasizes frequencies where the desired signal and input are strongly correlated.
-
-\paragraph{Optional: why adaptive filtering comes next}
-
-While the Wiener filter provides a closed-form solution, in practice the statistics \(\mathbf{R}\) and \(\mathbf{p}\) are often unknown or time-varying. This motivates adaptive filtering algorithms such as LMS and RLS, which iteratively approximate \(\mathbf{w}^\star\) using observed data.
+\begin{tcolorbox}[summarybox, title={Sidebar (optional): Wiener filtering in one paragraph}]
+The Wiener filter is the same least-squares projection story in signal-processing notation. In the Wiener case, you write the linear estimator as \(y(t)=\mathbf{w}^\top\mathbf{x}(t)\) and the normal equations involve second-order statistics \(\mathbf{R}=\mathbb{E}[\mathbf{x}\mathbf{x}^\top]\) and \(\mathbf{p}=\mathbb{E}[d\,\mathbf{x}]\), giving \(\mathbf{R}\mathbf{w}^\star=\mathbf{p}\). In an RBF network, you replace the raw input \(\mathbf{x}\) by fixed nonlinear features \(\boldsymbol{\Phi}\) (built from radial units), and the same idea becomes \((\boldsymbol{\Phi}^\top\boldsymbol{\Phi}+\lambda I)\mathbf{w}^\star=\boldsymbol{\Phi}^\top\mathbf{y}\). The point of the sidebar is just this mapping: both are ``fit a linear readout to fixed features,'' and conditioning/regularization control how stable that fit is.
+\end{tcolorbox}
 
 \subsection{Preview: Unsupervised and Localized Learning}
 \label{sec:rbf_preview_unsupervised_and_localized_learning}
