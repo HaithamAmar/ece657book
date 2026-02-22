@@ -668,6 +668,131 @@ def check_ch4_rbf_transform() -> dict[str, float]:
     }
 
 
+def check_fig_rbf_xor_sigma_sweep() -> dict[str, float]:
+    """
+    Verify the XOR sigma-sweep boundary figure data tables match the model they claim to show.
+
+    We recompute the ridge-fit RBF model for each sigma, reconstruct the class grid,
+    and compare it to the committed PGFPlots tables in notes_output/.
+    """
+
+    xs = np.linspace(-0.2, 1.2, 29)
+    ys = np.linspace(-0.2, 1.2, 29)
+
+    X = np.array([[0.0, 0.0], [0.0, 1.0], [1.0, 0.0], [1.0, 1.0]], dtype=float)
+    t = np.array([0.0, 1.0, 1.0, 0.0], dtype=float)
+    centers = X.copy()
+
+    lam = 1e-3
+    level = 0.5
+
+    def rbf(x: np.ndarray, c: np.ndarray, sigma: float) -> float:
+        return float(np.exp(-np.sum((x - c) ** 2) / (2.0 * sigma * sigma)))
+
+    def fit_weights(sigma: float) -> np.ndarray:
+        Phi = np.stack([[rbf(x, c, sigma) for c in centers] for x in X], axis=0)
+        A = Phi.T @ Phi + lam * np.eye(Phi.shape[1])
+        return np.linalg.solve(A, Phi.T @ t)
+
+    def predict_grid(sigma: float, w: np.ndarray) -> np.ndarray:
+        grid = np.zeros((len(ys), len(xs)), dtype=float)
+        for iy, y in enumerate(ys):
+            for ix, x in enumerate(xs):
+                p = np.array([float(x), float(y)], dtype=float)
+                feat = np.array([rbf(p, c, sigma) for c in centers], dtype=float)
+                grid[iy, ix] = float(feat @ w)
+        return grid
+
+    def parse_class_table(path: Path) -> dict[tuple[float, float], int]:
+        txt = path.read_text(encoding="utf-8").strip().splitlines()
+        _assert(len(txt) > 1 and txt[0].strip() == "x y cls", f"Bad header in {path.name}")
+        out: dict[tuple[float, float], int] = {}
+        for line in txt[1:]:
+            line = line.strip()
+            if not line:
+                continue
+            x_s, y_s, c_s = line.split()
+            x = round(float(x_s), 4)
+            y = round(float(y_s), 4)
+            out[(x, y)] = int(c_s)
+        return out
+
+    def components_4n(cls: np.ndarray) -> int:
+        seen = np.zeros_like(cls, dtype=bool)
+        comps = 0
+        for i in range(cls.shape[0]):
+            for j in range(cls.shape[1]):
+                if cls[i, j] != 1 or seen[i, j]:
+                    continue
+                comps += 1
+                stack = [(i, j)]
+                seen[i, j] = True
+                while stack:
+                    a, b = stack.pop()
+                    for da, db in ((1, 0), (-1, 0), (0, 1), (0, -1)):
+                        na, nb = a + da, b + db
+                        if 0 <= na < cls.shape[0] and 0 <= nb < cls.shape[1]:
+                            if cls[na, nb] == 1 and not seen[na, nb]:
+                                seen[na, nb] = True
+                                stack.append((na, nb))
+        return comps
+
+    specs = [
+        (2.0, "sigma2p0"),
+        (0.8, "sigma0p8"),
+        (0.25, "sigma0p25"),
+    ]
+
+    details: dict[str, float] = {}
+    stats: dict[str, dict[str, float]] = {}
+
+    for sigma, tag in specs:
+        w = fit_weights(sigma)
+        yhat = predict_grid(sigma, w)
+        cls = (yhat >= level).astype(int)
+
+        table_path = ROOT / f"rbf_xor_{tag}_boundary_class_table_with_breaks.dat"
+        table = parse_class_table(table_path)
+
+        # Exact table-vs-model match on the full 29x29 grid.
+        mismatches = 0
+        for iy, y in enumerate(ys):
+            for ix, x in enumerate(xs):
+                key = (round(float(x), 4), round(float(y), 4))
+                file_c = table.get(key, None)
+                if file_c is None or int(file_c) != int(cls[iy, ix]):
+                    mismatches += 1
+        _assert(mismatches == 0, f"{table_path.name} mismatch count={mismatches}")
+
+        dyn = float(yhat.max() - yhat.min())
+        frac1 = float(cls.mean())
+        comps = float(components_4n(cls))
+
+        # Training-point margin from the 0.5 threshold.
+        Phi_train = np.stack([[rbf(x, c, sigma) for c in centers] for x in X], axis=0)
+        y_train = Phi_train @ w
+        margin = float(np.min(np.abs(y_train - level)))
+
+        stats[tag] = {"dyn": dyn, "frac1": frac1, "comps": comps, "margin": margin}
+        details[f"{tag}_dyn"] = dyn
+        details[f"{tag}_frac1"] = frac1
+        details[f"{tag}_comps"] = comps
+        details[f"{tag}_margin"] = margin
+
+    # Sanity properties that match the narrative in the caption:
+    # - very broad sigma: low contrast / low margin around 0.5
+    # - balanced sigma: high contrast / large margin
+    # - very local sigma: class-1 islands (multiple components) and smaller area
+    _assert(stats["sigma2p0"]["dyn"] < 0.6, "Expected low dynamic range for sigma=2.0")
+    _assert(stats["sigma2p0"]["margin"] < 0.2, "Expected low margin for sigma=2.0")
+    _assert(stats["sigma0p8"]["dyn"] > 1.0, "Expected high dynamic range for sigma=0.8")
+    _assert(stats["sigma0p8"]["margin"] > 0.4, "Expected large margin for sigma=0.8")
+    _assert(stats["sigma0p25"]["comps"] >= 2.0, "Expected multiple class-1 components for sigma=0.25")
+    _assert(stats["sigma0p25"]["frac1"] < stats["sigma0p8"]["frac1"], "Expected smaller class-1 area for sigma=0.25")
+
+    return details
+
+
 def check_ch5_som_update() -> dict[str, float]:
     x = np.array([0.2, 0.8])
     w1 = np.array([0.1, 0.9])
@@ -768,6 +893,7 @@ def run_checks() -> list[CheckResult]:
         ("chapter4_backprop_numeric", check_ch4_backprop_numeric),
         ("chapter4_softmax_ce_grad", check_ch4_softmax_ce_grad),
         ("chapter4_rbf_transform", check_ch4_rbf_transform),
+        ("figure_rbf_xor_sigma_sweep", check_fig_rbf_xor_sigma_sweep),
         ("chapter5_som_update", check_ch5_som_update),
         ("chapter8_softcomp_probs", check_ch8_softcomp_probs),
         ("chapter9_overlap_memberships", check_ch9_overlap_memberships),

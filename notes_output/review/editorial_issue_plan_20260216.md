@@ -1057,3 +1057,19 @@ Build notes (2026-02-17):
 - 2026-02-22: Ran `python3 notes_output/scripts/validate_math_examples_and_graphs.py --strict` after the edits. Result: PASS.
 - 2026-02-22: Ran `bash notes_output/scripts/run_production_checks.sh` after the edits. Result: PASS (release checks, Apple
   gatekeeper audits, and EPUBCheck all OK).
+
+## 2026-02-22 Part II Chapter 8 (RBFNs) XOR boundary sigma sweep (figure truthfulness)
+
+- `notes_output/lecture_4_part_ii.tex`: replaced the single XOR boundary plot with a 3-panel sigma sweep
+  (\(\sigma=2.0,0.8,0.25\)) so the figure explicitly supports the text claim: broad bases wash out locality, balanced
+  widths separate cleanly, and overly local widths create island-like decision regions.
+- `notes_output/scripts/gen_rbf_xor_sigma_sweep_tables.py`: added a deterministic generator for the PGFPlots tables used in
+  the 3-panel XOR boundary figure (class-region tables + 0.5 contour tables).
+- `notes_output/rbf_xor_sigma*_boundary_class_table_with_breaks.dat`, `notes_output/rbf_xor_sigma*_contour_0p5.dat`:
+  committed the generated data tables for \(\sigma=2.0,0.8,0.25\).
+- `notes_output/scripts/validate_math_examples_and_graphs.py`: added a strict check that recomputes the model and asserts
+  the committed sigma-sweep class tables match the model on the full 29x29 grid; also asserts the intended qualitative
+  properties (low contrast at \(\sigma=2.0\), high contrast at \(\sigma=0.8\), island-like regions at \(\sigma=0.25\)).
+- 2026-02-22: Ran `python3 notes_output/scripts/validate_math_examples_and_graphs.py --strict` after the edits. Result: PASS.
+- 2026-02-22: Ran `bash notes_output/scripts/run_production_checks.sh` after the edits. Result: PASS (release checks, Apple
+  gatekeeper audits, and EPUBCheck all OK).
