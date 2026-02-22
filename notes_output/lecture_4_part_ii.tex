@@ -88,9 +88,10 @@ We denote each basis response by \(\varphi_i(\mathbf{x})\); stacking them yields
         \node[align=left, font=\scriptsize, right=0.3cm of y] {Linear weights \(w_i\)\\learned from data};
     \end{tikzpicture}
     % Avoid inline math in captions; it wraps poorly in some EPUB renderers.
-\caption{RBFN architecture. Inputs feed fixed radial units parameterized by centers and widths; a linear readout with weights and bias is trained by a regression or classification loss. Only the output weights are typically learned, while centers/widths come from k-means or spacing heuristics. Use it when separating representation design (centers/widths) from supervised readout training.}
+\caption{RBFN architecture. Inputs feed fixed radial units parameterized by centers and widths; a linear readout with weights and bias is trained by a regression or classification loss. Only the output weights are typically learned, while centers and widths come from clustering or spacing heuristics.}
     \label{fig:rbf_architecture_weights}
 \end{figure}
+\FloatBarrier
 
 \Cref{fig:rbf_architecture_weights} highlights the split between fixed radial features and a trained linear readout.
 
@@ -110,18 +111,19 @@ Once you have the architecture in mind, it helps to visualize what the hidden la
             legend style={at={(0.02,0.98)}, anchor=north west}
         ]
             \addplot[cbBlue, dashed, mark=*, mark repeat=25, mark options={fill=cbBlue}, domain=-4:4, samples=200]{exp(-((x+2)^2))};
-            \addlegendentry{$\phi_1$}
+            \addlegendentry{$\varphi_1$}
             \addplot[cbOrange, dashed, mark=square*, mark repeat=25, mark options={fill=cbOrange}, domain=-4:4, samples=200]{0.8*exp(-((x-0.5)^2)/0.5)};
-            \addlegendentry{$\phi_2$}
+            \addlegendentry{$\varphi_2$}
             \addplot[cbGreen, dashed, mark=triangle*, mark repeat=25, mark options={fill=cbGreen}, domain=-4:4, samples=200]{0.9*exp(-((x-2.2)^2)/0.7)};
-            \addlegendentry{$\phi_3$}
+            \addlegendentry{$\varphi_3$}
             \addplot[cbPink, thick, mark=diamond*, mark repeat=20, mark options={fill=cbPink}, domain=-4:4, samples=200]{exp(-((x+2)^2)) + 0.8*exp(-((x-0.5)^2)/0.5) + 0.9*exp(-((x-2.2)^2)/0.7)};
-            \addlegendentry{$\sum_j w_j \phi_j(x)$}
+            \addlegendentry{$\sum_j w_j \varphi_j(x)$}
         \end{axis}
     \end{tikzpicture}
-    \caption{Localized Gaussian basis functions (dashed) and their weighted sum (solid). Overlapping bumps allow RBF networks to interpolate complex signals smoothly. Use it when building intuition for locality and smooth interpolation in basis-function models.}
+    \caption{Localized Gaussian basis functions (dashed) and their weighted sum (solid). Overlapping bumps allow RBF networks to interpolate complex signals smoothly.}
     \label{fig:rbf_gaussian_bumps}
 \end{figure}
+\FloatBarrier
 
 
 \Cref{fig:rbf_centres} compares center-placement strategies used during initialization.
@@ -157,12 +159,13 @@ Once you have the architecture in mind, it helps to visualize what the hidden la
         \end{scope}
     \end{tikzpicture}
     % Avoid inline math in captions; it wraps poorly in some EPUB renderers.
-    \caption{Center placement and overlap. Top: K-means prototypes roughly tile the data manifold, giving even overlap; bottom: random centers can leave gaps or excessive overlap, influencing the width (sigma) choice and conditioning. Use it when choosing how to place centers before tuning the width parameter.}
+\caption{Center placement and overlap. Top: K-means prototypes roughly tile the data manifold, giving even overlap; bottom: random centers can leave gaps or excessive overlap, influencing the width (sigma) choice and conditioning.}
     \label{fig:rbf_centres}
 \end{figure}
+\FloatBarrier
 
 
-\Cref{fig:rbf_primal_dual} clarifies primal-versus-dual trade-offs as basis count grows and Nystr\"om approximations become attractive.
+Later in the chapter we contrast this finite-basis (``primal'') view with the kernel (``dual'') view and show how Nystr\"om-style approximations fit into the same story.
 
 \Cref{fig:rbf_architecture_weights} plus the overview above summarize the three-layer flow; we now formalize it algebraically.
 The key distinction is that the input-to-hidden layer connections do not have trainable weights; instead, the hidden layer units themselves perform nonlinear transformations of the input.
@@ -341,11 +344,12 @@ which serve as localized similarity measures to each centroid \(v_i\). When \(\s
         \end{scope}
     \end{tikzpicture}
     % Avoid inline math in captions; it wraps poorly in some EPUB renderers.
-    \caption{How the width parameter (sigma) influences decision boundaries on a 2D toy dataset. Too-large sigma underfits, intermediate sigma captures the boundary, too-small sigma overfits with fragmented regions. Validation curves in \Cref{chap:supervised} guide model size and regularization; they also motivate tuning sigma to balance smoothness against boundary fidelity.}
+\caption{How the width parameter (sigma) influences decision boundaries on a 2D toy dataset. Too-large sigma underfits, intermediate sigma captures the boundary, too-small sigma overfits with fragmented regions. Validation curves in \Cref{chap:supervised} guide model size and regularization; they also motivate tuning sigma to balance smoothness against boundary fidelity.}
     \label{fig:rbf_sigma_sweep}
 \end{figure}
+\FloatBarrier
 
-\Cref{fig:rbf_boundary} shows how the RBF model bends the boundary on the XOR-style toy example.
+We return to this tuning picture again later with an XOR-style toy example, where the decision boundary is easy to visualize.
 
 \paragraph{Notation note.} In this chapter we write radial basis functions as \(\varphi_i(\cdot)\) and use \(\boldsymbol{\Phi}\) for the associated design matrix. When we need a generic kernel feature map, we use \(\phi(\cdot)\) (consistent with \Cref{app:kernels}); when probability density functions are needed, we write them as \(p(\cdot)\). This avoids overloading a single symbol.
 
@@ -409,6 +413,8 @@ Numerically, \(\boldsymbol{\Phi}^\top \boldsymbol{\Phi}\) can be ill-conditioned
 mirroring the \(\lambda \boldsymbol{\alpha}^\top \mathbf{K} \boldsymbol{\alpha}\) term in the dual problem. Larger \(\lambda\) damps coefficients when \(\sigma\) is large (heavy overlap) or when data are noisy, while smaller \(\lambda\) preserves sharper fits at the cost of conditioning. Choosing \(\lambda\) via cross-validation keeps both primal (RBFN) and dual (kernel ridge) systems stable.
 \end{tcolorbox}
 
+\Cref{fig:rbf_primal_dual} summarizes the primal and dual viewpoints side by side and highlights where a finite basis acts like a Nystr\"om approximation.
+
 \begin{figure}[t]
     \centering
     \begin{tikzpicture}[scale=0.95]
@@ -436,15 +442,16 @@ mirroring the \(\lambda \boldsymbol{\alpha}^\top \mathbf{K} \boldsymbol{\alpha}\
     \draw[->, gray!60, dashed] (-1,-0.6) -- (1,-1.4) node[midway, sloped, above, gray!60]{Nystr\"om $M<N$};
 \end{tikzpicture}
     % Avoid inline math in captions; it wraps poorly in some EPUB renderers.
-    \caption{Primal (finite basis) vs.\ dual (kernel ridge) viewpoints. Using as many centers as data points recovers the dual form; using fewer centers corresponds to a Nystr\"om approximation. The same trade-off appears in kernel methods through the choice of kernel and effective rank. Use it when deciding whether to train a finite basis model or switch to a kernel viewpoint.}
+    \caption{Primal (finite basis) vs.\ dual (kernel ridge) viewpoints. Using as many centers as data points recovers the dual form; using fewer centers corresponds to a Nystr\"om approximation. The same trade-off appears in kernel methods through the choice of kernel and effective rank.}
 \label{fig:rbf_primal_dual}
 \end{figure}
+\FloatBarrier
 
-    To improve numerical stability or control model complexity, a Tikhonov (ridge) regulariser can be added,
-    \[
-        \mathbf{w}_\lambda^\star = (\boldsymbol{\Phi}^\top \boldsymbol{\Phi} + \lambda I)^{-1}\boldsymbol{\Phi}^\top \mathbf{y}, \qquad \lambda>0,
-    \]
-    or more generally one can use the Moore--Penrose pseudoinverse \(\boldsymbol{\Phi}^{+}\) when \(\boldsymbol{\Phi}^\top\boldsymbol{\Phi}\) is singular, yielding \(\mathbf{w}^\star = \boldsymbol{\Phi}^{+}\mathbf{y}\). A quick dimensional sanity check is that \(\boldsymbol{\Phi}\in\mathbb{R}^{N\times M}\), \(\mathbf{w}\in\mathbb{R}^M\), and \(\mathbf{y}\in\mathbb{R}^N\); all matrix products above respect these shapes.
+To improve numerical stability or control model complexity, a Tikhonov (ridge) regulariser can be added,
+\[
+    \mathbf{w}_\lambda^\star = (\boldsymbol{\Phi}^\top \boldsymbol{\Phi} + \lambda I)^{-1}\boldsymbol{\Phi}^\top \mathbf{y}, \qquad \lambda>0,
+\]
+or more generally one can use the Moore--Penrose pseudoinverse \(\boldsymbol{\Phi}^{+}\) when \(\boldsymbol{\Phi}^\top\boldsymbol{\Phi}\) is singular, yielding \(\mathbf{w}^\star = \boldsymbol{\Phi}^{+}\mathbf{y}\). A quick dimensional sanity check is that \(\boldsymbol{\Phi}\in\mathbb{R}^{N\times M}\), \(\mathbf{w}\in\mathbb{R}^M\), and \(\mathbf{y}\in\mathbb{R}^N\); all matrix products above respect these shapes.
 
 \paragraph{Iterative Optimization of \(\sigma_i\) and \( w_i \):}
 Since both \( \sigma_i \) and \( w_i \) affect the network output, an alternating optimization procedure can be employed:
@@ -489,6 +496,8 @@ Predict: yhat(x) = phi(x, Centers, sigma)^T w_lambda_star
 \qquad \mathbf{t}=[0,1,1,0].
 \]
 Choose \(M=4\) centers at the data and set a global \(\sigma\) from the mean inter-center distance (here \(\sigma\approx 0.8\)). Build \(\boldsymbol{\Phi}\) with entries \(\boldsymbol{\Phi}_{ji}=\exp\!\big(-\|\mathbf{x}_j-\mathbf{c}_i\|^2/(2\sigma^2)\big)\) and solve \((\boldsymbol{\Phi}^\top\boldsymbol{\Phi}+\lambda I)\mathbf{w}=\boldsymbol{\Phi}^\top\mathbf{t}\) over a small grid \(\lambda\in\{10^{-4},10^{-3},10^{-2}\}\). The best \(\lambda\) yields a linear separator in the lifted \(\boldsymbol{\Phi}\)-space that perfectly classifies XOR; widening \(\sigma\) underfits, while shrinking \(\sigma\) without ridge overfits via an ill-conditioned \(\boldsymbol{\Phi}^\top\boldsymbol{\Phi}\).
+
+\Cref{fig:rbf_boundary} shows one such boundary for a fixed choice of centers, width, and ridge regularization.
 
     \begin{figure}[t]
         \centering
@@ -550,9 +559,10 @@ Choose \(M=4\) centers at the data and set a global \(\sigma\) from the mean int
         \end{axis}
         \end{tikzpicture}
         % Avoid inline math in captions; it wraps poorly in some EPUB renderers.
-        \caption{RBFN decision boundary on XOR with 4 centers, sigma = 0.8, and ridge lambda = 1e-3. Shading indicates the predicted class under a 0.5 threshold; the black contour marks the 0.5 boundary. Training points are overlaid (class 0: open circles; class 1: filled squares). See \Cref{fig:rbf_sigma_sweep} for sigma effects. Use it when checking whether center count and width are sufficient for a non-linear boundary.}
+        \caption{RBFN decision boundary on XOR with 4 centers, \(\sigma=0.8\), and ridge \(\lambda=10^{-3}\). Shading indicates the predicted class under a 0.5 threshold; the black contour marks the 0.5 boundary. Training points are overlaid (class 0: open circles; class 1: filled squares). See \Cref{fig:rbf_sigma_sweep} for sigma effects.}
         \label{fig:rbf_boundary}
     \end{figure}
+\FloatBarrier
 
 
 \subsection{Remarks on Radial Basis Function Networks}

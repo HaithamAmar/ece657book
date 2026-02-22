@@ -1023,3 +1023,17 @@ Build notes (2026-02-17):
   Result: PASS.
 - 2026-02-22: Ran `bash notes_output/scripts/run_production_checks.sh` after the figure moves. Result: PASS (release checks,
   Apple gatekeeper audits, and EPUBCheck all OK).
+
+## 2026-02-22 Part II Chapter 8 (RBFNs) EPUB figure-order hygiene + caption cleanup
+
+- `notes_output/lecture_4_part_ii.tex`: removed ``Use it when ...'' caption tails and tightened captions into plain book
+  prose (kept the instructional intent without meta language).
+- `notes_output/lecture_4_part_ii.tex`: reduced EPUB float drift by inserting `\FloatBarrier` after the chapter's major
+  figures (architecture, Gaussian-bump intuition, center placement, sigma sweep, primal/dual summary, XOR boundary).
+- `notes_output/lecture_4_part_ii.tex`: fixed a \(\phi\)/\(\varphi\) mismatch in the Gaussian-bumps figure legend to match
+  the chapter's \(\varphi_i(\cdot)\) basis notation.
+- `notes_output/lecture_4_part_ii.tex`: moved long-range figure references into the local neighborhood of the figure (e.g.,
+  primal/dual and XOR boundary), so hyperlinks and anchors are consistent in EPUB.
+- 2026-02-22: Ran `python3 notes_output/scripts/validate_math_examples_and_graphs.py --strict` after the edits. Result: PASS.
+- 2026-02-22: Ran `bash notes_output/scripts/run_production_checks.sh` after the edits. Result: PASS (release checks, Apple
+  gatekeeper audits, and EPUBCheck all OK).
