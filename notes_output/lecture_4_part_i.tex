@@ -2,7 +2,7 @@
 \section{Backpropagation Learning in Multi-Layer Perceptrons}\label{chap:backprop}
 \graphicspath{{assets/lec4/}}
 
-Building on the two\hyp{}neuron derivation in \Cref{chap:mlp}, we scale the same idea to an \(L\)\hyp{}layer network. Nothing new is introduced: it is still the chain rule. What changes is the bookkeeping. We compute local error signals (the \(\delta\)'s) once, reuse them to obtain every weight and bias gradient, and do it in an order that is efficient enough to train deep models in practice.
+Building on the two\hyp{}neuron derivation in \Cref{chap:mlp}, we scale the same idea to an \(L\)\hyp{}layer network. Conceptually it is still the chain rule; what changes is the accounting. We compute layerwise error signals (the \(\delta\)'s), reuse them to obtain every weight and bias gradient, and organize the work into a backward sweep you can implement and debug. The goal is practical: you should be able to trace one forward pass, write down one backward pass, and know exactly which stored intermediate values each gradient depends on. By the end of this chapter, the backpropagation algorithm should feel like a concrete procedure rather than a black box.
 
 \begin{tcolorbox}[summarybox, title={Learning Outcomes}]
 \begin{itemize}
@@ -29,7 +29,7 @@ Changing one early weight can only affect the loss by moving the intermediate qu
 \end{tcolorbox}
 
 \paragraph{Implementation lens.}
-A practical MLP rarely updates one coordinate at a time; gradients are treated as full vectors so every weight moves coherently. Backpropagation is what turns a multilayer diagram into a trainable model: it reuses local error signals so you can compute \emph{all} gradients efficiently, making it practical to learn hidden representations (not just tune a final linear layer) while keeping the same validation\(\rightarrow\)audit discipline (learning curves, early stopping, and slice checks).
+A practical MLP rarely updates one coordinate at a time; gradients are treated as full vectors so every weight moves coherently. Backpropagation is what turns a multilayer diagram into a trainable model: it reuses local error signals so you can compute \emph{all} gradients efficiently, making it practical to learn hidden representations (not just tune a final linear layer) while keeping the same validation\(\rightarrow\)audit discipline (learning curves, early stopping, and slice checks---performance broken down by meaningful subgroups/conditions).
 
 \subsection{Problem Setup}
 \label{sec:backprop_problem_setup}
@@ -46,10 +46,15 @@ where $b_j^{(l)}$ is the bias term for neuron $j$ in layer $l$, and $f(\cdot)$ i
 \subsection{Loss and Objective}
 \label{sec:backprop_loss_and_objective}
 
-To keep the story linear (and aligned with \Cref{chap:mlp}), we will use a simple squared\hyp{}error objective. Let the network output be \(\mathbf{a}^{(L)}\) and let \(\mathbf{t}\) be the target (one\hyp{}hot targets for classification are fine; we do not need a separate regression/classification split yet). A standard loss is
+To keep the algebra uncluttered (and aligned with \Cref{chap:mlp}), we use a simple squared\hyp{}error objective. Let the network output be \(\mathbf{a}^{(L)}\) and let \(\mathbf{t}\) be the target. For classification, \(\mathbf{t}\) is often one\hyp{}hot (a vector with a 1 at the correct class index and 0 elsewhere). For a single example, a standard choice is the half-squared error:
 \begin{equation}
     \mathcal{L} = \frac{1}{2} \sum_k \left( t_k - a_k^{(L)} \right)^2. \label{eq:error_function}
 \end{equation}
+It is often helpful to name the \emph{error} explicitly. Define the componentwise output error as
+\(\,e_k := a_k^{(L)} - t_k\,\) and the error vector \(\mathbf{e}:=\mathbf{a}^{(L)}-\mathbf{t}\). Then
+\(\mathcal{L}=\tfrac12\sum_k e_k^2=\tfrac12\|\mathbf{e}\|_2^2\), and the derivative you need to start the backward pass is
+\(\partial \mathcal{L}/\partial a_k^{(L)} = e_k\) (squared error removes the sign inside \(\mathcal{L}\), but the sign reappears in the derivative).
+When you train with a mini\hyp{}batch, you typically use the \emph{mean} loss over the batch; this introduces a factor \(1/B\) in the gradients, which you can treat as part of the effective step size.
 The goal of learning is to adjust the weights \(\{w_{ij}^{(l)}\}\) to minimize \(\mathcal{L}\). Later in this chapter, we briefly note how common alternatives (notably cross\hyp{}entropy with sigmoid/softmax outputs) simplify the output\hyp{}layer error term; the backprop recursion itself does not change.
 
 \paragraph{Challenges in weight updates}
@@ -59,7 +64,7 @@ With more than one layer, the error you measure at the output does not tell each
 
 One way to phrase the bottleneck is \emph{credit assignment}. If a small change in \(w_{ij}^{(l)}\) would make the loss smaller, we want that weight to move in that direction; if it would make the loss larger, we want it to move the other way. The chain rule gives both the sign and the magnitude, but only if we compute the right intermediate sensitivities.
 
-Backpropagation is the bookkeeping that makes those sensitivities reusable: it defines a local error signal (the \(\delta\)'s), computes them once from the output back toward the input, and then turns them into gradients for every weight and bias.
+Backpropagation is the organization that makes those sensitivities reusable: it defines a local error signal (the \(\delta\)'s), computes them once from the output back toward the input, and then turns them into gradients for every weight and bias.
 
 \subsection{Notation for Layers and Neurons}
 \label{sec:backprop_notation_for_layers_and_neurons}
@@ -119,7 +124,7 @@ def step_mse(X, t, params, eta):
             W2 - eta * grad_W2, b2 - eta * grad_b2)
 \end{verbatim}
 \normalsize
-The elementwise product \texttt{*} mirrors the Hadamard notation from \Crefrange{eq:forward_z}{eq:forward_a}. The key technical point is the \texttt{fprime} factors: this is exactly where hard thresholds break the learning signal.
+The elementwise product \texttt{*} mirrors the Hadamard (element\hyp{}by\hyp{}element) product notation from \Crefrange{eq:forward_z}{eq:forward_a}. The key technical point is the \texttt{fprime} factors: this is exactly where hard thresholds break the learning signal.
 \end{tcolorbox}
 
 \begin{tcolorbox}[summarybox, title={Shape ledger for an $L$-layer MLP (batch size $B$)}]
@@ -130,20 +135,20 @@ The elementwise product \texttt{*} mirrors the Hadamard notation from \Crefrange
     \item \(\partial L/\partial \mathbf{W}^{(l)} = (\mathbf{A}^{(l-1)})^\top \boldsymbol{\delta}^{(l)} / B \in \mathbb{R}^{n_{l-1}\times n_l}\)
     \item \(\partial L/\partial \mathbf{b}^{(l)} = \mathrm{batch\_mean}(\boldsymbol{\delta}^{(l)}) \in \mathbb{R}^{n_l}\)
 \end{itemize}
-Layers share this structure; convolutional/sequence models reuse the same calculus with different bookkeeping.
+Layers share this structure; convolutional/sequence models reuse the same calculus with different indexing and shape conventions.
 \end{tcolorbox}
 
 \subsection{Backpropagation: Recursive Computation of Error Terms}
 \label{sec:backprop_backpropagation_recursive_computation_of_error_terms}
 
-Recall that our goal is to compute the gradient of the loss with respect to the weights in the network, specifically for weights connecting layer \( l \) to layer \( l+1 \). We denote the weight connecting neuron \( i \) in layer \( l \) to neuron \( j \) in layer \( l+1 \) as \( w_{ij}^{(l)} \).
+Our goal is the gradient of the loss with respect to each weight \(w_{ij}^{(l)}\) connecting layer \(l\) to layer \(l+1\), i.e., the weight from neuron \(i\) in layer \(l\) to neuron \(j\) in layer \(l+1\).
 
 We will continue with the squared\hyp{}error loss from \Cref{chap:mlp}:
 \begin{equation}
 \mathcal{L} = \frac{1}{2} \sum_{k} (t_k - a_k^{(L)})^2.
 \label{eq:auto_backprop_4c440b0502}
 \end{equation}
-where \( t_k \) is the target output and \( a_k^{(L)} \) is the activation of output neuron \( k \). Other losses change only a few local derivatives (most notably at the output layer), but the backprop recursion and bookkeeping are the same.
+where \( t_k \) is the target output and \( a_k^{(L)} \) is the activation of output neuron \( k \). Other losses change only a few local derivatives (most notably at the output layer), but the backprop recursion and overall structure are the same.
 
 To update the weights using gradient descent, we need to compute
 \[
@@ -181,7 +186,7 @@ Collecting the \(\delta_j^{(l+1)}\) for all neurons in layer \(l+1\) forms a vec
 
 \paragraph{Interpretation of \(\delta_j^{(l+1)}\)}
 
-The term \(\delta_j^{(l+1)}\) measures how sensitive the error is to changes in the net input \( a_j^{(l+1)} \). Our task reduces to computing these \(\delta\) terms for all neurons in the network.
+The term \(\delta_j^{(l+1)}\) measures how sensitive the loss is to changes in the pre\hyp{}activation \(z_j^{(l+1)}\). Our task reduces to computing these \(\delta\) terms for all neurons in the network.
 
 \subsubsection{Output layer error terms}
 \label{sec:backprop_output_layer_error_terms_sub}
@@ -196,11 +201,17 @@ The error term for output neuron \( k \) is
 \begin{align}
 \delta_k^{(L)} &= \frac{\partial \mathcal{L}}{\partial z_k^{(L)}} \\
 &= \frac{\partial \mathcal{L}}{\partial a_k^{(L)}} \frac{\partial a_k^{(L)}}{\partial z_k^{(L)}} \\
-&= \big(a_k^{(L)} - t_k\big) \, \phi'\big(z_k^{(L)}\big),
+&= \big(a_k^{(L)} - t_k\big) \, f'\big(z_k^{(L)}\big),
 \label{eq:delta_output}
 \end{align}
-where \(\phi'\) denotes the derivative of the activation function evaluated element-wise.
-For cross\hyp{}entropy with sigmoid/softmax output, \(\phi'\) cancels and \(\delta_k^{(L)} = a_k^{(L)}-t_k\); for MSE retain the factor above.
+where \(f'\) denotes the derivative of the activation function evaluated element-wise. With squared error, this is the
+entire story: \(\partial \mathcal{L}/\partial a_k^{(L)} = a_k^{(L)}-t_k\), and the chain rule contributes the extra
+\(f'(z_k^{(L)})\) factor.
+
+For cross\hyp{}entropy paired with a sigmoid or softmax output, the derivative of the log-likelihood removes that extra
+activation-derivative factor at the output, leaving \(\delta_k^{(L)} = a_k^{(L)}-t_k\) (with \(\delta\) still defined as
+\(\partial \mathcal{L}/\partial z\)). This simplification is one reason those loss/output pairs are so common: you avoid
+carrying an additional \(f'(z)\) term in the output\hyp{}layer learning signal.
 
 \subsubsection{Hidden layer error terms}
 \label{sec:backprop_hidden_layer_error_terms_sub}
@@ -217,31 +228,31 @@ Since
 \[
 z_k^{(l+1)} = \sum_m a_m^{(l)}\, w_{mk}^{(l)} + b_k^{(l+1)},
 \]
-and \( a_j^{(l)} = \phi\big(z_j^{(l)}\big) \), we have
+and \( a_j^{(l)} = f\big(z_j^{(l)}\big) \), we have
 \[
-\frac{\partial z_k^{(l+1)}}{\partial z_j^{(l)}} = w_{jk}^{(l)} \, \phi'\big(z_j^{(l)}\big).
+\frac{\partial z_k^{(l+1)}}{\partial z_j^{(l)}} = w_{jk}^{(l)} \, f'\big(z_j^{(l)}\big).
 \]
 
 Substituting into \eqref{eq:delta_hidden_chain} yields
 \begin{equation}
-\delta_j^{(l)} = \phi'\big(z_j^{(l)}\big) \sum_{k} w_{jk}^{(l)} \delta_k^{(l+1)}.
+\delta_j^{(l)} = f'\big(z_j^{(l)}\big) \sum_{k} w_{jk}^{(l)} \delta_k^{(l+1)}.
 \label{eq:delta_hidden}
 \end{equation}
 
-For sigmoid activations $\phi$, the derivative simplifies to $\phi'(z_j^{(l)}) = a_j^{(l)} (1 - a_j^{(l)})$; other activations require substituting their respective derivatives in \eqref{eq:delta_hidden}.
+For sigmoid activations \(f\), the derivative simplifies to \(f'(z_j^{(l)}) = a_j^{(l)} (1 - a_j^{(l)})\); other activations require substituting their respective derivatives in \eqref{eq:delta_hidden}.
 
 \paragraph{Summary: Backpropagation recursion}
-Backpropagation is reverse-mode automatic differentiation on the network graph. A forward pass caches intermediates; a reverse pass reuses caches to get all gradients in \(O(P)\) time (versus \(O(P^2)\) for finite differences) for \(P\) parameters. Frameworks (PyTorch/JAX/TF) automate this; the algebra below is its manual derivation.
+Backpropagation is reverse\hyp{}mode differentiation on the network graph. A forward pass stores intermediate values (pre\hyp{}activations and activations); a backward pass reuses those stored values to compute all gradients efficiently. Frameworks (PyTorch/JAX/TF) automate the mechanics, but the manual story is what lets you sanity-check shapes, signs, and scaling when training does something surprising.
 
 The step-by-step output-layer derivation and the hidden-layer recursion are already established in \Cref{sec:backprop_output_layer_error_terms_sub,sec:backprop_hidden_layer_error_terms_sub}; we now focus on how those gradients are accumulated in batch and stochastic settings.
 
 \subsection{Batch and Stochastic Gradient Descent}
 \label{sec:backprop_batch_and_stochastic_gradient_descent}
 
-Given a training set of \( N \) examples \(\{(\mathbf{x}^{(n)}, t^{(n)})\}_{n=1}^N\), the weight updates can be computed in different ways:
+Given a training set of \( N \) examples \(\{(\mathbf{x}^{(n)}, \mathbf{t}^{(n)})\}_{n=1}^N\), the weight updates can be computed in different ways:
 
 \begin{itemize}
-    \item \textbf{Batch gradient descent:} Compute the gradient over the entire dataset and update weights once per epoch:
+    \item \textbf{Batch gradient descent:} Compute the gradient over the entire dataset and update weights once per epoch (shown here for a single output unit; the multi\hyp{}layer case uses the same idea with layerwise \(\delta\)'s and cached activations):
     \[
         \Delta w = -\frac{\eta}{N} \sum_{n=1}^N \delta^{(n)} \mathbf{x}^{(n)}.
     \]
@@ -250,7 +261,7 @@ Given a training set of \( N \) examples \(\{(\mathbf{x}^{(n)}, t^{(n)})\}_{n=1}
 \end{itemize}
 
 \begin{tcolorbox}[summarybox, title={Optimizer and stability notes}]
-Start with plain SGD so you can see the learning signal clearly, then add the tools that improve stability. Momentum and Adam/AdamW (see \Cref{chap:cnn}) usually reduce sensitivity to curvature and step-size tuning. If you use weight decay, be explicit about whether it is implemented as an L2 term inside the gradient or decoupled (AdamW). For deep or ill-conditioned nets, gradient clipping can prevent explosions. For classification, cross\hyp{}entropy with the usual log\hyp{}sum\hyp{}exp stabilization is the default recipe (\Cref{chap:cnn}).
+Start with plain SGD so you can tell whether your gradients are correct, then add stability aids one at a time (momentum, then an adaptive method like Adam/AdamW; see \Cref{chap:cnn}). For regularization, connect this to the L2 discussion from \Cref{chap:supervised}: in plain SGD, ``weight decay'' corresponds to shrinking weights toward zero; with AdamW, that shrinkage is applied as a decoupled decay step rather than being folded into the gradient. For deep or ill-conditioned nets, gradient clipping can prevent explosions. For classification, cross\hyp{}entropy with a numerically stable softmax (implement it via log\hyp{}sum\hyp{}exp or ``subtract the max logit'') is a common default recipe (\Cref{chap:cnn}).
 \end{tcolorbox}
 
 \begin{tcolorbox}[summarybox, title={Implementation pattern (modern practice): softmax + cross-entropy}]
@@ -258,9 +269,10 @@ Start with plain SGD so you can see the learning signal clearly, then add the to
 \begin{verbatim}
 # Shapes: X in R^{B x d}, Y in R^{B x c} (one-hot)
 #         W1 in R^{d x h}, W2 in R^{h x c}
-def step_ce_softmax(X, Y, params, eta, wd=1e-4, p_drop=0.1):
-    W1, b1, W2, b2 = params
-    B = X.shape[0]
+# Note: stable softmax: subtract row max.
+	def step_ce_softmax(X, Y, params, eta, wd=1e-4, p_drop=0.1):
+	    W1, b1, W2, b2 = params
+	    B = X.shape[0]
     # Forward pass
     Z1 = X @ W1 + b1
     H1 = relu(Z1)
@@ -283,7 +295,7 @@ def step_ce_softmax(X, Y, params, eta, wd=1e-4, p_drop=0.1):
             W2 - eta * grad_W2, b2 - eta * grad_b2)
 \end{verbatim}
 \normalsize
-This uses the same bookkeeping as the squared\hyp{}error derivation; only the output-layer error simplifies.
+This snippet uses the same \(\delta\) recursion as the squared\hyp{}error derivation; the main change is the output layer, where softmax + cross\hyp{}entropy yields \(\delta^{(L)}=\hat{\mathbf{Y}}-\mathbf{Y}\) (up to batch scaling). The extra details (dropout, weight decay) are included only to make the pattern look like real code.
 \end{tcolorbox}
 
 
@@ -422,41 +434,17 @@ Finite-difference checks on the same network match to numerical precision, valid
 
 The remainder of this subsection sketches the classic squared-error backprop derivation as a separate reminder; it is \emph{not} a continuation of the cross\hyp{}entropy numerical check above.
 
-The error at the output neuron is:
-\begin{equation}
-    e = y - t,
-\label{eq:auto_backprop_b55302fe32}
-\end{equation}
-and the squared error is:
-\begin{equation}
-    \mathcal{L}_{\text{SE}} = \frac{1}{2} e^2.
-\label{eq:auto_backprop_7c0067d4dd}
-\end{equation}
-
-\paragraph{Backward Propagation of Error}
-
-Define the error term \(\delta_j\) for each neuron \( j \) as:
-\begin{equation}
-    \delta_j = e_j \sigma'(net_j),
-\label{eq:auto_backprop_88f14b071c}
-\end{equation}
-where \( e_j \) is the error at neuron \( j \), and
+For one output unit with activation \(a=\sigma(z)\) and target \(t\), define the scalar error \(e=a-t\) and squared error
+\(\mathcal{L}_{\text{SE}}=\tfrac12 e^2\). The output-layer error signal (still defined as \(\delta=\partial\mathcal{L}/\partial z\)) is
 \[
-\sigma'(z) = \sigma(z)(1 - \sigma(z)).
-\]
-is the derivative of the sigmoid function.
-
-For the output neuron:
-\[
-\delta_{\text{out}} = (y_{\text{out}} - t) \, y_{\text{out}} (1 - y_{\text{out}}).
+\delta^{(L)} = (a-t)\,\sigma'(z), \qquad \sigma'(z)=\sigma(z)\bigl(1-\sigma(z)\bigr).
 \]
 
-For hidden neurons, the error term is computed by backpropagating the weighted sum of the downstream error terms:
-\begin{equation}
-    \delta_j = y_j (1 - y_j) \sum_{k} w_{kj} \, \delta_k,
-\label{eq:auto_backprop_1f3342dea6}
-\end{equation}
-where the sum is over neurons \( k \) in the next layer and \( w_{kj} \) denotes the weight from neuron \( j \) to neuron \( k \).
+For a hidden unit \(j\) in layer \(l\), the same chain-rule logic gives
+\[
+\delta_j^{(l)} = f'(z_j^{(l)}) \sum_{k} w_{jk}^{(l)}\,\delta_k^{(l+1)},
+\]
+i.e., ``local slope times the weighted sum of downstream error signals,'' with \(w_{jk}^{(l)}\) the weight from unit \(j\) (layer \(l\)) to unit \(k\) (layer \(l+1\)).
 
 \paragraph{Weight update rule (with momentum).}
 Once you have \(\delta\)'s, turning them into weight updates is straightforward. For a weight \(w_{ij}^{(l)}\) that connects unit \(i\) in layer \(l-1\) to unit \(j\) in layer \(l\), the gradient is proportional to ``input times local error'': \(a_i^{(l-1)}\delta_j^{(l)}\). With momentum, one common update is
@@ -465,19 +453,20 @@ Once you have \(\delta\)'s, turning them into weight updates is straightforward.
     \label{eq:weight_update}
 \end{equation}
 followed by \(w_{ij}^{(l)}(n)=w_{ij}^{(l)}(n-1)+\Delta w_{ij}^{(l)}(n)\). Here \(\eta\) is the step size and \(\gamma\in[0,1)\) is the momentum coefficient. (For the first hidden layer, \(a_i^{(0)}\) is just the input feature \(x_i\).)
+The index \(n\) denotes the update step (for example, the current training example in SGD, or the current mini\hyp{}batch update).
 
 \paragraph{A practical reading of \(\eta\) and \(\gamma\).}
 The learning rate sets the basic step scale; momentum averages recent gradient directions so updates do not zig\hyp{}zag as much across narrow valleys. If training oscillates, reduce \(\eta\); if it is painfully slow along a consistent direction, momentum can help.
 
-\paragraph{Step-by-Step Example}
+\paragraph{One update step (what happens in one mini-batch)}
 
 \begin{enumerate}
-    \item \textbf{Initialization:} Draw weights \( w_{ij}\sim \mathcal{N}(0,\sigma^2)\) with \(\sigma\) set by He/Xavier rules; set biases to zero and \(\Delta w_{ij}(0) = 0\).
-    \item \textbf{Feedforward:} Compute \( net_j \) and \( y_j \) for all neurons.
-    \item \textbf{Compute output error:} Calculate \( \delta_{out} \).
-    \item \textbf{Backpropagate error:} Compute \(\delta_j\) for hidden neurons.
-    \item \textbf{Update weights:} Use equation \eqref{eq:weight_update} to update all weights.
-    \item \textbf{Repeat:} Iterate over all training patterns until error \( E \) is below threshold or maximum epochs reached.
+    \item \textbf{Initialize:} choose an initialization scale (Xavier is a common default for sigmoid/tanh; He is a common default for ReLU-family activations) and set biases (often zero).
+    \item \textbf{Forward pass:} compute and cache \(z^{(l)}\) and \(a^{(l)}\) for each layer.
+    \item \textbf{Loss + output signal:} compute \(\mathcal{L}\) and \(\delta^{(L)}=\partial\mathcal{L}/\partial z^{(L)}\).
+    \item \textbf{Backward pass:} propagate \(\delta^{(l)}\) from \(l=L-1\) down to the first hidden layer.
+    \item \textbf{Gradients:} form \(\nabla_{\mathbf{W}^{(l)}}\mathcal{L}\) and \(\nabla_{\mathbf{b}^{(l)}}\mathcal{L}\) from cached activations and \(\delta\)'s.
+    \item \textbf{Update:} apply your optimizer step (SGD, momentum, Adam) and repeat for the next mini\hyp{}batch.
 \end{enumerate}
 
 \begin{tcolorbox}[summarybox, title={Mini\hyp{}batch backprop with explicit regularization}]
@@ -496,11 +485,7 @@ The learning rate sets the basic step scale; momentum averages recent gradient d
 
 \paragraph{Remarks}
 
-\begin{itemize}
-    \item Monitor the training error over epochs; a plateau may indicate the need to adjust learning rate or introduce regularization.
-    \item Shuffle training patterns between epochs when using SGD to avoid cyclic behaviors.
-    \item Always track validation error to detect overfitting and decide when to stop training.
-\end{itemize}
+Track both training and validation curves: a flat training loss usually points to an optimization issue (step size, activation saturation, initialization), while a widening train/validation gap points to capacity or regularization. Shuffle each epoch, checkpoint the best validation model, and let an early-stopping rule end runs before you overfit. In essence, the objective is to build confidence that your design decisions generalize out-of-sample; these curves give you a simple way to describe that generalization quantitatively.
 
 \subsection{Training Procedure and Epochs in Multi-Layer Perceptrons}
 \label{sec:backprop_training_procedure_and_epochs_in_multi_layer_perceptrons}
@@ -579,43 +564,30 @@ y = x \sin x.
 \subsection{Applications of Multi-Layer Perceptrons}
 \label{sec:backprop_applications_of_multi_layer_perceptrons}
 
-MLPs are often used as general-purpose function approximators, either as standalone models or as learnable blocks inside larger systems. Common examples include:
-
-\begin{itemize}
-    \item \textbf{Signal processing:} Noise reduction, filtering, and feature extraction.
-    \item \textbf{Weather forecasting:} Modeling complex atmospheric patterns.
-    \item \textbf{Data compression:} Dimensionality reduction and encoding.
-    \item \textbf{Pattern recognition:} Handwriting recognition, face detection.
-    \item \textbf{Financial market prediction:} Time series forecasting and anomaly detection.
-    \item \textbf{Image recognition:} Object detection and classification.
-    \item \textbf{Voice recognition:} Speech-to-text and speaker identification.
-\end{itemize}
-
-\paragraph{Summary.}
-The details change across domains, but the pattern is the same: a model that composes nonlinear units becomes a flexible mapping, and backpropagation is what makes that mapping trainable.
+MLPs show up in two roles. Sometimes they are the whole model, as in small function-approximation and classification tasks. More often they are trainable blocks inside larger systems: the same affine\(\rightarrow\)nonlinearity pattern appears in convolutional networks, recurrent networks, and attention models, and we will revisit this connection later. In all cases, the training signal still arrives as a loss at the output, and backpropagation is what assigns that loss to each parameter through the stored intermediate values from the forward pass.
 
 \subsection{Limitations of Multi-Layer Perceptrons}
 \label{sec:backprop_limitations_of_multi_layer_perceptrons}
 
-MLPs are flexible, but they are not ``set-and-forget'' models. The main limitations show up as training instability, sensitivity to design choices, and difficulty diagnosing silent implementation mistakes.
+MLPs are flexible, but they require care to train reliably. The main limitations show up as training instability, sensitivity to design choices, and difficulty diagnosing silent implementation mistakes. Training can be sensitive: small changes to the random initialization, data order, or step-size settings can lead to noticeably different outcomes, especially when the problem is poorly conditioned.
 
 \begin{itemize}
     \item \textbf{Run-to-run variability:} different initializations and data orders can lead to different solutions. Treat seeds and splits as part of the experiment, not as incidental details.
     \item \textbf{Optimization fragility:} step size, activation choice, and initialization scale directly affect gradient flow. When learning stalls, use the gradient norms and the activation-derivative picture in \Cref{fig:lec4-activations} as your first diagnostic.
-    \item \textbf{Silent implementation bugs:} shape/broadcasting mistakes can produce gradients that look plausible but are wrong. This is why the shape ledger and finite-difference checks in this chapter are not optional ``extras''.
+    \item \textbf{Silent implementation bugs:} shape/broadcasting mistakes can produce gradients that look plausible but are wrong. This is why the shape ledger and finite-difference checks in this chapter are part of the basic implementation discipline.
 \end{itemize}
 
 \subsection{Conclusion of Multi-Layer Perceptron Derivations}
 \label{sec:backprop_conclusion_of_multi_layer_perceptron_derivations}
 
-At this point the mechanics are all on the table. Backpropagation is a recipe you can execute: a forward pass that produces and caches intermediate quantities, followed by a backward pass that reuses those caches to produce gradients for every layer. The rest of the chapter focuses on practical stability (activations, initialization, stopping) and the habits that keep implementations honest.
+At this point you have the full backprop workflow: store computations from the forward pass, compute \(\delta^{(L)}\), propagate \(\delta\)'s backward, and assemble gradients with the shapes kept honest. The rest of the chapter focuses on practical stability (activations, initialization, stopping) and the habits that keep implementations honest.
 
 \paragraph{Backpropagation algorithm recap (matrix form).}
 One compact way to write the forward pass is:
 \[
-\mathbf{Z}^{(l)} = \mathbf{A}^{(l-1)}\mathbf{W}^{(l)} + \mathbf{1}(\mathbf{b}^{(l)})^\top,\quad \mathbf{A}^{(l)} = \phi^{(l)}(\mathbf{Z}^{(l)}),
+\mathbf{Z}^{(l)} = \mathbf{A}^{(l-1)}\mathbf{W}^{(l)} + \mathbf{1}(\mathbf{b}^{(l)})^\top,\quad \mathbf{A}^{(l)} = f^{(l)}(\mathbf{Z}^{(l)}),
 \]
-where \(\mathbf{W}^{(l)}\) and \(\mathbf{b}^{(l)}\) are the weights and biases of layer \( l \), \(\mathbf{A}^{(l-1)}\) is the previous layer activation (rows are samples), and \(\phi^{(l)}\) is the activation function.
+where \(\mathbf{W}^{(l)}\) and \(\mathbf{b}^{(l)}\) are the weights and biases of layer \( l \), \(\mathbf{A}^{(l-1)}\) is the previous layer activation (rows are samples), \(\mathbf{1}\in\mathbb{R}^{B}\) is an all-ones vector that broadcasts the bias across the batch, and \(f^{(l)}\) is the (possibly layer-specific) activation function.
 
 Define the error signal at layer \(l\) as:
 \[
@@ -624,17 +596,18 @@ Define the error signal at layer \(l\) as:
 
 Then the chain rule gives a reusable backward recursion:
 \begin{align}
-\boldsymbol{\delta}^{(L)} &= \nabla_{\mathbf{A}^{(L)}} \mathcal{L} \odot \phi^{(L)\prime}(\mathbf{Z}^{(L)}), \\
-\boldsymbol{\delta}^{(l-1)} &= \left(\boldsymbol{\delta}^{(l)}(\mathbf{W}^{(l)})^\top\right) \odot \phi^{(l-1)\prime}(\mathbf{Z}^{(l-1)}), \quad l = L, \ldots, 2,
-	    \label{eq:auto:lecture_4_part_i:2}
+\boldsymbol{\delta}^{(L)} &= \nabla_{\mathbf{A}^{(L)}} \mathcal{L} \odot f^{(L)\prime}(\mathbf{Z}^{(L)}), \\
+\boldsymbol{\delta}^{(l-1)} &= \left(\boldsymbol{\delta}^{(l)}(\mathbf{W}^{(l)})^\top\right) \odot f^{(l-1)\prime}(\mathbf{Z}^{(l-1)}), \quad l = L, \ldots, 2,
+		    \label{eq:auto:lecture_4_part_i:2}
 \end{align}
-where \(\odot\) denotes element-wise multiplication and \(\phi^{(l)\prime}\) is the derivative of the activation function at layer \( l \).
+where \(\odot\) denotes element-wise multiplication and \(f^{(l)\prime}\) is the derivative of the activation function at layer \( l \).
 
 Finally, turn those \(\delta\)'s into parameter gradients:
 \begin{align}
 \frac{\partial \mathcal{L}}{\partial \mathbf{W}^{(l)}} &= (\mathbf{A}^{(l-1)})^\top \boldsymbol{\delta}^{(l)}, \label{eq:grad_W}\\
 \frac{\partial \mathcal{L}}{\partial \mathbf{b}^{(l)}} &= \mathbf{1}^\top \boldsymbol{\delta}^{(l)}. \label{eq:grad_b}
 \end{align}
+If your loss is defined as a mean over the batch, divide these batch sums by \(B\); the shape ledger earlier in the chapter uses that mean convention.
 
 These equations are the whole story: cache forward values, propagate \(\delta\)'s backward, then assemble gradients. \Cref{fig:lec4_backprop_flow} complements the algebra by showing how cached activations (forward arrows) line up with backward error signals in a simple two-layer network.
 
@@ -853,9 +826,9 @@ At this point the core backpropagation story for MLPs is complete. The remainder
 \end{itemize}
     \end{tcolorbox}
     \medskip
-    \noindent\textbf{If you are skipping ahead.} Keep one practical habit: do a gradient check on a tiny case before scaling up. That discipline mirrors residual checks in \Cref{chap:symbolic} and prevents most wasted training runs in later deep chapters.
+    \noindent\textbf{If you are jumping chapters.} Keep one habit: run a tiny gradient check before scaling up.
 
     \medskip
-    \paragraph{Where we head next.} \Cref{chap:rbf} introduces radial basis function networks, an alternative nonlinear route where hidden features are mostly fixed and only the output layer is solved linearly. This provides a clean contrast to end-to-end backpropagation.
+    \paragraph{Where we head next.} \Cref{chap:rbf} introduces radial basis function networks, an alternative nonlinear route where many hidden features are fixed and the output layer can be solved more directly. This provides a clean contrast to end-to-end backpropagation and a different training decomposition to compare against.
 
     \nocite{Rumelhart1986, Haykin2009}

@@ -990,3 +990,21 @@ Build notes (2026-02-17):
   slice checks) rather than treating ``high training accuracy'' as evidence.
 - 2026-02-21: Ran `bash notes_output/scripts/run_production_checks.sh` after the CNN edits. Result: PASS (release checks,
   Apple gatekeeper audits, and EPUBCheck all OK).
+
+## 2026-02-22 Part II Chapter 7 (Backprop) self-sufficiency clarifications (error + notation)
+
+- `notes_output/lecture_4_part_i.tex`: made the squared-error setup explicit by defining the error \(e_k=a_k^{(L)}-t_k\),
+  \(\mathbf{e}=\mathbf{a}^{(L)}-\mathbf{t}\), and stating \(\partial \mathcal{L}/\partial a_k^{(L)}=e_k\) (so the start of
+  the backward pass is not implicit). Added a short note about sum-vs-mean loss scaling over a mini-batch.
+- `notes_output/lecture_4_part_i.tex`: removed a \(\phi\) vs.\ \(f\) activation-function notation mismatch by standardizing
+  the scalar and matrix-form recaps to use \(f\) (and \(f^{(l)}\) for layer-specific activations).
+- `notes_output/lecture_4_part_i.tex`: clarified a few implementation assumptions: numerically stable softmax phrasing,
+  batch/SGD update wording, and the meaning of the update-step index \(n\) in the momentum update.
+- `notes_output/lecture_4_part_i.tex`: de-templated several narrative blocks (opening framing, reverse-mode summary,
+  optimizer notes, applications/limitations/conclusion bridge, and the closing RBF pointer) to reduce course-voice/LLM-y
+  phrasing and keep the emphasis on concrete debugging habits. Also reduced overuse of the word ``bookkeeping''.
+- 2026-02-22: Ran `python3 notes_output/scripts/validate_math_examples_and_graphs.py --strict` after the clarity edits.
+  Result: PASS.
+- 2026-02-22: Ran `bash notes_output/scripts/run_production_checks.sh` after the de-templating edits (fixed a transient
+  overfull verbatim line and restored the required ``Where we head next.'' paragraph title). Result: PASS (release checks,
+  Apple gatekeeper audits, and EPUBCheck all OK).
