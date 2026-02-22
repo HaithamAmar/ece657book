@@ -1008,3 +1008,18 @@ Build notes (2026-02-17):
 - 2026-02-22: Ran `bash notes_output/scripts/run_production_checks.sh` after the de-templating edits (fixed a transient
   overfull verbatim line and restored the required ``Where we head next.'' paragraph title). Result: PASS (release checks,
   Apple gatekeeper audits, and EPUBCheck all OK).
+
+## 2026-02-22 Part II Chapter 7 (Backprop) figure placement + micro-de-templating
+
+- `notes_output/lecture_4_part_i.tex`: moved the activation-comparison block (Remarks on Convergence + Figure 27 +
+  trade-offs) earlier in the chapter (immediately before the case study) so readers see the diagnostic picture before it
+  is referenced in the Limitations section. This also fixes the EPUB anchor order (Figure 27 no longer appears far after
+  its first mention).
+- `notes_output/lecture_4_part_i.tex`: inserted `\FloatBarrier` after Figures 26 and 27 to reduce float drift (so they do
+  not end up at the end of the chapter in PDF/EPUB).
+- `notes_output/lecture_4_part_i.tex`: applied small phrasing fixes to remove remaining template tone (``we now focus'' to
+  ``the next step is'', softened an SGD claim, and adjusted ``we will revisit'' to ``later chapters return'').
+- 2026-02-22: Ran `python3 notes_output/scripts/validate_math_examples_and_graphs.py --strict` after the figure moves.
+  Result: PASS.
+- 2026-02-22: Ran `bash notes_output/scripts/run_production_checks.sh` after the figure moves. Result: PASS (release checks,
+  Apple gatekeeper audits, and EPUBCheck all OK).

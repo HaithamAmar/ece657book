@@ -244,7 +244,7 @@ For sigmoid activations \(f\), the derivative simplifies to \(f'(z_j^{(l)}) = a_
 \paragraph{Summary: Backpropagation recursion}
 Backpropagation is reverse\hyp{}mode differentiation on the network graph. A forward pass stores intermediate values (pre\hyp{}activations and activations); a backward pass reuses those stored values to compute all gradients efficiently. Frameworks (PyTorch/JAX/TF) automate the mechanics, but the manual story is what lets you sanity-check shapes, signs, and scaling when training does something surprising.
 
-The step-by-step output-layer derivation and the hidden-layer recursion are already established in \Cref{sec:backprop_output_layer_error_terms_sub,sec:backprop_hidden_layer_error_terms_sub}; we now focus on how those gradients are accumulated in batch and stochastic settings.
+The step-by-step output-layer derivation and the hidden-layer recursion are already established in \Cref{sec:backprop_output_layer_error_terms_sub,sec:backprop_hidden_layer_error_terms_sub}. The next step is to see how those same gradients are accumulated in batch and stochastic settings.
 
 \subsection{Batch and Stochastic Gradient Descent}
 \label{sec:backprop_batch_and_stochastic_gradient_descent}
@@ -257,11 +257,11 @@ Given a training set of \( N \) examples \(\{(\mathbf{x}^{(n)}, \mathbf{t}^{(n)}
         \Delta w = -\frac{\eta}{N} \sum_{n=1}^N \delta^{(n)} \mathbf{x}^{(n)}.
     \]
 
-    \item \textbf{Stochastic gradient descent (SGD):} Update weights after each training example using the instantaneous gradient \(-\eta \, \delta^{(n)} \mathbf{x}^{(n)}\). Although the updates are noisy, SGD often converges faster in practice and can escape shallow local minima.
+    \item \textbf{Stochastic gradient descent (SGD):} Update weights after each training example using the instantaneous gradient \(-\eta \, \delta^{(n)} \mathbf{x}^{(n)}\). The updates are noisy, but that noise can be useful: it often keeps learning moving in flat regions and can help you avoid getting stuck too early.
 \end{itemize}
 
 \begin{tcolorbox}[summarybox, title={Optimizer and stability notes}]
-Start with plain SGD so you can tell whether your gradients are correct, then add stability aids one at a time (momentum, then an adaptive method like Adam/AdamW; see \Cref{chap:cnn}). For regularization, connect this to the L2 discussion from \Cref{chap:supervised}: in plain SGD, ``weight decay'' corresponds to shrinking weights toward zero; with AdamW, that shrinkage is applied as a decoupled decay step rather than being folded into the gradient. For deep or ill-conditioned nets, gradient clipping can prevent explosions. For classification, cross\hyp{}entropy with a numerically stable softmax (implement it via log\hyp{}sum\hyp{}exp or ``subtract the max logit'') is a common default recipe (\Cref{chap:cnn}).
+Start with plain SGD first; it makes it obvious whether the gradients you derived are doing the right thing. If training oscillates, add momentum; if step-size sensitivity dominates, try an adaptive method like AdamW (see \Cref{chap:cnn}). For regularization, tie this back to the L2 discussion in \Cref{chap:supervised}: in SGD, ``weight decay'' is weight shrinkage toward zero; in AdamW, that shrinkage is applied as a separate decay step rather than being mixed into the adaptive gradient. If gradients occasionally spike (common in deep or ill-conditioned nets), clipping is a practical safety valve. For classification, pair cross\hyp{}entropy with a numerically stable softmax (log\hyp{}sum\hyp{}exp / subtract the max logit), as discussed in \Cref{chap:cnn}.
 \end{tcolorbox}
 
 \begin{tcolorbox}[summarybox, title={Implementation pattern (modern practice): softmax + cross-entropy}]
@@ -269,7 +269,8 @@ Start with plain SGD so you can tell whether your gradients are correct, then ad
 \begin{verbatim}
 # Shapes: X in R^{B x d}, Y in R^{B x c} (one-hot)
 #         W1 in R^{d x h}, W2 in R^{h x c}
-# Note: stable softmax: subtract row max.
+# Note: stable softmax:
+#   subtract row-wise max logit before exp.
 	def step_ce_softmax(X, Y, params, eta, wd=1e-4, p_drop=0.1):
 	    W1, b1, W2, b2 = params
 	    B = X.shape[0]
@@ -295,7 +296,7 @@ Start with plain SGD so you can tell whether your gradients are correct, then ad
             W2 - eta * grad_W2, b2 - eta * grad_b2)
 \end{verbatim}
 \normalsize
-This snippet uses the same \(\delta\) recursion as the squared\hyp{}error derivation; the main change is the output layer, where softmax + cross\hyp{}entropy yields \(\delta^{(L)}=\hat{\mathbf{Y}}-\mathbf{Y}\) (up to batch scaling). The extra details (dropout, weight decay) are included only to make the pattern look like real code.
+This snippet uses the same \(\delta\) recursion as the squared\hyp{}error derivation; the main change is the output layer, where softmax + cross\hyp{}entropy yields \(\delta^{(L)}=\hat{\mathbf{Y}}-\mathbf{Y}\) (up to batch scaling). Dropout and weight decay are optional here; they are shown only to indicate where they enter the forward and backward passes.
 \end{tcolorbox}
 
 
@@ -385,6 +386,92 @@ This snippet uses the same \(\delta\) recursion as the squared\hyp{}error deriva
     \caption[Computational graph for backpropagation (reverse-mode AD)]{Computational graph for a feedforward network. Backpropagation is reverse\hyp{}mode AD: the forward sweep caches intermediate values, and the reverse sweep propagates deltas while accumulating weight/bias gradients from those cached values.}
     \label{fig:backprop-computational-graph}
 \end{figure}
+
+\begin{figure}[h]
+    \centering
+    \ifdefined\HCode
+    % EPUB/HTML: use a simplified version of the original "wide" diagram, but with
+    % fewer colors and without tiny per-edge weight labels (which rasterize poorly).
+    \begin{tikzpicture}[
+        >=Stealth,
+        font=\small\sffamily,
+        node/.style={circle, draw=black!50, line width=0.9pt, minimum size=12mm, fill=white},
+        fwd/.style={->, line width=1.4pt, draw=cbBlue!80!black},
+        bwd/.style={->, line width=1.4pt, draw=black!55, dashed},
+        lbl/.style={font=\footnotesize\sffamily, text=black!70},
+        background rectangle/.style={fill=white}, show background rectangle
+    ]
+
+        % Forward nodes (inputs -> hidden -> output)
+        % Shift right to leave a clean legend margin on the left.
+        \node[node] (x1) at (0.8,0.9) {$x_1$};
+        \node[node] (x2) at (0.8,-0.9) {$x_2$};
+        \node[node] (h1) at (2.6,0.9) {$a_1^{(1)}$};
+        \node[node] (h2) at (2.6,-0.9) {$a_2^{(1)}$};
+        \node[node] (y)  at (5.2,0) {$a^{(2)}$};
+
+        % Forward connections (no per-edge weights in EPUB)
+        \draw[fwd] (x1) -- (h1);
+        \draw[fwd] (x1) -- (h2);
+        \draw[fwd] (x2) -- (h1);
+        \draw[fwd] (x2) -- (h2);
+        \draw[fwd] (h1) -- (y);
+        \draw[fwd] (h2) -- (y);
+
+        % Backward/error signals (labels placed away from nodes to avoid overlap)
+        \node[lbl, anchor=west] (d2) at ($(y)+(0.9,1.05)$) {$\boldsymbol{\delta}^{(2)}$};
+        \node[lbl, anchor=west] (d1) at ($(y)+(0.9,-1.3)$) {$\boldsymbol{\delta}^{(1)}_1$};
+        \node[lbl, anchor=west] (d0) at ($(y)+(0.9,-2.1)$) {$\boldsymbol{\delta}^{(1)}_2$};
+
+        \draw[bwd] ($(y)+(0,0.55)$) -- (d2);
+        \draw[bwd] ($(y)+(-0.1,-0.2)$).. controls (5.0,-0.85) and (4.6,-1.1).. (d1);
+        \draw[bwd] ($(y)+(-0.1,-0.2)$).. controls (5.0,-1.25) and (4.6,-1.65).. (d0);
+
+        % No in-figure legend for EPUB: small labels tend to overlap after rasterization.
+        % The caption explains the color/linestyle mapping instead.
+    \end{tikzpicture}
+    \else
+    \begin{tikzpicture}[
+        >=Stealth,
+        font=\small\sffamily,
+        node distance=1.55cm and 2.0cm,
+        var/.style={circle, draw=gray!60, line width=0.7pt, minimum size=10mm, fill=cbBlue!12, inner sep=0pt},
+        hnode/.style={circle, draw=gray!60, line width=0.7pt, minimum size=10mm, fill=cbGreen!12, inner sep=0pt},
+        outnode/.style={circle, draw=gray!60, line width=0.7pt, minimum size=10.5mm, fill=cbPink!15, inner sep=0pt},
+        fwd/.style={->, line width=1.0pt, draw=cbBlue!80!black},
+        bwd/.style={->, line width=1.0pt, draw=cbOrange!85!black, dashed},
+        wlab/.style={font=\scriptsize, text=cbBlue!80!black},
+        dlab/.style={font=\scriptsize, text=cbOrange!85!black}
+    ]
+        \node[var] (x1) {\(x_1\)};
+        \node[var, below=0.9cm of x1] (x2) {\(x_2\)};
+        \node[hnode, right=2.1cm of x1] (h1) {\(a_1^{(1)}\)};
+        \node[hnode, below=0.9cm of h1] (h2) {\(a_2^{(1)}\)};
+        \node[outnode, right=2.2cm of h1] (y) {\(a^{(2)}\)};
+
+        \draw[fwd] (x1) -- node[above, sloped, wlab]{\(w_{11}^{(1)}\)} (h1);
+        \draw[fwd] (x1) -- node[above, sloped, wlab]{\(w_{21}^{(1)}\)} (h2);
+        \draw[fwd] (x2) -- node[below, sloped, wlab]{\(w_{12}^{(1)}\)} (h1);
+        \draw[fwd] (x2) -- node[below, sloped, wlab]{\(w_{22}^{(1)}\)} (h2);
+        \draw[fwd] (h1) -- node[above, wlab]{\(w_{1}^{(2)}\)} (y);
+        \draw[fwd] (h2) -- node[below, wlab]{\(w_{2}^{(2)}\)} (y);
+
+        \draw[bwd] (y) -- ++(0,1.2) node[right, xshift=0.1cm, dlab]{\(\delta^{(2)}\)};
+        \draw[bwd] (h1) -- ++(0,-1.2) node[right, xshift=0.1cm, dlab]{\(\delta_1^{(1)}\)};
+        \draw[bwd] (h2) -- ++(0,-1.2) node[right, xshift=0.1cm, dlab]{\(\delta_2^{(1)}\)};
+
+        % Keep legend labels *inside* the diagram bounds; otherwise rasterizers can clip them.
+        \path (current bounding box.north west) ++(2mm,-2mm)
+            node[anchor=north west, font=\scriptsize, text=cbBlue!80!black] {forward};
+        \path (current bounding box.north west) ++(2mm,-7mm)
+            node[anchor=north west, font=\scriptsize, text=cbOrange!85!black] {backward};
+    \end{tikzpicture}
+    \fi
+    % Avoid inline math in captions; it wraps poorly in some EPUB renderers.
+    \caption{Forward (blue) and backward (orange) flows for a two-layer MLP. Cached activations and layerwise deltas travel along these arrows; backward signals use next-layer weights and activation derivatives.}
+    \label{fig:lec4_backprop_flow}
+\end{figure}
+\FloatBarrier
 
 
 \begin{tcolorbox}[summarybox, title={Debugging and gradient-check checklist}]
@@ -490,7 +577,7 @@ Track both training and validation curves: a flat training loss usually points t
 \subsection{Training Procedure and Epochs in Multi-Layer Perceptrons}
 \label{sec:backprop_training_procedure_and_epochs_in_multi_layer_perceptrons}
 
-An epoch is one complete pass over the training set. In practice you almost never update one example at a time; you shuffle the data and iterate over mini\hyp{}batches so the gradient estimates are both noisy enough to explore and cheap enough to compute.
+An epoch is one complete pass over the training set. Most implementations shuffle the data and iterate over mini\hyp{}batches: each update is cheaper than a full-batch gradient, and the resulting noise is often helpful for making progress.
 
 \begin{enumerate}
     \item Shuffle the training examples (or shuffle within class strata for imbalanced problems).
@@ -511,18 +598,19 @@ After each epoch, look at both training and validation curves. A training loss t
 \label{sec:backprop_role_and_design_of_hidden_layers}
 
 Hidden layers are where an MLP earns its flexibility. They do not just add parameters; they add intermediate representations, so different units can specialize and a later layer can combine those specializations.
+A \emph{hidden layer} is any layer whose activations are not directly compared to the target: it sits between the input and output, and its outputs are internal signals the network learns to shape into useful features.
 
 \paragraph{Design questions you actually have to answer.}
 \begin{itemize}
     \item \textbf{Depth vs.\ width:} do you want a few wide layers or many narrow layers?
     \item \textbf{Capacity vs.\ data:} how much flexibility can your dataset support before you overfit?
-    \item \textbf{Activation choice:} will gradients flow (ReLU family), or will they saturate (sigmoid/tanh) for the scale of your pre\hyp{}activations?
+    \item \textbf{Activation choice:} will gradients flow (ReLU family), or will they saturate (sigmoid/tanh) for the scale of your pre\hyp{}activations? This connects directly to the smooth-activation discussion in \Cref{sec:mlp_differentiable_activations_and_the_sigmoid_trick}.
 \end{itemize}
 
 \paragraph{A simple, defensible starting point.}
 \begin{itemize}
     \item Pick one or two hidden layers and a moderate width, then let validation performance tell you whether you need more capacity.
-    \item Choose an activation that keeps gradients alive (ReLU or a leaky ReLU are common defaults in practice).
+    \item Choose an activation that keeps gradients alive (ReLU is a standard choice; if you see many dead units, a leaky ReLU is a simple alternative).
     \item Use early stopping and weight decay as your first line of defense against overfitting.
 \end{itemize}
 
@@ -531,171 +619,6 @@ Hidden layers are where an MLP earns its flexibility. They do not just add param
     \item \textbf{Too much capacity:} training loss drops quickly, validation does not; the model memorizes details you did not intend it to learn.
     \item \textbf{Too little capacity:} both training and validation plateau early; the model cannot represent the function you are asking for.
 \end{itemize}
-
-\subsection{Case Study: Learning the Function \texorpdfstring{\( y = x \sin x \)}{y = x sin x}}
-\label{sec:backprop_case_study_learning_the_function_y_x_x_y_x_sin_x}
-
-Consider the problem of training an MLP to approximate the function
-\[
-y = x \sin x.
-\]
-
-\paragraph{Setup.}
-\begin{itemize}
-    \item Generate a dataset of input-output pairs \(\{(x_i, y_i)\}\) where \(y_i = x_i \sin x_i\).
-    \item Use this dataset to train an MLP regressor.
-    \item Evaluate the network's ability to generalize by testing on inputs not seen during training.
-\end{itemize}
-
-\paragraph{What to look for.}
-\begin{itemize}
-    \item \textbf{Capacity vs.\ fit:} if the model is too small, the best\hyp{}fit curve will miss structure; if it is too large for your data density, it will fit noise or interpolation artifacts.
-    \item \textbf{Activation effects:} saturated activations can make learning look ``stuck'' even when the model has enough parameters.
-    \item \textbf{Data density:} uniform sampling over \([-3\pi,3\pi]\) reveals whether your model interpolates smoothly between points or produces oscillatory artifacts.
-\end{itemize}
-
-\paragraph{Practical notes.}
-\begin{itemize}
-    \item This is a regression problem, not a classification problem.
-    \item The target is nonlinear and oscillatory; underfitting and overfitting are both easy to see in a plot.
-    \item If you report performance, report it as a reproducible experiment (seed, split, optimizer recipe). Avoid quoting a single ``typical'' number unless you can regenerate it.
-\end{itemize}
-
-\subsection{Applications of Multi-Layer Perceptrons}
-\label{sec:backprop_applications_of_multi_layer_perceptrons}
-
-MLPs show up in two roles. Sometimes they are the whole model, as in small function-approximation and classification tasks. More often they are trainable blocks inside larger systems: the same affine\(\rightarrow\)nonlinearity pattern appears in convolutional networks, recurrent networks, and attention models, and we will revisit this connection later. In all cases, the training signal still arrives as a loss at the output, and backpropagation is what assigns that loss to each parameter through the stored intermediate values from the forward pass.
-
-\subsection{Limitations of Multi-Layer Perceptrons}
-\label{sec:backprop_limitations_of_multi_layer_perceptrons}
-
-MLPs are flexible, but they require care to train reliably. The main limitations show up as training instability, sensitivity to design choices, and difficulty diagnosing silent implementation mistakes. Training can be sensitive: small changes to the random initialization, data order, or step-size settings can lead to noticeably different outcomes, especially when the problem is poorly conditioned.
-
-\begin{itemize}
-    \item \textbf{Run-to-run variability:} different initializations and data orders can lead to different solutions. Treat seeds and splits as part of the experiment, not as incidental details.
-    \item \textbf{Optimization fragility:} step size, activation choice, and initialization scale directly affect gradient flow. When learning stalls, use the gradient norms and the activation-derivative picture in \Cref{fig:lec4-activations} as your first diagnostic.
-    \item \textbf{Silent implementation bugs:} shape/broadcasting mistakes can produce gradients that look plausible but are wrong. This is why the shape ledger and finite-difference checks in this chapter are part of the basic implementation discipline.
-\end{itemize}
-
-\subsection{Conclusion of Multi-Layer Perceptron Derivations}
-\label{sec:backprop_conclusion_of_multi_layer_perceptron_derivations}
-
-At this point you have the full backprop workflow: store computations from the forward pass, compute \(\delta^{(L)}\), propagate \(\delta\)'s backward, and assemble gradients with the shapes kept honest. The rest of the chapter focuses on practical stability (activations, initialization, stopping) and the habits that keep implementations honest.
-
-\paragraph{Backpropagation algorithm recap (matrix form).}
-One compact way to write the forward pass is:
-\[
-\mathbf{Z}^{(l)} = \mathbf{A}^{(l-1)}\mathbf{W}^{(l)} + \mathbf{1}(\mathbf{b}^{(l)})^\top,\quad \mathbf{A}^{(l)} = f^{(l)}(\mathbf{Z}^{(l)}),
-\]
-where \(\mathbf{W}^{(l)}\) and \(\mathbf{b}^{(l)}\) are the weights and biases of layer \( l \), \(\mathbf{A}^{(l-1)}\) is the previous layer activation (rows are samples), \(\mathbf{1}\in\mathbb{R}^{B}\) is an all-ones vector that broadcasts the bias across the batch, and \(f^{(l)}\) is the (possibly layer-specific) activation function.
-
-Define the error signal at layer \(l\) as:
-\[
-\boldsymbol{\delta}^{(l)} = \frac{\partial \mathcal{L}}{\partial \mathbf{Z}^{(l)}}.
-\]
-
-Then the chain rule gives a reusable backward recursion:
-\begin{align}
-\boldsymbol{\delta}^{(L)} &= \nabla_{\mathbf{A}^{(L)}} \mathcal{L} \odot f^{(L)\prime}(\mathbf{Z}^{(L)}), \\
-\boldsymbol{\delta}^{(l-1)} &= \left(\boldsymbol{\delta}^{(l)}(\mathbf{W}^{(l)})^\top\right) \odot f^{(l-1)\prime}(\mathbf{Z}^{(l-1)}), \quad l = L, \ldots, 2,
-		    \label{eq:auto:lecture_4_part_i:2}
-\end{align}
-where \(\odot\) denotes element-wise multiplication and \(f^{(l)\prime}\) is the derivative of the activation function at layer \( l \).
-
-Finally, turn those \(\delta\)'s into parameter gradients:
-\begin{align}
-\frac{\partial \mathcal{L}}{\partial \mathbf{W}^{(l)}} &= (\mathbf{A}^{(l-1)})^\top \boldsymbol{\delta}^{(l)}, \label{eq:grad_W}\\
-\frac{\partial \mathcal{L}}{\partial \mathbf{b}^{(l)}} &= \mathbf{1}^\top \boldsymbol{\delta}^{(l)}. \label{eq:grad_b}
-\end{align}
-If your loss is defined as a mean over the batch, divide these batch sums by \(B\); the shape ledger earlier in the chapter uses that mean convention.
-
-These equations are the whole story: cache forward values, propagate \(\delta\)'s backward, then assemble gradients. \Cref{fig:lec4_backprop_flow} complements the algebra by showing how cached activations (forward arrows) line up with backward error signals in a simple two-layer network.
-
-\begin{figure}[h]
-    \centering
-    \ifdefined\HCode
-    % EPUB/HTML: use a simplified version of the original "wide" diagram, but with
-    % fewer colors and without tiny per-edge weight labels (which rasterize poorly).
-    \begin{tikzpicture}[
-        >=Stealth,
-        font=\small\sffamily,
-        node/.style={circle, draw=black!50, line width=0.9pt, minimum size=12mm, fill=white},
-        fwd/.style={->, line width=1.4pt, draw=cbBlue!80!black},
-        bwd/.style={->, line width=1.4pt, draw=black!55, dashed},
-        lbl/.style={font=\footnotesize\sffamily, text=black!70},
-        background rectangle/.style={fill=white}, show background rectangle
-    ]
-
-        % Forward nodes (inputs -> hidden -> output)
-        % Shift right to leave a clean legend margin on the left.
-        \node[node] (x1) at (0.8,0.9) {$x_1$};
-        \node[node] (x2) at (0.8,-0.9) {$x_2$};
-        \node[node] (h1) at (2.6,0.9) {$a_1^{(1)}$};
-        \node[node] (h2) at (2.6,-0.9) {$a_2^{(1)}$};
-        \node[node] (y)  at (5.2,0) {$a^{(2)}$};
-
-        % Forward connections (no per-edge weights in EPUB)
-        \draw[fwd] (x1) -- (h1);
-        \draw[fwd] (x1) -- (h2);
-        \draw[fwd] (x2) -- (h1);
-        \draw[fwd] (x2) -- (h2);
-        \draw[fwd] (h1) -- (y);
-        \draw[fwd] (h2) -- (y);
-
-        % Backward/error signals (labels placed away from nodes to avoid overlap)
-        \node[lbl, anchor=west] (d2) at ($(y)+(0.9,1.05)$) {$\boldsymbol{\delta}^{(2)}$};
-        \node[lbl, anchor=west] (d1) at ($(y)+(0.9,-1.3)$) {$\boldsymbol{\delta}^{(1)}_1$};
-        \node[lbl, anchor=west] (d0) at ($(y)+(0.9,-2.1)$) {$\boldsymbol{\delta}^{(1)}_2$};
-
-        \draw[bwd] ($(y)+(0,0.55)$) -- (d2);
-        \draw[bwd] ($(y)+(-0.1,-0.2)$).. controls (5.0,-0.85) and (4.6,-1.1).. (d1);
-        \draw[bwd] ($(y)+(-0.1,-0.2)$).. controls (5.0,-1.25) and (4.6,-1.65).. (d0);
-
-        % No in-figure legend for EPUB: small labels tend to overlap after rasterization.
-        % The caption explains the color/linestyle mapping instead.
-    \end{tikzpicture}
-    \else
-    \begin{tikzpicture}[
-        >=Stealth,
-        font=\small\sffamily,
-        node distance=1.55cm and 2.0cm,
-        var/.style={circle, draw=gray!60, line width=0.7pt, minimum size=10mm, fill=cbBlue!12, inner sep=0pt},
-        hnode/.style={circle, draw=gray!60, line width=0.7pt, minimum size=10mm, fill=cbGreen!12, inner sep=0pt},
-        outnode/.style={circle, draw=gray!60, line width=0.7pt, minimum size=10.5mm, fill=cbPink!15, inner sep=0pt},
-        fwd/.style={->, line width=1.0pt, draw=cbBlue!80!black},
-        bwd/.style={->, line width=1.0pt, draw=cbOrange!85!black, dashed},
-        wlab/.style={font=\scriptsize, text=cbBlue!80!black},
-        dlab/.style={font=\scriptsize, text=cbOrange!85!black}
-    ]
-        \node[var] (x1) {\(x_1\)};
-        \node[var, below=0.9cm of x1] (x2) {\(x_2\)};
-        \node[hnode, right=2.1cm of x1] (h1) {\(a_1^{(1)}\)};
-        \node[hnode, below=0.9cm of h1] (h2) {\(a_2^{(1)}\)};
-        \node[outnode, right=2.2cm of h1] (y) {\(a^{(2)}\)};
-
-        \draw[fwd] (x1) -- node[above, sloped, wlab]{\(w_{11}^{(1)}\)} (h1);
-        \draw[fwd] (x1) -- node[above, sloped, wlab]{\(w_{21}^{(1)}\)} (h2);
-        \draw[fwd] (x2) -- node[below, sloped, wlab]{\(w_{12}^{(1)}\)} (h1);
-        \draw[fwd] (x2) -- node[below, sloped, wlab]{\(w_{22}^{(1)}\)} (h2);
-        \draw[fwd] (h1) -- node[above, wlab]{\(w_{1}^{(2)}\)} (y);
-        \draw[fwd] (h2) -- node[below, wlab]{\(w_{2}^{(2)}\)} (y);
-
-        \draw[bwd] (y) -- ++(0,1.2) node[right, xshift=0.1cm, dlab]{\(\delta^{(2)}\)};
-        \draw[bwd] (h1) -- ++(0,-1.2) node[right, xshift=0.1cm, dlab]{\(\delta_1^{(1)}\)};
-        \draw[bwd] (h2) -- ++(0,-1.2) node[right, xshift=0.1cm, dlab]{\(\delta_2^{(1)}\)};
-
-        % Keep legend labels *inside* the diagram bounds; otherwise rasterizers can clip them.
-        \path (current bounding box.north west) ++(2mm,-2mm)
-            node[anchor=north west, font=\scriptsize, text=cbBlue!80!black] {forward};
-        \path (current bounding box.north west) ++(2mm,-7mm)
-            node[anchor=north west, font=\scriptsize, text=cbOrange!85!black] {backward};
-    \end{tikzpicture}
-    \fi
-    % Avoid inline math in captions; it wraps poorly in some EPUB renderers.
-    \caption{Forward (blue) and backward (orange) flows for a two-layer MLP. Cached activations and layerwise deltas travel along these arrows; backward signals use next-layer weights and activation derivatives.}
-    \label{fig:lec4_backprop_flow}
-\end{figure}
-
 
 \paragraph{Example Execution}
 
@@ -712,11 +635,11 @@ Backpropagation gives the \emph{right} gradients; whether those gradients turn i
     \item \textbf{Optimizer details:} momentum/Adam change the effective step direction and can rescue poorly conditioned problems.
 \end{itemize}
 
-We return to these practicalities in the later deep\hyp{}learning chapters; for now, it helps to see the canonical activation choices in one place.
+Later deep\hyp{}learning chapters revisit these choices in larger architectures; for now, it helps to see the canonical activation functions side by side.
 
 \paragraph{Comparing canonical nonlinearities}
 
-With the MLP and backpropagation machinery in place, it is useful to compare the most common nonlinearities side-by-side. \Cref{fig:lec4-activations} overlays the step, sigmoid, tanh, and ReLU curves so saturation regions and derivative behavior are visually apparent in one view.
+With the backprop derivation in place, it helps to compare the standard nonlinearities side by side. \Cref{fig:lec4-activations} overlays the step, sigmoid, tanh, and ReLU curves so saturation regions and derivative behavior are visually apparent in one view.
 
 \begin{figure}[t]
     \centering
@@ -772,13 +695,93 @@ With the MLP and backpropagation machinery in place, it is useful to compare the
     \caption{Canonical activation functions on a common axis. Solid curves show the activation; dashed curves show its derivative.}
     \label{fig:lec4-activations}
 \end{figure}
-
+\FloatBarrier
 
 For reference, \(\sigma'(z)=\sigma(z)\bigl(1-\sigma(z)\bigr)\), \(\tanh'(z)=1-\tanh^2(z)\), and the ReLU derivative is \(0\) for negative inputs and \(1\) for positive inputs (take \(0\) at the origin).
 
 \paragraph{Trade-offs}
-While some activation functions are inspired by biological neurons, others are chosen for mathematical convenience and training efficiency. Sigmoid and tanh saturate at large magnitude inputs, which slows gradients in deep networks. ReLU avoids saturation on the positive side but can produce ``dying ReLUs'' when biases push units negative and the gradients become zero; if many units stall, use He initialization, reduce the learning rate, or swap to a leaky ReLU with a small negative slope (e.g., 0.01).
-At this point the core backpropagation story for MLPs is complete. The remainder of the chapter collects practical stability habits and a short set of takeaways you can use when training starts behaving badly.
+Some activations match the intuition of a smooth ``firing curve''; others are chosen mainly because they train well. Sigmoid and tanh saturate at large magnitude inputs, which slows gradients in deep networks. ReLU avoids saturation on the positive side but can produce ``dying ReLUs'' when biases push units negative and the gradients become zero; if many units stall, use He initialization, reduce the learning rate, or swap to a leaky ReLU with a small negative slope (e.g., 0.01).
+
+With these stability levers in mind, we now turn to a simple function-estimation case study.
+
+\subsection{Case Study: Learning the Function \texorpdfstring{\( y = x \sin x \)}{y = x sin x}}
+\label{sec:backprop_case_study_learning_the_function_y_x_x_y_x_sin_x}
+
+Consider the problem of training an MLP to approximate the function
+\[
+y = x \sin x.
+\]
+
+\paragraph{Setup.}
+\begin{itemize}
+    \item Generate a dataset of input-output pairs \(\{(x_i, y_i)\}\) where \(y_i = x_i \sin x_i\).
+    \item Use this dataset to train an MLP regressor.
+    \item Evaluate the network's ability to generalize by testing on inputs not seen during training.
+\end{itemize}
+
+\paragraph{What to look for.}
+\begin{itemize}
+    \item \textbf{Capacity vs.\ fit:} if the model is too small, the best\hyp{}fit curve will miss structure; if it is too large for your data density, it will fit noise or interpolation artifacts.
+    \item \textbf{Activation effects:} saturated activations can make learning look ``stuck'' even when the model has enough parameters.
+    \item \textbf{Data density:} uniform sampling over \([-3\pi,3\pi]\) reveals whether your model interpolates smoothly between points or produces oscillatory artifacts.
+\end{itemize}
+
+\paragraph{Practical notes.}
+\begin{itemize}
+    \item This is a regression problem, not a classification problem.
+    \item The target is nonlinear and oscillatory; underfitting and overfitting are both easy to see in a plot.
+    \item If you report performance, report it as a reproducible experiment (seed, split, optimizer recipe). Avoid quoting a single ``typical'' number unless you can regenerate it.
+\end{itemize}
+
+\subsection{Applications of Multi-Layer Perceptrons}
+\label{sec:backprop_applications_of_multi_layer_perceptrons}
+
+MLPs show up in two roles. Sometimes they are the whole model, as in small function-approximation and classification tasks. More often they are trainable blocks inside larger systems: the same affine\(\rightarrow\)nonlinearity pattern appears in convolutional networks, recurrent networks, and attention models. Later chapters return to this connection at scale. In all cases, the training signal still arrives as a loss at the output, and backpropagation is what assigns that loss to each parameter through the stored intermediate values from the forward pass.
+
+\subsection{Limitations of Multi-Layer Perceptrons}
+\label{sec:backprop_limitations_of_multi_layer_perceptrons}
+
+MLPs are flexible, but they require care to train reliably. The main limitations show up as training instability, sensitivity to design choices, and difficulty diagnosing silent implementation mistakes. Training can be sensitive: small changes to the random initialization, data order, or step-size settings can lead to noticeably different outcomes, especially when the problem is poorly conditioned.
+
+\begin{itemize}
+    \item \textbf{Run-to-run variability:} different initializations and data orders can lead to different solutions. Treat seeds and splits as part of the experiment, not as incidental details.
+    \item \textbf{Optimization fragility:} step size, activation choice, and initialization scale directly affect gradient flow. When learning stalls, use the gradient norms and the activation-derivative picture in \Cref{fig:lec4-activations} as your first diagnostic.
+    \item \textbf{Silent implementation bugs:} shape/broadcasting mistakes can produce gradients that look plausible but are wrong. This is why the shape ledger and finite-difference checks in this chapter are part of the basic implementation discipline.
+\end{itemize}
+
+\subsection{Conclusion of Multi-Layer Perceptron Derivations}
+\label{sec:backprop_conclusion_of_multi_layer_perceptron_derivations}
+
+At this point you have the full backprop workflow: store computations from the forward pass, compute \(\delta^{(L)}\), propagate \(\delta\)'s backward, and assemble gradients with the shapes kept honest. To close the derivation, it helps to write the same story once more in a compact matrix form.
+
+\paragraph{Backpropagation algorithm recap (matrix form).}
+One compact way to write the forward pass is:
+\[
+\mathbf{Z}^{(l)} = \mathbf{A}^{(l-1)}\mathbf{W}^{(l)} + \mathbf{1}(\mathbf{b}^{(l)})^\top,\quad \mathbf{A}^{(l)} = f^{(l)}(\mathbf{Z}^{(l)}),
+\]
+where \(\mathbf{W}^{(l)}\) and \(\mathbf{b}^{(l)}\) are the weights and biases of layer \( l \), \(\mathbf{A}^{(l-1)}\) is the previous layer activation (rows are samples), \(\mathbf{1}\in\mathbb{R}^{B}\) is an all-ones vector that broadcasts the bias across the batch, and \(f^{(l)}\) is the (possibly layer-specific) activation function.
+
+Define the error signal at layer \(l\) as:
+\[
+\boldsymbol{\delta}^{(l)} = \frac{\partial \mathcal{L}}{\partial \mathbf{Z}^{(l)}}.
+\]
+
+Then the chain rule gives a reusable backward recursion:
+\begin{align}
+\boldsymbol{\delta}^{(L)} &= \nabla_{\mathbf{A}^{(L)}} \mathcal{L} \odot f^{(L)\prime}(\mathbf{Z}^{(L)}), \\
+\boldsymbol{\delta}^{(l-1)} &= \left(\boldsymbol{\delta}^{(l)}(\mathbf{W}^{(l)})^\top\right) \odot f^{(l-1)\prime}(\mathbf{Z}^{(l-1)}), \quad l = L, \ldots, 2,
+		    \label{eq:auto:lecture_4_part_i:2}
+\end{align}
+where \(\odot\) denotes element-wise multiplication and \(f^{(l)\prime}\) is the derivative of the activation function at layer \( l \).
+
+Finally, turn those \(\delta\)'s into parameter gradients:
+\begin{align}
+\frac{\partial \mathcal{L}}{\partial \mathbf{W}^{(l)}} &= (\mathbf{A}^{(l-1)})^\top \boldsymbol{\delta}^{(l)}, \label{eq:grad_W}\\
+\frac{\partial \mathcal{L}}{\partial \mathbf{b}^{(l)}} &= \mathbf{1}^\top \boldsymbol{\delta}^{(l)}. \label{eq:grad_b}
+\end{align}
+If your loss is defined as a mean over the batch, divide these batch sums by \(B\); the shape ledger earlier in the chapter uses that mean convention.
+
+These equations are the whole story: cache forward values, propagate \(\delta\)'s backward, then assemble gradients. \Cref{fig:lec4_backprop_flow} complements the algebra by showing how cached activations (forward arrows) line up with backward error signals in a simple two-layer network.
 
 \clearpage
 
@@ -787,7 +790,7 @@ At this point the core backpropagation story for MLPs is complete. The remainder
 	    \begin{itemize}
 	        \item Backpropagation is the chain rule organized: cache forward values, propagate \(\delta\)'s backward using \Cref{eq:auto:lecture_4_part_i:2}, then assemble gradients with \Cref{eq:grad_W,eq:grad_b}.
 	        \item The \(\delta\)'s are not mysterious: they are sensitivities (\(\partial \mathcal{L}/\partial \mathbf{Z}^{(l)}\)) that you reuse to update every parameter.
-	        \item For softmax + cross\hyp{}entropy, the output-layer error simplifies to \((\hat{\mathbf{Y}}-\mathbf{Y})/B\); we verify that identity numerically and use it in the modern-practice code pattern earlier in the chapter.
+		        \item For softmax + cross\hyp{}entropy, the output-layer error simplifies to \((\hat{\mathbf{Y}}-\mathbf{Y})/B\); a small finite-difference check can confirm this identity, and it is used in the modern-practice code pattern earlier in the chapter.
 	        \item When training misbehaves, debug like an engineer: overfit a tiny batch, run a finite-difference check, then inspect per-layer gradient norms and shapes.
 	    \end{itemize}
     \medskip
@@ -803,7 +806,7 @@ At this point the core backpropagation story for MLPs is complete. The remainder
     \begin{tcolorbox}[summarybox, title={Practical early stopping and checkpointing}]
     \begin{itemize}
         \item Keep a validation split separate from the training mini\hyp{}batches, and record \(L_{\text{val}}^{(e)}\) after each epoch.
-        \item Stop when \(L_{\text{val}}\) has not improved for \(k\) consecutive epochs (a patience of \(k\in[5,10]\) is a common starting point). If the curve is noisy, require a small minimum improvement before you reset patience.
+        \item Stop when \(L_{\text{val}}\) has not improved for \(k\) consecutive epochs (a patience of \(k\in[5,10]\) is a reasonable first try). If the curve is noisy, require a small minimum improvement before you reset patience.
         \item Always checkpoint the parameters that achieved the best validation score and restore them before testing. If training is noisy, averaging the last few checkpoints can stabilize performance.
 \end{itemize}
 \end{tcolorbox}
@@ -813,7 +816,7 @@ At this point the core backpropagation story for MLPs is complete. The remainder
     \item \textbf{Implement:} write one clean layer routine \((\mathbf{A}^{(l-1)}, \mathbf{W}^{(l)}, \mathbf{b}^{(l)}) \mapsto (\mathbf{Z}^{(l)}, \mathbf{A}^{(l)})\), then reuse it for every layer.
     \item \textbf{Cache:} store what backprop needs later (at minimum \(\mathbf{A}^{(l-1)}\) and \(\mathbf{Z}^{(l)}\)). Do not recompute forward quantities during the backward pass.
     \item \textbf{Fail fast:} gradient-check one tiny network and overfit one tiny batch before you trust results on a real dataset.
-    \item \textbf{Make runs comparable:} record seeds, optimizer, schedule, and stopping rule. The reporting template in \Cref{app:repro_standards} helps keep comparisons honest.
+    \item \textbf{Make runs comparable:} record seeds, optimizer, schedule, and stopping rule. The reporting checklist in \Cref{app:repro_standards} helps keep comparisons honest.
 \end{itemize}
 \end{tcolorbox}
 
