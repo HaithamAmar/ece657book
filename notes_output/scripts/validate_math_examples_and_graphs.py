@@ -254,6 +254,35 @@ def check_integral_result_derivative() -> dict[str, float]:
     return {"max_abs_derivative_error": max_err}
 
 
+def check_symbolic_beta_template_numeric_fallback() -> dict[str, float]:
+    """
+    Chapter 2 (symbolic integration): verify the numeric fallback value in the
+    Beta-template vignette and ensure the displayed constants match.
+    """
+
+    tex = _read(ROOT / "lecture_2_part_i.tex")
+    _assert("B(3/2,2)=4/15" in tex.replace(" ", ""), "Expected Beta closed-form (4/15) not found in TeX")
+    _assert("0.0915453885" in tex, "Expected numeric fallback value not found in TeX")
+
+    # I = ∫_0^1 x^{a-1}(1-x)^{b-1} log(1+x) dx for a=3/2, b=2.
+    a = 1.5
+    b = 2.0
+
+    def f(x: np.ndarray) -> np.ndarray:
+        return np.power(x, a - 1.0) * np.power(1.0 - x, b - 1.0) * np.log1p(x)
+
+    # High-order Gauss-Legendre quadrature on [0, 1] (integrand is smooth here).
+    n = 400
+    nodes, weights = np.polynomial.legendre.leggauss(n)
+    xs = 0.5 * (nodes + 1.0)  # [-1, 1] -> [0, 1]
+    ws = 0.5 * weights
+    I = float(np.sum(ws * f(xs)))
+
+    expected = 0.09154538845698458
+    _assert_close(I, expected, tol=5e-13, msg="Symbolic numeric fallback integral mismatch")
+    return {"I_numeric": I}
+
+
 def check_fig_sigmoid_bce_curves() -> dict[str, float]:
     tex = _read(ROOT / "lecture_2_part_ii.tex")
     fig = _extract_figure_block(tex, "fig:lec2_sigmoid_bce")
@@ -962,6 +991,7 @@ def run_checks() -> list[CheckResult]:
         ("figure_rbf_xor_feature_map", check_fig_rbf_xor_feature_map),
         ("numeric_examples_pack", check_numeric_examples_pack),
         ("integral_result_derivative", check_integral_result_derivative),
+        ("chapter2_beta_numeric_fallback", check_symbolic_beta_template_numeric_fallback),
         ("figure_sigmoid_bce", check_fig_sigmoid_bce_curves),
         ("figure_bn", check_fig_bn_curves),
         ("figure_optimizers", check_fig_optimizer_curves),

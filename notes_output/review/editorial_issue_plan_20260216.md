@@ -1143,3 +1143,10 @@ Build notes (2026-02-17):
 - 2026-02-23: Ran `python3 notes_output/scripts/validate_math_examples_and_graphs.py --strict` after the edits. Result: PASS.
 - 2026-02-23: Ran `bash notes_output/scripts/run_production_checks.sh` after the edits. Result: PASS (release checks, Apple
   gatekeeper audits, and EPUBCheck all OK).
+
+## 2026-02-23 Chapters 1--8 completion sweep (fig truthfulness + numeric verification coverage)
+
+- `notes_output/scripts/validate_math_examples_and_graphs.py`: added a strict verification for the Chapter 2 symbolic-integration
+  vignette (Beta-template fallback). The check recomputes the perturbed Beta integral numerically and asserts the displayed
+  value (\(\approx 0.0915453885\)) is correct, and that the stated Beta closed form \(B(3/2,2)=4/15\) matches.
+- 2026-02-23: Ran `python3 notes_output/scripts/validate_math_examples_and_graphs.py --strict` after the edits. Result: PASS.
