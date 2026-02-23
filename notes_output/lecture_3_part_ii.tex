@@ -86,7 +86,9 @@ This is the point where the unit becomes a building block: an intermediate signa
 \end{figure}
 
 \paragraph{Author's note: why a network changes the story.}
-With one perceptron, every training example pushes on the same single separator. A network changes the situation by creating intermediate signals that can specialize: some units respond to one pattern, others respond to another, and a later unit can combine their responses. That internal structure is what turns simple units into a flexible nonlinear model. You can read the intermediate signals as learned transformations of the input whose job is to make the final separation easier.
+With one perceptron, every example pushes on the same single separator. But if you add a second unit, you are no longer forcing the entire problem through one shared knife-edge: you create intermediate signals that can specialize. Some units become sensitive to one pattern, others to another, and a later unit learns how to combine them.
+
+I like to read those intermediate signals as learned transformations whose job is simple: make the final separation easier than it looked in the raw input space.
 
 \paragraph{A checklist of what we must settle (and why).}
 A diagram becomes a learning machine only after we make four choices explicit:
@@ -115,7 +117,9 @@ The factor $\tfrac{1}{2}$ makes derivatives cleaner. If you prefer to \emph{maxi
 The signed error \(e=y_2-t\) can be positive or negative. Squaring removes the sign, penalizes large mistakes more than small ones, and keeps \(P\) smooth. That smoothness matters: if \(P\) changes continuously with the weights, derivatives can give a reliable direction for improvement. It is also easy to interpret and explain.
 
 \begin{tcolorbox}[summarybox, title={Author's note: one objective is enough for the first derivation}]
-We start with squared error here for a simple reason: it keeps the algebra short, so you can see the chain rule without distractions. The point of the chapter is not ``squared error is always the right loss''; the point is learning to turn a forward computation into correct weight updates. Once that story is clear, you can swap the objective and redo only the small set of derivatives that touch the output layer.
+I start with squared error for one reason: it keeps the algebra short, so the chain rule is the only moving part you have to watch. The lesson here is not ``squared error is always right.'' The lesson is learning how to take a forward computation and turn it into correct weight updates.
+
+Once that story is clear, you can swap the objective and redo only the small set of derivatives that touch the output layer.
 \end{tcolorbox}
 
 \paragraph{A geometric intuition.}
@@ -249,7 +253,9 @@ It maps real inputs to $(0,1)$ and is differentiable everywhere. The key identit
 This is a useful trick: the derivative is a function of the \emph{output} itself. If $y=\sigma(p)$ is already computed in the forward pass, then $\sigma'(p)=y(1-y)$ is immediately available in the backward pass. No extra exponentials are needed.
 
 \begin{tcolorbox}[summarybox, title={Author's note: the derivative is already in the forward pass}]
-In practice you do not want to recompute expensive expressions during learning. For the sigmoid, once you have computed the output \(y=\sigma(p)\), you also have its slope for free: \(\sigma'(p)=y(1-y)\). This is a small example of a bigger pattern: the forward pass is not just for predictions; it also produces the cached intermediate values that the backward pass reuses.
+In practice you do not want to recompute expensive expressions during learning. With a sigmoid, once you have the forward output \(y=\sigma(p)\), you also have its slope for free: \(\sigma'(p)=y(1-y)\).
+
+That tiny identity hints at the bigger pattern: the forward pass is not only for predictions. It is also where you produce (and store) the intermediate values the backward pass will reuse. This idea, as intuitive as it might feel, is one of the reasons multi-layer perceptrons became trainable at scale and why modern deep learning can exist as an engineering discipline.
 \end{tcolorbox}
 
 \paragraph{Derivation sketch.}
@@ -341,7 +347,9 @@ Nothing essential changes for deeper networks; we simply apply the same chain ru
 where $\circ$ denotes element\hyp{}wise multiplication. This recursion is the basic backward update pattern in multi-layer networks; the only real challenge is organizing the computation so you can evaluate it efficiently.
 
 \begin{tcolorbox}[summarybox, title={Author's note: what changes when you scale up}]
-Conceptually, nothing magical happens when you go from two neurons to many layers: it is still the chain rule and the same local derivatives. What changes is the \emph{organization}. You run a forward pass that saves what you will need later, then a backward pass that reuses those saved values to compute every gradient efficiently for a whole batch. Later we turn that idea into an implementable algorithm and show the bookkeeping that keeps it sane.
+Going from two neurons to many layers does not change the idea. It is still the chain rule and the same local derivatives. What changes is the \emph{organization}.
+
+You run a forward pass that stores what you will need, then a backward pass that reuses those stored values to compute every gradient efficiently over a whole batch. Later we turn that into an implementable algorithm and show the accounting that keeps it reliable.
 \end{tcolorbox}
 
 \subsection{Summary}

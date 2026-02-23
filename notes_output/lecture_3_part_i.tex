@@ -71,8 +71,7 @@ trainable unit: a weighted sum followed by an activation/threshold, together wit
 engineering abstraction we can write down, debug, and scale.
 
 \begin{tcolorbox}[summarybox, title={Part II local roadmap: what stays the same, what changes}]
-\textbf{What stays the same (the contract).} We still follow the ERM loop: choose a representation, define a
-loss, optimize, then verify with honest evaluation and diagnostics.
+\textbf{What stays the same.} We still follow the ERM loop: choose a representation, define a loss, optimize, then verify with honest evaluation and diagnostics. As we proceed, you will find that this theme generalizes across many of the algorithms we discuss.
 
 \medskip
 \textbf{What changes (the design space).} Instead of choosing one linear model, we build systems by composing
@@ -510,7 +509,9 @@ Linear score \(s(\mathbf{x})=\mathbf{w}^\top\mathbf{x}+b\). The perceptron predi
 \end{tcolorbox}
 
 \begin{tcolorbox}[summarybox, title={Author's note: what a single perceptron cannot express}]
-A single perceptron makes one global, all-or-none decision: one hyperplane, one threshold, one set of weights shared across every example. That simplicity is the point of the model, but it also explains its limitations. Many real problems require \emph{communities} of units that specialize: different hidden units respond to different regions, features, or patterns, and their combined vote produces a flexible decision surface. Multi-layer networks do not just add parameters; they add internal structure that lets different parts of the model ``care about'' different parts of the data.
+A single perceptron makes one global, all-or-none decision: one hyperplane, one threshold, one set of weights shared across every example. That simplicity is the point of the model, and it is also the source of the limitation.
+
+Many real problems need \emph{communities} of units that can specialize. Different hidden units respond to different regions, features, or patterns, and the model combines those responses into a richer decision surface. Multi-layer networks do not only add parameters; they add internal structure that lets different parts of the model ``care about'' different parts of the data.
 \end{tcolorbox}
 
 \begin{tcolorbox}[summarybox, title={Key takeaways}]

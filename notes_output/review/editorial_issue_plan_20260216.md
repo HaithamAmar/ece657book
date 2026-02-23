@@ -1126,3 +1126,20 @@ Build notes (2026-02-17):
 - 2026-02-23: Ran `python3 notes_output/scripts/validate_math_examples_and_graphs.py --strict` after the edits. Result: PASS.
 - 2026-02-23: Ran `bash notes_output/scripts/run_production_checks.sh` after the edits. Result: PASS (release checks, Apple
   gatekeeper audits, and EPUBCheck all OK).
+
+## 2026-02-23 Chapters 1/4/5/6/8 voice pass (author notes + opening roadmap phrasing)
+
+- `notes_output/lecture_1_intro.tex`: rewrote the Level~4 ``subject of its own thought'' author note in a clearer first-person
+  voice (kept it explicitly opinionated).
+- `notes_output/lecture_2_part_ii.tex`: rewrote the Design motif and the ``why logistic/why regression'' author note to match a
+  book voice while keeping the intent.
+- `notes_output/lecture_3_part_i.tex`: softened ``contract'' language to ``what stays the same'' and tightened the perceptron
+  expressivity author note (kept the stance, improved cadence).
+- `notes_output/lecture_3_part_ii.tex`: rewrote the MLP author notes (objective choice, caching derivatives, scaling up) to read
+  as intentional author commentary rather than templated notes; removed speculative AGI/ASI claims while keeping the core
+  engineering point.
+- `notes_output/lecture_4_part_ii.tex`: removed the ``How to read this chapter'' paragraph header and rewrote the opening block
+  as plain narrative orientation within the overview.
+- 2026-02-23: Ran `python3 notes_output/scripts/validate_math_examples_and_graphs.py --strict` after the edits. Result: PASS.
+- 2026-02-23: Ran `bash notes_output/scripts/run_production_checks.sh` after the edits. Result: PASS (release checks, Apple
+  gatekeeper audits, and EPUBCheck all OK).

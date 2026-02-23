@@ -12,7 +12,7 @@ After this chapter, you should be able to:
 \end{tcolorbox}
 
 \begin{tcolorbox}[summarybox, title={Design motif}]
-Keep the workflow, swap the likelihood: logistic regression keeps the linear score but changes the probabilistic model (Bernoulli likelihood) and the loss (negative log\hyp{}likelihood, i.e., cross\hyp{}entropy).
+Same loop, different likelihood. Logistic regression keeps the linear score, but models a Bernoulli outcome; the loss becomes a negative log\hyp{}likelihood (binary cross\hyp{}entropy).
 \end{tcolorbox}
 
 \subsection{From regression to classification}
@@ -220,7 +220,9 @@ This implies that the posterior probability \(\pi(\mathbf{x})\) can be written a
 \end{equation}
 
 \begin{tcolorbox}[summarybox, title={Author's note: why ``logistic'' and why ``regression''?}]
-The name \emph{logistic} comes from the logistic (sigmoid) link in \eqref{eq:logistic_probability}, which maps a real\hyp{}valued score to a probability in \([0,1]\). The word \emph{regression} reflects what we model linearly: the \emph{log\hyp{}odds} (logit) in \eqref{eq:logit_linear} is a linear function of the features. The model itself outputs a continuous probability; we turn that probability into a class label by thresholding (or comparing class probabilities in the multiclass extension).
+\emph{Logistic} is the link function: a sigmoid takes a real score and turns it into a probability in \([0,1]\). And \emph{regression} is what remains linear: the \emph{log\hyp{}odds} (the logit) is modeled as a linear function of the features.
+
+The model outputs a probability. The class label comes later, as a decision rule: threshold the probability in the binary case (or compare probabilities in the multiclass extension).
 \end{tcolorbox}
 
 \subsubsection{Likelihood, loss, and gradient}\label{sec:lec2_logistic_likelihood}

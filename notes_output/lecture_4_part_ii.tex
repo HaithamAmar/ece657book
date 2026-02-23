@@ -18,14 +18,13 @@ Make the nonlinearity explicit: use a fixed (or lightly tuned) basis expansion i
 \subsection{Overview and Motivation}
 \label{sec:rbf_overview_and_motivation}
 
-\paragraph{How to read this chapter.}
-We start with the three-layer picture and the basis-function intuition, then write the model in matrix form and show how training becomes a regularized least-squares solve. Near the end we connect the finite-basis view to the kernel viewpoint. The Wiener-filter box is optional context if you want the signal-processing parallel.
+We start with the three-layer picture and the basis-function intuition, then write the same story in matrix form so training becomes a regularized least-squares solve. Near the end, we connect the finite-basis picture to the kernel viewpoint. (The short Wiener-filter box is optional context if you want the signal-processing parallel.)
 
-Unlike MLPs, which learn weights in every layer, an RBFN separates the job into two parts. The hidden layer provides a fixed nonlinear feature map (set by centers and widths). The output layer then learns a linear combination of those features. That split is the main story in this chapter: choose the basis, then solve for the readout.
+Unlike MLPs, which learn weights in every layer, an RBFN separates the job into two parts. The hidden layer provides a fixed nonlinear feature map (set by centers and widths). The output layer then learns a linear combination of those features. That split is the main story here: choose the basis, then solve for the readout.
 
 The key idea is that ``nonlinear'' can come from the representation rather than the readout. Radial basis functions act like localized, kernel-style features; once you lift inputs into that feature space, the output layer is still linear, and the weights are responsible for finding the separating border. This is closely related to the kernel trick used in SVMs; \Cref{app:kernels} collects the classical kernel viewpoint.
 
-\Cref{chap:supervised} frames this as a bias--variance tuning problem (choose capacity, regularization, and diagnostics via learning curves). Kernel methods such as kernel ridge regression and SVMs interpret the same trade-off through an RBF kernel matrix; here we keep the bases explicit, then connect to the dual/kernel view later in the chapter.
+\Cref{chap:supervised} frames this as a bias--variance tuning problem (capacity, regularization, and diagnostics via learning curves). Kernel methods such as kernel ridge regression and SVMs interpret the same trade-off through an RBF kernel matrix; here we keep the bases explicit, then connect to the dual/kernel view later in the chapter.
 
 \paragraph{Running example: XOR as a representation problem.}
 XOR is the smallest reminder that a single line in the input space is not always enough. The point of RBF networks is not that the output layer becomes complicated; it stays linear. The complication is pushed into the feature map: the hidden units apply localized, kernel-like transforms, and the output weights are responsible for finding the separating border in that transformed space. We will return to XOR twice: first to see the feature map, then to see how the linear solve chooses the readout weights.
