@@ -124,7 +124,7 @@ To keep the discussion concrete, we reuse a small toy dataset in \Cref{fig:lec1_
         \end{axis}
         \ensuretikzbackgroundlayers
     \end{tikzpicture}
-    \caption[Synthetic binary dataset.]{Synthetic binary dataset built from two anisotropic Gaussian clusters; shaded ellipses hint at the underlying density while the scattered samples are reused throughout the running examples. Use it when building intuition for how decision boundaries relate to class geometry before fitting discriminative models.}
+    \caption[Synthetic binary dataset.]{Synthetic binary dataset built from two anisotropic Gaussian clusters; shaded ellipses hint at the underlying density while the scattered samples are reused throughout the running examples. It helps build intuition for how decision boundaries relate to class geometry before fitting discriminative models.}
     \label{fig:lec1_dataset}
 \end{figure}
 
@@ -175,7 +175,7 @@ As shown in \Cref{fig:lec2_sigmoid_bce}, logits, BCE curvature, and regularizati
         \ensuretikzbackgroundlayers
     \end{tikzpicture}
     % Avoid inline math in captions; it wraps poorly in some EPUB renderers.
-    \caption{Bayes-optimal boundary for two Gaussian classes. Equal covariances and similar priors (LDA setting) yield a linear separator; unequal covariances yield a quadratic boundary. The boundary is near the equal-posterior line (vertical, pink); left/right regions map to predicted classes R0 and R1. Use it when contrasting linear vs.\ quadratic boundaries under different generative assumptions.}
+    \caption{Bayes-optimal boundary for two Gaussian classes. Equal covariances and similar priors (LDA setting) yield a linear separator; unequal covariances yield a quadratic boundary. The boundary is near the equal-posterior line (vertical, pink); left/right regions map to predicted classes R0 and R1.}
     \label{fig:lec1_bayes}
 \end{figure}
 
@@ -302,7 +302,7 @@ The Hessian has the form \(\mathbf{X}^\top \mathbf{W} \mathbf{X}\) where \(\math
     \ensuretikzbackgroundlayers
 \end{tikzpicture}
             % Avoid inline math in captions; it wraps poorly in some EPUB renderers.
-            \caption{The sigmoid maps logits to probabilities (left). The binary cross\hyp{}entropy (negative log\hyp{}likelihood) penalizes confident wrong predictions sharply (middle). Regularization typically shrinks parameter norms as the penalty strength increases (right). Use it when choosing a baseline probabilistic classifier and diagnosing overconfidence.}
+            \caption{The sigmoid maps logits to probabilities (left). The binary cross\hyp{}entropy (negative log\hyp{}likelihood) penalizes confident wrong predictions sharply (middle). Regularization typically shrinks parameter norms as the penalty strength increases (right).}
     \label{fig:lec2_sigmoid_bce}
 \end{figure}
 
@@ -368,7 +368,7 @@ Unlike linear regression, logistic regression does not have a closed-form soluti
         \end{axis}
         \ensuretikzbackgroundlayers
     \end{tikzpicture}
-        \caption{Gradient-descent iterates contracting toward the minimizer of a convex quadratic cost. Ellipses are level sets; arrows show the ``steepest descent along contours'' direction. Use it when visualizing why conditioning slows gradient descent.}
+        \caption{Gradient-descent iterates contracting toward the minimizer of a convex quadratic cost (schematic). Ellipses are level sets; arrows show the ``steepest descent along contours'' direction. Poor conditioning stretches the ellipses and slows convergence.}
         \label{fig:lec1_gd}
     \end{figure}
 
@@ -381,7 +381,7 @@ Unlike linear regression, logistic regression does not have a closed-form soluti
         \includegraphics[width=0.72\linewidth]{assets/lec2_part2/lec2_logistic_boundary.pdf}
     \fi
     % Avoid inline math in captions; it wraps poorly in some EPUB renderers.
-    \caption{Illustrative logistic-regression boundary. The dashed line marks the linear decision boundary at probability 0.5; labeled contours show how the posterior varies smoothly with margin, enabling calibrated decisions and adjustable thresholds. Use it when explaining why logistic outputs support threshold tuning.}
+    \caption{Illustrative logistic-regression boundary. The dashed line marks the linear decision boundary at probability 0.5; labeled contours show how the posterior varies smoothly with margin, enabling calibrated decisions and adjustable thresholds.}
     \label{fig:lec2-logistic-boundary}
 \end{figure}
 
@@ -438,7 +438,7 @@ Two common priors explain the two penalties that appear most often in practice: 
         \ensuretikzbackgroundlayers
     \end{tikzpicture}
         % Avoid inline math in captions; it wraps poorly in some EPUB renderers.
-        \caption{MAP estimates interpolate between the prior mean and the data-driven MLE. As the sample size grows, the MAP curve approaches the true mean. Use it when explaining how priors matter most in low-data regimes.}
+        \caption{MAP estimates interpolate between the prior mean and the data-driven MLE. As the sample size grows, the MAP curve approaches the true mean; with little data, the prior dominates.}
         \label{fig:lec1_mle_map}
     \end{figure}
 
@@ -470,7 +470,7 @@ On highly imbalanced problems accuracy and AUROC can be misleading; prefer class
         \includegraphics[width=0.78\linewidth]{assets/lec2_part2/lec2_roc_pr.pdf}
     \fi
     % Avoid inline math in captions; it wraps poorly in some EPUB renderers.
-    \caption{ROC and PR curves with an explicit operating point. Left: ROC curve with iso-cost lines; right: PR curve with a class-prevalence baseline and iso-F1 contours. Together they visualize threshold trade-offs and calibration quality. Use it when selecting an operating point under class imbalance and asymmetric costs.}
+    \caption{ROC and PR curves with an explicit operating point. Left: ROC curve with iso-cost lines; right: PR curve with a class-prevalence baseline and iso-F1 contours. Together they visualize threshold trade-offs and calibration quality.}
     \label{fig:lec1-roc-pr}
 \end{figure}
 
@@ -521,7 +521,7 @@ Use class or sample weights (e.g., inverse prevalence) inside the loss, and pick
         \end{axis}
         \ensuretikzbackgroundlayers
     \end{tikzpicture}
-        \caption{Confusion matrix for a three-class classifier; diagonals dominate, indicating strong accuracy with modest confusion between classes B and C. Use it when diagnosing which error types dominate in multiclass settings.}
+        \caption{Confusion matrix for a three-class classifier; diagonals dominate, indicating strong accuracy with modest confusion between classes B and C.}
         \label{fig:lec1_confusion}
     \end{figure}
 
@@ -549,7 +549,7 @@ Discrimination metrics (ROC/PR, AUC) say how well a classifier ranks examples bu
 
 \begin{table}[h]
 \centering
-\caption{Handling class imbalance for logistic models (\Cref{chap:logistic} reference table). Use it when choosing resampling, weighting, and thresholding strategies for rare positives.}
+\caption{Handling class imbalance for logistic models (\Cref{chap:logistic} reference table). A compact menu of resampling, weighting, and thresholding strategies for rare positives.}
 \begin{tabularx}{0.98\linewidth}{@{}>{\raggedright\arraybackslash}p{0.32\linewidth} >{\raggedright\arraybackslash}X@{}}
 \toprule
 \textbf{Tactic} & \textbf{When/why} \\

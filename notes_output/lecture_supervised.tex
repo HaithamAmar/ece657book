@@ -111,7 +111,7 @@ We want a well-fitted model: low training error and comparable validation/test e
         \end{axis}
     \ensuretikzbackgroundlayers
     \end{tikzpicture}
-    \caption{Underfitting and overfitting as a function of model complexity. Training error typically decreases with complexity, while validation error often has a U-shape. Regularization and model selection aim to operate near the minimum of the validation curve. Use it when deciding whether to add capacity, add data, or add regularization.}
+    \caption{Schematic underfitting and overfitting as a function of model complexity. Training error typically decreases with complexity, while validation error often has a U-shape; regularization and model selection aim to operate near the minimum of the validation curve.}
     \label{fig:lec1_fit_regimes}
 \end{figure}
 
@@ -194,7 +194,7 @@ The difference is easiest to remember geometrically: L2 has round level sets, wh
         \end{scope}
     \ensuretikzbackgroundlayers
     \end{tikzpicture}
-    \caption{Why L1 promotes sparsity. Minimizing loss subject to an L2 constraint tends to hit a smooth boundary; an L1 constraint has corners aligned with coordinate axes, so tangency often occurs at a point where some coordinates are exactly zero. Use it when choosing between L1 and L2 penalties for feature selection.}
+    \caption{Why L1 promotes sparsity (geometry). Minimizing loss subject to an L2 constraint tends to hit a smooth boundary; an L1 constraint has corners aligned with coordinate axes, so tangency often occurs where some coordinates are exactly zero.}
     \label{fig:lec1_l1_l2_geometry}
 \end{figure}
 
@@ -227,7 +227,7 @@ The difference is easiest to remember geometrically: L2 has round level sets, wh
     \ensuretikzbackgroundlayers
 \end{tikzpicture}
     % Avoid inline math in captions; it wraps poorly in some EPUB renderers.
-    \caption{A typical lasso path as the regularization strength increases. Coefficients shrink, and some become exactly zero, yielding sparse models. Use it when interpreting how penalty strength trades accuracy for sparsity.}
+    \caption{Illustrative lasso path as the regularization strength increases. Coefficients shrink, and some become exactly zero, yielding sparse models; the shrinkage order depends on feature correlation and scaling.}
     \label{fig:lec1_lasso_path}
 \end{figure}
 
@@ -264,7 +264,7 @@ The Huber loss interpolates between these: it is quadratic when \(|e| \le \delta
 
 \begin{table}[!htbp]
 \centering
-\caption{Common losses and typical use (reference for \Crefrange{chap:supervised}{chap:perceptron}). Use it when matching a loss to a modeling assumption and a downstream decision metric.}
+\caption{Common losses and typical use (reference for \Crefrange{chap:supervised}{chap:perceptron}). Match the loss to your modeling assumptions (noise, margins) and to the downstream decision metric you care about.}
 \begin{tabular}{@{}>{\raggedright\arraybackslash}p{0.22\linewidth} >{\raggedright\arraybackslash}p{0.25\linewidth} >{\raggedright\arraybackslash}p{0.4\linewidth}@{}}
 \toprule
 \textbf{Loss} & \textbf{Convex?} & \textbf{Typical use} \\
@@ -305,7 +305,7 @@ Hinge / squared hinge & Yes & Margin-based classifiers (SVMs, large-margin perce
     \ensuretikzbackgroundlayers
 \end{tikzpicture}
     % Avoid inline math in captions; it wraps poorly in some EPUB renderers.
-    \caption{Classification losses as functions of the signed margin z. Use it when comparing how different losses treat confident mistakes and near-boundary points.}
+    \caption{Classification losses as functions of the signed margin \(z\). The curves highlight how different losses treat confident mistakes and near-boundary points.}
     \label{fig:lec1_class_losses}
 \end{figure}
 
@@ -338,7 +338,7 @@ Hinge / squared hinge & Yes & Margin-based classifiers (SVMs, large-margin perce
         \end{axis}
     \ensuretikzbackgroundlayers
     \end{tikzpicture}
-    \caption{Regression losses versus prediction error. The Huber loss transitions from quadratic to linear to reduce sensitivity to outliers. Use it when choosing a loss that is robust to heavy-tailed noise.}
+    \caption{Regression losses versus prediction error. The Huber loss transitions from quadratic to linear, reducing sensitivity to outliers while staying differentiable near zero.}
     \label{fig:lec1_reg_losses}
 \end{figure}
 
@@ -396,7 +396,7 @@ Practical workflows allocate data into training, validation, and test portions. 
         \draw[cbGray, -{Stealth[length=2.2mm]}, line width=0.8pt] (0,-0.38) -- node[below, text=cbGray, yshift=-2pt]{Shuffle, then split once or use $K$-fold CV} (1,-0.38);
     \ensuretikzbackgroundlayers
     \end{tikzpicture}
-    \caption{Dataset partitioning into training, validation, and test segments. Any resampling scheme should preserve disjoint evaluation data; when classes are imbalanced, shuffle within strata so each split reflects the overall class mix. Use it when designing splits that support trustworthy model selection and reporting.}
+    \caption{Dataset partitioning into training, validation, and test segments. Any resampling scheme should preserve disjoint evaluation data; when classes are imbalanced, shuffle within strata so each split reflects the overall class mix.}
     \label{fig:lec1_splits}
 \end{figure}
 
@@ -424,7 +424,7 @@ To make the workflow concrete, \Cref{fig:lec1_pipeline} summarizes the standard 
         \draw[->, thick, bend right=40] (train.south) to node[below, font=\scriptsize]{hyperparameter update} (val.south);
     \ensuretikzbackgroundlayers
     \end{tikzpicture}
-    \caption{Mini ERM pipeline (split once, iterate train/validate, then test only the best model on the held-out set). Use it when enforcing a clean separation between tuning and final reporting.}
+    \caption{Mini ERM pipeline (split once, iterate train/validate, then test only the best model on the held-out set). This keeps tuning decisions separate from final reporting.}
     \label{fig:lec1_pipeline}
 \end{figure}
 
@@ -478,7 +478,7 @@ Learning curves plot training and validation error against the number of trainin
         \end{axis}
 \ensuretikzbackgroundlayers
 \end{tikzpicture}
-    \caption{Learning curves reveal under/overfitting: the validation curve flattens while additional data continue to decrease training error only marginally. A shaded patience window marks when early stopping would halt if no validation improvement occurs. Use it when deciding whether you need more data, more capacity, or different regularization.}
+    \caption{Illustrative learning curves reveal under/overfitting: the validation curve flattens while additional data continue to decrease training error only marginally. A shaded patience window marks when early stopping would halt if no validation improvement occurs.}
     \label{fig:lec1_learning_curves}
 \end{figure}
 
@@ -510,7 +510,7 @@ Treat both as diagnostics rather than guarantees. Use them to decide whether to 
 \begin{figure}[t]
     \centering
     \includegraphics[width=0.78\linewidth]{assets/lec1/lec1_reliability_double}
-    \caption[Calibration and capacity diagnostics (reliability and double descent)]{Calibration and capacity diagnostics. Left: reliability diagram with binned predicted probabilities vs. empirical accuracy; Expected Calibration Error (ECE) measures deviation from the diagonal. Right: illustrative double\hyp{}descent risk vs.\ model size (log\hyp{}scale on the x\hyp{}axis); the dashed line sketches a scaling\hyp{}law trend for choosing capacity/regularization. Use it when deciding whether to prioritize calibration, more data, more capacity, or stronger regularization.}
+    \caption[Calibration and capacity diagnostics (reliability and double descent)]{Calibration and capacity diagnostics. Left: reliability diagram with binned predicted probabilities vs.\ empirical accuracy; Expected Calibration Error (ECE) measures deviation from the diagonal. Right: illustrative double\hyp{}descent risk vs.\ model size (log\hyp{}scale on the x\hyp{}axis); the dashed line sketches a scaling\hyp{}law trend for thinking about capacity and regularization.}
     \label{fig:lec1-calibration-double-descent}
 \end{figure}
 
@@ -535,7 +535,7 @@ Regularization trades model complexity for generalization; \Cref{fig:lec1_ridge}
     \ensuretikzbackgroundlayers
     \end{tikzpicture}
     % Avoid inline math in captions; it wraps poorly in some EPUB renderers.
-    \caption{Ridge regularization shrinks parameter norms as the penalty strength increases. Use it when tuning weight decay to control variance without forcing sparsity.}
+    \caption{Ridge regularization shrinks parameter norms as the penalty strength increases. This controls variance without forcing sparsity.}
     \label{fig:lec1_ridge}
 \end{figure}
 

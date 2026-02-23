@@ -1097,3 +1097,18 @@ Build notes (2026-02-17):
 - 2026-02-23: Ran `python3 notes_output/scripts/validate_math_examples_and_graphs.py --strict` after the edits. Result: PASS.
 - 2026-02-23: Ran `bash notes_output/scripts/run_production_checks.sh` after the edits. Result: PASS (release checks, Apple
   gatekeeper audits, and EPUBCheck all OK).
+
+## 2026-02-23 Chapters 1--4 figure caption voice + truthfulness markers (pre-Ch8 sweep)
+
+- `notes_output/lecture_1_intro.tex`: rewrote the roadmap caption to remove template-style ``Use it when...'' phrasing while
+  keeping the intent (dependency/prerequisite map for readers jumping ahead).
+- `notes_output/lecture_2_part_i.tex`: tightened the transformation-tree caption to read like book prose and emphasize the
+  role of the tree for diagnosing branching/backtracking (without meta ``use it when'' language).
+- `notes_output/lecture_supervised.tex`: removed ``Use it when...'' from figure/table captions; marked clearly illustrative
+  plots as schematic/illustrative where appropriate (under/overfit regime, learning curves); kept captions focused on what
+  each diagram concretely shows.
+- `notes_output/lecture_2_part_ii.tex`: removed ``Use it when...'' from captions; clarified which diagnostics are schematic
+  (GD geometry) vs.\ illustrative (logistic boundary, MAP vs.\ MLE) without changing the math.
+- 2026-02-23: Ran `python3 notes_output/scripts/validate_math_examples_and_graphs.py --strict` after the edits. Result: PASS.
+- 2026-02-23: Ran `bash notes_output/scripts/run_production_checks.sh` after the edits. Result: PASS (release checks, Apple
+  gatekeeper audits, and EPUBCheck all OK).
