@@ -389,7 +389,7 @@ which serve as localized similarity measures to each centroid \(v_i\). When \(\s
 \begin{figure}[t]
     \centering
     \begin{tikzpicture}[scale=0.9]
-        \node at (0,3.2) {\small$\sigma$ sweep (two-moons)};
+        \node at (0,3.2) {\small$\sigma$ sweep (schematic)};
         % three panels
         \begin{scope}[shift={(-4,0)}]
             \draw[gray!40] (-1.8,-1.3) rectangle (1.8,1.3);
@@ -409,7 +409,7 @@ which serve as localized similarity measures to each centroid \(v_i\). When \(\s
         \end{scope}
     \end{tikzpicture}
     % Avoid inline math in captions; it wraps poorly in some EPUB renderers.
-\caption{How the width parameter (sigma) influences decision boundaries on a 2D toy dataset. Too-large sigma underfits, intermediate sigma captures the boundary, too-small sigma overfits with fragmented regions. Validation curves in \Cref{chap:supervised} guide model size and regularization; they also motivate tuning sigma to balance smoothness against boundary fidelity.}
+\caption{Schematic illustration of how the width parameter \(\sigma\) influences decision boundaries: too-large \(\sigma\) underfits (bases overlap heavily and wash out locality), intermediate \(\sigma\) captures the boundary, and too-small \(\sigma\) can produce fragmented regions. For a computed XOR example, see \Cref{fig:rbf_boundary}.}
     \label{fig:rbf_sigma_sweep}
 \end{figure}
 \FloatBarrier

@@ -1073,3 +1073,15 @@ Build notes (2026-02-17):
 - 2026-02-22: Ran `python3 notes_output/scripts/validate_math_examples_and_graphs.py --strict` after the edits. Result: PASS.
 - 2026-02-22: Ran `bash notes_output/scripts/run_production_checks.sh` after the edits. Result: PASS (release checks, Apple
   gatekeeper audits, and EPUBCheck all OK).
+
+## 2026-02-23 Part II Chapter 8 (RBFNs) additional figure truthfulness sweeps
+
+- `notes_output/lecture_4_part_ii.tex`: marked the \(\sigma\)-sweep sketch as explicitly schematic (removed the misleading
+  ``two-moons'' label) and pointed readers to the computed XOR sigma-sweep figure for an actual boundary.
+- `notes_output/scripts/validate_math_examples_and_graphs.py`: added strict checks for two analytic figures:
+  (i) the Gaussian-bumps intuition plot verifies the ``sum'' curve equals the sum of the displayed basis functions, and
+  (ii) the XOR feature-map before/after figure verifies the plotted coordinates and separating border match the analytic
+  mapping in the text.
+- 2026-02-23: Ran `python3 notes_output/scripts/validate_math_examples_and_graphs.py --strict` after the edits. Result: PASS.
+- 2026-02-23: Ran `bash notes_output/scripts/run_production_checks.sh` after the edits. Result: PASS (release checks, Apple
+  gatekeeper audits, and EPUBCheck all OK).

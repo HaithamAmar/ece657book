@@ -885,6 +885,65 @@ def check_fig_learning_curves() -> dict[str, float]:
     return {"train_final": float(train[-1]), "val_final": float(val[-1])}
 
 
+def check_fig_rbf_gaussian_bumps() -> dict[str, float]:
+    tex = _read(ROOT / "lecture_4_part_ii.tex")
+    fig = _extract_figure_block(tex, "fig:rbf_gaussian_bumps")
+    # Keep this tied to the actual formula choices shown in the figure.
+    _assert("exp(-((x+2)^2))" in fig, "Expected phi1 formula not found in gaussian-bumps figure")
+    _assert(
+        "0.8*exp(-((x-0.5)^2)/0.5)" in fig,
+        "Expected phi2 formula not found in gaussian-bumps figure",
+    )
+    _assert(
+        "0.9*exp(-((x-2.2)^2)/0.7)" in fig,
+        "Expected phi3 formula not found in gaussian-bumps figure",
+    )
+    _assert(
+        "exp(-((x+2)^2)) + 0.8*exp(-((x-0.5)^2)/0.5) + 0.9*exp(-((x-2.2)^2)/0.7)"
+        in fig,
+        "Expected sum-of-bumps formula not found in gaussian-bumps figure",
+    )
+
+    def phi1(x: float) -> float:
+        return float(np.exp(-((x + 2.0) ** 2)))
+
+    def phi2(x: float) -> float:
+        return float(0.8 * np.exp(-((x - 0.5) ** 2) / 0.5))
+
+    def phi3(x: float) -> float:
+        return float(0.9 * np.exp(-((x - 2.2) ** 2) / 0.7))
+
+    def s(x: float) -> float:
+        return float(phi1(x) + phi2(x) + phi3(x))
+
+    # Pointwise identity check: the "sum" curve is exactly the sum of the bumps.
+    xs = np.linspace(-4.0, 4.0, 33)
+    max_abs_err = 0.0
+    for x in xs:
+        err = abs(s(x) - (phi1(x) + phi2(x) + phi3(x)))
+        max_abs_err = max(max_abs_err, float(err))
+
+    _assert(max_abs_err < 1e-12, f"Sum-of-bumps identity mismatch; max_abs_err={max_abs_err}")
+
+    # Sanity anchors that match the pictured shapes.
+    _assert_close(phi1(-2.0), 1.0, 1e-12, "phi1 peak mismatch")
+    _assert_close(phi2(0.5), 0.8, 1e-12, "phi2 peak mismatch")
+    _assert_close(phi3(2.2), 0.9, 1e-12, "phi3 peak mismatch")
+
+    return {"max_abs_err": float(max_abs_err), "sum_at_0": float(s(0.0))}
+
+
+def check_fig_rbf_xor_feature_map() -> dict[str, float]:
+    tex = _read(ROOT / "lecture_4_part_ii.tex")
+    fig = _extract_figure_block(tex, "fig:rbf_xor_feature_map")
+    # Ensure the plotted numeric coordinates match the analytic claims.
+    _assert("0.606531" in fig, "Expected e^{-1/2} coordinate not found in XOR feature-map figure")
+    _assert("0.367879" in fig, "Expected e^{-1} coordinate not found in XOR feature-map figure")
+    _assert("1.3 - x" in fig, "Expected separator line g1+g2=1.3 not found in XOR feature-map figure")
+
+    # Reuse the exact numeric verification from the transform check.
+    return check_ch4_rbf_transform()
+
 def run_checks() -> list[CheckResult]:
     checks: list[tuple[str, Callable[[], dict[str, float]]]] = [
         ("chapter1_transitivity", check_ch1_transitivity),
@@ -899,6 +958,8 @@ def run_checks() -> list[CheckResult]:
         ("chapter9_overlap_memberships", check_ch9_overlap_memberships),
         ("chapter13_micro_attention", check_ch13_micro_attention),
         ("figure_learning_curves", check_fig_learning_curves),
+        ("figure_rbf_gaussian_bumps", check_fig_rbf_gaussian_bumps),
+        ("figure_rbf_xor_feature_map", check_fig_rbf_xor_feature_map),
         ("numeric_examples_pack", check_numeric_examples_pack),
         ("integral_result_derivative", check_integral_result_derivative),
         ("figure_sigmoid_bce", check_fig_sigmoid_bce_curves),
