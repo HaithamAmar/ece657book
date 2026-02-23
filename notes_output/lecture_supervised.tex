@@ -547,7 +547,6 @@ Up to this point, the supervised-learning pipeline has been described in abstrac
 
 \noindent In this section, the coefficients \(\boldsymbol{\beta}\) are the knobs we turn. ``Learning'' means estimating \(\boldsymbol{\beta}\) from \((\mathbf{X},\mathbf{y})\) so predictions align with observed targets under the chosen objective. Because least squares is convex with a closed form, repeating the fit on the same data returns the same solution (up to numerical tolerance). That determinism is the teaching benefit: it lets us isolate the roles of loss design, optimization, regularization, and validation before moving to models where those roles are harder to disentangle.
 
-\paragraph{Model.}
 Given inputs \(\mathbf{x}_i\in\mathbb{R}^d\) and continuous targets \(y_i\in\mathbb{R}\), the linear model predicts
 \begin{equation}
     \hat{\mathbf{y}} = \mathbf{X}\boldsymbol{\beta}, \qquad \mathbf{X}\in\mathbb{R}^{N\times d}.
@@ -555,8 +554,8 @@ Given inputs \(\mathbf{x}_i\in\mathbb{R}^d\) and continuous targets \(y_i\in\mat
 \end{equation}
 Equivalently, \(\hat{y}_i = \mathbf{x}_i^\top \boldsymbol{\beta}\) for each data point. The vector \(\boldsymbol{\beta}\) is the set of adjustable parameters: \emph{fitting} the model means choosing \(\boldsymbol{\beta}\) so that predictions align with observed outputs. The residual \(\mathbf{e}=\mathbf{y}-\hat{\mathbf{y}}\) captures what the model fails to explain on the data at hand.
 
-\paragraph{A noise model (why squared error shows up).}
-A common way to formalize ``measurement scatter'' is to write
+\smallskip
+\noindent A common way to formalize ``measurement scatter'' is to write
 \begin{equation}
     y_i = \mathbf{x}_i^\top\boldsymbol{\beta} + \varepsilon_i,
     \qquad \varepsilon_i \sim \mathcal{N}(0,\sigma^2),
@@ -580,8 +579,8 @@ Maximizing the (log) likelihood is equivalent to minimizing the negative log-lik
 \end{equation}
 This is the simplest example of a recurring theme: if you propose an ``educated guess'' model for how data are generated, training often becomes ``minimize a loss''.
 
-\paragraph{Objective.}
-To fit \(\boldsymbol{\beta}\), we need a grading rubric. Squared error is the standard starting point because it is smooth and strongly penalizes large mistakes:
+\smallskip
+\noindent To fit \(\boldsymbol{\beta}\), we need a grading rubric. Squared error is the standard starting point because it is smooth and strongly penalizes large mistakes:
 \begin{equation}
     L(\boldsymbol{\beta}) = \tfrac{1}{2}\|\mathbf{y}-\mathbf{X}\boldsymbol{\beta}\|_2^2.
 \label{eq:auto_supervised_57c930d476}
@@ -593,8 +592,8 @@ The gradient is simple,
 \end{equation}
 so gradient descent is explicit: \(\boldsymbol{\beta}\leftarrow \boldsymbol{\beta}-\eta \mathbf{X}^\top(\mathbf{X}\boldsymbol{\beta}-\mathbf{y})\). This same loop reappears later when the model is no longer linear and the loss is no longer quadratic.
 
-\paragraph{Closed form and geometry.}
-Least squares is convex and satisfies the normal equations:
+\smallskip
+\noindent Least squares is convex and satisfies the normal equations:
 \begin{equation}
     \mathbf{X}^\top \mathbf{X}\,\hat{\boldsymbol{\beta}} = \mathbf{X}^\top \mathbf{y}.
 \label{eq:auto_supervised_bce6291d37}

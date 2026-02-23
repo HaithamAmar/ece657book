@@ -1112,3 +1112,17 @@ Build notes (2026-02-17):
 - 2026-02-23: Ran `python3 notes_output/scripts/validate_math_examples_and_graphs.py --strict` after the edits. Result: PASS.
 - 2026-02-23: Ran `bash notes_output/scripts/run_production_checks.sh` after the edits. Result: PASS (release checks, Apple
   gatekeeper audits, and EPUBCheck all OK).
+
+## 2026-02-23 Chapters 3/6/7/8 micro-fragmentation cleanup (run-in paragraph heads)
+
+- `notes_output/lecture_supervised.tex`: removed tiny run-in paragraph heads (``Model.'', ``Objective.'', ``Closed form...'')
+  in the linear-regression case study and merged them into contiguous book prose with light spacing cues.
+- `notes_output/lecture_3_part_ii.tex`: replaced micro run-in paragraph heads (``Second layer.'', ``First layer.'', ``Error
+  terms...'') with natural lead-in sentences so the derivation reads as a single flow without choppy headings.
+- `notes_output/lecture_4_part_i.tex`: removed a micro run-in paragraph head (``Chain rule decomposition'') and folded the
+  transition into the surrounding derivation; kept interpretation as an inline bold lead-in.
+- `notes_output/lecture_4_part_ii.tex`: removed a micro run-in paragraph head (``Normal Equations for the Weights:'') so the
+  normal-equations derivation reads as one continuous argument.
+- 2026-02-23: Ran `python3 notes_output/scripts/validate_math_examples_and_graphs.py --strict` after the edits. Result: PASS.
+- 2026-02-23: Ran `bash notes_output/scripts/run_production_checks.sh` after the edits. Result: PASS (release checks, Apple
+  gatekeeper audits, and EPUBCheck all OK).

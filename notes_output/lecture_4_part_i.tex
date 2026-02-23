@@ -155,8 +155,6 @@ To update the weights using gradient descent, we need to compute
 \frac{\partial \mathcal{L}}{\partial w_{ij}^{(l)}}.
 \]
 
-\paragraph{Chain rule decomposition}
-
 By the chain rule, we have
 \begin{equation}
 \frac{\partial \mathcal{L}}{\partial w_{ij}^{(l)}} = \frac{\partial \mathcal{L}}{\partial z_j^{(l+1)}} \cdot \frac{\partial z_j^{(l+1)}}{\partial w_{ij}^{(l)}}.
@@ -184,9 +182,8 @@ where we define the \emph{error term}
 \]
 Collecting the \(\delta_j^{(l+1)}\) for all neurons in layer \(l+1\) forms a vector \(\boldsymbol{\delta}^{(l+1)}\) with the same dimension as \(z^{(l+1)}\), ensuring the gradient \(\frac{\partial \mathcal{L}}{\partial \mathbf{W}^{(l)}}\) has the same shape as the weight matrix.
 
-\paragraph{Interpretation of \(\delta_j^{(l+1)}\)}
-
-The term \(\delta_j^{(l+1)}\) measures how sensitive the loss is to changes in the pre\hyp{}activation \(z_j^{(l+1)}\). Our task reduces to computing these \(\delta\) terms for all neurons in the network.
+\smallskip
+\noindent\textbf{Interpretation.} The term \(\delta_j^{(l+1)}\) measures how sensitive the loss is to changes in the pre\hyp{}activation \(z_j^{(l+1)}\). Our task reduces to computing these \(\delta\) terms for all neurons in the network.
 
 \subsubsection{Output layer error terms}
 \label{sec:backprop_output_layer_error_terms_sub}

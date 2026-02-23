@@ -274,7 +274,7 @@ We now compute the gradients from the forward-pass equations in \eqref{eq:two_ne
     \item $\displaystyle \frac{\partial p_1}{\partial \mathbf{w}_1} = \mathbf{x}$.
 \end{itemize}
 
-\paragraph{Second layer.}
+For the second-layer parameters, the chain rule gives
 \begin{align}
 \frac{\partial P}{\partial w_2}
 &= \frac{\partial P}{\partial y_2}\frac{\partial y_2}{\partial p_2}\frac{\partial p_2}{\partial w_2}
@@ -287,8 +287,7 @@ and similarly
 \label{eq:grad_b2}
 \end{equation}
 
-\paragraph{First layer.}
-The first layer feels the effect of the second layer through the chain rule:
+For the first-layer parameters, the effect of the second layer appears explicitly through the chain rule:
 \begin{align}
 \frac{\partial P}{\partial \mathbf{w}_1}
 &= \frac{\partial P}{\partial y_2}\frac{\partial y_2}{\partial p_2}\frac{\partial p_2}{\partial y_1}\frac{\partial y_1}{\partial p_1}\frac{\partial p_1}{\partial \mathbf{w}_1} \\
@@ -301,8 +300,8 @@ with bias derivative
 \label{eq:grad_b1}
 \end{equation}
 
-\paragraph{Error terms (reusable local signals).}
-Define
+\smallskip
+\noindent To make the reuse explicit, define local error terms:
 \begin{equation}
 \delta_2:= \frac{\partial P}{\partial p_2} = (y_2 - t) f'(p_2).
 \label{eq:delta2}
