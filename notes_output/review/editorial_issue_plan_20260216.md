@@ -138,6 +138,7 @@ Build notes (2026-02-17):
 - [PUNCT] Lines 46–59: Evaluation frame: inconsistent title punctuation ("Work load and Evaluation- Subject to change" — dash usage). Content ambiguity: "Exams 60\%" then nested "Final Exam  60\%: Format (In-Person)" suggests only a final exam but is unclear; also double space before 60\% in line 55.
 - [MATHFMT] Lines 50–52: Awkward phrasing: "Students are highly encouraged to work and solve them" (redundant) and "The assignments are going to require group effort. Please join a group ASAP." (informal 'ASAP', abrupt command).
 - [OTHER] Lines 65–82: Large commented-out block — leaves ambiguity about whether multiple-exam option is omitted intentionally; consider clarifying or removing.
+
 - [MATHFMT] Lines 92–106: Required background bullets inconsistent in capitalization and punctuation. "Math and Linear Algebra:" list mixes topics without parallel structure. "solving system of linear equations" missing article ("solving systems" or "solving a system").
 - [PUNCT] Line 101–104: Parenthetical note style inconsistent and informal: "(not required, we will define or review these, but it would help)" — punctuation and capitalization inconsistent.
 - [MATHFMT] Line 113–121: Sentence at line 120 is awkward: "If you find useful resources, add to them the resources discussion forum on LEARN." (word order confusing).
@@ -1150,3 +1151,15 @@ Build notes (2026-02-17):
   vignette (Beta-template fallback). The check recomputes the perturbed Beta integral numerically and asserts the displayed
   value (\(\approx 0.0915453885\)) is correct, and that the stated Beta closed form \(B(3/2,2)=4/15\) matches.
 - 2026-02-23: Ran `python3 notes_output/scripts/validate_math_examples_and_graphs.py --strict` after the edits. Result: PASS.
+
+## 2026-02-23 Chapter 9 (SOMs) figure truthfulness + numeric example completion
+
+- `notes_output/lecture_5_part_i.tex`: removed remaining template-y ``Use it when...'' caption phrasing; tightened figure captions
+  to mark schematic/toy intent where appropriate; resolved centroid symbol collision in the K-means warm-up
+  (\(\mathbf{v}_k\rightarrow\mathbf{m}_k\)); completed the competitive-learning numeric example with one explicit winner selection
+  and winner-only update step.
+- `notes_output/scripts/validate_math_examples_and_graphs.py`: added a strict QC-backed validator (`som_competitive_learning_example`)
+  for the competitive-learning numeric walkthrough.
+- 2026-02-23: Ran `python3 notes_output/scripts/validate_math_examples_and_graphs.py --strict` after the edits. Result: PASS.
+- 2026-02-23: Ran `bash notes_output/scripts/run_production_checks.sh` after the edits. Result: PASS (release checks, Apple
+  gatekeeper audits, and EPUBCheck all OK).

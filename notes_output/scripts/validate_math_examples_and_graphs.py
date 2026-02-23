@@ -842,6 +842,79 @@ def check_ch5_som_update() -> dict[str, float]:
     return {"w2_new_0": float(w2_new[0]), "w2_new_1": float(w2_new[1])}
 
 
+def check_som_competitive_learning_example() -> dict[str, float]:
+    tex = _read(ROOT / "lecture_5_part_i.tex")
+    qc_lines = _extract_qc_block(tex, "som_competitive_learning_example")
+
+    expected_d: list[float] | None = None
+    expected_w1_new: list[float] | None = None
+    expected_winner: int | None = None
+    expected_alpha0: float | None = None
+    expected_alpha1: float | None = None
+
+    for line in qc_lines:
+        parts = line.split()
+        if not parts:
+            continue
+        if parts[0] == "d":
+            # d 0.03 0.14 0.13 winner 1
+            if len(parts) != 6 or parts[4] != "winner":
+                raise AssertionError(f"Malformed SOM competitive-learning QC line: {line!r}")
+            expected_d = [float(parts[1]), float(parts[2]), float(parts[3])]
+            expected_winner = int(parts[5])
+        elif parts[0] == "w1_new":
+            # w1_new 0.17 0.30 0.47 0.13
+            if len(parts) != 5:
+                raise AssertionError(f"Malformed SOM competitive-learning QC line: {line!r}")
+            expected_w1_new = [float(x) for x in parts[1:]]
+        elif parts[0] == "alpha0":
+            # alpha0 0.30 alpha1 0.15
+            if len(parts) != 4 or parts[2] != "alpha1":
+                raise AssertionError(f"Malformed SOM competitive-learning QC line: {line!r}")
+            expected_alpha0 = float(parts[1])
+            expected_alpha1 = float(parts[3])
+
+    if expected_d is None or expected_w1_new is None or expected_winner is None:
+        raise AssertionError("Missing SOM competitive-learning QC values")
+    if expected_alpha0 is None or expected_alpha1 is None:
+        raise AssertionError("Missing SOM competitive-learning alpha QC values")
+
+    W0 = np.array(
+        [
+            [0.2, 0.3, 0.5, 0.1],
+            [0.2, 0.3, 0.1, 0.4],
+            [0.3, 0.5, 0.2, 0.3],
+        ],
+        dtype=float,
+    )
+    x1 = np.array([0.1, 0.3, 0.4, 0.2], dtype=float)
+
+    d = np.sum((W0 - x1) ** 2, axis=1)
+    winner = int(np.argmin(d) + 1)
+    _assert(winner == expected_winner, "Winner index mismatch")
+    for i, (actual, exp) in enumerate(zip(d.tolist(), expected_d, strict=True), start=1):
+        _assert_close(float(actual), float(exp), 1e-12, f"d{i} mismatch")
+
+    alpha0 = expected_alpha0
+    w1_new = W0[0] + alpha0 * (x1 - W0[0])
+    for i, (actual, exp) in enumerate(zip(w1_new.tolist(), expected_w1_new, strict=True)):
+        _assert_close(float(actual), float(exp), 1e-12, f"w1_new[{i}] mismatch")
+
+    alpha1 = expected_alpha1
+    _assert_close(float(alpha1), float(alpha0 * 0.5), 1e-12, "alpha1 decay mismatch")
+
+    return {
+        "winner": float(winner),
+        "d1": float(d[0]),
+        "d2": float(d[1]),
+        "d3": float(d[2]),
+        "w1_new_0": float(w1_new[0]),
+        "w1_new_1": float(w1_new[1]),
+        "w1_new_2": float(w1_new[2]),
+        "w1_new_3": float(w1_new[3]),
+    }
+
+
 def check_ch8_softcomp_probs() -> dict[str, float]:
     probs = np.array([0.60, 0.20, 0.20])
     _assert(np.all((probs >= 0) & (probs <= 1)), "Probabilities must be in [0,1]")
@@ -983,6 +1056,7 @@ def run_checks() -> list[CheckResult]:
         ("chapter4_rbf_transform", check_ch4_rbf_transform),
         ("figure_rbf_xor_sigma_sweep", check_fig_rbf_xor_sigma_sweep),
         ("chapter5_som_update", check_ch5_som_update),
+        ("som_competitive_learning_example", check_som_competitive_learning_example),
         ("chapter8_softcomp_probs", check_ch8_softcomp_probs),
         ("chapter9_overlap_memberships", check_ch9_overlap_memberships),
         ("chapter13_micro_attention", check_ch13_micro_attention),

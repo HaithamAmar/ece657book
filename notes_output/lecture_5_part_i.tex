@@ -73,7 +73,7 @@ The neighborhood influence is usually controlled by a kernel (often Gaussian) wh
             \legend{$\alpha(t)=0.3\, e^{-t/15}$,$\alpha(t)=0.25\cdot0.85^{t}$}
         \end{groupplot}
     \end{tikzpicture}
-    \caption{Learning-rate scheduling intuition. On a smooth objective (left), large initial steps quickly cover ground and roughly align prototypes, while a decaying step-size refines the solution near convergence. Right: common exponential and multiplicative decays used in SOM training. Use it when choosing a schedule that converges without freezing too early.}
+    \caption{Learning-rate scheduling intuition (schematic). On a smooth objective (left), large initial steps quickly cover ground and roughly align prototypes, while a decaying step-size refines the solution near convergence. Right: common exponential and multiplicative decays used in SOM training.}
     \label{fig:lec5-learning-rate}
 \end{figure}
 
@@ -96,16 +96,16 @@ In the classical formulation used here (e.g., for K-means), the clusters form a 
 
 \paragraph{K-means Clustering:} A classical and widely used clustering algorithm is \emph{K-means}, which operates as follows:
 \begin{enumerate}
-    \item Initialize $K$ cluster centroids $\{\mathbf{v}_1, \mathbf{v}_2, \ldots, \mathbf{v}_K\}$ randomly.
+    \item Initialize $K$ cluster centroids $\{\mathbf{m}_1, \mathbf{m}_2, \ldots, \mathbf{m}_K\}$ randomly.
     \item For each data point $\mathbf{x}_i$, assign it to the cluster with the nearest centroid:
     \begin{equation}
-        c_i = \arg\min_{k} \|\mathbf{x}_i - \mathbf{v}_k\|_2,
+        c_i = \arg\min_{k} \|\mathbf{x}_i - \mathbf{m}_k\|_2,
         \label{eq:auto_som_a96d59060d}
     \end{equation}
     where $\|\cdot\|_2$ denotes the Euclidean norm.
     \item Update each centroid as the mean of all points assigned to it:
     \begin{equation}
-        \mathbf{v}_k = \frac{1}{|C_k|} \sum_{\mathbf{x}_i \in C_k} \mathbf{x}_i,
+        \mathbf{m}_k = \frac{1}{|C_k|} \sum_{\mathbf{x}_i \in C_k} \mathbf{x}_i,
         \label{eq:auto_som_5cd43ad14e}
     \end{equation}
     where $|C_k|$ is the number of points in cluster $C_k$.
@@ -155,7 +155,7 @@ Dimensionality reduction refers to techniques that transform high-dimensional da
             };
         \end{groupplot}
     \end{tikzpicture}
-    \caption{Classical MDS intuition. Projecting a cube onto a plane via an orthogonal map yields a square (left), whereas an oblique projection along a body diagonal produces a hexagon (right). The local adjacency of vertices is preserved even though metric structure is distorted. Use it when interpreting low-dimensional embeddings as geometry-preserving only in limited ways.}
+    \caption{Classical MDS intuition (schematic). Projecting a cube onto a plane via an orthogonal map yields a square (left), whereas an oblique projection along a body diagonal produces a hexagon (right). The local adjacency of vertices is preserved even though metric structure is distorted.}
     \label{fig:lec5-mds-projection}
 \end{figure}
 
@@ -290,7 +290,7 @@ where $\mathbf{r}_i$ denotes the lattice coordinates of neuron $i$ and $\sigma(t
         \end{axis}
     \end{tikzpicture}
     % Avoid inline math in captions; it wraps poorly in some EPUB renderers.
-    \caption{Gaussian neighborhood weights in SOM training. Early iterations use a broad kernel so many neighbors adapt; later iterations shrink the neighborhood width sigma(t) so only units near the BMU update. Use it when tuning sigma(t) to trade global ordering for local refinement.}
+    \caption{Gaussian neighborhood weights in SOM training (schematic). Early iterations use a broad kernel so many neighbors adapt; later iterations shrink the neighborhood width \(\sigma(t)\) so only units near the BMU update.}
     \label{fig:lec5-gaussian-neighborhood}
 \end{figure}
 
@@ -444,7 +444,53 @@ The initial weights \(\mathbf{w}_j(0)\) for neurons \(j=1,2,3\) are:
 
 where row \(j\) contains the initial weight vector \(\mathbf{w}_j(0)\) for neuron \(j = 1,2,3\).
 
-% Chapter 9 (continued)
+\paragraph{Input vectors}
+Let the four inputs be
+\[
+\mathbf{x}_1=
+\begin{bmatrix}
+0.1\\ 0.3\\ 0.4\\ 0.2
+\end{bmatrix},\quad
+\mathbf{x}_2=
+\begin{bmatrix}
+0.8\\ 0.7\\ 0.2\\ 0.1
+\end{bmatrix},\quad
+\mathbf{x}_3=
+\begin{bmatrix}
+0.2\\ 0.2\\ 0.1\\ 0.9
+\end{bmatrix},\quad
+\mathbf{x}_4=
+\begin{bmatrix}
+0.4\\ 0.6\\ 0.5\\ 0.3
+\end{bmatrix}.
+\]
+We walk through one update explicitly for \(\mathbf{x}_1\); the remaining inputs follow the same steps.
+
+\paragraph{Step 1: pick the winner for \(\mathbf{x}_1\).}
+Using squared Euclidean distance \(d_j=\|\mathbf{x}_1-\mathbf{w}_j(0)\|_2^2\),
+\begin{align*}
+d_1 &= (0.2-0.1)^2 + (0.3-0.3)^2 + (0.5-0.4)^2 + (0.1-0.2)^2 = 0.03,\\
+d_2 &= \|\mathbf{x}_1-\mathbf{w}_2(0)\|_2^2 = 0.14,\qquad
+d_3 = \|\mathbf{x}_1-\mathbf{w}_3(0)\|_2^2 = 0.13.
+\end{align*}
+So the winner is \(c=\arg\min_j d_j = 1\).
+
+\paragraph{Step 2: update the winner.}
+At \(t=0\) the learning rate is \(\alpha(0)=0.3\), and only the winner updates:
+\[
+\mathbf{w}_1(1)=\mathbf{w}_1(0)+\alpha(0)\big(\mathbf{x}_1-\mathbf{w}_1(0)\big)
+=
+\begin{bmatrix}
+0.17\\ 0.30\\ 0.47\\ 0.13
+\end{bmatrix}.
+\]
+For the next input, \(t=1\) so \(\alpha(1)=0.3\times 0.5 = 0.15\), and the same computation repeats with the new winner.
+
+% QC-BEGIN: som_competitive_learning_example
+% d 0.03 0.14 0.13 winner 1
+% w1_new 0.17 0.30 0.47 0.13
+% alpha0 0.30 alpha1 0.15
+% QC-END: som_competitive_learning_example
 
 \subsection{Winner-Takes-All Learning Recap}
 \label{sec:som_winner_takes_all_learning_recap}
@@ -485,7 +531,7 @@ Even though SOMs are inherently unsupervised, their training dynamics still bene
             \node[anchor=west, font=\scriptsize, text=cbPink] at (axis cs:0.45,0.32){validation floor};
         \end{axis}
     \end{tikzpicture}
-    \caption{Bias--variance trade-off when sweeping SOM capacity (number of units or kernel width). The optimum appears near the knee where bias and variance intersect. Use it when selecting map size/capacity via validation curves rather than aesthetics.}
+    \caption{Illustrative bias--variance trade-off when sweeping SOM capacity (number of units or kernel width). The optimum appears near the knee where bias and variance intersect.}
     \label{fig:lec5-bias-variance}
 \end{figure}
 
@@ -527,7 +573,7 @@ Even though SOMs are inherently unsupervised, their training dynamics still bene
                 \fi
         \end{groupplot}
     \end{tikzpicture}
-    \caption{Regularization smooths the loss surface. Coupling neighboring prototypes (right) yields wider, flatter basins than the jagged unregularized landscape (left). Use it when explaining why regularization can improve stability and generalization.}
+    \caption{Regularization smooths an objective surface (schematic). Coupling neighboring prototypes (right) yields wider, flatter basins than the jagged unregularized landscape (left).}
     \label{fig:lec5-regularization}
 \end{figure}
 
@@ -558,7 +604,7 @@ Even though SOMs are inherently unsupervised, their training dynamics still bene
         \end{axis}
     \end{tikzpicture}
     % Avoid inline math in captions; it wraps poorly in some EPUB renderers.
-    \caption{Quantization error combined with an entropy-style regularizer (modern SOM variant; for example, a negative sum of p log p over unit usage). Valleys arise when prototypes cover the space evenly; ridges highlight collapse or poor topological preservation. Use it when diagnosing prototype collapse versus healthy coverage.}
+    \caption{Illustrative objective surface combining quantization error and an entropy-style regularizer (a modern SOM variant; for example, a negative sum of \(p\log p\) over unit usage). Valleys arise when prototypes cover the space evenly; ridges highlight collapse or poor topological preservation.}
     \label{fig:lec5-crossentropy}
 \end{figure}
 
@@ -635,7 +681,7 @@ Most modern SOM libraries expose both modes, so choose the update rule that matc
             \addplot[cbPink, very thick, domain=0:60]{0.25} node[pos=0.62, anchor=south west, font=\scriptsize, text=cbPink]{stop window};
         \end{axis}
     \end{tikzpicture}
-    \caption{Validation curves used to identify an early\hyp{}stopping knee. When both quantization and topographic errors flatten (shaded band), further training risks map drift. Use it when deciding where to stop training based on stability, not only final error.}
+    \caption{Illustrative validation curves used to identify an early\hyp{}stopping knee. When both quantization and topographic errors flatten (shaded band), further training risks map drift.}
     \label{fig:lec5-early-stopping}
 \end{figure}
 
@@ -706,10 +752,10 @@ The geometric effect of these limitations is easiest to see in \Cref{fig:lec5-so
                 \addplot+[only marks, mark=*, mark size=1.8pt, color=cbOrange] coordinates {(0.8,0.25)};
                 \addplot+[only marks, mark=*, mark size=1.8pt, color=cbGreen] coordinates {(0.28,0.78)};
                 \addplot+[only marks, mark=*, mark size=1.8pt, color=cbPink] coordinates {(0.78,0.78)};
-                \node[font=\scriptsize, anchor=west, cbBlue] at (axis cs:0.22,0.22){$r_1$};
-                \node[font=\scriptsize, anchor=west, cbOrange] at (axis cs:0.82,0.25){$r_2$};
-                \node[font=\scriptsize, anchor=south west, cbGreen] at (axis cs:0.3,0.82){$r_3$};
-                \node[font=\scriptsize, anchor=south east, cbPink] at (axis cs:0.78,0.82){$r_4$};
+                \node[font=\scriptsize, anchor=west, cbBlue] at (axis cs:0.22,0.22){$\mathbf{w}_1$};
+                \node[font=\scriptsize, anchor=west, cbOrange] at (axis cs:0.82,0.25){$\mathbf{w}_2$};
+                \node[font=\scriptsize, anchor=south west, cbGreen] at (axis cs:0.3,0.82){$\mathbf{w}_3$};
+                \node[font=\scriptsize, anchor=south east, cbPink] at (axis cs:0.78,0.82){$\mathbf{w}_4$};
             \nextgroupplot[
                 title={Soft assignments},
                 view={0}{90},
@@ -724,7 +770,7 @@ The geometric effect of these limitations is easiest to see in \Cref{fig:lec5-so
                 \node[font=\scriptsize, anchor=south east, fill=white, inner sep=1pt] at (axis cs:0.98,0.05){$\sigma(t)\ \text{small}$};
             \end{groupplot}
     \end{tikzpicture}
-    \caption{Voronoi-like regions induced by SOM prototypes (left) and the corresponding softmax confidence after shrinking the neighborhood kernel (right). Softer updates blur the decision frontiers and reduce jagged mappings between adjacent neurons. Use it when interpreting a prototype map as a piecewise-constant partition of feature space.}
+    \caption{Voronoi-like regions induced by fixed prototypes in input space (left) and the corresponding soft assignments after sharpening the neighborhood kernel (right). Softer updates blur the decision frontiers and reduce jagged mappings between adjacent units (schematic illustration).}
     \label{fig:lec5-softmax-regions}
 \end{figure}
 
@@ -826,7 +872,7 @@ The neighborhood size typically shrinks over time during training, starting larg
         \end{scope}
     \end{tikzpicture}
     % Avoid inline math in captions; it wraps poorly in some EPUB renderers.
-    \caption{Left: a 5-by-5 SOM lattice with best matching unit (blue) and neighbors inside the Gaussian-kernel radius (green). Right: a toy U-Matrix (grayscale-safe colormap) showing average distances between neighboring codebook vectors; larger distances indicate likely cluster boundaries. Use it when reading U-Matrices as boundary hints, not absolute distances.}
+    \caption{Left: a 5-by-5 SOM lattice with the best matching unit (blue) and neighbors inside the Gaussian-kernel radius (green). Right: a toy U-Matrix (grayscale-safe colormap) showing average distances between neighboring codebook vectors; larger distances suggest likely cluster boundaries. Treat a U-Matrix as a qualitative boundary hint unless preprocessing and scaling are fixed.}
     \label{fig:lec5-som-lattice-umatrix}
 \end{figure}
 
@@ -945,7 +991,7 @@ The neighborhood size typically shrinks over time during training, starting larg
                 };
         \end{groupplot}
     \end{tikzpicture}
-\caption{Component planes for three features on a trained SOM (toy data). Each plane maps one feature across the grid; aligned bright/dark regions reveal correlated features and complement the U-Matrix in \Cref{fig:lec5-som-lattice-umatrix}. Interpret brightness comparatively within a plane rather than as an absolute scale. Use it when diagnosing which input features drive map organization.}
+\caption{Component planes for three features on a trained SOM (toy data). Each plane maps one feature across the grid; aligned bright/dark regions reveal correlated features and complement the U-Matrix in \Cref{fig:lec5-som-lattice-umatrix}. Interpret brightness comparatively within a plane rather than as an absolute scale.}
     \label{fig:lec5-som-component-planes}
 \end{figure}
 
@@ -1006,7 +1052,7 @@ Suppose the output neurons are arranged in a 2D lattice as shown schematically i
         \node at (2,1.5) {\scriptsize BMU $c$};
         \node[cbGreen!70!black] at (3.6,1) {\scriptsize radius $\sigma(t)$};
     \end{tikzpicture}
-    \caption{SOM lattice with the best-matching unit (BMU) highlighted in blue and a dashed neighborhood radius indicating which prototype vectors receive cooperative updates. Use it when visualizing the cooperative update neighborhood around the BMU.}
+    \caption{SOM lattice with the best-matching unit (BMU) highlighted in blue and a dashed neighborhood radius indicating which prototype vectors receive cooperative updates (schematic).}
     \label{fig:som_neighborhood}
 \end{figure}
 
