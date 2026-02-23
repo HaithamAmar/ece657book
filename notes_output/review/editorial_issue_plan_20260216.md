@@ -1085,3 +1085,15 @@ Build notes (2026-02-17):
 - 2026-02-23: Ran `python3 notes_output/scripts/validate_math_examples_and_graphs.py --strict` after the edits. Result: PASS.
 - 2026-02-23: Ran `bash notes_output/scripts/run_production_checks.sh` after the edits. Result: PASS (release checks, Apple
   gatekeeper audits, and EPUBCheck all OK).
+
+## 2026-02-23 Part II Chapter 8 (RBFNs) notation consistency in conceptual figures (center symbols)
+
+- `notes_output/lecture_4_part_ii.tex`: harmonized the center symbol across the chapter by replacing mixed center notation
+  (\(\boldsymbol{\mu}_i\), \(\mathbf{v}_i\)) with \(\mathbf{c}_i\) in text and figures (XOR setup, transformation
+  parameters, kernel examples, and parameter-estimation/training discussion).
+- `notes_output/lecture_4_part_ii.tex`: tightened figure labels in the primal/dual schematic to match the chapter's
+  notation (\(\boldsymbol{\Phi}\), \(\mathbf{w}\), \(\mathbf{K}\), \(\boldsymbol{\alpha}\), \(\mathbf{y}\)), and clarified
+  that the center-placement figure is schematic (receptive-field overlap illustration, not a scale-accurate plot).
+- 2026-02-23: Ran `python3 notes_output/scripts/validate_math_examples_and_graphs.py --strict` after the edits. Result: PASS.
+- 2026-02-23: Ran `bash notes_output/scripts/run_production_checks.sh` after the edits. Result: PASS (release checks, Apple
+  gatekeeper audits, and EPUBCheck all OK).

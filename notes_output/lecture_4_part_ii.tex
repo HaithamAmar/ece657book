@@ -77,7 +77,7 @@ We denote each basis response by \(\varphi_i(\mathbf{x})\); stacking them yields
         \node[below=1cm of y, font=\scriptsize] (bias) {bias $b$};
         \draw[->, cbOrange, dashed] (bias) -- (y);
         % notes
-        \node[align=left, font=\scriptsize, above=0.2cm of h1] {Centers/widths\\\((\boldsymbol{\mu}_i,\sigma_i)\) set by\\k-means or heuristics};
+        \node[align=left, font=\scriptsize, above=0.2cm of h1] {Centers/widths\\\((\mathbf{c}_i,\sigma_i)\) set by\\k-means or heuristics};
         \node[align=left, font=\scriptsize, right=0.3cm of y] {Linear weights \(w_i\)\\learned from data};
     \end{tikzpicture}
     % Avoid inline math in captions; it wraps poorly in some EPUB renderers.
@@ -152,10 +152,11 @@ Once you have the architecture in mind, it helps to visualize what the hidden la
         \end{scope}
     \end{tikzpicture}
     % Avoid inline math in captions; it wraps poorly in some EPUB renderers.
-\caption{Center placement and overlap. Top: K-means prototypes roughly tile the data manifold, giving even overlap; bottom: random centers can leave gaps or excessive overlap, influencing the width (sigma) choice and conditioning.}
+\caption{Center placement and overlap (schematic). K-means prototypes tend to tile the data manifold more evenly than random picks, giving more uniform receptive-field overlap. Random centers can leave gaps or create excessive overlap, which affects the width (sigma) choice and the conditioning of the later linear solve.}
     \label{fig:rbf_centres}
 \end{figure}
 \FloatBarrier
+
 
 
 Later in the chapter we contrast this finite-basis (``primal'') view with the kernel (``dual'') view and show how Nystr\"om-style approximations fit into the same story.
@@ -221,17 +222,17 @@ Consider a nonlinear transformation function \( g(\cdot) \) applied to the input
 \paragraph{Example setup (XOR).}
 \begin{itemize}
     \item Inputs: \(\mathbf{x}\in\{0,1\}^2\) with the four corners \((0,0),(0,1),(1,0),(1,1)\).
-    \item Two radial units centered at \(\mathbf{v}_1=(0,0)^\top\) and \(\mathbf{v}_2=(1,1)^\top\).
+    \item Two radial units centered at \(\mathbf{c}_1=(0,0)^\top\) and \(\mathbf{c}_2=(1,1)^\top\).
     \item Feature map: \(\mathbf{g}(\mathbf{x})=[g_1(\mathbf{x}),g_2(\mathbf{x})]^\top\) with Gaussian \(g_i\).
     \item Linear readout: \(y = \mathbf{w}^\top \mathbf{g}(\mathbf{x})\).
 \end{itemize}
 
 \paragraph{Assumptions:}
 - For simplicity, set \(\sigma^2 = 1\) (so \(2\sigma^2 = 2\)) in the Gaussian kernel activation function.
-- Assume \(\mathbf{v}_1 = (0,0)^\top\) and \(\mathbf{v}_2 = (1,1)^\top\).
+- Assume \(\mathbf{c}_1 = (0,0)^\top\) and \(\mathbf{c}_2 = (1,1)^\top\).
 - The activation function is Gaussian radial basis function (RBF):
 \[
-g_i(\mathbf{x}) = \exp\left(-\frac{\|\mathbf{x} - \mathbf{v}_i\|^2}{2\sigma^2}\right).
+g_i(\mathbf{x}) = \exp\left(-\frac{\|\mathbf{x} - \mathbf{c}_i\|^2}{2\sigma^2}\right).
 \]
 
 \paragraph{Transformation Results:}
@@ -336,7 +337,7 @@ The nonlinear map \(g(\cdot)\) and its role in constructing \(\boldsymbol{\Phi}\
 
 Two parameters characterize \(g(\cdot)\):
 \begin{itemize}
-    \item \(\mathbf{v}_i\): the centroid or center of the \(i\)-th basis function.
+    \item \(\mathbf{c}_i\): the center of the \(i\)-th basis function.
     \item \(\sigma_i\): the width or spread parameter controlling the receptive field of the basis function.
 \end{itemize}
 
@@ -349,13 +350,13 @@ Two parameters characterize \(g(\cdot)\):
 \[
 g(r) = \frac{1}{r + \epsilon}, \quad \epsilon > 0,
 \]
-where \(r = \|\mathbf{x} - \mathbf{v}\|\). This function decreases as the distance increases but can become unbounded near zero, potentially causing numerical instability.
+where \(r = \|\mathbf{x} - \mathbf{c}\|\). This function decreases as the distance increases but can become unbounded near zero, potentially causing numerical instability.
 
 \paragraph{2. Gaussian Radial Basis Function:}
 \[
 g(r) = \exp\left(-\frac{r^2}{2\sigma^2}\right).
 \]
-This function is smooth, bounded, and has a clear interpretation as a localized receptive field centered at \(\mathbf{v}\) with width \(\sigma\). It is the most commonly used kernel in RBF networks.
+This function is smooth, bounded, and has a clear interpretation as a localized receptive field centered at \(\mathbf{c}\) with width \(\sigma\). It is the most commonly used kernel in RBF networks.
 
 \begin{tcolorbox}[summarybox, title={Why ``radial''? Why a Gaussian?}]
 An RBF unit is called \emph{radial} because its response depends primarily on distance from a center: points at the same radius (in the chosen metric) produce the same activation. The Gaussian basis is popular because it is smooth, has a clear center, and its width parameter \(\sigma\) directly controls locality: large \(\sigma\) makes each unit ``see'' broadly (risking underfit), while small \(\sigma\) makes units highly local (risking overfit and poor conditioning). The practical art is to pick centers that cover the data and then tune \(\sigma\) (and ridge \(\lambda\)) by validation, as in \Cref{fig:rbf_sigma_sweep}.
@@ -382,9 +383,9 @@ Choosing \(\sigma\) appropriately is critical for the network's performance:
 
 Consider a one-dimensional dataset with two classes (e.g., red and blue points). Projecting a sample \(x\) through the Gaussian basis functions produces feature activations
 \[
-\varphi_i(x) = \exp\!\left(-\frac{(x - v_i)^2}{2\sigma^2}\right),
+\varphi_i(x) = \exp\!\left(-\frac{(x - c_i)^2}{2\sigma^2}\right),
 \]
-which serve as localized similarity measures to each centroid \(v_i\). When \(\sigma\) is large, many points activate the same basis functions with comparable strength, leading to smooth decision boundaries after the linear output layer. When \(\sigma\) is small, only points very close to a centroid elicit large activations, yielding sharply varying boundaries that can overfit noise. Visualizing \(\varphi_i(x)\) for several centroids illustrates how tuning \(\sigma\) controls the flexibility of the classifier.
+which serve as localized similarity measures to each center \(c_i\). When \(\sigma\) is large, many points activate the same basis functions with comparable strength, leading to smooth decision boundaries after the linear output layer. When \(\sigma\) is small, only points very close to a center elicit large activations, yielding sharply varying boundaries that can overfit noise. Visualizing \(\varphi_i(x)\) for several centers illustrates how tuning \(\sigma\) controls the flexibility of the classifier.
 
 \begin{figure}[t]
     \centering
@@ -423,16 +424,16 @@ We return to this tuning picture again later with an XOR-style toy example, wher
 \subsection{Radial Basis Function Networks: Parameter Estimation and Training}
 \label{sec:rbf_radial_basis_function_networks_parameter_estimation_and_training}
 
-Recall that in Radial Basis Function (RBF) networks, the hidden layer neurons compute outputs based on radial basis functions centered at certain points \( \mathbf{v}_i \) with spread parameters \( \sigma_i \). The output is a linear combination of these nonlinear transformations. The key challenge is to determine the parameters:
+Recall that in Radial Basis Function (RBF) networks, the hidden layer neurons compute outputs based on radial basis functions centered at certain points \( \mathbf{c}_i \) with spread parameters \( \sigma_i \). The output is a linear combination of these nonlinear transformations. The key challenge is to determine the parameters:
 \[
-\{ \mathbf{v}_i, \sigma_i, w_i \}_{i=1}^M,
+\{ \mathbf{c}_i, \sigma_i, w_i \}_{i=1}^M,
 \]
 where \( M \) is the number of hidden neurons.
 
-\paragraph{Finding the Centers \(\mathbf{v}_i\):}
+\paragraph{Finding the Centers \(\mathbf{c}_i\):}
 A natural approach to find the centers is to use clustering algorithms on the input data. For example, if we decide to have \( M \) hidden neurons, we run a clustering algorithm (e.g., K-means) to find \( M \) centroids:
 \[
-\mathbf{v}_1, \mathbf{v}_2, \ldots, \mathbf{v}_M.
+\mathbf{c}_1, \mathbf{c}_2, \ldots, \mathbf{c}_M.
 \]
 These centroids represent typical data points around which the radial basis functions are centered. This approach ensures that the radial basis functions cover the input space effectively.
 
@@ -441,7 +442,7 @@ The spread parameters control the width of each radial basis function. One can i
 \[
 \sigma \approx \frac{d_{\max}}{\sqrt{2M}},
 \]
-where \(d_{\max}\) is the maximum pairwise distance between centers and \(M\) the number of RBF units; this ensures neighboring receptive fields overlap without collapsing to a constant function. After setting this global width, refine to per-center widths by setting each \( \sigma_i \) proportional to the average distance between the centroid \( \mathbf{v}_i \) and its nearest neighboring centroids. Anisotropic variants scale each dimension separately but follow the same principle of matching the local density of prototypes.
+where \(d_{\max}\) is the maximum pairwise distance between centers and \(M\) the number of RBF units; this ensures neighboring receptive fields overlap without collapsing to a constant function. After setting this global width, refine to per-center widths by setting each \( \sigma_i \) proportional to the average distance between the center \( \mathbf{c}_i \) and its nearest neighboring centers. Anisotropic variants scale each dimension separately but follow the same principle of matching the local density of prototypes.
 
 \paragraph{Training the Output Weights \( w_i \):}
 Given fixed centers and spreads, the output weights \( w_i \) can be found by minimizing the squared error between the network output and the target values. The network output for an input \( \mathbf{x} \) is:
@@ -450,7 +451,7 @@ Given fixed centers and spreads, the output weights \( w_i \) can be found by mi
 \]
 where
 \[
-\varphi_i(\mathbf{x}) = \exp\left(-\frac{\|\mathbf{x} - \mathbf{v}_i\|^2}{2\sigma_i^2}\right).
+\varphi_i(\mathbf{x}) = \exp\left(-\frac{\|\mathbf{x} - \mathbf{c}_i\|^2}{2\sigma_i^2}\right).
 \]
 
     The training problem reduces to solving the linear system:
@@ -489,20 +490,20 @@ mirroring the \(\lambda \boldsymbol{\alpha}^\top \mathbf{K} \boldsymbol{\alpha}\
         \node[font=\scriptsize] at (-3,-0.1) {build features};
         \draw[->, thick] (-1.5,0.5) -- (-0.5,0.5);
         \node[font=\scriptsize] at (0.5,0.8) {solve};
-        \node[font=\scriptsize] at (0.5,0.4) {$(\boldsymbol{\Phi}^\top\boldsymbol{\Phi}+\lambda I)w=\boldsymbol{\Phi}^\top y$};
+        \node[font=\scriptsize] at (0.5,0.4) {$(\boldsymbol{\Phi}^\top\boldsymbol{\Phi}+\lambda I)\mathbf{w}=\boldsymbol{\Phi}^\top \mathbf{y}$};
         \draw[gray!40] (2,0) rectangle (4,1);
-        \node[font=\scriptsize] at (3,0.5) {$w\in\mathbb{R}^{M}$};
+        \node[font=\scriptsize] at (3,0.5) {$\mathbf{w}\in\mathbb{R}^{M}$};
 
         \begin{scope}[shift={(0,-2)}]
             \node at (-3,1.4) {\scriptsize Dual (kernel ridge/SVM)};
             \draw[gray!40] (-4,0) rectangle (-2,1);
-        \node[font=\scriptsize] at (-3,0.5) {$K\in\mathbb{R}^{N\times N}$};
+        \node[font=\scriptsize] at (-3,0.5) {$\mathbf{K}\in\mathbb{R}^{N\times N}$};
         \node[font=\scriptsize] at (-3,-0.1) {kernel matrix};
         \draw[->, thick] (-1.5,0.5) -- (-0.5,0.5);
         \node[font=\scriptsize] at (0.5,0.8) {solve};
-        \node[font=\scriptsize] at (0.5,0.4) {$(K+\lambda I)\alpha=y$};
+        \node[font=\scriptsize] at (0.5,0.4) {$(\mathbf{K}+\lambda I)\boldsymbol{\alpha}=\mathbf{y}$};
         \draw[gray!40] (2,0) rectangle (4,1);
-        \node[font=\scriptsize] at (3,0.5) {$\alpha\in\mathbb{R}^{N}$};
+        \node[font=\scriptsize] at (3,0.5) {$\boldsymbol{\alpha}\in\mathbb{R}^{N}$};
     \end{scope}
     \draw[->, gray!60, dashed] (-1,-0.6) -- (1,-1.4) node[midway, sloped, above, gray!60]{Nystr\"om $M<N$};
 \end{tikzpicture}
@@ -535,7 +536,7 @@ where \( d \) is the input dimension.
 
 \paragraph{Summary of the Training Algorithm:}
 \begin{enumerate}
-    \item Use clustering (e.g., K-means) to find centers \( \mathbf{v}_i \) (or sample centers uniformly at random).
+    \item Use clustering (e.g., K-means) to find centers \( \mathbf{c}_i \) (or sample centers uniformly at random).
     \item Set widths \(\sigma_i\) via a rule-of-thumb (global \(\sigma\) from average center spacing or per-cluster covariance).
     \item Build \(\boldsymbol{\Phi}\) with entries \(\boldsymbol{\Phi}_{ji}=\varphi_i(\mathbf{x}_j)\); choose a small grid of \(\lambda\) values and solve \((\boldsymbol{\Phi}^\top\boldsymbol{\Phi}+\lambda I)\mathbf{w}=\boldsymbol{\Phi}^\top\mathbf{y}\).
     \item Evaluate on a validation set and pick \((\sigma,\lambda, M)\) that minimizes validation loss; for classification, CE/hinge losses are also feasible with the same design matrix \(\boldsymbol{\Phi}\).
@@ -673,7 +674,7 @@ Choose \(M=4\) centers at the data and set a global \(\sigma\) from the mean int
 
 \paragraph{Disadvantages:}
 \begin{itemize}
-    \item \textbf{Parameter selection:} Choosing the number of neurons \( M \), centers \( \mathbf{v}_i \), and spreads \( \sigma_i \) is nontrivial and often requires heuristics or cross-validation.
+    \item \textbf{Parameter selection:} Choosing the number of neurons \( M \), centers \( \mathbf{c}_i \), and spreads \( \sigma_i \) is nontrivial and often requires heuristics or cross-validation.
     \item \textbf{Scalability:} The number of radial units required can grow quickly with input dimensionality, increasing computation and storage costs.
     \item \textbf{Center determination:} Identifying good centers (via clustering or other heuristics) can be computationally expensive and sensitive to noisy data.
 \end{itemize}
