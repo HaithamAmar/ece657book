@@ -1163,3 +1163,17 @@ Build notes (2026-02-17):
 - 2026-02-23: Ran `python3 notes_output/scripts/validate_math_examples_and_graphs.py --strict` after the edits. Result: PASS.
 - 2026-02-23: Ran `bash notes_output/scripts/run_production_checks.sh` after the edits. Result: PASS (release checks, Apple
   gatekeeper audits, and EPUBCheck all OK).
+
+## 2026-02-24 Chapter 9 (SOMs) enrichment + author-voice threading (opening-to-closing pass)
+
+- `notes_output/lecture_5_part_i.tex`: re-voiced the opening bridge and SOM overview into book voice; replaced ``lattice'' with
+  ``grid'' throughout the reader-facing prose/figures; strengthened the clustering warm-up with an engineering-motivated example
+  and explicitly threaded k-means \(\rightarrow\) SOM; clarified ``topographic mapping'' without over-promising; reframed the
+  Kohonen architecture subsection as a distinct ``network diagram'' view (without repeating earlier derivations verbatim);
+  added an author note on distance/preprocessing as part of the model; tightened the applications/variants/recipes wrap-up to
+  read less like generic notes and more like a practitioner summary.
+- `notes_output/review/writeup_tasks_from_codex_20260218.md`: added a new write-up task requesting two SOM application vignettes
+  in the author’s voice (to further enrich the Applications section without guessing intent).
+- 2026-02-24: Ran `python3 notes_output/scripts/validate_math_examples_and_graphs.py --strict` after the edits. Result: PASS.
+- 2026-02-24: Ran `bash notes_output/scripts/run_production_checks.sh` after the edits. Result: PASS (release checks, Apple
+  gatekeeper audits, and EPUBCheck all OK).

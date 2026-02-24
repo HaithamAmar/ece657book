@@ -218,6 +218,16 @@ Targets (write directly under each; 120--220 words each unless noted):
    - Location: `notes_output/lecture_5_part_ii.tex:384` (capacity sentence) and `notes_output/lecture_5_part_ii.tex:417`
      (limitations block).
    - What I need from you: how you want to interpret the capacity fact pedagogically (what it means, what it does not mean),
+
+7) Ch. 9 SOMs: Two application vignettes in your voice (NEW)
+   - Location: `notes_output/lecture_5_part_i.tex` (near `\subsection{Applications of Kohonen Self-Organizing Maps}`).
+   - What I need from you: two short, concrete, engineering-motivated vignettes (150--250 words each) that answer:
+     - what the input vectors are,
+     - what "similarity" means (and what preprocessing you would do),
+     - what you would read off the U-Matrix/component planes,
+     - and one audit hook (QE/TE curves, sensitivity to init, slice-by-regime check, etc.).
+   - Suggested themes (pick any two): (i) operating-regime discovery from telemetry, (ii) exploratory clustering of embeddings
+     (text/image features), (iii) anomaly triage by mapping rare cases to sparsely populated regions of the map.
      plus a short bridge back to the earlier debug habits (energy descent, local minima).
 
 7) Ch. 12 RNNs: Opening motivation in your voice
