@@ -1178,6 +1178,26 @@ Kohonen SOMs show up when you want \emph{both} a prototype model and a picture y
     \item \textbf{Visualization diagnostics:} Use U-Matrices and component planes as ``instrument panels'' that reveal boundaries, smoothness, and which input features drive the organization.
 \end{itemize}
 
+\begin{tcolorbox}[summarybox, title={Application example: website sessions as behavioral modes}]
+Consider a website where the system you are trying to understand is not a motor or a circuit, but a stream of user sessions. Each session becomes a data point \(\mathbf{x}\): dwell time, number of pages, scroll depth, time-to-first-interaction, device class, referrer type, returning vs.\ new, and a few content signals (e.g., the category of the first page visited, or an embedding of the landing-page text). You may not have labels for ``intent,'' but you do expect recurring modes: quick bounce, comparison shopping, documentation lookup, checkout flow, support troubleshooting, and so on.
+
+A SOM is useful here because it gives you prototypes \(\mathbf{w}_i\) (representative session fingerprints) \emph{and} a 2D grid you can inspect. After training, each session maps to a best-matching unit (BMU). Dense patches of mapped sessions indicate common behavior; ridges in the U-Matrix suggest boundaries where neighboring prototypes are far apart, which often corresponds to genuinely different behaviors under your feature choices. Component planes then turn the picture into an explanation: you can see, for example, that one boundary is mostly driven by dwell time and scroll depth, while another is driven by referrer and device. In practice you read these plots as heat maps over the 2D grid: different behaviors show up as different regions you can name, compare, and inspect.
+
+\textbf{Recommendation:} treat preprocessing as part of the model. Normalize continuous features, log-scale heavy-tailed counts, and be deliberate about how you represent categorical variables (one-hot, grouped buckets, or a small embedding) so Euclidean distance matches your notion of similarity.
+
+\textbf{Audit hook:} rerun with a few seeds and a time-based split. If the map reorganizes completely across runs or across weeks, you are seeing instability or seasonality rather than durable structure.
+\end{tcolorbox}
+
+\begin{tcolorbox}[summarybox, title={Application example: mapping page archetypes and performance drivers}]
+A second, complementary use is to map \emph{pages} (or queries) rather than sessions. Here each data point \(\mathbf{x}\) describes a URL or content item: a text embedding of the page, topic/category tags, layout signals (word count, number of images), and aggregate behavior metrics (CTR from search, median dwell time, bounce rate, conversion rate, and the fraction of visits from mobile). You are effectively asking: which pages are similar in content and behavior, and where do the sharp breaks live?
+
+A SOM turns this into a visual inventory. Pages with similar content and similar usage patterns compete for the same region of the grid, and the U-Matrix highlights boundaries between page families (e.g., ``documentation-like'' pages versus ``marketing-like'' pages). Component planes are the practical payoff: they show which variables line up with those boundaries. If one region lights up on ``mobile fraction'' and ``bounce rate,'' you immediately get a hypothesis about responsiveness or page speed. If another region is coherent in ``topic embedding'' but not in conversion, you have found a content family that is consistent but not effective.
+
+\textbf{Recommendation:} separate what you want to \emph{organize by} (content similarity) from what you want to \emph{diagnose} (performance metrics). A simple approach is to train the SOM on content-heavy features, then overlay performance as color/slices; otherwise the map can end up organizing primarily by whatever has the largest numeric range.
+
+\textbf{Audit hook:} overlay slices (language, device, traffic source). If the map's dominant structure is ``source domain'' or ``mobile vs.\ desktop,'' that may be a useful finding, but it is also a warning that your feature design is driving the story.
+\end{tcolorbox}
+
 \paragraph{Relation to k-means and modern variants}
 
 When the neighborhood is collapsed to a single winner (no neighbors), the update reduces to a k-means-style prototype move without any notion of grid organization \citep{MacQueen1967}; SOMs therefore sit between pure clustering (k-means) and manifold learning, adding a topographic prior that encourages neighboring units to represent similar inputs. Recent ``neural-SOM'' hybrids embed SOM-like updates inside deep networks, but still rely on the same BMU search and neighborhood-weighted updates described above.
