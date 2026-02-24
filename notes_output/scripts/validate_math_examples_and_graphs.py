@@ -915,6 +915,91 @@ def check_som_competitive_learning_example() -> dict[str, float]:
     }
 
 
+def check_som_qe_te_example() -> dict[str, float]:
+    tex = _read(ROOT / "lecture_5_part_i.tex")
+    qc_lines = _extract_qc_block(tex, "som_qe_te_example")
+
+    W: dict[int, np.ndarray] = {}
+    X: list[np.ndarray] = []
+    expected_pairs: list[tuple[int, int, int]] = []  # (bmu, sbmu, adj)
+    expected_qe: float | None = None
+    expected_te: float | None = None
+
+    for line in qc_lines:
+        parts = line.split()
+        if not parts:
+            continue
+        tag = parts[0]
+        if tag.startswith("w"):
+            # w1 0.00 0.00
+            idx = int(tag[1:])
+            if len(parts) != 3:
+                raise AssertionError(f"Malformed SOM QE/TE QC line: {line!r}")
+            W[idx] = np.array([float(parts[1]), float(parts[2])], dtype=float)
+        elif tag.startswith("x"):
+            # x1 0.30 0.30 bmu 4 sbmu 1 adj 0
+            if len(parts) != 9 or parts[3] != "bmu" or parts[5] != "sbmu" or parts[7] != "adj":
+                raise AssertionError(f"Malformed SOM QE/TE QC line: {line!r}")
+            X.append(np.array([float(parts[1]), float(parts[2])], dtype=float))
+            expected_pairs.append((int(parts[4]), int(parts[6]), int(parts[8])))
+        elif tag == "QE":
+            # QE 0.196205 TE 0.500000
+            if len(parts) != 4 or parts[2] != "TE":
+                raise AssertionError(f"Malformed SOM QE/TE QC line: {line!r}")
+            expected_qe = float(parts[1])
+            expected_te = float(parts[3])
+
+    if len(W) != 4 or len(X) != 4:
+        raise AssertionError("Expected 4 prototypes and 4 inputs for SOM QE/TE example")
+    if expected_qe is None or expected_te is None:
+        raise AssertionError("Missing QE/TE values in SOM QE/TE QC block")
+    if len(expected_pairs) != 4:
+        raise AssertionError("Missing BMU/second-BMU pairs in SOM QE/TE QC block")
+
+    # Fixed 2x2 grid coordinates for units 1..4.
+    R = {
+        1: np.array([0, 0], dtype=int),
+        2: np.array([1, 0], dtype=int),
+        3: np.array([0, 1], dtype=int),
+        4: np.array([1, 1], dtype=int),
+    }
+
+    qe_sum = 0.0
+    te_count = 0
+    details: dict[str, float] = {}
+
+    for i, x in enumerate(X, start=1):
+        d = {k: float(np.sum((x - w) ** 2)) for k, w in W.items()}
+        order = sorted(d.items(), key=lambda kv: (kv[1], kv[0]))
+        bmu = int(order[0][0])
+        sbmu = int(order[1][0])
+
+        rb = R[bmu]
+        rs = R[sbmu]
+        adj = int((abs(int(rb[0] - rs[0])) + abs(int(rb[1] - rs[1]))) == 1)
+
+        exp_bmu, exp_sbmu, exp_adj = expected_pairs[i - 1]
+        _assert(bmu == exp_bmu, f"BMU mismatch for x{i}")
+        _assert(sbmu == exp_sbmu, f"Second BMU mismatch for x{i}")
+        _assert(adj == exp_adj, f"Adjacency mismatch for x{i}")
+
+        qe_sum += float(np.sqrt(d[bmu]))
+        te_count += int(adj == 0)
+
+        details[f"x{i}_bmu"] = float(bmu)
+        details[f"x{i}_sbmu"] = float(sbmu)
+        details[f"x{i}_adj"] = float(adj)
+
+    qe = qe_sum / len(X)
+    te = te_count / len(X)
+
+    _assert_close(float(qe), float(expected_qe), 1e-6, "QE mismatch")
+    _assert_close(float(te), float(expected_te), 1e-12, "TE mismatch")
+    details["QE"] = float(qe)
+    details["TE"] = float(te)
+    return details
+
+
 def check_ch8_softcomp_probs() -> dict[str, float]:
     probs = np.array([0.60, 0.20, 0.20])
     _assert(np.all((probs >= 0) & (probs <= 1)), "Probabilities must be in [0,1]")
@@ -1057,6 +1142,7 @@ def run_checks() -> list[CheckResult]:
         ("figure_rbf_xor_sigma_sweep", check_fig_rbf_xor_sigma_sweep),
         ("chapter5_som_update", check_ch5_som_update),
         ("som_competitive_learning_example", check_som_competitive_learning_example),
+        ("som_qe_te_example", check_som_qe_te_example),
         ("chapter8_softcomp_probs", check_ch8_softcomp_probs),
         ("chapter9_overlap_memberships", check_ch9_overlap_memberships),
         ("chapter13_micro_attention", check_ch13_micro_attention),

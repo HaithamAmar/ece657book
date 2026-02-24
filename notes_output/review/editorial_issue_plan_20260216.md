@@ -1177,3 +1177,16 @@ Build notes (2026-02-17):
 - 2026-02-24: Ran `python3 notes_output/scripts/validate_math_examples_and_graphs.py --strict` after the edits. Result: PASS.
 - 2026-02-24: Ran `bash notes_output/scripts/run_production_checks.sh` after the edits. Result: PASS (release checks, Apple
   gatekeeper audits, and EPUBCheck all OK).
+
+## 2026-02-24 Chapter 9 (SOMs) lecture-material alignment (QE/TE + tool-choice + WTA->cooperation)
+
+- `notes_output/lecture_5_part_i.tex`: added a strict numeric walkthrough contrasting QE vs TE (with a deliberate topographic
+  ``tear'' example); rewrote the \(3\times 3\) SOM example to remove checklist repetition and point back to the verified tiny
+  update; strengthened the WTA limitations section with the explicit ``prototypes vs map'' failure mode and the role of the
+  \(\sigma(t)\) schedule; added an author note box on when SOMs are the wrong tool; inserted two website-oriented application
+  examples (sessions and pages) in the Applications section.
+- `notes_output/scripts/validate_math_examples_and_graphs.py`: added a strict validator (`som_qe_te_example`) for the QE/TE
+  numeric check (QC-backed from the TeX source).
+- 2026-02-24: Ran `python3 notes_output/scripts/validate_math_examples_and_graphs.py --strict` after the edits. Result: PASS.
+- 2026-02-24: Ran `bash notes_output/scripts/run_production_checks.sh` after the edits. Result: PASS (release checks, Apple
+  gatekeeper audits, and EPUBCheck all OK).

@@ -320,12 +320,7 @@ Only the winning unit and its neighbors on the grid update; the update rule is \
 \subsection{Example: SOM with a \texorpdfstring{\(3 \times 3\)}{3x3} Output Map and 4-Dimensional Input}
 \label{sec:som_example_som_with_a_3_3_3x3_output_map_and_4_dimensional_input}
 
-Consider a SOM with the following specifications:
-\begin{itemize}
-    \item Input dimension: \(n = 4\), so each input vector is \(\mathbf{x} = [x_1, x_2, x_3, x_4]^T\).
-    \item Output grid: \(3 \times 3\), totaling 9 neurons indexed \(i = 1, \ldots, 9\).
-    \item Each neuron \(i\) has a weight vector \(\mathbf{w}_i \in \mathbb{R}^4\).
-\end{itemize}
+To make the symbols concrete, consider a SOM whose inputs live in \(\mathbb{R}^4\) and whose output map is a \(3\times 3\) grid. Each unit \(i\in\{1,\dots,9\}\) stores a prototype vector \(\mathbf{w}_i\in\mathbb{R}^4\). For a single input \(\mathbf{x}=[x_1,x_2,x_3,x_4]^\top\), the job of the map is to (i) decide which prototype matches best, then (ii) move that prototype \emph{and a small neighborhood around it} toward \(\mathbf{x}\).
 
 \paragraph{Feedforward Computation}
 
@@ -344,25 +339,17 @@ c =
 \arg \min_i d_i, & \text{if distances are used as in } \eqref{eq:neuron_distance}.
 \end{cases}
 \]
+In practice the distance form is the most common in SOM code. If you do use dot-product similarity, normalize inputs (and often prototypes) so that ``largest dot product'' corresponds to your notion of ``closest.''
 
 \paragraph{Weight Initialization and Update}
 
-Weights \(\mathbf{w}_i\) are typically initialized randomly or sampled from the input distribution. During training, for each input \(\mathbf{x}\), the winning neuron \(c\) and its neighbors update their weights according to \eqref{eq:som_update}.
-
-\paragraph{Illustration}
-
-\begin{itemize}
-    \item Suppose the input \(\mathbf{x}\) is presented.
-    \item Compute \(y_i = \mathbf{w}_i^T \mathbf{x}\) for all neurons \(i\).
-    \item Identify the winning neuron \(c\) with the highest \(y_i\).
-    \item Update \(\mathbf{w}_c\) and neighboring weights \(\mathbf{w}_i\) using \eqref{eq:som_update}.
-\end{itemize}
+Weights \(\mathbf{w}_i\) are typically initialized randomly (often by sampling from the data) or by a PCA-style seeding if you want a stable orientation. One training step then has a predictable shape: compute the match scores (usually \(d_i\)), pick the BMU \(c\), compute neighborhood weights from the grid distances \(\|\mathbf{r}_i-\mathbf{r}_c\|\), and apply the update in \eqref{eq:som_update} to the BMU and a small neighborhood patch. For a fully worked numeric update with actual numbers, see the earlier \emph{Tiny numeric step (online update)} box; the point of the present \(3\times 3\) example is to keep the dimensions explicit so you can track what gets computed where.
 
 This process repeats over many inputs, gradually organizing the map such that neighboring neurons respond to similar inputs, effectively performing a topology-preserving dimensionality reduction.
 
 The grid coordinates \(\mathbf{r}_i \in \mathbb{Z}^2\) introduced for the neighborhood kernel serve as the geometry of the output map; distances such as \(\|\mathbf{r}_i - \mathbf{r}_c\|_2\) determine how strongly each neuron responds when \(c\) wins. Broad kernels (large \(\sigma(t)\)) encourage global ordering early in training, whereas shrinking \(\sigma(t)\) confines adaptation to local neighborhoods so that fine-grained structure emerges. Alternative kernel shapes (e.g., Epanechnikov, bubble) can be used, though Gaussians provide smooth decay and convenient derivatives.
 
-SOM training is typically stochastic: each input triggers an update, so the map continuously refines prototypes as data arrive. Batch variants exist, but online updates capture streaming data and mirror Kohonen's original algorithm. Initialization also affects convergence; besides random sampling, practical systems often initialize weights along leading principal components to roughly align the map orientation with the data manifold.
+SOM training is typically stochastic: each input triggers an update, so the map continuously refines prototypes as data arrive. Batch variants exist, but online updates capture streaming data and mirror Kohonen's original algorithm.
 
 \subsection{Key Properties of Kohonen SOMs}
 \label{sec:som_key_properties_of_kohonen_soms}
@@ -614,6 +601,36 @@ Even though SOMs are inherently unsupervised, their training dynamics still bene
 \]
 which measures reconstruction fidelity. The \emph{topographic error} is the fraction of inputs whose first- and second-best BMUs are not adjacent on the grid (default: 4-neighbor connectivity), capturing topology preservation. Both metrics reappear in later figures; we monitor QE for representation quality and TE for magnification distortions.
 
+\begin{tcolorbox}[summarybox, title={Tiny numeric check: QE vs.\ TE (they can disagree)}]
+To see what these metrics measure, consider a \(2\times 2\) SOM grid with fixed coordinates
+\(\mathbf{r}_1=[0,0]\), \(\mathbf{r}_2=[1,0]\), \(\mathbf{r}_3=[0,1]\), \(\mathbf{r}_4=[1,1]\) (4-neighbor adjacency). Let the prototypes in input space be
+\[
+\mathbf{w}_1=[0,0],\quad \mathbf{w}_2=[2,0],\quad \mathbf{w}_3=[0,2],\quad \mathbf{w}_4=[0.25,0.25].
+\]
+Notice that \(\mathbf{w}_4\) is close to \(\mathbf{w}_1\) in input space, even though units 4 and 1 are diagonal neighbors on the grid.
+
+Now evaluate four inputs, using squared Euclidean distance to pick the best and second-best matches:
+\[
+\mathbf{x}_1=[0.30,0.30],\ \mathbf{x}_2=[1.80,0.20],\ \mathbf{x}_3=[0.20,1.70],\ \mathbf{x}_4=[0.05,0.05].
+\]
+The BMU/second-BMU pairs are \((4,1)\), \((2,4)\), \((3,4)\), \((1,4)\). Under 4-neighbor adjacency, pairs \((4,1)\) and \((1,4)\) are \emph{not} adjacent (diagonal), so \(\text{TE}=2/4=0.5\).
+Meanwhile the average distance to the BMU is \(\text{QE}\approx 0.1962\).
+
+The lesson is that QE is a ``prototype fit'' score, while TE is an ``ordering'' score. You can improve QE by moving prototypes toward the data while still tearing the map if nearby grid units do not represent nearby regions of the input space.
+\end{tcolorbox}
+
+% QC-BEGIN: som_qe_te_example
+% w1 0.00 0.00
+% w2 2.00 0.00
+% w3 0.00 2.00
+% w4 0.25 0.25
+% x1 0.30 0.30 bmu 4 sbmu 1 adj 0
+% x2 1.80 0.20 bmu 2 sbmu 4 adj 1
+% x3 0.20 1.70 bmu 3 sbmu 4 adj 1
+% x4 0.05 0.05 bmu 1 sbmu 4 adj 0
+% QE 0.196205 TE 0.500000
+% QC-END: som_qe_te_example
+
 \begin{tcolorbox}[summarybox, title={Batch SOM in practice}, breakable]
 Online SOM updates one sample at a time: pick a best-matching unit (BMU), nudge it and its neighbors, move on. Batch SOM instead aggregates responsibilities across a dataset (or mini\hyp{}batch) before shifting prototypes:
 \begin{align*}
@@ -694,6 +711,8 @@ While WTA is simple and effective for clustering, it has some limitations:
     \item The hard competition ignores relationships among neighboring neurons.
     \item The resulting clusters correspond to hard assignments, so boundaries between codebook vectors are sharp with little smoothing across neighboring neurons.
 \end{itemize}
+There is also a very practical failure mode: you can drive the prototypes toward the data (so QE improves) while the \emph{grid organization} never really forms. If you start with \(\sigma(t)\approx 1\) from the very beginning (or you drop neighborhood updates entirely), nearby grid locations can end up representing unrelated regions of the input space. The map looks like a shuffled deck: the U-Matrix becomes speckled, and TE stays stubbornly high because the second-best match for a point often lives far away on the grid. The fix is not a new objective; it is simply the training schedule: use a broad neighborhood early so large-scale ordering can settle, then shrink \(\sigma(t)\) so the map can refine without smearing away detail.
+More importantly for SOMs, plain WTA gives you \emph{prototypes} but not necessarily a readable \emph{map}. If only the winner moves, nothing forces neighboring grid units to represent neighboring regions of the data; the prototypes can end up arranged arbitrarily across the grid, and small changes in initialization can produce very different-looking maps. Cooperation is the fix: early in training you use a broad neighborhood (large \(\sigma(t)\)) so an input shapes a local patch rather than a single unit, which encourages global ordering; later you shrink \(\sigma(t)\) so the map can refine without smearing away detail.
 The geometric effect of these limitations is easiest to see in \Cref{fig:lec5-softmax-regions}: the left panel shows the brittle Voronoi partitions created by a strict winner-takes-all rule, whereas the right panel demonstrates how shrinking the neighborhood kernel produces softer responsibilities and smoother maps.
 
 \pgfmathdeclarefunction{somindex}{2}{%
@@ -1149,23 +1168,7 @@ One run of SOM training is repetitive in a good way: you keep presenting inputs,
 Batch SOM (one pass per epoch) is deterministic given the assignments; it often stabilizes faster than purely online updates.
 \end{tcolorbox}
 
-\noindent These procedural steps implement three conceptual \emph{stages}: (1) \textbf{Initialization} (seed the prototype grid), (2) \textbf{Competition} (select the best-matching unit for each input), and (3) \textbf{Cooperation} (neighborhood-weighted updates plus the associated parameter decay). Calling out these stages separately helps when comparing SOMs to other competitive-learning algorithms later in the chapter.
-
-These steps are repeated until convergence criteria are met, such as a maximum number of iterations or a threshold on weight changes.
-
-\paragraph{Stages vs. Steps}
-
-It is important to distinguish between the \emph{three stages} of SOM learning and the \emph{six steps} described above:
-
-\begin{itemize}
-    \item \textbf{Stages:}
-    \begin{enumerate}
-    \item \emph{Initialization:} setting up the network.
-    \item \emph{Competition:} neurons compete to respond to input.
-    \item \emph{Cooperation:} neighboring neurons cooperate to update weights.
-    \end{enumerate}
-    \item \textbf{Steps:} The six procedural steps in \Cref{sec:som_training_steps} that operationalize these stages during training.
-\end{itemize}
+\noindent I find it useful to tell the SOM story in \emph{three stages}, even though the code is often written as a longer checklist. The stages are: \textbf{Initialization} (seed the prototype grid), \textbf{Competition} (pick a best-matching unit for each input), and \textbf{Cooperation} (update a neighborhood and decay \(\alpha(t)\) and \(\sigma(t)\)). The six-step procedure in \Cref{sec:som_training_steps} is simply one way to operationalize those stages when you implement the algorithm and decide when to stop.
 
 \subsection{Applications of Kohonen Self-Organizing Maps}
 \label{sec:som_applications_of_kohonen_self_organizing_maps}
@@ -1177,6 +1180,12 @@ Kohonen SOMs show up when you want \emph{both} a prototype model and a picture y
     \item \textbf{Exploratory reduction:} Map high-dimensional data onto a 2D grid index for visualization and exploratory analysis. You do not get a continuous coordinate system; you get a discrete map that is often easier to inspect.
     \item \textbf{Visualization diagnostics:} Use U-Matrices and component planes as ``instrument panels'' that reveal boundaries, smoothness, and which input features drive the organization.
 \end{itemize}
+
+\begin{tcolorbox}[summarybox, title={Author's note: when a SOM is the wrong tool}]
+If your only goal is to assign points to \(K\) groups and summarize each group by a center, k-means is usually the simpler baseline. If you want a continuous low-dimensional chart with a clear linear story, start with PCA; if you need a global distance-preserving embedding, MDS is a better conceptual match. If your goal is a local-neighborhood visualization and you accept distortion of global geometry, methods like UMAP/t-SNE are often more visually dramatic.
+
+I reach for a SOM when I want three things at once: (i) prototypes I can inspect, (ii) a fixed 2D organization that is stable enough to compare across runs, and (iii) diagnostics (U-Matrix/component planes, QE/TE) that tell me whether the picture is trustworthy. If you cannot define a sensible distance (or you cannot normalize features so distance means something), a SOM will happily organize noise.
+\end{tcolorbox}
 
 \begin{tcolorbox}[summarybox, title={Application example: website sessions as behavioral modes}]
 Consider a website where the system you are trying to understand is not a motor or a circuit, but a stream of user sessions. Each session becomes a data point \(\mathbf{x}\): dwell time, number of pages, scroll depth, time-to-first-interaction, device class, referrer type, returning vs.\ new, and a few content signals (e.g., the category of the first page visited, or an embedding of the landing-page text). You may not have labels for ``intent,'' but you do expect recurring modes: quick bounce, comparison shopping, documentation lookup, checkout flow, support troubleshooting, and so on.
