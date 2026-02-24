@@ -273,7 +273,7 @@ A common choice for the neighborhood kernel is the Gaussian function
     h_{ci}(t) = \exp\left(-\frac{\| \mathbf{r}_c - \mathbf{r}_i \|^2}{2\sigma^2(t)}\right),
     \label{eq:gaussian_neighborhood_short}
 \end{equation}
-where $\mathbf{r}_i$ denotes the grid coordinates of neuron $i$ and $\sigma(t)$ is the neighborhood radius that decreases monotonically with $t$. A common schedule (as in the lecture handnotes) is an exponential decay:
+where $\mathbf{r}_i$ denotes the grid coordinates of neuron $i$ and $\sigma(t)$ is the neighborhood radius that decreases monotonically with $t$. A common schedule is an exponential decay:
 \begin{equation}
     \sigma(k) = \sigma_0 e^{-k/\tau},
     \label{eq:som_sigma_schedule}
@@ -809,12 +809,13 @@ Consider the output layer arranged in a 2D grid of neurons. For each input \(\ma
 
 The neighborhood size typically shrinks over time during training, starting large to encourage global ordering and gradually reducing to fine-tune local details.
 
-\paragraph{Weight Update with Neighborhood Cooperation} The grid structure and how the best matching unit (BMU) influences nearby neurons are visualized in \Cref{fig:lec5-som-lattice-umatrix}. The U-Matrix on the right provides a quick diagnostic for cluster boundaries during training.
+\paragraph{Weight Update with Neighborhood Cooperation}
+The grid structure and how the best matching unit (BMU) influences nearby neurons are visualized in \Cref{fig:lec5-som-lattice-umatrix}. The U-Matrix on the right provides a quick diagnostic for cluster boundaries during training.
 
 \begin{figure}[t]
     \centering
     \begin{tikzpicture}[scale=0.9]
-        % Left panel: lattice
+        % Left panel: grid
         \begin{scope}
             % draw grid of neurons
             \foreach \i in {0,...,4} {
