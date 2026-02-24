@@ -273,7 +273,12 @@ A common choice for the neighborhood kernel is the Gaussian function
     h_{ci}(t) = \exp\left(-\frac{\| \mathbf{r}_c - \mathbf{r}_i \|^2}{2\sigma^2(t)}\right),
     \label{eq:gaussian_neighborhood_short}
 \end{equation}
-where $\mathbf{r}_i$ denotes the grid coordinates of neuron $i$ and $\sigma(t)$ is the neighborhood radius that decreases monotonically with $t$. Early in training $\sigma(t)$ is large, encouraging broad cooperation; as $\sigma(t)$ shrinks, only neurons near the BMU continue to adapt (\Cref{fig:lec5-gaussian-neighborhood}).
+where $\mathbf{r}_i$ denotes the grid coordinates of neuron $i$ and $\sigma(t)$ is the neighborhood radius that decreases monotonically with $t$. A common schedule (as in the lecture handnotes) is an exponential decay:
+\begin{equation}
+    \sigma(k) = \sigma_0 e^{-k/\tau},
+    \label{eq:som_sigma_schedule}
+\end{equation}
+where $k$ counts updates and $\tau$ sets how quickly the neighborhood shrinks. Early in training $\sigma(t)$ is large, encouraging broad cooperation; as $\sigma(t)$ shrinks, only neurons near the BMU continue to adapt (\Cref{fig:lec5-gaussian-neighborhood}).
 \begin{figure}[t]
     \centering
     \begin{tikzpicture}

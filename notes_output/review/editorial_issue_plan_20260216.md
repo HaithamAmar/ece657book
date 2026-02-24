@@ -1187,6 +1187,8 @@ Build notes (2026-02-17):
   examples (sessions and pages) in the Applications section.
 - `notes_output/scripts/validate_math_examples_and_graphs.py`: added a strict validator (`som_qe_te_example`) for the QE/TE
   numeric check (QC-backed from the TeX source).
+- `notes_output/lecture_5_part_i.tex`: added the explicit neighborhood-width schedule \(\sigma(k)=\sigma_0 e^{-k/\tau}\) near the
+  Gaussian neighborhood definition to match the handnotes.
 - 2026-02-24: Ran `python3 notes_output/scripts/validate_math_examples_and_graphs.py --strict` after the edits. Result: PASS.
 - 2026-02-24: Ran `bash notes_output/scripts/run_production_checks.sh` after the edits. Result: PASS (release checks, Apple
   gatekeeper audits, and EPUBCheck all OK).
