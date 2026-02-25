@@ -126,10 +126,10 @@ It helps to read \(E(\mathbf{s})\) the same way you read a loss in supervised le
 This is why the update rule matters. The weights define the energy landscape, and the asynchronous update is a descent procedure on that landscape. Local minima are stable memories; other minima (spurious attractors) are the price of capacity.
 \end{tcolorbox}
 
-\paragraph{Hopfield network states and the energy view (handoff)}
+\paragraph{Hopfield network states and the energy view}
 \label{sec:hopfield_hopfield_network_states_and_energy_function}
 
-Encoding choices and the corresponding energy forms were laid out in \Cref{sec:hopfield_encoding_conventions} and \Cref{sec:hopfield_energy_function_and_stability}. The key continuity idea is that Hopfield dynamics are not ``mysterious recurrence'': with symmetric weights, the update rule becomes a descent process on \(E(\cdot)\). We now make that concrete by (i) stating what it means for a state to be stable, (ii) tracing a short numeric example, and (iii) proving that asynchronous single-neuron updates never increase the energy.
+Encoding choices and the corresponding energy forms were laid out in \Cref{sec:hopfield_encoding_conventions} and \Cref{sec:hopfield_energy_function_and_stability}. The key continuity idea is that Hopfield dynamics are not ``mysterious recurrence'': with symmetric weights, the update rule becomes a descent process on \(E(\cdot)\). We make this concrete in three passes: define what ``stable'' means, walk one tiny numeric trace, then prove the one-step claim (\(\Delta E\le 0\)) that guarantees convergence under asynchronous updates.
 
 \subsection{Energy Minimization and Stable States}
 \label{sec:hopfield_energy_minimization_and_stable_states}
@@ -516,9 +516,13 @@ In the classical framing, Hopfield networks are about associative memory: you st
 There is also an optimization lens. Because \(E(\mathbf{s})\) is a scalar objective over binary states, you can sometimes encode a cost function as an energy and run asynchronous updates as a heuristic descent method. This is one way Hopfield-style dynamics have been discussed for combinatorial optimization tasks (for example, variants of traveling-salesman-style objectives). The warning is the same one we give throughout this book: the algorithm will happily converge to a local minimum. Your real work is in deciding whether the energy you wrote down matches the engineering goal and whether the resulting minima are meaningful.
 \end{tcolorbox}
 
-\paragraph{Example: Memory Recovery}
+\paragraph{Example: Memory recovery (one flip)}
 
-Consider a Hopfield network with \(N=4\) neurons and a single stored pattern \(\mathbf{\xi} = [-1, -1, 1, -1]^T\). The weight matrix constructed via \eqref{eq:hebbian_weights} is
+Store one pattern
+\[
+\mathbf{\xi} = (-1, -1, 1, -1)^T.
+\]
+With \(n=4\), the Hebbian weights from \eqref{eq:hebbian_weights} are
 \[
 \mathbf{W} = \frac{1}{4} \mathbf{\xi} \mathbf{\xi}^\top, \qquad w_{ii} = 0,
 \]
@@ -535,23 +539,32 @@ which numerically becomes a single symmetric matrix
 The off-diagonal entries are therefore the scaled products of pattern components (e.g., $w_{12}=w_{21}=0.25$ and $w_{13}=w_{31}=-0.25$).
 More generally, every off-diagonal weight is the scaled product of the corresponding pattern entries.
 
-Starting from an initial state \(\mathbf{s}(0) = [-1, -1, 1, 1]^T\) (with zero thresholds \(\theta_i = 0\)), we apply the familiar asynchronous sign update
+Now start from a one-bit-corrupted probe \(\mathbf{s}^{(0)}=[-1,-1,1,1]^T\), with \(\theta_i=0\). If we update neuron \(4\),
 \[
-    s_i \leftarrow \operatorname{sign}\Big( \sum_{j=1}^N w_{ij} s_j - \theta_i \Big)
+h_4=\sum_j w_{4j}s_j = -0.75 \quad\Rightarrow\quad s_4\leftarrow -1,
 \]
-one neuron at a time, i.e., neuron $i$ is set to $+1$ whenever the weighted sum exceeds its threshold and to $-1$ otherwise. Because each update reduces the Lyapunov energy $E = -\tfrac{1}{2}\sum_{i=1}^N\sum_{j=1}^N w_{ij} s_i s_j + \sum_{i=1}^N \theta_i s_i$ from \eqref{eq:energy_function}, the trajectory converges to \(\mathbf{\xi}\) or its complement \(-\mathbf{\xi}\), demonstrating successful memory retrieval despite the initial corruption. The appearance of \(-\mathbf{\xi}\) as a fixed point is expected: the energy only depends on products $s_i s_j$, so negating all bits leaves every term unchanged.
+so in one asynchronous flip we recover \(\mathbf{s}^{(1)}=\mathbf{\xi}\). The energy drops from \(E=0\) to \(E=-1.5\) under \eqref{eq:energy_function}. The appearance of \(-\mathbf{\xi}\) as a fixed point is expected: the energy only depends on products \(s_i s_j\), so negating all bits leaves every term unchanged.
+
+% QC-BEGIN: hopfield_memory_recovery_4n
+% xi -1 -1 1 -1
+% W 0 0.25 -0.25 0.25
+% W 0.25 0 -0.25 0.25
+% W -0.25 -0.25 0 -0.25
+% W 0.25 0.25 -0.25 0
+% s0 -1 -1 1 1 E 0.0
+% step 1 update_i 4 h -0.75 s -1 -1 1 -1 E -1.5
+% QC-END: hopfield_memory_recovery_4n
 
 \paragraph{Spurious attractors}
 
 Beyond the intended memories \(\{\pm \mathbf{\xi}^\mu\}\), Hopfield networks can converge to \emph{spurious attractors}: stable states formed by mixtures of stored patterns. These unintended minima become increasingly common as the loading factor \(P/N\) grows (here \(P\) denotes the number of stored patterns); for random patterns the practical capacity is roughly \(0.138\, N\). The possibility of converging to a spurious state, or to the complemented memory rather than the original, explains why Hopfield networks are better viewed as associative memories than as discriminative classifiers.
 
-\paragraph{Historical and Practical Significance}
+\paragraph{Historical and practical significance}
+I like Hopfield networks because they show a recurring engineering move: constrain a system until you can prove something useful, then use that proof as a debugging lens. Symmetry + no self-loops gives you an energy you can compute; asynchronous updates give you a monotone progress measure.
 
-The Hopfield network was revolutionary in demonstrating that artificial neural networks can model associative memory and converge to stable states corresponding to stored memories. It laid foundational concepts for energy-based models and inspired subsequent developments in neural computation.
+You will almost never deploy a classical Hopfield net as-is (capacity and spurious minima show up fast). But the idea ``memory as an objective landscape'' survives, and it is the right mental model to carry into later energy-based and content-addressable mechanisms.
 
-However, its practical use is limited by low storage capacity and sensitivity to noise. Modern networks and learning algorithms have since extended these ideas to more scalable and robust architectures.
-
-\paragraph{Connections to other chapters.} Hopfield networks sit between prototype-based maps and energy-based attention mechanisms. \Cref{chap:som} and \Cref{chap:transformers} provide those contexts. Their Lyapunov-style energy descent mirrors the validation-driven convergence checks from \Cref{chap:supervised}. Their symmetric recurrent structure also offers a counterpoint to the feedforward ERM models in \Crefrange{chap:logistic}{chap:backprop}.
+\paragraph{Connections to other chapters.} Hopfield networks sit next to SOMs in spirit: both are unsupervised, but the diagnostic tools differ. SOMs give you map geometry (U-matrix/component planes); Hopfield gives you overlap and an energy trace to check whether recall is behaving. Later, attention revisits content-addressable lookup in a differentiable form.
 
 \begin{tcolorbox}[summarybox, title={Key takeaways}]
 \begin{itemize}

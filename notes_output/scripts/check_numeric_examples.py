@@ -281,6 +281,94 @@ def check_hopfield():
         energies["hebbian_single_pattern_h3"] = float(h[2])
         energies["hebbian_single_pattern_h4"] = float(h[3])
 
+    # QC-backed 4-neuron, one-flip memory recovery example (separate section).
+    if "% QC-BEGIN: hopfield_memory_recovery_4n" in tex:
+        qc3 = _extract_qc_block(tex, "hopfield_memory_recovery_4n")
+        xi = None
+        W3_rows = []
+        s0 = None
+        E0_expected = None
+        step = None
+        update_i = None
+        h_expected = None
+        s_after_expected = None
+        E_after_expected = None
+
+        for line in qc3:
+            parts = line.split()
+            tag = parts[0]
+            if tag == "xi":
+                if len(parts) != 5:
+                    raise AssertionError(f"Malformed Hopfield QC xi row: {line!r}")
+                xi = np.array([float(parts[1]), float(parts[2]), float(parts[3]), float(parts[4])], dtype=float)
+            elif tag == "W":
+                if len(parts) != 5:
+                    raise AssertionError(f"Malformed Hopfield QC W row (4D): {line!r}")
+                W3_rows.append([float(parts[1]), float(parts[2]), float(parts[3]), float(parts[4])])
+            elif tag == "s0":
+                if len(parts) != 7 or parts[5] != "E":
+                    raise AssertionError(f"Malformed Hopfield QC s0 row (4D): {line!r}")
+                s0 = np.array([float(parts[1]), float(parts[2]), float(parts[3]), float(parts[4])], dtype=float)
+                E0_expected = float(parts[6])
+            elif tag == "step":
+                # step 1 update_i 4 h -0.75 s -1 -1 1 -1 E -1.5
+                if (
+                    len(parts) != 13
+                    or parts[2] != "update_i"
+                    or parts[4] != "h"
+                    or parts[6] != "s"
+                    or parts[11] != "E"
+                ):
+                    raise AssertionError(f"Malformed Hopfield QC step row (4D): {line!r}")
+                step = int(parts[1])
+                update_i = int(parts[3])
+                h_expected = float(parts[5])
+                s_after_expected = np.array([float(parts[7]), float(parts[8]), float(parts[9]), float(parts[10])], dtype=float)
+                E_after_expected = float(parts[12])
+
+        if xi is None:
+            raise AssertionError("Hopfield QC (memory recovery) missing xi row")
+        if len(W3_rows) != 4:
+            raise AssertionError("Hopfield QC (memory recovery) must include 4 W rows")
+        if s0 is None or E0_expected is None:
+            raise AssertionError("Hopfield QC (memory recovery) missing s0/E0")
+        if step is None or update_i is None or h_expected is None or s_after_expected is None or E_after_expected is None:
+            raise AssertionError("Hopfield QC (memory recovery) missing step payload")
+        if step != 1:
+            raise AssertionError("Hopfield QC (memory recovery) expects exactly step 1")
+
+        W3 = np.array(W3_rows, dtype=float)
+        n = xi.size
+        W3_expected = np.outer(xi, xi) / float(n)
+        np.fill_diagonal(W3_expected, 0.0)
+        if not np.allclose(W3, W3_expected, atol=1e-12, rtol=0.0):
+            raise AssertionError("Hopfield memory-recovery W mismatch vs Hebbian formula")
+
+        theta3 = np.zeros_like(xi)
+        E0 = hopfield_energy(W3, s0, theta=theta3)
+        if abs(E0 - E0_expected) > 1e-12:
+            raise AssertionError(f"Hopfield memory-recovery E0 mismatch: actual={E0}, expected={E0_expected}")
+
+        i = update_i - 1
+        h_act = float(W3[i] @ s0)
+        if abs(h_act - h_expected) > 1e-12:
+            raise AssertionError(f"Hopfield memory-recovery h mismatch: actual={h_act}, expected={h_expected}")
+
+        s_next = s0.copy()
+        s_next[i] = 1.0 if h_act >= 0.0 else -1.0
+        if not np.allclose(s_next, s_after_expected, atol=1e-12, rtol=0.0):
+            raise AssertionError(
+                f"Hopfield memory-recovery state mismatch: actual={s_next}, expected={s_after_expected}"
+            )
+
+        E_after = hopfield_energy(W3, s_next, theta=theta3)
+        if abs(E_after - E_after_expected) > 1e-12:
+            raise AssertionError(f"Hopfield memory-recovery E_after mismatch: actual={E_after}, expected={E_after_expected}")
+
+        energies["memory_recovery_h"] = float(h_act)
+        energies["memory_recovery_E0"] = float(E0)
+        energies["memory_recovery_E1"] = float(E_after)
+
     return energies
 
 

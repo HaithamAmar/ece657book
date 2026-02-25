@@ -1228,3 +1228,16 @@ Build notes (2026-02-17):
 - 2026-02-24: Ran `python3 notes_output/scripts/validate_math_examples_and_graphs.py --strict` after the edits. Result: PASS.
 - 2026-02-24: Ran `bash notes_output/scripts/run_production_checks.sh` after the edits. Result: PASS (release checks, Apple
   gatekeeper audits, and EPUBCheck all OK).
+
+## 2026-02-24 Chapter 10 (Hopfield) collaborative rewrite pass + QC-backed memory recovery
+
+- `notes_output/lecture_5_part_ii.tex`: applied the approved ``before \(\rightarrow\) after'' rewrites: removed the meta
+  ``handoff'' label, tightened the energy-view roadmap sentence, rewrote the later memory-recovery example to be an explicit
+  one-flip trace (local field + energy drop), and re-voiced the ``historical significance'' and ``connections'' paragraphs into
+  book voice.
+- `notes_output/lecture_5_part_ii.tex`: added a QC block (`hopfield_memory_recovery_4n`) for the later 4-neuron one-flip recall
+  example to ensure the matrix/local-field/energy claims remain truthful.
+- `notes_output/scripts/check_numeric_examples.py`: extended the Hopfield QC checker to parse and verify that QC block.
+- 2026-02-24: Ran `python3 notes_output/scripts/validate_math_examples_and_graphs.py --strict` after the edits. Result: PASS.
+- 2026-02-24: Ran `bash notes_output/scripts/run_production_checks.sh` after the edits. Result: PASS (release checks, Apple
+  gatekeeper audits, and EPUBCheck all OK).
