@@ -334,21 +334,21 @@ Combining the sign update in \eqref{eq:hopfield_update_rule} with \eqref{eq:delt
 Recall from the previous discussion that the Hopfield network energy function decreases monotonically with each asynchronous update of a single neuron state. This guarantees convergence to a local minimum of the energy landscape. In contrast, fully synchronous updates (flipping all neurons at once) can lead to oscillations or short cycles rather than convergence, which is why the classical convergence proofs assume asynchronous updates.
 
 \paragraph{Why asynchronous updates?}
-Suppose we attempt to update multiple neuron states simultaneously (synchronously). Consider a simple example with two neurons having states \( s_1, s_2 \in \{+1, -1\} \) and weights \( w_{12} = w_{21} = 10 \). The energy function is:
-\[
-E = -\frac{1}{2} \sum_{i, j} w_{ij} s_i s_j.
-\]
+With symmetric weights you can still write the same energy \(E(\mathbf{s})\), but the classic monotonicity proof is for \emph{single-neuron} (asynchronous) updates. If you update all neurons simultaneously, two-cycles can appear.
 
-If both neurons are updated simultaneously, the energy can oscillate rather than decrease monotonically. For instance:
-\begin{itemize}
-    \item Current state: \( s_1 = +1, s_2 = +1 \), energy \( E = -20 \).
-    \item Flip both states simultaneously to \( s_1 = -1, s_2 = -1 \), energy \( E = -20 \).
-    \item Flip back to \( s_1 = +1, s_2 = +1 \), energy \( E = -20 \).
-\end{itemize}
-This leads to oscillations without convergence.
+For a concrete example, take two neurons with \(\theta_1=\theta_2=0\) and \(w_{12}=w_{21}=1\). Start from \((s_1,s_2)=(1,-1)\). A synchronous update computes both new states from the old pair:
+\[
+s_1 \leftarrow \operatorname{sign}(w_{12}s_2)=\operatorname{sign}(-1)=-1,\qquad
+s_2 \leftarrow \operatorname{sign}(w_{21}s_1)=\operatorname{sign}(1)=1,
+\]
+so the state becomes \((-1,1)\). Repeating the synchronous update maps \((-1,1)\) back to \((1,-1)\). The network therefore oscillates in a 2-cycle, even though the energy
+\[
+E(s_1,s_2) = -\frac{1}{2}\sum_{i,j} w_{ij}s_is_j = -w_{12}s_1s_2
+\]
+stays constant across the two states.
 
 \paragraph{Conclusion:}
-To ensure convergence, updates must be \emph{asynchronous} and sequential, updating one neuron at a time and respecting an update order. Revisiting states before all others have been updated can cause instability.
+To ensure the classical convergence guarantee, use \emph{asynchronous} updates (one neuron at a time) under symmetric weights with zero diagonal. Synchronous updates can still work in practice, but the energy argument no longer rules out short cycles.
 
 \subsection{Storage Capacity of Hopfield Networks}
 \label{sec:hopfield_storage_capacity_of_hopfield_networks}
