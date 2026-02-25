@@ -1193,6 +1193,15 @@ Build notes (2026-02-17):
 - 2026-02-24: Ran `bash notes_output/scripts/run_production_checks.sh` after the edits. Result: PASS (release checks, Apple
   gatekeeper audits, and EPUBCheck all OK).
 
+## 2026-02-24 Chapter 9 (SOMs) EPUB chapter numbering fix
+
+- `notes_output/lecture_5_part_i.tex`: removed the optional short-title argument from the Chapter 9 `\\section[...]` heading.
+  The EPUB navigation document (`EPUB/nav.xhtml`) uses that short title, which previously suppressed the ``Chapter 9:'' prefix
+  in the reader's table of contents. After this change the ToC entry renders as
+  ``Chapter 9: Introduction to Self-Organizing Networks and Unsupervised Learning''.
+- 2026-02-24: Ran `bash notes_output/scripts/run_production_checks.sh` after the edit. Result: PASS (EPUB nav/ToC updated,
+  PDF/EPUB builds and EPUBCheck all OK).
+
 ## 2026-02-24 Chapter 10 (Hopfield) numeric truthfulness + QC-backed example
 
 - `notes_output/lecture_5_part_ii.tex`: removed remaining template-y ``Use it when...'' phrasing in the Hopfield example
