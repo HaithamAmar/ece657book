@@ -14,6 +14,7 @@ Quick sanity checks for numerical examples up to Chapter 18.
 
 import numpy as np
 from math import exp
+from pathlib import Path
 
 
 def check_perceptron_or_gate_trace():
@@ -80,17 +81,101 @@ def hopfield_energy(w, s, theta=None):
     return -0.5 * np.sum(w * np.outer(s, s)) + np.sum(theta * s)
 
 
+def _extract_qc_block(tex_text: str, name: str) -> list[str]:
+    begin = f"% QC-BEGIN: {name}"
+    end = f"% QC-END: {name}"
+    i0 = tex_text.find(begin)
+    if i0 == -1:
+        raise AssertionError(f"Missing QC block begin marker for {name}")
+    i1 = tex_text.find(end, i0)
+    if i1 == -1:
+        raise AssertionError(f"Missing QC block end marker for {name}")
+    block = tex_text[i0 + len(begin) : i1].splitlines()
+    lines = []
+    for raw in block:
+        s = raw.strip()
+        if not s.startswith("%"):
+            continue
+        payload = s.lstrip("%").strip()
+        if not payload:
+            continue
+        lines.append(payload)
+    return lines
+
+
 def check_hopfield():
-    w = np.array([[0, 3, -4],
-                  [3, 0, 2],
-                  [-4, 2, 0]], dtype=float)
-    s0 = np.array([1, 1, -1])
-    energies = {
-        "s0": hopfield_energy(w, s0),
-        "flip_s1": hopfield_energy(w, [-1, 1, -1]),
-        "flip_s2": hopfield_energy(w, [1, -1, -1]),
-        "flip_s3": hopfield_energy(w, [1, 1, 1]),
-    }
+    """
+    Hopfield 3-neuron energy check (Ch. 10), QC-backed from the TeX source.
+
+    Verifies the energies reported in the example, plus one asynchronous update
+    from a noisy probe back to the stored pattern.
+    """
+    root = Path(__file__).resolve().parents[1]
+    tex = (root / "lecture_5_part_ii.tex").read_text(encoding="utf-8", errors="ignore")
+    qc = _extract_qc_block(tex, "hopfield_energy_example")
+
+    W_rows = []
+    theta = None
+    cases = {}
+    noisy = None
+
+    for line in qc:
+        parts = line.split()
+        tag = parts[0]
+        if tag == "W":
+            if len(parts) != 4:
+                raise AssertionError(f"Malformed Hopfield QC W row: {line!r}")
+            W_rows.append([float(parts[1]), float(parts[2]), float(parts[3])])
+        elif tag == "theta":
+            if len(parts) != 4:
+                raise AssertionError(f"Malformed Hopfield QC theta row: {line!r}")
+            theta = np.array([float(parts[1]), float(parts[2]), float(parts[3])], dtype=float)
+        elif tag in ("s0", "flip_s1", "flip_s2", "flip_s3"):
+            if len(parts) != 6 or parts[4] != "E":
+                raise AssertionError(f"Malformed Hopfield QC case row: {line!r}")
+            s = np.array([float(parts[1]), float(parts[2]), float(parts[3])], dtype=float)
+            E = float(parts[5])
+            cases[tag] = (s, E)
+        elif tag == "noisy":
+            # noisy 1 1 1 update_i 3 s1 1 1 -1 E -5
+            if len(parts) != 12 or parts[4] != "update_i" or parts[6] != "s1" or parts[10] != "E":
+                raise AssertionError(f"Malformed Hopfield QC noisy row: {line!r}")
+            s_noisy = np.array([float(parts[1]), float(parts[2]), float(parts[3])], dtype=float)
+            update_i = int(parts[5])
+            s_after = np.array([float(parts[7]), float(parts[8]), float(parts[9])], dtype=float)
+            E_after = float(parts[11])
+            noisy = (s_noisy, update_i, s_after, E_after)
+
+    if len(W_rows) != 3:
+        raise AssertionError("Hopfield QC must include 3 W rows")
+    if theta is None:
+        raise AssertionError("Hopfield QC missing theta row")
+    if set(cases.keys()) != {"s0", "flip_s1", "flip_s2", "flip_s3"}:
+        raise AssertionError("Hopfield QC missing one of s0/flip_s1/flip_s2/flip_s3")
+    if noisy is None:
+        raise AssertionError("Hopfield QC missing noisy update row")
+
+    W = np.array(W_rows, dtype=float)
+
+    energies = {}
+    for name, (s, E_expected) in cases.items():
+        E = hopfield_energy(W, s, theta=theta)
+        if abs(E - E_expected) > 1e-9:
+            raise AssertionError(f"Hopfield {name} energy mismatch: actual={E}, expected={E_expected}")
+        energies[name] = E
+
+    s_noisy, update_i, s_after, E_after_expected = noisy
+    i = update_i - 1
+    h = float(W[i] @ s_noisy - theta[i])
+    s_next = s_noisy.copy()
+    s_next[i] = 1.0 if h >= 0.0 else -1.0
+    if not np.allclose(s_next, s_after):
+        raise AssertionError(f"Hopfield noisy update state mismatch: actual={s_next}, expected={s_after}")
+    E_after = hopfield_energy(W, s_next, theta=theta)
+    if abs(E_after - E_after_expected) > 1e-9:
+        raise AssertionError(f"Hopfield noisy update energy mismatch: actual={E_after}, expected={E_after_expected}")
+    energies["noisy_after"] = E_after
+
     return energies
 
 

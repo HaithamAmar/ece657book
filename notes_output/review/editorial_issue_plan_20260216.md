@@ -1192,3 +1192,14 @@ Build notes (2026-02-17):
 - 2026-02-24: Ran `python3 notes_output/scripts/validate_math_examples_and_graphs.py --strict` after the edits. Result: PASS.
 - 2026-02-24: Ran `bash notes_output/scripts/run_production_checks.sh` after the edits. Result: PASS (release checks, Apple
   gatekeeper audits, and EPUBCheck all OK).
+
+## 2026-02-24 Chapter 10 (Hopfield) numeric truthfulness + QC-backed example
+
+- `notes_output/lecture_5_part_ii.tex`: removed remaining template-y ``Use it when...'' phrasing in the Hopfield example
+  captions; added a QC block for the 3-neuron energy example and tightened the narrative so the energy-descent figure matches
+  the stated one-flip recovery; reduced duplicate prose in the Hebbian weight example.
+- `notes_output/scripts/check_numeric_examples.py`: made the Hopfield numeric check QC-backed by parsing the TeX QC block
+  (`hopfield_energy_example`) rather than relying on hard-coded values; also verifies one asynchronous update from a noisy probe.
+- 2026-02-24: Ran `python3 notes_output/scripts/validate_math_examples_and_graphs.py --strict` after the edits. Result: PASS.
+- 2026-02-24: Ran `bash notes_output/scripts/run_production_checks.sh` after the edits. Result: PASS (release checks, Apple
+  gatekeeper audits, and EPUBCheck all OK).
