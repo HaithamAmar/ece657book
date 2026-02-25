@@ -22,7 +22,7 @@ After this chapter, you should be able to:
 \end{tcolorbox}
 
 \begin{tcolorbox}[summarybox, title={Design motif}]
-Keep the same statistical learning loop from \Crefrange{chap:supervised}{chap:logistic}, but move a large fraction of the ``bias'' into architecture via weight sharing and locality.
+Keep the same statistical learning loop from \Crefrange{chap:supervised}{chap:logistic}, but move a large fraction of the ``bias'' into the architecture: locality and weight sharing.
 \end{tcolorbox}
 
 \subsection{Motivation and map}
@@ -36,9 +36,9 @@ CNNs emerged as a pragmatic answer: keep end-to-end gradient training, but bake 
 
 \paragraph{How to read this chapter.}
 \begin{itemize}
-    \item \textbf{Core thread (CNNs):} why locality + weight sharing $\rightarrow$ convolution/pooling mechanics $\rightarrow$ channels/feature maps $\rightarrow$ end-to-end classifiers.
-    \item \textbf{Going deeper:} why depth works (receptive-field growth) and how CNNs displaced classical pipelines at scale.
-    \item \textbf{Training toolkit:} gradient-based optimization and the stabilizers you will reuse later (initialization, activations, batch norm, dropout, AdamW).
+    \item \textbf{Core thread (CNNs):} locality + weight sharing $\rightarrow$ convolution/pooling mechanics $\rightarrow$ channels/feature maps $\rightarrow$ end-to-end classifiers.
+    \item \textbf{Going deeper:} depth as receptive-field growth, and why stacked small kernels can see large context.
+    \item \textbf{Training toolkit:} the stabilizers you will reuse later (initialization, activations, normalization, regularization, optimizers).
 \end{itemize}
 
 \subsection{Why fully connected layers break on images}
@@ -50,16 +50,16 @@ Dense feedforward networks can be competitive on small tabular problems, but on 
 
 \paragraph{High-dimensional inputs and flattening}
 
-Consider image data, which is naturally represented as a 2D matrix (or 3D tensor for color images). For example, a single-channel (grayscale) image of size $256 \times 276$ pixels can be represented as a matrix:
+Consider image data, which is naturally represented as a 2D matrix (or 3D tensor for color images). For example, a single-channel (grayscale) image of size $256 \times 256$ pixels can be represented as a matrix:
 \[
-X \in \mathbb{R}^{256 \times 276}.
+X \in \mathbb{R}^{256 \times 256}.
 \]
 
 To input this into a traditional feedforward network, the image must be \textit{flattened} into a vector:
 \[
-\mathbf{x} = \mathrm{vec}(X) \in \mathbb{R}^{70,656},
+\mathbf{x} = \mathrm{vec}(X) \in \mathbb{R}^{65,536},
 \]
-where $70,656 = 256 \times 276$ is the total number of pixels.
+where $65,536 = 256 \times 256$ is the total number of pixels.
 
 This flattening process has two major drawbacks:
 
@@ -76,7 +76,7 @@ The punchline is not that dense networks ``cannot'' learn images; it is that the
 
 The number of weights between the input and hidden layer is:
 \begin{equation}
-70,656 \times 100 = 7,065,600,
+65,536 \times 100 = 6,553,600,
 \label{eq:auto_cnn_ed5e022844}
 \end{equation}
 and between the hidden and output layer (assuming 4 output classes) is:
@@ -85,7 +85,14 @@ and between the hidden and output layer (assuming 4 output classes) is:
 \label{eq:auto_cnn_9b56be8916}
 \end{equation}
 
-Thus, the first layer alone requires learning just over 7 million parameters before we even consider deeper architectures. Coupled with the additional 400 output weights (plus biases), the optimization problem quickly becomes data-hungry and computationally expensive.
+Thus, the first layer alone requires learning over 6 million parameters before we even consider deeper architectures. Coupled with the additional 400 output weights (plus biases), the optimization problem quickly becomes data-hungry and computationally expensive.
+
+% QC-BEGIN: cnn_flatten_params
+% H 256 W 256 vec 65536
+% hidden 100 W1 6553600
+% classes 4 W2 400
+% samples_rule 10 Nparams 6553600 approx 65536000
+% QC-END: cnn_flatten_params
 
 \paragraph{Data requirements (a sanity check).}
 When a model has millions of free parameters and no strong architectural prior, you are asking the data to do most of the work: it must fit the mapping and also implicitly teach the model what kinds of patterns are worth representing. A crude sanity check sometimes used in practice is to compare the number of labeled examples to the number of parameters:
@@ -98,7 +105,7 @@ Read this as a warning sign, not a requirement. Inductive bias (convolutions), r
 
 For the dense first layer in this example calculation, the back-of-the-envelope lands in the tens of millions of labeled images:
 \begin{equation}
-N_{\text{samples}} \gtrsim 10 \times 7,000,000 \approx 70,000,000,
+N_{\text{samples}} \gtrsim 10 \times 6{,}500{,}000 \approx 65{,}000{,}000,
 \label{eq:auto_cnn_a651e49be4}
 \end{equation}
 The point is not the exact number; it is the scale mismatch between dense connectivity and the datasets most people can realistically label. Without additional structure, many very different parameter settings can fit the same training set; the architecture and the training recipe decide whether any of those settings generalize in a way you can trust.
@@ -171,6 +178,15 @@ y_2 &= \langle[3,1,0],[1,0,-1]\rangle = 3,
 so \(\mathbf{y}=[-2,-1,3]\).
 \end{tcolorbox}
 
+% QC-BEGIN: cnn_1d_xcorr_stride_pad
+% x 1 2 0 3 1
+% w 1 0 -1
+% p 1
+% s 2
+% L 3
+% y -2 -1 3
+% QC-END: cnn_1d_xcorr_stride_pad
+
 \paragraph{Convolutional hyperparameters (what you choose up front).}
 \label{sec:cnn_convolutional_hyperparameters_what_you_choose_up_front}
 \begin{itemize}
@@ -197,6 +213,13 @@ Real inputs are multi-channel. An RGB image has three channels, so a \(k\times k
 \begin{tcolorbox}[summarybox, title={Dimensionality bookkeeping example}]
 Start with an input tensor of size \(50\times50\times30\). Apply \(10\) filters of size \(3\times3\) with stride \(1\) and valid padding. The spatial size becomes \(50-3+1=48\), so the output is \(48\times48\times10\). Apply \(2\times2\) max pooling with stride \(2\): the spatial size becomes \(\left\lfloor(48-2)/2\right\rfloor + 1 = 24\), so the pooled output is \(24\times24\times10\). Flattening that volume yields \(24\cdot24\cdot10=5760\) features for a dense classifier.
 \end{tcolorbox}
+
+% QC-BEGIN: cnn_shape_bookkeeping
+% input 50 50 30
+% conv k 3 stride 1 pad 0 cout 10 out_hw 48 48
+% pool window 2 stride 2 out_hw 24 24
+% flatten 5760
+% QC-END: cnn_shape_bookkeeping
 
 \paragraph{From feature maps to classifiers.}
 \label{sec:cnn_from_feature_maps_to_classifiers}
@@ -227,7 +250,7 @@ At scale, this architectural prior became decisive once large labeled datasets a
         \draw[cbOrange, thick] (3.65,2.05) -- (3.75,2.05);
         \draw[cbGreen, thick] (3.65,1.25) -- (3.75,1.25);
     \end{tikzpicture}
-    \caption{Receptive field growth across depth. Even with small \(3\times3\) kernels, stacking layers expands the spatial context seen by deeper units. Use it when explaining why depth can replace very large kernels.}
+    \caption{Receptive field growth across depth. Even with small \(3\times3\) kernels, stacking layers expands the spatial context seen by deeper units, which is why depth can replace very large kernels.}
     \label{fig:cnn_receptive_field_growth}
 \end{figure}
 
@@ -236,7 +259,7 @@ With the architectural motivation in place, we now focus on how these models are
 \subsection{Training Neural Networks: Gradient-Based Optimization}
 \label{sec:cnn_training_neural_networks_gradient_based_optimization}
 
-Training neural networks involves minimizing a loss function $\mathcal{L}$ that measures the discrepancy between the network output and the target. The parameters (weights and biases) are updated iteratively using gradient descent or its variants.
+We already derived the gradient-descent training loop in \Cref{chap:mlp}: define a loss \(\mathcal{L}\), compute gradients, then update parameters. CNNs do not change that contract. What changes is the \emph{geometry} of the representation: convolutional weights are shared across space, so one filter update aggregates learning signal from every spatial location where that filter was applied.
 
 For a weight $w$, the update rule is
 \begin{align}
@@ -245,9 +268,8 @@ w \leftarrow w - \eta \frac{\partial \mathcal{L}}{\partial w}.
 \end{align}
 where $\eta$ is the learning rate.
 
-\paragraph{Backpropagation and Gradient Computation}
-
-The gradient $\frac{\partial \mathcal{L}}{\partial w}$ is computed efficiently using the backpropagation algorithm, which applies the chain rule to propagate errors backward through the network layers.
+\paragraph{Backpropagation and gradient computation}
+The gradient \(\partial \mathcal{L}/\partial w\) is computed by backpropagation: cache the forward intermediates, then apply the chain rule backward through the computation graph. In practice frameworks automate this, but the manual story is what lets you sanity-check shapes, signs, and scaling when training behaves strangely.
 
 \paragraph{Preview: why deep optimization needs extra care}
 As depth grows, gradient flow becomes fragile (vanishing/exploding gradients). The next sections make that failure mode explicit and summarize the mitigation toolkit used in modern CNN stacks.
@@ -261,20 +283,18 @@ Backpropagation multiplies Jacobians through many layers, so gradients can eithe
 
 \paragraph{Mathematical intuition}
 
-Consider a deep network with $L$ layers. Let $\delta \mathbf{W}^{(\ell)} = \nabla_{\mathbf{W}^{(\ell)}} \mathcal{L}$ denote the gradient of the loss with respect to the weights at layer $\ell$. If we assume the weights are initialized identically and the derivative of the activation function is approximately constant, then the gradient at the first layer can be expressed schematically as:
+Consider a deep network with $L$ layers. Let $\delta \mathbf{W}^{(\ell)} = \nabla_{\mathbf{W}^{(\ell)}} \mathcal{L}$ denote the gradient of the loss with respect to the weights at layer $\ell$. If we look at the chain rule across many layers and treat each layer's Jacobian as ``roughly similar'' in scale, then the gradient at early layers can be expressed schematically as:
 \begin{equation}
 \delta \mathbf{W}^{(1)} \approx \left( \mathbf{W}^{(2)} \mathbf{D}^{(2)} \right) \left( \mathbf{W}^{(3)} \mathbf{D}^{(3)} \right) \cdots \left( \mathbf{W}^{(L)} \mathbf{D}^{(L)} \right) \delta \mathbf{W}^{(L)}.
     \label{eq:gradient_chain}
 \end{equation}
-where $\mathbf{W}$ represents the weight matrix and $f'$ is the derivative of the activation function.
 
 Here $\mathbf{W}^{(\ell)}$ denotes the weight matrix connecting layers $\ell-1$ and $\ell$, while $\mathbf{D}^{(\ell)} = \operatorname{diag}\!\big(f'(z^{(\ell)})\big)$ collects the activation derivatives at layer $\ell$. The product therefore chains together Jacobians from layers $2$ through $L$. If the spectral norm (largest singular value) of each factor \(\mathbf{W}^{(\ell)} \mathbf{D}^{(\ell)}\) exceeds one, then $\|\delta \mathbf{W}^{(1)}\|$ grows exponentially with $L$, causing \textbf{exploding gradients}. Conversely, norms less than one cause $\|\delta \mathbf{W}^{(1)}\|$ to shrink exponentially, leading to \textbf{vanishing gradients}.
 
 \paragraph{Consequences}
-
 \begin{itemize}
-    \item \textbf{Exploding gradients:} The gradient values become extremely large, causing numerical instability and making the network parameters diverge during training.
-    \item \textbf{Vanishing gradients:} The gradient values approach zero, especially in early layers, preventing those weights from updating effectively. This stalls learning in the initial layers, limiting the network's ability to learn hierarchical features.
+    \item \textbf{Exploding gradients:} gradients become extremely large, causing numerical instability and making parameters diverge.
+    \item \textbf{Vanishing gradients:} gradients become extremely small in early layers, so those weights learn slowly and the model struggles to build useful low-level features.
 \end{itemize}
 
 \paragraph{Example: Activation function derivatives}
@@ -300,11 +320,7 @@ The derivative is maximized at $\sigma(x)=0.5$, where $\sigma'(x)=0.25$, so repe
 
 \paragraph{Weight initialization}
 
-\begin{sloppypar}
-Initializing weights carefully can help maintain gradient magnitudes within a reasonable range.
-Set var $\approx\,1/n$ (fan\hyp{}in $n$).\\
-This stabilizes signals across layers. It underlies Xavier and He.
-\end{sloppypar}
+Initialization is not just a detail: it sets the scale of activations and gradients at the start of training. A practical rule is to pick the weight variance to be inversely proportional to fan\hyp{}in (and sometimes fan\hyp{}out), so signals neither blow up nor fade as they pass through many layers. Xavier and He initializations are two standard choices that implement this idea for common nonlinearities.
 
 \paragraph{Choice of activation function}
 
@@ -322,11 +338,11 @@ Selecting activation functions whose derivatives do not vanish easily is crucial
 
 \paragraph{Batch normalization}
 
-Batch normalization normalizes layer inputs during training, reducing the effective internal covariate shift and helping gradients maintain stable magnitudes.
+Batch normalization stabilizes the scale of activations during training by normalizing them (per channel) and then learning a scale and shift. The engineering payoff is simple: fewer layers end up saturated, so gradients behave more predictably early in training. Remember that BN behaves differently at train time (mini-batch statistics) versus evaluation time (running statistics).
 
 \paragraph{Gradient clipping}
 
-For exploding gradients, gradient clipping limits the maximum gradient norm during backpropagation, preventing excessively large updates.
+For exploding gradients, gradient clipping limits the maximum gradient norm during backpropagation, preventing a single bad batch from producing a destructive update. It is not a substitute for good initialization and normalization, but it is a practical safety valve when training is otherwise stable.
 
 Taken together, these tools stabilize optimization; the figures below highlight dropout, normalization, and optimizer behavior in practice.
 
@@ -347,11 +363,11 @@ As a concrete diagnostic, \Cref{fig:lec6-dropout} shows how dropout can flatten 
 \begin{figure}[t]
     \centering
     \includegraphics[width=0.65\linewidth]{lec6_dropout_curves}
-    \caption[Dropout effect on training/validation curves (validation flattening)]{Illustrative dropout effect on training/validation curves. Compared to a no\hyp{}dropout baseline, validation curves flatten and generalization improves. Use it when diagnosing variance and deciding whether dropout is likely to help versus simpler regularization.}
+    \caption[Dropout effect on training/validation curves (validation flattening)]{Illustrative dropout effect on training/validation curves. Compared to a no\hyp{}dropout baseline, validation curves flatten and generalization improves; the point is the shape of the curves, not the exact values.}
     \label{fig:lec6-dropout}
 \end{figure}
 
-\paragraph{Batch normalization.} BN accelerates convergence by normalizing mini\hyp{}batch statistics and learning scale/shift parameters. \Cref{fig:lec6-bn} contrasts the pre- and post\hyp{}normalization activation distributions; whitening the distribution keeps gradients in a well-behaved range and reduces covariate shift. In deep Transformer stacks, a closely related design choice is \emph{pre-LN} versus \emph{post-LN}: modern architectures typically place layer normalization \emph{before} the residual block (pre-LN) to improve training stability on very deep networks.
+\paragraph{Batch normalization.} BN accelerates convergence by keeping per\hyp{}channel activations on a stable scale and then letting the network relearn the best scale/shift. \Cref{fig:lec6-bn} contrasts the pre- and post\hyp{}normalization activation distributions; the practical point is that gradients stay in a usable range more often. In later chapters, you will see the same stability instinct show up again in LayerNorm placement choices in very deep stacks.
 
 \begin{figure}[t]
     \centering
@@ -369,7 +385,7 @@ As a concrete diagnostic, \Cref{fig:lec6-dropout} shows how dropout can flatten 
             \addplot[cbOrange, thick, samples=200, domain=-6:6] {1/sqrt(2*pi*1.0)*exp(-(x^2)/2)}; \addlegendentry{channel 2}
         \end{groupplot}
     \end{tikzpicture}
-    \caption{Batch normalization transforms per-channel activations toward zero mean and unit variance prior to the learned affine re-scaling, stabilizing training. Use it when diagnosing unstable training from drifting activation scales.}
+    \caption{Batch normalization normalizes per-channel activations and then applies a learned scale and shift, which stabilizes training by keeping activation scales in a reasonable range.}
     \label{fig:lec6-bn}
 \end{figure}
 
@@ -388,7 +404,7 @@ As a concrete diagnostic, \Cref{fig:lec6-dropout} shows how dropout can flatten 
             \addplot[cbOrange, thick, samples=120, domain=0:60] {0.20 + 0.90*exp(-x/10)}; \addlegendentry{Adam}
         \end{axis}
     \end{tikzpicture}
-    \caption{Representative training curves for SGD with momentum versus Adam on the same CNN. Use it when comparing optimizer behavior under the same model and data.}
+    \caption{Representative training curves for SGD with momentum versus Adam on the same CNN. The point is the typical shape: Adam often drops loss quickly early, while SGD+momentum can be steadier later.}
     \label{fig:lec6-optimizers}
 \end{figure}
 
@@ -431,12 +447,12 @@ function ForwardBackward(params, x, y):
 This omits batching, convolution strides, and optimizer detail but highlights the cache-then-backprop pattern reused throughout the deep-learning chapters.
 \end{tcolorbox}
 
-\begin{tcolorbox}[summarybox, title={Derivation closure: implement, cache, fail-fast}]
+\begin{tcolorbox}[summarybox, title={Derivation closure: implement, cache, and fail fast}]
 \begin{itemize}
-    \item \textbf{Implement:} treat each block as a typed transform (conv/BN/activation/pool) with explicit input-output shapes.
-    \item \textbf{Cache:} retain pre-activations, normalization statistics, and masks needed for backward passes; do not recompute them implicitly.
-    \item \textbf{Fail-fast checks:} validate shape arithmetic, then run one-batch overfit tests before full training to catch broken gradients early.
-    \item \textbf{Report:} publish seed, augmentation recipe, and calibration metrics with every benchmark, following \Cref{app:repro_standards}.
+    \item \textbf{Implement blocks with shapes:} treat each block (conv/BN/activation/pool) as a typed transform and keep input-output shapes explicit.
+    \item \textbf{Cache what the backward pass needs:} pre-activations, normalization statistics, and masks should be stored, not re-derived ad hoc.
+    \item \textbf{Fail fast:} validate shape arithmetic, then run a one-batch overfit test before full training to catch broken gradients early.
+    \item \textbf{Report like an engineer:} publish seed, augmentation recipe, and calibration metrics with every benchmark, following \Cref{app:repro_standards}.
 \end{itemize}
 \end{tcolorbox}
 
@@ -449,7 +465,7 @@ This omits batching, convolution strides, and optimizer detail but highlights th
 \end{itemize}
 
 \medskip
-\noindent\textbf{Minimum viable mastery.}
+\noindent\textbf{A good checkpoint.}
 \begin{itemize}
     \item Given \((n, f, s, p)\), compute output shapes and parameter counts for a convolutional block.
     \item Explain equivariance vs.\ invariance and how stride/pooling/padding affect each.
@@ -473,7 +489,7 @@ This omits batching, convolution strides, and optimizer detail but highlights th
 \end{itemize}
 
 \medskip
-\noindent\textbf{If you are skipping ahead.} The optimization and regularization knobs here carry almost unchanged into \Crefrange{chap:rnn}{chap:transformers}; what changes there is how context is represented and propagated, not the core loss-minimization discipline.
+\noindent\textbf{If you are skipping ahead.} The optimization and regularization knobs here carry almost unchanged into \Crefrange{chap:rnn}{chap:transformers}; what changes is how context is represented and propagated, not the core loss-minimization discipline.
 \end{tcolorbox}
 
 \medskip

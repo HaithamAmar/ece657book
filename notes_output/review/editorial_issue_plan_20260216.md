@@ -1285,3 +1285,22 @@ Build notes (2026-02-17):
 - 2026-02-25: Ran `python3 notes_output/scripts/validate_math_examples_and_graphs.py --strict` after the edits. Result: PASS.
 - 2026-02-25: Ran `bash notes_output/scripts/run_production_checks.sh` after the edits. Result: PASS (release checks, Apple
   gatekeeper audits, and EPUBCheck all OK).
+
+## 2026-02-25 Chapter 11 (CNN) de-templating + caption cleanup + QC-backed numeric sanity checks
+
+- `notes_output/lecture_6.tex`: de-templated the training-loop intro to align with the book voice (kept the GD contract but
+  made the weight-sharing implication explicit); tightened the vanishing/exploding gradient discussion (removed a confusing
+  one-line ``where'' clause; made consequences more concrete); rewrote the weight-initialization and BN blurbs into
+  engineering prose; strengthened the gradient-clipping note as a safety valve; re-voiced the ``Derivation closure'' box
+  and renamed ``Minimum viable mastery'' to ``A good checkpoint''.
+- `notes_output/lecture_6.tex`: removed ``Use it when ...'' template phrasing from CNN figures (receptive field, dropout, BN,
+  optimizer curves) and replaced with natural caption sentences.
+- `notes_output/lecture_6.tex`: normalized the flattening example to a canonical \(256\times256\) image and updated all
+  derived numbers (vector length, first-layer parameter count, and the back-of-the-envelope sample warning).
+- `notes_output/lecture_6.tex`: added QC comment blocks for (i) flattening parameter counts, (ii) the 1D stride/padding
+  cross-correlation worked example, and (iii) the 50x50x30 bookkeeping example (conv/pool/flatten sizes).
+- `notes_output/scripts/check_numeric_examples.py`: added QC-backed CNN checks to parse and validate those blocks.
+- `notes_output/scripts/validate_math_examples_and_graphs.py`: extended the strict numeric pack to include the CNN QC checks.
+- 2026-02-25: Ran `python3 notes_output/scripts/validate_math_examples_and_graphs.py --strict` after the edits. Result: PASS.
+- 2026-02-25: Ran `bash notes_output/scripts/run_production_checks.sh` after the edits. Result: PASS (release checks, Apple
+  gatekeeper audits, and EPUBCheck all OK).

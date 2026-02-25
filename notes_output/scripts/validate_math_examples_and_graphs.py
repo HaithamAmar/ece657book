@@ -14,6 +14,9 @@ import numpy as np
 
 from check_numeric_examples import (
     check_alpha_cut_mapping,
+    check_cnn_1d_xcorr_stride_pad,
+    check_cnn_flatten_params,
+    check_cnn_shape_bookkeeping,
     check_fuzzy_composition,
     check_ga_fixedpoint_crossover,
     check_ga_fx_values,
@@ -165,6 +168,18 @@ def check_numeric_examples_pack() -> dict[str, float]:
     _assert_close(float(hopfield["flip_s2"]), -3.0, 1e-9, "Hopfield flip s2")
     _assert_close(float(hopfield["flip_s3"]), -1.0, 1e-9, "Hopfield flip s3")
 
+    cnn_flat = check_cnn_flatten_params()
+    _assert(int(cnn_flat["vec"]) == 65536, "CNN vec(X) dimension mismatch")
+    _assert(int(cnn_flat["W1"]) == 6553600, "CNN first-layer weight count mismatch")
+    _assert(int(cnn_flat["W2"]) == 400, "CNN output-layer weight count mismatch")
+
+    cnn_xcorr = check_cnn_1d_xcorr_stride_pad()
+    _assert(int(cnn_xcorr["L"]) == 3, "CNN 1D xcorr L must be 3")
+    _assert(cnn_xcorr["y"] == [-2.0, -1.0, 3.0], "CNN 1D xcorr output mismatch")
+
+    cnn_shape = check_cnn_shape_bookkeeping()
+    _assert(int(cnn_shape["flat"]) == 5760, "CNN shape bookkeeping flatten mismatch")
+
     stride = check_stride_pad()
     _assert(int(stride["L"]) == 3, "Stride/padding L must be 3")
     _assert(stride["y"] == [-2, -1, 3], "Stride/padding output mismatch")
@@ -227,6 +242,7 @@ def check_numeric_examples_pack() -> dict[str, float]:
     return {
         "perceptron_or_updates": float(p_or["num_updates"]),
         "hopfield_s0": float(hopfield["s0"]),
+        "cnn_flatten_W1": float(cnn_flat["W1"]),
         "stride_L": float(stride["L"]),
         "tiny_attn_w22": float(attn["weights"][1][1]),
         "sgns_loss": float(sgns["loss"]),

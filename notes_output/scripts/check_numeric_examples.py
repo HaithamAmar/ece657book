@@ -3,6 +3,7 @@ Quick sanity checks for numerical examples up to Chapter 18.
 
 - Hopfield 3-neuron energy monotonicity (Ch. 10)
 - Perceptron OR-gate update trace (Ch. 5)
+- CNN flattening parameter count + 1D stride/padding cross-correlation + shape bookkeeping (Ch. 11)
 - 1D stride/padding attention toy (Ch. 11)
 - Skip-gram with negative sampling loss (Ch. 14)
 - Max–min fuzzy relation composition matrix (Ch. 17)
@@ -370,6 +371,189 @@ def check_hopfield():
         energies["memory_recovery_E1"] = float(E_after)
 
     return energies
+
+
+def check_cnn_flatten_params() -> dict[str, float]:
+    """
+    CNN flattening parameter-count sanity check (Ch. 11), QC-backed from the TeX source.
+
+    Verifies the vectorized input dimension and the first-layer parameter count used in the
+    ``fully connected layers break on images'' motivation.
+    """
+    root = Path(__file__).resolve().parents[1]
+    tex = (root / "lecture_6.tex").read_text(encoding="utf-8", errors="ignore")
+    qc = _extract_qc_block(tex, "cnn_flatten_params")
+
+    H = W = vec = hidden = W1 = classes = W2 = rule = nparams = approx = None
+    for line in qc:
+        parts = line.split()
+        tag = parts[0]
+        if tag == "H":
+            # H 256 W 256 vec 65536
+            if len(parts) != 6 or parts[2] != "W" or parts[4] != "vec":
+                raise AssertionError(f"Malformed CNN flatten QC line: {line!r}")
+            H = int(parts[1])
+            W = int(parts[3])
+            vec = int(parts[5])
+        elif tag == "hidden":
+            # hidden 100 W1 6553600
+            if len(parts) != 4 or parts[2] != "W1":
+                raise AssertionError(f"Malformed CNN flatten QC hidden line: {line!r}")
+            hidden = int(parts[1])
+            W1 = int(parts[3])
+        elif tag == "classes":
+            # classes 4 W2 400
+            if len(parts) != 4 or parts[2] != "W2":
+                raise AssertionError(f"Malformed CNN flatten QC classes line: {line!r}")
+            classes = int(parts[1])
+            W2 = int(parts[3])
+        elif tag == "samples_rule":
+            # samples_rule 10 Nparams 6553600 approx 65536000
+            if len(parts) != 6 or parts[2] != "Nparams" or parts[4] != "approx":
+                raise AssertionError(f"Malformed CNN flatten QC samples_rule line: {line!r}")
+            rule = int(parts[1])
+            nparams = int(parts[3])
+            approx = int(parts[5])
+
+    for name, val in (
+        ("H/W/vec", (H, W, vec)),
+        ("hidden/W1", (hidden, W1)),
+        ("classes/W2", (classes, W2)),
+        ("rule/nparams/approx", (rule, nparams, approx)),
+    ):
+        if any(v is None for v in val):
+            raise AssertionError(f"CNN flatten QC missing {name}")
+
+    computed_vec = int(H * W)
+    if computed_vec != vec:
+        raise AssertionError(f"CNN vec mismatch: actual={computed_vec}, expected={vec}")
+    computed_W1 = int(vec * hidden)
+    if computed_W1 != W1:
+        raise AssertionError(f"CNN W1 mismatch: actual={computed_W1}, expected={W1}")
+    computed_W2 = int(hidden * classes)
+    if computed_W2 != W2:
+        raise AssertionError(f"CNN W2 mismatch: actual={computed_W2}, expected={W2}")
+    computed_approx = int(rule * nparams)
+    if computed_approx != approx:
+        raise AssertionError(f"CNN sample-rule approx mismatch: actual={computed_approx}, expected={approx}")
+
+    return dict(vec=float(vec), W1=float(W1), W2=float(W2), approx=float(approx))
+
+
+def check_cnn_1d_xcorr_stride_pad() -> dict[str, float | list[float]]:
+    """
+    1D cross-correlation numeric example (Ch. 11), QC-backed from the TeX source.
+
+    Verifies the output length and values for the stride/padding worked example.
+    """
+    root = Path(__file__).resolve().parents[1]
+    tex = (root / "lecture_6.tex").read_text(encoding="utf-8", errors="ignore")
+    qc = _extract_qc_block(tex, "cnn_1d_xcorr_stride_pad")
+
+    x = w = None
+    p = s = L = None
+    y_expected = None
+    for line in qc:
+        parts = line.split()
+        tag = parts[0]
+        if tag == "x":
+            x = np.array([float(v) for v in parts[1:]], dtype=float)
+        elif tag == "w":
+            w = np.array([float(v) for v in parts[1:]], dtype=float)
+        elif tag == "p":
+            p = int(parts[1])
+        elif tag == "s":
+            s = int(parts[1])
+        elif tag == "L":
+            L = int(parts[1])
+        elif tag == "y":
+            y_expected = [float(v) for v in parts[1:]]
+
+    if x is None or w is None or p is None or s is None or L is None or y_expected is None:
+        raise AssertionError("CNN 1D xcorr QC missing x/w/p/s/L/y")
+
+    n = int(x.shape[0])
+    k = int(w.shape[0])
+    L_computed = int((n + 2 * p - k) // s + 1)
+    if L_computed != L:
+        raise AssertionError(f"CNN 1D xcorr L mismatch: actual={L_computed}, expected={L}")
+
+    x_pad = np.pad(x, (p, p), mode="constant", constant_values=0.0)
+    y = []
+    for i in range(L_computed):
+        start = i * s
+        window = x_pad[start : start + k]
+        y.append(float(np.dot(window, w)))
+
+    if len(y_expected) != len(y) or any(abs(a - b) > 1e-9 for a, b in zip(y, y_expected)):
+        raise AssertionError(f"CNN 1D xcorr y mismatch: actual={y}, expected={y_expected}")
+
+    return dict(L=float(L_computed), y=y)
+
+
+def check_cnn_shape_bookkeeping() -> dict[str, float]:
+    """
+    CNN shape bookkeeping example (Ch. 11), QC-backed from the TeX source.
+
+    Verifies the conv output size, pooling output size, and flatten dimension.
+    """
+    root = Path(__file__).resolve().parents[1]
+    tex = (root / "lecture_6.tex").read_text(encoding="utf-8", errors="ignore")
+    qc = _extract_qc_block(tex, "cnn_shape_bookkeeping")
+
+    H = W = Cin = None
+    k = stride = pad = Cout = outH = outW = None
+    pool = pool_stride = poolH = poolW = None
+    flat = None
+
+    for line in qc:
+        parts = line.split()
+        tag = parts[0]
+        if tag == "input":
+            if len(parts) != 4:
+                raise AssertionError(f"Malformed CNN shape QC input line: {line!r}")
+            H, W, Cin = map(int, parts[1:])
+        elif tag == "conv":
+            # conv k 3 stride 1 pad 0 cout 10 out_hw 48 48
+            if len(parts) != 12 or parts[1] != "k" or parts[3] != "stride" or parts[5] != "pad" or parts[7] != "cout" or parts[9] != "out_hw":
+                raise AssertionError(f"Malformed CNN shape QC conv line: {line!r}")
+            k = int(parts[2])
+            stride = int(parts[4])
+            pad = int(parts[6])
+            Cout = int(parts[8])
+            outH = int(parts[10])
+            outW = int(parts[11])
+        elif tag == "pool":
+            # pool window 2 stride 2 out_hw 24 24
+            if len(parts) != 8 or parts[1] != "window" or parts[3] != "stride" or parts[5] != "out_hw":
+                raise AssertionError(f"Malformed CNN shape QC pool line: {line!r}")
+            pool = int(parts[2])
+            pool_stride = int(parts[4])
+            poolH = int(parts[6])
+            poolW = int(parts[7])
+        elif tag == "flatten":
+            if len(parts) != 2:
+                raise AssertionError(f"Malformed CNN shape QC flatten line: {line!r}")
+            flat = int(parts[1])
+
+    if any(v is None for v in (H, W, Cin, k, stride, pad, Cout, outH, outW, pool, pool_stride, poolH, poolW, flat)):
+        raise AssertionError("CNN shape QC missing one or more required fields")
+
+    outH_c = int((H + 2 * pad - k) // stride + 1)
+    outW_c = int((W + 2 * pad - k) // stride + 1)
+    if outH_c != outH or outW_c != outW:
+        raise AssertionError(f"CNN conv out_hw mismatch: actual={(outH_c, outW_c)}, expected={(outH, outW)}")
+
+    poolH_c = int((outH_c - pool) // pool_stride + 1)
+    poolW_c = int((outW_c - pool) // pool_stride + 1)
+    if poolH_c != poolH or poolW_c != poolW:
+        raise AssertionError(f"CNN pool out_hw mismatch: actual={(poolH_c, poolW_c)}, expected={(poolH, poolW)}")
+
+    flat_c = int(poolH_c * poolW_c * Cout)
+    if flat_c != flat:
+        raise AssertionError(f"CNN flatten mismatch: actual={flat_c}, expected={flat}")
+
+    return dict(out_hw=float(outH_c), pool_hw=float(poolH_c), flat=float(flat_c))
 
 
 def check_stride_pad():
