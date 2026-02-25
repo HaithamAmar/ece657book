@@ -105,7 +105,7 @@ Read this as a warning sign, not a requirement. Inductive bias (convolutions), r
 
 For the dense first layer in this example calculation, the back-of-the-envelope lands in the tens of millions of labeled images:
 \begin{equation}
-N_{\text{samples}} \gtrsim 10 \times 6{,}500{,}000 \approx 65{,}000{,}000,
+N_{\text{samples}} \gtrsim 10 \times 6{,}553{,}600 \approx 65{,}536{,}000,
 \label{eq:auto_cnn_a651e49be4}
 \end{equation}
 The point is not the exact number; it is the scale mismatch between dense connectivity and the datasets most people can realistically label. Without additional structure, many very different parameter settings can fit the same training set; the architecture and the training recipe decide whether any of those settings generalize in a way you can trust.
@@ -283,13 +283,14 @@ Backpropagation multiplies Jacobians through many layers, so gradients can eithe
 
 \paragraph{Mathematical intuition}
 
-Consider a deep network with $L$ layers. Let $\delta \mathbf{W}^{(\ell)} = \nabla_{\mathbf{W}^{(\ell)}} \mathcal{L}$ denote the gradient of the loss with respect to the weights at layer $\ell$. If we look at the chain rule across many layers and treat each layer's Jacobian as ``roughly similar'' in scale, then the gradient at early layers can be expressed schematically as:
+Consider a deep network with $L$ layers, and focus on the error signals that get propagated backward. Let \(\boldsymbol{\delta}^{(\ell)}=\partial \mathcal{L}/\partial \mathbf{z}^{(\ell)}\) denote the derivative of the loss with respect to the pre\hyp{}activation at layer \(\ell\). A single backprop step has the form
 \begin{equation}
-\delta \mathbf{W}^{(1)} \approx \left( \mathbf{W}^{(2)} \mathbf{D}^{(2)} \right) \left( \mathbf{W}^{(3)} \mathbf{D}^{(3)} \right) \cdots \left( \mathbf{W}^{(L)} \mathbf{D}^{(L)} \right) \delta \mathbf{W}^{(L)}.
+\boldsymbol{\delta}^{(\ell-1)} \;=\; \left(\mathbf{W}^{(\ell)}\right)^\top \boldsymbol{\delta}^{(\ell)} \;\odot\; f'\!\left(\mathbf{z}^{(\ell-1)}\right),
     \label{eq:gradient_chain}
 \end{equation}
+so the early-layer signals are built from repeated multiplication by weight matrices and activation derivatives.
 
-Here $\mathbf{W}^{(\ell)}$ denotes the weight matrix connecting layers $\ell-1$ and $\ell$, while $\mathbf{D}^{(\ell)} = \operatorname{diag}\!\big(f'(z^{(\ell)})\big)$ collects the activation derivatives at layer $\ell$. The product therefore chains together Jacobians from layers $2$ through $L$. If the spectral norm (largest singular value) of each factor \(\mathbf{W}^{(\ell)} \mathbf{D}^{(\ell)}\) exceeds one, then $\|\delta \mathbf{W}^{(1)}\|$ grows exponentially with $L$, causing \textbf{exploding gradients}. Conversely, norms less than one cause $\|\delta \mathbf{W}^{(1)}\|$ to shrink exponentially, leading to \textbf{vanishing gradients}.
+If the typical gain of these factors is greater than one, the signal grows as it moves backward and gradients can explode; if it is less than one, the signal shrinks and gradients can vanish. This is why initialization scale, activation choice, and normalization matter so much in deep stacks.
 
 \paragraph{Consequences}
 \begin{itemize}

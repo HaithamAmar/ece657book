@@ -1304,3 +1304,14 @@ Build notes (2026-02-17):
 - 2026-02-25: Ran `python3 notes_output/scripts/validate_math_examples_and_graphs.py --strict` after the edits. Result: PASS.
 - 2026-02-25: Ran `bash notes_output/scripts/run_production_checks.sh` after the edits. Result: PASS (release checks, Apple
   gatekeeper audits, and EPUBCheck all OK).
+
+## 2026-02-25 Chapter 11 (CNN) numeric + subtle-math consistency audit
+
+- `notes_output/lecture_6.tex`: aligned the sample-scale sanity-check estimate with the exact flattening parameter count
+  (now \(10\times 6{,}553{,}600 \approx 65{,}536{,}000\), consistent with the earlier parameter-count equation and the QC
+  block); removed a misleading ``gradient of weights chains like ...'' formula and replaced it with a correct error-signal
+  recursion \(\boldsymbol{\delta}^{(\ell-1)}=(W^{(\ell)})^\top \boldsymbol{\delta}^{(\ell)}\odot f'(z^{(\ell-1)})\) to avoid
+  subtle but important mathematical drift in the vanishing/exploding explanation.
+- 2026-02-25: Ran `python3 notes_output/scripts/validate_math_examples_and_graphs.py --strict` after the edits. Result: PASS.
+- 2026-02-25: Ran `bash notes_output/scripts/run_production_checks.sh` after the edits. Result: PASS (release checks, Apple
+  gatekeeper audits, and EPUBCheck all OK).
