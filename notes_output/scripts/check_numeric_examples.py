@@ -184,6 +184,9 @@ def check_hopfield():
         b = None
         W2_rows = []
         h_expected = None
+        recall_s0 = None
+        recall_E0 = None
+        recall_steps = []
         for line in qc2:
             parts = line.split()
             tag = parts[0]
@@ -201,6 +204,28 @@ def check_hopfield():
                 h_expected = np.array(
                     [float(parts[1]), float(parts[2]), float(parts[3]), float(parts[4])], dtype=float
                 )
+            elif tag == "recall_s0":
+                # recall_s0 1 -1 -1 -1 E 0.5
+                if len(parts) != 7 or parts[5] != "E":
+                    raise AssertionError(f"Malformed Hopfield QC recall_s0 row: {line!r}")
+                recall_s0 = np.array([float(parts[1]), float(parts[2]), float(parts[3]), float(parts[4])], dtype=float)
+                recall_E0 = float(parts[6])
+            elif tag == "recall_step":
+                # recall_step 1 update_i 2 h 0.25 s 1 1 -1 -1 E 0.0
+                if (
+                    len(parts) != 13
+                    or parts[2] != "update_i"
+                    or parts[4] != "h"
+                    or parts[6] != "s"
+                    or parts[11] != "E"
+                ):
+                    raise AssertionError(f"Malformed Hopfield QC recall_step row: {line!r}")
+                step = int(parts[1])
+                update_i = int(parts[3])
+                h = float(parts[5])
+                s_after = np.array([float(parts[7]), float(parts[8]), float(parts[9]), float(parts[10])], dtype=float)
+                E_after = float(parts[12])
+                recall_steps.append((step, update_i, h, s_after, E_after))
 
         if b is None:
             raise AssertionError("Hopfield QC (single pattern) missing b row")
@@ -223,6 +248,33 @@ def check_hopfield():
         b_hat = np.where(h >= 0.0, 1.0, -1.0)
         if not np.allclose(b_hat, b):
             raise AssertionError(f"Hopfield single-pattern fixed-point mismatch: sign(Wb)={b_hat}, b={b}")
+
+        if recall_s0 is not None:
+            if recall_E0 is None:
+                raise AssertionError("Hopfield QC recall_s0 missing E value")
+            E0 = hopfield_energy(W2, recall_s0, theta=np.zeros_like(recall_s0))
+            if abs(E0 - recall_E0) > 1e-12:
+                raise AssertionError(f"Hopfield recall E0 mismatch: actual={E0}, expected={recall_E0}")
+
+            # Validate each step as an asynchronous sign update from the previous state.
+            s_prev = recall_s0.copy()
+            for (step, update_i, h_exp, s_after, E_after_exp) in sorted(recall_steps, key=lambda t: t[0]):
+                i = update_i - 1
+                h_act = float(W2[i] @ s_prev)
+                if abs(h_act - h_exp) > 1e-12:
+                    raise AssertionError(f"Hopfield recall step {step} h mismatch: actual={h_act}, expected={h_exp}")
+                s_next = s_prev.copy()
+                s_next[i] = 1.0 if h_act >= 0.0 else -1.0
+                if not np.allclose(s_next, s_after, atol=1e-12, rtol=0.0):
+                    raise AssertionError(
+                        f"Hopfield recall step {step} state mismatch: actual={s_next}, expected={s_after}"
+                    )
+                E_act = hopfield_energy(W2, s_next, theta=np.zeros_like(s_next))
+                if abs(E_act - E_after_exp) > 1e-12:
+                    raise AssertionError(
+                        f"Hopfield recall step {step} energy mismatch: actual={E_act}, expected={E_after_exp}"
+                    )
+                s_prev = s_next
 
         energies["hebbian_single_pattern_h1"] = float(h[0])
         energies["hebbian_single_pattern_h2"] = float(h[1])

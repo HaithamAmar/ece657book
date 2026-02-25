@@ -1216,3 +1216,15 @@ Build notes (2026-02-17):
 - 2026-02-24: Ran `python3 notes_output/scripts/validate_math_examples_and_graphs.py --strict` after the edits. Result: PASS.
 - 2026-02-24: Ran `bash notes_output/scripts/run_production_checks.sh` after the edits. Result: PASS (release checks, Apple
   gatekeeper audits, and EPUBCheck all OK).
+
+## 2026-02-24 Chapter 10 (Hopfield) de-sliding + notation unification + recall trace
+
+- `notes_output/lecture_5_part_ii.tex`: unified stored-pattern notation to \(\mathbf{\xi}\) throughout the Hebbian and example
+  sections (previously mixed \(\mathbf{b}\) and \(\mathbf{\xi}\)); rewrote several slide-like bullet clusters into book-voice
+  prose (general RNN challenges, Hopfield constraints, and limitations); added a compact two-flip recall trace (two-bit-corrupted
+  probe \(\rightarrow\) stored pattern) immediately after the single-pattern Hebbian weight derivation.
+- `notes_output/scripts/check_numeric_examples.py`: extended the Hopfield single-pattern QC check to validate the two-step
+  asynchronous recall trace (local fields, updated states, and energies).
+- 2026-02-24: Ran `python3 notes_output/scripts/validate_math_examples_and_graphs.py --strict` after the edits. Result: PASS.
+- 2026-02-24: Ran `bash notes_output/scripts/run_production_checks.sh` after the edits. Result: PASS (release checks, Apple
+  gatekeeper audits, and EPUBCheck all OK).

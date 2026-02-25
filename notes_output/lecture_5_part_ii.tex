@@ -22,17 +22,8 @@ Feedforward networks compute a single forward map: once an input has passed thro
 
 Recurrent networks add that feedback. Cycles let the current state influence the next state, which is exactly what you want for sequences and recall---and also exactly what makes the dynamics harder to reason about. Hopfield's contribution is to keep the recurrence, but constrain it so the system settles instead of wandering.
 
-\paragraph{Challenges with General Recurrent Networks}
-
-However, the general topology of recurrent networks introduces significant challenges:
-
-\begin{itemize}
-    \item \textbf{Unstable dynamics:} Without careful design, recurrent networks may fail to settle into stable states, instead exhibiting chaotic or oscillatory behavior.
-    \item \textbf{Dependence on initial conditions:} The final state of the network can be highly sensitive to the initial state, making the network's behavior unpredictable.
-    \item \textbf{Training difficulties:} Backpropagation through time and other training methods can be computationally expensive and prone to vanishing or exploding gradients.
-\end{itemize}
-
-These issues historically limited the practical use of recurrent networks, leading to a preference for feedforward architectures in many applications.
+\paragraph{Challenges with general recurrent networks}
+The moment you add feedback, you inherit a dynamical system. That buys you memory, but it also means the network can (i) fail to settle and instead oscillate, (ii) end up in different states from tiny changes in the starting point, and (iii) become harder to train because learning signals must propagate through time (and that path can vanish or explode). Historically, these issues pushed many applications toward feedforward models unless recurrence was the cleanest abstraction for the task.
 
 \begin{tcolorbox}[summarybox, title={Then vs.\ now: energy-based memory in context}]
 Classical Hopfield networks are the clean case: binary states, symmetric weights, and an explicit Lyapunov energy give you a convergence guarantee.
@@ -49,28 +40,20 @@ General recurrent networks can behave unpredictably because feedback can create 
 \subsection{Hopfield's breakthrough}
 \label{sec:hopfield_hopfield_s_breakthrough_1982}
 
-In 1982, John Hopfield introduced a special class of recurrent networks that overcame many of these challenges by imposing specific constraints on the network architecture and weights \citep{Hopfield1982}. The key insights were:
+In 1982, John Hopfield introduced a special class of recurrent networks by putting engineering constraints on the feedback loop \citep{Hopfield1982}. The constraints are simple enough to implement, and each one buys you a piece of the convergence story.
 
-\begin{itemize}
-    \item \textbf{Symmetric weights:} The connection weights between neurons are \emph{bidirectional} and symmetric, i.e.,
-    \begin{equation}
-        w_{ij} = w_{ji} \quad \forall i, j,
-        \label{eq:auto_hopfield_591d3daa63}
-    \end{equation}
-    where \(w_{ij}\) is the weight from neuron \(j\) to neuron \(i\).
+First, make the weights symmetric and remove self-loops:
+\begin{equation}
+    w_{ij} = w_{ji} \quad \forall i, j,
+    \label{eq:auto_hopfield_591d3daa63}
+\end{equation}
+\begin{equation}
+    w_{ii} = 0 \quad \forall i.
+    \label{eq:auto_hopfield_bd57392190}
+\end{equation}
+Second, keep neuron states binary, \(s_i \in \{+1,-1\}\), so the network evolves by flipping bits rather than flowing through a continuous activation curve.
 
-    \item \textbf{No self-connections:} Neurons do not have self-feedback loops, so
-    \begin{equation}
-        w_{ii} = 0 \quad \forall i.
-        \label{eq:auto_hopfield_bd57392190}
-    \end{equation}
-
-    \item \textbf{Binary neuron states:} Each neuron \(i\) has a state \(s_i \in \{+1, -1\}\), representing \emph{on} or \emph{off} states, rather than continuous activations.
-
-    \item \textbf{Energy-based formulation:} The network dynamics can be described by an energy function \(E(\mathbf{s})\) that decreases monotonically as the network updates its states, guaranteeing convergence to a stable fixed point.
-\end{itemize}
-
-These constraints ensure that the network evolves toward local minima of the energy function, providing a natural mechanism for associative memory and pattern completion.
+Under these choices you can define a Lyapunov energy \(E(\mathbf{s})\) and choose an asynchronous (one-neuron-at-a-time) update rule so that each flip never increases \(E\). That is the key move: the network becomes a descent process in a finite state space, so it must settle at a fixed point. Those fixed points are the stored patterns (and their complements), plus whatever spurious attractors appear when the network is heavily loaded.
 
 \subsection{Network Architecture and Dynamics}
 \label{sec:hopfield_network_architecture_and_dynamics}
@@ -381,39 +364,32 @@ This low capacity is why Hopfield networks are not used as practical storage dev
 Is it possible to improve storage by choosing the weights to ``bake in'' the memories directly? That is exactly what the classical Hebbian construction does: use stored patterns to set \(W\), then let the state updates perform recall.
 
 \paragraph{Hebbian learning rule:}
-Given \( p \) stored patterns \(\{\mathbf{b}^1, \mathbf{b}^2, \ldots, \mathbf{b}^p\}\), each \(\mathbf{b}^\mu = (b_1^\mu, b_2^\mu, \ldots, b_n^\mu)\) with \( b_i^\mu \in \{+1, -1\} \), the weights are set by:
+Given \( p \) stored patterns \(\{\mathbf{\xi}^1, \mathbf{\xi}^2, \ldots, \mathbf{\xi}^p\}\), each \(\mathbf{\xi}^\mu = (\xi_1^\mu, \xi_2^\mu, \ldots, \xi_n^\mu)\) with \( \xi_i^\mu \in \{+1, -1\} \), the weights are set by:
 \begin{equation}
-w_{ij} = \frac{1}{n} \sum_{\mu=1}^p b_i^\mu b_j^\mu, \quad w_{ii} = 0.
+w_{ij} = \frac{1}{n} \sum_{\mu=1}^p \xi_i^\mu \xi_j^\mu, \quad w_{ii} = 0.
 \label{eq:hebbian_weights}
 \end{equation}
 
 This is the classical Hebbian learning rule for Hopfield networks.
 
-\paragraph{Properties:}
-\begin{itemize}
-    \item The diagonal terms \( w_{ii} \) are set to zero to avoid self-feedback.
-    \item The factor \( \frac{1}{n} \) normalizes the weights.
-    \item The weights encode correlations between neuron activations across stored patterns.
-\end{itemize}
-
-\paragraph{Effect on capacity:}
-Using this weight update rule, the network can store on the order of \( 0.138 n \) random patterns reliably, which is an improvement over naive storage but still limited.
+\paragraph{What this formula is doing:}
+Setting \(w_{ii}=0\) removes self-feedback. The factor \(1/n\) keeps weight magnitudes \(O(1)\) as the network grows. The sum itself is an outer-product accumulation: it encodes pairwise correlations across the stored patterns.
 
 \subsection{Example: Weight Calculation for a Single Pattern}
 \label{sec:hopfield_example_weight_calculation_for_a_single_pattern}
 
 Consider a fundamental memory pattern:
 \[
-\mathbf{b} = (1, 1, 1, -1),
+\mathbf{\xi} = (1, 1, 1, -1),
 \]
 with no thresholds (\( \theta_i = 0 \)).
 
 \paragraph{Step 1: Compute outer product}
-Form the matrix \( \mathbf{B} = \mathbf{b} \mathbf{b}^\top \). Each entry \(B_{ij} = b_i b_j\) captures the pairwise correlation between neurons \(i\) and \(j\).
+Form the matrix \( \mathbf{B} = \mathbf{\xi} \mathbf{\xi}^\top \). Each entry \(B_{ij} = \xi_i \xi_j\) captures the pairwise correlation between neurons \(i\) and \(j\).
 \[
 \mathbf{B}
 =
-\mathbf{b}\mathbf{b}^\top
+\mathbf{\xi}\mathbf{\xi}^\top
 =
 \begin{bmatrix}
 1 & 1 & 1 & -1 \\
@@ -441,7 +417,7 @@ Including the \(1/n\) normalization from \eqref{eq:hebbian_weights} (here \(n=4\
 \]
 
 \paragraph{Sanity check: the stored pattern is a fixed point}
-With zero thresholds, the local field is \(\mathbf{h}=\mathbf{W}\mathbf{b}\). For this one-pattern example,
+With zero thresholds, the local field is \(\mathbf{h}=\mathbf{W}\mathbf{\xi}\). For this one-pattern example,
 \[
 \mathbf{h}
 =
@@ -452,7 +428,23 @@ With zero thresholds, the local field is \(\mathbf{h}=\mathbf{W}\mathbf{b}\). Fo
 -3/4
 \end{bmatrix},
 \]
-so \(\operatorname{sign}(\mathbf{h})=\mathbf{b}\). That is the basic content-addressable ``snap-back'': if you start near \(\mathbf{b}\), asynchronous updates push you toward it.
+so \(\operatorname{sign}(\mathbf{h})=\mathbf{\xi}\). That is the basic content-addressable ``snap-back'': if you start near \(\mathbf{\xi}\), asynchronous updates push you toward it.
+
+\begin{tcolorbox}[summarybox, title={Numeric recall trace (two asynchronous flips)}]
+Start from a probe with two wrong bits, \(\mathbf{s}^{(0)}=(1,-1,-1,-1)\). With \(\theta_i=0\), the local field is \(h_i=\sum_j w_{ij}s_j\), and the update rule \eqref{eq:hopfield_update_rule} sets \(s_i\leftarrow \operatorname{sign}(h_i)\). One possible asynchronous update order (neuron 2, then neuron 3) gives:
+\begin{center}
+\begin{tabular}{@{}lccc@{}}
+\toprule
+Step & Update & Local field & New state \\
+\midrule
+0 & -- & -- & \((1,-1,-1,-1)\) \\
+1 & \(i=2\) & \(h_2=0.25\) & \((1,1,-1,-1)\) \\
+2 & \(i=3\) & \(h_3=0.75\) & \((1,1,1,-1)=\mathbf{\xi}\) \\
+\bottomrule
+\end{tabular}
+\end{center}
+The energy drops along the way: \(E=0.5 \rightarrow 0 \rightarrow -1.5\).
+\end{tcolorbox}
 
 % QC-BEGIN: hopfield_single_pattern_weights
 % b 1 1 1 -1
@@ -461,6 +453,9 @@ so \(\operatorname{sign}(\mathbf{h})=\mathbf{b}\). That is the basic content-add
 % W 0.25 0.25 0 -0.25
 % W -0.25 -0.25 -0.25 0
 % h 0.75 0.75 0.75 -0.75
+% recall_s0 1 -1 -1 -1 E 0.5
+% recall_step 1 update_i 2 h 0.25 s 1 1 -1 -1 E 0.0
+% recall_step 2 update_i 3 h 0.75 s 1 1 1 -1 E -1.5
 % QC-END: hopfield_single_pattern_weights
 
 \subsection{Finalizing the Hopfield Network Derivation and Discussion}
@@ -504,18 +499,16 @@ The same story can be read visually as motion toward a basin of attraction in an
     \label{fig:hopfield-basins-schematic}
 \end{figure}
 
-\paragraph{Limitations: Capacity and Classification}
+\paragraph{Limitations (what breaks first)}
+Hopfield networks are a beautiful model to reason about, but several limitations show up quickly in practice.
 
-Despite its elegant memory retrieval properties, the Hopfield network has significant limitations:
+\textbf{Capacity:} with the classical Hebbian construction, reliable storage for random patterns scales like \(P_{\max}\approx 0.138\,N\) for large \(N\). Past that loading level, retrieval errors and spurious minima become common.
 
-\begin{itemize}
-    \item \textbf{Storage Capacity:} The maximum number of patterns \(P_{\max}\) that can be reliably stored and retrieved scales approximately as \(0.138 N\) for large \(N\). Beyond this, spurious minima and retrieval errors increase dramatically.
+\textbf{Spurious attractors:} even below capacity, the energy landscape can contain minima that are not stored patterns (or their complements). A noisy probe can ``snap'' to one of these unintended fixed points.
 
-    \item \textbf{Spurious States:} The network may converge to spurious attractors that are not stored memories, especially when the number of stored patterns is large or when the input is heavily corrupted.
+\textbf{Classification mismatch:} for discriminative tasks (say, digit recognition), the ``nearest minimum'' behavior is not the same thing as a calibrated class decision. A corrupted input can converge to the wrong stored pattern, and low energy does not imply correct label.
 
-    \item \textbf{Classification Difficulty:} Using Hopfield networks for classification (e.g., digit recognition) is problematic. Since the network converges to the nearest energy minimum, a corrupted input pattern may converge to a wrong stored pattern or its complement. There is no guarantee that the minimum energy state corresponds to the correct class.
-    \item \textbf{When not to use:} Large patterns and heavy loading (\(P/N\)) create a glassy energy landscape, scaling is quadratic in the number of units, and low capacity makes Hopfield networks ill-suited for high-dimensional discriminative tasks compared with the ERM models from \Cref{chap:logistic} or deep models in \Cref{chap:transformers}.
-\end{itemize}
+\textbf{When not to use:} heavy loading (\(P/N\) large) produces a glassy landscape; scaling is \(O(N^2)\) in connectivity; and the low-capacity regime makes classical Hopfield networks a poor fit for high-dimensional supervised problems compared with the ERM models in \Cref{chap:logistic} or the deep models in \Cref{chap:transformers}.
 
 \begin{tcolorbox}[summarybox, title={Applications lens: memory retrieval and optimization}]
 In the classical framing, Hopfield networks are about associative memory: you store patterns, then recover a full pattern from a partial or noisy cue (pattern completion). That is the same idea behind many information-retrieval and recognition stories: the input is a corrupted probe, and the system ``snaps'' to a nearby clean prototype.
