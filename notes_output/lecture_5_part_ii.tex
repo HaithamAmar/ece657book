@@ -175,13 +175,7 @@ Let the initial state be \(\mathbf{s} = (1,\,1,\,-1)\). Using the energy definit
 \end{align}
 
 \paragraph{State update attempts:}
-Flip each neuron in turn and recompute the energy:
-
-\begin{itemize}
-    \item Flip \(s_1\) to \(-1\): \(E(-1,1,-1) = 9\) (energy increases).
-    \item Flip \(s_2\) to \(-1\): \(E(1,-1,-1) = -3\) (energy increases toward zero).
-    \item Flip \(s_3\) to \(+1\): \(E(1,1,1) = -1\) (energy increases).
-\end{itemize}
+One way to check whether \(\mathbf{s}=(1,1,-1)\) is stable is to try each single-neuron flip and recompute \(E\). Flipping \(s_1\) gives \(E(-1,1,-1)=9\); flipping \(s_2\) gives \(E(1,-1,-1)=-3\); and flipping \(s_3\) gives \(E(1,1,1)=-1\). Each move raises the energy relative to \(-5\), so no asynchronous update would accept it: the state is a local minimum.
 
 For clarity, \Cref{tab:hopfield-deltaE} reports the energy change for each single flip relative to the current state.
 \begin{table}[h]
@@ -307,14 +301,12 @@ it is helpful to remember that the energy function in \eqref{eq:energy_function}
 anticipates ideas that reappear in the attention mechanisms of \Cref{chap:transformers}.
 \end{tcolorbox}
 
-\paragraph{Continuous Hopfield / dense associative memory.}
-If you only take one bridge idea forward: many modern memory modules can be read as ``soft'' associative recall. The state stays continuous, the update looks like a softmax-weighted combination of stored patterns, and the resulting intuition lines up with attention in \Cref{chap:transformers}.
-
-Modern extensions replace the binary sign activation with a smooth, often softmax-like update that keeps neuron states continuous. Storing \(P\) real-valued patterns \(\{\mathbf{m}^\mu\}\), the update becomes
+\paragraph{Continuous Hopfield networks (bridge).}
+Modern extensions replace the binary sign activation with a smooth, often softmax-like update that keeps neuron states continuous. Storing \(P\) real-valued patterns \(\{\mathbf{m}^\mu\}\), a common update takes the form
 \[
 \mathbf{s}^{(t+1)} = \operatorname{softmax}\!\left(\beta M^\top \mathbf{s}^{(t)}\right) M,
 \]
-where \(M\) stacks the memory vectors and \(\beta\) controls sharpness. This view unifies classical Hopfield dynamics, associative memories used in few-shot meta-learning, and attention heads in Transformers: all minimize a convex energy \(\log \sum_\mu \exp(\beta \mathbf{s}^\top \mathbf{m}^\mu)\) and pull the state toward a convex combination of stored patterns. Continuous updates are differentiable (enabling end-to-end training), offer higher storage capacity via richer nonlinearities, and connect directly to ``dense associative memory'' results in the modern literature.
+where \(M\) stacks the memory vectors and \(\beta\) controls sharpness. The key intuition is that the state update becomes a softmax-weighted combination of stored patterns. In many modern treatments you can derive such updates from an energy of the form \(\log \sum_\mu \exp(\beta \mathbf{s}^\top \mathbf{m}^\mu)\), and the resulting geometry lines up closely with attention in \Cref{chap:transformers}. We do not develop the full modern Hopfield formalism here; we keep the bridge idea: ``soft'' associative recall, implemented as a differentiable, content-addressable lookup.
 
 Combining the sign update in \eqref{eq:hopfield_update_rule} with \eqref{eq:deltaE} yields \(\Delta E \le 0\) for each asynchronous flip, so we omit the redundant case split here.
 % Chapter 10: Hopfield Network Weight Update and Capacity
@@ -338,23 +330,16 @@ E(s_1,s_2) = -\frac{1}{2}\sum_{i,j} w_{ij}s_is_j = -w_{12}s_1s_2
 \]
 stays constant across the two states.
 
-\paragraph{Conclusion:}
 To ensure the classical convergence guarantee, use \emph{asynchronous} updates (one neuron at a time) under symmetric weights with zero diagonal. Synchronous updates can still work in practice, but the energy argument no longer rules out short cycles.
 
 \subsection{Storage Capacity of Hopfield Networks}
 \label{sec:hopfield_storage_capacity_of_hopfield_networks}
 
 A key question is: \emph{How many memories can a Hopfield network reliably store and recall?}
-
-\paragraph{Classical result:}
-For a network of \( n \) neurons, the number of random patterns \( p \) that can be stored with low error is approximately
 \[
 p \approx 0.138\, n,
 \]
-which is a small fraction of the total number of neurons \citep{McEliece1987}. This means the storage capacity scales linearly but with a small proportionality constant; both \(\mathbf{\xi}^\mu\) and its complement \(-\mathbf{\xi}^\mu\) are fixed points, and odd mixtures of stored patterns become spurious states as \(p/n\) grows.
-
-\paragraph{Inefficiency:}
-This low capacity is why Hopfield networks are not used as practical storage devices despite their associative memory properties.
+is the classical rule-of-thumb for the number of random patterns that can be stored with low error in a network of \(n\) neurons \citep{McEliece1987}. The important point is not the constant itself; it is that the capacity is only a small fraction of \(n\). Both \(\mathbf{\xi}^\mu\) and its complement \(-\mathbf{\xi}^\mu\) are fixed points, and odd mixtures of stored patterns become spurious states as \(p/n\) grows. This low capacity is why Hopfield networks are not used as practical storage devices despite their elegant associative-memory behavior.
 
 \paragraph{Stochastic updates (bridge to Boltzmann machines).} A stochastic variant replaces the hard sign in \eqref{eq:hopfield_update_rule} with probabilistic flips (e.g., Gibbs sampling). With symmetric weights this defines a Boltzmann distribution whose energy matches \eqref{eq:energy_function}, linking Hopfield recall to the Boltzmann/energy-based models that underlie modern probabilistic neural networks.
 

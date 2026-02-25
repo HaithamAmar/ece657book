@@ -1241,3 +1241,14 @@ Build notes (2026-02-17):
 - 2026-02-24: Ran `python3 notes_output/scripts/validate_math_examples_and_graphs.py --strict` after the edits. Result: PASS.
 - 2026-02-24: Ran `bash notes_output/scripts/run_production_checks.sh` after the edits. Result: PASS (release checks, Apple
   gatekeeper audits, and EPUBCheck all OK).
+
+## 2026-02-24 Chapter 10 (Hopfield) final de-sliding sweep (example narration + capacity prose)
+
+- `notes_output/lecture_5_part_ii.tex`: rewrote the 3-neuron ``state update attempts'' list into narrative prose while keeping
+  the numeric values and pointing to \Cref{tab:hopfield-deltaE}; de-slid the storage-capacity subsection by folding the
+  ``classical result'' and ``inefficiency'' fragments into one cohesive paragraph; removed the standalone ``Conclusion:'' label
+  in the async-vs-sync subsection; tightened the continuous-Hopfield bridge to avoid over-claiming while preserving the
+  attention intuition.
+- 2026-02-24: Ran `python3 notes_output/scripts/validate_math_examples_and_graphs.py --strict` after the edits. Result: PASS.
+- 2026-02-24: Ran `bash notes_output/scripts/run_production_checks.sh` after the edits. Result: PASS (release checks, Apple
+  gatekeeper audits, and EPUBCheck all OK).
