@@ -176,6 +176,59 @@ def check_hopfield():
         raise AssertionError(f"Hopfield noisy update energy mismatch: actual={E_after}, expected={E_after_expected}")
     energies["noisy_after"] = E_after
 
+    # Optional QC-backed Hebbian single-pattern weight example (4 neurons).
+    # This is separate from the 3-neuron energy-descent example and is meant
+    # to verify the explicit matrix shown in the text.
+    if "% QC-BEGIN: hopfield_single_pattern_weights" in tex:
+        qc2 = _extract_qc_block(tex, "hopfield_single_pattern_weights")
+        b = None
+        W2_rows = []
+        h_expected = None
+        for line in qc2:
+            parts = line.split()
+            tag = parts[0]
+            if tag == "b":
+                if len(parts) != 5:
+                    raise AssertionError(f"Malformed Hopfield QC b row: {line!r}")
+                b = np.array([float(parts[1]), float(parts[2]), float(parts[3]), float(parts[4])], dtype=float)
+            elif tag == "W":
+                if len(parts) != 5:
+                    raise AssertionError(f"Malformed Hopfield QC W row (4D): {line!r}")
+                W2_rows.append([float(parts[1]), float(parts[2]), float(parts[3]), float(parts[4])])
+            elif tag == "h":
+                if len(parts) != 5:
+                    raise AssertionError(f"Malformed Hopfield QC h row: {line!r}")
+                h_expected = np.array(
+                    [float(parts[1]), float(parts[2]), float(parts[3]), float(parts[4])], dtype=float
+                )
+
+        if b is None:
+            raise AssertionError("Hopfield QC (single pattern) missing b row")
+        if len(W2_rows) != 4:
+            raise AssertionError("Hopfield QC (single pattern) must include 4 W rows")
+        if h_expected is None:
+            raise AssertionError("Hopfield QC (single pattern) missing h row")
+
+        n = b.size
+        W2 = np.array(W2_rows, dtype=float)
+        W2_expected = np.outer(b, b) / float(n)
+        np.fill_diagonal(W2_expected, 0.0)
+        if not np.allclose(W2, W2_expected, atol=1e-12, rtol=0.0):
+            raise AssertionError("Hopfield single-pattern W mismatch vs Hebbian formula")
+
+        h = W2 @ b
+        if not np.allclose(h, h_expected, atol=1e-12, rtol=0.0):
+            raise AssertionError(f"Hopfield single-pattern h mismatch: actual={h}, expected={h_expected}")
+
+        b_hat = np.where(h >= 0.0, 1.0, -1.0)
+        if not np.allclose(b_hat, b):
+            raise AssertionError(f"Hopfield single-pattern fixed-point mismatch: sign(Wb)={b_hat}, b={b}")
+
+        energies["hebbian_single_pattern_h1"] = float(h[0])
+        energies["hebbian_single_pattern_h2"] = float(h[1])
+        energies["hebbian_single_pattern_h3"] = float(h[2])
+        energies["hebbian_single_pattern_h4"] = float(h[3])
+
     return energies
 
 

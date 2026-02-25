@@ -137,6 +137,12 @@ Hopfield defined an energy function \(E: \{-1, +1\}^N \to \mathbb{R}\) associate
 Because the weights are symmetric and satisfy \(w_{ii}=0\), the double sum may equivalently be written as \(\sum_{i<j} w_{ij} s_i s_j\); the \(\tfrac{1}{2}\) factor explicitly prevents counting each unordered pair twice, so removing it would scale the energy by two. Thresholds \(\theta_i\) act like biases; many texts write the second term as \(-\sum_i b_i s_i\) with \(b_i = \theta_i\).
 % Chapter 10 (continued)
 
+\begin{tcolorbox}[summarybox, title={Engineering lens: energy as an objective (not a metaphor)}]
+It helps to read \(E(\mathbf{s})\) the same way you read a loss in supervised learning: a scalar objective defined over a space of states. Here the states are discrete (\(\mathbf{s}\in\{-1,+1\}^N\)), so the ``optimization'' is not gradient descent; it is a sequence of coordinate updates (flip one bit at a time) that never increase \(E\) under Hopfield's symmetry constraints.
+
+This is why the update rule matters. The weights define the energy landscape, and the asynchronous update is a descent procedure on that landscape. Local minima are stable memories; other minima (spurious attractors) are the price of capacity.
+\end{tcolorbox}
+
 \paragraph{Hopfield network states and the energy view (handoff)}
 \label{sec:hopfield_hopfield_network_states_and_energy_function}
 
@@ -404,9 +410,58 @@ with no thresholds (\( \theta_i = 0 \)).
 
 \paragraph{Step 1: Compute outer product}
 Form the matrix \( \mathbf{B} = \mathbf{b} \mathbf{b}^\top \). Each entry \(B_{ij} = b_i b_j\) captures the pairwise correlation between neurons \(i\) and \(j\).
+\[
+\mathbf{B}
+=
+\mathbf{b}\mathbf{b}^\top
+=
+\begin{bmatrix}
+1 & 1 & 1 & -1 \\
+1 & 1 & 1 & -1 \\
+1 & 1 & 1 & -1 \\
+-1 & -1 & -1 & 1
+\end{bmatrix}.
+\]
 
 \paragraph{Step 2: Remove diagonal terms}
 Zero the diagonal entries to obtain the weight matrix \( \mathbf{W} \) with \(w_{ii} = 0\). The off-diagonal values remain the same as in \(\mathbf{B}\), encoding the pairwise interactions required to store the memory pattern.
+Including the \(1/n\) normalization from \eqref{eq:hebbian_weights} (here \(n=4\)) gives
+\[
+\mathbf{W}
+=
+\frac{1}{4}\Big(\mathbf{B}-\operatorname{diag}(\mathbf{B})\Big)
+=
+\frac{1}{4}
+\begin{bmatrix}
+0 & 1 & 1 & -1 \\
+1 & 0 & 1 & -1 \\
+1 & 1 & 0 & -1 \\
+-1 & -1 & -1 & 0
+\end{bmatrix}.
+\]
+
+\paragraph{Sanity check: the stored pattern is a fixed point}
+With zero thresholds, the local field is \(\mathbf{h}=\mathbf{W}\mathbf{b}\). For this one-pattern example,
+\[
+\mathbf{h}
+=
+\begin{bmatrix}
+3/4 \\
+3/4 \\
+3/4 \\
+-3/4
+\end{bmatrix},
+\]
+so \(\operatorname{sign}(\mathbf{h})=\mathbf{b}\). That is the basic content-addressable ``snap-back'': if you start near \(\mathbf{b}\), asynchronous updates push you toward it.
+
+% QC-BEGIN: hopfield_single_pattern_weights
+% b 1 1 1 -1
+% W 0 0.25 0.25 -0.25
+% W 0.25 0 0.25 -0.25
+% W 0.25 0.25 0 -0.25
+% W -0.25 -0.25 -0.25 0
+% h 0.75 0.75 0.75 -0.75
+% QC-END: hopfield_single_pattern_weights
 
 \subsection{Finalizing the Hopfield Network Derivation and Discussion}
 \label{sec:hopfield_finalizing_the_hopfield_network_derivation_and_discussion}
@@ -421,6 +476,33 @@ For example, if the initial state is corrupted, the network will iteratively upd
 \[
 \mathbf{s}(\infty) \in \{\mathbf{\xi}^\mu, -\mathbf{\xi}^\mu\}.
 \]
+The same story can be read visually as motion toward a basin of attraction in an energy landscape (\Cref{fig:hopfield-basins-schematic}).
+
+\begin{figure}[t]
+    \centering
+    \begin{tikzpicture}
+        \begin{axis}[
+            width=0.78\linewidth,
+            height=4.2cm,
+            xmin=-2.4, xmax=2.4,
+            ymin=-1.2, ymax=1.8,
+            axis lines=left,
+            xlabel={State coordinate (schematic)},
+            ylabel={Energy},
+            ytick=\empty,
+            xtick=\empty,
+        ]
+            \addplot[cbBlue, thick, samples=200, domain=-2.4:2.4]
+                {0.25*(x^4) - 0.9*(x^2) + 0.4*sin(deg(2*x)) + 0.4};
+            \node[font=\scriptsize, anchor=north] at (axis cs:-1.25,-0.5) {memory basin};
+            \node[font=\scriptsize, anchor=north] at (axis cs:1.2,-0.55) {spurious basin};
+            \addplot[cbPink, -{Latex[length=2mm]}, thick] coordinates {(-0.2,1.1) (-1.05,-0.35)};
+            \node[cbPink, font=\scriptsize, anchor=west] at (axis cs:-0.15,1.1) {noisy probe};
+        \end{axis}
+    \end{tikzpicture}
+    \caption{Energy-landscape intuition (schematic). Hopfield recall is a descent process toward a nearby basin (a stored memory), but other minima can exist and act as spurious attractors when the network is heavily loaded.}
+    \label{fig:hopfield-basins-schematic}
+\end{figure}
 
 \paragraph{Limitations: Capacity and Classification}
 
@@ -432,8 +514,14 @@ Despite its elegant memory retrieval properties, the Hopfield network has signif
     \item \textbf{Spurious States:} The network may converge to spurious attractors that are not stored memories, especially when the number of stored patterns is large or when the input is heavily corrupted.
 
     \item \textbf{Classification Difficulty:} Using Hopfield networks for classification (e.g., digit recognition) is problematic. Since the network converges to the nearest energy minimum, a corrupted input pattern may converge to a wrong stored pattern or its complement. There is no guarantee that the minimum energy state corresponds to the correct class.
-\item \textbf{When not to use:} Large patterns and heavy loading (\(P/N\)) create a glassy energy landscape, scaling is quadratic in the number of units, and low capacity makes Hopfield networks ill-suited for high-dimensional discriminative tasks compared with the ERM models from \Cref{chap:logistic} or deep models in \Cref{chap:transformers}.
+    \item \textbf{When not to use:} Large patterns and heavy loading (\(P/N\)) create a glassy energy landscape, scaling is quadratic in the number of units, and low capacity makes Hopfield networks ill-suited for high-dimensional discriminative tasks compared with the ERM models from \Cref{chap:logistic} or deep models in \Cref{chap:transformers}.
 \end{itemize}
+
+\begin{tcolorbox}[summarybox, title={Applications lens: memory retrieval and optimization}]
+In the classical framing, Hopfield networks are about associative memory: you store patterns, then recover a full pattern from a partial or noisy cue (pattern completion). That is the same idea behind many information-retrieval and recognition stories: the input is a corrupted probe, and the system ``snaps'' to a nearby clean prototype.
+
+There is also an optimization lens. Because \(E(\mathbf{s})\) is a scalar objective over binary states, you can sometimes encode a cost function as an energy and run asynchronous updates as a heuristic descent method. This is one way Hopfield-style dynamics have been discussed for combinatorial optimization tasks (for example, variants of traveling-salesman-style objectives). The warning is the same one we give throughout this book: the algorithm will happily converge to a local minimum. Your real work is in deciding whether the energy you wrote down matches the engineering goal and whether the resulting minima are meaningful.
+\end{tcolorbox}
 
 \paragraph{Example: Memory Recovery}
 

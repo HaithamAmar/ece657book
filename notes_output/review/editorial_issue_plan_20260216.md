@@ -1204,3 +1204,15 @@ Build notes (2026-02-17):
 - 2026-02-24: Ran `python3 notes_output/scripts/validate_math_examples_and_graphs.py --strict` after the edits. Result: PASS.
 - 2026-02-24: Ran `bash notes_output/scripts/run_production_checks.sh` after the edits. Result: PASS (release checks, Apple
   gatekeeper audits, and EPUBCheck all OK).
+
+## 2026-02-24 Chapter 10 (Hopfield) pedagogy enrichment + additional QC-backed example
+
+- `notes_output/lecture_5_part_ii.tex`: added an ``engineering lens'' box to reinforce reading \(E(\mathbf{s})\) as an objective;
+  added a schematic basin-of-attraction figure and a short ``applications lens'' box (associative recall + optimization framing);
+  expanded the single-pattern Hebbian example to show the explicit outer product, the normalized weight matrix, and a fixed-point
+  sanity check (\(\operatorname{sign}(Wb)=b\)).
+- `notes_output/scripts/check_numeric_examples.py`: extended the Hopfield check to parse a second QC block
+  (`hopfield_single_pattern_weights`) and verify the displayed \(4\times 4\) Hebbian weight matrix and local-field vector.
+- 2026-02-24: Ran `python3 notes_output/scripts/validate_math_examples_and_graphs.py --strict` after the edits. Result: PASS.
+- 2026-02-24: Ran `bash notes_output/scripts/run_production_checks.sh` after the edits. Result: PASS (release checks, Apple
+  gatekeeper audits, and EPUBCheck all OK).
