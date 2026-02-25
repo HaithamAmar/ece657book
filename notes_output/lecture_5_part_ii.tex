@@ -1,7 +1,7 @@
 % Chapter 10
 \section{Hopfield Networks: Introduction and Context}\label{chap:hopfield}
 
-\Cref{chap:som} focused on self-organizing maps and unsupervised feature maps; we now transition to another unsupervised/energy-based model: the \emph{Hopfield network}, a recurrent system that stores patterns as attractors. \Cref{fig:roadmap} marks this as the energy-based branch.
+\Cref{chap:som} focused on self-organizing maps and unsupervised feature maps; we now transition to another unsupervised/energy-based model: the \emph{Hopfield network}, a recurrent system that stores patterns as attractors. \Cref{fig:roadmap} marks this as the energy-based branch. The debug mindset carries over, but the diagnostics change: SOMs are easiest to audit through map geometry (U-matrix/component planes), while Hopfield recall is easiest to audit through an energy trace and overlap with the intended memory.
 
 \begin{tcolorbox}[summarybox, title={Learning Outcomes}]
 \begin{itemize}
@@ -432,7 +432,7 @@ The energy drops along the way: \(E=0.5 \rightarrow 0 \rightarrow -1.5\).
 \end{tcolorbox}
 
 % QC-BEGIN: hopfield_single_pattern_weights
-% b 1 1 1 -1
+% xi 1 1 1 -1
 % W 0 0.25 0.25 -0.25
 % W 0.25 0 0.25 -0.25
 % W 0.25 0.25 0 -0.25
@@ -457,6 +457,20 @@ For example, if the initial state is corrupted, the network will iteratively upd
 \mathbf{s}(\infty) \in \{\mathbf{\xi}^\mu, -\mathbf{\xi}^\mu\}.
 \]
 The same story can be read visually as motion toward a basin of attraction in an energy landscape (\Cref{fig:hopfield-basins-schematic}).
+
+\begin{tcolorbox}[summarybox, title={Terminology and diagnostics}]
+\textbf{Attractor.} A stable fixed point of the update rule: once you reach it, further asynchronous updates do not change the state.
+
+\textbf{Basin of attraction.} The set of initial states that converge to a given attractor under the chosen update scheme.
+
+\textbf{Spurious state.} An attractor that is not one of the intended stored patterns (nor its complement). Spurious states are real local minima of \(E(\cdot)\) created by interference among memories.
+
+\textbf{Overlap (a simple health check).} For a stored pattern \(\mathbf{\xi}^\mu\), define
+\[
+m^{(\mu)}(\mathbf{s}) = \frac{1}{N} (\mathbf{\xi}^\mu)^\top \mathbf{s}.
+\]
+It ranges from \(+1\) (exact match) to \(-1\) (exact complement). Plot \(E(\mathbf{s}(t))\) and \(m^{(\mu)}(\mathbf{s}(t))\) versus update step to see whether recall is behaving or drifting into a spurious basin.
+\end{tcolorbox}
 
 \begin{figure}[t]
     \centering
@@ -577,7 +591,7 @@ You will almost never deploy a classical Hopfield net as-is (capacity and spurio
 \begin{tcolorbox}[summarybox, title={Exercises and lab ideas}]
 \begin{itemize}
     \item Implement asynchronous recall for bipolar states with symmetric \(W\) and \(w_{ii}=0\). Plot energy vs.\ update step and verify it never increases.
-    \item Store \(P\) random patterns with Hebbian weights. Sweep \(P/N\) and measure retrieval error under 1-, 2-, and 3-bit corruption; report when spurious attractors become common.
+    \item Store \(P\) random patterns with Hebbian weights. Use a fixed random seed and a fixed corruption protocol: pick one pattern \(\mathbf{\xi}^\mu\), flip \(k\) bits uniformly at random, then run asynchronous updates for a fixed budget (or until no flips occur). Sweep \(P/N\) and corruption level \(k\); plot both energy \(E(\mathbf{s}(t))\) and overlap \(m^{(\mu)}(\mathbf{s}(t))\) versus step, and report when spurious attractors become common.
     \item Construct (or search for) a small example where synchronous updates enter a 2-cycle; compare with asynchronous updates from the same initial state.
 \end{itemize}
 
@@ -586,6 +600,6 @@ You will almost never deploy a classical Hopfield net as-is (capacity and spurio
 \end{tcolorbox}
 
 \medskip
-\paragraph{Where we head next.} \Cref{chap:cnn} turns from associative memory to deep feedforward perception, where convolution and pooling form hierarchical features. The optimization workflow is unchanged: the ERM toolkit from \Cref{chap:supervised} and the training mechanics from \Crefrange{chap:mlp}{chap:backprop} remain central. Recurrence and attention return in \Cref{chap:rnn} and \Cref{chap:transformers}.
+\paragraph{Where we head next.} \Cref{chap:cnn} turns from associative memory to deep feedforward perception, where convolution and pooling form hierarchical features. The optimization workflow is unchanged: the ERM toolkit from \Cref{chap:supervised} and the training mechanics from \Crefrange{chap:mlp}{chap:backprop} remain central. The analogy to keep in mind is the diagnostic habit: in Hopfield networks we watched an energy trace and overlap; in deep CNNs you will watch training/validation curves and slice errors. Recurrence and attention return in \Cref{chap:rnn} and \Cref{chap:transformers}.
 
 \nocite{Hopfield1982, AmitGutfreundSompolinsky1985}

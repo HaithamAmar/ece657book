@@ -190,7 +190,7 @@ def check_hopfield():
         for line in qc2:
             parts = line.split()
             tag = parts[0]
-            if tag == "b":
+            if tag in ("b", "xi"):
                 if len(parts) != 5:
                     raise AssertionError(f"Malformed Hopfield QC b row: {line!r}")
                 b = np.array([float(parts[1]), float(parts[2]), float(parts[3]), float(parts[4])], dtype=float)

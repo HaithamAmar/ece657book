@@ -1261,3 +1261,18 @@ Build notes (2026-02-17):
 - 2026-02-24: Ran `python3 notes_output/scripts/validate_math_examples_and_graphs.py --strict` after the edits. Result: PASS.
 - 2026-02-24: Ran `bash notes_output/scripts/run_production_checks.sh` after the edits. Result: PASS (release checks, Apple
   gatekeeper audits, and EPUBCheck all OK).
+
+## 2026-02-25 Chapter 10 (Hopfield) terminology + continuity + exercise upgrade + EPUB placement spot-check
+
+- `notes_output/lecture_5_part_ii.tex`: added a compact terminology/diagnostics box defining attractor, basin, spurious state,
+  and overlap \(m^{(\mu)}\); strengthened the SOM\(\rightarrow\)Hopfield and Hopfield\(\rightarrow\)CNN continuity by explicitly
+  contrasting the diagnostics (U-matrix/component planes vs energy/overlap, then energy/overlap vs training/validation curves);
+  upgraded the lab exercise to require energy+overlap plots under a reproducible corruption protocol (fixed seed).
+- `notes_output/lecture_5_part_ii.tex`: renamed the Hopfield single-pattern QC tag from `b` to `xi` for consistency with the
+  reader-facing notation.
+- `notes_output/scripts/check_numeric_examples.py`: updated the QC parser to accept either `b` or `xi` tags for that block.
+- 2026-02-25: Ran `python3 notes_output/scripts/validate_math_examples_and_graphs.py --strict` after the edits. Result: PASS.
+- 2026-02-25: Ran `bash notes_output/scripts/run_production_checks.sh` after the edits. Result: PASS (release checks, Apple
+  gatekeeper audits, and EPUBCheck all OK).
+- EPUB placement spot-check: in `EPUB/text/ch016.xhtml`, the Hopfield figures appear near their first references (energy-descent
+  and basin-schematic figures are inline with links in the surrounding paragraphs; no float drift observed for Chapter 10).
