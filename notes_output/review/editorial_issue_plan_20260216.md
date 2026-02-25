@@ -1276,3 +1276,12 @@ Build notes (2026-02-17):
   gatekeeper audits, and EPUBCheck all OK).
 - EPUB placement spot-check: in `EPUB/text/ch016.xhtml`, the Hopfield figures appear near their first references (energy-descent
   and basin-schematic figures are inline with links in the surrounding paragraphs; no float drift observed for Chapter 10).
+
+## 2026-02-25 Chapter 10 (Hopfield) debug checklist + non-template modern-Hopfield tightening
+
+- `notes_output/lecture_5_part_ii.tex`: added a short implementation checklist (symmetry/diagonal, energy convention, async vs
+  sync updates, \(\operatorname{sign}(0)\) convention, and the expected diagnostics); tightened the modern-Hopfield/attention
+  bridge language to clearly separate the geometric intuition from the classical Lyapunov guarantee.
+- 2026-02-25: Ran `python3 notes_output/scripts/validate_math_examples_and_graphs.py --strict` after the edits. Result: PASS.
+- 2026-02-25: Ran `bash notes_output/scripts/run_production_checks.sh` after the edits. Result: PASS (release checks, Apple
+  gatekeeper audits, and EPUBCheck all OK).

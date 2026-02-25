@@ -155,6 +155,16 @@ Each single-neuron update satisfies \(\Delta E \le 0\) by \eqref{eq:deltaE}, so 
 
 For the formal monotonicity proof and the synchronous-update caveat, see \Cref{sec:hopfield_async_vs_sync}.
 
+\begin{tcolorbox}[summarybox, title={Implementation checklist (debugging a Hopfield net)}]
+\begin{itemize}
+    \item \textbf{Weight constraints:} enforce \(W=W^\top\) and \(w_{ii}=0\). If either is violated, the classical energy argument does not apply.
+    \item \textbf{Energy definition:} implement \eqref{eq:energy_function} with the \(\tfrac{1}{2}\) factor (or equivalently sum over \(i<j\)). Use one sign convention for thresholds/biases and stick to it.
+    \item \textbf{Update scheme:} test with asynchronous single-neuron updates first. If you switch to synchronous updates, short cycles are possible (see \Cref{sec:hopfield_async_vs_sync}).
+    \item \textbf{Sign at zero:} choose a deterministic convention for \(\operatorname{sign}(0)\) (e.g., keep the old state, or return \(+1\)) so runs are reproducible.
+    \item \textbf{Diagnostics:} on a tiny network where you know the stored patterns, plot \(E(\mathbf{s}(t))\) and overlap \(m^{(\mu)}(\mathbf{s}(t))\). Under asynchronous updates and symmetric weights, \(E\) should never increase.
+\end{itemize}
+\end{tcolorbox}
+
 \subsection{Example: Energy Calculation and State Updates}
 \label{sec:hopfield_example_energy_calculation_and_state_updates}
 
@@ -296,9 +306,7 @@ Recent work \citep{Krotov2016,Krotov2020,Ramsauer2021} revisits Hopfield network
 associative memories with continuous states and softmax interactions that are closely related to
 Transformer attention. In this view the stored patterns play the role of keys and values, the
 current state or query probes the landscape, and the update rule resembles a softmax-weighted
-average over memories, minimizing an energy of the form \(\log \sum_\mu \exp(\beta \mathbf{s}^\top \mathbf{m}^\mu)\) with inverse temperature \(\beta\). While this book does not develop the full modern Hopfield formalism,
-it is helpful to remember that the energy function in \eqref{eq:energy_function} already
-anticipates ideas that reappear in the attention mechanisms of \Cref{chap:transformers}.
+average over memories, minimizing an energy of the form \(\log \sum_\mu \exp(\beta \mathbf{s}^\top \mathbf{m}^\mu)\) with inverse temperature \(\beta\). The useful connection for us is the geometry: content-addressable lookup as motion in an energy landscape. Do not confuse that bridge with the classical guarantee above: the Lyapunov proof in this chapter relies on binary states, symmetric weights, and asynchronous flips.
 \end{tcolorbox}
 
 \paragraph{Continuous Hopfield networks (bridge).}
@@ -306,7 +314,7 @@ Modern extensions replace the binary sign activation with a smooth, often softma
 \[
 \mathbf{s}^{(t+1)} = \operatorname{softmax}\!\left(\beta M^\top \mathbf{s}^{(t)}\right) M,
 \]
-where \(M\) stacks the memory vectors and \(\beta\) controls sharpness. The key intuition is that the state update becomes a softmax-weighted combination of stored patterns. In many modern treatments you can derive such updates from an energy of the form \(\log \sum_\mu \exp(\beta \mathbf{s}^\top \mathbf{m}^\mu)\), and the resulting geometry lines up closely with attention in \Cref{chap:transformers}. We do not develop the full modern Hopfield formalism here; we keep the bridge idea: ``soft'' associative recall, implemented as a differentiable, content-addressable lookup.
+where \(M\) stacks the memory vectors and \(\beta\) controls sharpness. Read this as ``soft'' associative recall: the update produces a weighted combination of stored patterns, and that picture lines up closely with attention in \Cref{chap:transformers}. Unlike the classical binary case, you should not assume strict monotone descent unless the model is built to have a Lyapunov function.
 
 Combining the sign update in \eqref{eq:hopfield_update_rule} with \eqref{eq:deltaE} yields \(\Delta E \le 0\) for each asynchronous flip, so we omit the redundant case split here.
 % Chapter 10: Hopfield Network Weight Update and Capacity
