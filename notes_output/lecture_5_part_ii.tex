@@ -18,9 +18,9 @@ Constrain recurrence so the dynamics become a descent process: symmetric weights
 \subsection{From Feedforward to Recurrent Neural Networks}
 \label{sec:hopfield_from_feedforward_to_recurrent_neural_networks}
 
-Feedforward neural networks are characterized by a unidirectional flow of information: inputs propagate through successive layers until reaching the output layer, and backpropagation updates weights via error gradients. They work well for static input\(\rightarrow\)output mappings, but they do not capture the recurrent, feedback\hyp{}driven dynamics observed in biological neural systems.
+Feedforward networks compute a single forward map: once an input has passed through the layers, the computation ends. That is the right abstraction for static input\(\rightarrow\)output tasks, but it is not a natural model of memory: nothing inside the network persists unless you explicitly feed it back in.
 
-\emph{Recurrent neural networks} introduce cycles in the connectivity graph, so a neuron's state can influence itself and upstream neurons through feedback loops. These cycles enable internal state and temporal dynamics, which are essential for sequences and memory---but they also create instability and training difficulty.
+Recurrent networks add that feedback. Cycles let the current state influence the next state, which is exactly what you want for sequences and recall---and also exactly what makes the dynamics harder to reason about. Hopfield's contribution is to keep the recurrence, but constrain it so the system settles instead of wandering.
 
 \paragraph{Challenges with General Recurrent Networks}
 
@@ -35,12 +35,11 @@ However, the general topology of recurrent networks introduces significant chall
 These issues historically limited the practical use of recurrent networks, leading to a preference for feedforward architectures in many applications.
 
 \begin{tcolorbox}[summarybox, title={Then vs.\ now: energy-based memory in context}]
-\begin{itemize}
-    \item \textbf{Then (classical Hopfield):} binary states, symmetric weights, and an explicit Lyapunov energy guarantee convergence to a fixed point.
-    \item \textbf{What persists:} stable attractors, pattern completion, and the idea that ``memory'' is a geometry (an energy landscape), not a stored list.
-    \item \textbf{What changes in modern systems:} memory is often \emph{content-addressable} and learned from data at scale (retrieval, associative recall), with softer states and differentiable training objectives.
-    \item \textbf{How to read the bridge:} keep the energy/attractor intuition, but do not assume every modern memory mechanism inherits Hopfield's symmetry or convergence guarantees.
-\end{itemize}
+Classical Hopfield networks are the clean case: binary states, symmetric weights, and an explicit Lyapunov energy give you a convergence guarantee.
+
+The intuition that survives is the one we care about: memory is an energy landscape, and recall is descent toward an attractor (pattern completion).
+
+Modern systems borrow the geometry without necessarily inheriting the guarantee. Many ``memory'' mechanisms are differentiable, learned from data, and content-addressable at scale; the symmetry that makes Hopfield proofs work is not always present. Keep the attractor picture, but do not over-assume the math.
 \end{tcolorbox}
 
 \begin{tcolorbox}[summarybox, title={Author's note: stabilizing recurrence}]
@@ -319,7 +318,10 @@ it is helpful to remember that the energy function in \eqref{eq:energy_function}
 anticipates ideas that reappear in the attention mechanisms of \Cref{chap:transformers}.
 \end{tcolorbox}
 
-\paragraph{Continuous Hopfield / dense associative memory.} Modern extensions replace the binary sign activation with a smooth, often softmax-like update that keeps neuron states continuous. Storing \(P\) real-valued patterns \(\{\mathbf{m}^\mu\}\), the update becomes
+\paragraph{Continuous Hopfield / dense associative memory.}
+If you only take one bridge idea forward: many modern memory modules can be read as ``soft'' associative recall. The state stays continuous, the update looks like a softmax-weighted combination of stored patterns, and the resulting intuition lines up with attention in \Cref{chap:transformers}.
+
+Modern extensions replace the binary sign activation with a smooth, often softmax-like update that keeps neuron states continuous. Storing \(P\) real-valued patterns \(\{\mathbf{m}^\mu\}\), the update becomes
 \[
 \mathbf{s}^{(t+1)} = \operatorname{softmax}\!\left(\beta M^\top \mathbf{s}^{(t)}\right) M,
 \]
@@ -370,10 +372,7 @@ This low capacity is why Hopfield networks are not used as practical storage dev
 \subsection{Improving Storage Capacity via Weight Updates}
 \label{sec:hopfield_improving_storage_capacity_via_weight_updates}
 
-Is it possible to improve the storage capacity by modifying the weight update rule?
-
-\paragraph{Idea:}
-Instead of fixing weights and updating states, can we update weights based on stored patterns to better encode memories?
+Is it possible to improve storage by choosing the weights to ``bake in'' the memories directly? That is exactly what the classical Hebbian construction does: use stored patterns to set \(W\), then let the state updates perform recall.
 
 \paragraph{Hebbian learning rule:}
 Given \( p \) stored patterns \(\{\mathbf{b}^1, \mathbf{b}^2, \ldots, \mathbf{b}^p\}\), each \(\mathbf{b}^\mu = (b_1^\mu, b_2^\mu, \ldots, b_n^\mu)\) with \( b_i^\mu \in \{+1, -1\} \), the weights are set by:
@@ -498,9 +497,9 @@ However, its practical use is limited by low storage capacity and sensitivity to
 
 \begin{tcolorbox}[summarybox, title={Exercises and lab ideas}]
 \begin{itemize}
-    \item Implement a minimal example from this chapter and visualize intermediate quantities (plots or diagnostics) to match the pseudocode.
-    \item Stress-test a key hyperparameter or design choice discussed here and report the effect on validation performance or stability.
-    \item Re-derive one core equation or update rule by hand and check it numerically against your implementation.
+    \item Implement asynchronous recall for bipolar states with symmetric \(W\) and \(w_{ii}=0\). Plot energy vs.\ update step and verify it never increases.
+    \item Store \(P\) random patterns with Hebbian weights. Sweep \(P/N\) and measure retrieval error under 1-, 2-, and 3-bit corruption; report when spurious attractors become common.
+    \item Construct (or search for) a small example where synchronous updates enter a 2-cycle; compare with asynchronous updates from the same initial state.
 \end{itemize}
 
 \medskip
