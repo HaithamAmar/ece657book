@@ -71,7 +71,7 @@ trainable unit: a weighted sum followed by an activation/threshold, together wit
 engineering abstraction we can write down, debug, and scale.
 
 \begin{tcolorbox}[summarybox, title={Part II local roadmap: what stays the same, what changes}]
-\textbf{What stays the same.} We still follow the ERM loop: choose a representation, define a loss, optimize, then verify with honest evaluation and diagnostics. As we proceed, you will find that this theme generalizes across many of the algorithms we discuss.
+\textbf{What stays the same.} We still follow the empirical risk minimization (ERM) loop: choose a representation, define a loss, optimize, then verify with honest evaluation and diagnostics. As we proceed, you will find that this theme generalizes across many of the algorithms we discuss.
 
 \medskip
 \textbf{What changes (the design space).} Instead of choosing one linear model, we build systems by composing
@@ -294,9 +294,10 @@ Recall the MP neuron definition in \eqref{eq:weighted_sum}--\eqref{eq:threshold_
 
 \paragraph{Example: AND and OR gates}
 
-- For an AND gate with inputs \(x_1, x_2\), set weights \(w_1 = w_2 = 1\) and threshold \(\theta = 2\). The output is 1 only if both inputs are 1, matching the AND truth table.
-
-- For an OR gate, keep weights \(w_1 = w_2 = 1\) but set \(\theta = 1\). The output is 1 if at least one input is 1, matching the OR truth table.
+\begin{itemize}
+    \item \textbf{AND:} For inputs \(x_1, x_2\), set \(w_1 = w_2 = 1\) and \(\theta = 2\). The unit outputs 1 only when both inputs are 1, matching the AND truth table.
+    \item \textbf{OR:} Keep \(w_1 = w_2 = 1\) but set \(\theta = 1\). The unit outputs 1 when at least one input is 1, matching OR.
+\end{itemize}
 
 This demonstrates how the MP neuron can implement simple logical functions by appropriate choice of weights and threshold.
 

@@ -24,13 +24,13 @@ Unlike MLPs, which learn weights in every layer, an RBFN separates the job into 
 
 The key idea is that ``nonlinear'' can come from the representation rather than the readout. Radial basis functions act like localized, kernel-style features; once you lift inputs into that feature space, the output layer is still linear, and the weights are responsible for finding the separating border. This is closely related to the kernel trick used in SVMs; \Cref{app:kernels} collects the classical kernel viewpoint.
 
-\Cref{chap:supervised} frames this as a bias--variance tuning problem (capacity, regularization, and diagnostics via learning curves). Kernel methods such as kernel ridge regression and SVMs interpret the same trade-off through an RBF kernel matrix; here we keep the bases explicit, then connect to the dual/kernel view later in the chapter.
+\Cref{chap:supervised} frames this as a bias--variance tuning problem (capacity, regularization, and diagnostics via learning curves). Kernel methods such as kernel ridge regression and support vector machines (SVMs) interpret the same trade-off through an RBF kernel matrix; here we keep the bases explicit, then connect to the dual/kernel view later in the chapter.
 
 \paragraph{Running example: XOR as a representation problem.}
 XOR is the smallest reminder that a single line in the input space is not always enough. The point of RBF networks is not that the output layer becomes complicated; it stays linear. The complication is pushed into the feature map: the hidden units apply localized, kernel-like transforms, and the output weights are responsible for finding the separating border in that transformed space. We will return to XOR twice: first to see the feature map, then to see how the linear solve chooses the readout weights.
 
 \paragraph{Centers from clustering (a practical default).}
-The hidden layer of an RBF network is easiest to understand when its centers are viewed as K-means prototypes: pick a coverage of the input space that reflects the data distribution, assign widths accordingly, and let the output layer learn the linear weights on top of those prototypes. Unsupervised clustering up front makes the later supervised solve far more stable.
+The hidden layer of an RBF network is easiest to understand when its centers are viewed as k\hyp{}means prototypes: pick a coverage of the input space that reflects the data distribution, assign widths accordingly, and let the output layer learn the linear weights on top of those prototypes. Unsupervised clustering up front makes the later supervised solve far more stable.
 
 \subsection{Architecture of RBFNs}
 \label{sec:rbf_architecture_of_rbfns}
@@ -227,12 +227,14 @@ Consider a nonlinear transformation function \( g(\cdot) \) applied to the input
 \end{itemize}
 
 \paragraph{Assumptions:}
-- For simplicity, set \(\sigma^2 = 1\) (so \(2\sigma^2 = 2\)) in the Gaussian kernel activation function.
-- Assume \(\mathbf{c}_1 = (0,0)^\top\) and \(\mathbf{c}_2 = (1,1)^\top\).
-- The activation function is Gaussian radial basis function (RBF):
-\[
-g_i(\mathbf{x}) = \exp\left(-\frac{\|\mathbf{x} - \mathbf{c}_i\|^2}{2\sigma^2}\right).
-\]
+\begin{itemize}
+    \item For simplicity, set \(\sigma^2 = 1\) (so \(2\sigma^2 = 2\)) in the Gaussian activation.
+    \item Use two centers: \(\mathbf{c}_1 = (0,0)^\top\) and \(\mathbf{c}_2 = (1,1)^\top\).
+    \item Use a Gaussian radial basis function (RBF):
+    \[
+    g_i(\mathbf{x}) = \exp\left(-\frac{\|\mathbf{x} - \mathbf{c}_i\|^2}{2\sigma^2}\right).
+    \]
+\end{itemize}
 
 \paragraph{Transformation Results:}
 Applying the transformation to the inputs yields new points in the \(g_1\)-\(g_2\) space. For example, the input \(\mathbf{x}=(0,0)\) maps to \((g_1,g_2)=(1,e^{-1})\), and \(\mathbf{x}=(1,1)\) maps to \((e^{-1},1)\). The two off-diagonal corners \((0,1)\) and \((1,0)\) map to the same feature point \((e^{-1/2},e^{-1/2})\). In this feature plane the XOR labels become linearly separable; for instance, the separator \(g_1+g_2=1.3\) places the diagonal corners on one side and the off-diagonal corners on the other (\Cref{fig:rbf_xor_feature_map}).
@@ -354,7 +356,7 @@ where \(r = \|\mathbf{x} - \mathbf{c}\|\). This function decreases as the distan
 \[
 g(r) = \exp\left(-\frac{r^2}{2\sigma^2}\right).
 \]
-This function is smooth, bounded, and has a clear interpretation as a localized receptive field centered at \(\mathbf{c}\) with width \(\sigma\). It is the most commonly used kernel in RBF networks.
+This function is smooth, bounded, and has a clear interpretation as a localized receptive field (the region of input space that activates the unit strongly) centered at \(\mathbf{c}\) with width \(\sigma\). It is the most commonly used kernel in RBF networks.
 
 \begin{tcolorbox}[summarybox, title={Why ``radial''? Why a Gaussian?}]
 An RBF unit is called \emph{radial} because its response depends primarily on distance from a center: points at the same radius (in the chosen metric) produce the same activation. The Gaussian basis is popular because it is smooth, has a clear center, and its width parameter \(\sigma\) directly controls locality: large \(\sigma\) makes each unit ``see'' broadly (risking underfit), while small \(\sigma\) makes units highly local (risking overfit and poor conditioning). The practical art is to pick centers that cover the data and then tune \(\sigma\) (and ridge \(\lambda\)) by validation, as in \Cref{fig:rbf_sigma_sweep}.
@@ -468,7 +470,7 @@ Fixing the RBF centers and widths makes the hidden layer a finite basis expansio
 \[
 \min_{\boldsymbol{\alpha}} \|\mathbf{y} - \mathbf{K} \boldsymbol{\alpha}\|^2 + \lambda \boldsymbol{\alpha}^\top \mathbf{K} \boldsymbol{\alpha},
 \]
-where \(\mathbf{K}_{ij} = k(\mathbf{x}_i,\mathbf{x}_j)\) uses the same Gaussian kernel. Setting \(M=N\) and letting the RBF centers coincide with the training points recovers this dual form exactly. Finite \(M\) acts like Nystr\"om approximation: \(\boldsymbol{\Phi} \mathbf{w}\) projects onto a subset of kernel features.
+where \(\mathbf{K}_{ij} = k(\mathbf{x}_i,\mathbf{x}_j)\) uses the same Gaussian kernel. Setting \(M=N\) and letting the RBF centers coincide with the training points recovers this dual form exactly. Finite \(M\) acts like a Nystr\"om approximation: \(\boldsymbol{\Phi}\mathbf{w}\) projects onto a subset of kernel features using \(M<N\) landmark bases, rather than expanding on all \(N\) training points.
 
 Numerically, \(\boldsymbol{\Phi}^\top \boldsymbol{\Phi}\) can be ill-conditioned if the bases overlap excessively or if centers cluster tightly; kernel ridge has the same issue via \(\mathbf{K}\). Regularization is therefore essential: add \(\lambda I\) before inversion,
 \[
@@ -493,7 +495,7 @@ mirroring the \(\lambda \boldsymbol{\alpha}^\top \mathbf{K} \boldsymbol{\alpha}\
         \node[font=\scriptsize] at (3,0.5) {$\mathbf{w}\in\mathbb{R}^{M}$};
 
         \begin{scope}[shift={(0,-2)}]
-            \node at (-3,1.4) {\scriptsize Dual (kernel ridge/SVM)};
+            \node at (-3,1.4) {\scriptsize Dual (kernel ridge / SVM)};
             \draw[gray!40] (-4,0) rectangle (-2,1);
         \node[font=\scriptsize] at (-3,0.5) {$\mathbf{K}\in\mathbb{R}^{N\times N}$};
         \node[font=\scriptsize] at (-3,-0.1) {kernel matrix};
@@ -537,7 +539,7 @@ where \( d \) is the input dimension.
     \item Use clustering (e.g., K-means) to find centers \( \mathbf{c}_i \) (or sample centers uniformly at random).
     \item Set widths \(\sigma_i\) via a rule-of-thumb (global \(\sigma\) from average center spacing or per-cluster covariance).
     \item Build \(\boldsymbol{\Phi}\) with entries \(\boldsymbol{\Phi}_{ji}=\varphi_i(\mathbf{x}_j)\); choose a small grid of \(\lambda\) values and solve \((\boldsymbol{\Phi}^\top\boldsymbol{\Phi}+\lambda I)\mathbf{w}=\boldsymbol{\Phi}^\top\mathbf{y}\).
-    \item Evaluate on a validation set and pick \((\sigma,\lambda, M)\) that minimizes validation loss; for classification, CE/hinge losses are also feasible with the same design matrix \(\boldsymbol{\Phi}\).
+    \item Evaluate on a validation set and pick \((\sigma,\lambda, M)\) that minimizes validation loss; for classification, cross\hyp{}entropy or hinge losses are also feasible with the same design matrix \(\boldsymbol{\Phi}\).
 \end{enumerate}
 
 \begin{tcolorbox}[summarybox, title={Practical RBFN training (pseudocode)}]

@@ -388,7 +388,7 @@ You run a forward pass that stores what you will need, then a backward pass that
 \begin{itemize}
     \item \textbf{Numerical gradient check:} Implement finite differences for the two\hyp{}neuron chain and compare to your analytic gradients; report relative error and track down the first mismatch.
     \item \textbf{Step vs.\ sigmoid:} Replace the smooth activation with a hard threshold and observe what breaks when you try to compute updates via derivatives.
-    \item \textbf{XOR with two hidden units:} Train a tiny MLP on XOR and plot its decision regions; note sensitivity to initialization and step size.
+    \item \textbf{XOR with two hidden units:} Train a tiny multi-layer perceptron (MLP) on XOR and plot its decision regions; note sensitivity to initialization and step size.
 \end{itemize}
 \medskip
 \noindent\textbf{If you are reading for implementation.} Be able to read a forward graph and a backward recursion: local derivatives, cached activations, and a scalar loss driving parameter updates. That is exactly what gets scaled up in deeper networks.

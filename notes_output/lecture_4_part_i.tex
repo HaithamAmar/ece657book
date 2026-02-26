@@ -2,7 +2,7 @@
 \section{Backpropagation Learning in Multi-Layer Perceptrons}\label{chap:backprop}
 \graphicspath{{assets/lec4/}}
 
-Building on the two\hyp{}neuron derivation in \Cref{chap:mlp}, we scale the same idea to an \(L\)\hyp{}layer network. Conceptually it is still the chain rule; what changes is the accounting. We compute layerwise error signals (the \(\delta\)'s), reuse them to obtain every weight and bias gradient, and organize the work into a backward sweep you can implement and debug. The goal is practical: you should be able to trace one forward pass, write down one backward pass, and know exactly which stored intermediate values each gradient depends on. By the end of this chapter, the backpropagation algorithm should feel like a concrete procedure rather than a black box.
+Building on the two\hyp{}neuron derivation in \Cref{chap:mlp}, we scale the same idea to an \(L\)\hyp{}layer multi\hyp{}layer perceptron (MLP). Conceptually it is still the chain rule; what changes is the accounting. We compute layerwise error signals (the \(\delta\)'s), reuse them to obtain every weight and bias gradient, and organize the work into a backward sweep you can implement and debug. The goal is practical: you should be able to trace one forward pass, write down one backward pass, and know exactly which stored intermediate values each gradient depends on. By the end of this chapter, the backpropagation algorithm should feel like a concrete procedure rather than a black box.
 
 \begin{tcolorbox}[summarybox, title={Learning Outcomes}]
 \begin{itemize}
@@ -97,7 +97,7 @@ The forward pass computes activations layer by layer:
 	
 	The output layer activations \(a_k^{(L)}\) are compared to the targets \(t_k\) to form a loss (e.g., \Cref{eq:error_function}), and backpropagation propagates that output error backward through the layers to compute every weight gradient efficiently.
 	
-	\begin{tcolorbox}[summarybox, title={Mini example (aligned with this chapter): MSE backprop on a two-layer MLP}]
+\begin{tcolorbox}[summarybox, title={Mini example (aligned with this chapter): mean squared error (MSE) backprop on a two-layer MLP}]
 \footnotesize
 \begin{verbatim}
 # Shapes: X in R^{B x d}, W1 in R^{d x h}, W2 in R^{h x 1}
@@ -239,7 +239,7 @@ Substituting into \eqref{eq:delta_hidden_chain} yields
 For sigmoid activations \(f\), the derivative simplifies to \(f'(z_j^{(l)}) = a_j^{(l)} (1 - a_j^{(l)})\); other activations require substituting their respective derivatives in \eqref{eq:delta_hidden}.
 
 \paragraph{Summary: Backpropagation recursion}
-Backpropagation is reverse\hyp{}mode differentiation on the network graph. A forward pass stores intermediate values (pre\hyp{}activations and activations); a backward pass reuses those stored values to compute all gradients efficiently. Frameworks (PyTorch/JAX/TF) automate the mechanics, but the manual story is what lets you sanity-check shapes, signs, and scaling when training does something surprising.
+Backpropagation is reverse\hyp{}mode automatic differentiation (AD) on the network graph. A forward pass stores intermediate values (pre\hyp{}activations and activations); a backward pass reuses those stored values to compute all gradients efficiently. Frameworks (PyTorch, JAX, TensorFlow) automate the mechanics, but the manual story is what lets you sanity-check shapes, signs, and scaling when training does something surprising.
 
 The step-by-step output-layer derivation and the hidden-layer recursion are already established in \Cref{sec:backprop_output_layer_error_terms_sub,sec:backprop_hidden_layer_error_terms_sub}. The next step is to see how those same gradients are accumulated in batch and stochastic settings.
 
@@ -279,7 +279,7 @@ Start with plain SGD first; it makes it obvious whether the gradients you derive
     H1 = H1 * mask1 / (1 - p_drop)
     Z2 = H1 @ W2 + b2
     Yhat = softmax(Z2)
-    # Backward pass: for softmax + CE, delta2 = Yhat - Y
+    # Backward pass: for softmax + cross-entropy, delta2 = Yhat - Y
     delta2 = (Yhat - Y) / B
     grad_W2 = H1.T @ delta2 + wd * W2
     grad_b2 = delta2.sum(axis=0)
@@ -380,7 +380,7 @@ This snippet uses the same \(\delta\) recursion as the squared\hyp{}error deriva
     \end{tikzpicture}%
     }
     % Avoid dense inline math in captions; it wraps poorly in EPUB renderers.
-    \caption[Computational graph for backpropagation (reverse-mode AD)]{Computational graph for a feedforward network. Backpropagation is reverse\hyp{}mode AD: the forward sweep caches intermediate values, and the reverse sweep propagates deltas while accumulating weight/bias gradients from those cached values.}
+    \caption[Computational graph for backpropagation (reverse-mode automatic differentiation)]{Computational graph for a feedforward network. Backpropagation is reverse\hyp{}mode automatic differentiation (AD): the forward sweep caches intermediate values, and the reverse sweep propagates deltas while accumulating weight/bias gradients from those cached values.}
     \label{fig:backprop-computational-graph}
 \end{figure}
 

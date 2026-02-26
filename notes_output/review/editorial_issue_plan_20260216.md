@@ -1424,3 +1424,19 @@ Build notes (2026-02-17):
 - 2026-02-25: Ran `python3 notes_output/scripts/validate_math_examples_and_graphs.py --strict` after the edits. Result: PASS.
 - 2026-02-25: Ran `bash notes_output/scripts/run_production_checks.sh` after the edits. Result: PASS (release checks, Apple
   gatekeeper audits, and EPUBCheck all OK).
+
+## 2026-02-26 Chapters 5--8 (Perceptron \textrightarrow{} MLP \textrightarrow{} Backprop \textrightarrow{} RBF) slide-fragment + definition-at-first-use sweep
+
+- `notes_output/lecture_3_part_i.tex`: converted the AND/OR MP-neuron pseudo-bullets into a proper itemize block; expanded
+  ERM at first use in the Part II roadmap box (empirical risk minimization).
+- `notes_output/lecture_3_part_ii.tex`: expanded MLP at first use in the exercises (multi-layer perceptron).
+- `notes_output/lecture_4_part_i.tex`: expanded MLP at first use in the opening paragraph; expanded MSE in the mini-example
+  title (mean squared error); replaced ``reverse-mode AD'' with ``reverse-mode automatic differentiation (AD)'' and removed
+  the unexplained ``TF'' abbreviation (TensorFlow spelled out); kept the verbatim softmax comment consistent (``cross-entropy''
+  instead of ``CE'').
+- `notes_output/lecture_4_part_ii.tex`: expanded SVMs at first use (support vector machines); tightened k-means wording;
+  converted the XOR feature-map assumptions dashes into an itemize block; defined ``receptive field'' at first use; made
+  the Nystr\"om reference explicit in one sentence; replaced ``CE/hinge'' with ``cross-entropy or hinge'' in training notes.
+- 2026-02-26: Ran `python3 notes_output/scripts/validate_math_examples_and_graphs.py --strict` after the edits. Result: PASS.
+- 2026-02-26: Ran `bash notes_output/scripts/run_production_checks.sh` after the edits. Result: PASS (release checks, Apple
+  gatekeeper audits, and EPUBCheck all OK).
