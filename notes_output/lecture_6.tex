@@ -119,7 +119,9 @@ With high capacity, ``training accuracy goes up'' is not evidence of learning th
 \subsection{Sparse connectivity and parameter sharing}
 \label{sec:cnn_sparse_connectivity_and_parameter_sharing}
 
-CNNs replace dense connections with \emph{local receptive fields}. Each output unit connects to a small neighborhood of pixels, not the entire image. If a \(k \times k\) filter scans a \(H\times W\) input, the number of learned weights is \(k^2\) (per channel), not \(HW\). The same filter is reused at every spatial location, so a single set of parameters detects a pattern anywhere in the image. This parameter sharing is the key to scalability: it cuts the parameter count and preserves translation equivariance.
+CNNs replace dense connections with \emph{local receptive fields}. A unit's receptive field is simply the portion of the input that can influence that unit's value through the connections that reach it. The term is borrowed from sensory systems: a neuron ``receives'' evidence from a region, not from everywhere at once.
+
+Each output unit therefore connects to a small neighborhood of pixels, not the entire image. If a \(k \times k\) filter scans a \(H\times W\) input, the number of learned weights is \(k^2\) (per channel), not \(HW\). The same filter is reused at every spatial location, so a single set of parameters detects a pattern anywhere in the image. This parameter sharing is the key to scalability: it cuts the parameter count and preserves translation equivariance.
 
 Historically, dense MLPs on image benchmarks struggled to compete with classical pipelines because the parameter count and data requirements were prohibitive. CNNs reversed that trend by tying weights and focusing on local patterns while keeping the same gradient-based training loop, so capacity grows with depth and channel count rather than with the raw pixel grid.
 
@@ -259,7 +261,7 @@ With the architectural motivation in place, we now focus on how these models are
 \subsection{Training Neural Networks: Gradient-Based Optimization}
 \label{sec:cnn_training_neural_networks_gradient_based_optimization}
 
-We already derived the gradient-descent training loop in \Cref{chap:mlp}: define a loss \(\mathcal{L}\), compute gradients, then update parameters. CNNs do not change that contract. What changes is the \emph{geometry} of the representation: convolutional weights are shared across space, so one filter update aggregates learning signal from every spatial location where that filter was applied.
+We already derived the gradient-descent training loop in \Cref{chap:mlp}: define a loss \(\mathcal{L}\), compute gradients, then update parameters. CNNs keep the same loop. The key difference is weight sharing: a convolutional filter is applied at many spatial locations, so a single filter coefficient collects learning signal from every location where it was used.
 
 For a weight $w$, the update rule is
 \begin{align}

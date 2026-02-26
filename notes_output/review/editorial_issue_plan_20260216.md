@@ -1315,3 +1315,12 @@ Build notes (2026-02-17):
 - 2026-02-25: Ran `python3 notes_output/scripts/validate_math_examples_and_graphs.py --strict` after the edits. Result: PASS.
 - 2026-02-25: Ran `bash notes_output/scripts/run_production_checks.sh` after the edits. Result: PASS (release checks, Apple
   gatekeeper audits, and EPUBCheck all OK).
+
+## 2026-02-25 Chapter 11 (CNN) terminology + voice polish (receptive field + training loop)
+
+- `notes_output/lecture_6.tex`: defined ``receptive field'' at its first use (what portion of the input can influence a unit)
+  and briefly motivated the term as an engineering borrowing from sensory systems; tightened the training-loop paragraph to
+  avoid anthropomorphic phrasing while keeping the key weight-sharing point.
+- 2026-02-25: Ran `python3 notes_output/scripts/validate_math_examples_and_graphs.py --strict` after the edits. Result: PASS.
+- 2026-02-25: Ran `bash notes_output/scripts/run_production_checks.sh` after the edits. Result: PASS (release checks, Apple
+  gatekeeper audits, and EPUBCheck all OK).
