@@ -53,7 +53,7 @@ First, make the weights symmetric and remove self-loops:
 \end{equation}
 Second, keep neuron states binary, \(s_i \in \{+1,-1\}\), so the network evolves by flipping bits rather than flowing through a continuous activation curve.
 
-Under these choices you can define a Lyapunov energy \(E(\mathbf{s})\) and choose an asynchronous (one-neuron-at-a-time) update rule so that each flip never increases \(E\). That is the key move: the network becomes a descent process in a finite state space, so it must settle at a fixed point. Those fixed points are the stored patterns (and their complements), plus whatever spurious attractors appear when the network is heavily loaded.
+Under these choices you can define a Lyapunov energy \(E(\mathbf{s})\) (a scalar function that decreases under the update) and choose an asynchronous (one\hyp{}neuron\hyp{}at\hyp{}a\hyp{}time) update rule so that each flip never increases \(E\). That is the key move: the network becomes a descent process in a finite state space, so it must settle at a fixed point. Those fixed points are the stored patterns (and their complements), plus whatever spurious attractors appear when the network is heavily loaded.
 
 \subsection{Network Architecture and Dynamics}
 \label{sec:hopfield_network_architecture_and_dynamics}
@@ -507,15 +507,13 @@ It ranges from \(+1\) (exact match) to \(-1\) (exact complement). Plot \(E(\math
 \end{figure}
 
 \paragraph{Limitations (what breaks first)}
-Hopfield networks are a beautiful model to reason about, but several limitations show up quickly in practice.
-
-\textbf{Capacity:} with the classical Hebbian construction, reliable storage for random patterns scales like \(P_{\max}\approx 0.138\,N\) for large \(N\). Past that loading level, retrieval errors and spurious minima become common.
-
-\textbf{Spurious attractors:} even below capacity, the energy landscape can contain minima that are not stored patterns (or their complements). A noisy probe can ``snap'' to one of these unintended fixed points.
-
-\textbf{Classification mismatch:} for discriminative tasks (say, digit recognition), the ``nearest minimum'' behavior is not the same thing as a calibrated class decision. A corrupted input can converge to the wrong stored pattern, and low energy does not imply correct label.
-
-\textbf{When not to use:} heavy loading (\(P/N\) large) produces a glassy landscape; scaling is \(O(N^2)\) in connectivity; and the low-capacity regime makes classical Hopfield networks a poor fit for high-dimensional supervised problems compared with the ERM models in \Cref{chap:logistic} or the deep models in \Cref{chap:transformers}.
+Hopfield networks are a beautiful model to reason about, but several limitations show up quickly in practice:
+\begin{itemize}
+    \item \textbf{Capacity:} with the classical Hebbian construction, reliable storage for random patterns scales like \(P_{\max}\approx 0.138\,N\) for large \(N\). Past that loading level, retrieval errors and spurious minima become common.
+    \item \textbf{Spurious attractors:} even below capacity, the energy landscape can contain minima that are not stored patterns (or their complements). A noisy probe can ``snap'' to one of these unintended fixed points.
+    \item \textbf{Classification mismatch:} for discriminative tasks (say, digit recognition), the ``nearest minimum'' behavior is not the same thing as a calibrated class decision. A corrupted input can converge to the wrong stored pattern, and low energy does not imply correct label.
+    \item \textbf{When not to use:} heavy loading (\(P/N\) large) produces a glassy landscape; scaling is \(O(N^2)\) in connectivity; and the low\hyp{}capacity regime makes classical Hopfield networks a poor fit for high\hyp{}dimensional supervised problems compared with the ERM models in \Cref{chap:logistic} or the deep models in \Cref{chap:transformers}.
+\end{itemize}
 
 \begin{tcolorbox}[summarybox, title={Applications lens: memory retrieval and optimization}]
 In the classical framing, Hopfield networks are about associative memory: you store patterns, then recover a full pattern from a partial or noisy cue (pattern completion). That is the same idea behind many information-retrieval and recognition stories: the input is a corrupted probe, and the system ``snaps'' to a nearby clean prototype.

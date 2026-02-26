@@ -1440,3 +1440,15 @@ Build notes (2026-02-17):
 - 2026-02-26: Ran `python3 notes_output/scripts/validate_math_examples_and_graphs.py --strict` after the edits. Result: PASS.
 - 2026-02-26: Ran `bash notes_output/scripts/run_production_checks.sh` after the edits. Result: PASS (release checks, Apple
   gatekeeper audits, and EPUBCheck all OK).
+
+## 2026-02-26 Chapters 9--10 (SOM \textrightarrow{} Hopfield) slide-fragment + definition-at-first-use sweep
+
+- `notes_output/lecture_5_part_i.tex`: expanded QE/TE and U-matrix at first use in the learning outcomes (quantization error,
+  topographic error, unified distance matrix); rewrote the ``key characteristics'' bullet cluster into cohesive prose;
+  tightened the ``basic architecture'' block into a single paragraph; expanded t-SNE/UMAP, CTR, and GTM at first use; added a
+  short FAISS gloss in the complexity note.
+- `notes_output/lecture_5_part_ii.tex`: defined ``Lyapunov energy'' at first use (a scalar that decreases under updates) and
+  converted the bolded ``Limitations'' slide-like cluster into a proper itemize list while preserving content.
+- 2026-02-26: Ran `python3 notes_output/scripts/validate_math_examples_and_graphs.py --strict` after the edits. Result: PASS.
+- 2026-02-26: Ran `bash notes_output/scripts/run_production_checks.sh` after the edits. Result: PASS (release checks, Apple
+  gatekeeper audits, and EPUBCheck all OK).

@@ -9,7 +9,7 @@ This chapter opens the unsupervised neural thread with \emph{Self-Organizing Map
 \begin{tcolorbox}[summarybox, title={Learning Outcomes}]
 \begin{itemize}
     \item Describe how competitive learning, cooperation, and annealing interact in SOM training.
-    \item Monitor SOM quality via quantization/topographic errors and interpret U-Matrices.
+    \item Monitor SOM quality via quantization error (QE), topographic error (TE), and interpret U-matrices (unified distance matrix plots).
     \item Connect SOMs to broader unsupervised techniques (clustering, dimensionality reduction) and know when to use each.
 \end{itemize}
 \end{tcolorbox}
@@ -25,12 +25,7 @@ Self-organizing networks aim to discover structure in input data without labels.
 
 The idea is fairly intuitive. If the data have a meaningful notion of similarity in the original space, then repeated \emph{competition} (pick the best-matching unit) and \emph{cooperation} (update its neighbors as well) can organize a fixed 2D \emph{grid} of prototype vectors so that nearby grid locations tend to represent nearby regions of the data. The map is not a perfect geometric embedding; it is an engineered bias that often produces a useful, inspectable picture.
 
-The key characteristics of SOMs include:
-\begin{itemize}
-    \item \textbf{Unsupervised learning:} No labeled outputs are required; the organization is driven by input similarity.
-    \item \textbf{Competitive learning:} Units compete to become the winner for a given input; the winner (and, in SOMs, usually its neighbors) updates.
-    \item \textbf{Topology bias:} The grid encourages neighboring units to represent similar inputs, which is why SOMs can serve as both a prototype model and a visualization tool.
-\end{itemize}
+SOMs are trained without labeled outputs; the only signal is input similarity under your chosen distance. Learning is \emph{competitive} (each input picks a best\hyp{}matching unit) but also \emph{cooperative} (neighbors of the winner move too). That neighborhood coupling is the deliberate bias: it encourages nearby grid locations to represent similar inputs, so the map can be read both as a set of prototypes and as a visualization.
 
 \begin{tcolorbox}[summarybox, title={Historical intuition: two sheets and topographic neighborhoods}]
 A useful way to picture SOMs is as two coupled ``sheets'': an input space and a fixed 2D grid of units. Each input is connected (in principle) to the whole grid, but learning makes some regions respond strongly (excitation) while others respond weakly (inhibition). The payoff is a \emph{topographic} map: inputs that are far apart in the original space can end up near one another on the grid if they are statistically similar under the features the SOM has learned.
@@ -164,7 +159,7 @@ Dimensionality reduction is what you do when the ambient dimension is too large 
 \end{figure}
 
 
-Common techniques include Principal Component Analysis (PCA), which preserves directions of maximum variance, and classical Multidimensional Scaling (MDS), which reconstructs a configuration whose pairwise distances match the original ones as closely as possible (via double-centering the squared-distance matrix and an eigen-decomposition). Nonlinear methods such as t-SNE or UMAP emphasize local neighborhoods but typically sacrifice global distance fidelity. SOMs will give us a different kind of reduction: a \emph{discrete} map built from learned prototypes on a 2D grid, not a continuous coordinate chart.
+Common techniques include Principal Component Analysis (PCA), which preserves directions of maximum variance, and classical Multidimensional Scaling (MDS), which reconstructs a configuration whose pairwise distances match the original ones as closely as possible (via double-centering the squared-distance matrix and an eigen-decomposition). Nonlinear methods such as t\hyp{}distributed stochastic neighbor embedding (t\hyp{}SNE) or Uniform Manifold Approximation and Projection (UMAP) emphasize local neighborhoods but typically sacrifice global distance fidelity. SOMs will give us a different kind of reduction: a \emph{discrete} map built from learned prototypes on a 2D grid, not a continuous coordinate chart.
 
 % Chapter 9 (continued)
 
@@ -205,12 +200,7 @@ The concept of SOMs traces back to early models of self-organizing topographic m
 
 \paragraph{Basic Architecture}
 
-Conceptually, the SOM consists of two stages:
-
-\begin{itemize}
-    \item \textbf{Input layer:} A vector \(\mathbf{x} \in \mathbb{R}^n\) representing the input features.
-    \item \textbf{Output layer (map):} A usually two-dimensional grid of units (neurons). Each neuron \(i\) is assigned a fixed coordinate vector \(\mathbf{r}_i = [u_i, v_i]^\top\) with \(u_i, v_i \in \mathbb{Z}\) together with a weight vector \(\mathbf{w}_i \in \mathbb{R}^n\). The coordinates \(\mathbf{r}_i\) determine geometric proximity on the grid and are used by the neighborhood function (\Cref{sec:som_neighborhood}).
-\end{itemize}
+Architecturally, a SOM pairs an input vector \(\mathbf{x}\in\mathbb{R}^n\) with a usually two-dimensional grid of units. Each unit \(i\) has (i) a fixed grid coordinate \(\mathbf{r}_i=[u_i,v_i]^\top\) with \(u_i,v_i\in\mathbb{Z}\), and (ii) a prototype (codebook) vector \(\mathbf{w}_i\in\mathbb{R}^n\). The coordinates \(\mathbf{r}_i\) define proximity \emph{on the grid} and enter the neighborhood function (\Cref{sec:som_neighborhood}); the prototypes \(\mathbf{w}_i\) are what you compare to data points when you pick the winner.
 
 Each output neuron therefore possesses a weight vector of the same dimensionality as the input, so evaluating the match between an input and the map amounts to comparing the input against every stored prototype. The neurons then compete; the closest (best matching) unit "wins" and its neighbors are allowed to adapt by nudging their weight vectors toward the input, while distant units remain unchanged during that update. The resulting organization produces a discrete map that preserves qualitative ordering; it approximates the topology of the input space without providing a continuous Euclidean embedding.
 
@@ -1204,7 +1194,7 @@ A SOM is useful here because it gives you prototypes \(\mathbf{w}_i\) (represent
 \end{tcolorbox}
 
 \begin{tcolorbox}[summarybox, title={Application example: mapping page archetypes and performance drivers}]
-A second, complementary use is to map \emph{pages} (or queries) rather than sessions. Here each data point \(\mathbf{x}\) describes a URL or content item: a text embedding of the page, topic/category tags, layout signals (word count, number of images), and aggregate behavior metrics (CTR from search, median dwell time, bounce rate, conversion rate, and the fraction of visits from mobile). You are effectively asking: which pages are similar in content and behavior, and where do the sharp breaks live?
+A second, complementary use is to map \emph{pages} (or queries) rather than sessions. Here each data point \(\mathbf{x}\) describes a URL or content item: a text embedding of the page, topic/category tags, layout signals (word count, number of images), and aggregate behavior metrics (click-through rate (CTR) from search, median dwell time, bounce rate, conversion rate, and the fraction of visits from mobile). You are effectively asking: which pages are similar in content and behavior, and where do the sharp breaks live?
 
 A SOM turns this into a visual inventory. Pages with similar content and similar usage patterns compete for the same region of the grid, and the U-Matrix highlights boundaries between page families (e.g., ``documentation-like'' pages versus ``marketing-like'' pages). Component planes are the practical payoff: they show which variables line up with those boundaries. If one region lights up on ``mobile fraction'' and ``bounce rate,'' you immediately get a hypothesis about responsiveness or page speed. If another region is coherent in ``topic embedding'' but not in conversion, you have found a content family that is consistent but not effective.
 
@@ -1223,10 +1213,10 @@ When the neighborhood is collapsed to a single winner (no neighbors), the update
 \end{tcolorbox}
 
 \begin{tcolorbox}[summarybox, title={Related and growing variants}]
-\textbf{Neural Gas / Growing Neural Gas} \citep{MartinetzBerkovichSchulten1993,Fritzke1994GrowingNeuralGas} drop the fixed grid and instead learn neighborhood structure (and, in the growing variants, add units dynamically). \textbf{GTM} (Bishop et al.) provides a probabilistic, topographic embedding with likelihoods/uncertainty. I like to remember the landscape this way: k-means gives prototypes with no organization; SOMs add a fixed organizing prior; these variants let the organization itself adapt.
+\textbf{Neural Gas / Growing Neural Gas} \citep{MartinetzBerkovichSchulten1993,Fritzke1994GrowingNeuralGas} drop the fixed grid and instead learn neighborhood structure (and, in the growing variants, add units dynamically). \textbf{Generative topographic mapping (GTM)} (Bishop et al.) provides a probabilistic, topographic embedding with likelihoods/uncertainty. I like to remember the landscape this way: k-means gives prototypes with no organization; SOMs add a fixed organizing prior; these variants let the organization itself adapt.
 \end{tcolorbox}
 
-\paragraph{Complexity and out-of-sample mapping.} A full online epoch costs \(O(NM)\) (N data, M units); batch passes cost similar but fewer epochs. For large M, use approximate nearest-neighbor BMU search (k-d trees, FAISS). New points map via their BMU; optional soft responsibilities use \(h_{ci}\) for smoothing.
+\paragraph{Complexity and out-of-sample mapping.} A full online epoch costs \(O(NM)\) (N data, M units); batch passes cost similar but fewer epochs. For large M, use approximate nearest-neighbor BMU search (k-d trees or vector-index libraries such as FAISS). New points map via their BMU; optional soft responsibilities use \(h_{ci}\) for smoothing.
 \paragraph{Theory link to other chapters.} SOMs learn prototypes like the centers in \Cref{chap:rbf} but add a topographic prior; quality diagnostics (QE/TE) can be tracked with the validation-curve diagnostics in \Cref{chap:supervised}. For task-driven embeddings, see \Cref{chap:cnn,chap:nlp}; Hopfield (\Cref{chap:hopfield}) contrasts with energy-based associative recall.
 
 \paragraph{Quality measures and magnification.} Two diagnostics are standard when reporting SOM quality:
