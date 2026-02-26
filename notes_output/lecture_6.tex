@@ -4,7 +4,7 @@
 
 \Cref{chap:hopfield} used energy to make recurrence stable: dynamics settle, memories persist, and failure has a concrete signature. Vision problems have a different flavor. The system must form a representation that is rich enough to support decisions, yet structured enough to learn from finite data.
 
-Convolutional networks are the simplest version of that bargain. They keep the ERM workflow from \Crefrange{chap:supervised}{chap:logistic} and the gradient\hyp{}training machinery from \Cref{chap:mlp}, but make images tractable by enforcing locality and weight sharing, so the model spends capacity on patterns that recur across the grid.
+Convolutional networks are the simplest version of that bargain. They keep the empirical risk minimization (ERM) workflow from \Crefrange{chap:supervised}{chap:logistic} and the gradient\hyp{}training machinery from \Cref{chap:mlp}, but make images tractable by enforcing locality and weight sharing, so the model spends capacity on patterns that recur across the grid.
 
 There is also a useful continuity lens from earlier chapters: a convolutional filter is a learned \emph{local template} that is reused everywhere. This is the same high-level idea as prototypes/bases in \Cref{chap:rbf,chap:som}---but with strict weight sharing and end-to-end gradient training, so the templates are shaped by the task loss rather than chosen or tuned in isolation.
 
@@ -16,9 +16,9 @@ After this chapter, you should be able to:
 \begin{itemize}
   \item Derive convolution/cross-correlation with stride and padding in 1D/2D.
   \item Explain receptive-field growth across layers and the role of downsampling.
-  \item Choose losses and metrics deliberately (e.g., cross-entropy vs.\ MSE; accuracy vs.\ calibration) for CNN-based models.
+  \item Choose losses and metrics deliberately (e.g., cross-entropy vs.\ mean squared error (MSE); accuracy vs.\ calibration) for CNN-based models.
   \item Read a CNN as a learned feature map and connect that viewpoint to linear margins (hinge/soft-margin) and earlier kernel-style ideas in \Cref{chap:supervised}.
-  \item Describe practical stabilizers (BN, dropout, weight decay, optimizers) and the failure signatures they address.
+  \item Describe practical stabilizers (batch normalization (BN), dropout, weight decay, optimizers) and the failure signatures they address.
 \end{itemize}
 \end{tcolorbox}
 
@@ -205,7 +205,7 @@ Pooling is not ``more correct'' than strided convolutions; it is a trade-off. If
 \subsection{Channels and feature maps}
 \label{sec:cnn_channels_and_feature_maps}
 
-Real inputs are multi-channel. An RGB image has three channels, so a \(k\times k\) filter is really \(k\times k\times C_{\text{in}}\) and produces one output map. A convolutional layer applies \(C_{\text{out}}\) such filters, yielding a volume of feature maps with shape \(H\times W\times C_{\text{out}}\). This is why ``same'' padding refers to spatial dimensions only: channel depth is set by the number of filters, not by padding.
+Real inputs are multi-channel. A red\hyp{}green\hyp{}blue (RGB) image has three channels, so a \(k\times k\) filter is really \(k\times k\times C_{\text{in}}\) and produces one output map. A convolutional layer applies \(C_{\text{out}}\) such filters, yielding a volume of feature maps with shape \(H\times W\times C_{\text{out}}\). This is why ``same'' padding refers to spatial dimensions only: channel depth is set by the number of filters, not by padding.
 
 \begin{tcolorbox}[summarybox, title={Dimensionality accounting example}]
 Start with an input tensor of size \(50\times50\times30\). Apply \(10\) filters of size \(3\times3\) with stride \(1\) and valid padding. The spatial size becomes \(50-3+1=48\), so the output is \(48\times48\times10\). Apply \(2\times2\) max pooling with stride \(2\): the spatial size becomes \(\left\lfloor(48-2)/2\right\rfloor + 1 = 24\), so the pooled output is \(24\times24\times10\). Flattening that volume yields \(24\cdot24\cdot10=5760\) features for a dense classifier.
@@ -230,14 +230,14 @@ A useful way to read a CNN is as a learned feature map \(\phi_\theta(\cdot)\) fo
 
 \textbf{Margins and hinge.} If you replace cross\hyp{}entropy with a hinge-style objective, you are pushing for a margin in the learned feature space. This is the same geometric idea as the soft-margin story in \Cref{chap:supervised}; the difference is that kernels fix the feature map ahead of time, while CNNs learn \(\phi_\theta\) from data.
 
-\textbf{Metric choice.} Accuracy is not enough when scores are used as probabilities. Track calibration (e.g., reliability/ECE) and slice performance, as emphasized in \Cref{chap:logistic} and revisited in the audit boxes later in this chapter.
+\textbf{Metric choice.} Accuracy is not enough when scores are used as probabilities. Track calibration (e.g., reliability curves and expected calibration error (ECE)) and slice performance, as emphasized in \Cref{chap:logistic} and revisited in the audit boxes later in this chapter.
 \end{tcolorbox}
 
 \paragraph{Multi-branch convolution blocks (Inception idea).}
 \label{sec:cnn_multi_branch_convolution_blocks_inception_idea}
 One practical variant is to run multiple filter sizes in parallel (for example \(1\times1\), \(3\times3\), and \(5\times5\)) and concatenate the resulting feature maps along the channel axis. This allows the network to capture multi-scale patterns without committing to a single kernel size. When branches must line up spatially, \emph{same} padding is used to keep all outputs the same height and width; pooling branches often pad for this alignment even though pooling by itself is usually unpadded.
 
-At scale, this architectural prior became decisive once large labeled datasets and GPU training matured: the sample-efficiency and compute-efficiency gap versus classical kernel pipelines narrowed and then flipped in favor of deep convolutional stacks.
+At scale, this architectural prior became decisive once large labeled datasets and graphics processing units (GPUs) and training pipelines matured: the sample-efficiency and compute-efficiency gap versus classical kernel pipelines narrowed and then flipped in favor of deep convolutional stacks.
 
 \paragraph{Stack depth versus receptive field.} Stacking identical \(3\times3\) filters still grows the effective receptive field: each stage wraps a thicker box around the original pixels, which explains why deep-but-narrow CNNs can capture wide spatial context without enormous kernels even when individual kernels remain small. \Cref{fig:cnn_receptive_field_growth} sketches the nested growth across depth.
 
@@ -320,10 +320,10 @@ The derivative is maximized at $\sigma(x)=0.5$, where $\sigma'(x)=0.25$, so repe
 
 \begin{tcolorbox}[summarybox, title={Training failure signatures (symptom $\rightarrow$ likely fixes)}]
 \begin{itemize}
-    \item \textbf{Loss becomes NaN / diverges quickly:} lower learning rate; check data normalization; add gradient clipping; verify BN statistics (or switch norm).
+    \item \textbf{Loss becomes NaN (not a number) / diverges quickly:} lower learning rate; check data normalization; add gradient clipping; verify BN statistics (or switch norm).
     \item \textbf{Training loss decreases but validation stalls:} audit split hygiene (\Cref{chap:supervised}); add regularization (weight decay, dropout); strengthen augmentation; check shortcut features via slice tests.
     \item \textbf{Both training and validation improve slowly:} revisit initialization and normalization; try momentum/AdamW; confirm the objective matches the metric you care about.
-    \item \textbf{High accuracy but poor probability decisions:} audit calibration (reliability/ECE) and re-threshold on held-out data rather than trusting raw scores (\Cref{chap:logistic}).
+    \item \textbf{High accuracy but poor probability decisions:} audit calibration (reliability curves, ECE) and re-threshold on held-out data rather than trusting raw scores (\Cref{chap:logistic}).
 \end{itemize}
 \end{tcolorbox}
 
@@ -402,7 +402,7 @@ As a concrete diagnostic, \Cref{fig:lec6-dropout} shows how dropout can flatten 
 \end{figure}
 
 
-\paragraph{Adaptive optimizers.} While plain SGD (often called ``vanilla'' SGD) remains a workhorse, Adam and related methods adapt learning rates per-parameter \citep{Kingma2015}. \Cref{fig:lec6-optimizers} summarizes the typical loss trajectories; Adam converges faster initially, whereas SGD+momentum often attains a slightly lower asymptote after fine-tuning.
+\paragraph{Adaptive optimizers.} While plain SGD remains a workhorse, Adam and related methods adapt learning rates per-parameter \citep{Kingma2015}. \Cref{fig:lec6-optimizers} summarizes the typical loss trajectories; Adam converges faster initially, whereas SGD+momentum often attains a slightly lower asymptote after fine-tuning.
 
 \begin{figure}[t]
     \centering

@@ -72,7 +72,7 @@ A useful mental model is to imagine that each word is a \emph{graded bundle of a
 \begin{table}[t]
 \centering
 \small
-\caption{Feature-based word vectorization example. Each word is mapped to a vector of graded semantic features; fractional entries (e.g., 0.5) indicate mixed usage across contexts. Use it when building intuition for how discrete symbols become vectors that downstream models can consume.}
+\caption{Feature-based word vectorization example. Each word is mapped to a vector of graded semantic features; fractional entries (e.g., 0.5) indicate mixed usage across contexts. Treat this as an intuition pump: real embedding coordinates are learned from data rather than hand-assigned.}
 \label{tab:word_feature_vectorization}
 \begin{tabular}{l|cccccccc}
 \textbf{Word} & Gender & Royalty & Age & Person & Fruit & Title & Abstract & Sweet \\
@@ -340,7 +340,7 @@ Z = \sum_{w=1}^V \exp(\mathbf{h}\,\mathbf{u}_w)
 
 \begin{tcolorbox}[summarybox, title={Recipe: skip-gram with negative sampling}]
 Preprocess: tokenize (BPE/WordPiece or whitespace), lowercase if appropriate, drop rare words below a cutoff, subsample frequent words with \(t\approx 10^{-5}\).\\
-Hyperparameters: window \(c=2\)--\(5\) (often dynamic/symmetric), embedding dim \(d=100\)--\(300\), negatives \(k=5\)--\(20\), unigram noise \(P_n(w)\propto f(w)^{0.75}\), LR on the order of \(10^{-3}\)--\(10^{-2}\).\\
+Hyperparameters: window \(c=2\)--\(5\) (often dynamic/symmetric), embedding dim \(d=100\)--\(300\), negatives \(k=5\)--\(20\), unigram noise \(P_n(w)\propto f(w)^{0.75}\), learning rate on the order of \(10^{-3}\)--\(10^{-2}\).\\
 Per-positive loss (one context word): \(-\log \sigma(\mathbf{h}\,\mathbf{u}_{\text{pos}}) - \sum_{i=1}^k \log \sigma(-\mathbf{h}\,\mathbf{u}_{\text{neg}, i})\); complexity \(O(k)\) vs. \(O(V)\) for full softmax.
 \end{tcolorbox}
 
@@ -465,7 +465,7 @@ Recall that our goal is to obtain a global vector representation for words, capt
     \centering
     \includegraphics[width=0.82\linewidth]{lec14_analogy_geometry}
     % Avoid inline math in captions; it wraps poorly in some EPUB renderers.
-    \caption{Analogy geometry in embedding space. The offset ``v(king) - v(man) + v(woman) approx v(queen)'' forms a parallelogram; a similar gender direction shifts ``doctor'' toward ``nurse.'' Solid and dashed vectors highlight the shared relational direction. Points are shown after 2D PCA, so directions are approximate. Use it when checking whether embedding offsets encode consistent relations and reveal bias directions.}
+    \caption{Analogy geometry in embedding space. The offset ``v(king) - v(man) + v(woman) approx v(queen)'' forms a parallelogram; a similar gender direction shifts ``doctor'' toward ``nurse.'' Solid and dashed vectors highlight the shared relational direction. Points are shown after a 2D principal component analysis (PCA) projection, so directions are approximate.}
     \label{fig:lec8-embedding-clusters}
 \end{figure}
 
@@ -610,9 +610,11 @@ An important consideration in word embedding models is the presence of bias inhe
 
 \paragraph{Sources of Bias}
 
-- \textbf{Cultural Bias:} Text corpora often contain stereotypes or skewed representations of gender, ethnicity, and other social categories (e.g., news archives that associate ``nurse'' more frequently with women than men).
-- \textbf{Historical Bias:} Older texts may reflect outdated or prejudiced views. Digitized literature from the 19th century, for instance, over-represents colonial perspectives.
-- \textbf{Language-Specific Bias:} Different languages and dialects encode different cultural norms and connotations, such as grammatical gender or honorifics that privilege particular groups.
+\begin{itemize}
+    \item \textbf{Cultural bias:} Text corpora often contain stereotypes or skewed representations of gender, ethnicity, and other social categories (e.g., news archives that associate ``nurse'' more frequently with women than men).
+    \item \textbf{Historical bias:} Older texts may reflect outdated or prejudiced views. Digitized literature from the 19th century, for instance, over-represents colonial perspectives.
+    \item \textbf{Language-specific bias:} Different languages and dialects encode different cultural norms and connotations, such as grammatical gender or honorifics that privilege particular groups.
+\end{itemize}
 
 \paragraph{Impact on Embeddings}
 
@@ -625,9 +627,11 @@ illustrates that many embeddings support approximately linear semantic relations
 \paragraph{Debiasing Techniques}
 
 Addressing bias in embeddings is an active area of research. Techniques include:
-- \textit{Post-processing} embeddings to remove bias directions (e.g., Hard Debiasing by \citet{Bolukbasi2016}).
-- \textit{Data augmentation} to balance training corpora or swap gendered terms.
-- \textit{Regularization} during training to penalize biased associations or enforce equality constraints.
+\begin{itemize}
+    \item \textit{Post-processing} embeddings to remove bias directions (e.g., Hard Debiasing by \citet{Bolukbasi2016}).
+    \item \textit{Data augmentation} to balance training corpora or swap gendered terms.
+    \item \textit{Regularization} during training to penalize biased associations or enforce equality constraints.
+\end{itemize}
 
 \paragraph{Cross-Lingual Challenges}
 
@@ -636,8 +640,8 @@ When extending embeddings to multiple languages, biases can manifest differently
 \begin{tcolorbox}[summarybox, title={Practical bias checks}]
 \begin{itemize}
     \item \textbf{Dataset audit:} Inspect class balance, label sources, and sensitive attributes; check for under-represented groups and spurious correlations (e.g., profession \(\leftrightarrow\) gender cues).
-    \item \textbf{Calibration and reliability:} Evaluate calibration (ECE, reliability diagrams) overall and for key subgroups; severely miscalibrated models magnify harm when used for decision support.
-    \item \textbf{Disaggregated evaluation:} Report accuracy, ROC/PR, and calibration metrics by subgroup rather than only aggregate scores; look for systematic performance gaps.
+    \item \textbf{Calibration and reliability:} Evaluate calibration (expected calibration error (ECE), reliability diagrams) overall and for key subgroups; severely miscalibrated models magnify harm when used for decision support.
+    \item \textbf{Disaggregated evaluation:} Report accuracy, receiver operating characteristic / precision--recall (ROC/PR), and calibration metrics by subgroup rather than only aggregate scores; look for systematic performance gaps.
     \item \textbf{Mitigation loop:} Combine data interventions (rebalancing, augmentation) with model-side debiasing and re-evaluation; treat mitigation as an iterative, experiment-driven process.
 \end{itemize}
 \end{tcolorbox}
@@ -651,7 +655,7 @@ Embedding spaces faithfully capture geometry (analogies, clusters) precisely bec
 \begin{enumerate}
     \item \textbf{Purpose \& consent.} Document the use-case, decision stakes, and where humans remain in the loop; distinguish exploratory prototypes from production decision aids.
     \item \textbf{Data lineage \& licensing.} Track licenses for each corpus (newswire, Common Crawl, proprietary logs) and state whether downstream users may redistribute the embeddings or derived models.
-    \item \textbf{Privacy \& security.} Scan corpora for PII, redact when necessary, and restrict raw-data access. When embeddings leave the lab, accompany them with an acceptable-use policy and redaction guarantees.
+    \item \textbf{Privacy \& security.} Scan corpora for personally identifiable information (PII), redact when necessary, and restrict raw-data access. When embeddings leave the lab, accompany them with an acceptable-use policy and redaction guarantees.
     \item \textbf{Monitoring.} Deploy subgroup-aware metrics, calibration checks, and toxicity filters in production; log drifts and institute retraining/rollback thresholds.
     \item \textbf{Documentation.} Ship a short ``model card'' summarizing intended uses, failure modes, and evaluation data so downstream teams can reason about fit-for-purpose decisions.
 \end{enumerate}

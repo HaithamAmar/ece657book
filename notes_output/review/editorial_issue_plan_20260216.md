@@ -1452,3 +1452,17 @@ Build notes (2026-02-17):
 - 2026-02-26: Ran `python3 notes_output/scripts/validate_math_examples_and_graphs.py --strict` after the edits. Result: PASS.
 - 2026-02-26: Ran `bash notes_output/scripts/run_production_checks.sh` after the edits. Result: PASS (release checks, Apple
   gatekeeper audits, and EPUBCheck all OK).
+
+## 2026-02-26 Chapters 11--13 (CNN \textrightarrow{} RNN \textrightarrow{} NLP bridge) slide-fragment + definition-at-first-use sweep
+
+- `notes_output/lecture_6.tex`: expanded ERM/MSE/BN/ECE/GPU at first use (empirical risk minimization, mean squared error,
+  batch normalization, expected calibration error, graphics processing units); removed the slang ``vanilla SGD'' phrasing;
+  expanded RGB and NaN once where used in training-debug bullets.
+- `notes_output/lecture_7.tex`: expanded RNN at first use (recurrent neural networks); tightened the masked-loss pseudocode to
+  keep the cross-entropy shorthand explicit without introducing long, overfull verbatim lines.
+- `notes_output/lecture_8_part_i.tex`: removed remaining template-y caption phrasing (``Use it when ...''); converted the bias
+  source and debiasing dash-bullets into proper itemize blocks; expanded ECE/ROC-PR/PII at first use in the bias/deployment
+  checklists; replaced ``LR'' with ``learning rate'' in the negative-sampling recipe box.
+- 2026-02-26: Ran `python3 notes_output/scripts/validate_math_examples_and_graphs.py --strict` after the edits. Result: PASS.
+- 2026-02-26: Ran `bash notes_output/scripts/run_production_checks.sh` after the edits. Result: PASS (release checks, Apple
+  gatekeeper audits, and EPUBCheck all OK).
