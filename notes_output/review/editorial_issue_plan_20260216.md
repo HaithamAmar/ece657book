@@ -1318,6 +1318,23 @@ Build notes (2026-02-17):
 - EPUB placement spot-check: in `EPUB/text/ch016.xhtml`, the Hopfield figures appear near their first references (energy-descent
   and basin-schematic figures are inline with links in the surrounding paragraphs; no float drift observed for Chapter 10).
 
+## 2026-02-26 Part II (up to RNN) terminology + de-slide polish
+
+- `notes_output/lecture_7.tex`: reduced language-model-first framing so the RNN chapter reads as general sequence modeling
+  (next-step prediction as the generic task; language modeling moved into an explicitly labeled optional preview, with a
+  forward pointer to \Cref{chap:nlp} for tokenization/embeddings/perplexity).
+- `notes_output/lecture_7.tex`: removed the last ``Vanilla'' phrasing (renamed the BPTT pseudocode box to ``Simple (ungated)'')
+  and tightened the ``steps/representations'' terminology paragraph to emphasize \(\mathbf{x}_t\) as the generic numeric input.
+- `notes_output/lecture_6.tex`: replaced ``bookkeeping'' phrasing with more direct ``accounting'' language in the convolution
+  terminology note, the dimensionality example box title, and the common-pitfall bullet (keeps the same meaning, less jargon).
+- `notes_output/lecture_3_part_i.tex`, `notes_output/lecture_3_part_ii.tex`: similarly replaced repeated ``bookkeeping'' uses
+  with ``accounting''/``tracking'' to reduce drift and keep a consistent engineering tone across Part II.
+- EPUB sanity: the current `epub_builder/dist/*` navigation TOCs include ``Chapter 9'' (SOM) correctly; a missing ``9'' in a
+  reader is likely an older/cached EPUB.
+- 2026-02-26: Ran `python3 notes_output/scripts/validate_math_examples_and_graphs.py --strict` after the edits. Result: PASS.
+- 2026-02-26: Ran `bash notes_output/scripts/run_production_checks.sh` after the edits. Result: PASS (release checks, Apple
+  gatekeeper audits, and EPUBCheck all OK).
+
 ## 2026-02-25 Chapter 10 (Hopfield) debug checklist + non-template modern-Hopfield tightening
 
 - `notes_output/lecture_5_part_ii.tex`: added a short implementation checklist (symmetry/diagonal, energy convention, async vs

@@ -19,7 +19,7 @@ By the end of this chapter, you should be able to:
 \end{tcolorbox}
 
 \begin{tcolorbox}[summarybox, title={Design motif}]
-Start small. Keep every intermediate quantity visible. Let the chain rule explain how the learning signal moves, and use quick numerical checks to catch sign and bookkeeping mistakes early.
+Start small. Keep every intermediate quantity visible. Let the chain rule explain how the learning signal moves, and use quick numerical checks to catch sign and accounting mistakes early.
 \end{tcolorbox}
 
 \subsection{From a single unit to the smallest network}
@@ -33,7 +33,7 @@ The chapter follows one tight loop:
     \item \textbf{Move:} update parameters using the direction given by derivatives (gradient descent).
     \item \textbf{Fix:} Take out the threshold and make the unit differentiable so the learning signal can pass through it.
 \end{itemize}
-Once you can execute this loop for two neurons, scaling to many neurons is mostly bookkeeping; we return to the organization when we scale up.
+Once you can execute this loop for two neurons, scaling to many neurons is mostly accounting; we return to the organization when we scale up.
 \paragraph{How this chapter fits the workflow.}
 The objective-and-audit loop still applies; what changes is the \emph{representation}. Once a model has internal computations, you have to keep track of intermediate variables and make sure the learning signal can actually pass through them. Before you scale up, do a few small sanity checks: confirm the forward pass, confirm the gradient signs, and check one tiny numerical update.
 \begin{itemize}
@@ -43,7 +43,7 @@ The objective-and-audit loop still applies; what changes is the \emph{representa
 \end{itemize}
 
 \paragraph{Function estimation as the unifying view.}
-Learning is about building a usable input\(\rightarrow\)output mapping from examples. The difference from linear models is not the goal, but the \emph{representation}: a neural network builds the mapping by composing simple units, so intermediate signals become part of the model. Each unit implements its own local mapping (from its input to its pre-activation and activation), and these local maps accumulate into a successful nonlinear mapping \(f: X \to Y\). In this chapter we keep the bookkeeping minimal---one tiny network and a simple squared-error objective---so we can focus on how the update rules emerge.
+Learning is about building a usable input\(\rightarrow\)output mapping from examples. The difference from linear models is not the goal, but the \emph{representation}: a neural network builds the mapping by composing simple units, so intermediate signals become part of the model. Each unit implements its own local mapping (from its input to its pre-activation and activation), and these local maps accumulate into a successful nonlinear mapping \(f: X \to Y\). In this chapter we keep the accounting minimal---one tiny network and a simple squared-error objective---so we can focus on how the update rules emerge.
 
 \paragraph{From one unit to a chain of units.}
 A single unit (the perceptron) computes a weighted sum and then applies an activation:
@@ -58,7 +58,7 @@ The smallest step beyond a single unit is a \emph{two\hyp{}neuron chain}: one un
  p_1 &= \mathbf{w}_1^\top \mathbf{x} + b_1, & y_1 &= f(p_1), \\
  p_2 &= w_2 y_1 + b_2, & y_2 &= f(p_2). \label{eq:two_neuron_forward}
 \end{align}
-This is the point where the unit becomes a building block: an intermediate signal $y_1$ is computed, reused, and then transformed again. Complexity now comes not only from what each block does in isolation, but from how the blocks connect, and how a change in one propagates to the other. We will reuse \Cref{fig:mlp_minimal_chain} as our bookkeeping diagram when we apply the chain rule.
+This is the point where the unit becomes a building block: an intermediate signal $y_1$ is computed, reused, and then transformed again. Complexity now comes not only from what each block does in isolation, but from how the blocks connect, and how a change in one propagates to the other. We will reuse \Cref{fig:mlp_minimal_chain} as our tracking diagram when we apply the chain rule.
 
 \begin{figure}[t]
     \centering
@@ -368,7 +368,7 @@ You run a forward pass that stores what you will need, then a backward pass that
     \item \textbf{Implement:} treat the chapter equations as a forward function plus a scalar loss; write them once in vector form before batching.
     \item \textbf{Cache:} keep \((\mathbf{x}, p_1, y_1, p_2, y_2)\) from the forward pass so each gradient term is a local reuse, not a re-derivation.
     \item \textbf{Fail-fast checks:} run finite-difference gradient checks on a tiny example, then track train/validation divergence to catch update-sign or step-size mistakes early.
-    \item \textbf{Handoff:} the same cache-then-backward discipline scales directly; only bookkeeping grows.
+    \item \textbf{Handoff:} the same cache-then-backward discipline scales directly; only the index/shape accounting grows.
 \end{itemize}
 \end{tcolorbox}
 
@@ -384,7 +384,7 @@ You run a forward pass that stores what you will need, then a backward pass that
 \end{tcolorbox}
 
 \begin{tcolorbox}[summarybox, title={Exercises and lab ideas}]
-\noindent\textbf{Try these while the network is still small.} These reinforce the two\hyp{}neuron derivation and prepare you for multi-layer bookkeeping.
+\noindent\textbf{Try these while the network is still small.} These reinforce the two\hyp{}neuron derivation and prepare you for multi-layer accounting.
 \begin{itemize}
     \item \textbf{Numerical gradient check:} Implement finite differences for the two\hyp{}neuron chain and compare to your analytic gradients; report relative error and track down the first mismatch.
     \item \textbf{Step vs.\ sigmoid:} Replace the smooth activation with a hard threshold and observe what breaks when you try to compute updates via derivatives.

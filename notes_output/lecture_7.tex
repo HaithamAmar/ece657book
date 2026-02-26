@@ -25,7 +25,7 @@ Sequence problems break that interface. When order matters, the model needs a st
 
 Most of the models we have built so far make a quiet assumption about the data: examples are independent and identically distributed (i.i.d.). If you shuffle the dataset, nothing essential changes. That assumption is fine for many supervised tasks on static inputs (tabular rows, images), but it breaks for sequences.
 
-In time series, yesterday changes what you expect at the next step. In language, the same words in a different order can mean something else entirely, and the next word depends on the whole prefix. You can see that in predictive text: ``I want to buy \ldots'' pulls you toward different completions than ``Write a book about Teddy \ldots'' even before you specify what you are buying or writing about. In control, current action depends on prior state; in speech, a phoneme depends on the surrounding context.
+In time series, yesterday changes what you expect at the next step. In language, the same words in a different order can mean something else entirely, and the next word depends on the whole prefix. You can see that in predictive text: ``I want to buy \ldots'' pulls you toward different completions than ``Write a book about Teddy \ldots'' even before you specify what you are buying or writing about. In control, current action depends on prior state; in speech, a phoneme depends on the surrounding phonemes.
 
 One brute-force workaround is to build a fixed history window and feed it to a standard MLP: at time \(t\), concatenate \(\mathbf{x}_t,\mathbf{x}_{t-1},\ldots,\mathbf{x}_{t-k}\) and ask the network to predict \(y_t\). That can work for short memory, but it scales poorly as \(k\) grows, and it does not reuse parameters in a way that reflects the repeated structure of ``the same kind of step happens again and again''.
 
@@ -52,8 +52,8 @@ The output $\mathbf{y}_t$ at time $t$ is then computed as a function of the curr
 
 Here, $f$ and $g$ are typically nonlinear functions implemented by neural network layers, and $\theta, \theta'$ are learned parameters.
 
-\paragraph{Terminology (time steps versus tokens).}
-Throughout this chapter, \(t\) indexes \emph{steps} in a sequence. In a time series, \(\mathbf{x}_t\) can be a measured feature vector. In language, the sequence is discrete: each step corresponds to a \emph{token} \(w_t\) (a word or subword unit from a finite vocabulary), and the numeric input \(\mathbf{x}_t\) is typically an embedding vector looked up from a learned table. We keep the math generic in \(\mathbf{x}_t\) so the same derivations apply across domains.
+\paragraph{Terminology (steps and representations).}
+Throughout this chapter, \(t\) indexes \emph{steps} in a sequence. In a time series, \(\mathbf{x}_t\) can be a measured feature vector. In other domains the raw observation at step \(t\) can be discrete (a symbol from a finite set) or structured (a set of features), but it is always converted into a numeric input vector \(\mathbf{x}_t\) before it enters the recurrence. We keep the derivations in \(\mathbf{x}_t\) so the same math applies across domains; \Cref{chap:nlp} makes the ``discrete symbols \(\rightarrow\) vectors'' story concrete for text.
 
 \paragraph{Interpretation:} The hidden state $\mathbf{h}_t$ acts as a \emph{summary} or \emph{encoding} of the entire input history $\{\mathbf{x}_1, \mathbf{x}_2, \ldots, \mathbf{x}_t\}$. This allows the network to make predictions that depend on order and history, not just the current input.
 
@@ -348,7 +348,7 @@ for t in range(T):
 Choose \(K\) to balance memory and credit assignment (common range: 20--100 steps).
 \end{tcolorbox}
 
-\begin{tcolorbox}[summarybox, title={Vanilla RNN cell (forward + BPTT)}]
+\begin{tcolorbox}[summarybox, title={Simple (ungated) RNN cell (forward + BPTT)}]
 \begin{verbatim}
 # Forward for a sequence {x_t, y_t}
 h_0 = 0
@@ -371,7 +371,7 @@ for t = T..1:
     delta_pre_next = delta_pre
     if t < T-K: break  # truncated BPTT
 \end{verbatim}
-Use gradient clipping (e.g., clip the global norm of parameter gradients) and layer/batch normalization when sequences are long to avoid exploding/vanishing gradients.
+Use gradient clipping (e.g., clip the global norm of parameter gradients) and prefer LayerNorm over BatchNorm inside recurrence when sequences are long to avoid exploding/vanishing gradients.
 \end{tcolorbox}
 
 The element-wise product in the backward step corresponds to the Hadamard factors described in the derivation in \Cref{chap:mlp}; we write it as \texttt{.*} to align with NumPy/Matlab notation.
@@ -917,7 +917,11 @@ Gating (LSTM/GRU) made long-range gradient flow workable by creating additive me
 \subsection{Wrapping Up the Derivations}
 \label{sec:rnn_wrapping_up_the_derivations}
 
-One canonical sequence task is language modeling: predict the next token from the preceding prefix.
+One canonical sequence task is \emph{next-step prediction}: use the history up to step \(t\) to predict a target at step \(t+1\). The target can be continuous (forecasting), categorical (a label at each step), or discrete from a finite set (symbols/words). The mechanics are the same: define a per-step predictive distribution (or regression output), accumulate a loss over time, and train by BPTT on the unrolled computation graph.
+
+\subsubsection{Optional: language modeling as next-step prediction (preview)}
+\label{sec:rnn_optional_language_modeling_preview}
+Language modeling is the discrete-symbol case: predict the next token from the preceding prefix.
 
 Recall that the goal is to estimate the conditional probability of a word \( w_t \) given the sequence of previous words \( w_1, w_2, \ldots, w_{t-1} \):
 \begin{equation}
@@ -943,7 +947,7 @@ Given a training sequence \( (w_1, w_2, \ldots, w_T) \), we typically train by m
 \label{eq:auto_rnn_1c468f5940}
 \end{equation}
 
-This is just cross-entropy over the vocabulary at each step: the model is rewarded for assigning high probability to the observed next token. A common reporting metric is \emph{perplexity}, defined as \(\exp(\text{average NLL per token})\); lower perplexity means the model assigns higher probability to the observed text.
+This is just cross-entropy over the vocabulary at each step: the model is rewarded for assigning high probability to the observed next token. A common reporting metric is \emph{perplexity}, defined as \(\exp(\text{average NLL per token})\); lower perplexity means the model assigns higher probability to the observed text. If you are not working with text, you can ignore perplexity---the underlying idea is simply ``negative log-likelihood per step.'' \Cref{chap:nlp} returns to this objective in a more application-facing way (tokenization, embeddings, and audit considerations).
 
 \paragraph{Self-supervised nature of language modeling}
 
@@ -967,10 +971,10 @@ where \(\sigma(\cdot)\) is the logistic sigmoid and \(\hat{y}\) is the predicted
 
 This setup highlights a subtle but important dependency between \emph{representation} and \emph{generalization}. If tokens are treated as unrelated IDs (e.g., purely one-hot indicators), then ``great'' and ``awesome'' are orthogonal inputs: the model has no built-in reason to transfer evidence across similar words unless the training objective supplies a geometry that makes them nearby. In \Cref{chap:nlp}, we return to this same kind of task and show how learning word vectors from neighboring words gives the model a meaningful input space before any sequence model is applied.
 
-\begin{tcolorbox}[summarybox, title={From corpus to next-token model (a minimal checklist)}]
-A minimal language\hyp{}model run looks like this. First choose a vocabulary (and a tokenization scheme) and map the text to IDs. Those IDs become numeric inputs by looking up embeddings \(\mathbf{x}_t\). Next pick the recurrent cell \(f\) (simple RNN, GRU, or LSTM) and the output map \(g\), then train with the next\hyp{}token objective \eqref{eq:auto_rnn_1c468f5940} using truncated BPTT and correct padding masks. Finally, monitor validation NLL/perplexity and keep an eye on gradient norms; clipping is the first safety valve when sequences get long.
+\begin{tcolorbox}[summarybox, title={From sequence data to a next-step model (a minimal checklist)}]
+A minimal sequence\hyp{}model run looks like this. First decide how each step becomes a numeric input vector \(\mathbf{x}_t\) (measured features, engineered features, or learned embeddings). Next decide the prediction target shape (many\hyp{}to\hyp{}one label, many\hyp{}to\hyp{}many labeling, or next\hyp{}step prediction), then pick the recurrent cell \(f\) (simple RNN, GRU, or LSTM) and the output map \(g\). Train with a per\hyp{}step loss summed over time using truncated BPTT and correct padding masks. Finally, monitor validation loss and gradient norms; clipping is the first safety valve when sequences get long.
 \par\smallskip
-It is the same ERM loop as earlier chapters; the only new wrinkle is that the loss (and therefore the gradients) accumulates across time as well as across batches.
+It is the same ERM loop as earlier chapters; the new wrinkle is that the loss (and therefore the gradients) accumulates across time as well as across batches. In \Cref{chap:nlp}, we specialize this checklist to text (discrete symbols, embeddings, next\hyp{}token loss, and perplexity).
 \end{tcolorbox}
 
 \begin{tcolorbox}[summarybox, title={LSTM and GRU equations (compact)}]
@@ -1004,17 +1008,18 @@ Variable-length sequences are almost always padded to a common length for batchi
 
 \begin{tcolorbox}[summarybox, title={Key takeaways}]
 \begin{itemize}
-\item Language modeling is trained by minimizing next-token negative log-likelihood (cross-entropy); perplexity is a readable re-expression of that loss.
-    \item Token vectors provide the numeric inputs; RNN hidden states encode history over time.
-    \item Stability tools (clipping, gating, attention) enable long-range dependency modeling.
+\item Sequence losses add across time; shared parameters mean gradients accumulate across unrolled steps (BPTT).
+\item Truncated BPTT and padding masks are the engineering tools that make training feasible on long and variable\hyp{}length sequences.
+\item Stability tools recur across architectures: clipping, gating (GRU/LSTM), and normalization; attention offers an alternative route to long\hyp{}range dependencies.
+\item For text, the sequence is discrete and inputs are embeddings; \Cref{chap:nlp} makes that concrete and introduces next\hyp{}token cross\hyp{}entropy and perplexity as a domain\hyp{}specific diagnostic.
 \end{itemize}
 
 \medskip
 \noindent\textbf{A good checkpoint.}
 \begin{itemize}
-    \item Define the next-token objective and relate cross-entropy, perplexity, and log-likelihood.
-    \item Explain BPTT, truncation, and masking for variable-length sequences.
+    \item Explain BPTT, truncation, and masking for variable\hyp{}length sequences.
     \item Describe why gates help (information and gradient flow) and when attention is a practical alternative.
+    \item If you care about language modeling, relate cross\hyp{}entropy, log\hyp{}likelihood, and perplexity after reading \Cref{chap:nlp}.
 \end{itemize}
 
 \noindent\textbf{Common pitfalls.}
@@ -1027,8 +1032,10 @@ Variable-length sequences are almost always padded to a common length for batchi
 
 \begin{tcolorbox}[summarybox, title={Exercises and lab ideas}]
 \begin{itemize}
-    \item Train a many-to-one sentiment classifier; plot gradient norms with and without clipping.
-    \item Train a small LSTM language model; compare perplexity with/without weight tying and scheduled sampling.
+    \item Train a many\hyp{}to\hyp{}one sentiment classifier; plot gradient norms with and without clipping.
+    \item Train a small time\hyp{}series predictor; compare full BPTT vs.\ truncated BPTT windows and quantify the stability trade\hyp{}off.
+    \item Implement a many\hyp{}to\hyp{}many tagging model; verify that padding masks do not affect the loss or gradients.
+    \item Optional preview: train a small LSTM next\hyp{}token model; compare perplexity with/without weight tying and scheduled sampling (then revisit in \Cref{chap:nlp}).
     \item Empirically sweep \(\|\mathbf{W}_{hh}\|\) (spectral scaling) and reproduce vanishing/exploding behavior.
     \item Implement the masked, truncated-BPTT loop above and verify that pads do not affect the loss.
 \end{itemize}

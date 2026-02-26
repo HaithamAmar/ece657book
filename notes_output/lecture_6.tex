@@ -136,7 +136,7 @@ For an input feature map \(X\) and filter \(K\), the (cross-correlation) output 
 \]
 
 \begin{tcolorbox}[summarybox, title={Author's note: ``convolution'' vs.\ cross-correlation}]
-In most deep-learning libraries, the operation called ``convolution'' is technically \emph{cross-correlation}: the kernel is not flipped before sliding. The name stuck because the two operations differ only by a reversal of the kernel, and the kernel is learned anyway. What matters in practice is that the ``filter'' is a small learned weight matrix that is applied repeatedly across space (weight sharing). Learn the shapes, the stride/padding bookkeeping, and the inductive bias; the terminology is imperfect but the idea is powerful.
+In most deep-learning libraries, the operation called ``convolution'' is technically \emph{cross-correlation}: the kernel is not flipped before sliding. The name stuck because the two operations differ only by a reversal of the kernel, and the kernel is learned anyway. What matters in practice is that the ``filter'' is a small learned weight matrix that is applied repeatedly across space (weight sharing). Learn the shapes, the stride/padding accounting, and the inductive bias; the terminology is imperfect but the idea is powerful.
 \end{tcolorbox}
 With stride \(s\) and padding \(p\), the output size along one axis is
 \[
@@ -207,7 +207,7 @@ Pooling is not ``more correct'' than strided convolutions; it is a trade-off. If
 
 Real inputs are multi-channel. An RGB image has three channels, so a \(k\times k\) filter is really \(k\times k\times C_{\text{in}}\) and produces one output map. A convolutional layer applies \(C_{\text{out}}\) such filters, yielding a volume of feature maps with shape \(H\times W\times C_{\text{out}}\). This is why ``same'' padding refers to spatial dimensions only: channel depth is set by the number of filters, not by padding.
 
-\begin{tcolorbox}[summarybox, title={Dimensionality bookkeeping example}]
+\begin{tcolorbox}[summarybox, title={Dimensionality accounting example}]
 Start with an input tensor of size \(50\times50\times30\). Apply \(10\) filters of size \(3\times3\) with stride \(1\) and valid padding. The spatial size becomes \(50-3+1=48\), so the output is \(48\times48\times10\). Apply \(2\times2\) max pooling with stride \(2\): the spatial size becomes \(\left\lfloor(48-2)/2\right\rfloor + 1 = 24\), so the pooled output is \(24\times24\times10\). Flattening that volume yields \(24\cdot24\cdot10=5760\) features for a dense classifier.
 \end{tcolorbox}
 
@@ -486,7 +486,7 @@ This omits batching, convolution strides, and optimizer detail but highlights th
 
 \noindent\textbf{Common pitfalls.}
 \begin{itemize}
-    \item Letting shape bookkeeping drift (mismatched padding/stride) until the first dense layer fails.
+    \item Letting shape accounting drift (mismatched padding/stride) until the first dense layer fails.
     \item Forgetting train/eval mode for batchnorm/dropout, producing misleading validation curves.
     \item Treating pooling as mandatory or always beneficial; in some tasks, stride-2 convolutions or anti-aliasing are better choices.
 \end{itemize}
