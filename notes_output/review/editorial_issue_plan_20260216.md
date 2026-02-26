@@ -1459,7 +1459,8 @@ Build notes (2026-02-17):
   batch normalization, expected calibration error, graphics processing units); removed the slang ``vanilla SGD'' phrasing;
   expanded RGB and NaN once where used in training-debug bullets.
 - `notes_output/lecture_7.tex`: expanded RNN at first use (recurrent neural networks); tightened the masked-loss pseudocode to
-  keep the cross-entropy shorthand explicit without introducing long, overfull verbatim lines.
+  keep the cross-entropy shorthand explicit without introducing long, overfull verbatim lines; defined cross-entropy (CE) and
+  negative log-likelihood (NLL) at first abbreviation use inside the chapter.
 - `notes_output/lecture_8_part_i.tex`: removed remaining template-y caption phrasing (``Use it when ...''); converted the bias
   source and debiasing dash-bullets into proper itemize blocks; expanded ECE/ROC-PR/PII at first use in the bias/deployment
   checklists; replaced ``LR'' with ``learning rate'' in the negative-sampling recipe box.

@@ -234,7 +234,7 @@ Consider an input sequence \(\{\mathbf{x}_1, \mathbf{x}_2, \ldots, \mathbf{x}_T\
 
 \begin{tcolorbox}[summarybox, title={Shapes and masks (batch $B$, time $T$)}]
 Inputs \(X \in \mathbb{R}^{B\times T \times d_x}\); hidden states \(H \in \mathbb{R}^{B\times T \times d_h}\); logits \(Y \in \mathbb{R}^{B\times T \times d_o}\). Parameters (row-major): \(W_{xh}\in\mathbb{R}^{d_x\times d_h}\), \(W_{hh}\in\mathbb{R}^{d_h\times d_h}\), \(W_{hy}\in\mathbb{R}^{d_h\times d_o}\), biases \(b_h\in\mathbb{R}^{d_h}\), \(b_y\in\mathbb{R}^{d_o}\).\\
-Padding mask \(M\in\{0,1\}^{B\times T}\): loss \(L=\sum_{b, t} M_{b, t}\,\text{CE}(\hat y_{b, t}, y_{b, t})/\sum_{b, t} M_{b, t}\). Masks preview the padding/causal masks detailed in \Cref{chap:transformers}.
+Padding mask \(M\in\{0,1\}^{B\times T}\): loss \(L=\sum_{b, t} M_{b, t}\,\text{CE}(\hat y_{b, t}, y_{b, t})/\sum_{b, t} M_{b, t}\), where \(\text{CE}(\cdot,\cdot)\) is the cross-entropy loss. Masks preview the padding/causal masks detailed in \Cref{chap:transformers}.
 \end{tcolorbox}
 \paragraph{Unrolling and shared weights.}
 The cleanest way to understand recurrence is to \emph{unroll time}: the same cell is applied repeatedly, reusing the same parameters at each step. Training then becomes ordinary backpropagation on the unrolled computation graph, with gradients accumulated across every copy of the shared weights (backpropagation through time, BPTT).
@@ -942,7 +942,7 @@ where \( \mathbf{x}_t \) is the input representation (e.g., a word embedding) of
 What the model can remember (and what it must forget) is governed by the state dimension, the update nonlinearity, and the training objective. That is exactly why gradient flow and stabilization tricks matter in practice.
 
 \paragraph{Training objective (negative log-likelihood).}
-Given a training sequence \( (w_1, w_2, \ldots, w_T) \), we typically train by minimizing the negative log-likelihood (equivalently, maximizing the likelihood). With the next-token convention, the loss is
+Given a training sequence \( (w_1, w_2, \ldots, w_T) \), we typically train by minimizing the negative log-likelihood (NLL) (equivalently, maximizing the likelihood). With the next-token convention, the loss is
 \begin{equation}
     \mathcal{L}(\theta) = -\sum_{t=1}^{T-1} \log P(w_{t+1} \mid w_1, \ldots, w_t; \theta).
 \label{eq:auto_rnn_1c468f5940}
