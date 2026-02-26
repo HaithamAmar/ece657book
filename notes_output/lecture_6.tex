@@ -15,10 +15,10 @@ The second thread in this chapter is pragmatic. Deep models are only useful when
 After this chapter, you should be able to:
 \begin{itemize}
   \item Derive convolution/cross-correlation with stride and padding in 1D/2D.
-  \item Explain receptive-field growth across layers and pooling effects.
-  \item Compare loss choices for classification vs. regression and evaluation metrics.
-  \item Connect the hinge-loss/soft-margin ideas from \Cref{chap:supervised} to kernels and CNN features.
-  \item Describe practical optimizers and regularizers (BN, dropout, weight decay).
+  \item Explain receptive-field growth across layers and the role of downsampling.
+  \item Choose losses and metrics deliberately (e.g., cross-entropy vs.\ MSE; accuracy vs.\ calibration) for CNN-based models.
+  \item Read a CNN as a learned feature map and connect that viewpoint to linear margins (hinge/soft-margin) and earlier kernel-style ideas in \Cref{chap:supervised}.
+  \item Describe practical stabilizers (BN, dropout, weight decay, optimizers) and the failure signatures they address.
 \end{itemize}
 \end{tcolorbox}
 
@@ -38,20 +38,16 @@ CNNs emerged as a pragmatic answer: keep end-to-end gradient training, but bake 
 \paragraph{How to read this chapter.}
 \begin{itemize}
     \item \textbf{Core thread (CNNs):} locality + weight sharing $\rightarrow$ convolution/pooling mechanics $\rightarrow$ channels/feature maps $\rightarrow$ end-to-end classifiers.
-    \item \textbf{Going deeper:} depth as receptive-field growth, and why stacked small kernels can see large context.
+    \item \textbf{Going deeper:} depth as receptive-field growth, and why stacked small kernels can see large spatial extent.
     \item \textbf{Training toolkit:} the stabilizers you will reuse later (initialization, activations, normalization, regularization, optimizers).
 \end{itemize}
 
 \subsection{Why fully connected layers break on images}
 \label{sec:cnn_why_fully_connected_layers_break_on_images}
 
-\paragraph{Requirement for large datasets}
+Dense feedforward networks can be competitive on small tabular problems, but on images they become data-hungry fast for two reasons: flattening throws away the grid structure, and dense connectivity explodes parameter count. The issue is not that the model class is ``wrong''; it is that the sample complexity and compute burden are badly mismatched to the structure of vision data.
 
-Dense feedforward networks can be competitive on small tabular problems, but on images they become data-hungry fast: you are trying to learn spatial structure from scratch while fitting millions of parameters. The issue is not that the model class is ``wrong''; it is that the sample complexity and compute burden are badly mismatched to the grid structure of vision data.
-
-\paragraph{High-dimensional inputs and flattening}
-
-Consider image data, which is naturally represented as a 2D matrix (or 3D tensor for color images). For example, a single-channel (grayscale) image of size $256 \times 256$ pixels can be represented as a matrix:
+An image is naturally a 2D array (or a 3D tensor with channels). For example, a single-channel (grayscale) image of size $256 \times 256$ pixels can be represented as a matrix:
 \[
 X \in \mathbb{R}^{256 \times 256}.
 \]
@@ -62,18 +58,14 @@ To input this into a traditional feedforward network, the image must be \textit{
 \]
 where $65,536 = 256 \times 256$ is the total number of pixels.
 
-This flattening process has two major drawbacks:
+That step is not ``wrong,'' but it is expensive. Flattening has two major drawbacks:
 
 \begin{itemize}
     \item \textbf{Loss of spatial structure:} The 2D spatial relationships between pixels are ignored, which is critical for tasks like image recognition.
     \item \textbf{High dimensionality:} The input vector becomes very large, increasing the number of parameters and computational cost, and requiring more data to train effectively.
 \end{itemize}
 
-\paragraph{Implications}
-
 The punchline is not that dense networks ``cannot'' learn images; it is that the price is too high. Without any architectural prior, you pay in parameters, data, and compute. Convolutions and pooling supply that prior: they make the model spend capacity on local patterns and reuse those patterns across the grid.
-
-\paragraph{Parameter Explosion}
 
 The number of weights between the input and hidden layer is:
 \begin{equation}
@@ -123,6 +115,8 @@ With high capacity, ``training accuracy goes up'' is not evidence of learning th
 CNNs replace dense connections with \emph{local receptive fields}. A unit's receptive field is simply the portion of the input that can influence that unit's value through the connections that reach it. The term is borrowed from sensory systems: a neuron ``receives'' evidence from a region, not from everywhere at once.
 
 Each output unit therefore connects to a small neighborhood of pixels, not the entire image. If a \(k \times k\) filter scans a \(H\times W\) input, the number of learned weights is \(k^2\) (per channel), not \(HW\). The same filter is reused at every spatial location, so a single set of parameters detects a pattern anywhere in the image. This parameter sharing is the key to scalability: it cuts the parameter count and preserves translation equivariance.
+
+Equivariance means: if you shift the input, the feature map shifts in the same way. By contrast, invariance means the final decision changes little (or not at all) under small shifts; pooling and downsampling are common ways to trade some equivariance for more invariance at the classifier.
 
 Historically, dense MLPs on image benchmarks struggled to compete with classical pipelines because the parameter count and data requirements were prohibitive. CNNs reversed that trend by tying weights and focusing on local patterns while keeping the same gradient-based training loop, so capacity grows with depth and channel count rather than with the raw pixel grid.
 
@@ -229,6 +223,16 @@ Start with an input tensor of size \(50\times50\times30\). Apply \(10\) filters 
 
 Stacks of convolutional and pooling layers produce a hierarchy of feature maps. A common design is to flatten the final maps into a vector and pass them to a small dense classifier (often a softmax layer) that predicts the class label. Backpropagation updates both the dense weights and the shared convolutional filters, so the feature extractor and classifier are learned jointly.
 
+\begin{tcolorbox}[summarybox, title={Losses, metrics, and the ``CNN as features'' viewpoint}]
+A useful way to read a CNN is as a learned feature map \(\phi_\theta(\cdot)\) followed by a simple readout. The last layer is often just a linear classifier on top of the learned features, trained end-to-end by backpropagation.
+
+\textbf{Loss choice.} For classification, the default is softmax cross\hyp{}entropy because it turns scores into probabilities that can be audited (and sometimes calibrated) when the model is well-regularized. For regression-style outputs (counts, keypoints, continuous targets), squared error and its robust variants are common.
+
+\textbf{Margins and hinge.} If you replace cross\hyp{}entropy with a hinge-style objective, you are pushing for a margin in the learned feature space. This is the same geometric idea as the soft-margin story in \Cref{chap:supervised}; the difference is that kernels fix the feature map ahead of time, while CNNs learn \(\phi_\theta\) from data.
+
+\textbf{Metric choice.} Accuracy is not enough when scores are used as probabilities. Track calibration (e.g., reliability/ECE) and slice performance, as emphasized in \Cref{chap:logistic} and revisited in the audit boxes later in this chapter.
+\end{tcolorbox}
+
 \paragraph{Multi-branch convolution blocks (Inception idea).}
 \label{sec:cnn_multi_branch_convolution_blocks_inception_idea}
 One practical variant is to run multiple filter sizes in parallel (for example \(1\times1\), \(3\times3\), and \(5\times5\)) and concatenate the resulting feature maps along the channel axis. This allows the network to capture multi-scale patterns without committing to a single kernel size. When branches must line up spatially, \emph{same} padding is used to keep all outputs the same height and width; pooling branches often pad for this alignment even though pooling by itself is usually unpadded.
@@ -236,6 +240,10 @@ One practical variant is to run multiple filter sizes in parallel (for example \
 At scale, this architectural prior became decisive once large labeled datasets and GPU training matured: the sample-efficiency and compute-efficiency gap versus classical kernel pipelines narrowed and then flipped in favor of deep convolutional stacks.
 
 \paragraph{Stack depth versus receptive field.} Stacking identical \(3\times3\) filters still grows the effective receptive field: each stage wraps a thicker box around the original pixels, which explains why deep-but-narrow CNNs can capture wide spatial context without enormous kernels even when individual kernels remain small. \Cref{fig:cnn_receptive_field_growth} sketches the nested growth across depth.
+
+\begin{tcolorbox}[summarybox, title={Quick check: receptive field growth for stacked \(3\times3\)}]
+If each convolution uses stride \(1\) and a \(3\times3\) kernel, then every new layer expands the receptive field by \(2\) pixels in each spatial direction. So the effective receptive field sizes go \(3\times3\), then \(5\times5\), then \(7\times7\), and so on. Depth is therefore a controlled way to ``see farther'' without jumping to very large kernels.
+\end{tcolorbox}
 
 
 \begin{figure}[t]

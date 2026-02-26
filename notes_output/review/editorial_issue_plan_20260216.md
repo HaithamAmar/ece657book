@@ -1299,6 +1299,22 @@ Build notes (2026-02-17):
 - 2026-02-26: Ran `python3 notes_output/scripts/validate_math_examples_and_graphs.py --strict` after the edit. Result: PASS.
 - 2026-02-26: Ran `bash notes_output/scripts/run_production_checks.sh` after the edit. Result: PASS (release checks, Apple
   gatekeeper audits, and EPUBCheck all OK).
+
+## 2026-02-26 Chapter 11 (CNN) pedagogy completion (equivariance/invariance + losses/metrics + receptive-field quick check)
+
+- `notes_output/lecture_6.tex`: aligned the learning-outcomes box with the chapter's delivered content (loss/metric intent,
+  CNN-as-features lens, and stability failure signatures).
+- `notes_output/lecture_6.tex`: defined translation equivariance vs.\ invariance at first use and tied invariance to pooling
+  and downsampling.
+- `notes_output/lecture_6.tex`: reduced slide-like micro-fragmentation in the ``fully connected layers break on images''
+  section by rewriting the opener as continuous prose while preserving the numeric parameter-count derivation.
+- `notes_output/lecture_6.tex`: added a short ``Losses, metrics, and the CNN as features viewpoint'' box to connect
+  cross-entropy vs.\ regression losses, calibration, and the soft-margin/hinge geometry from \Cref{chap:supervised}.
+- `notes_output/lecture_6.tex`: added a compact ``Quick check'' box to reinforce receptive-field growth for stacked \(3\times3\)
+  kernels (3, 5, 7, ...).
+- 2026-02-26: Ran `python3 notes_output/scripts/validate_math_examples_and_graphs.py --strict` after the edits. Result: PASS.
+- 2026-02-26: Ran `bash notes_output/scripts/run_production_checks.sh` after the edits. Result: PASS (release checks, Apple
+  gatekeeper audits, and EPUBCheck all OK).
 - EPUB placement spot-check: in `EPUB/text/ch016.xhtml`, the Hopfield figures appear near their first references (energy-descent
   and basin-schematic figures are inline with links in the surrounding paragraphs; no float drift observed for Chapter 10).
 
