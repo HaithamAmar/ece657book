@@ -1291,6 +1291,14 @@ Build notes (2026-02-17):
 - 2026-02-26: Ran `python3 notes_output/scripts/validate_math_examples_and_graphs.py --strict` after the edits. Result: PASS.
 - 2026-02-26: Ran `bash notes_output/scripts/run_production_checks.sh` after the edits. Result: PASS (release checks, Apple
   gatekeeper audits, and EPUBCheck all OK).
+
+## 2026-02-26 Terminology note: define ``vanilla'' once (plain baseline) at first appearance
+
+- `notes_output/lecture_6.tex`: defined ``vanilla'' as the common ML shorthand for ``plain/unmodified baseline'' (here:
+  plain SGD) so students recognize the term when they encounter it in code/papers.
+- 2026-02-26: Ran `python3 notes_output/scripts/validate_math_examples_and_graphs.py --strict` after the edit. Result: PASS.
+- 2026-02-26: Ran `bash notes_output/scripts/run_production_checks.sh` after the edit. Result: PASS (release checks, Apple
+  gatekeeper audits, and EPUBCheck all OK).
 - EPUB placement spot-check: in `EPUB/text/ch016.xhtml`, the Hopfield figures appear near their first references (energy-descent
   and basin-schematic figures are inline with links in the surrounding paragraphs; no float drift observed for Chapter 10).
 
