@@ -16,34 +16,20 @@
 Add recurrence, then train it by unrolling time and reusing the backprop machinery from \Cref{chap:backprop}.
 \end{tcolorbox}
 
-The statistical learning chapters (\Crefrange{chap:supervised}{chap:logistic}) established the basic training loop: choose a model class, define a loss, optimize it, and then audit generalization and calibration. The feedforward neural chapters then expanded the model class from linear predictors to multilayer networks (MLPs, RBF networks, and CNNs).
+The statistical learning chapters (\Crefrange{chap:supervised}{chap:logistic}) treated learning as an engineering loop: choose a model class, define a loss, optimize it, and then audit generalization. The feedforward neural chapters then expanded the model class from linear predictors to multilayer networks (MLPs, RBF networks, and CNNs), but the basic data interface stayed the same: each example is treated as a standalone input--output pair.
 
-Those architectures are effective for classification, regression, and feature extraction, but they share a structural limitation: information flows strictly from input to output, without an internal state that can store context over time.
+Sequence problems break that interface. When order matters, the model needs a state that can carry context forward, and the training loop must account for the fact that the same parameters are reused again and again across time.
 
 \subsection{Motivation for Recurrent Neural Networks}
 \label{sec:rnn_motivation_for_recurrent_neural_networks}
 
-Before delving into the architecture and mathematics of RNNs, it is important to understand why feedforward networks are insufficient for certain applications. Consider the following scenario:
+Most of the models we have built so far make a quiet assumption about the data: examples are independent and identically distributed (i.i.d.). If you shuffle the dataset, nothing essential changes. That assumption is fine for many supervised tasks on static inputs (tabular rows, images), but it breaks for sequences.
 
-\begin{quote}
-\textit{You want to predict an output at time $t$ based not only on the input at time $t$, but also on inputs from previous time steps $t-1, t-2, \ldots, t-k$.}
-\end{quote}
+In time series, yesterday changes what you expect at the next step. In language, the same words in a different order can mean something else entirely, and the next word depends on the whole prefix. You can see that in predictive text: ``I want to buy \ldots'' pulls you toward different completions than ``Write a book about Teddy \ldots'' even before you specify what you are buying or writing about. In control, current action depends on prior state; in speech, a phoneme depends on the surrounding context.
 
-This is a common situation in many real-world problems, such as:
+One brute-force workaround is to build a fixed history window and feed it to a standard MLP: at time \(t\), concatenate \(\mathbf{x}_t,\mathbf{x}_{t-1},\ldots,\mathbf{x}_{t-k}\) and ask the network to predict \(y_t\). That can work for short memory, but it scales poorly as \(k\) grows, and it does not reuse parameters in a way that reflects the repeated structure of ``the same kind of step happens again and again''.
 
-\begin{itemize}
-    \item Time series forecasting (e.g., stock prices, weather data)
-    \item Natural language processing (e.g., predicting the next word in a sentence)
-    \item Speech recognition and synthesis
-    \item Control systems with memory of past states
-\end{itemize}
-
-\paragraph{Chapter flow.}
-We proceed in one pass: motivate temporal memory, formalize state updates and parameter sharing, derive unrolling/BPTT, then cover stabilization (clipping and gating) before closing with attention as the transition beyond recurrent bottlenecks. Optional reminders are kept near the chapter close so they do not interrupt the derivation arc.
-
-Order carries meaning even in simple settings: if it is Saturday, the next day is Sunday. In language, ``out of the blue'' means something sudden, whereas ``the ball was blue'' refers to color; the sequence makes the difference. In predictive text, ``I want to buy...'' favors a different continuation than ``Write a book about Teddy...'' These examples also highlight variable-length inputs: a review can be three words or three hundred. You can always build a fixed window of past inputs and feed it to a standard MLP, but that approach scales poorly as the history grows and does not share parameters across time.
-
-Feedforward networks treat each input independently and do not have an inherent mechanism to remember or utilize past inputs. To incorporate past information, one might consider explicitly including previous inputs as part of the current input vector, but this approach quickly becomes impractical as the history length grows.
+Recurrent neural networks make the smallest structural change that addresses the bottleneck: add a \emph{state} that is updated each step, and reuse the same update rule across time. The rest of this chapter is about making that idea precise, training it reliably, and recognizing the failure modes (especially gradient flow) that motivate gating and attention.
 
 \subsection{Key Idea: State and Memory in RNNs}
 \label{sec:rnn_key_idea_state_and_memory_in_rnns}
@@ -152,7 +138,7 @@ Two-dimensional toy datasets remain useful for reasoning about inductive biases.
                 \node[anchor=west, font=\scriptsize, cbGreen] at (axis cs:0.9,0.95){Nonlinear separator};
         \end{groupplot}
     \end{tikzpicture}
-    \caption{Decision boundaries for logistic regression (left) versus a shallow MLP (right). Linear models carve a single hyperplane, whereas hidden units can warp the boundary to follow non-convex manifolds such as the moons dataset. Use it when diagnosing whether representation capacity (not optimization) limits a classifier.}
+    \caption{Decision boundaries for logistic regression (left) versus a shallow MLP (right). Linear models carve a single hyperplane, whereas hidden units can warp the boundary to follow non-convex manifolds such as the moons dataset.}
     \label{fig:lec7-boundaries}
 \end{figure}
 
@@ -213,10 +199,10 @@ Unless there is a compelling reason to run to numerical convergence, stop as soo
         \end{groupplot}
     \end{tikzpicture}
     \ifdefined\HCode
-        \caption{Binary cross-entropy geometry (left), effect of learning-rate schedules on loss (middle), and the typical training/validation divergence that motivates early stopping (right). Use it when choosing a learning-rate schedule and interpreting early-stopping signals.}
+        \caption{Binary cross-entropy geometry (left), effect of learning-rate schedules on loss (middle), and the typical training/validation divergence that motivates early stopping (right).}
     \else
         % Avoid inline math in captions; it wraps poorly in some EPUB renderers.
-        \caption{Binary cross-entropy geometry (left), effect of learning-rate schedules on loss (middle), and the typical training/validation divergence that motivates early stopping (right). Use it when choosing a learning-rate schedule and interpreting early-stopping signals.}
+        \caption{Binary cross-entropy geometry (left), effect of learning-rate schedules on loss (middle), and the typical training/validation divergence that motivates early stopping (right).}
     \fi
     \label{fig:lec7-loss-hyperparams}
 \end{figure}
@@ -226,11 +212,11 @@ Unless there is a compelling reason to run to numerical convergence, stop as soo
 Layer Normalization~\citep{Ba2016} stabilizes recurrent dynamics by normalizing each hidden vector \(\mathbf{h}_t\) across features before applying the nonlinearity; unlike BatchNorm it works with batch size 1 and handles variable-length sequences gracefully. Residual RNN stacks (adding the input of a layer back to its output) keep gradients flowing even when depth increases, mirroring the skip-connections that make deep CNNs trainable. Together, LayerNorm + residual links curb exploding/vanishing gradients and are the default when building multi-layer RNN/LSTM stacks.
 \end{tcolorbox}
 
-\paragraph{Historical Note: Hopfield Networks}
+\begin{tcolorbox}[summarybox, title={Historical note: Hopfield networks and stable recurrence}]
+\Cref{chap:hopfield} covered Hopfield networks as an associative memory: a recurrent system with symmetric weights and an energy function that decreases under the update rule, so the dynamics settle into stored patterns (attractors). That is a different use of recurrence than the one in this chapter.
 
-An early influential recurrent network is the Hopfield network \citep{Hopfield1982}, which is a form of associative memory. Unlike modern RNNs, Hopfield networks have symmetric weights and are designed to converge to stable states representing stored patterns. While Hopfield networks are not directly used for sequence modeling, they helped establish the energy-based viewpoint that reappears in later recurrent and attention-based models.
-
-Bidirectional extensions run two RNNs in opposite directions and concatenate their states; they are widely used in encoders for labeling tasks when the full context is available.
+Here we use recurrence to model \emph{ordered} data. The goal is not to converge to a fixed point, but to carry a useful state forward so predictions at time \(t\) can depend on earlier inputs. The shared theme is that dynamics matter; the diagnostics differ (energy trace and overlap for Hopfield, versus likelihood/perplexity and gradient health for sequence models).
+\end{tcolorbox}
 
 \subsection{Input--output configurations and mathematical formulation}
 \label{sec:rnn_input_output_configurations_and_mathematical_formulation}
@@ -256,6 +242,31 @@ Padding mask \(M\in\{0,1\}^{B\times T}\): loss \(L=\sum_{b, t} M_{b, t}\,\text{C
 \end{tcolorbox}
 \paragraph{Unrolling and shared weights.}
 The cleanest way to understand recurrence is to \emph{unroll time}: the same cell is applied repeatedly, reusing the same parameters at each step. Training then becomes ordinary backpropagation on the unrolled computation graph, with gradients accumulated across every copy of the shared weights (backpropagation through time, BPTT).
+
+\begin{tcolorbox}[summarybox, title={Numeric check: shared weights mean summed gradients}]
+It helps to see the ``sum across time'' in one tiny example. Consider a scalar RNN with identity activation,
+\[
+h_t=W_{hh}h_{t-1}+W_{xh}x_t,\qquad y_t=h_t,
+\]
+and a two\hyp{}step squared\hyp{}error objective \(L=\frac{1}{2}\big[(y_1-t_1)^2+(y_2-t_2)^2\big]\).
+Pick \(h_0=1\), \(W_{hh}=0.5\), \(W_{xh}=1\), \((x_1,x_2)=(1,2)\), and \((t_1,t_2)=(1,2)\). The forward pass gives
+\[
+h_1=1.5,\quad h_2=2.75,\quad e_1=y_1-t_1=0.5,\quad e_2=y_2-t_2=0.75.
+\]
+Because \(W_{hh}\) is reused, its gradient receives contributions from \emph{both} steps:
+\[
+\frac{\partial L}{\partial W_{hh}}
+= e_1\frac{\partial h_1}{\partial W_{hh}} + e_2\frac{\partial h_2}{\partial W_{hh}}
+= e_1 h_0 + e_2\big(h_1 + W_{hh}h_0\big)
+= 2.0.
+\]
+The second term is the one students often miss: changing \(W_{hh}\) changes \(h_1\), which then changes \(h_2\). A finite\hyp{}difference check matches the value above.
+%
+% QC-BEGIN: chapter12_bptt_two_step
+% h0=1 Whh=0.5 Wxh=1 x1=1 x2=2 t1=1 t2=2
+% h1=1.5 h2=2.75 e1=0.5 e2=0.75 dL_dWhh=2.0
+% QC-END: chapter12_bptt_two_step
+\end{tcolorbox}
 
 \subsection{Mathematical Formulation of a Simple RNN Cell}
 \label{sec:rnn_mathematical_formulation_of_a_simple_rnn_cell}
@@ -300,7 +311,7 @@ Consider a simple RNN cell with the following update equations:
         \coordinate (braceR) at ($(h3.south east)+(0,-12mm)$);
         \draw[decorate, decoration={brace, amplitude=5pt}] (braceL) -- node[midway, below=10pt]{\scriptsize shared parameters across the unrolled sequence} (braceR);
     \end{tikzpicture}
-    \caption{Unrolling an RNN reveals repeated application of the same parameters across time steps. This view motivates backpropagation through time (BPTT), which accumulates gradients through every copy before updating the shared weights. Use it when translating a recurrent cell into an explicit computation graph for training.}
+    \caption{Unrolling an RNN reveals repeated application of the same parameters across time steps. This view motivates backpropagation through time (BPTT), which accumulates gradients through every copy before updating the shared weights.}
     \label{fig:lec7-rnn-unrolled}
 \end{figure}
 
@@ -392,7 +403,7 @@ In code blocks we use ASCII identifiers such as \texttt{h\_t}, \texttt{W\_hh}, a
         % shared parameters note
         \node at (4,-2.0) {\scriptsize shared $(\mathbf{W}_{hh}, \mathbf{W}_{xh}, \mathbf{W}_{hy})$ across time};
     \end{tikzpicture}
-    \caption{Backpropagation through time (BPTT): unrolled forward pass (black) and backward gradients (pink) through time. Use it when reasoning about truncation windows and why long histories strain gradient flow.}
+    \caption{Backpropagation through time (BPTT): unrolled forward pass (black) and backward gradients (pink) through time.}
     \label{fig:lec7-bptt}
 \end{figure}
 
@@ -408,7 +419,7 @@ Empirically, vanilla RNNs often fail to preserve dependencies beyond roughly 5--
 \begin{figure}[t]
     \centering
     \includegraphics[width=0.72\linewidth]{lec7_vanish_explode}
-    \caption{Vanishing (blue) versus exploding (orange) gradients on a log scale. The gray strip highlights the stability band; the inset reminds readers that repeated Jacobian products either shrink gradients (thin blue arrows) or amplify them (thick orange arrows). Use it when diagnosing why long-range dependencies fail to train.}
+    \caption{Vanishing (blue) versus exploding (orange) gradients on a log scale. The gray strip highlights the stability band; the inset reminds readers that repeated Jacobian products either shrink gradients (thin blue arrows) or amplify them (thick orange arrows).}
     \label{fig:lec7-vanishing}
 \end{figure}
 
@@ -514,7 +525,7 @@ Spectral norm \(\|\mathbf{W}_{hh}\|_2 \approx 1\) keeps gradients roughly stable
         \end{groupplot}
     \end{tikzpicture}
     % Avoid inline math in captions; it wraps poorly in some EPUB renderers.
-    \caption{Gradient norms (left) explode without clipping (orange) but remain bounded when the global norm is clipped at tau (green). Training loss (right) stabilizes as a result. Use it when setting clipping thresholds to stabilize training without freezing learning.}
+    \caption{Gradient norms (left) explode without clipping (orange) but remain bounded when the global norm is clipped at tau (green). Training loss (right) stabilizes as a result.}
     \label{fig:lec7-clipping}
 \end{figure}
 
@@ -587,7 +598,7 @@ Spectral norm \(\|\mathbf{W}_{hh}\|_2 \approx 1\) keeps gradients roughly stable
 \end{tikzpicture}
 }%
 
-\caption{Teacher forcing vs.\ inference in a sequence-to-sequence decoder. Gold arrows show supervised targets; orange arrows highlight autoregressive feedback that motivates scheduled sampling. Use it when diagnosing train/test mismatch from teacher forcing.}
+\caption{Teacher forcing vs.\ inference in a sequence-to-sequence decoder. Gold arrows show supervised targets; orange arrows highlight autoregressive feedback that motivates scheduled sampling.}
 \label{fig:lec7-teacher-forcing}
 \end{figure}
 
@@ -681,9 +692,9 @@ Spectral norm \(\|\mathbf{W}_{hh}\|_2 \approx 1\) keeps gradients roughly stable
         \end{tikzpicture}%
     }
         \ifdefined\HCode
-            \caption{Long Short-Term Memory (LSTM) cell \citep{Hochreiter1997,Gers2000}. Use it when mapping gates and the cell state to the gradient-flow path.}
+            \caption{Long Short-Term Memory (LSTM) cell \citep{Hochreiter1997,Gers2000}.}
         \else
-            \caption{Long Short-Term Memory (LSTM) cell \citep{Hochreiter1997,Gers2000}. Use it when mapping gates and the cell state to the gradient-flow path.}
+            \caption{Long Short-Term Memory (LSTM) cell \citep{Hochreiter1997,Gers2000}.}
         \fi
     \label{fig:lec7-lstm}
 \end{figure}
@@ -790,9 +801,9 @@ Spectral norm \(\|\mathbf{W}_{hh}\|_2 \approx 1\) keeps gradients roughly stable
         \end{tikzpicture}%
     }
     \ifdefined\HCode
-    \caption{Gated Recurrent Unit (GRU) cell \citep{Cho2014}. Use it when comparing gating to vanilla recurrence and to LSTM-style memory.}
+    \caption{Gated Recurrent Unit (GRU) cell \citep{Cho2014}.}
     \else
-    \caption{Gated Recurrent Unit (GRU) cell \citep{Cho2014}. Use it when comparing gating to vanilla recurrence and to LSTM-style memory.}
+    \caption{Gated Recurrent Unit (GRU) cell \citep{Cho2014}.}
     \fi
     \label{fig:lec7-gru}
 \end{figure}
@@ -894,7 +905,7 @@ Gating (LSTM/GRU) made long-range gradient flow workable by creating additive me
     \end{axis}
     \end{tikzpicture}
     % Avoid inline math in captions; it wraps poorly in some EPUB renderers.
-    \caption{Attention heatmap for a translation model. Rows are target tokens (decoder steps) and columns are source tokens (encoder positions). Each cell is an attention weight; the dot in each row marks the source position receiving the most attention. Use it when checking whether attention aligns to the intended source context.}
+    \caption{Attention heatmap for a translation model. Rows are target tokens (decoder steps) and columns are source tokens (encoder positions). Each cell is an attention weight; the dot in each row marks the source position receiving the most attention.}
     \label{fig:lec7-attention}
 \end{figure}
 
@@ -902,7 +913,7 @@ Gating (LSTM/GRU) made long-range gradient flow workable by creating additive me
 \subsection{Wrapping Up the Derivations}
 \label{sec:rnn_wrapping_up_the_derivations}
 
-This chapter develops the core ideas behind recurrent neural networks (RNNs) for sequence modeling. A canonical task is language modeling: predicting the next token from preceding context.
+One canonical sequence task is language modeling: predict the next token from the preceding context.
 
 Recall that the goal is to estimate the conditional probability of a word \( w_t \) given the sequence of previous words \( w_1, w_2, \ldots, w_{t-1} \):
 \begin{equation}
@@ -915,17 +926,20 @@ This probability can be modeled using an RNN, which maintains a hidden state \( 
     \mathbf{h}_t &= f(\mathbf{h}_{t-1}, \mathbf{x}_t; \theta), \\
     P(w_{t+1} \mid w_1, \ldots, w_t) &= g(\mathbf{h}_t; \theta), \label{eq:rnn_output_prob}
 \end{align}
-where \( \mathbf{x}_t \) is the input representation (e.g., word embedding) of the word \( w_t \), \( f \) is the recurrent update function parameterized by \(\theta\), and \( g \) maps the hidden state to a probability distribution over the vocabulary. Because the hidden state is computed recursively, \(\mathbf{h}_t\) already aggregates information about the entire prefix \((w_1,\ldots, w_t)\); predicting \(w_{t+1}\) from \(\mathbf{h}_t\) therefore reflects the Markovian summary that RNNs maintain. Explicitly, repeatedly substituting \eqref{eq:rnn_hidden_state} reveals that \(\mathbf{h}_t=f(f(\cdots f(\mathbf{h}_0,\mathbf{x}_1),\ldots),\mathbf{x}_t)\), so no information is lost other than the compression inherent to the finite-dimensional state vector.
+where \( \mathbf{x}_t \) is the input representation (e.g., a word embedding) of the token \( w_t \), \( f \) is the recurrent update function parameterized by \(\theta\), and \( g \) maps the hidden state to a probability distribution over the vocabulary. Because the hidden state is computed recursively, \(\mathbf{h}_t\) is a deterministic summary of the entire prefix \((w_1,\ldots,w_t)\):
+\[
+\mathbf{h}_t=f(f(\cdots f(\mathbf{h}_0,\mathbf{x}_1),\ldots),\mathbf{x}_t).
+\]
+What the model can remember (and what it must forget) is governed by the state dimension, the update nonlinearity, and the training objective. That is exactly why gradient flow and stabilization tricks matter in practice.
 
-\paragraph{Training Objective}
-
-The network is trained to maximize the likelihood of the observed sequences in a large corpus of text. Given a training sequence \( (w_1, w_2, \ldots, w_T) \), the log-likelihood is:
+\paragraph{Training objective (negative log-likelihood).}
+Given a training sequence \( (w_1, w_2, \ldots, w_T) \), we typically train by minimizing the negative log-likelihood (equivalently, maximizing the likelihood). With the next-token convention, the loss is
 \begin{equation}
-    \mathcal{L}(\theta) = \sum_{t=1}^{T-1} \log P(w_{t+1} \mid w_1, \ldots, w_t; \theta).
+    \mathcal{L}(\theta) = -\sum_{t=1}^{T-1} \log P(w_{t+1} \mid w_1, \ldots, w_t; \theta).
 \label{eq:auto_rnn_1c468f5940}
 \end{equation}
 
-This objective encourages the model to assign high probability to the actual next word in the sequence, effectively learning the statistical structure of the language without explicit labeling of word relationships.
+This is just cross-entropy over the vocabulary at each step: the model is rewarded for assigning high probability to the observed next token. A common reporting metric is \emph{perplexity}, defined as \(\exp(\text{average NLL per token})\); lower perplexity means the model assigns higher probability to the observed text.
 
 \paragraph{Self-supervised nature of language modeling}
 
@@ -949,16 +963,17 @@ where \(\sigma(\cdot)\) is the logistic sigmoid and \(\hat{y}\) is the predicted
 
 This setup highlights a subtle but important dependency between \emph{representation} and \emph{generalization}. If tokens are treated as unrelated IDs (e.g., purely one-hot indicators), then ``great'' and ``awesome'' are orthogonal inputs: the model has no built-in reason to transfer evidence across similar words unless the training objective supplies a geometry that makes them nearby. In \Cref{chap:nlp}, we return to this same kind of task and show how learning word vectors from context gives the model a meaningful input space before any sequence model is applied.
 
-\paragraph{Summary of the Modeling Pipeline}
-
-\begin{enumerate}
-    \item Collect a large corpus of text data.
-    \item Tokenize the text into sequences of words.
-    \item Represent words as embeddings (initialized from a lookup table that is \emph{learned jointly} with the network parameters).
-    \item Use an RNN to process sequences and produce hidden states.
-    \item Predict the next word probability distribution from the hidden state.
-    \item Train the model by maximizing the likelihood of the observed sequences.
-\end{enumerate}
+\begin{tcolorbox}[summarybox, title={From corpus to next-token model (a minimal checklist)}]
+A minimal language-model run looks like this:
+\begin{itemize}
+    \item Choose a tokenization and vocabulary; map tokens to IDs.
+    \item Turn IDs into vectors via a learned embedding table (\(\mathbf{x}_t\)).
+    \item Pick a recurrent cell \(f\) (vanilla RNN, GRU, LSTM) and an output map \(g\).
+    \item Train with the next-token objective \eqref{eq:auto_rnn_1c468f5940} using truncated BPTT and correct padding masks.
+    \item Monitor log-likelihood/perplexity on a validation split, and monitor gradient norms (clipping is the first safety valve).
+\end{itemize}
+This is the same ERM loop as earlier chapters, but the bookkeeping now runs over \emph{time} as well as over batches.
+\end{tcolorbox}
 
 \begin{tcolorbox}[summarybox, title={LSTM and GRU equations (compact)}]
 \textbf{LSTM} (single layer):
@@ -986,22 +1001,18 @@ All gates are elementwise; $\sigma$ denotes the logistic sigmoid and $\odot$ the
 \paragraph{Notation note.} In the sequence\hyp{}model chapters, $\sigma(\cdot)$ always denotes the logistic sigmoid gate nonlinearity; when $\sigma$ is used without an argument (e.g., in earlier chapters for noise scales $\sigma^2$) it refers to a standard deviation. Context distinguishes these roles; see \Cref{app:notation_collisions} for the cross-chapter symbol index.
 \end{tcolorbox}
 
-\paragraph{Optional refresher (padding and autoencoders).}
-For a 1D/2D convolution with input size \(n\), kernel size \(k\), stride \(s\), and padding \(p\), the output size is
-\[
-\left\lfloor \frac{n + 2p - k}{s} \right\rfloor + 1.
-\]
-When \(s=1\) and you want to preserve size, choose \(p=(k-1)/2\) for odd \(k\). For encoder intuition, recall that autoencoders map \(\mathbf{x}\mapsto\mathbf{z}\mapsto\hat{\mathbf{x}}\) with a reconstruction loss; the same compression intuition reappears in sequence encoders and attention models.
+\paragraph{Optional refresher (padding masks and encoders).}
+Variable-length sequences are almost always padded to a common length for batching. The padding is not data, so you must carry a mask through the loss (and through attention later) so pads contribute \emph{zero} training signal. For encoder--decoder intuition, it helps to remember that many sequence models compress a history into a state (or a set of states) and then produce outputs from that representation; \Cref{chap:transformers} revisits this idea with attention rather than recurrence.
 
 \begin{tcolorbox}[summarybox, title={Key takeaways}]
 \begin{itemize}
-    \item Language modeling is trained with self-supervision by maximizing next-token likelihood.
+\item Language modeling is trained by minimizing next-token negative log-likelihood (cross-entropy); perplexity is a readable re-expression of that loss.
     \item Token vectors provide the numeric inputs; RNN hidden states encode context over time.
     \item Stability tools (clipping, gating, attention) enable long-range dependency modeling.
 \end{itemize}
 
 \medskip
-\noindent\textbf{Minimum viable mastery.}
+\noindent\textbf{A good checkpoint.}
 \begin{itemize}
     \item Define the next-token objective and relate cross-entropy, perplexity, and log-likelihood.
     \item Explain BPTT, truncation, and masking for variable-length sequences.

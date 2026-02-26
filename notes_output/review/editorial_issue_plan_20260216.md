@@ -1332,3 +1332,23 @@ Build notes (2026-02-17):
 - 2026-02-25: Ran `python3 notes_output/scripts/validate_math_examples_and_graphs.py --strict` after the edits. Result: PASS.
 - 2026-02-25: Ran `bash notes_output/scripts/run_production_checks.sh` after the edits. Result: PASS (release checks, Apple
   gatekeeper audits, and EPUBCheck all OK).
+
+## 2026-02-25 Chapter 12 (RNN) video-aligned de-templating + BPTT numeric check
+
+- `notes_output/lecture_7.tex`: rewrote the motivation opener in a more assumption-driven, book voice (i.i.d.\ breaks on
+  sequences; order carries information; the engineering fix is state + parameter sharing across time), aligned to the
+  Lecture 7 board framing and examples (predictive text + time series) without adding dated or transcript-y phrasing.
+- `notes_output/lecture_7.tex`: removed ``Use it when ...'' template phrasing from all Chapter 12 figure captions.
+- `notes_output/lecture_7.tex`: converted the Hopfield aside into an explicit boxed historical note with a clean cross-ref to
+  \Cref{chap:hopfield} and a short diagnostics contrast (energy/overlap vs.\ likelihood/perplexity + gradient health).
+- `notes_output/lecture_7.tex`: replaced the slide-like ``Summary of the Modeling Pipeline'' enumeration with a minimal
+  checklist box whose role is distinct from the earlier derivation/implementation boxes.
+- `notes_output/lecture_7.tex`: replaced the out-of-scope convolution-size refresher with a short padding-mask reminder and an
+  encoder/decoder bridge sentence that points forward to \Cref{chap:transformers}.
+- `notes_output/lecture_7.tex`: added a tiny two-step scalar RNN numeric walkthrough showing how shared weights accumulate
+  gradient contributions across time; included a QC comment block (`chapter12_bptt_two_step`).
+- `notes_output/scripts/check_numeric_examples.py`: added `check_chapter12_bptt_two_step()` (analytic + finite-difference).
+- `notes_output/scripts/validate_math_examples_and_graphs.py`: extended the strict numeric pack to validate the RNN QC block.
+- 2026-02-25: Ran `python3 notes_output/scripts/validate_math_examples_and_graphs.py --strict` after the edits. Result: PASS.
+- 2026-02-25: Ran `bash notes_output/scripts/run_production_checks.sh` after the edits. Result: PASS (release checks, Apple
+  gatekeeper audits, and EPUBCheck all OK).

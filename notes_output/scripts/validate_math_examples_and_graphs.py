@@ -14,6 +14,7 @@ import numpy as np
 
 from check_numeric_examples import (
     check_alpha_cut_mapping,
+    check_chapter12_bptt_two_step,
     check_cnn_1d_xcorr_stride_pad,
     check_cnn_flatten_params,
     check_cnn_shape_bookkeeping,
@@ -90,6 +91,17 @@ def _parse_perceptron_or_qc(lines: list[str]) -> list[dict[str, int]]:
         out.append(
             dict(step=step, epoch=epoch, idx=idx, x1=x1, x2=x2, y=y, w1=w1, w2=w2, b=b)
         )
+    return out
+
+
+def _parse_kv_qc(lines: list[str]) -> dict[str, float]:
+    out: dict[str, float] = {}
+    for line in lines:
+        for tok in line.split():
+            if "=" not in tok:
+                continue
+            k, v = tok.split("=", 1)
+            out[k] = float(v)
     return out
 
 
@@ -179,6 +191,22 @@ def check_numeric_examples_pack() -> dict[str, float]:
 
     cnn_shape = check_cnn_shape_bookkeeping()
     _assert(int(cnn_shape["flat"]) == 5760, "CNN shape bookkeeping flatten mismatch")
+
+    # Chapter 12: shared-weight gradient accumulation across time.
+    rnn2 = check_chapter12_bptt_two_step()
+    _assert_close(float(rnn2["h1"]), 1.5, 1e-12, "RNN 2-step h1")
+    _assert_close(float(rnn2["h2"]), 2.75, 1e-12, "RNN 2-step h2")
+    _assert_close(float(rnn2["e1"]), 0.5, 1e-12, "RNN 2-step e1")
+    _assert_close(float(rnn2["e2"]), 0.75, 1e-12, "RNN 2-step e2")
+    _assert_close(float(rnn2["dL_dWhh"]), 2.0, 1e-12, "RNN 2-step dL/dWhh")
+    _assert(float(rnn2["dL_dWhh_abs_err"]) < 5e-6, "RNN 2-step finite-diff gradient mismatch")
+
+    lec7 = _read(ROOT / "lecture_7.tex")
+    rnn_qc_lines = _extract_qc_block(lec7, "chapter12_bptt_two_step")
+    rnn_qc = _parse_kv_qc(rnn_qc_lines)
+    _assert_close(float(rnn_qc["h1"]), float(rnn2["h1"]), 1e-12, "RNN 2-step QC h1 mismatch")
+    _assert_close(float(rnn_qc["h2"]), float(rnn2["h2"]), 1e-12, "RNN 2-step QC h2 mismatch")
+    _assert_close(float(rnn_qc["dL_dWhh"]), float(rnn2["dL_dWhh"]), 1e-12, "RNN 2-step QC grad mismatch")
 
     stride = check_stride_pad()
     _assert(int(stride["L"]) == 3, "Stride/padding L must be 3")

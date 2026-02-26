@@ -5,6 +5,7 @@ Quick sanity checks for numerical examples up to Chapter 18.
 - Perceptron OR-gate update trace (Ch. 5)
 - CNN flattening parameter count + 1D stride/padding cross-correlation + shape bookkeeping (Ch. 11)
 - 1D stride/padding attention toy (Ch. 11)
+- RNN 2-step BPTT gradient accumulation sanity check (Ch. 12)
 - Skip-gram with negative sampling loss (Ch. 14)
 - Max–min fuzzy relation composition matrix (Ch. 17)
 - Alpha-cut mapping for y = x^2 (Ch. 17)
@@ -71,6 +72,56 @@ def check_perceptron_or_gate_trace():
         epochs=epoch,
         num_updates=step,
         trace=trace,
+    )
+
+
+def check_chapter12_bptt_two_step() -> dict[str, float]:
+    """
+    Two-step scalar RNN + squared-error objective to show that shared weights
+    accumulate gradient contributions across time (Ch. 12).
+
+    Model:
+      h_t = W_hh h_{t-1} + W_xh x_t,  y_t = h_t
+      L = 0.5 * [(y1-t1)^2 + (y2-t2)^2]
+
+    Parameters (as used in the boxed example):
+      h0=1, W_hh=0.5, W_xh=1, x1=1, x2=2, t1=1, t2=2
+    """
+
+    h0 = 1.0
+    W_hh = 0.5
+    W_xh = 1.0
+    x1, x2 = 1.0, 2.0
+    t1, t2 = 1.0, 2.0
+
+    def forward(W_hh_val: float, W_xh_val: float) -> tuple[float, float, float, float, float]:
+        h1 = W_hh_val * h0 + W_xh_val * x1
+        h2 = W_hh_val * h1 + W_xh_val * x2
+        e1 = h1 - t1
+        e2 = h2 - t2
+        L = 0.5 * (e1 * e1 + e2 * e2)
+        return L, h1, h2, e1, e2
+
+    L, h1, h2, e1, e2 = forward(W_hh, W_xh)
+
+    dh1_dWhh = h0
+    dh2_dWhh = h1 + W_hh * dh1_dWhh
+    dL_dWhh = e1 * dh1_dWhh + e2 * dh2_dWhh
+
+    eps = 1e-6
+    Lp, *_ = forward(W_hh + eps, W_xh)
+    Lm, *_ = forward(W_hh - eps, W_xh)
+    fd = (Lp - Lm) / (2.0 * eps)
+
+    return dict(
+        L=L,
+        h1=h1,
+        h2=h2,
+        e1=e1,
+        e2=e2,
+        dL_dWhh=dL_dWhh,
+        dL_dWhh_fd=fd,
+        dL_dWhh_abs_err=abs(fd - dL_dWhh),
     )
 
 
