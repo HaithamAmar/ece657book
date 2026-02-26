@@ -1274,6 +1274,23 @@ Build notes (2026-02-17):
 - 2026-02-25: Ran `python3 notes_output/scripts/validate_math_examples_and_graphs.py --strict` after the edits. Result: PASS.
 - 2026-02-25: Ran `bash notes_output/scripts/run_production_checks.sh` after the edits. Result: PASS (release checks, Apple
   gatekeeper audits, and EPUBCheck all OK).
+
+## 2026-02-26 Chapter 12 (RNN) de-slide pass (remove ``vanilla'' + reduce early ``context'' phrasing)
+
+- `notes_output/lecture_7.tex`: replaced the slide-like ``Summary'' line with a short ``What recurrence buys you'' paragraph
+  (feedforward vs.\ history features, versus state carried forward).
+- `notes_output/lecture_7.tex`: rewrote the roadmap and ``Simple RNN at a glance'' block into book-voice prose (kept all the
+  objective/knobs/pitfalls content without checklist bullets).
+- `notes_output/lecture_7.tex`: converted the input--output configuration bullets into a single paragraph and removed the
+  premature ``context vector'' language (replaced with a conditioning signal / encoder output phrasing).
+- `notes_output/lecture_7.tex`: rewrote the ``RNN vs.\ GRU vs.\ LSTM'' comparison into prose and removed ``vanilla''
+  terminology in favor of ``simple (ungated)''.
+- `notes_output/lecture_7.tex`: converted the semicolon-style pitfalls line into an itemized ``Common pitfalls'' list.
+- `notes_output/lecture_7.tex`: rewrote the late ``From corpus to next-token model'' checklist into prose; removed repeated
+  ``bookkeeping'' phrasing and used ``prefix/history'' language where ``context'' felt premature in this chapter.
+- 2026-02-26: Ran `python3 notes_output/scripts/validate_math_examples_and_graphs.py --strict` after the edits. Result: PASS.
+- 2026-02-26: Ran `bash notes_output/scripts/run_production_checks.sh` after the edits. Result: PASS (release checks, Apple
+  gatekeeper audits, and EPUBCheck all OK).
 - EPUB placement spot-check: in `EPUB/text/ch016.xhtml`, the Hopfield figures appear near their first references (energy-descent
   and basin-schematic figures are inline with links in the surrounding paragraphs; no float drift observed for Chapter 10).
 
