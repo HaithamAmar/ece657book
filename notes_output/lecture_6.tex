@@ -6,7 +6,8 @@
 
 Convolutional networks are the simplest version of that bargain. They keep the ERM workflow from \Crefrange{chap:supervised}{chap:logistic} and the gradient\hyp{}training machinery from \Cref{chap:mlp}, but make images tractable by enforcing locality and weight sharing, so the model spends capacity on patterns that recur across the grid.
 
-There is also a useful continuity lens from earlier chapters: a convolutional filter is a learned \emph{local template} that is reused everywhere. In that sense it rhymes with the prototype/basis ideas from \Cref{chap:rbf,chap:som}---but with strict weight sharing and end-to-end gradient training, so the templates are shaped by the final task loss rather than chosen or tuned in isolation.
+There is also a useful continuity lens from earlier chapters: a convolutional filter is a learned \emph{local template} that is reused everywhere. This is the same high-level idea as prototypes/bases in \Cref{chap:rbf,chap:som}---but with strict weight sharing and end-to-end gradient training, so the templates are shaped by the task loss rather than chosen or tuned in isolation.
+
 
 The second thread in this chapter is pragmatic. Deep models are only useful when they train. After the CNN mechanics, we transition into the deep\hyp{}training toolkit (initialization, activations, normalization, regularization, and optimizers) that will reappear in \Crefrange{chap:rnn}{chap:transformers}.
 
@@ -30,7 +31,7 @@ Keep the same statistical learning loop from \Crefrange{chap:supervised}{chap:lo
 
 The core backprop loop from earlier chapters scales to high-dimensional perception tasks, but naively applying dense multilayer perceptrons (MLPs) to images runs into two practical walls: \emph{parameter count} and \emph{inductive bias}. Images have strong local structure (edges, corners, textures), yet a fully connected layer treats every pixel as unrelated to its neighbors and spends parameters learning spatial patterns from scratch.
 
-In practice, this is also where ``deep learning'' stopped being a promise and became a reliable workflow: large datasets and modern accelerators made the iterative training loop feasible, while architectural priors such as locality and weight sharing made that loop data-efficient on image grids.
+This is also where the training loop became practical at scale: large datasets and modern accelerators made iterative optimization feasible, and architectural priors such as locality and weight sharing made that optimization sample-efficient on image grids.
 
 CNNs emerged as a pragmatic answer: keep end-to-end gradient training, but bake in locality and translation structure through sparse connectivity and shared weights. The result is a model class that is both more sample-efficient and more computationally viable on large grids.
 
@@ -341,7 +342,7 @@ Selecting activation functions whose derivatives do not vanish easily is crucial
 
 \paragraph{Batch normalization}
 
-Batch normalization stabilizes the scale of activations during training by normalizing them (per channel) and then learning a scale and shift. The engineering payoff is simple: fewer layers end up saturated, so gradients behave more predictably early in training. Remember that BN behaves differently at train time (mini-batch statistics) versus evaluation time (running statistics).
+Batch normalization stabilizes the scale of activations during training by normalizing them (per channel) and then learning a scale and shift. The practical payoff is that fewer layers sit in saturated regimes, so gradients behave more predictably early in training. Remember that BN behaves differently at train time (mini-batch statistics) versus evaluation time (running statistics).
 
 \paragraph{Gradient clipping}
 

@@ -1324,3 +1324,11 @@ Build notes (2026-02-17):
 - 2026-02-25: Ran `python3 notes_output/scripts/validate_math_examples_and_graphs.py --strict` after the edits. Result: PASS.
 - 2026-02-25: Ran `bash notes_output/scripts/run_production_checks.sh` after the edits. Result: PASS (release checks, Apple
   gatekeeper audits, and EPUBCheck all OK).
+
+## 2026-02-25 Chapter 11 (CNN) final de-templating polish
+
+- `notes_output/lecture_6.tex`: removed remaining bloggy/template-y phrasing (``rhymes with'', ``promise'' framing, and
+  ``engineering payoff is simple'') and replaced with a more direct book voice while preserving meaning.
+- 2026-02-25: Ran `python3 notes_output/scripts/validate_math_examples_and_graphs.py --strict` after the edits. Result: PASS.
+- 2026-02-25: Ran `bash notes_output/scripts/run_production_checks.sh` after the edits. Result: PASS (release checks, Apple
+  gatekeeper audits, and EPUBCheck all OK).
