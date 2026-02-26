@@ -30,10 +30,7 @@ A classic example illustrating the power of such representations is the analogy:
 This demonstrates that vector arithmetic on word embeddings can capture meaningful relationships between words. The goal is to find a vector space embedding where semantic similarity corresponds to geometric closeness.
 
 \paragraph{How this chapter is organized.}
-\begin{itemize}
-    \item \textbf{Core path:} distributional hypothesis $\rightarrow$ Word2Vec (CBOW/skip-gram) objectives $\rightarrow$ negative sampling $\rightarrow$ how to evaluate embeddings (analogy/neighbors) $\rightarrow$ how embeddings plug into RNNs/attention models.
-    \item \textbf{Optional detours:} deeper objective derivations, historical notes, and the deployment/fairness discussion (important when embeddings are used in decisions rather than as a pure feature extractor).
-\end{itemize}
+We start with the linguistic idea (distributional semantics) and immediately turn it into an engineering object: a lookup table of vectors that make prediction from nearby words easier. From there we build the two Word2Vec objectives (CBOW and skip-gram), show why full softmax is expensive, and introduce negative sampling as the practical workaround. We then discuss how to sanity-check an embedding space (neighbors and analogies) and close with what can go wrong in deployment (bias, leakage, and basic audits).
 
 \paragraph{Notation.}
 We use \(V\) for vocabulary size, \(d\) for embedding dimension, \(\mathbf{x}_t\) for one-hot token indicators, and \(\mathbf{e}_t\) for learned embedding vectors. When symbols collide with earlier chapters (e.g., \(d\) as data dimension vs.\ embedding size), the local meaning is authoritative; \Cref{app:notation_collisions} gives the global index.
@@ -61,9 +58,9 @@ Fix a dictionary of size \(V\). A token at position \(t\) can be represented as 
 \noindent This is the same friction point you saw in \Cref{sec:rnn_sentiment_worked_example}: the sequence model can only be as systematic as its input geometry.
 
 \paragraph{Embedding lookup as learned features.}
-Instead of using the identity basis, we learn a table \(\mathbf{E}\in\mathbb{R}^{V\times d}\) whose rows are trainable parameters. A one-hot indicator becomes a row lookup:
+Instead of using the identity basis, we learn an embedding table \(\mathbf{W}\in\mathbb{R}^{V\times d}\) whose rows are trainable parameters. A one-hot indicator becomes a row lookup:
 \[
-\mathbf{e}_t=\mathbf{x}_t\mathbf{E}\in\mathbb{R}^{1\times d}.
+\mathbf{e}_t=\mathbf{x}_t\mathbf{W}\in\mathbb{R}^{1\times d}.
 \]
 This is the same linear algebra as one-hot, but now the coordinates are \emph{learned} so that similar words end up nearby when that helps prediction.
 
@@ -89,6 +86,14 @@ royal & 0 & 1 & 0.5 & 0 & 0 & 1 & 1 & 0 \\
 \end{table}
 
 \Cref{tab:word_feature_vectorization} gives a concrete intuition for mapping symbolic tokens into graded feature vectors.
+
+\begin{tcolorbox}[summarybox, title={Numeric check: why the analogy arithmetic can work}]
+Using the toy feature vectors in \Cref{tab:word_feature_vectorization}, the analogy is literal:
+\[
+\mathbf{v}(\text{king})-\mathbf{v}(\text{man})+\mathbf{v}(\text{woman})=\mathbf{v}(\text{queen}).
+\]
+Real embeddings are not hand-designed, so the equality is only approximate, but the geometry is the same: a shared ``relation direction'' can show up as an approximately consistent offset across many word pairs. In this toy table, you can verify the identity directly from the entries.
+\end{tcolorbox}
 
 Of course, hand-crafting features does not scale to large vocabularies, and it bakes in subjective choices. The central move of modern embeddings is to let the \emph{training objective} discover whatever coordinates best support prediction from context.
 
@@ -175,63 +180,27 @@ With the conceptual picture fixed, we now run one continuous derivation path fro
 
 % Chapter 13 (continued)
 
-\paragraph{Neural network architecture for word embeddings.}
+\paragraph{Embedding lookup as a tiny network (shapes).}
 \label{sec:nlp_neural_network_architecture_for_word_embeddings}
-
-For a concrete setup, take a corpus with vocabulary size \( V = 10{,}000 \) and embedding dimension \( d = 300 \). The goal is to learn one dense vector per vocabulary item.
-
-\paragraph{Input Representation}
-
-Each input word is represented as a one-hot row vector \(\mathbf{x} \in \mathbb{R}^{1\times V}\), where only one element is 1 (corresponding to the word index) and the rest are 0. For example, if the word "want" is the \(i\)-th word in the vocabulary, then \(\mathbf{x}_i = 1\) and \(\mathbf{x}_j = 0\) for \(j \neq i\).
-
-\paragraph{Network Structure}
-
-We consider a simple feedforward neural network with:
-
-\begin{itemize}
-    \item An input layer of size \(V\) (one-hot encoded words).
-    \item A hidden layer of size \(d = 300\), which will serve as the embedding layer.
-    \item An output layer of size \(V\), which predicts the target word.
-\end{itemize}
-
-The weight matrix between the input and hidden layer is denoted as
-\[
-\mathbf{W} \in \mathbb{R}^{V \times d}.
-\]
-Each row \(\mathbf{W}_{i,:}\) corresponds to the embedding vector of the \(i\)-th word.
-
-\paragraph{Forward Pass}
-
-Given an input word represented by \(\mathbf{x}\), the hidden layer output \(\mathbf{h} \in \mathbb{R}^d\) is computed as:
+Fix a vocabulary of size \(V\) and an embedding dimension \(d\) (e.g., \(V=10{,}000\), \(d=300\)). A token is an index \(i\in\{1,\ldots,V\}\), represented as a one-hot row vector \(\mathbf{x}\in\{0,1\}^{1\times V}\). The embedding table \(\mathbf{W}\in\mathbb{R}^{V\times d}\) is trainable, and the embedding for the token is the row lookup
 \begin{align}
-    \mathbf{h} &= \mathbf{x} \mathbf{W}, \label{eq:hidden_layer}
+    \mathbf{h} &= \mathbf{x}\mathbf{W}\in\mathbb{R}^{1\times d}. \label{eq:hidden_layer}
 \end{align}
-where \(\mathbf{x}\) is a \(1 \times V\) vector and \(\mathbf{W}\) is \(V \times d\), resulting in \(\mathbf{h}\) of size \(1 \times d\).
+Because \(\mathbf{x}\) is one-hot, this multiplication selects exactly one row of \(\mathbf{W}\); that is the whole ``embedding lookup'' operation.
 
-Because \(\mathbf{x}\) is one-hot, this operation simply selects the row of \(\mathbf{W}\) corresponding to the input word, i.e., the embedding vector for that word.
-
-\paragraph{Output Layer}
-
-The hidden layer output \(\mathbf{h}\) is then multiplied by an output matrix \(\mathbf{W}_{\text{out}} \in \mathbb{R}^{d \times V}\) to produce the output logits \(\mathbf{z} \in \mathbb{R}^V\):
+To turn the lookup into a prediction task (CBOW or skip-gram), we add output-side vectors \(\mathbf{W}_{\text{out}}\in\mathbb{R}^{d\times V}\) and compute logits
 \begin{align}
-    \mathbf{z} &= \mathbf{h} \mathbf{W}_{\text{out}}. \label{eq:output_logits}
+    \mathbf{z} &= \mathbf{h}\mathbf{W}_{\text{out}} \in \mathbb{R}^{1\times V}. \label{eq:output_logits}
 \end{align}
-
-These logits are then passed through a softmax function to produce a probability distribution over the vocabulary:
+These logits are passed through a softmax function to produce a probability distribution over the vocabulary:
 \begin{align}
     \hat{\mathbf{y}}_j = \frac{\exp(z_j)}{\sum_{k=1}^V \exp(z_k)}, \quad j=1,\ldots, V. \label{eq:softmax}
 \end{align}
-
-\paragraph{Training Objective}
-
-The target output \(\mathbf{y}\) is also a one-hot vector corresponding to the word we want to predict (e.g., the word "automatic"). The training objective is to minimize the cross\hyp{}entropy loss between the predicted distribution \(\hat{\mathbf{y}}\) and the target \(\mathbf{y}\):
+Training then minimizes cross\hyp{}entropy (equivalently, negative log-likelihood) against the one-hot target \(\mathbf{y}\):
 \begin{align}
     \mathcal{L} = - \sum_{j=1}^V y_j \log \hat{y}_j. \label{eq:cross_entropy}
 \end{align}
-
-\paragraph{Backpropagation and Weight Updates}
-
-During training, the weights \(\mathbf{W}\) and \(\mathbf{W}_{\text{out}}\) are updated via backpropagation to minimize \(\mathcal{L}\). This process adjusts the embeddings in \(\mathbf{W}\) so that words appearing in similar contexts have similar vector representations.
+During learning, \(\mathbf{W}\) and \(\mathbf{W}_{\text{out}}\) update so that words that share contexts end up with similar vectors.
 
 \paragraph{Context window and sequential input.}
 \label{sec:nlp_context_window_and_sequential_input}
@@ -626,12 +595,7 @@ illustrates that many embeddings support approximately linear semantic relations
 
 \paragraph{Debiasing Techniques}
 
-Addressing bias in embeddings is an active area of research. Techniques include:
-\begin{itemize}
-    \item \textit{Post-processing} embeddings to remove bias directions (e.g., Hard Debiasing by \citet{Bolukbasi2016}).
-    \item \textit{Data augmentation} to balance training corpora or swap gendered terms.
-    \item \textit{Regularization} during training to penalize biased associations or enforce equality constraints.
-\end{itemize}
+There is no single fix, because the ``bias direction'' you measure depends on the corpus, the task, and the group definitions you care about. In practice, mitigations usually fall into three buckets: post-processing (identify a direction and project it out; e.g., Hard Debiasing by \citet{Bolukbasi2016}), data-side interventions (rebalance or augment so the corpus does not teach the same stereotype as strongly), and objective-side constraints (regularize training so certain associations are discouraged). The key is to treat mitigation as iterative: apply a change, then rerun the same probes and downstream slices you used to detect the issue.
 
 \paragraph{Cross-Lingual Challenges}
 

@@ -118,6 +118,61 @@ def _extract_figure_block(tex_text: str, label: str) -> str:
     end += len(r"\end{figure}")
     return tex_text[start:end]
 
+def _extract_table_env(tex_text: str, label: str) -> str:
+    label_pattern = re.compile(rf"\\label\{{{re.escape(label)}\}}")
+    label_match = label_pattern.search(tex_text)
+    if not label_match:
+        raise AssertionError(f"Could not find table environment for label {label}")
+    label_pos = label_match.start()
+    start = tex_text.rfind(r"\begin{table}", 0, label_pos)
+    end = tex_text.find(r"\end{table}", label_pos)
+    if start == -1 or end == -1:
+        raise AssertionError(f"Could not isolate table environment for label {label}")
+    end += len(r"\end{table}")
+    return tex_text[start:end]
+
+
+def _parse_latex_feature_table(table_env: str) -> dict[str, np.ndarray]:
+    # Parse a simple LaTeX tabular of the form:
+    #   word & v1 & v2 & ... & v8 \\
+    # We keep this tied to the book's source table so edits to the table
+    # require updating the math claim (and will fail QC if inconsistent).
+    m = re.search(r"\\begin\{tabular\}\{[^}]*\}([\s\S]*?)\\end\{tabular\}", table_env)
+    if not m:
+        raise AssertionError("Missing tabular environment in feature table")
+    body = m.group(1)
+    rows: dict[str, np.ndarray] = {}
+    for raw in body.splitlines():
+        line = raw.split("%", 1)[0].strip()
+        if not line:
+            continue
+        if line.startswith(r"\hline"):
+            continue
+        if "&" not in line:
+            continue
+        line = line.rstrip("\\").strip()
+        parts = [p.strip() for p in line.split("&")]
+        if not parts:
+            continue
+        word_cell = parts[0]
+        # Skip the header row.
+        if "Word" in word_cell or r"\textbf" in word_cell:
+            continue
+        word = re.sub(r"[{}]", "", word_cell).strip()
+        vals = []
+        for c in parts[1:]:
+            c2 = re.sub(r"[^0-9.\-]+", "", c)
+            if not c2:
+                raise AssertionError(f"Malformed numeric cell in feature table row: {raw!r}")
+            vals.append(float(c2))
+        if len(vals) != 8:
+            raise AssertionError(
+                f"Expected 8 feature values for {word!r}, got {len(vals)} (row={raw!r})"
+            )
+        rows[word] = np.array(vals, dtype=float)
+    _assert(len(rows) >= 4, "Feature table parse too small; expected at least the analogy words")
+    return rows
+
 
 def _extract_table_blocks(figure_block: str) -> list[str]:
     return re.findall(r"table(?:\[[^\]]*\])?\s*\{([\s\S]*?)\};", figure_block)
@@ -1099,6 +1154,19 @@ def check_ch13_micro_attention() -> dict[str, float]:
     _assert_close(float(out[1, 0]), float(weights[1, 0]), 1e-9, "Output mismatch")
     return {"row2_w1": float(weights[1, 0]), "row2_w2": float(weights[1, 1])}
 
+def check_ch13_feature_table_analogy() -> dict[str, float]:
+    tex = _read(ROOT / "lecture_8_part_i.tex")
+    table_env = _extract_table_env(tex, "tab:word_feature_vectorization")
+    rows = _parse_latex_feature_table(table_env)
+    for w in ["man", "woman", "king", "queen"]:
+        _assert(w in rows, f"Missing {w!r} in feature table")
+    v = rows
+    lhs = v["king"] - v["man"] + v["woman"]
+    rhs = v["queen"]
+    max_abs_err = float(np.max(np.abs(lhs - rhs)))
+    _assert(max_abs_err < 1e-12, f"Toy analogy identity mismatch; max_abs_err={max_abs_err}")
+    return {"max_abs_err": max_abs_err}
+
 
 def check_fig_learning_curves() -> dict[str, float]:
     tex = _read(ROOT / "lecture_supervised.tex")
@@ -1190,6 +1258,7 @@ def run_checks() -> list[CheckResult]:
         ("chapter8_softcomp_probs", check_ch8_softcomp_probs),
         ("chapter9_overlap_memberships", check_ch9_overlap_memberships),
         ("chapter13_micro_attention", check_ch13_micro_attention),
+        ("chapter13_feature_table_analogy", check_ch13_feature_table_analogy),
         ("figure_learning_curves", check_fig_learning_curves),
         ("figure_rbf_gaussian_bumps", check_fig_rbf_gaussian_bumps),
         ("figure_rbf_xor_feature_map", check_fig_rbf_xor_feature_map),

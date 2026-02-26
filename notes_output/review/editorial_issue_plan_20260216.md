@@ -1461,9 +1461,12 @@ Build notes (2026-02-17):
 - `notes_output/lecture_7.tex`: expanded RNN at first use (recurrent neural networks); tightened the masked-loss pseudocode to
   keep the cross-entropy shorthand explicit without introducing long, overfull verbatim lines; defined cross-entropy (CE) and
   negative log-likelihood (NLL) at first abbreviation use inside the chapter.
-- `notes_output/lecture_8_part_i.tex`: removed remaining template-y caption phrasing (``Use it when ...''); converted the bias
-  source and debiasing dash-bullets into proper itemize blocks; expanded ECE/ROC-PR/PII at first use in the bias/deployment
-  checklists; replaced ``LR'' with ``learning rate'' in the negative-sampling recipe box.
+- `notes_output/lecture_8_part_i.tex`: de-templated the early roadmap into book voice; standardized the embedding-table symbol
+  from \(\mathbf{E}\) to \(\mathbf{W}\) and aligned the surrounding math; collapsed a micro-fragmented ``network architecture''
+  stretch into cohesive prose while preserving the equations; added a toy analogy arithmetic box tied to the feature table; and
+  rewrote the debiasing-techniques paragraph into compact prose while keeping the same content. Added a strict numeric check in
+  `notes_output/scripts/validate_math_examples_and_graphs.py` that parses \Cref{tab:word_feature_vectorization} from the TeX
+  source and asserts the identity \(\mathbf{v}(\text{king})-\mathbf{v}(\text{man})+\mathbf{v}(\text{woman})=\mathbf{v}(\text{queen})\).
 - 2026-02-26: Ran `python3 notes_output/scripts/validate_math_examples_and_graphs.py --strict` after the edits. Result: PASS.
 - 2026-02-26: Ran `bash notes_output/scripts/run_production_checks.sh` after the edits. Result: PASS (release checks, Apple
   gatekeeper audits, and EPUBCheck all OK).
