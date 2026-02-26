@@ -11,7 +11,7 @@ Supervised learning begins with three commitments: choose a functional form that
 
 The word \emph{fitting} is meant literally. In classical curve fitting---and in practical settings like sensor calibration---we choose parameters so a predicted curve (or surface) passes near measured points. Keep the camera thread from \Cref{chap:intro} in mind: a camera system is useful because it can predict something actionable from what it senses. A simple example is exposure calibration: we collect scenes with known reference targets, measure raw sensor readouts \(\mathbf{x}\), and learn parameters that map those readouts to a correction \(y\) so the system produces consistent brightness across conditions. The same pattern repeats at higher levels (object detection scores, tracking signals, alert decisions): the details change, but the core act is the same---use paired input/output examples to fit parameters that make predictions reliable.
 
-This chapter builds the supervised-learning toolkit around that central act. We first make the pieces explicit (data, models, and losses), then show what training looks like when it succeeds and when it fails (underfitting vs.\ overfitting). Next we formalize ERM and the main ``anti-memorization'' tools (regularization and validation). Finally, we work through linear regression as the first fully transparent case study where the entire pipeline is visible end to end.
+This chapter builds the supervised-learning toolkit around that central act. We first make the pieces explicit (data, models, and losses), then show what training looks like when it succeeds and when it fails (underfitting vs.\ overfitting). Next we formalize empirical risk minimization (ERM) and the main ``anti-memorization'' tools (regularization and validation). Finally, we work through linear regression as the first fully transparent case study where the entire pipeline is visible end to end.
 
 \begin{tcolorbox}[summarybox, title={Learning Outcomes}]
 \begin{itemize}
@@ -37,7 +37,7 @@ Data \(\rightarrow\) model \(\rightarrow\) objective \(\rightarrow\) audit. This
 \subsection{Problem Setup and Notation}
 \label{sec:supervised_problem_setup_and_notation}
 
-We observe a dataset \(\mathcal D = \{(\mathbf{x}_i, y_i)\}_{i=1}^N\) drawn i.i.d. from an unknown distribution \(\mathcal P\) on the input--output space \(\mathcal X \times \mathcal Y\). A hypothesis (model) \(h_\theta: \mathcal X \to \mathcal Y\) with parameters \(\theta\) produces predictions \(\hat{y}_i = h_\theta(\mathbf{x}_i)\). A pointwise loss function \(\ell(\hat{y}, y)\) measures the penalty incurred by predicting \(\hat{y}\) when the true label is \(y\).
+We observe a dataset \(\mathcal D = \{(\mathbf{x}_i, y_i)\}_{i=1}^N\) drawn independently and identically distributed (i.i.d.) from an unknown distribution \(\mathcal P\) on the input--output space \(\mathcal X \times \mathcal Y\). A hypothesis (model) \(h_\theta: \mathcal X \to \mathcal Y\) with parameters \(\theta\) produces predictions \(\hat{y}_i = h_\theta(\mathbf{x}_i)\). A pointwise loss function \(\ell(\hat{y}, y)\) measures the penalty incurred by predicting \(\hat{y}\) when the true label is \(y\).
 
 The \emph{population risk} and \emph{empirical risk} associated with \(h_\theta\) are
 \begin{align}

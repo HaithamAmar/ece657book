@@ -131,7 +131,7 @@ The overall strategy for symbolic integration can be summarized as follows:
   \item \textbf{Fallback to heuristics and backtracking} when safe transformations stall, maintaining a stack of previous states to enable systematic exploration.
 \end{enumerate}
 
-\paragraph{Cost heuristic.} Score candidates by a triple: tree depth, number of nonlinear operators, and symbol count. The nonlinearity term counts transcendental nodes (e.g., trigonometric, exponential, logarithmic), while the symbol count tallies AST nodes excluding simple literals such as \(-1,0,1\). Prefer branches that reduce or preserve this triple, and break ties toward rules with known templates (e.g., partial fractions, reduction formulas).
+\paragraph{Cost heuristic.} Score candidates by a triple: tree depth, number of nonlinear operators, and symbol count. The nonlinearity term counts transcendental nodes (e.g., trigonometric, exponential, logarithmic), while the symbol count tallies nodes in the expression's abstract syntax tree (AST), excluding simple literals such as \(-1,0,1\). Prefer branches that reduce or preserve this triple, and break ties toward rules with known templates (e.g., partial fractions, reduction formulas).
 % Part A worked example (continued)
 
 \subsection{Heuristic Transformations: Revisiting the Integral with \texorpdfstring{\(1 - x^2\)}{1 - x squared}}

@@ -65,18 +65,10 @@ Here
 Equation~\eqref{eq:bayes_theorem} provides a principled way to compute the posterior probabilities, and thus the optimal classification rule.
 
 \paragraph{Challenges in Practice}
-
-Despite its theoretical appeal, the Bayes classifier is rarely used directly in practice because:
-\begin{itemize}
-    \item The class-conditional densities \(P(\mathbf{x} \mid y = c_k)\) are typically unknown.
-    \item The prior probabilities \(P(y = c_k)\) may also be unknown or difficult to estimate accurately.
-    \item Estimating these distributions nonparametrically or parametrically can be challenging, especially in high-dimensional spaces.
-\end{itemize}
-
-Consequently, practical classification methods often rely on approximations or alternative formulations.
+Despite its theoretical appeal, the Bayes classifier is rarely used directly: the class-conditional densities and priors are usually unknown, and estimating them reliably (especially in high dimensions) is itself a modeling problem. Practical classifiers therefore approximate Bayes' rule by making simplifying assumptions (a generative model) or by learning the posterior \(P(y\mid \mathbf{x})\) directly (a discriminative model).
 
 \paragraph{Running example: a two-cluster dataset}
-To keep the discussion concrete, we reuse a small toy dataset in \Cref{fig:lec1_dataset} consisting of two Gaussian clusters. Under a simple generative assumption (equal covariances and similar priors), \Cref{fig:lec1_bayes} visualizes the Bayes\hyp{}optimal decision boundary: it is linear in this LDA setting, while unequal covariances yield a quadratic boundary. This running example will anchor the geometric intuition (what a decision boundary looks like) before we turn to discriminative models that learn \(\pi(\mathbf{x})\) directly.
+To keep the discussion concrete, we reuse a small toy dataset in \Cref{fig:lec1_dataset} consisting of two Gaussian clusters. Under a simple generative assumption (equal covariances and similar priors), \Cref{fig:lec1_bayes} visualizes the Bayes\hyp{}optimal decision boundary: it is linear in this linear discriminant analysis (LDA) setting, while unequal covariances yield a quadratic boundary. This running example will anchor the geometric intuition (what a decision boundary looks like) before we turn to discriminative models that learn \(\pi(\mathbf{x})\) directly.
 
     \begin{figure}[!htbp]
         \centering
@@ -129,7 +121,7 @@ To keep the discussion concrete, we reuse a small toy dataset in \Cref{fig:lec1_
 \end{figure}
 
 
-As shown in \Cref{fig:lec2_sigmoid_bce}, logits, BCE curvature, and regularization strength appear in one compact diagnostic view.
+As shown in \Cref{fig:lec2_sigmoid_bce}, linear scores (logits), the binary cross\hyp{}entropy (BCE) loss shape, and regularization strength appear in one compact diagnostic view.
 
 \begin{figure}[!htbp]
     \centering
@@ -310,7 +302,7 @@ The Hessian has the form \(\mathbf{X}^\top \mathbf{W} \mathbf{X}\) where \(\math
 
 
 \paragraph{Optimization geometry (why iterative solvers)}
-Unlike linear regression, logistic regression does not have a closed-form solution for \(\boldsymbol{\beta}\), even though the objective is convex. In practice we therefore rely on iterative solvers (gradient methods, quasi\hyp{}Newton methods, or Newton/IRLS in moderate dimensions). \Cref{fig:lec1_gd} is a convex quadratic toy that reminds us what an optimization trajectory looks like when we minimize a smooth objective: step size and conditioning shape how quickly iterates contract toward the minimizer.
+Unlike linear regression, logistic regression does not have a closed-form solution for \(\boldsymbol{\beta}\), even though the objective is convex. In practice we therefore rely on iterative solvers (gradient methods, quasi\hyp{}Newton methods, or Newton/iteratively reweighted least squares (IRLS) in moderate dimensions). \Cref{fig:lec1_gd} is a convex quadratic toy that reminds us what an optimization trajectory looks like when we minimize a smooth objective: step size and conditioning shape how quickly iterates contract toward the minimizer.
 
 \begin{figure}[!htbp]
     \centering
@@ -449,6 +441,8 @@ Two common priors explain the two penalties that appear most often in practice: 
 
 \subsection{Confusion Matrices and Derived Metrics}
 \label{sec:logistic_confusion_matrices_and_derived_metrics}
+
+\noindent\textbf{Abbreviation note.} ROC = receiver operating characteristic; PR = precision--recall; AUC = area under the curve; ECE = expected calibration error. We use AUROC/AUPRC for the corresponding AUCs.
 
 \begin{tcolorbox}[summarybox, title={Risk \& audit}]
 \begin{itemize}

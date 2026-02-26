@@ -167,12 +167,7 @@ AI systems can be decomposed into three interrelated components:
 \end{description}
 
 \paragraph{Example: Autonomous Vehicle}
-
-\begin{itemize}
-    \item \textbf{Perception:} Camera captures images, which are converted into numerical arrays.
-    \item \textbf{Thinking:} Algorithms classify objects (e.g., stop signs, pedestrians) and predict future states.
-    \item \textbf{Action:} Vehicle control systems adjust steering, acceleration, or braking accordingly.
-\end{itemize}
+Perception starts with sensors (for example, cameras) whose signals are converted into numeric arrays and state estimates. Reasoning uses those estimates to classify objects (stop signs, pedestrians) and predict near-future motion. Action closes the loop by issuing steering, acceleration, and braking commands that satisfy safety constraints.
 
 \subsection{Case Study: AI-Enabled Camera as an Intelligent System}
 \label{sec:intro_case_study_ai_enabled_camera_as_an_intelligent_system}
@@ -184,8 +179,8 @@ The design checklist above becomes concrete when we dissect a deployed system. C
     \item[Problem + value role] Detect humans entering restricted zones (understand the present) and log footage for later audits (explain the past).
     \item[Representation] Images are streamed as \(H\times W\times 3\) tensors; regions of interest and background models are maintained to suppress noise.
     \item[Objectives/constraints] Maintain $<200$\, ms end-to-end latency and $<1\%$ false negatives; respect privacy/retention policies.
-    \item[Hardware (perception/action)] CMOS sensor, on-board DSP/accelerator, motorized pan/tilt for re-targeting.
-    \item[Software (reasoning)] YOLOv8-style detector fine-tuned on site-specific data, fused with Kalman filters for track smoothing and MPC logic that commands the pan/tilt actuator or triggers alerts.
+    \item[Hardware (perception/action)] CMOS (complementary metal-oxide-semiconductor) sensor, on-board DSP (digital signal processor)/accelerator, motorized pan/tilt for re-targeting.
+    \item[Software (reasoning)] A YOLO-style object detector (e.g., YOLOv8) fine-tuned on site-specific data, fused with Kalman filters for track smoothing and MPC (model predictive control) logic that commands the pan/tilt actuator or triggers alerts.
     \item[Integration] Edge inference handles immediate reactions; metadata is sent to a cloud analytics service that enriches logs and retrains models (predicting the future by anticipating recurrent intrusion times).
 \end{description}
 \end{tcolorbox}
@@ -339,12 +334,7 @@ If a system can improve its own utility autonomously and rapidly, it may induce 
 
 \paragraph{Designing Safe Intelligent Systems}
 
-One practical mitigation is to build systems that:
-\begin{itemize}
-    \item Keep auditable records of their decisions and updates.
-    \item Perform self-inspection and error analysis.
-    \item Backtrack and self-correct within explicit, designer-defined bounds.
-\end{itemize}
+One practical mitigation is to require auditable decision traces, routine self-inspection/error analysis, and bounded backtracking/self-correction inside explicit, designer-defined interfaces.
 
 \noindent Such systems can improve without uncontrolled self-modification: policy updates are gated by testable criteria, and any self-editing of code or reward functions proceeds only through approved interfaces.
 

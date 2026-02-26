@@ -1335,6 +1335,20 @@ Build notes (2026-02-17):
 - 2026-02-26: Ran `bash notes_output/scripts/run_production_checks.sh` after the edits. Result: PASS (release checks, Apple
   gatekeeper audits, and EPUBCheck all OK).
 
+## 2026-02-26 Part I (Chapters 1--4) slide-to-prose + define-at-first-use polish
+
+- `notes_output/lecture_1_intro.tex`: converted the autonomous-vehicle component bullets into continuous prose (same content,
+  less slide-like) and expanded common acronyms at first mention in the camera-system checklist (CMOS/DSP/MPC). Kept the
+  example concrete while making it read as book narrative.
+- `notes_output/lecture_2_part_i.tex`: expanded AST at first use (abstract syntax tree) in the cost-heuristic paragraph.
+- `notes_output/lecture_supervised.tex`: expanded ERM and i.i.d. at first use to reduce cognitive load in later chapters.
+- `notes_output/lecture_2_part_ii.tex`: expanded LDA/IRLS at first use; clarified logits/BCE wording; converted the Bayes
+  ``Challenges in Practice'' bullets into a tight prose paragraph; added a one-time abbreviation note (ROC/PR/AUC/ECE/AUROC/
+  AUPRC) immediately before the Risk \& audit box.
+- 2026-02-26: Ran `python3 notes_output/scripts/validate_math_examples_and_graphs.py --strict` after the edits. Result: PASS.
+- 2026-02-26: Ran `bash notes_output/scripts/run_production_checks.sh` after the edits. Result: PASS (release checks, Apple
+  gatekeeper audits, and EPUBCheck all OK).
+
 ## 2026-02-25 Chapter 10 (Hopfield) debug checklist + non-template modern-Hopfield tightening
 
 - `notes_output/lecture_5_part_ii.tex`: added a short implementation checklist (symmetry/diagonal, energy convention, async vs
