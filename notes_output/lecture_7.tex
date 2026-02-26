@@ -2,7 +2,7 @@
 \section{Introduction to Recurrent Neural Networks}\label{chap:rnn}
 \graphicspath{{assets/lec7/}{assets/lec9/}{assets/lec14/}}
 
-\Cref{chap:cnn} showed how architectural bias (convolution/pooling) improves sample efficiency while preserving the same optimization loop. This chapter keeps that loop but changes the axis from space to time: sequence models need memory so present predictions can depend on prior tokens. A useful continuity is \emph{parameter sharing}: CNNs reuse one filter across spatial locations, while RNNs reuse one transition rule across time steps. \Cref{fig:roadmap} flags this as the sequential branch of the neural strand.
+\Cref{chap:cnn} showed how architectural bias (convolution/pooling) improves sample efficiency while preserving the same optimization loop. This chapter keeps that loop but changes the axis from space to time: sequence models need memory so present predictions can depend on prior inputs. A useful continuity is \emph{parameter sharing}: CNNs reuse one filter across spatial locations, while RNNs reuse one transition rule across time steps. \Cref{fig:roadmap} flags this as the sequential branch of the neural strand.
 
 \begin{tcolorbox}[summarybox, title={Learning Outcomes}]
 \begin{itemize}
@@ -52,6 +52,9 @@ The output $\mathbf{y}_t$ at time $t$ is then computed as a function of the curr
 
 Here, $f$ and $g$ are typically nonlinear functions implemented by neural network layers, and $\theta, \theta'$ are learned parameters.
 
+\paragraph{Terminology (time steps versus tokens).}
+Throughout this chapter, \(t\) indexes \emph{steps} in a sequence. In a time series, \(\mathbf{x}_t\) can be a measured feature vector. In language, the sequence is discrete: each step corresponds to a \emph{token} \(w_t\) (a word or subword unit from a finite vocabulary), and the numeric input \(\mathbf{x}_t\) is typically an embedding vector looked up from a learned table. We keep the math generic in \(\mathbf{x}_t\) so the same derivations apply across domains.
+
 \paragraph{Interpretation:} The hidden state $\mathbf{h}_t$ acts as a \emph{summary} or \emph{encoding} of the entire input history $\{\mathbf{x}_1, \mathbf{x}_2, \ldots, \mathbf{x}_t\}$. This allows the network to make predictions that depend on the temporal context, not just the current input.
 
 \paragraph{Parameter sharing across time.} The same weights are reused at each time step. In the simplest formulation there are three learned matrices: \(W_{xh}\) (input to state), \(W_{hh}\) (state to state), and \(W_{hy}\) (state to output). When you unroll the recurrence, these matrices appear at every step, so the model learns a single transition rule rather than a separate set of parameters for each position in the sequence.
@@ -59,7 +62,7 @@ Here, $f$ and $g$ are typically nonlinear functions implemented by neural networ
 Unrolling makes the training graph \(T\) steps deep. Gradients from each time step accumulate onto the shared weights, and the repeated Jacobian products are precisely why long sequences revive the vanishing/exploding gradient issues from deep feedforward networks.
 Training this unrolled graph with standard backpropagation is known as \emph{backpropagation through time} (BPTT).
 
-Recurrent neural networks (RNNs) were among the first practical sequence models \citep{Elman1990,Bengio1994}. CNNs from \Cref{chap:cnn} trade recurrence for parallel, spatially shared filters. \Cref{chap:nlp} then supplies the token representations and evaluation lens commonly paired with RNNs, and \Cref{chap:transformers} revisits sequence modeling without recurrence.
+Recurrent neural networks (RNNs) were among the first practical sequence models \citep{Elman1990,Bengio1994}. CNNs from \Cref{chap:cnn} trade recurrence for parallel, spatially shared filters. \Cref{chap:nlp} then supplies the representation tools and evaluation lens commonly paired with language models, and \Cref{chap:transformers} revisits sequence modeling without recurrence.
 
 \subsection{Comparison with Feedforward Networks}
 \label{sec:rnn_comparison_with_feedforward_networks}
@@ -147,7 +150,7 @@ Two-dimensional toy datasets remain useful for reasoning about inductive biases.
 
 Finally, \Cref{fig:lec7-loss-hyperparams} summarizes two diagnostics: BCE geometry and the effect of learning\hyp{}rate schedules/early stopping.
 Here BCE (binary cross\hyp{}entropy) for a binary target $y\in\{0,1\}$ and logit $z$ is $\mathcal{L}(z, y)=\log(1+e^{-z})$ for $y{=}1$ and $\log(1+e^{z})$ for $y{=}0$; the \emph{logit} $z$ is the pre\hyp{}sigmoid score so that $\sigma(z)$ yields the predicted probability. The middle panel contrasts a conservative schedule (smooth decay) with a more aggressive one (faster initial drop but risk of oscillation), and the right panel shows early stopping triggered when validation loss ceases to improve while training loss continues decreasing.
-We will reuse these when tuning sequence models, where overfitting appears as a divergence between per\hyp{}token training and validation likelihood.
+We will reuse these when tuning sequence models, where overfitting appears as a divergence between per\hyp{}step training and validation likelihood (per\hyp{}token in text models).
 
 \begin{tcolorbox}[summarybox, title={Author's note: treat early stopping as the default brake}]
 Unless there is a compelling reason to run to numerical convergence, stop as soon as the validation curve flattens while the training curve keeps dropping. Checkpoint the best weights and resume only if new data or regularization changes warrant it. That simple rule prevents most runaway experiments without elaborate hyperparameter sweeps.
