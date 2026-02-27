@@ -1480,3 +1480,23 @@ Build notes (2026-02-17):
 - 2026-02-26: Ran `python3 notes_output/scripts/validate_math_examples_and_graphs.py --strict` after the edits. Result: PASS.
 - 2026-02-26: Ran `bash notes_output/scripts/run_production_checks.sh` after the edits. Result: PASS (release checks, Apple
   gatekeeper audits, and EPUBCheck all OK).
+
+## 2026-02-26 Chapter 14 (Transformers) rewrite: seq2seq \textrightarrow{} attention narrative + model-family framing
+
+- `notes_output/lecture_transformers.tex`: rewrote the opening to start from the encoder--decoder bottleneck (translation as
+  the running thread), then motivated attention as a weighted average before introducing the scaled dot-product formula.
+- `notes_output/lecture_transformers.tex`: added an explicit self-attention vs.\ cross-attention subsection and aligned the
+  narrative so Q/K/V intuition comes before the heavier equations.
+- `notes_output/lecture_transformers.tex`: replaced the earlier worked example with a single 2-token causal self-attention
+  walkthrough consistent with the strict numeric validator (and reformatted the display math to avoid overfull warnings).
+- `notes_output/lecture_transformers.tex`: added sinusoidal positional encoding equations (\Cref{eq:transformers_sinusoidal_pe})
+  and tightened the positional/relative/rotary discussion to stay medium-depth and book-voice.
+- `notes_output/lecture_transformers.tex`: moved the masks figure (\Cref{fig:lec13_masks}) into the masks section and ensured
+  it is referenced (figure/table reference coverage gate).
+- `notes_output/lecture_transformers.tex`: aligned the embedding-table symbol in the code--math dictionary from \(\mathbf{E}\)
+  to \(\mathbf{W}\) to match Chapter 13 notation.
+- `notes_output/review/writeup_ch14_voice_blocks.md`: added a scratchpad scaffold for voice-heavy blocks so you can iterate on
+  the phrasing without editing TeX directly.
+- 2026-02-26: Ran `python3 notes_output/scripts/validate_math_examples_and_graphs.py --strict` after the edits. Result: PASS.
+- 2026-02-26: Ran `bash notes_output/scripts/run_production_checks.sh` after the edits. Result: PASS (release checks, Apple
+  gatekeeper audits, and EPUBCheck all OK).
