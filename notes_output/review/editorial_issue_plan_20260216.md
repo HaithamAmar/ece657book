@@ -1292,6 +1292,16 @@ Build notes (2026-02-17):
 - 2026-02-26: Ran `bash notes_output/scripts/run_production_checks.sh` after the edits. Result: PASS (release checks, Apple
   gatekeeper audits, and EPUBCheck all OK).
 
+## 2026-02-26 Chapter 1 + Chapter 14: model/world-model lens insertion
+
+- `notes_output/lecture_1_intro.tex`: added a short, stable definition of ``model'' near the start of the book so later
+  chapters can reuse the same contract (mapping information to predictions; distributions when appropriate).
+- `notes_output/lecture_transformers.tex`: added an author-voice perspective box introducing ``world model'' as an
+  aspirational concept and stating the ``LMs do not guarantee a world model'' claim explicitly as opinion.
+- 2026-02-26: Ran `python3 notes_output/scripts/validate_math_examples_and_graphs.py --strict` after the edits. Result: PASS.
+- 2026-02-26: Ran `bash notes_output/scripts/run_production_checks.sh` after the edits. Result: PASS (release checks, Apple
+  gatekeeper audits, and EPUBCheck all OK).
+
 ## 2026-02-26 Terminology note: define ``vanilla'' once (plain baseline) at first appearance
 
 - `notes_output/lecture_6.tex`: defined ``vanilla'' as the common ML shorthand for ``plain/unmodified baseline'' (here:

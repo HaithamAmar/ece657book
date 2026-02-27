@@ -18,6 +18,21 @@ After this chapter, you should be able to:
 Control information flow with structure (masks, normalization, residual paths) so optimization remains stable while context windows grow.
 \end{tcolorbox}
 
+\begin{tcolorbox}[perspectivebox, title={Author's note: models, world models, and language models (an opinionated lens)}]
+A \emph{model} predicts outcomes from captured information. In the chapters so far, that ``outcome'' ranged
+from a class label, to a time-step forecast, to a retrieved memory pattern.
+
+A \emph{world model}, as I use the phrase here, is aspirational: it is the idea of a general-purpose internal
+model that can represent situations and dynamics well enough to support planning, counterplanning, and
+``what-if'' reasoning. Whether we can build such systems reliably is part of the larger research program.
+
+Language models are a simplified and very constrained training interface to this aspiration: at training time
+the next action is a token predicted from previous tokens. My opinion is that this setup can \emph{suggest}
+a kind of internal world structure (because the output must remain internally and externally consistent to be
+useful), but it does not \emph{guarantee} that a faithful world model has formed. Fluency is not proof of
+understanding; it is a behavior you still have to audit.
+\end{tcolorbox}
+
 \subsection{Why transformers after RNNs?}
 \label{sec:transformers_why_transformers_after_rnns}
 The RNN chapter (\Cref{chap:rnn}) closed with recurrent models that process tokens sequentially: information must travel through time steps, training cannot fully parallelize across positions, and gradients can still struggle on long contexts even with gating. The embeddings chapter (\Cref{chap:nlp}) addressed a different bottleneck---how tokens become vectors so many\hyp{}to\hyp{}one decisions (e.g., sentiment classification) can generalize across similar words. Transformers replace recurrence with attention so every position can condition on any other in a single layer, enabling parallel hardware use and more direct long-range interactions \citep{Vaswani2017}.
