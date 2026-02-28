@@ -1508,6 +1508,10 @@ Build notes (2026-02-17):
   keeping the narrative aligned with Chapter 12--13 sequence/embedding conventions.
 - `notes_output/lecture_transformers.tex`: added a compact ``keys/values weighted retrieval'' intuition box (explicitly marked
   as an analogy) and tightened Q/K/V + multi-head notation so the projection dimensions are consistent.
+- `notes_output/lecture_transformers.tex`: strengthened the self-attention motivation with a short ``memory vs.\ relevance''
+  author-voice note, made the attention-matrix form explicit (\(\mathbf{A}=\mathrm{softmax}(\mathbf{Q}\mathbf{K}^\top/\sqrt{d_k})\),
+  \(\mathbf{Z}=\mathbf{A}\mathbf{V}\)), and added one concrete contextualization example (``red flag'' vs.\ ``red coat'') to tie
+  the math to the intuition.
 - `notes_output/scripts/validate_math_examples_and_graphs.py`: added a strict numeric check (`chapter14_kv_weighted_retrieval`)
   that recomputes the analogy values/weights and asserts the displayed result.
 - 2026-02-28: Ran `python3 notes_output/scripts/validate_math_examples_and_graphs.py --strict` after the edits. Result: PASS.
