@@ -1512,6 +1512,8 @@ Build notes (2026-02-17):
   author-voice note, made the attention-matrix form explicit (\(\mathbf{A}=\mathrm{softmax}(\mathbf{Q}\mathbf{K}^\top/\sqrt{d_k})\),
   \(\mathbf{Z}=\mathbf{A}\mathbf{V}\)), and added one concrete contextualization example (``red flag'' vs.\ ``red coat'') to tie
   the math to the intuition.
+- `notes_output/lecture_transformers.tex`: made the seq2seq attention softmax normalization explicit in one line and added an
+  attribution cite for the classical encoder--decoder attention bridge (\citet{Bahdanau2015}).
 - `notes_output/scripts/validate_math_examples_and_graphs.py`: added a strict numeric check (`chapter14_kv_weighted_retrieval`)
   that recomputes the analogy values/weights and asserts the displayed result.
 - 2026-02-28: Ran `python3 notes_output/scripts/validate_math_examples_and_graphs.py --strict` after the edits. Result: PASS.

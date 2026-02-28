@@ -56,7 +56,15 @@ The ``one-vector bottleneck'' appears when the decoder is forced to rely on a si
     \alpha_{t j} &= \operatorname{softmax}_j(e_{t j}), \label{eq:transformers_attn_weights_seq2seq}\\
     \mathbf{c}_t &= \sum_{j=1}^{S} \alpha_{t j}\,\mathbf{h}_j. \label{eq:transformers_context_seq2seq}
 \end{align}
-Here \(a(\cdot,\cdot)\) is any differentiable scoring function (a dot product, a bilinear form, or a small MLP) and \(\mathbf{c}_t\) is the context the decoder uses when predicting \(y_t\). That is the core move: different output positions can ``look back'' at different parts of the source. This is the bridge from encoder--decoder RNNs to Transformers: the attention math stays; what changes is that Transformers build the states \(\mathbf{h}_j\) and \(\mathbf{s}_t\) without recurrence.
+Here \(\operatorname{softmax}_j\) denotes a softmax over the source positions \(j\), i.e.,
+\(\alpha_{t j}=\exp(e_{t j})/\sum_{j'=1}^{S}\exp(e_{t j'})\).
+The scoring function \(a(\cdot,\cdot)\) can be a dot product, a bilinear form, or a small MLP, and
+\(\mathbf{c}_t\) is the context the decoder uses when predicting \(y_t\).
+This style of encoder--decoder attention traces back to early neural machine translation work
+\citep{Bahdanau2015}.
+That is the core move: different output positions can ``look back'' at different parts of the source.
+This is the bridge from encoder--decoder RNNs to Transformers: the attention math stays; what changes is
+that Transformers build the states \(\mathbf{h}_j\) and \(\mathbf{s}_t\) without recurrence.
 
 \subsection{Scaled Dot-Product Attention}
 \label{sec:transformers_scaled_dot_product_attention}
