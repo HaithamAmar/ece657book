@@ -373,7 +373,7 @@ For cross-attention, the formula is the same but keys/values come from encoder s
 \end{figure}
 \FloatBarrier
 
-\subsection{Positional Information}
+\subsection{Positional encodings (order without recurrence)}
 \label{sec:transformers_positional_information}
 Transformers lack recurrence, so order has to be injected explicitly. A simple baseline (from \citet{Vaswani2017}) is a sinusoidal positional encoding: for position \(\mathrm{pos}\) and feature index \(i\),
 \begin{align}
@@ -411,7 +411,7 @@ where both terms produce vectors in \(\mathbb{R}^{d_{\text{model}}}\) and the su
 
 In modern practice you will also see learned positional embeddings, relative-position schemes, and rotary position embeddings (RoPE). The chapter keeps sinusoidal PE as the clean reference, and we treat other variants as drop-in replacements that mainly change how well models extrapolate to longer contexts or shifting windows.
 
-\subsection{Objectives, masks, and model families}
+\subsection{Objectives and masks}
 \label{sec:transformers_masks_and_training_objectives}
 Two masks show up so often that it is worth naming them early.
 A \emph{causal mask} forbids attention to future positions; this is what makes next-token generation well-defined.
@@ -527,7 +527,7 @@ The training objective is usually a cross-entropy (CE) loss, i.e., a negative lo
 
 We will return to the main Transformer families (encoder-only vs.\ decoder-only vs.\ encoder--decoder) after we write down the block structure in \Cref{sec:transformers_encoder_decoder_stacks_and_stabilizers}. The core idea is simple: families differ mostly by which masks they apply and which prediction problem they are trained on, not by a different attention mechanism.
 
-\subsection{Encoder/Decoder Stacks and Stabilizers}
+\subsection{Transformer blocks and training stabilizers}
 \label{sec:transformers_encoder_decoder_stacks_and_stabilizers}
 Transformer blocks are built from the same few ingredients repeated many times: attention, a small feed-forward network, and
 stability glue (residual connections, normalization, dropout). Residual connections keep a direct path for information and
@@ -615,13 +615,13 @@ where the model produces a vocabulary distribution at each position and we only 
 The original BERT recipe masked about 15\% of tokens and used a pragmatic corruption mix: most masked positions are replaced by \texttt{[MASK]}, some by a random token, and some are left unchanged so the model does not overfit to seeing \texttt{[MASK]} at fine-tuning time \citep{Devlin2019}.
 
 \begin{tcolorbox}[summarybox, title={Author's note: Word2Vec vs.\ BERT (the intuition that still helps)}]
-Word2Vec taught us a useful lesson: meaning leaks into geometry through co-occurrence. If you repeatedly see certain words together, a vector model can pick that up and cluster them.
+Word2Vec \citep{Mikolov2013} taught us a useful lesson: meaning leaks into geometry through co-occurrence. If you repeatedly see certain words together, a vector model can pick that up and cluster them.
 
 I like to see BERT as a more powerful version of the same distributional idea. The training question is still ``can you predict a missing piece from what surrounds it?'' The difference is that the representation is no longer one vector \emph{per vocabulary item}. BERT produces a \emph{contextual} vector per token occurrence: the vector for ``bank'' in ``river bank'' is not forced to match the vector for ``bank'' in ``bank account,'' because the surrounding tokens are part of the computation.
 \end{tcolorbox}
 
 \paragraph{\texttt{[CLS]} as a learned pooling token.}
-BERT-style models typically prepend a special \texttt{[CLS]} token and (for sentence pairs) separate segments with \texttt{[SEP]}. Because \texttt{[CLS]} participates in the same self-attention as every other token, its hidden state is repeatedly updated as the model mixes information across the sequence. In practice, the final-layer \texttt{[CLS]} vector is treated as a learned, task-adaptable summary and is fed to a small classifier head for sentence-level tasks.
+BERT-style models typically prepend a special \texttt{[CLS]} token and (for sentence pairs) separate segments with \texttt{[SEP]}. In the original setup, a small \emph{token-type} (segment) embedding marks whether each token came from sentence A or sentence B \citep{Devlin2019}. Because \texttt{[CLS]} participates in the same self-attention as every other token, its hidden state is repeatedly updated as the model mixes information across the sequence. In practice, the final-layer \texttt{[CLS]} vector is treated as a learned, task-adaptable summary and is fed to a small classifier head for sentence-level tasks.
 
 The original BERT paper also used an auxiliary ``next sentence prediction'' (NSP) objective for sentence pairs; later variants often drop it. For our purposes, the core encoder-only story is: bidirectional self-attention plus an objective that forces representations to be predictive of missing content.
 
@@ -711,7 +711,7 @@ RLHF optimizes a policy against a learned reward model (with careful regularizat
 \paragraph{Alignment is not a proof of correctness.}
 Alignment can improve helpfulness and reduce obvious failures, but it can also introduce new ones (reward hacking, over-refusal, brittleness to prompt phrasing, or degraded performance off-distribution). Treat it as an engineering stage with explicit test suites and logging: evaluate on held-out tasks, check calibration and refusal behavior, and track changes relative to the pre-alignment model.
 
-\subsection{Advanced attention and efficiency notes (practitioner snapshot)}
+\subsection{Advanced notes (optional, practitioner snapshot)}
 \label{sec:transformers_advanced_attention_and_efficiency_notes_snapshot}
 \begin{itemize}
     \item \textbf{Relative/rotary positions.} RoPE \citep{Su2021RoPE} and ALiBi \citep{Press2022ALiBi} replace absolute sinusoidal embeddings with rotation/bias terms so extrapolating to longer sequences no longer requires re-fitting positional lookups; the trade-off is that absolute tables keep fixed anchors for classification tokens while rotary/relative schemes favour extrapolation and smoothly sliding windows.

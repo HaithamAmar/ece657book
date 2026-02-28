@@ -1534,6 +1534,18 @@ Build notes (2026-02-17):
   token-by-token sampling is an inference-time choice), and added compact objective equations for MLM and CLM.
 - `notes_output/refs.bib`: added a canonical GPT-1 pre-training technical report entry (`Radford2018`) so the parameter-count
   and objective claims can be sourced cleanly.
+- `notes_output/review/author_material_ch14_transformers_dictation_20260228.md`: saved the author's raw dictation batches as a
+  chapter-specific voice reference so future rewrites can stay faithful without re-parsing chat logs.
+- `notes_output/lecture_transformers.tex`: did a light ``rolling pass'' on headings/style for Chapter 14 (renamed a few
+  subsection titles to be more book-like, added a Word2Vec citation, and added one BERT detail from the original paper:
+  token-type/segment embeddings for sentence pairs).
+- Open gaps to consider later (not required for the current medium-depth scope):
+  - Add a 2--3 sentence refresher on BERT's input construction (token + position + segment embeddings) with a simple diagram,
+    now that segment embeddings are mentioned.
+  - Add one sentence clarifying that encoder-only models still use a padding mask; ``bidirectional'' means ``no causal mask,''
+    not ``no masking at all.''
+  - Optional: a short comment on why MLM is not a true left-to-right generation objective (and why BERT is not typically used
+    for free-form decoding without architectural changes).
 - 2026-02-28: Ran `python3 notes_output/scripts/validate_math_examples_and_graphs.py --strict` after the edits. Result: PASS.
 - 2026-02-28: Ran `bash notes_output/scripts/run_production_checks.sh` after the edits. Result: PASS (release checks, Apple
   gatekeeper audits, and EPUBCheck all OK).
