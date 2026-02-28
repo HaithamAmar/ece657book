@@ -383,6 +383,26 @@ Transformers lack recurrence, so order has to be injected explicitly. A simple b
 \end{align}
 You add this vector (or a learned alternative) to the token embedding at each position. The engineering point is not the specific constant; it is that different dimensions oscillate at different frequencies, so nearby positions look similar in some coordinates and far positions look different in others.
 
+A tempting baseline is to represent the position as an ID (or a one-hot vector) and treat it like any other lookup. That \emph{can} work as a table, but it is a poor fit for how attention does its comparisons. One-hot positions are orthogonal: under dot products they only tell you ``same position'' versus ``different position,'' not whether two positions are one step apart or fifty steps apart. A fixed table also has a hard maximum length: if you trained up to \(n=512\) and you now see position 513, you must extend (and usually re-train) the lookup.
+
+Sinusoidal encodings bake in a gentle geometry. For one frequency \(\omega\), the sin/cos pair satisfies
+\[
+\begin{bmatrix}
+\sin(\omega(\mathrm{pos}+\Delta))\\
+\cos(\omega(\mathrm{pos}+\Delta))
+\end{bmatrix}
+=
+\begin{bmatrix}
+\cos(\omega\Delta) & \sin(\omega\Delta)\\
+-\sin(\omega\Delta) & \cos(\omega\Delta)
+\end{bmatrix}
+\begin{bmatrix}
+\sin(\omega\,\mathrm{pos})\\
+\cos(\omega\,\mathrm{pos})
+\end{bmatrix},
+\]
+so a fixed offset \(\Delta\) acts like a rotation in that 2D subspace. Across many frequencies, this becomes a multi-scale position code: low-frequency terms vary slowly (coarse, long-range cues) while high-frequency terms vary quickly (fine, local cues). Because attention is built on dot products and similarities, that structure gives the model a usable notion of ``near'' and ``far'' without having to relearn distance from scratch, and it lets you evaluate \(\mathrm{PE}(\mathrm{pos},\cdot)\) beyond the training window.
+
 You can view the input to the first block as
 \[
 \mathbf{H}_0 = \operatorname{Embed}(\text{tokens}) + \operatorname{PosEnc}(\text{positions}),
@@ -535,19 +555,28 @@ layers with a nonlinearity:
 where \(\sigma\) is commonly ReLU (original paper) or GELU (many modern stacks), \(\mathbf{W}_1\in\mathbb{R}^{d_{\text{model}}\times d_{\text{ff}}}\),
 \(\mathbf{W}_2\in\mathbb{R}^{d_{\text{ff}}\times d_{\text{model}}}\), and the biases are broadcast across positions. Dropout and label smoothing are common.
 
+\begin{tcolorbox}[summarybox, title={Author's note: attention mixes; the FFN refines (two different jobs)}]
+Self-attention is where tokens ``talk'' to each other. It is the part of the block that \emph{mixes across positions}: each token forms a query, assigns weights over other tokens' keys, and pulls a weighted average of their values.
+
+The feed-forward sublayer is different. It is applied \emph{independently} to each token: the same small MLP processes every position, taking whatever the attention step mixed in and turning it into a cleaner set of features for the next layer. If you like metaphors, I think of attention as the class discussion and the FFN as the private tutor: the discussion lets you hear from others; the tutor helps you rewrite your notes in a form you can use.
+\end{tcolorbox}
+
+\paragraph{Decoder blocks: masked self-attention plus cross-attention.}
+Encoder blocks use self-attention (typically with a padding mask) plus an FFN. Decoder blocks add a second attention step: first \emph{masked} self-attention over the partially generated target (causal mask), then cross-attention into the encoder outputs. In that cross-attention, the query comes from the decoder stream while the keys and values come from the encoder stream. It is the same weighted-average mechanism, but now the memory lives on the source side and the questions live on the target side.
+
 \begin{tcolorbox}[summarybox, breakable, title={Implementation snapshot: block pseudocode, training defaults, and one step}]
 \noindent\textbf{Block pseudocode (pre-LN).}
 \begin{verbatim}
-function Block(H):
+function Block(H, mask=None):
     # Pre-normalize inputs (pre-LN stabilizes deep stacks)
     H_norm = LayerNorm(H)
-    attn = MHA(H_norm, H_norm, H_norm)
+    attn = MHA(H_norm, H_norm, H_norm, mask)
     H = H + Dropout(attn)
     H_norm = LayerNorm(H)
     ff = FFN(H_norm)
     return H + Dropout(ff)
 \end{verbatim}
-Decoder blocks add causal masks and cross-attention with encoder states. Pre-LN (shown here) is now common because it keeps gradients well behaved for very deep stacks; post-LN (original Transformer) is still used in smaller models.
+Decoder blocks add a causal mask on self-attention, and encoder--decoder variants also insert cross-attention (queries from decoder; keys/values from encoder outputs). Pre-LN (shown here) is now common because it keeps gradients well behaved for very deep stacks; post-LN (original Transformer) is still used in smaller models.
 \medskip
 \noindent\textbf{Training defaults (decoder-only, practical baseline).}
 AdamW with cosine decay and 1--3\% warmup; LR \(\sim 10^{-3}\) for small models, \(1\text{--}2\times 10^{-4}\) for mid-size. Weight decay \(\approx 0.01\) (exclude biases/LayerNorm gains). Attention/MLP dropout \(\approx 0.1\); clip global norm to 1.0. Mixed precision (FP16/BF16) plus gradient checkpointing for long contexts; tie input embeddings to the LM head; use causal masks for CLM and padding masks for packed batches.
@@ -603,7 +632,26 @@ Regardless of whether you update all weights or only a small adapter, treat fine
 \label{sec:transformers_decoding_and_evaluation}
 Training produces a distribution over the next token; decoding turns that distribution into an actual sequence. For decoder-only models, decoding runs autoregressively: predict \(p_\theta(x_{t+1}\mid x_{1:t})\), choose a token, append it, and repeat. This is also where the KV cache matters (see \Cref{fig:lec13_micro_figures}): you reuse past keys/values so generating one more token does not require recomputing attention over the entire prefix from scratch.
 
-Greedy decoding takes the argmax at each step; it is fast and often strong for short, factual completions, but it can get stuck in repetitive loops. Beam search keeps multiple partial hypotheses; it can improve likelihood but sometimes harms perceived quality in open-ended generation. Sampling (top-\(k\), top-\(p\) nucleus) trades certainty for diversity; temperature controls how sharp or flat the distribution feels.
+\paragraph{From hidden states to a next-token distribution.}
+At position \(t\), the final block produces a hidden state \(\mathbf{h}_t\in\mathbb{R}^{d_{\text{model}}}\). A language model head is a linear map into the vocabulary \(\mathcal{V}\):
+\begin{equation}
+    \boldsymbol{\ell}_t = \mathbf{h}_t \mathbf{W}_{\text{out}} + \mathbf{b}_{\text{out}}, \qquad
+    \boldsymbol{\ell}_t \in \mathbb{R}^{|\mathcal{V}|},
+    \label{eq:transformers_lm_head_logits}
+\end{equation}
+where \(\boldsymbol{\ell}_t\) are the logits (unnormalized scores). Softmax converts logits to probabilities,
+\(p_\theta(x_{t+1}=v\mid x_{1:t})=\operatorname{softmax}(\boldsymbol{\ell}_t)_v\),
+and cross-entropy (NLL) trains the model to put mass on the observed next token.
+
+\paragraph{Temperature and sampling (how you choose a token).}
+Temperature rescales logits before softmax:
+\begin{equation}
+    p_T(v\mid x_{1:t}) = \operatorname{softmax}\!\left(\boldsymbol{\ell}_t/T\right)_v, \qquad T>0.
+    \label{eq:transformers_temperature_softmax}
+\end{equation}
+Small \(T\) makes the distribution sharper (more deterministic); large \(T\) makes it flatter (more random). The limit \(T\to 0\) approaches greedy argmax behavior; the limit \(T\to\infty\) approaches a uniform distribution. Temperature \(T=0\) is not defined mathematically; in code it is simply implemented as ``take \(\arg\max\).'' A common sampling implementation is the roulette-wheel (inverse-CDF) rule: draw \(u\sim \mathrm{Uniform}(0,1)\), accumulate the probabilities until the cumulative sum exceeds \(u\), and pick that token. In practice you often combine this with top-\(k\) or nucleus (top-\(p\)) truncation: restrict to a shortlist of likely tokens, renormalize, then sample.
+
+Greedy decoding takes the argmax at each step; it is fast and often strong for short, factual completions, but it can get stuck in repetitive loops. Beam search keeps multiple partial hypotheses; it can improve likelihood but sometimes harms perceived quality in open-ended generation. Sampling (often with top-\(k\) or top-\(p\) truncation) trades certainty for diversity; pick it deliberately and log the settings.
 
 For evaluation, perplexity summarizes next-token performance for language modeling (see \Cref{chap:nlp}), but it does not tell you whether generations are useful, safe, or faithful. For downstream classification, prefer metrics that match the deployment slice (e.g., AUPRC for imbalanced problems) and keep decoding settings logged alongside checkpoints so results are reproducible.
 

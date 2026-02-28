@@ -1522,6 +1522,13 @@ Build notes (2026-02-17):
   including a brief LayerNorm vs.\ BatchNorm clarification.
 - `notes_output/scripts/validate_math_examples_and_graphs.py`: added a strict numeric check (`chapter14_kv_weighted_retrieval`)
   that recomputes the analogy values/weights and asserts the displayed result.
+- `notes_output/lecture_transformers.tex`: expanded positional encodings with a concrete ``why not one-hot'' explanation and a
+  short sin/cos offset-as-rotation identity, tying the geometry to dot-product attention without going out of scope.
+- `notes_output/lecture_transformers.tex`: added an author-voice note clarifying the division of labor inside a block
+  (attention mixes across tokens; FFN refines per token), and added a short decoder-block bridge (masked self-attn then
+  cross-attn into encoder memory).
+- `notes_output/lecture_transformers.tex`: made decoding math explicit (LM head logits, temperature-rescaled softmax) and
+  added a brief roulette-wheel sampling explanation plus a top-\(k\)/top-\(p\) truncation note.
 - 2026-02-28: Ran `python3 notes_output/scripts/validate_math_examples_and_graphs.py --strict` after the edits. Result: PASS.
 - 2026-02-28: Ran `bash notes_output/scripts/run_production_checks.sh` after the edits. Result: PASS (release checks, Apple
   gatekeeper audits, and EPUBCheck all OK).
