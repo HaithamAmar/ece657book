@@ -1514,6 +1514,12 @@ Build notes (2026-02-17):
   the math to the intuition.
 - `notes_output/lecture_transformers.tex`: made the seq2seq attention softmax normalization explicit in one line and added an
   attribution cite for the classical encoder--decoder attention bridge (\citet{Bahdanau2015}).
+- `notes_output/lecture_transformers.tex`: expanded the multi-head motivation with a language-focused intuition (multiple
+  simultaneous relations such as agreement/word order), tightened the masks section with an explicit ``why causal masking is
+  required during training'' note, and made the embedding+position input sum explicit (\(\mathbf{H}_0=\mathrm{Embed}+\mathrm{PosEnc}\)).
+- `notes_output/lecture_transformers.tex`: corrected the block-structure math to match the pre-LN pseudocode/figure and added
+  an explicit FFN equation (\(\mathrm{FFN}(\mathbf{H})=\sigma(\mathbf{H}\mathbf{W}_1+\mathbf{b}_1)\mathbf{W}_2+\mathbf{b}_2\)),
+  including a brief LayerNorm vs.\ BatchNorm clarification.
 - `notes_output/scripts/validate_math_examples_and_graphs.py`: added a strict numeric check (`chapter14_kv_weighted_retrieval`)
   that recomputes the analogy values/weights and asserts the displayed result.
 - 2026-02-28: Ran `python3 notes_output/scripts/validate_math_examples_and_graphs.py --strict` after the edits. Result: PASS.

@@ -168,6 +168,12 @@ Self-attention by itself does not know what ``before'' and ``after'' mean: witho
 \label{sec:transformers_multi_head_attention_mha}
 One attention head gives you one similarity space. Multi-head attention gives you several in parallel: each head learns its own projections and can focus on different relations at the same time (local vs.\ global cues, syntactic vs.\ semantic signals, or different parts of an image-like grid). You should not read heads as guaranteed ``modules'' with fixed roles; the point is capacity and parallel views under the same weighted-average mechanism.
 
+One intuition I find useful in language is that several relations matter at once. Some languages encode gender;
+some emphasize agreement; and word order can differ substantially across languages (subject--verb--object versus
+other patterns). During translation you may need to track several of these constraints simultaneously while still
+resolving local collocations. Multi-head attention gives the model multiple learned ``views'' at the same time:
+each head has its own projection matrices and can compute a different attention pattern over the same sequence.
+
 Multiple heads attend in parallel after learned linear projections:
 \begin{align}
     \mathrm{head}_i &= \operatorname{Attn}(\mathbf{X}\mathbf{W}_i^Q,\, \mathbf{X}\mathbf{W}_i^K,\, \mathbf{X}\mathbf{W}_i^V),\\
@@ -377,6 +383,12 @@ Transformers lack recurrence, so order has to be injected explicitly. A simple b
 \end{align}
 You add this vector (or a learned alternative) to the token embedding at each position. The engineering point is not the specific constant; it is that different dimensions oscillate at different frequencies, so nearby positions look similar in some coordinates and far positions look different in others.
 
+You can view the input to the first block as
+\[
+\mathbf{H}_0 = \operatorname{Embed}(\text{tokens}) + \operatorname{PosEnc}(\text{positions}),
+\]
+where both terms produce vectors in \(\mathbb{R}^{d_{\text{model}}}\) and the sum is taken position-wise.
+
 In modern practice you will also see learned positional embeddings, relative-position schemes, and rotary position embeddings (RoPE). The chapter keeps sinusoidal PE as the clean reference, and we treat other variants as drop-in replacements that mainly change how well models extrapolate to longer contexts or shifting windows.
 
 \subsection{Objectives, masks, and model families}
@@ -386,6 +398,12 @@ A \emph{causal mask} forbids attention to future positions; this is what makes n
 A \emph{padding mask} forbids attention to padded positions inserted only to make batches rectangular.
 Both are easy to get wrong: a single missing mask can leak information from the future or silently change what the model is allowed to use.
 See \Cref{fig:lec13_masks} for a concrete picture of both patterns (queries on rows, keys on columns).
+
+One subtle point is \emph{why} the causal mask is needed during training. At inference time the future does not exist, so a
+decoder cannot look ahead even if it wanted to. But during training we often feed the full target sequence (teacher forcing:
+provide the ground-truth previous tokens)
+so we can compute a loss at every position. Without a causal mask, the decoder would ``cheat'' by attending to future target
+tokens. The causal mask enforces the same information constraint at training time that you will have at decoding time.
 
 \begin{figure}[t]
     \centering
@@ -491,13 +509,31 @@ We will return to the main Transformer families (encoder-only vs.\ decoder-only 
 
 \subsection{Encoder/Decoder Stacks and Stabilizers}
 \label{sec:transformers_encoder_decoder_stacks_and_stabilizers}
-Each block uses residual connections and layer normalization:
+Transformer blocks are built from the same few ingredients repeated many times: attention, a small feed-forward network, and
+stability glue (residual connections, normalization, dropout). Residual connections keep a direct path for information and
+gradients: the input to a sublayer is added back to its output so the model can refine a representation without destroying it.
+LayerNorm stabilizes scale by normalizing each token vector across its feature dimension; unlike BatchNorm it does not depend
+on batch statistics, which matters for variable-length sequences and small batches.
+
+In the \emph{pre-LN} layout (common in modern implementations), each sublayer sees a normalized input and then its output is
+added back to the residual stream:
 \begin{align}
-\mathbf{H}' &= \operatorname{LayerNorm}(\mathbf{H} + \operatorname{MHA}(\mathbf{H},\mathbf{H},\mathbf{H})),\\
-\mathbf{H}_{\text{out}} &= \operatorname{LayerNorm}(\mathbf{H}' + \operatorname{FFN}(\mathbf{H}')).
-    \label{eq:auto:lecture_transformers:2}
+\mathbf{H}_1 &= \mathbf{H} + \operatorname{MHA}(\operatorname{LayerNorm}(\mathbf{H})),\\
+\mathbf{H}_{\text{out}} &= \mathbf{H}_1 + \operatorname{FFN}(\operatorname{LayerNorm}(\mathbf{H}_1)).
+    \label{eq:transformers_preln_block}
 \end{align}
-The feed-forward sublayer (FFN) is position-wise, typically two linear layers with a nonlinearity (e.g., GELU). Dropout and label smoothing are common.
+The original Transformer applied LayerNorm after each residual add (post-LN); the attention and FFN computations are the same,
+only the placement of normalization changes.
+
+The feed-forward sublayer (FFN) is applied independently to each position (row). In matrix form it is typically two linear
+layers with a nonlinearity:
+\begin{equation}
+    \operatorname{FFN}(\mathbf{H})
+    = \sigma(\mathbf{H}\mathbf{W}_1 + \mathbf{b}_1)\mathbf{W}_2 + \mathbf{b}_2,
+    \label{eq:transformers_ffn}
+\end{equation}
+where \(\sigma\) is commonly ReLU (original paper) or GELU (many modern stacks), \(\mathbf{W}_1\in\mathbb{R}^{d_{\text{model}}\times d_{\text{ff}}}\),
+\(\mathbf{W}_2\in\mathbb{R}^{d_{\text{ff}}\times d_{\text{model}}}\), and the biases are broadcast across positions. Dropout and label smoothing are common.
 
 \begin{tcolorbox}[summarybox, breakable, title={Implementation snapshot: block pseudocode, training defaults, and one step}]
 \noindent\textbf{Block pseudocode (pre-LN).}
