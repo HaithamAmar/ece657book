@@ -1500,3 +1500,16 @@ Build notes (2026-02-17):
 - 2026-02-26: Ran `python3 notes_output/scripts/validate_math_examples_and_graphs.py --strict` after the edits. Result: PASS.
 - 2026-02-26: Ran `bash notes_output/scripts/run_production_checks.sh` after the edits. Result: PASS (release checks, Apple
   gatekeeper audits, and EPUBCheck all OK).
+
+## 2026-02-28 Chapter 14 (Transformers) dictation integration: seq2seq attention equations + verified retrieval analogy
+
+- `notes_output/lecture_transformers.tex`: expanded the encoder--decoder bridge with explicit cross-attention equations
+  (score/weights/context) and the translation factorization \(p(\mathbf{y}\mid\mathbf{x})=\prod_t p(y_t\mid y_{<t},\mathbf{x})\),
+  keeping the narrative aligned with Chapter 12--13 sequence/embedding conventions.
+- `notes_output/lecture_transformers.tex`: added a compact ``keys/values weighted retrieval'' intuition box (explicitly marked
+  as an analogy) and tightened Q/K/V + multi-head notation so the projection dimensions are consistent.
+- `notes_output/scripts/validate_math_examples_and_graphs.py`: added a strict numeric check (`chapter14_kv_weighted_retrieval`)
+  that recomputes the analogy values/weights and asserts the displayed result.
+- 2026-02-28: Ran `python3 notes_output/scripts/validate_math_examples_and_graphs.py --strict` after the edits. Result: PASS.
+- 2026-02-28: Ran `bash notes_output/scripts/run_production_checks.sh` after the edits. Result: PASS (release checks, Apple
+  gatekeeper audits, and EPUBCheck all OK).

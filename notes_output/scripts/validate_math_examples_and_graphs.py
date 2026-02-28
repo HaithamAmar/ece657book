@@ -1154,6 +1154,27 @@ def check_ch13_micro_attention() -> dict[str, float]:
     _assert_close(float(out[1, 0]), float(weights[1, 0]), 1e-9, "Output mismatch")
     return {"row2_w1": float(weights[1, 0]), "row2_w2": float(weights[1, 1])}
 
+
+def check_ch14_kv_weighted_retrieval() -> dict[str, float]:
+    # Matches the tiny key/value analogy in Chapter 14 (Transformers).
+    # Keys: 70, 80; Values: 1000, 1500; Query: 75; Similarity s_i = 1/(|k_i-q|+eps)
+    keys = np.array([70.0, 80.0], dtype=float)
+    values = np.array([1000.0, 1500.0], dtype=float)
+    q = 75.0
+    eps = 1e-9
+
+    s = 1.0 / (np.abs(keys - q) + eps)
+    w = s / s.sum()
+    y = float(np.dot(w, values))
+
+    _assert_close(float(s[0]), 0.2, 1e-6, "Similarity score mismatch")
+    _assert_close(float(s[1]), 0.2, 1e-6, "Similarity score mismatch")
+    _assert_close(float(w[0]), 0.5, 1e-9, "Weight mismatch")
+    _assert_close(float(w[1]), 0.5, 1e-9, "Weight mismatch")
+    _assert_close(y, 1250.0, 1e-9, "Weighted retrieval output mismatch")
+
+    return {"w1": float(w[0]), "w2": float(w[1]), "y": y}
+
 def check_ch13_feature_table_analogy() -> dict[str, float]:
     tex = _read(ROOT / "lecture_8_part_i.tex")
     table_env = _extract_table_env(tex, "tab:word_feature_vectorization")
@@ -1258,6 +1279,7 @@ def run_checks() -> list[CheckResult]:
         ("chapter8_softcomp_probs", check_ch8_softcomp_probs),
         ("chapter9_overlap_memberships", check_ch9_overlap_memberships),
         ("chapter13_micro_attention", check_ch13_micro_attention),
+        ("chapter14_kv_weighted_retrieval", check_ch14_kv_weighted_retrieval),
         ("chapter13_feature_table_analogy", check_ch13_feature_table_analogy),
         ("figure_learning_curves", check_fig_learning_curves),
         ("figure_rbf_gaussian_bumps", check_fig_rbf_gaussian_bumps),

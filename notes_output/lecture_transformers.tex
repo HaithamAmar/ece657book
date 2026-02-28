@@ -43,10 +43,35 @@ The practical bottleneck is the fixed-vector squeeze. If the decoder is only giv
 
 Transformers \citep{Vaswani2017} take that idea seriously and push it further. They remove recurrence and make ``look around and mix'' the core operation inside a layer. This allows parallel computation across positions and makes long-range interactions a first-class design choice rather than a side effect of how well information survives through many recurrent steps.
 
+\paragraph{Seq2seq with attention (cross-attention).}
+In an encoder--decoder RNN, the encoder produces a sequence of hidden states \(\{\mathbf{h}_j\}_{j=1}^{S}\) from the input \(\{\mathbf{x}_j\}\), and the decoder produces a sequence of states \(\{\mathbf{s}_t\}_{t=1}^{T}\) while generating the output \(\{y_t\}\). A convenient probabilistic view of translation is
+\begin{equation}
+    p(\mathbf{y}\mid \mathbf{x})
+    = \prod_{t=1}^{T} p\!\left(y_t \mid y_{<t}, \mathbf{x}\right).
+    \label{eq:transformers_seq2seq_factorization}
+\end{equation}
+The ``one-vector bottleneck'' appears when the decoder is forced to rely on a single summary of the entire input. Attention replaces that with a \emph{per-step context}:
+\begin{align}
+    e_{t j} &= a(\mathbf{s}_{t-1}, \mathbf{h}_j), \label{eq:transformers_attn_score_seq2seq}\\
+    \alpha_{t j} &= \operatorname{softmax}_j(e_{t j}), \label{eq:transformers_attn_weights_seq2seq}\\
+    \mathbf{c}_t &= \sum_{j=1}^{S} \alpha_{t j}\,\mathbf{h}_j. \label{eq:transformers_context_seq2seq}
+\end{align}
+Here \(a(\cdot,\cdot)\) is any differentiable scoring function (a dot product, a bilinear form, or a small MLP) and \(\mathbf{c}_t\) is the context the decoder uses when predicting \(y_t\). That is the core move: different output positions can ``look back'' at different parts of the source. This is the bridge from encoder--decoder RNNs to Transformers: the attention math stays; what changes is that Transformers build the states \(\mathbf{h}_j\) and \(\mathbf{s}_t\) without recurrence.
+
 \subsection{Scaled Dot-Product Attention}
 \label{sec:transformers_scaled_dot_product_attention}
 \begin{tcolorbox}[summarybox, title={Author's note: attention is a weighted average}]
 I like to read attention as a weighted average over candidate pieces of information. A query asks a question (what do I need?), keys advertise what each candidate is about (what do I contain?), and values carry the content that gets mixed. Similarity scores between queries and keys become nonnegative weights that sum to one; the output is the weighted sum of the value vectors.
+\end{tcolorbox}
+
+\begin{tcolorbox}[summarybox, title={A tiny analogy: keys, values, and weighted retrieval}]
+Think of a tiny ``database'' with keys \(\{70,80\}\) and values \(\{1000,1500\}\). If your query is exactly \(70\), you retrieve \(1000\). If your query is \(75\), there is no exact match, so you can do a soft retrieval: score each key by a similarity such as
+\[
+s_i = \frac{1}{|k_i-q|+\epsilon},
+\]
+then normalize those scores so they sum to one and use them as weights on the values. Here \(|70-75|=|80-75|=5\), so \(s_1\approx s_2\approx 0.2\), the normalized weights are \((0.5,0.5)\), and the weighted average gives \(0.5\cdot 1000 + 0.5\cdot 1500 = 1250\).
+\par\smallskip
+This is only an intuition pump: Transformers do not use scalar keys like ``70.'' They learn vector keys and queries and score them in a learned feature space. But the weighted-average mechanism is exactly the same.
 \end{tcolorbox}
 
 At the per-position level, the computation is
@@ -58,9 +83,20 @@ Given query, key, value matrices \(\mathbf{Q} \in \mathbb{R}^{n_q \times d_k}\),
 \begin{equation}
     \operatorname{Attn}(\mathbf{Q}, \mathbf{K}, \mathbf{V})
     = \operatorname{softmax}\!\left(\frac{\mathbf{Q}\mathbf{K}^\top}{\sqrt{d_k}}\right) \mathbf{V}.
-\label{eq:auto_transformers_0c8cb47ef2}
+    \label{eq:transformers_scaled_dot_product_attention}
 \end{equation}
 Here \(n_q\) is the sequence length of the queries and \(n_k\) the sequence length of keys/values. We keep the same sequence-first convention used in \Cref{chap:rnn,chap:nlp}: rows index time positions (a ``token dimension'') and columns index features, while batch elements are processed independently. The \(1/\sqrt{d_k}\) factor stabilizes gradients by keeping logits in a reasonable range.
+
+\paragraph{Where do \(Q,K,V\) come from?}
+Start from token vectors stacked into a matrix \(\mathbf{X}\in\mathbb{R}^{n\times d_{\text{model}}}\) (one row per position). For a \emph{single head}, learned projections produce
+\begin{equation}
+    \mathbf{Q}=\mathbf{X}\mathbf{W}^Q,\qquad
+    \mathbf{K}=\mathbf{X}\mathbf{W}^K,\qquad
+    \mathbf{V}=\mathbf{X}\mathbf{W}^V,
+    \label{eq:transformers_qkv_projections}
+\end{equation}
+with \(\mathbf{W}^Q,\mathbf{W}^K\in\mathbb{R}^{d_{\text{model}}\times d_k}\) and \(\mathbf{W}^V\in\mathbb{R}^{d_{\text{model}}\times d_v}\).
+In self-attention, \(\mathbf{X}\) is the same sequence for all three. In cross-attention (seq2seq), \(\mathbf{Q}\) typically comes from decoder states while \(\mathbf{K},\mathbf{V}\) come from encoder states; the math is unchanged. Multi-head attention simply runs this projection-and-attend pattern several times in parallel with separate \(\mathbf{W}_i^Q,\mathbf{W}_i^K,\mathbf{W}_i^V\).
 
 \begin{tcolorbox}[summarybox, title={Worked example: 2-token causal self-attention (one head)}]
 Let \(d_k=d_v=2\) and \(Q=K=V=\mathbf{I}_2\). Without masking, the scaled scores are
@@ -93,6 +129,7 @@ Naive attention is \(O(n^2 d_{\text{model}})\) compute and \(O(n^2)\) memory per
 \label{sec:transformers_self_attention_vs_cross_attention}
 The same equations serve two distinct roles.
 \emph{Self-attention} means \(Q,K,V\) come from the same sequence. This is how a token in a sentence can incorporate information from other tokens in that sentence. In decoder-only generation, self-attention is typically \emph{causal}: the mask enforces that position \(t\) can only use positions \(\le t\).
+Self-attention by itself does not know what ``before'' and ``after'' mean: without positional information the operation is permutation-equivariant. That is why we explicitly add positional encodings in \Cref{sec:transformers_positional_information}.
 
 \emph{Cross-attention} is the seq2seq bridge. Here the queries come from the decoder states, but the keys and values come from the encoder outputs. In translation terms: each output position asks a question (query) and then pulls a weighted average over the source-side memory (keys/values) to decide what to emit next.
 
@@ -102,11 +139,13 @@ One attention head gives you one similarity space. Multi-head attention gives yo
 
 Multiple heads attend in parallel after learned linear projections:
 \begin{align}
-    \mathrm{head}_i &= \operatorname{Attn}(\mathbf{Q}\mathbf{W}_i^Q,\, \mathbf{K}\mathbf{W}_i^K,\, \mathbf{V}\mathbf{W}_i^V),\\
-    \operatorname{MHA}(\mathbf{Q},\mathbf{K},\mathbf{V}) &= [\mathrm{head}_1;\ldots;\mathrm{head}_h]\, \mathbf{W}^O,
-    \label{eq:auto:lecture_transformers:1}
+    \mathrm{head}_i &= \operatorname{Attn}(\mathbf{X}\mathbf{W}_i^Q,\, \mathbf{X}\mathbf{W}_i^K,\, \mathbf{X}\mathbf{W}_i^V),\\
+    \operatorname{MHA}(\mathbf{X}) &= [\mathrm{head}_1;\ldots;\mathrm{head}_h]\, \mathbf{W}^O,
+    \label{eq:transformers_mha}
 \end{align}
-with \(\mathbf{W}_i^Q \in \mathbb{R}^{d_{\text{model}} \times d_k}\), \(\mathbf{W}_i^K \in \mathbb{R}^{d_{\text{model}} \times d_k}\), \(\mathbf{W}_i^V \in \mathbb{R}^{d_{\text{model}} \times d_v}\), and output projection \(\mathbf{W}^O\). \Cref{fig:lec13_transformer_block} bundles scaled dot-product attention, multi-head concatenation, and the residual pre-LN block so the entire signal path is visible at a glance.
+with \(\mathbf{W}_i^Q \in \mathbb{R}^{d_{\text{model}} \times d_k}\), \(\mathbf{W}_i^K \in \mathbb{R}^{d_{\text{model}} \times d_k}\), \(\mathbf{W}_i^V \in \mathbb{R}^{d_{\text{model}} \times d_v}\), and output projection \(\mathbf{W}^O\in\mathbb{R}^{(h d_v)\times d_{\text{model}}}\).
+For cross-attention, the formula is the same but keys/values come from encoder states: \(\operatorname{Attn}(\mathbf{X}_{\text{dec}}\mathbf{W}_i^Q,\,\mathbf{X}_{\text{enc}}\mathbf{W}_i^K,\,\mathbf{X}_{\text{enc}}\mathbf{W}_i^V)\).
+\Cref{fig:lec13_transformer_block} bundles scaled dot-product attention, multi-head concatenation, and the residual pre-LN block so the entire signal path is visible at a glance.
 
 \begin{figure}[h]
     \centering
