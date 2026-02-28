@@ -601,13 +601,48 @@ At inference, reuse cached K/V states (see \Cref{fig:lec13_micro_figures} and \C
 
 \subsection{BERT vs.\ GPT vs.\ encoder--decoder}
 \label{sec:transformers_model_families}
-Once you have attention blocks, most of the ``model family'' distinctions come from two choices: (i) which directions a position is allowed to attend to, and (ii) what prediction problem you train on.
-\begin{itemize}
-    \item \textbf{Encoder-only (BERT-style):} no causal mask; each token can use information from both left and right. Training commonly hides some input tokens and asks the model to predict the missing pieces (masked language modeling, MLM). A pooled vector (often a prepended \texttt{[CLS]} token) is then used as a sentence representation for classification.
-    \item \textbf{Decoder-only (GPT-style):} causal mask; position \(t\) can only attend to positions \(\le t\). Training is next-token prediction (causal language modeling, CLM). Inference is the same loop run forward: predict the next token, append it, and repeat.
-    \item \textbf{Encoder--decoder (seq2seq):} the encoder reads the source; the decoder generates the target with causal self-attention plus cross-attention into the encoder outputs. This is the cleanest fit for translation: each output position pulls a weighted average over source-side memory and then commits to one more token.
-\end{itemize}
-Some BERT variants also used ``next sentence prediction'' (NSP) as an auxiliary task historically; it is not essential for understanding the core encoder-only idea.
+Once you have attention blocks, most of the ``model family'' distinctions come from two choices: (i) which directions a position is allowed to attend to (masking), and (ii) what prediction problem you train on. Encoder-only stacks are built to produce strong \emph{representations}; decoder-only stacks are built to \emph{generate}; encoder--decoder stacks are built to condition one sequence on another (translation is the clean example).
+
+\paragraph{BERT: encoder-only, bidirectional self-attention, masked-token prediction.}
+BERT \citep{Devlin2019} is a stack of Transformer \emph{encoders}. There is no causal mask: each token can attend to both left and right context, so the representation at position \(i\) can use the whole sentence.
+Pre-training uses \emph{masked language modeling} (MLM): choose a subset of token positions \(\mathcal{M}\) and ask the model to reconstruct the original tokens from a corrupted input. If \(w_{1:n}\) are the original token IDs and \(\tilde{w}_{1:n}\) is the corrupted sequence (where some positions were replaced by \texttt{[MASK]} or other substitutions), a convenient loss view is
+\begin{equation}
+    \mathcal{L}_{\text{MLM}}
+    = -\sum_{i\in\mathcal{M}} \log p_\theta\!\left(w_i \mid \tilde{w}_{1:n}\right),
+    \label{eq:transformers_mlm_objective}
+\end{equation}
+where the model produces a vocabulary distribution at each position and we only score the masked positions.
+The original BERT recipe masked about 15\% of tokens and used a pragmatic corruption mix: most masked positions are replaced by \texttt{[MASK]}, some by a random token, and some are left unchanged so the model does not overfit to seeing \texttt{[MASK]} at fine-tuning time \citep{Devlin2019}.
+
+\begin{tcolorbox}[summarybox, title={Author's note: Word2Vec vs.\ BERT (the intuition that still helps)}]
+Word2Vec taught us a useful lesson: meaning leaks into geometry through co-occurrence. If you repeatedly see certain words together, a vector model can pick that up and cluster them.
+
+I like to see BERT as a more powerful version of the same distributional idea. The training question is still ``can you predict a missing piece from what surrounds it?'' The difference is that the representation is no longer one vector \emph{per vocabulary item}. BERT produces a \emph{contextual} vector per token occurrence: the vector for ``bank'' in ``river bank'' is not forced to match the vector for ``bank'' in ``bank account,'' because the surrounding tokens are part of the computation.
+\end{tcolorbox}
+
+\paragraph{\texttt{[CLS]} as a learned pooling token.}
+BERT-style models typically prepend a special \texttt{[CLS]} token and (for sentence pairs) separate segments with \texttt{[SEP]}. Because \texttt{[CLS]} participates in the same self-attention as every other token, its hidden state is repeatedly updated as the model mixes information across the sequence. In practice, the final-layer \texttt{[CLS]} vector is treated as a learned, task-adaptable summary and is fed to a small classifier head for sentence-level tasks.
+
+The original BERT paper also used an auxiliary ``next sentence prediction'' (NSP) objective for sentence pairs; later variants often drop it. For our purposes, the core encoder-only story is: bidirectional self-attention plus an objective that forces representations to be predictive of missing content.
+
+\paragraph{GPT: decoder-only, causal self-attention, next-token prediction.}
+GPT-style models are stacks of Transformer \emph{decoders} with the cross-attention removed: they use masked (causal) self-attention plus an FFN in each block. The causal mask enforces the autoregressive factorization:
+\begin{equation}
+    p_\theta(w_{1:n}) = \prod_{t=1}^{n-1} p_\theta\!\left(w_{t+1}\mid w_{1:t}\right),
+    \label{eq:transformers_clm_factorization}
+\end{equation}
+and the training objective (causal language modeling, CLM) is the corresponding negative log-likelihood,
+\begin{equation}
+    \mathcal{L}_{\text{CLM}}
+    = -\sum_{t=1}^{n-1} \log p_\theta\!\left(w_{t+1}\mid w_{1:t}\right).
+    \label{eq:transformers_clm_objective}
+\end{equation}
+This is where it is easy to mix up training and generation. During training you do \emph{not} feed back the model's sampled token at each step; you feed the true prefix (teacher forcing) and compute the loss for all positions in parallel under the causal mask (as in the code snapshot earlier). During inference you do sample/argmax and append one token at a time, and that is where decoding settings (temperature, top-\(k\), top-\(p\)) matter; see \Cref{sec:transformers_decoding_and_evaluation}.
+
+Historically, GPT-1 used a 12-layer decoder-only stack with about 117M parameters and showed that simple next-token pre-training can transfer to many downstream tasks with surprisingly little architectural customization \citep{Radford2018}. GPT-2 and later work scaled the same basic recipe with larger models and broader data \citep{Radford2019,Brown2020}.
+
+\paragraph{Encoder--decoder (seq2seq): conditional generation via cross-attention.}
+Encoder--decoder Transformers keep the clean translation structure: the encoder reads the source; the decoder generates the target with causal self-attention plus cross-attention into the encoder outputs. This remains a natural fit whenever the output is explicitly conditioned on an input sequence (translation, summarization, structured prediction). Text-to-text models such as T5 make this conditioning view explicit by casting many tasks into a single seq2seq format \citep{Raffel2020}.
 
 \subsection{Long Contexts and Efficient Attention}
 \label{sec:transformers_long_contexts_and_efficient_attention}

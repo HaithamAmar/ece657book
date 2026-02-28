@@ -1529,6 +1529,11 @@ Build notes (2026-02-17):
   cross-attn into encoder memory).
 - `notes_output/lecture_transformers.tex`: made decoding math explicit (LM head logits, temperature-rescaled softmax) and
   added a brief roulette-wheel sampling explanation plus a top-\(k\)/top-\(p\) truncation note.
+- `notes_output/lecture_transformers.tex`: rewrote the ``BERT vs.\ GPT vs.\ encoder--decoder'' section into book-voice prose,
+  fixed a few common confusions (MLM loss only on masked positions; CLM training uses teacher forcing + shift-right, while
+  token-by-token sampling is an inference-time choice), and added compact objective equations for MLM and CLM.
+- `notes_output/refs.bib`: added a canonical GPT-1 pre-training technical report entry (`Radford2018`) so the parameter-count
+  and objective claims can be sourced cleanly.
 - 2026-02-28: Ran `python3 notes_output/scripts/validate_math_examples_and_graphs.py --strict` after the edits. Result: PASS.
 - 2026-02-28: Ran `bash notes_output/scripts/run_production_checks.sh` after the edits. Result: PASS (release checks, Apple
   gatekeeper audits, and EPUBCheck all OK).
