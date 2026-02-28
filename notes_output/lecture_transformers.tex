@@ -597,7 +597,7 @@ opt.step(); opt.zero_grad()
 \end{verbatim}
 At inference, reuse cached K/V states (see \Cref{fig:lec13_micro_figures} and \Cref{sec:transformers_advanced_attention_and_efficiency_notes_snapshot}).
 \end{tcolorbox}
-\paragraph{Code--math dictionary.} In code blocks, \texttt{x} is the token-index tensor (input IDs), \texttt{h} is the hidden-state array \(\mathbf{H}\), \texttt{mask} is the attention mask, and \texttt{embed(x)} denotes an embedding lookup into the learned table \(\mathbf{W}\) (written algebraically as a row-selection, e.g., \(\mathbf{W}[w_t]\), in \Cref{chap:nlp}).
+\paragraph{Code--math dictionary.} In code blocks, \texttt{x} is the token-index tensor (input IDs), \texttt{h} is the token-representation array \(\mathbf{H}\), \texttt{mask} is the attention mask, and \texttt{embed(x)} denotes an embedding lookup into the learned table \(\mathbf{W}\) (written algebraically as a row-selection, e.g., \(\mathbf{W}[w_t]\), in \Cref{chap:nlp}).
 
 \subsection{BERT vs.\ GPT vs.\ encoder--decoder}
 \label{sec:transformers_model_families}

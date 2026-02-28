@@ -1542,7 +1542,7 @@ Build notes (2026-02-17):
 - `notes_output/lecture_transformers.tex`: added a compact BERT input refresher box (token + position + segment embeddings),
   clarified that encoder-only models still use padding masks (``bidirectional'' means ``no causal mask''), and added a short
   note explaining why MLM is not a left-to-right generation objective. Also replaced ``hidden state'' phrasing in the BERT and
-  decoding sections with ``token representation'' to avoid accidental RNN connotations.
+  decoding sections (and the code--math dictionary) with ``token representation'' to avoid accidental RNN connotations.
 - 2026-02-28: Ran `python3 notes_output/scripts/validate_math_examples_and_graphs.py --strict` after the edits. Result: PASS.
 - 2026-02-28: Ran `bash notes_output/scripts/run_production_checks.sh` after the edits. Result: PASS (release checks, Apple
   gatekeeper audits, and EPUBCheck all OK).
