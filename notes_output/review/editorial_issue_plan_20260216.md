@@ -1539,13 +1539,10 @@ Build notes (2026-02-17):
 - `notes_output/lecture_transformers.tex`: did a light ``rolling pass'' on headings/style for Chapter 14 (renamed a few
   subsection titles to be more book-like, added a Word2Vec citation, and added one BERT detail from the original paper:
   token-type/segment embeddings for sentence pairs).
-- Open gaps to consider later (not required for the current medium-depth scope):
-  - Add a 2--3 sentence refresher on BERT's input construction (token + position + segment embeddings) with a simple diagram,
-    now that segment embeddings are mentioned.
-  - Add one sentence clarifying that encoder-only models still use a padding mask; ``bidirectional'' means ``no causal mask,''
-    not ``no masking at all.''
-  - Optional: a short comment on why MLM is not a true left-to-right generation objective (and why BERT is not typically used
-    for free-form decoding without architectural changes).
+- `notes_output/lecture_transformers.tex`: added a compact BERT input refresher box (token + position + segment embeddings),
+  clarified that encoder-only models still use padding masks (``bidirectional'' means ``no causal mask''), and added a short
+  note explaining why MLM is not a left-to-right generation objective. Also replaced ``hidden state'' phrasing in the BERT and
+  decoding sections with ``token representation'' to avoid accidental RNN connotations.
 - 2026-02-28: Ran `python3 notes_output/scripts/validate_math_examples_and_graphs.py --strict` after the edits. Result: PASS.
 - 2026-02-28: Ran `bash notes_output/scripts/run_production_checks.sh` after the edits. Result: PASS (release checks, Apple
   gatekeeper audits, and EPUBCheck all OK).

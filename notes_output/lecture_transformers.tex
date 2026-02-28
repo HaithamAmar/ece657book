@@ -604,7 +604,7 @@ At inference, reuse cached K/V states (see \Cref{fig:lec13_micro_figures} and \C
 Once you have attention blocks, most of the ``model family'' distinctions come from two choices: (i) which directions a position is allowed to attend to (masking), and (ii) what prediction problem you train on. Encoder-only stacks are built to produce strong \emph{representations}; decoder-only stacks are built to \emph{generate}; encoder--decoder stacks are built to condition one sequence on another (translation is the clean example).
 
 \paragraph{BERT: encoder-only, bidirectional self-attention, masked-token prediction.}
-BERT \citep{Devlin2019} is a stack of Transformer \emph{encoders}. There is no causal mask: each token can attend to both left and right context, so the representation at position \(i\) can use the whole sentence.
+BERT \citep{Devlin2019} is a stack of Transformer \emph{encoders}. There is no causal mask: each token can attend to both left and right context, so the representation at position \(i\) can use the whole sentence. In practice you still apply a padding mask when you batch variable-length sequences; ``bidirectional'' means ``not restricted to past-only,'' not ``no masking ever.''
 Pre-training uses \emph{masked language modeling} (MLM): choose a subset of token positions \(\mathcal{M}\) and ask the model to reconstruct the original tokens from a corrupted input. If \(w_{1:n}\) are the original token IDs and \(\tilde{w}_{1:n}\) is the corrupted sequence (where some positions were replaced by \texttt{[MASK]} or other substitutions), a convenient loss view is
 \begin{equation}
     \mathcal{L}_{\text{MLM}}
@@ -612,6 +612,7 @@ Pre-training uses \emph{masked language modeling} (MLM): choose a subset of toke
     \label{eq:transformers_mlm_objective}
 \end{equation}
 where the model produces a vocabulary distribution at each position and we only score the masked positions.
+Because masked tokens are predicted using \emph{both} left and right context, MLM does not train a left-to-right next-token factorization. This is why BERT is usually used as an encoder (representations + classifiers) rather than as a free-form decoder without additional machinery.
 The original BERT recipe masked about 15\% of tokens and used a pragmatic corruption mix: most masked positions are replaced by \texttt{[MASK]}, some by a random token, and some are left unchanged so the model does not overfit to seeing \texttt{[MASK]} at fine-tuning time \citep{Devlin2019}.
 
 \begin{tcolorbox}[summarybox, title={Author's note: Word2Vec vs.\ BERT (the intuition that still helps)}]
@@ -621,7 +622,18 @@ I like to see BERT as a more powerful version of the same distributional idea. T
 \end{tcolorbox}
 
 \paragraph{\texttt{[CLS]} as a learned pooling token.}
-BERT-style models typically prepend a special \texttt{[CLS]} token and (for sentence pairs) separate segments with \texttt{[SEP]}. In the original setup, a small \emph{token-type} (segment) embedding marks whether each token came from sentence A or sentence B \citep{Devlin2019}. Because \texttt{[CLS]} participates in the same self-attention as every other token, its hidden state is repeatedly updated as the model mixes information across the sequence. In practice, the final-layer \texttt{[CLS]} vector is treated as a learned, task-adaptable summary and is fed to a small classifier head for sentence-level tasks.
+BERT-style models typically prepend a special \texttt{[CLS]} token and (for sentence pairs) separate segments with \texttt{[SEP]}. In the original setup, a small \emph{token-type} (segment) embedding marks whether each token came from sentence A or sentence B \citep{Devlin2019}. Because \texttt{[CLS]} participates in the same self-attention as every other token, its representation vector is repeatedly updated as the model mixes information across the sequence. In practice, the final-layer \texttt{[CLS]} vector is treated as a learned, task-adaptable summary and is fed to a small classifier head for sentence-level tasks.
+
+\begin{tcolorbox}[summarybox, title={BERT inputs in one line (token + position + segment)}]
+At position \(i\), BERT forms an input vector by summing three components \citep{Devlin2019}:
+\[
+\mathbf{x}_i
+= \mathbf{e}_{\text{tok}}(w_i)
++ \mathbf{e}_{\text{pos}}(i)
++ \mathbf{e}_{\text{seg}}(s_i),
+\]
+where \(w_i\) is the token ID, \(i\) is the position index, and \(s_i\in\{\mathrm{A},\mathrm{B}\}\) indicates which sentence/segment the token belongs to (for single-sentence inputs, \(s_i\) is constant).
+\end{tcolorbox}
 
 The original BERT paper also used an auxiliary ``next sentence prediction'' (NSP) objective for sentence pairs; later variants often drop it. For our purposes, the core encoder-only story is: bidirectional self-attention plus an objective that forces representations to be predictive of missing content.
 
@@ -667,8 +679,8 @@ Regardless of whether you update all weights or only a small adapter, treat fine
 \label{sec:transformers_decoding_and_evaluation}
 Training produces a distribution over the next token; decoding turns that distribution into an actual sequence. For decoder-only models, decoding runs autoregressively: predict \(p_\theta(x_{t+1}\mid x_{1:t})\), choose a token, append it, and repeat. This is also where the KV cache matters (see \Cref{fig:lec13_micro_figures}): you reuse past keys/values so generating one more token does not require recomputing attention over the entire prefix from scratch.
 
-\paragraph{From hidden states to a next-token distribution.}
-At position \(t\), the final block produces a hidden state \(\mathbf{h}_t\in\mathbb{R}^{d_{\text{model}}}\). A language model head is a linear map into the vocabulary \(\mathcal{V}\):
+\paragraph{From token representations to a next-token distribution.}
+At position \(t\), the final block produces a token representation \(\mathbf{h}_t\in\mathbb{R}^{d_{\text{model}}}\). A language model head is a linear map into the vocabulary \(\mathcal{V}\):
 \begin{equation}
     \boldsymbol{\ell}_t = \mathbf{h}_t \mathbf{W}_{\text{out}} + \mathbf{b}_{\text{out}}, \qquad
     \boldsymbol{\ell}_t \in \mathbb{R}^{|\mathcal{V}|},
