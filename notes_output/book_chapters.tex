@@ -18,6 +18,7 @@
   \item Two recurring toolkits: safe vs.\ heuristic moves (search) and ERM (model--loss--optimize--audit).
   \item Classification as a probabilistic decision problem: Bayes optimality and calibrated scores precede thresholds.
   \item Reading paths are a dependency graph: later chapters reuse diagnostics, notations, and audit habits introduced here.
+  \item \textbf{Unifying lens:} this Part fixes the representation and feedback signal, and the rest is choosing an update rule plus audits that prevent silent failure.
 \end{itemize}
 \end{tcolorbox}
 \part*{Part II: Neural networks, sequence modeling, and NLP}
@@ -66,6 +67,7 @@ the difference between a model with a low loss and a system that makes good deci
   \item Depth and inductive bias trade parameters for structure (MLPs vs.\ CNNs vs.\ recurrence vs.\ attention).
   \item Stability tools recur across architectures: initialization, normalization, regularization, and validation-driven stopping.
   \item Sequence models turn memory into computation: unrolling, masking, and caching define what information can flow.
+  \item \textbf{Unifying lens:} this Part fixes the representation and feedback signal, and the rest is choosing an update rule plus audits that prevent silent failure.
 \end{itemize}
 \end{tcolorbox}
 % Former Part III (NLP applications) was collapsed into Part II; renumber Parts
@@ -110,6 +112,7 @@ and test edge cases numerically before you tune aesthetics.
   \item Interpretability is a design variable: rules, operators, and defuzzification encode assumptions.
   \item Debugging is empirical: test edge cases, inspect rule firing, and validate monotonicity and scale.
   \item The same audit mindset applies: define failure modes up front and track them as you tune operators and rules.
+  \item \textbf{Unifying lens:} this Part fixes the representation and feedback signal, and the rest is choosing an update rule plus audits that prevent silent failure.
 \end{itemize}
 \end{tcolorbox}
 \part*{Part IV: Evolutionary optimization}
@@ -128,5 +131,6 @@ and test edge cases numerically before you tune aesthetics.
   \item Operators (selection, crossover, mutation) encode exploration vs.\ exploitation; tune them against variance across runs.
   \item Constraints and multi-objectives are first-class: define feasibility and trade-offs before optimizing.
   \item Report reproducibly: seeds, multiple runs, and distributions matter more than a single best trajectory.
+  \item \textbf{Unifying lens:} this Part fixes the representation and feedback signal, and the rest is choosing an update rule plus audits that prevent silent failure.
 \end{itemize}
 \end{tcolorbox}

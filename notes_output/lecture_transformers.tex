@@ -51,11 +51,18 @@ In an encoder--decoder RNN, the encoder produces a sequence of hidden states \(\
     \label{eq:transformers_seq2seq_factorization}
 \end{equation}
 The ``one-vector bottleneck'' appears when the decoder is forced to rely on a single summary of the entire input. Attention replaces that with a \emph{per-step context}:
-\begin{align}
-    e_{t j} &= a(\mathbf{s}_{t-1}, \mathbf{h}_j), \label{eq:transformers_attn_score_seq2seq}\\
-    \alpha_{t j} &= \operatorname{softmax}_j(e_{t j}), \label{eq:transformers_attn_weights_seq2seq}\\
-    \mathbf{c}_t &= \sum_{j=1}^{S} \alpha_{t j}\,\mathbf{h}_j. \label{eq:transformers_context_seq2seq}
-\end{align}
+\begin{equation}
+    e_{t j} = a(\mathbf{s}_{t-1}, \mathbf{h}_j),
+    \label{eq:transformers_attn_score_seq2seq}
+\end{equation}
+\begin{equation}
+    \alpha_{t j} = \operatorname{softmax}_j(e_{t j}),
+    \label{eq:transformers_attn_weights_seq2seq}
+\end{equation}
+\begin{equation}
+    \mathbf{c}_t = \sum_{j=1}^{S} \alpha_{t j}\,\mathbf{h}_j.
+    \label{eq:transformers_context_seq2seq}
+\end{equation}
 Here \(\operatorname{softmax}_j\) denotes a softmax over the source positions \(j\), i.e.,
 \(\alpha_{t j}=\exp(e_{t j})/\sum_{j'=1}^{S}\exp(e_{t j'})\).
 The scoring function \(a(\cdot,\cdot)\) can be a dot product, a bilinear form, or a small MLP, and
@@ -73,10 +80,10 @@ RNNs and gated cells give you a way to carry \emph{memory} forward, but memory i
 \emph{relevance}. When you read a page, some words are glue and some words carry the meaning you need
 right now; your mind does not treat the whole history as equally important at every step.
 
-I like to read attention as the engineering version of that idea: a weighted average over candidate pieces
-of information. A query asks a question (what do I need?), keys advertise what each candidate is about
-(what do I contain?), and values carry the content that gets mixed. Similarity scores between queries and
-keys become nonnegative weights that sum to one; the output is the weighted sum of the value vectors.
+I like to read attention as the engineering version of relevance: a weighted retrieval operator, not a
+mystical reasoning module. A query asks what is needed, keys advertise what each candidate is about, and
+values carry the content that gets mixed. Similarity scores between queries and keys become nonnegative
+weights that sum to one; the output is the weighted sum of the value vectors.
 \end{tcolorbox}
 
 \begin{tcolorbox}[summarybox, title={A tiny analogy: keys, values, and weighted retrieval}]
@@ -270,7 +277,7 @@ For cross-attention, the formula is the same but keys/values come from encoder s
         \node[sum] (add1_real) at ([yshift=-0.5cm]mha_real.south) {+};
 
         \node[func, minimum width=2.4cm] (ln2_real) at ([yshift=-0.6cm]add1_real.south) {LayerNorm};
-        \node[proc, minimum width=2.4cm] (ffn_real) at ([yshift=-0.6cm]ln2_real.south) {FFN (GELU)};
+        \node[proc, minimum width=2.4cm] (ffn_real) at ([yshift=-0.6cm]ln2_real.south) {FFN};
         \node[sum] (add2_real) at ([yshift=-0.5cm]ffn_real.south) {+};
 
         \draw[wire] (in_c) -- (ln1_real.north);
@@ -323,7 +330,7 @@ For cross-attention, the formula is the same but keys/values come from encoder s
             clip=false
         ]
             \addplot[enc, cbBlue, samples=200, domain=0:2*pi] {sin(deg(x))};
-            \addplot[enc, cbOrange, samples=200, domain=0:2*pi] {sin(deg(2*x))};
+            \addplot[enc, cbOrange, samples=200, domain=0:2*pi] {cos(deg(x))};
         \end{axis}
         \node[anchor=south, font=\small] at ([yshift=12pt]p1.south) {Positional encodings};
         \node[anchor=north, font=\small] at ([yshift=2pt]p1.south) {sinusoidal / RoPE};
@@ -419,11 +426,26 @@ A \emph{padding mask} forbids attention to padded positions inserted only to mak
 Both are easy to get wrong: a single missing mask can leak information from the future or silently change what the model is allowed to use.
 See \Cref{fig:lec13_masks} for a concrete picture of both patterns (queries on rows, keys on columns).
 
+In implementation, masks are usually applied additively to attention logits before softmax:
+\begin{equation}
+\mathbf{S}_{\text{mask}}
+= \frac{\mathbf{Q}\mathbf{K}^\top}{\sqrt{d_k}} + \mathbf{M},
+\qquad
+M_{ij} =
+\begin{cases}
+0, & \text{if key } j \text{ is visible to query } i,\\
+-\infty, & \text{if key } j \text{ is masked.}
+\end{cases}
+\label{eq:transformers_additive_mask_logits}
+\end{equation}
+Then \(\mathbf{A}=\operatorname{softmax}(\mathbf{S}_{\text{mask}})\) row-wise and \(\mathbf{Z}=\mathbf{A}\mathbf{V}\), so masked positions contribute zero probability.
+
 One subtle point is \emph{why} the causal mask is needed during training. At inference time the future does not exist, so a
 decoder cannot look ahead even if it wanted to. But during training we often feed the full target sequence (teacher forcing:
 provide the ground-truth previous tokens)
 so we can compute a loss at every position. Without a causal mask, the decoder would ``cheat'' by attending to future target
 tokens. The causal mask enforces the same information constraint at training time that you will have at decoding time.
+This connects directly to KV caching in decoder inference: with one-token-at-a-time decoding, the cache only stores past keys/values, so there are no future columns to attend to; during training (full sequence in parallel), the explicit causal mask is still required.
 
 \begin{figure}[t]
     \centering
@@ -518,7 +540,7 @@ tokens. The causal mask enforces the same information constraint at training tim
                 \node[font=\scriptsize, anchor=north east] at (axis cs:4.4,4.4) {future masked};
         \end{groupplot}
     \end{tikzpicture}
-    \caption{Attention masks as heatmaps (queries on rows, keys on columns). Left: padding mask zeroes out attention to padded positions of a shorter sequence in a packed batch. Right: causal mask enforces autoregressive flow by blocking attention to future tokens.}
+    \caption{Attention masks as heatmaps (queries on rows, keys on columns). Left: padding mask zeroes out attention to padded \emph{key columns} of a shorter sequence in a packed batch; padded-query rows are typically ignored downstream by output/loss masking. Right: causal mask enforces autoregressive flow by blocking attention to future tokens.}
     \label{fig:lec13_masks}
 \end{figure}
 \FloatBarrier
@@ -564,7 +586,7 @@ The feed-forward sublayer is different. It is applied \emph{independently} to ea
 \paragraph{Decoder blocks: masked self-attention plus cross-attention.}
 Encoder blocks use self-attention (typically with a padding mask) plus an FFN. Decoder blocks add a second attention step: first \emph{masked} self-attention over the partially generated target (causal mask), then cross-attention into the encoder outputs. In that cross-attention, the query comes from the decoder stream while the keys and values come from the encoder stream. It is the same weighted-average mechanism, but now the memory lives on the source side and the questions live on the target side.
 
-\begin{tcolorbox}[summarybox, breakable, title={Implementation snapshot: block pseudocode, training defaults, and one step}]
+\begin{tcolorbox}[summarybox, breakable, title={Implementation sketch: block pseudocode, training defaults, and one step}]
 \noindent\textbf{Block pseudocode (pre-LN).}
 \begin{verbatim}
 function Block(H, mask=None):
@@ -596,6 +618,25 @@ clip_grad_norm_(model.parameters(), 1.0)
 opt.step(); opt.zero_grad()
 \end{verbatim}
 At inference, reuse cached K/V states (see \Cref{fig:lec13_micro_figures} and \Cref{sec:transformers_advanced_attention_and_efficiency_notes_snapshot}).
+\end{tcolorbox}
+\paragraph{KV cache in plain terms (decoder inference).}
+At generation step \(t\), the decoder computes one new query vector \(\mathbf{q}_t\). The old keys/values from steps \(1,\dots,t-1\) are already stored in memory, so you do \emph{not} recompute them. You only compute \(\mathbf{k}_t,\mathbf{v}_t\), append them to the cache, and attend over the full cached set:
+\begin{equation}
+\mathbf{z}_t
+= \operatorname{softmax}\!\left(\frac{\mathbf{q}_t \mathbf{K}_{1:t}^{\top}}{\sqrt{d_k}}\right)\mathbf{V}_{1:t},
+\label{eq:transformers_kv_cache_decode_step}
+\end{equation}
+where \(\mathbf{K}_{1:t}\) and \(\mathbf{V}_{1:t}\) are the matrices formed by stacking all cached keys/values up to step \(t\). The engineering tradeoff is simple: bigger context means bigger cache. So context size is not only a modeling choice; it is also a memory/latency budget choice at inference time.
+
+\begin{tcolorbox}[summarybox, title={Tokenization note from a GPT-2-style implementation (why students should care)}]
+The nanochat reference implementation reinforces four practical points:
+\begin{itemize}
+    \item GPT-style tokenizers are often \emph{byte-level BPE}: this avoids unknown-token failures on odd characters and mixed text.
+    \item A begin-of-sequence delimiter is treated as a real token (often named \texttt{<|bos|>} or historically \texttt{<|endoftext|>}).
+    \item The same tokenizer must be used at train and inference time; changing it changes token IDs and breaks model behavior.
+    \item Tokenization affects effective context usage: if text splits into fewer tokens, the same context window can carry more content.
+\end{itemize}
+For readers who are not programming-focused: think of tokenization as the model's ``measurement scale.'' If you change the scale, all learned weights are calibrated to the wrong units. For a compact, end-to-end study repo (tokenizer through serving), nanochat is a good example to browse. \citep{KarpathyNanochat}
 \end{tcolorbox}
 \paragraph{Code--math dictionary.} In code blocks, \texttt{x} is the token-index tensor (input IDs), \texttt{h} is the token-representation array \(\mathbf{H}\), \texttt{mask} is the attention mask, and \texttt{embed(x)} denotes an embedding lookup into the learned table \(\mathbf{W}\) (written algebraically as a row-selection, e.g., \(\mathbf{W}[w_t]\), in \Cref{chap:nlp}).
 
@@ -649,7 +690,7 @@ and the training objective (causal language modeling, CLM) is the corresponding 
     = -\sum_{t=1}^{n-1} \log p_\theta\!\left(w_{t+1}\mid w_{1:t}\right).
     \label{eq:transformers_clm_objective}
 \end{equation}
-This is where it is easy to mix up training and generation. During training you do \emph{not} feed back the model's sampled token at each step; you feed the true prefix (teacher forcing) and compute the loss for all positions in parallel under the causal mask (as in the code snapshot earlier). During inference you do sample/argmax and append one token at a time, and that is where decoding settings (temperature, top-\(k\), top-\(p\)) matter; see \Cref{sec:transformers_decoding_and_evaluation}.
+This is where it is easy to mix up training and generation. During training you do \emph{not} feed back the model's sampled token at each step; you feed the true prefix (teacher forcing) and compute the loss for all positions in parallel under the causal mask (as in the code block earlier). During inference you do sample/argmax and append one token at a time, and that is where decoding settings (temperature, top-\(k\), top-\(p\)) matter; see \Cref{sec:transformers_decoding_and_evaluation}.
 
 Historically, GPT-1 used a 12-layer decoder-only stack with about 117M parameters and showed that simple next-token pre-training can transfer to many downstream tasks with surprisingly little architectural customization \citep{Radford2018}. GPT-2 and later work scaled the same basic recipe with larger models and broader data \citep{Radford2019,Brown2020}.
 
@@ -723,7 +764,7 @@ RLHF optimizes a policy against a learned reward model (with careful regularizat
 \paragraph{Alignment is not a proof of correctness.}
 Alignment can improve helpfulness and reduce obvious failures, but it can also introduce new ones (reward hacking, over-refusal, brittleness to prompt phrasing, or degraded performance off-distribution). Treat it as an engineering stage with explicit test suites and logging: evaluate on held-out tasks, check calibration and refusal behavior, and track changes relative to the pre-alignment model.
 
-\subsection{Advanced notes (optional, practitioner snapshot)}
+\subsection{Advanced notes (optional)}
 \label{sec:transformers_advanced_attention_and_efficiency_notes_snapshot}
 \begin{itemize}
     \item \textbf{Relative/rotary positions.} RoPE \citep{Su2021RoPE} and ALiBi \citep{Press2022ALiBi} replace absolute sinusoidal embeddings with rotation/bias terms so extrapolating to longer sequences no longer requires re-fitting positional lookups; the trade-off is that absolute tables keep fixed anchors for classification tokens while rotary/relative schemes favour extrapolation and smoothly sliding windows.
@@ -789,4 +830,5 @@ Equivariance & N/A & Permutation-equivariant until positions (cf. conv translati
 \end{tcolorbox}
 
 \medskip
-\paragraph{Where we head next.} \Cref{chap:softcomp} steps away from neural sequence models and re-enters the broader soft-computing toolkit (fuzzy logic and evolutionary ideas) previewed in \Cref{chap:intro}. Read this chapter as the endpoint of the neural sequence thread: representation objectives from \Cref{chap:nlp} plus masking/calibration discipline from \Crefrange{chap:rnn}{chap:transformers}.
+\paragraph{Where we head next.}
+Up to here, most updates were differentiable: loss \(\rightarrow\) gradients \(\rightarrow\) parameters. \Cref{chap:softcomp} pivots to a different design point under the same engineering loop: \emph{explicit rules and graded concepts} (fuzzy systems), where the representation is linguistic membership and the update mechanism is rule composition and operator choices. \Cref{chap:evo} then closes the loop with \emph{budgeted black\hyp{}box search} (evolutionary optimization) for cases where gradients are unavailable, objectives are rugged, or constraints dominate.

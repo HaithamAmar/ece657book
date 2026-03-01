@@ -13,10 +13,17 @@ After this chapter, you should be able to:
 \end{itemize}
 \end{tcolorbox}
 
-Use this chapter as a standing reference: later tools reuse the same system vocabulary and the same habit of checking assumptions against constraints. The point is continuity, not memorization: each later chapter instantiates the same design loop with different model families.
+Use this chapter as a standing reference: later tools reuse the same system vocabulary and the same habit of checking assumptions against constraints.
 
 \begin{tcolorbox}[summarybox, title={Design motif}]
-We treat ``intelligence'' operationally: specify what a system represents, what actions it can take, and how it checks itself against objectives and constraints.
+\textbf{The unified contract.} Across this book, every intelligent system instantiates the same engineering loop:
+
+\emph{(i) Representation:} choose what the system stores about the world/problem.\\
+\emph{(ii) Update/action:} choose how that representation changes (rules, gradients, energy descent, population operators).\\
+\emph{(iii) Objective:} define what ``better'' means (loss, likelihood, energy, constraint satisfaction, fitness).\\
+\emph{(iv) Audit:} define checks that catch silent failure (leakage, miscalibration, instability, constraint violations, metric gaming).
+
+Paradigms differ mainly in the \emph{space being searched} (parameters, rules, programs, prototypes, populations) and the \emph{feedback signal} available (labels, self\hyp{}supervision, rules, fitness). The rest of the book is a tour of design points under this contract; \Cref{fig:big-picture-map} and \Cref{tab:big-picture-models} summarize the map.
 \end{tcolorbox}
 
 \paragraph{What we mean by a model.}
@@ -209,7 +216,7 @@ These capabilities can be realized in various architectures, ranging from connec
 
 \paragraph{Levels of Intelligence (as an organizing lens)}
 
-Intelligence is not necessarily binary (intelligent vs.\ non-intelligent); rather, deployed systems combine different degrees of reactivity, deliberation, and adaptation. For the purposes of this book we use a four-layer shorthand---reactive systems (level 1), deliberative planners (level 2), adaptive learners (level 3), and meta-cognitive agents that reason about their own policies (level 4)---as an informal organizing lens rather than a strict hierarchy. It is compatible with domain-specific taxonomies (e.g., SAE Levels~0--5 for automated driving). The closing Key Takeaways return to it with representative algorithms from later chapters.
+Intelligence is not necessarily binary (intelligent vs.\ non-intelligent); rather, deployed systems combine different degrees of reactivity, deliberation, and adaptation. For the purposes of this book we use a four-layer shorthand---reactive systems (level 1), deliberative planners (level 2), adaptive learners (level 3), and meta-cognitive agents that reason about their own policies (level 4)---as an informal organizing lens rather than a strict hierarchy. It is compatible with domain-specific taxonomies (e.g., SAE Levels~0--5 for automated driving). We use \Cref{fig:big-picture-map} and \Cref{tab:big-picture-models} as the global ``design-space map'' that situates each model family by level, model nature, and learning signal.
 
 \paragraph{Connectionist vs.\ agent-based/decentralized approaches}
 
@@ -427,9 +434,9 @@ Readers arrive with different goals. The roadmap is intentionally a dependency g
 \begin{tcolorbox}[summarybox, title={Key takeaways}]
 \textbf{Minimum viable mastery}
 \begin{itemize}
-    \item Intelligent systems integrate perception, decision, and action; we study both model\hyp{}based and control\hyp{}based realizations.
+    \item Intelligent systems integrate perception, decision, and action; we judge them by behavior under constraints, not by anthropomorphic language.
     \item The system--machine distinction is mostly about embodiment: intelligent machines are physical instances of intelligent systems.
-    \item ``Levels'' are an organizing lens, and meta\hyp{}cognition is treated operationally (self\hyp{}monitoring and bounded self\hyp{}correction), not philosophically.
+    \item ``Levels'' are an organizing lens; meta\hyp{}cognition is treated operationally (self\hyp{}monitoring and bounded self\hyp{}correction), and audits are part of the design, not an afterthought.
 \end{itemize}
 \medskip
 \textbf{Common pitfalls}

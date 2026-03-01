@@ -45,7 +45,7 @@ R(h_\theta) &= \mathbb{E}_{(\mathbf{x}, y)\sim \mathcal P}\big[\ell\big(h_\theta
 \hat R_N(h_\theta) &= \frac{1}{N} \sum_{i=1}^N \ell\big(h_\theta(\mathbf{x}_i), y_i\big).
     \label{eq:auto:lecture_supervised:1}
 \end{align}
-Because \(\mathcal P\) is unknown, learning algorithms minimize empirical proxies of \(R(h_\theta)\). This is the formal version of the ``educated guess'' idea: we posit a model family \(h_\theta\), then use data to choose parameter values that make its predictions behave like the measured input--output pairs. In practice we do this on a \emph{training set} (the data used to fit parameters), and we reserve held-out data to check whether the fitted model is trustworthy; \Cref{sec:lec1_model_selection} makes these evaluation protocols precise.
+Because \(\mathcal P\) is unknown, learning algorithms minimize empirical proxies of \(R(h_\theta)\). We posit a model family \(h_\theta\) and use data to choose parameter values that make its predictions behave like the measured input--output pairs. In practice we do this on a \emph{training set} (the data used to fit parameters), and we reserve held-out data to check whether the fitted model is trustworthy; \Cref{sec:lec1_model_selection} makes these evaluation protocols precise. Audit is not an external add-on: in engineering terms, it is part of the model contract.
 
 \subsection{Fitting, Overfitting, and Underfitting}
 \label{sec:supervised_fitting_overfitting_and_underfitting}

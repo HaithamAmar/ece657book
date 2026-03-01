@@ -1546,3 +1546,85 @@ Build notes (2026-02-17):
 - 2026-02-28: Ran `python3 notes_output/scripts/validate_math_examples_and_graphs.py --strict` after the edits. Result: PASS.
 - 2026-02-28: Ran `bash notes_output/scripts/run_production_checks.sh` after the edits. Result: PASS (release checks, Apple
   gatekeeper audits, and EPUBCheck all OK).
+
+## 2026-02-28 Chapter 14 (Transformers) KV-cache pedagogy + tokenizer implementation enrichment
+
+- `notes_output/lecture_transformers.tex`: added an explicit connection from masking to cached decoding in the masks section:
+  during one-token-at-a-time inference, the cache only contains past keys/values (no future keys), while training still needs
+  an explicit causal mask when the full sequence is available in parallel.
+- `notes_output/lecture_transformers.tex`: added a plain-language KV cache paragraph in the decoder/generation flow with a
+  labeled equation `\label{eq:transformers_kv_cache_decode_step}` showing one-step decode:
+  \(\mathbf{q}_t\) attends over cached \(\mathbf{K}_{1:t},\mathbf{V}_{1:t}\), with append-only updates for new
+  \(\mathbf{k}_t,\mathbf{v}_t\).
+- `notes_output/lecture_transformers.tex`: added a direct, student-friendly explanation of the engineering tradeoff:
+  larger context windows imply larger K/V caches, so context size is both a modeling choice and a memory/latency budget choice.
+- `notes_output/lecture_transformers.tex`: added a concise tokenizer box informed by the nanochat
+  reference implementation (GPT-2-style practical points):
+  byte-level BPE robustness, BOS token handling (`<|bos|>` / historical `<|endoftext|>` naming),
+  train/inference tokenizer consistency, and tokenization impact on effective context usage.
+- 2026-02-28: Ran `python3 notes_output/scripts/validate_math_examples_and_graphs.py --strict` after the edits. Result: PASS.
+- 2026-02-28: Ran `bash notes_output/scripts/run_production_checks.sh` after the edits. Result: PASS (release checks, Apple
+  gatekeeper audits, and EPUBCheck all OK).
+
+## 2026-02-28 Chapter 14 (Transformers) EPUB equation-number alignment fix
+
+- `notes_output/lecture_transformers.tex`: replaced the 3-line `align` block in the seq2seq attention intro
+  (`e_{tj}`, `\alpha_{tj}`, `\mathbf{c}_t`) with three separate single-line `equation` environments, preserving
+  labels `eq:transformers_attn_score_seq2seq`, `eq:transformers_attn_weights_seq2seq`,
+  and `eq:transformers_context_seq2seq` to avoid EPUB rendering where equation numbers drift away as a stacked block.
+- 2026-02-28: Ran `bash notes_output/scripts/run_production_checks.sh` after the edit. Result: PASS (release checks, Apple
+  gatekeeper audits, and EPUBCheck all OK).
+
+## 2026-02-28 Chapter 14 (Transformers) figure-truthfulness + mask-implementation precision pass
+
+- `notes_output/lecture_transformers.tex`: added an explicit additive-mask implementation equation with label
+  `\label{eq:transformers_additive_mask_logits}` so the masking path is mathematically explicit:
+  logits + mask (`0` or `-\infty`) before softmax.
+- `notes_output/lecture_transformers.tex`: clarified padding-mask semantics as key-column masking in attention, plus
+  the practical nuance that padded query rows are typically handled downstream by output/loss masking.
+- `notes_output/lecture_transformers.tex`: tightened `\Cref{fig:lec13_transformer_block}` by changing the block text
+  from `FFN (GELU)` to `FFN` to avoid over-specific activation claims inside a generic architecture schematic.
+- `notes_output/lecture_transformers.tex`: updated the positional micro-figure waveform panel to include both sine and
+  cosine curves (instead of two sine curves), aligning the visual with the sinusoidal positional-encoding explanation.
+- 2026-02-28: Ran `python3 notes_output/scripts/validate_math_examples_and_graphs.py --strict` after the edits. Result: PASS.
+- 2026-02-28: Ran `bash notes_output/scripts/run_production_checks.sh` after the edits. Result: PASS (release checks, Apple
+  gatekeeper audits, and EPUBCheck all OK).
+
+## 2026-02-28 Chapter 14 (Transformers) nanochat citation + template cleanup
+
+- `notes_output/lecture_transformers.tex`: softened template-y headings/phrasing (``Implementation snapshot'' to
+  ``Implementation sketch'', ``code snapshot'' to ``code block'', ``practitioner snapshot'' to ``advanced notes'').
+- `notes_output/lecture_transformers.tex`: added a short nanochat reference sentence in the tokenizer box with a
+  proper citation and student-facing framing.
+- `notes_output/refs.bib`: added `KarpathyNanochat` (GitHub repository) and cited it from Chapter 14.
+- 2026-02-28: Ran `bash notes_output/scripts/run_production_checks.sh` after the edits. Result: PASS (release checks, Apple
+  gatekeeper audits, and EPUBCheck all OK).
+
+## 2026-02-28 Global synthesis lens (PR1--PR4)
+
+- `notes_output/lecture_1_intro.tex`: replaced the Chapter 1 design motif with a unified engineering contract
+  (representation, update, objective, audit), and pointed forward to the global synthesis map.
+- `notes_output/key_takeaways.tex`: elevated the Figure/Table synthesis map by rewriting the lead-in as ``how to read the map''
+  (four questions) and upgrading the figure caption to explicitly claim a unified design-space view.
+- `notes_output/book_chapters.tex`: appended a single ``Unifying lens'' bullet to each Part takeaways box.
+- `notes_output/lecture_transformers.tex`: rewrote the Chapter 14 closing bridge to frame the next move as design-space
+  navigation (differentiable updates \(\rightarrow\) fuzzy rules \(\rightarrow\) evolutionary search).
+- `notes_output/lecture_11.tex`: added a one-sentence ``non-differentiable sibling of ERM'' framing in the evolutionary
+  computing opener vignette.
+- 2026-02-28: Ran `python3 notes_output/scripts/validate_math_examples_and_graphs.py --strict` after the edits. Result: PASS.
+- 2026-02-28: Ran `bash notes_output/scripts/run_production_checks.sh` after the edits. Result: PASS (release checks,
+  Apple gatekeeper audits, and EPUBCheck all OK).
+
+## 2026-02-28 Author philosophy anchors (PR-A--PR-D)
+
+- `notes_output/preface.tex`: rewrote the ``Perspective'' box to make the book's philosophy explicit (engineered
+  self-correction; anti-mystical mechanism-first stance; audit as part of the model contract).
+- `notes_output/lecture_1_intro.tex`: strengthened ``Minimum viable mastery'' as a mini-manifesto (behavior under
+  constraints; audits as design, not an afterthought).
+- `notes_output/lecture_supervised.tex`: inserted an ``audit-first'' sentence directly in the ERM setup and removed a nearby
+  tutorial-style restatement to keep net length flat.
+- `notes_output/lecture_transformers.tex`: sharpened the attention author note to emphasize attention as a retrieval operator,
+  not a mystical reasoning module.
+- 2026-02-28: Ran `python3 notes_output/scripts/validate_math_examples_and_graphs.py --strict` after the edits. Result: PASS.
+- 2026-02-28: Ran `bash notes_output/scripts/run_production_checks.sh` after the edits. Result: PASS (release checks,
+  Apple gatekeeper audits, and EPUBCheck all OK).

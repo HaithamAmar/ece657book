@@ -106,11 +106,11 @@
         \node[model, fill=cbPink!20, draw=cbPink] at (2.5,1.0) {Hopfield /\\ energy models};
     \end{tikzpicture}
     \end{adjustbox}
-    \caption[Map of model families]{Color\hyp{}coded map of model families across agent level, model nature, and learning signal, highlighting where each family sits in the taxonomy and where to read next.}
+    \caption[Map of model families]{Unified design\hyp{}space map of the book. Each family is a design point defined by (representation, update/search operator, feedback signal, and audit obligations), plotted across agent level, model nature, and learning signal. Use this to translate intuitions across paradigms (e.g., ERM \(\leftrightarrow\) energy descent \(\leftrightarrow\) rule composition \(\leftrightarrow\) fitness\hyp{}driven search).}
     \label{fig:big-picture-map}
 \end{figure}
 
-\Cref{fig:big-picture-map} provides the visual map; \Cref{tab:big-picture-models} serves as a compact lookup for model-family placement across levels and learning signals.
+\Cref{fig:big-picture-map} and \Cref{tab:big-picture-models} are the book's synthesis: they show that the families in Parts~I--IV are not disconnected topics but design points under one contract. To read the map, ask four questions: (1) what is the representation, (2) what is the update/search operator, (3) what feedback signal trains it, and (4) what audits prevent silent failure. Use the map to move laterally: if you know one design point (e.g., ERM with gradients), you can locate its siblings (energy descent, rule composition, population search) and predict what will break (credit assignment, calibration, constraint handling).
 
 \begin{table}[b]
 \centering
