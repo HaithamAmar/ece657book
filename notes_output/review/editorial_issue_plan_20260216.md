@@ -1628,3 +1628,23 @@ Build notes (2026-02-17):
 - 2026-02-28: Ran `python3 notes_output/scripts/validate_math_examples_and_graphs.py --strict` after the edits. Result: PASS.
 - 2026-02-28: Ran `bash notes_output/scripts/run_production_checks.sh` after the edits. Result: PASS (release checks,
   Apple gatekeeper audits, and EPUBCheck all OK).
+
+## 2026-02-28 Publishability QA: rights captions + URL access dates + QA report
+
+- `notes_output/lecture_2_part_ii.tex`: added a one-line `Source:` attribution to raster figure captions
+  (`\Cref{fig:lec2-logistic-boundary}` and `\Cref{fig:lec1-roc-pr}`) and added short captions to keep LOF entries clean.
+- `notes_output/lecture_supervised.tex`: added `Source:` attribution to `\Cref{fig:lec1-calibration-double-descent}`.
+- `notes_output/lecture_6.tex`: added `Source:` attribution to `\Cref{fig:lec6-dropout}`.
+- `notes_output/lecture_7.tex`: added `Source:` attribution to `\Cref{fig:lec7-vanishing}`.
+- `notes_output/lecture_8_part_i.tex`: added `Source:` attribution to `\Cref{fig:lec8-embedding-clusters}` (marked as an
+  author-generated schematic; cited \citet{Mikolov2013} as inspiration).
+- `notes_output/lecture_9.tex`: removed template-y ``Use it when...'' caption phrasing and added `Source:` attribution to
+  `\Cref{fig:tnorm-surfaces}`.
+- `notes_output/lecture_11.tex`: removed template-y ``Use this when...'' caption phrasing and added `Source:` attribution to
+  `\Cref{fig:lec11-pareto}`.
+- `notes_output/refs.bib`: normalized URL access-date style by adding `note = {Accessed 2026-02-28}` to entries with `url = {...}`
+  (e.g., `Radford2019`, `Radford2018`, `MacQueen1967`, `DebAgrawal1995`, `Zitzler2002`, `Fritzke1994GrowingNeuralGas`).
+- `QA_REPORT.md`: added a short publishability checklist/report (placeholder scan + build gates + attribution/bib notes).
+- 2026-02-28: Ran `python3 notes_output/scripts/validate_math_examples_and_graphs.py --strict`. Result: PASS.
+- 2026-02-28: Ran `bash notes_output/scripts/run_production_checks.sh`. Result: PASS (release checks, Apple gatekeeper audits,
+  and EPUBCheck all OK).
