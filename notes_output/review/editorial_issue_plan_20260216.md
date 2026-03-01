@@ -1568,10 +1568,10 @@ Build notes (2026-02-17):
 
 ## 2026-02-28 Chapter 14 (Transformers) EPUB equation-number alignment fix
 
-- `notes_output/lecture_transformers.tex`: replaced the 3-line `align` block in the seq2seq attention intro
-  (`e_{tj}`, `\alpha_{tj}`, `\mathbf{c}_t`) with three separate single-line `equation` environments, preserving
-  labels `eq:transformers_attn_score_seq2seq`, `eq:transformers_attn_weights_seq2seq`,
-  and `eq:transformers_context_seq2seq` to avoid EPUB rendering where equation numbers drift away as a stacked block.
+- `notes_output/lecture_transformers.tex`: rewrote the seq2seq attention definitions
+  (`e_{tj}`, `\alpha_{tj}`, `\mathbf{c}_t`) as a single numbered `equation` with a `split` block, keeping one label
+  (`eq:transformers_context_seq2seq`). This avoids EPUB rendering where three adjacent display equations produce
+  visually awkward stacked equation numbers in the right margin.
 - 2026-02-28: Ran `bash notes_output/scripts/run_production_checks.sh` after the edit. Result: PASS (release checks, Apple
   gatekeeper audits, and EPUBCheck all OK).
 

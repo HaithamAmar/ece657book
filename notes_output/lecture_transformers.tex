@@ -52,16 +52,12 @@ In an encoder--decoder RNN, the encoder produces a sequence of hidden states \(\
 \end{equation}
 The ``one-vector bottleneck'' appears when the decoder is forced to rely on a single summary of the entire input. Attention replaces that with a \emph{per-step context}:
 \begin{equation}
-    e_{t j} = a(\mathbf{s}_{t-1}, \mathbf{h}_j),
-    \label{eq:transformers_attn_score_seq2seq}
-\end{equation}
-\begin{equation}
-    \alpha_{t j} = \operatorname{softmax}_j(e_{t j}),
-    \label{eq:transformers_attn_weights_seq2seq}
-\end{equation}
-\begin{equation}
-    \mathbf{c}_t = \sum_{j=1}^{S} \alpha_{t j}\,\mathbf{h}_j.
-    \label{eq:transformers_context_seq2seq}
+\begin{split}
+    e_{t j} &= a(\mathbf{s}_{t-1}, \mathbf{h}_j),\\
+    \alpha_{t j} &= \operatorname{softmax}_j(e_{t j}),\\
+    \mathbf{c}_t &= \sum_{j=1}^{S} \alpha_{t j}\,\mathbf{h}_j.
+\end{split}
+\label{eq:transformers_context_seq2seq}
 \end{equation}
 Here \(\operatorname{softmax}_j\) denotes a softmax over the source positions \(j\), i.e.,
 \(\alpha_{t j}=\exp(e_{t j})/\sum_{j'=1}^{S}\exp(e_{t j'})\).
