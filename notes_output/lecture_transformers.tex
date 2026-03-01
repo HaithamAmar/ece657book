@@ -300,7 +300,7 @@ For cross-attention, the formula is the same but keys/values come from encoder s
 \end{figure}
 \FloatBarrier
 
-\Cref{fig:lec13_micro_figures} provides a quick visual summary of positional encoding, KV cache reuse, and LoRA adapters.
+\Cref{fig:lec13_micro_figures} provides a quick visual summary of positional encoding, key/value (KV) cache reuse, and Low-Rank Adaptation (LoRA) adapters.
 
 \begin{figure}[t]
     \centering
@@ -710,7 +710,7 @@ Relative/rotary position schemes and KV caching are summarized in \Cref{sec:tran
 \label{sec:transformers_fine_tuning_and_parameter_efficient_adaptation}
 Pre-training gives you a general-purpose language model; fine-tuning adapts that model to a task, domain, or interaction style. \emph{Full fine-tuning} updates all weights, which can yield the best performance when you have enough high-quality data and a stable objective, but it is also the easiest to overfit or to accidentally ``forget'' useful general behavior.
 
-\emph{Parameter-efficient} methods (LoRA, adapters, prefix/prompt tuning, and related variants) inject small trainable modules while freezing most of the base model, enabling rapid adaptation with lower memory and more predictable changes. Practically, PEFT is attractive when you want many task-specific variants of a shared base model, or when you need to keep the base weights fixed for deployment and auditing.
+\emph{Parameter-efficient fine-tuning (PEFT)} methods (LoRA, adapters, prefix/prompt tuning, and related variants) inject small trainable modules while freezing most of the base model, enabling rapid adaptation with lower memory and more predictable changes. In LoRA, you freeze a weight matrix \(\mathbf{W}\) and learn a low-rank update \(\Delta \mathbf{W}=\mathbf{B}\mathbf{A}\) (rank \(r\)), so only a small number of parameters move during tuning. These methods are attractive when you want many task-specific variants of a shared base model, or when you need to keep the base weights fixed for deployment and auditing.
 
 \paragraph{Audit hooks for adaptation.}
 Regardless of whether you update all weights or only a small adapter, treat fine-tuning like any other ERM pipeline: keep a held-out evaluation set that matches the deployment slice, monitor calibration and failure modes (not just loss), and log the exact base checkpoint, tokenizer, and data snapshot so results are reproducible. When fine-tuning for instruction-following or conversational behavior, add explicit tests for regressions (refusals, hallucinations on factual probes, and brittleness to prompt variants) rather than relying on a single aggregate score.

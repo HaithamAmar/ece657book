@@ -59,7 +59,7 @@ Soft computing, introduced by \citet{Zadeh1994,Zadeh1997} after his 1965 fuzzy s
 Formally, soft computing is not a single homogeneous methodology but rather a \emph{partnership of distinct methods} that conform to these guiding principles. In Zadeh's broad usage, the principal constituents include:
 \begin{itemize}
     \item \textbf{Fuzzy Logic:} Handling imprecision and approximate reasoning,
-    \item \textbf{Neurocomputing (and neuro-fuzzy hybrids):} Learning from data through neural networks, sometimes combined with fuzzy rule bases (e.g., ANFIS),
+    \item \textbf{Neurocomputing (and neuro-fuzzy hybrids):} Learning from data through neural networks, sometimes combined with fuzzy rule bases (e.g., adaptive neuro-fuzzy inference system (ANFIS)),
     \item \textbf{Genetic Algorithms:} Evolutionary optimization inspired by natural selection.
 \end{itemize}
 
@@ -92,7 +92,7 @@ We can conceptualize the landscape of computing as follows:
     \item \textbf{Soft Computing:} Approximate, tolerant of imprecision and uncertainty, heuristic.
 \end{itemize}
 
-There is some overlap, especially in optimization problems, which can be approached via either paradigm depending on the context and requirements.
+Hard computing insists on crisp logic and exact arithmetic: precise thresholds, deterministic algorithms, and guarantees when assumptions hold. Soft computing is approximate by design, trading exactness for robustness when concepts are linguistic, measurements are noisy, or the specification itself is negotiable. Many real systems blend the two: hard constraints and safety checks wrapped around a soft inner loop (approximate reasoning or heuristic search), chosen based on which assumptions you can justify and which failure modes you can tolerate.
 
 \subsection{Overview of Soft Computing Constituents}
 \label{sec:softcomp_overview_of_soft_computing_constituents}
@@ -225,12 +225,7 @@ This approach revolutionized how we model uncertainty and reasoning in artificia
 \subsection{Challenges in Fuzzy Logic Systems}
 \label{sec:softcomp_challenges_in_fuzzy_logic_systems}
 
-Despite its advantages, fuzzy logic faces several challenges:
-\begin{itemize}
-    \item \textbf{Lack of a systematic methodology:} Initially, there was no formal mechanism to construct fuzzy inference systems from human knowledge.
-    \item \textbf{Handling imprecision in linguistic terms:} Choosing membership functions and linguistic labels still relies on expert elicitation or data-driven tuning; poor choices can degrade system performance.
-
-\end{itemize}
+Despite its advantages, fuzzy logic has two honest challenges. First, there is rarely a single systematic recipe that turns ``expert knowledge'' into a complete, consistent rule base; design is iterative and coverage-driven. Second, linguistic labels still need engineering choices: membership functions and ranges come from elicitation or data-driven tuning, and poor choices show up directly as brittle or non-monotone behavior. We treat this as a design-and-audit problem: make defaults explicit, test edge cases numerically, and tune only after the basic behavior is correct.
 % Chapter 15 (continued)
 
 \subsection{Mathematical Languages as Foundations for Fuzzy Logic}

@@ -75,7 +75,7 @@ The neighborhood influence is usually controlled by a kernel (often Gaussian) wh
 \end{figure}
 
 
-\Cref{fig:lec5-som-component-planes} pairs feature-plane views with U-Matrix diagnostics for SOM audits.
+\Cref{fig:lec5-som-component-planes} pairs feature-plane views with U-Matrix (a neighbor-distance heat map) diagnostics for SOM audits.
 
 Before delving into the mathematical formulation and algorithmic details of SOMs, it is important to review two foundational concepts that underpin their operation: \emph{clustering} and \emph{dimensionality reduction}.
 
@@ -349,11 +349,7 @@ SOM training is typically stochastic: each input triggers an update, so the map 
 \subsection{Key Properties of Kohonen SOMs}
 \label{sec:som_key_properties_of_kohonen_soms}
 
-\begin{itemize}
-    \item \textbf{Fixed output dimension:} The grid size is a design choice specified a priori and does not automatically scale with the input dimension.
-    \item \textbf{Winner-takes-all competition:} Only the best matching unit and its neighbors adapt their weights, encouraging topological ordering.
-    \item \textbf{Neighborhood cooperation:} Updating neighboring neurons enforces smooth transitions across the map.
-\end{itemize}
+Three properties are worth keeping in mind. First, the SOM output grid is fixed by design: you choose the grid size up front, and it does not automatically scale with input dimension. Second, learning is driven by competition: each input selects a best-matching unit (BMU). Third, SOMs add cooperation on top of winner-takes-all by updating the BMU and its neighbors together, which is the mechanism that creates smooth organization on the grid rather than a shuffled bag of prototypes.
 % Chapter 9 (continued)
 
 \subsection{Winner-Takes-All Learning and Weight Update Rules}
@@ -1076,12 +1072,7 @@ Each neuron \(j\) in \(\mathcal{N}(c)\) updates its weight vector according to \
 \subsection{Summary of Cooperative Competitive Learning Algorithm}
 \label{sec:som_summary_of_cooperative_competitive_learning_algorithm}
 
-\begin{enumerate}
-    \item Present an input vector and identify the winning neuron using the discriminant function.
-    \item Update the winning neuron's weights and those of its neighbors according to the cooperative rule.
-    \item Decrease the learning rate and neighborhood radius according to the annealing schedule.
-    \item Repeat for all inputs until the map stabilizes or a maximum number of epochs is reached.
-\end{enumerate}
+Each training step repeats the same loop: present an input, identify the BMU using your chosen discriminant (dot product or distance), update the BMU and its neighbors with the cooperative rule, and then decay both the learning rate and neighborhood radius according to the schedule. Over many passes through the data, the neighborhood starts broad (to settle global ordering) and then shrinks (to refine local detail without tearing the map).
 \subsection{Wrapping Up the Kohonen Self-Organizing Map (SOM) Derivations}
 \label{sec:som_wrapping_up_the_kohonen_self_organizing_map_som_derivations}
 
