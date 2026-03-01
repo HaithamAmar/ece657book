@@ -247,7 +247,7 @@ with analogous expressions for the \(A\) and \(D\) categories. These overlapping
         \end{axis}
     \end{tikzpicture}
     % Avoid inline math in captions; it wraps poorly in some EPUB renderers.
-    \caption{Trapezoidal membership functions for grades C and B with the overlapping region shaded. Scores near 78--82 partially satisfy both grade definitions. Use it when designing overlapping grade/linguistic bins so boundary cases behave smoothly.}
+    \caption{Trapezoidal membership functions for grades C and B with the overlapping region shaded. Scores near 78--82 partially satisfy both grade definitions. This overlap design keeps boundary cases smooth instead of forcing abrupt label switches.}
     \label{fig:lec9-grade-trapezoids}
 \end{figure}
 
@@ -311,7 +311,7 @@ For example, at \(x=22\) we have \(\mu_{\text{Medium}}(22)=(25-22)/5=0.6\) and \
             \addplot[gray, dashed] coordinates {(25,0) (25,1.05)};
         \end{axis}
     \end{tikzpicture}
-    \caption[Overlapping membership functions for Small/Medium/Large labels]{Overlapping membership functions for the ``Small'', ``Medium'', and ``Large'' weight labels. The shaded overlaps capture gradual transitions. Use it when tuning membership overlaps so small numeric changes do not cause abrupt rule changes.}
+    \caption[Overlapping membership functions for Small/Medium/Large labels]{Overlapping membership functions for the ``Small'', ``Medium'', and ``Large'' weight labels. The shaded overlaps capture gradual transitions and reduce abrupt rule changes for small numeric perturbations.}
     \label{fig:lec9-membership-overlap}
 \end{figure}
 
@@ -604,13 +604,16 @@ These properties ensure that fuzzy set operations behave in a consistent and alg
 \subsection{Fuzzy Set Operators}
 \label{sec:fuzzysets_fuzzy_set_operators}
 
-While operations such as union, intersection, and complement define how to combine or modify fuzzy sets, \emph{operators} formalize the logic or rules by which these combinations occur. Operators are mappings that take one or more fuzzy sets and produce another fuzzy set, often encapsulating specific logical or algebraic behavior.
+While operations such as union, intersection, and complement define how to combine or modify fuzzy sets, \emph{operators} formalize the rules behind those combinations. In practice, an operator is a mapping on membership grades that encodes how conservative or permissive the model should be when evidence conflicts.
 
-\paragraph{Examples of Operators:}
+Three operator families appear repeatedly in the fuzzy trilogy:
 \begin{itemize}
-    \item \textbf{Equality operator:} Checks if two fuzzy sets are equal by comparing membership functions.
-
+    \item \textbf{Unary operators:} complement and linguistic hedges (for example, ``not,'' ``very,'' ``more or less'') that reshape a single membership function.
+    \item \textbf{Binary operators:} t\hyp{}norms and s\hyp{}norms that implement fuzzy AND/OR and determine how multiple antecedents combine.
+    \item \textbf{Relation operators:} extension, projection, and composition operators that transport fuzzy information between related universes.
 \end{itemize}
+
+The next subsection starts with unary negation operators, because complement choice directly affects De Morgan duality and downstream rule behavior.
 % Chapter 16 (continued)
 
 \subsection{Complement Operators in Fuzzy Logic}
@@ -1032,7 +1035,7 @@ The next step is to formalize the \emph{implication} and \emph{aggregation} oper
 \begin{table}[t]
 \centering
 % Avoid inline math in captions; it wraps poorly in some EPUB renderers.
-\caption{Typical operator choices in fuzzy inference and their qualitative effects. Here the t\hyp{}norm implements fuzzy AND, the s\hyp{}norm implements fuzzy OR, and the implication shapes consequents. Use it when choosing default operators for a Mamdani-style pipeline and predicting qualitative behavior.}
+\caption{Typical operator choices in fuzzy inference and their qualitative effects. Here the t\hyp{}norm implements fuzzy AND, the s\hyp{}norm implements fuzzy OR, and the implication shapes consequents. The table supports default-operator selection for a Mamdani-style pipeline and anticipates qualitative output behavior.}
 \label{tab:fuzzy-operators}
 \begin{tabularx}{\linewidth}{@{}>{\raggedright\arraybackslash}X>{\raggedright\arraybackslash}X>{\raggedright\arraybackslash}X>{\raggedright\arraybackslash}X@{}}
 \toprule
@@ -1156,7 +1159,7 @@ Practical tip: libraries such as \texttt{scikit-fuzzy} provide a tested \texttt{
         \end{groupplot}
     \end{tikzpicture}
     % Avoid inline math in captions; it wraps poorly in some EPUB renderers.
-    \caption{End-to-end fuzzy inference example. (A) Consequent membership functions with clipping levels from firing strengths at T = 27 deg C. (B) Aggregated output set (max of truncated consequents) and a centroid marker near s* approx 0.58. Use it when sanity-checking clipping, aggregation, and centroid defuzzification end to end.}
+    \caption{End-to-end fuzzy inference example. (A) Consequent membership functions with clipping levels from firing strengths at T = 27 deg C. (B) Aggregated output set (max of truncated consequents) and a centroid marker near s* approx 0.58. This trace provides an end-to-end sanity check for clipping, aggregation, and centroid defuzzification.}
     \label{fig:fuzzy-end-to-end}
 \end{figure}
 
@@ -1193,7 +1196,7 @@ Practical tip: libraries such as \texttt{scikit-fuzzy} provide a tested \texttt{
 \end{itemize}
 
 \medskip
-\noindent\textbf{If you are skipping ahead.} The rest of the fuzzy chapters build on these primitives. If you find later rule outputs unstable, the first place to revisit is the universe scaling and overlap choices here.
+\noindent\textbf{Fast-track note.} Later fuzzy chapters build directly on these primitives. If rule outputs become unstable, revisit universe scaling and membership overlap first.
 \end{tcolorbox}
 
 \paragraph{Where we head next.} \Cref{chap:fuzzyrelations} moves from set-level primitives to \emph{transfer}: how to push fuzzy labels through mappings between related universes (extension principle, projection, and composition). \Cref{chap:fuzzyinference} then uses those relation tools to assemble complete rule composition and defuzzification pipelines.

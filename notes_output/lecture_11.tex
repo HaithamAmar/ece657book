@@ -28,7 +28,7 @@ Evolutionary computing is the strand you reach for when the objective is a black
 
 In the fuzzy trilogy, once you commit to membership shapes and a rule base, a practical question remains: how do you tune those choices (and their trade-offs) when hand tweaks do not scale? Evolutionary search provides a disciplined answer: score candidate controllers, select the better ones, perturb/recombine them, and keep iterating until the improvements flatten or the budget runs out.
 
-\begin{tcolorbox}[summarybox, title={Vignette: budgeted search in the wild (locomotion, ML/LLMs, and physical experiments)}]
+\begin{tcolorbox}[summarybox, title={Application note: budgeted search in the wild (locomotion, ML/LLMs, and physical experiments)}]
 \textbf{Robot gait / locomotion.} Suppose we want a legged robot to move forward robustly across slightly different terrains. The design has mixed knobs: continuous parameters (gains, trajectory coefficients, penalty weights) and discrete choices (controller mode, safety logic, constraint-handling policy). A single trial is expensive and noisy (contact dynamics, initial conditions, sensor noise), so it is natural to treat performance as a black-box fitness, average over multiple seeds, and search under a strict evaluation budget.\par
 \textbf{Hyperparameter and pipeline tuning (including LLM systems).} Many modern learning pipelines have the same structure: discrete design choices (model family, system configuration variant, data filters) plus continuous knobs (learning rates, thresholds, temperatures), measured by an empirical score with variance across runs. Evolutionary search is attractive when gradients are unavailable, the evaluation surface is rugged, or the objective invites silent failure modes (metric gaming, constraint violations). Read this chapter as the non\hyp{}differentiable sibling of ERM: same objective\hyp{}and\hyp{}audit discipline, different update mechanism.\par
 \textbf{Physical-world analogy (jet nozzle).} Classic evolution-strategy examples describe optimizing a jet-nozzle shape via random mutations plus selection: you do not differentiate the wind tunnel; you spend a limited trial budget to evolve better designs. The point of the analogy is not biology, but budgeted optimization under constraints.
@@ -89,11 +89,12 @@ While brute force search guarantees finding the global optimum by evaluating all
 \end{itemize}
 
 For example, in control systems, one might want to tune parameters to regulate temperature or pressure optimally. Waiting for a brute force search to complete could be unacceptable, whereas a near-optimal solution found quickly is valuable.
+In realistic workflows, one evaluation may involve simulation runtime, hardware experiments, or human-in-the-loop checks. Under those costs, exhaustive enumeration is not just slow but operationally infeasible, which is why evolutionary methods are framed as budgeted search.
 
 \subsection{Summary}
 \label{sec:evo_summary}
 
-Checkpoint: you now have the \emph{why} for evolutionary search---rugged landscapes, constraints, discontinuities, and budgets that make local improvement unreliable. The rest of this chapter builds one canonical template in three passes:
+Checkpoint: you now have the \emph{why} for evolutionary search---rugged landscapes, constraints, discontinuities, and budgets that make local improvement unreliable. The rest of this chapter develops one canonical workflow in three passes:
 (i) a big-picture story (population + evaluation + variation),
 (ii) operator-level definitions (selection/crossover/mutation and constraint handling),
 and (iii) an implementation-facing sanity-check (flowchart, pseudocode, and a one-generation numeric trace).
@@ -122,12 +123,13 @@ One of the most well-known evolutionary algorithms is the Genetic Algorithm (GA)
 \subsection{Biological Inspiration: Evolutionary Concepts}
 \label{sec:evo_biological_inspiration_evolutionary_concepts}
 
-This section is terminology and motivation. If you already think of a GA as ``selection + variation + replacement under a fitness budget,'' feel free to skim; the algorithmic details begin in \Cref{sec:evo_genetic_algorithms_modeling_chromosomes}.
+This section sets terminology and motivation. If you already think of a GA as ``selection + variation + replacement under a fitness budget,'' use it as a notation pass; the algorithmic details begin in \Cref{sec:evo_genetic_algorithms_modeling_chromosomes}.
 
 To understand GAs, we briefly review relevant biological concepts:
 
 \paragraph{Chromosomes and Genes}
 In biology, an organism's genetic information is encoded in chromosomes, which are long sequences of DNA. Each chromosome contains many genes, which determine specific traits.
+In GA terms, this maps to representation: one chromosome encodes one candidate solution, and each gene encodes one design decision (binary switch, integer slot, real-valued parameter, or subtree element).
 
 \paragraph{Cell Division: Mitosis vs. Meiosis}
 \begin{itemize}
@@ -139,6 +141,7 @@ In biology, an organism's genetic information is encoded in chromosomes, which a
 \begin{sloppypar}
 During meiosis, chromosomes undergo \emph{crossover} events. Segments of genetic material are exchanged between paired chromosomes. Recombination increases genetic diversity.
 \end{sloppypar}
+This intuition is carried directly into algorithm design: crossover recombines useful partial structures from different parents, while mutation injects fresh variation so search does not collapse prematurely around one basin.
 
 \paragraph{Inheritance and Heredity}
 The offspring's chromosomes are a mixture of the parents' genetic material, but not a simple half-and-half split. Instead, genes from multiple previous generations contribute to the genetic makeup, introducing variability and enabling adaptation over time.
@@ -721,7 +724,7 @@ In practice, a combination of these criteria is often used. For example, one mig
 \subsection{Summary of Genetic Algorithm Workflow}
 \label{sec:evo_summary_of_genetic_algorithm_workflow}
 
-This is the implementation-facing assembly of the GA loop. Earlier sections motivated the need for population-based search and defined each operator; here we put them back together and give three complementary sanity-check views: \Cref{fig:lec11-ga-flow} for control flow, \Cref{tab:ga-toy} for a one-generation numeric trace, and \Cref{sec:evo_pseudocode_representation} for a minimal implementation template. All three describe the same loop at different levels of detail.
+This is the implementation-facing assembly of the GA loop. Earlier sections motivated the need for population-based search and defined each operator; here we put them back together and give three complementary sanity-check views: \Cref{fig:lec11-ga-flow} for control flow, \Cref{tab:ga-toy} for a one-generation numeric trace, and \Cref{sec:evo_pseudocode_representation} for a minimal implementation recipe. All three describe the same loop at different levels of detail.
 
 \begin{figure}[!ht]
 \centering
@@ -897,7 +900,7 @@ A single generation could proceed as follows:
     \item \textbf{Feasibility-first selection} ranks feasible candidates ahead of infeasible ones, then compares raw fitness only within each group; among infeasible solutions, select those with the smallest violation.
     \item \textbf{Deb's feasibility rules} \citep{Deb2001Book}: (i) if one solution is feasible and the other is not, pick the feasible one; (ii) if both are feasible, pick the better objective; (iii) if both are infeasible, pick the one with smaller total constraint violation. Adaptive penalties can be layered on top when violations persist.
 \end{itemize}
-\paragraph{Reproducibility and fair comparison} Fix random seeds when debugging, run many seeds (e.g., 20+) for reporting, match evaluation budgets across algorithms, and report mean/median best-so-far with variability bands. Log all hyperparameters and share code/configs to make comparisons fair, following \Cref{app:repro_standards} as the default reporting template.
+\paragraph{Reproducibility and fair comparison} Fix random seeds when debugging, run many seeds (e.g., 20+) for reporting, match evaluation budgets across algorithms, and report mean/median best-so-far with variability bands. Log all hyperparameters and share code/configs to make comparisons fair, following \Cref{app:repro_standards} as the default reporting protocol.
 Penalty terms are easy to implement, repair operators exploit domain knowledge, and feasibility-first policies are useful in safety-critical controllers where violating constraints is unacceptable even temporarily.
 \end{tcolorbox}
 
@@ -1106,7 +1109,7 @@ When two or more objectives conflict, we seek a set of Pareto-optimal solutions 
 \end{itemize}
 
 \medskip
-\noindent\textbf{If you are skipping ahead.} This chapter is largely self-contained. If you revisit earlier model chapters, keep the common thread in mind: every method still requires a clear objective, a diagnostic that detects failure, and a reporting protocol that survives replication.
+\noindent\textbf{Fast-track note.} This chapter is largely self-contained. If you revisit earlier model chapters, keep the common thread explicit: each method still needs a clear objective, a diagnostic that exposes failure, and a reporting protocol that survives replication.
 \end{tcolorbox}
 
 \paragraph{Where we head next.} This chapter closes the soft-computing thread. For targeted refreshers, \Cref{app:linear_systems} summarizes linear-systems prerequisites and \Cref{app:kernels} consolidates kernel-method context used earlier in the book.

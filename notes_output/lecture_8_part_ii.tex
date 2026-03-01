@@ -462,20 +462,13 @@ Consider the linguistic labels \texttt{Small}, \texttt{Medium}, and \texttt{Larg
 
 This chapter set the motivation: when specifications are linguistic and boundaries are negotiable, it is often better to model that vagueness explicitly than to force brittle crisp thresholds. The next three chapters turn that motivation into a workflow you can execute and audit.
 
-\paragraph{Fuzzy Sets Recap}
-See \Cref{sec:softcomp_from_crisp_sets_to_fuzzy_sets} for the membership-function definition and \Cref{sec:softcomp_fuzzy_logic_motivation_and_intuition} for the crisp-versus-fuzzy intuition; here we keep a final example and the forward pointer.
+\paragraph{Fuzzy sets recap and why it matters in practice}
+See \Cref{sec:softcomp_from_crisp_sets_to_fuzzy_sets} for the formal membership-function definition and \Cref{sec:softcomp_fuzzy_logic_motivation_and_intuition} for the crisp-versus-fuzzy contrast. The practical payoff is that one observation can carry multiple linguistic truths at once. For example, a height value can be partly ``short'' and partly ``medium,'' and that overlap is not ambiguity in the bad sense; it is deliberate tolerance around boundaries that would otherwise be brittle in a crisp model.
 
-\paragraph{Example: Height Classification}
-
-Consider the linguistic variables ``short,'' ``medium,'' and ``tall.'' In classical logic, a person is either short or not, tall or not, with crisp boundaries. In fuzzy logic, these categories overlap, and a person's height can partially belong to multiple categories simultaneously. This reflects human intuition and natural language better than crisp sets.
-
-\paragraph{Fuzzy Actions and Control}
-
-In intelligent control systems, such as automotive braking, fuzzy logic allows the control actions to be fuzzy themselves. Instead of a binary decision to ``hit the brakes'' or ``not hit the brakes,'' the system can decide to apply the brakes ``somewhat,'' ``moderately,'' or ``strongly,'' based on fuzzy inputs like distance and speed. This leads to smoother, more adaptive control.
+The same idea controls actuators more smoothly. In braking or thermostat control, we do not need to jump between ``off'' and ``full.'' We can combine fuzzy evidence and produce graded actions such as ``slightly increase'' or ``strongly reduce,'' which usually improves stability near operating thresholds.
 
 \paragraph{Next steps: membership functions, transformations, and inference}
-
-\Crefrange{chap:fuzzysets}{chap:fuzzyinference} pick up the thermostat running example end to end. \Cref{chap:fuzzysets} constructs membership functions and operators (the primitives). \Cref{chap:fuzzyrelations} transports fuzzy labels across related universes via the extension principle (the transfer layer). \Cref{chap:fuzzyinference} then assembles complete Mamdani/Sugeno inference and defuzzification (the decision layer). Keep this overview handy: it is the conceptual map, while the fuzzy trilogy works through the algebra and the numeric sanity checks.
+\Crefrange{chap:fuzzysets}{chap:fuzzyinference} now turn this motivation into a complete engineering pipeline. \Cref{chap:fuzzysets} builds the membership primitives. \Cref{chap:fuzzyrelations} moves those memberships between related universes through the extension principle. \Cref{chap:fuzzyinference} composes full rule systems and defuzzification into a final control decision. Keep this map in view: the next chapters add algebraic detail, but they serve one continuous workflow.
 
 \begin{tcolorbox}[summarybox, title={Key takeaways}]
 \begin{itemize}
@@ -502,13 +495,13 @@ In intelligent control systems, such as automotive braking, fuzzy logic allows t
 
 \begin{tcolorbox}[summarybox, title={Exercises and lab ideas}]
 \begin{itemize}
-    \item Implement a minimal example from this chapter and visualize intermediate quantities (plots or diagnostics) to match the pseudocode.
-    \item Stress-test a key hyperparameter or design choice discussed here and report the effect on validation performance or stability.
-    \item Re-derive one core equation or update rule by hand and check it numerically against your implementation.
+    \item Rewrite one crisp threshold policy (for example, braking or thermostat actuation) as fuzzy labels and evaluate at least three boundary cases.
+    \item On one toy rule base, compare max--min and max--product operator choices and explain how the output behavior changes.
+    \item Build a one-page setup sheet (universes, memberships, operator defaults) and use it to reproduce the same outputs after a delayed rerun.
 \end{itemize}
 
 \medskip
-\noindent\textbf{If you are skipping ahead.} When you reach \Crefrange{chap:fuzzysets}{chap:fuzzyinference}, keep the operator choices explicit and consistent. Many formatting and interpretation problems later come from hidden operator defaults.
+\noindent\textbf{Fast-track note.} As you move into \Crefrange{chap:fuzzysets}{chap:fuzzyinference}, keep operator choices explicit and consistent. Many downstream mismatches come from hidden defaults set at the start.
 \end{tcolorbox}
 
 \paragraph{Where we head next.} \Crefrange{chap:fuzzysets}{chap:fuzzyinference} carry the thermostat running example end-to-end: \Cref{chap:fuzzysets} builds membership functions, \Cref{chap:fuzzyrelations} transports information across universes through relations, and \Cref{chap:fuzzyinference} assembles full inference plus defuzzification.

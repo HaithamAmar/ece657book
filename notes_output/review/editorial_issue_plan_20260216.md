@@ -1654,3 +1654,37 @@ Build notes (2026-02-17):
 - `notes_output/review/rights_attribution_inventory_20260228.md`: generated an inventory of all compiled figures/tables/code
   blocks with basic rights-risk heuristics and recommended actions. Result: no MED/HIGH items in the compiled manuscript;
   the only explicit redraw warning is for `notes_output/fl-intro.tex` (not compiled) if it is ever reintroduced.
+
+## 2026-02-28 Chapters 15--19 de-templating sweep (book-voice cleanup)
+
+- `notes_output/lecture_8_part_ii.tex` (Chapter 15): replaced generic exercises with chapter-specific fuzzy-design tasks and
+  rewrote the closing fast-track note to remove template-like wording.
+- `notes_output/lecture_9.tex` (Chapter 16): retained chapter-specific exercises and rewrote the closing fast-track note in
+  concise book voice; prior caption ``Use it when...'' removals are preserved.
+- `notes_output/lecture_10_part_i.tex` (Chapter 17): replaced generic exercise bullets with extension-principle-specific tasks
+  and rewrote the chapter bridge note to avoid templated phrasing.
+- `notes_output/lecture_10_part_ii.tex` (Chapter 18): rewrote the bridge note before Chapter 19 to keep the audit thread while
+  removing ``If you are skipping ahead'' template language.
+- `notes_output/lecture_11.tex` (Chapter 19): changed ``Vignette'' to ``Application note'', removed ``feel free to skim'',
+  replaced ``canonical template''/``implementation template''/``reporting template'' phrasing with direct book voice, and
+  rewrote the closing fast-track note.
+- 2026-02-28: Ran `python3 notes_output/scripts/validate_math_examples_and_graphs.py --strict`. Result: PASS.
+- 2026-02-28: Ran `bash notes_output/scripts/run_production_checks.sh`. Result: PASS (release checks, Apple gatekeeper audits,
+  and EPUBCheck all OK).
+
+## 2026-03-01 Chapters 15--19 enrichment pass (thin sections + transition strengthening)
+
+- `notes_output/lecture_8_part_ii.tex` (Chapter 15): replaced short recap micro-sections with a stronger closing narrative that ties
+  fuzzy-set intuition directly to control behavior and to the Chapter 15--18 workflow (primitives -> transfer -> inference).
+- `notes_output/lecture_9.tex` (Chapter 16): expanded the previously thin ``Fuzzy Set Operators'' subsection into a practical operator
+  taxonomy (unary, binary, relation operators) and added an explicit bridge into complement/operator choices.
+- `notes_output/lecture_10_part_i.tex` (Chapter 17): enriched projection definitions with row/column reading intuition and added an
+  implementation-facing bridge from projection matrices to downstream inference use; clarified alternative composition operators with
+  concrete behavior trade-offs (max--min vs max--product vs averaging-style aggregation).
+- `notes_output/lecture_10_part_ii.tex` (Chapter 18): expanded antecedent-membership interpretation (local evidence -> firing strength)
+  and strengthened aggregation guidance by clarifying when sum-style operators help and when they over-saturate.
+- `notes_output/lecture_11.tex` (Chapter 19): strengthened thin motivation sections by linking brute-force infeasibility to real
+  evaluation budgets, and by mapping biological terms (chromosome/recombination) explicitly to GA encoding and operator behavior.
+- 2026-03-01: Ran `python3 notes_output/scripts/validate_math_examples_and_graphs.py --strict`. Result: PASS.
+- 2026-03-01: Ran `bash notes_output/scripts/run_production_checks.sh`. Result: PASS (release checks, Apple gatekeeper audits,
+  and EPUBCheck all OK).

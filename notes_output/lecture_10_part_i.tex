@@ -363,7 +363,7 @@ Here the first row corresponds to \(x_1\), the second row to \(x_2\), and the co
 Often, we are interested in reducing the dimensionality of a fuzzy relation by projecting it onto one of its component universes. The projection operation extracts a fuzzy set on \( X \) or \( Y \) from the fuzzy relation \( R \).
 
 \paragraph{Definition (Projection onto $X$).}
-The projection of \( R \) onto \( X \), denoted \( \pi_X(R) \), is defined by
+The projection of \( R \) onto \( X \), denoted \( \pi_X(R) \), keeps each \(x\)-row and asks for the strongest compatible \(y\)-value in that row:
 \begin{equation}
     \mu_{\pi_X(R)}(x) = \sup_{y \in Y} \mu_R(x, y).
     \label{eq:projection_x}
@@ -371,7 +371,7 @@ The projection of \( R \) onto \( X \), denoted \( \pi_X(R) \), is defined by
 
 
 \paragraph{Definition (Projection onto $Y$).}
-Similarly, the projection of \( R \) onto \( Y \), denoted \( \pi_Y(R) \), is defined by
+Similarly, projection onto \( Y \), denoted \( \pi_Y(R) \), keeps each \(y\)-column and takes the strongest supporting \(x\)-value in that column:
 \begin{equation}
     \mu_{\pi_Y(R)}(y) = \sup_{x \in X} \mu_R(x, y).
     \label{eq:projection_y}
@@ -392,6 +392,7 @@ The \emph{total projection} of \( R \) is the maximum membership value over the 
     \item The projection onto \( Y \) collapses the \( X \)-dimension similarly.
     \item The total projection gives the single highest membership value in the relation.
 \end{itemize}
+In implementation terms, these are row-wise and column-wise max operations on a relation matrix. That viewpoint becomes useful in \Cref{chap:fuzzyinference}, where rule relations are repeatedly projected back to the output universe before aggregation and defuzzification.
 
 \begin{figure}[h]
     \centering
@@ -602,15 +603,17 @@ The composition operation inherits several important algebraic properties, analo
 \subsection{Alternative Composition Operators}
 \label{sec:fuzzyrelations_alternative_composition_operators}
 
-While max--min is standard, other t\hyp{}norms and t\hyp{}conorms can be used to define composition:
+While max--min is standard, other t\hyp{}norms and aggregation rules can be useful when you need smoother transitions or stronger attenuation of partial matches. The key requirement is consistency: pick one family and carry it through the full inference pipeline.
 
 \begin{itemize}
     \item \textbf{Max-Product Composition:}
     \[
     \mu_R(x, z) = \max_{y} \left( \mu_{R_1}(x, y) \cdot \mu_{R_2}(y, z) \right).
     \]
+    Compared with max--min, this penalizes weak intermediate links more strongly and often yields smoother control surfaces.
 
-    \item \textbf{Max-Average or Other Aggregations:} Depending on application needs, different norms can be used to model conjunction and aggregation.
+    \item \textbf{Averaging-style aggregations:} In some applications, the final \(\max_y\) is replaced by weighted averaging over \(y\)-paths to preserve contributions from multiple moderate paths rather than only the strongest one.
+    This can improve smoothness, but it also weakens the clear ``best support path'' interpretation of max-based composition.
 
 \end{itemize}
 
@@ -645,13 +648,13 @@ The choice of composition operator therefore follows a practical rule: begin wit
 
 \begin{tcolorbox}[summarybox, title={Exercises and lab ideas}]
 \begin{itemize}
-    \item Implement a minimal example from this chapter and visualize intermediate quantities (plots or diagnostics) to match the pseudocode.
-    \item Stress-test a key hyperparameter or design choice discussed here and report the effect on validation performance or stability.
-    \item Re-derive one core equation or update rule by hand and check it numerically against your implementation.
+    \item For a many-to-one map (e.g., \(y=x^2\)), compute the transformed fuzzy set and document how multiple preimages are aggregated.
+    \item Repeat one transfer example with a restricted domain and show exactly where infeasible \(x\)-values are removed.
+    \item Reproduce one chapter figure from code and verify one reported membership value against your implementation.
 \end{itemize}
 
 \medskip
-\noindent\textbf{If you are skipping ahead.} The extension principle is the bookkeeping layer for the full inference pipeline. When you reach \Cref{chap:fuzzyinference}, every ``rule output'' is an instance of the same transfer-and-aggregate pattern.
+\noindent\textbf{Fast-track note.} The extension principle is the transfer layer for the full inference pipeline. In \Cref{chap:fuzzyinference}, each rule output uses the same transfer-and-aggregate pattern.
 \end{tcolorbox}
 
 \paragraph{Where we head next.} \Cref{chap:fuzzyinference} operationalizes these relation tools: each rule induces a fuzzy relation on input-output space, then sup-$T$ composition and projection produce the implied output set before aggregation and defuzzification. The same defaults (max--min with standard complement) carry over, as summarized in \eqref{eq:antecedent_min}--\eqref{eq:output_aggregation}.

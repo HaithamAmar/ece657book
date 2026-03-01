@@ -45,12 +45,13 @@ The key challenge is to systematically combine the antecedent fuzzy sets and the
 
 Given a rule with $n$ antecedents, each associated with a fuzzy set $A_i$ and an input value $x_i$, the degree to which the rule is activated (also called the \emph{firing strength}) is computed by combining the membership values of each antecedent condition.
 
-\paragraph{Membership values of antecedents:} For each input $x_i$, the membership degree in fuzzy set $A_i$ is
+\paragraph{Membership values of antecedents.} For each input $x_i$, evaluate its degree of compatibility with label $A_i$:
 
 \begin{equation}
 \mu_{A_i}(x_i) \in [0,1]
 \label{eq:auto_fuzzyinference_57eb8c12c9}
 \end{equation}
+These values are the local evidence carried by the rule antecedent. The antecedent operator (min, product, or another \(T\)) then compresses that evidence vector into one firing strength that drives implication.
 
 \paragraph{Aggregation operator:} The combined antecedent membership is obtained by applying a fuzzy logical operator, typically the \emph{minimum} (intersection) or the \emph{product} operator:
 
@@ -98,7 +99,8 @@ When multiple rules are present, each produces an output fuzzy set $B'_j$ with m
 We denote this aggregated set by \(\mu_{B_{\text{agg}}}\); in the worked thermostat example we write \(\mu_{\text{out}}(u)\) for the same quantity to emphasize the output variable.
 
 The \emph{max} operator corresponds to the fuzzy union of the individual rule outputs, capturing the overall inference result.
-\paragraph{Other aggregations} Algebraic sum or bounded sum (\Cref{tab:tnorms}) are used when max is too brittle; they can over-saturate when many rules fire, so start with max unless smooth blending is required.
+\paragraph{Other aggregations}
+Algebraic sum or bounded sum (\Cref{tab:tnorms}) are useful when max is too brittle and you want multiple moderate rules to contribute jointly. The trade-off is saturation: if many rules fire at once, sum-style aggregation can flatten distinctions between candidate outputs. In controller-style designs, max is usually the safer default unless smoother blending is an explicit requirement.
 
 \subsection{Summary of the Fuzzy Inference Process}
 \label{sec:fuzzyinference_summary_of_the_fuzzy_inference_process}
@@ -288,7 +290,7 @@ For the thermostat example, Mamdani rules (``IF error is Cold AND rate is Stable
 \end{itemize}
 
 \medskip
-\noindent\textbf{If you are skipping ahead.} When you reach \Cref{chap:evo}, keep this chapter's audit instinct: log your design choices. Evolutionary and fuzzy systems both invite silent degrees of freedom that only become visible with disciplined reporting.
+\noindent\textbf{Fast-track note.} Before moving to \Cref{chap:evo}, keep the same audit discipline: log operator choices, memberships, and evaluation settings so results remain interpretable and reproducible.
 \end{tcolorbox}
 
 \paragraph{Where we head next.} This trilogy treated fuzzy inference as a \emph{behavioral} design tool: we copied the \emph{form} of human reasoning explicitly (linguistic predicates, auditable operators, and rules you can inspect). \Cref{chap:evo} shifts to a different nature-inspired paradigm: instead of copying reasoning logic, we copy an \emph{adaptation process} we associate with natural evolution (selection + variation under a fitness budget) and hope useful structure emerges from the search---think Karl Sims\hyp{}style evolved behaviors as the intuition. The goal is not faithfulness to evolutionary theory; the goal is an algorithmic optimizer that can tune memberships, rule weights, and other discrete/continuous knobs when hand-tuning is brittle and evaluations are noisy, expensive, or constrained.
