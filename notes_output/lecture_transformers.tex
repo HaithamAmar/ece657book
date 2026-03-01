@@ -59,8 +59,11 @@ The ``one-vector bottleneck'' appears when the decoder is forced to rely on a si
 \end{split}
 \label{eq:transformers_context_seq2seq}
 \end{equation}
-Here \(\operatorname{softmax}_j\) denotes a softmax over the source positions \(j\), i.e.,
-\(\alpha_{t j}=\exp(e_{t j})/\sum_{j'=1}^{S}\exp(e_{t j'})\).
+Here \(\operatorname{softmax}_j\) denotes a softmax over the source positions \(j\); explicitly,
+\[
+\alpha_{t j}=\frac{\exp(e_{t j})}{\sum_{j'=1}^{S}\exp(e_{t j'})}.
+\]
+This normalization makes the weights nonnegative and ensures they sum to one across \(j\).
 The scoring function \(a(\cdot,\cdot)\) can be a dot product, a bilinear form, or a small MLP, and
 \(\mathbf{c}_t\) is the context the decoder uses when predicting \(y_t\).
 This style of encoder--decoder attention traces back to early neural machine translation work
@@ -725,7 +728,7 @@ At position \(t\), the final block produces a token representation \(\mathbf{h}_
 \end{equation}
 where \(\boldsymbol{\ell}_t\) are the logits (unnormalized scores). Softmax converts logits to probabilities,
 \(p_\theta(x_{t+1}=v\mid x_{1:t})=\operatorname{softmax}(\boldsymbol{\ell}_t)_v\),
-and cross-entropy (NLL) trains the model to put mass on the observed next token.
+and the cross-entropy (CE) loss trains the model to put mass on the observed next token.
 
 \paragraph{Temperature and sampling (how you choose a token).}
 Temperature rescales logits before softmax:

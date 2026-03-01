@@ -147,7 +147,13 @@ print("Layout QC: OK (Issues found=0)")
 PY
 fi
 
-echo "[4/4] EPUBCheck (required for production)…"
+echo "[4/5] EPUB citation visibility audit (required for production)…"
+/usr/bin/python3 "${REPO_ROOT}/epub_builder/scripts/audit_epub_citations.py" \
+  --epub "${REPO_ROOT}/epub_builder/dist/ece657_ebook_apple.epub"
+/usr/bin/python3 "${REPO_ROOT}/epub_builder/scripts/audit_epub_citations.py" \
+  --epub "${REPO_ROOT}/epub_builder/dist/ece657_ebook_kindle.epub"
+
+echo "[5/5] EPUBCheck (required for production)…"
 EPUBCHECK_OUT="${ROOT_DIR}/artifacts/release_checks/epubcheck"
 mkdir -p "${EPUBCHECK_OUT}"
 
