@@ -40,6 +40,10 @@ These rules are not immutable physical laws; they are codified experience. We re
 
 The key challenge is to systematically combine the antecedent fuzzy sets and then infer the output fuzzy set for each rule, before aggregating all rules to produce a final output.
 
+\begin{tcolorbox}[summarybox, title={Author's note: what makes a rule base ``good''?}]
+There is no single scalar score that certifies a rule base as ``good'' in all contexts. In practice, we look for four properties together: (i) \textbf{coverage} across normal and extreme operating regions, (ii) \textbf{controlled overlap} so neighboring rules blend instead of fighting, (iii) \textbf{monotonic trends} where the application expects them, and (iv) \textbf{conflict handling} when multiple rules fire strongly with different consequents. If one of these is missing, the controller may look reasonable in nominal conditions but fail abruptly at boundaries.
+\end{tcolorbox}
+
 \subsection{Rule Antecedent Composition}
 \label{sec:fuzzyinference_rule_antecedent_composition}
 
@@ -107,14 +111,8 @@ Algebraic sum or bounded sum (\Cref{tab:tnorms}) are useful when max is too brit
 
 For a compact algorithmic view, see the pipeline box after the worked example; it instantiates these same steps with explicit operators.
 
-\begin{tcolorbox}[summarybox, title={Risk \& audit}]
-\begin{itemize}
-    \item \textbf{Rule explosion:} too many overlapping rules can make behavior opaque; prune with coverage and conflict diagnostics.
-    \item \textbf{Operator mismatch:} min/product implication and max/sum aggregation produce different surfaces; choose once and document why.
-    \item \textbf{Membership miscalibration:} poorly scaled sets can overfire or underfire rules; audit control-surface smoothness and boundary behavior.
-    \item \textbf{Defuzzification sensitivity:} centroid vs.\ weighted average can shift outputs materially; test with edge-case inputs.
-    \item \textbf{Deployment drift:} sensor scaling changes break rule semantics; version normalization and monitor post-deployment residuals.
-\end{itemize}
+\begin{tcolorbox}[summarybox, title={Failure modes to monitor}]
+Most deployment failures come from five sources: rule explosion (opaque behavior), operator mismatch (surface shape changes), membership miscalibration (systematic over/under firing), defuzzifier sensitivity near boundaries, and sensor-scale drift after deployment. Keep these as explicit audit checks whenever you modify membership sets, operators, or normalization.
 \end{tcolorbox}
 
 In sup-$T$ form this is the same compositional rule of inference used in \Cref{chap:fuzzyrelations}; here \(T\) defaults to \(\min\) (or product) and \(\sup\) reduces to a max on discrete grids.

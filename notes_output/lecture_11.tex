@@ -7,7 +7,7 @@ Parts I--III built three complementary toolkits: optimize models against data (E
 Evolutionary computing treats that situation as search. Instead of following gradients or hand\hyp{}tuning rules, we maintain a population of candidate designs, score them with a fitness function, and use selection plus variation to explore and refine solutions within a fixed budget. After the fuzzy trilogy (\Crefrange{chap:softcomp}{chap:fuzzyinference}), this chapter develops the evolutionary strand introduced in \Cref{chap:intro} and focuses on population\hyp{}based optimization under constraints, budgets, and stochastic noise.
 
 \paragraph{A distinct paradigm (and what ``nature-inspired'' means here).}
-Fuzzy inference systems are a behavioral modeling tool: we write down the reasoning logic directly so a human can audit why a particular decision was made. Evolutionary computing aims at a different target. It encodes \emph{candidate designs} and uses a simplified selection--variation loop---an algorithmic echo of natural evolution---to search for designs that perform well under a fixed evaluation budget (the Karl Sims\hyp{}style intuition: emergence via selection and variation, not hand-coded reasoning). The point is not to be faithful to evolutionary biology; the point is that this process can produce designs that respond well to situations under constraints and noise even when gradients are unavailable and the knobs are mixed discrete/continuous.
+Fuzzy inference systems are a behavioral modeling tool: we write down the reasoning logic directly so a human can audit why a particular decision was made. Evolutionary computing aims at a different target. It encodes \emph{candidate designs} and uses a simplified selection--variation loop---an algorithmic echo of natural evolution---to search for designs that perform well under a fixed evaluation budget (the Karl Sims\hyp{}style intuition: emergence via selection and variation, not hand-coded reasoning; see \citealp{Sims1994}). The point is not to be faithful to evolutionary biology; the point is that this process can produce designs that respond well to situations under constraints and noise even when gradients are unavailable and the knobs are mixed discrete/continuous.
 
 \begin{tcolorbox}[summarybox, title={Learning Outcomes}]
 \begin{itemize}
@@ -28,10 +28,56 @@ Evolutionary computing is the strand you reach for when the objective is a black
 
 In the fuzzy trilogy, once you commit to membership shapes and a rule base, a practical question remains: how do you tune those choices (and their trade-offs) when hand tweaks do not scale? Evolutionary search provides a disciplined answer: score candidate controllers, select the better ones, perturb/recombine them, and keep iterating until the improvements flatten or the budget runs out.
 
+\begin{tcolorbox}[summarybox, title={Author's note: why GAs are still relevant in 2026}]
+Genetic algorithms remain relevant because many high-impact optimization loops are still black-box, noisy, and mixed discrete/continuous. Hyperparameter and pipeline tuning are canonical examples: one evaluation may be expensive, stochastic, and constraint-laden, while gradients are unavailable or misleading at the system level. In that setting, population search is not a historical artifact; it is an engineering tool for budgeted improvement.
+\par\smallskip
+This also explains the bridge from Part III. Fuzzy systems expose structured, interpretable policy components (membership shapes and rules), and evolutionary search provides a practical mechanism for tuning those components when manual adjustment does not scale.
+\end{tcolorbox}
+
 \begin{tcolorbox}[summarybox, title={Application note: budgeted search in the wild (locomotion, ML/LLMs, and physical experiments)}]
 \textbf{Robot gait / locomotion.} Suppose we want a legged robot to move forward robustly across slightly different terrains. The design has mixed knobs: continuous parameters (gains, trajectory coefficients, penalty weights) and discrete choices (controller mode, safety logic, constraint-handling policy). A single trial is expensive and noisy (contact dynamics, initial conditions, sensor noise), so it is natural to treat performance as a black-box fitness, average over multiple seeds, and search under a strict evaluation budget.\par
 \textbf{Hyperparameter and pipeline tuning (including LLM systems).} Many modern learning pipelines have the same structure: discrete design choices (model family, system configuration variant, data filters) plus continuous knobs (learning rates, thresholds, temperatures), measured by an empirical score with variance across runs. Evolutionary search is attractive when gradients are unavailable, the evaluation surface is rugged, or the objective invites silent failure modes (metric gaming, constraint violations). Read this chapter as the non\hyp{}differentiable sibling of ERM: same objective\hyp{}and\hyp{}audit discipline, different update mechanism.\par
 \textbf{Physical-world analogy (jet nozzle).} Classic evolution-strategy examples describe optimizing a jet-nozzle shape via random mutations plus selection: you do not differentiate the wind tunnel; you spend a limited trial budget to evolve better designs. The point of the analogy is not biology, but budgeted optimization under constraints.
+\end{tcolorbox}
+
+\begin{tcolorbox}[summarybox, title={Application example: GA tuning of a previously built fuzzy controller}]
+Revisit the Mamdani-style fuzzy controller from the fuzzy trilogy (\Crefrange{chap:softcomp}{chap:fuzzyinference}). Inputs such as tracking error \(e_t=r_t-y_t\) and change-of-error \(\Delta e_t\) are fuzzified, rules fire, consequents are aggregated, and a centroid defuzzifier produces a crisp action \(u_t\).
+\par\smallskip
+A GA enters only as a tuning layer \emph{around} that fixed pipeline. A chromosome encodes quantities already introduced in Part~III: membership-function parameters (e.g., breakpoints of triangular/trapezoidal sets), optional rule weights, and (if you allow it) a discrete choice of operator defaults from a small admissible set (t\hyp{}norm, s\hyp{}norm, implication, defuzzifier).
+\par\smallskip
+If you want the membership functions to reflect graded human judgments (not only closed-loop performance), you can tune those same parameters against expert-provided pairs \(\{(x_i,\hat{\mu}_i)\}\) while enforcing ordering and overlap constraints. The GA does not change what a membership function \emph{means}; it only gives you a disciplined search procedure for fitting its shape under constraints.
+\par\smallskip
+Each chromosome is evaluated by running the closed loop and scoring a fitness/objective such as
+\[
+J = w_1\,\mathrm{MAE}(e) + w_2\,\mathrm{Overshoot} + w_3\,\mathrm{ControlEffort}
+    + \lambda\,\mathrm{Penalty}_{\text{constraints}} ,
+\]
+where the penalty term covers hard limits (actuator saturation, safety constraints, monotonicity constraints on memberships). This is the same fuzzy controller you can audit by inspection, with a different answer to the tuning question: instead of hand tweaking, you search under a fixed evaluation budget.
+\end{tcolorbox}
+
+\begin{tcolorbox}[summarybox, title={Application example: GA over neural networks (outer-loop design search)}]
+Neural networks are trained by gradients, but many \emph{design} decisions around them are discrete, constrained, and evaluation\hyp{}limited. Consider designing a CNN or an RNN for a fixed task and dataset. The inner loop is familiar: train by backpropagation and score generalization on a validation split. The outer loop is the hard part: choose architecture and training knobs under a compute budget.
+\par\smallskip
+A GA makes that outer loop explicit. Encode a candidate design as a chromosome \(\mathbf{g}\) containing discrete choices (depth, width, kernel sizes, pooling schedule, sequence length/window, optimizer family) and continuous knobs (learning rate, weight decay, dropout rate). Define an objective that matches the book's audit discipline:
+\[
+J(\mathbf{g}) = \widehat{\mathcal{L}}_{\text{val}}(\mathbf{g})
+  + \lambda\,\mathrm{Penalty}_{\text{latency/memory}}(\mathbf{g}),
+\]
+where \(\widehat{\mathcal{L}}_{\text{val}}(\mathbf{g})\) is measured after a fixed training budget (epochs, steps, or wall time) using the same monitoring habits from earlier chapters (learning curves, calibration, slice checks).
+\par\smallskip
+The point is not to replace backpropagation. The point is that evolutionary search can sit \emph{above} backpropagation when the knobs are mixed and the evaluation surface is noisy: it proposes designs, you train them, you score them, and selection plus variation keeps improving what you try next under a fixed budget.
+\end{tcolorbox}
+
+\begin{tcolorbox}[summarybox, title={Application example: jet-nozzle shape optimization (experiment in the loop)}]
+In a wind-tunnel setting, the ``model'' is a physical experiment and the design variables are geometric. Let \(\mathbf{x}\) parameterize a nozzle profile (for example, a small set of spline control points subject to thickness and smoothness constraints). A natural objective is ``maximize thrust'' (or efficiency) while penalizing constraint violations:
+\[
+\min_{\mathbf{x}\in\mathcal{D}} \; J(\mathbf{x}) = -T(\mathbf{x}) + \rho\,\mathrm{Penalty}_{\text{manufacturing/safety}}(\mathbf{x}).
+\]
+There is no gradient through the tunnel. Each evaluation consumes time and budget, and measurements are noisy. Evolutionary search fits this regime: maintain a population of candidate shapes, test them, keep the better ones, perturb/recombine, and iterate until the improvement stalls or the trial budget is exhausted.
+\end{tcolorbox}
+
+\begin{tcolorbox}[summarybox, title={When GA is not the first choice}]
+If the objective is smooth, gradients are trustworthy, and constraints are easy to encode, gradient-based or convex optimization methods are usually faster and easier to tune. Use GA when those assumptions fail: discontinuities, mixed-variable encodings, simulator-in-the-loop objectives, or hard constraints that make local gradients uninformative.
 \end{tcolorbox}
 
 \subsection{Philosophical and Historical Background}
@@ -112,13 +158,7 @@ These issues compound the nonconvexity and constraint challenges above: disconti
 \subsection{Evolutionary Computing at a Glance}
 \label{sec:evo_introduction_to_evolutionary_computing}
 
-Evolutionary computing (EC) is best viewed as a \emph{budgeted optimizer}: maintain a population of candidates, evaluate them with a fitness function, bias sampling toward better candidates (selection), generate variation (crossover/mutation), handle constraints, and replace the population. Repeat until a stopping rule triggers (budget, target quality, or no-improvement window).
-
-\paragraph{Key Idea}
-We evolve a \emph{set} of candidate solutions over successive generations. Unlike gradient-based methods, evolutionary algorithms do not require differentiability, and unlike brute force, they trade guarantees for tractable performance under noise, discontinuities, and combinatorial feasibility.
-
-\paragraph{Genetic Algorithms (GAs)}
-One of the most well-known evolutionary algorithms is the Genetic Algorithm (GA). GAs \emph{loosely} mimic evolutionary ideas using a simplified, abstracted model of mechanisms such as selection, crossover, and mutation.
+Evolutionary computing treats optimization as budgeted population search: evaluate candidates, bias reproduction toward better ones, generate variation (crossover/mutation), replace the population, and repeat until budget or convergence criteria trigger. Genetic algorithms are the canonical instance of this loop. The core tradeoff is always the same: exploration for coverage versus exploitation for immediate gains.
 
 \subsection{Biological Inspiration: Evolutionary Concepts}
 \label{sec:evo_biological_inspiration_evolutionary_concepts}
@@ -149,16 +189,7 @@ The offspring's chromosomes are a mixture of the parents' genetic material, but 
 \subsection{Implications for Genetic Algorithms}
 \label{sec:evo_implications_for_genetic_algorithms}
 
-The biological processes suggest several principles that GAs incorporate:
-
-\begin{itemize}
-    \item \textbf{Population-based search:} Maintain a population of candidate solutions (analogous to organisms).
-    \item \textbf{Selection:} Preferentially choose better solutions to reproduce, mimicking survival of the fittest.
-    \item \textbf{Replacement/elitism:} Form the next generation by replacing some individuals with offspring; optionally preserve the best solutions explicitly.
-    \item \textbf{Crossover (Recombination):} Combine parts of two or more parent solutions to create offspring solutions, promoting exploration of new regions in the search space.
-    \item \textbf{Mutation:} Introduce random changes to offspring to maintain diversity and avoid premature convergence.
-    \item \textbf{Generational evolution:} Repeat the process over multiple generations, gradually improving solution quality.
-\end{itemize}
+In GA terms, the biology analogy reduces to an engineering cycle: keep a population (coverage), apply fitness-based selection (pressure), recombine parents (structure transfer), mutate offspring (novelty), and replace survivors (iteration). Each operator controls a specific failure mode: too much pressure collapses diversity, too little pressure stalls progress, and weak mutation traps the search in local basins.
 
 The stochastic nature of these operations allows GAs to explore complex, multimodal landscapes and handle problems where deterministic methods struggle.
 

@@ -36,6 +36,10 @@ Consider the thermostat's temperature error \(e = T_{\text{room}} - T_{\text{set
 \end{equation}
 With this design, \(e=-2\) yields \(\mu_{\text{Cold}}(-2)=0.5\): ``cold'' is half true. Later chapters reuse this shoulder \emph{shape} but may shift its breakpoints to reflect different sensors, comfort bands, or operating assumptions. This number is not a probability; it is a degree of truth for a linguistic predicate. The rest of this chapter is about making these mappings explicit (shapes, overlaps, and operators) so they can be inspected and tuned rather than assumed.
 
+\begin{tcolorbox}[summarybox, title={Author's note: membership design is where judgment enters}]
+Membership functions are an explicit way to encode boundary subjectivity. At the extremes, many labels are uncontroversial (very short vs.\ very tall, clearly cold vs.\ clearly hot). The modeling work happens in the overlap zone. We choose shapes and breakpoints so borderline cases are represented as graded truth rather than forced yes/no decisions. In practice, start by anchoring obvious extremes from measurements, then tune overlap widths to match observed behavior and control smoothness.
+\end{tcolorbox}
+
 \subsection{Fuzzy sets and the universe of discourse}
 \label{sec:fuzzysets_recap_fuzzy_sets_and_the_universe_of_discourse}
 
@@ -374,16 +378,18 @@ These distinctions help in modeling asymmetric uncertainties or preferences.
 It is crucial to distinguish between \emph{probability} and \emph{possibility} when interpreting membership functions:
 
 \begin{itemize}
-    \item \textbf{Probability} measures the likelihood of an event occurring based on frequency or relative occurrence in repeated trials. Probabilities of mutually exclusive and exhaustive events sum to 1:
+    \item \textbf{Probability} models uncertainty about events under a probabilistic model. In both frequentist and Bayesian interpretations, probabilities satisfy additivity over mutually exclusive events:
     \[
     \sum_i P(E_i) = 1.
     \]
-    For example, the probability that a ball drawn from a bag is red, blue, or black sums to 1.
+    For example, the probabilities of mutually exclusive outcomes (red, blue, black) in one draw sum to 1.
 
-    \item \textbf{Possibility}, on the other hand, measures the degree of plausibility or evidence supporting an event, without requiring additivity or summation to 1. Possibility values reflect uncertainty or vagueness rather than frequency. For example, a doctor's confidence in a surgery's success might be expressed as a possibility of 0.75, indicating a degree of belief rather than a statistical frequency.
+    \item \textbf{Possibility} measures compatibility/plausibility of values with a vague concept, and it is not additive in the probabilistic sense. A possibility distribution \(\pi(x)\) is usually normalized by \(\sup_x \pi(x)=1\), not by summation.
 \end{itemize}
 
-Thus, membership functions in fuzzy sets represent \emph{possibility} rather than \emph{probability}. This distinction is fundamental in fuzzy logic and inference (cf.~\Cref{tab:fuzzy-vs-prob} in \Cref{chap:softcomp}). When treating a membership as a possibility distribution \(\pi(x)\), we usually normalize so that \(\sup_x \pi(x)=1\), yielding \(\Pi(A)=\sup_{x\in A}\pi(x)\) and \(N(A)=1-\Pi(A^c)\).
+Thus, membership functions in fuzzy sets represent \emph{possibility} rather than \emph{probability}. This distinction is fundamental in fuzzy logic and inference (cf.~\Cref{tab:fuzzy-vs-prob} in \Cref{chap:softcomp}). When treating a membership as a possibility distribution \(\pi(x)\), we normalize by \(\sup_x \pi(x)=1\), yielding \(\Pi(A)=\sup_{x\in A}\pi(x)\) and \(N(A)=1-\Pi(A^c)\).
+
+A practical sanity check is to ask what ``0.7'' means in context. If it is probability, it speaks to event uncertainty under a probability model. If it is fuzzy membership, it means ``compatible to degree 0.7'' with a linguistic predicate. The same number can appear in both settings, but the semantics and valid operations are different.
 
 \begin{tcolorbox}[summarybox, title={Alpha-cuts, convexity, and fuzzy numbers}]
 \begin{itemize}
@@ -621,9 +627,8 @@ The next subsection starts with unary negation operators, because complement cho
 
 In classical logic, the complement of a proposition \( A \) is simply \( 1 - \mu_A(x) \), where \(\mu_A(x)\) is the membership function of \( A \). However, in fuzzy logic, this complement operation can be generalized to allow more flexible modeling of uncertainty and partial membership.
 
-\paragraph{Standard Complement}
-The standard complement operator is defined as:
-the standard fuzzy negation \(C(\mu)=1-\mu\), so \(\mu_{A^c}(x)=1-\mu_A(x)\) as in \eqref{eq:fuzzy_complement}. This operator is linear and intuitive but may not capture all nuances of uncertainty.
+\paragraph{Standard complement}
+We use the standard fuzzy negation \(C(\mu)=1-\mu\), so \(\mu_{A^c}(x)=1-\mu_A(x)\) (see \eqref{eq:fuzzy_complement}). It is simple, involutive, and usually the safest default unless a parameterized negation is explicitly required.
 
 \paragraph{Parameterized Complement Operators}
 To generalize the complement, choose a negation operator \(C_p:[0,1]\to[0,1]\) and apply it pointwise: \(\mu_{C_p(A)}(x)=C_p(\mu_A(x))\). One common (Sugeno-type) family is
@@ -768,9 +773,8 @@ S(\mu_A(x), \mu_B(x)) = 1 - T(1 - \mu_A(x), 1 - \mu_B(x)).
 
 This duality ensures that the fuzzy intersection and union are consistent with respect to complementation, generalizing classical De Morgan's laws.
 
-\subsection{Examples of common t\hyp{}
-\label{sec:fuzzysets_examples_of_common_t}norm/s\hyp{}norm pairs}
-\label{sec:fuzzysets_examples_of_common_t_sec_fuzzysets_examples_of_common_t_norm_s_norm_pairs}
+\subsection{Examples of common t\hyp{}norm / s\hyp{}norm pairs}
+\label{sec:fuzzysets_examples_common_t_s_norm_pairs}
 
 Several standard t\hyp{}norms and their corresponding s\hyp{}norms are widely used:
 

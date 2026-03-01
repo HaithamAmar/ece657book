@@ -1688,3 +1688,24 @@ Build notes (2026-02-17):
 - 2026-03-01: Ran `python3 notes_output/scripts/validate_math_examples_and_graphs.py --strict`. Result: PASS.
 - 2026-03-01: Ran `bash notes_output/scripts/run_production_checks.sh`. Result: PASS (release checks, Apple gatekeeper audits,
   and EPUBCheck all OK).
+
+## 2026-03-01 Part III/IV author-voice integration (FIS/GA relevance + semantics tightening)
+
+- `notes_output/lecture_8_part_ii.tex` (Chapter 15): added an author-voice motivation box clarifying why fuzzy systems still
+  matter in 2026 (auditable linguistic specifications, low-data settings, and hybrid use with modern neural systems);
+  added a concise ``Part transition thesis'' paragraph linking rule composition (Part III) to population search (Part IV).
+- `notes_output/lecture_9.tex` (Chapter 16): added an author-voice membership-design box (extremes anchoring + overlap tuning);
+  strengthened probability-vs-possibility semantics (additivity vs compatibility), and added a practical ``what does 0.7 mean?''
+  sanity-check paragraph to prevent probabilistic/fuzzy interpretation drift.
+- `notes_output/lecture_10_part_ii.tex` (Chapter 18): added rule-base quality criteria in book voice (coverage, overlap,
+  monotonic trends, and conflict handling) to make fuzzy inference evaluation criteria explicit.
+- `notes_output/lecture_11.tex` (Chapter 19): added 2026 relevance framing for GAs (black-box/mixed-variable tuning contexts,
+  including ML/LLM pipelines), added a ``when GA is not first choice'' box (smooth/convex/gradient-friendly regimes), and
+  tightened the fuzzy->evolutionary bridge as complementary update mechanisms under one engineering contract; added three
+  concrete application examples (GA tuning of a fuzzy controller, GA as an outer-loop over neural-network design choices, and a
+  jet-nozzle experiment-in-the-loop optimization sketch).
+- `notes_output/refs.bib`: added `Sims1994` (Karl Sims, *Evolving Virtual Creatures*) and linked the Chapter 19 opening mention
+  to an explicit citation.
+- 2026-03-01: Ran `python3 notes_output/scripts/validate_math_examples_and_graphs.py --strict`. Result: PASS.
+- 2026-03-01: Ran `bash notes_output/scripts/run_production_checks.sh`. Result: PASS (release checks, Apple gatekeeper audits,
+  and EPUBCheck all OK).

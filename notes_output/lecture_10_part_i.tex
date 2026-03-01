@@ -562,19 +562,9 @@ Swap \(\min\) for another \(T\) (product, \L{}ukasiewicz) and \(\max\) for the c
 \subsection{Properties of Fuzzy Relation Composition}
 \label{sec:fuzzyrelations_properties_of_fuzzy_relation_composition}
 
-\paragraph{Recap and motivation}
+\paragraph{From max--min to sup--\(T\)}
 \label{sec:fuzzyrelations_recap_and_motivation}
-Earlier in this chapter, we introduced fuzzy relations and their compositions, focusing on max--min composition as a fundamental operation. We saw how fuzzy relations can represent uncertain or imprecise mappings between sets, and how compositions allow chaining these relations to infer new relationships.
-
-The goal of this closing section is to wrap up fuzzy relation composition, connect max--min to its general sup--\(T\) form, and record the algebraic properties that will later matter when relations are used as building blocks for fuzzy inference systems.
-
-\paragraph{Generalization: sup--\(T\) composition}
-\label{sec:fuzzyrelations_generalization_of_fuzzy_relation_composition}
-Equation \eqref{eq:composition_general} already defines the general sup--\(T\) composition. A valid t\hyp{}norm \(T: [0,1]^2 \to [0,1]\) is commutative, associative, monotone in each argument, and satisfies \(T(a,1)=a\); common choices include the minimum, product, and \L{}ukasiewicz operators. Setting \(T(a,b)=\min(a,b)\) recovers the standard max--min composition used throughout this chapter.
-
-\paragraph{Example pointer}
-\label{sec:fuzzyrelations_example_calculation_of_composition}
-The max--min example in \Cref{sec:fuzzyrelations_fuzzy_inference_via_composition_of_relations} already walks through a concrete composition; with that numeric pattern in mind, we now focus on the properties that hold for any valid sup--\(T\) operator.
+Max--min composition is one instance of the broader sup--\(T\) family in \eqref{eq:composition_general}. Any valid t\hyp{}norm \(T\) (minimum, product, \L{}ukasiewicz) gives a consistent composition rule; max--min remains the default because it is easiest to audit. Keep the worked example from \Cref{sec:fuzzyrelations_fuzzy_inference_via_composition_of_relations} as the reference trace while reading the properties below.
 
 The composition operation inherits several important algebraic properties, analogous to classical relations:
 
@@ -624,37 +614,11 @@ Start with max--min when safety and monotonicity matter; its outputs stay within
 The choice of composition operator therefore follows a practical rule: begin with max--min for its interpretability and stability, and reach for the alternatives catalogued in \Cref{tab:tnorms} only when the application demands smoother or more aggressive aggregation.
 
 \begin{tcolorbox}[summarybox, title={Key takeaways}]
-\begin{itemize}
-    \item The extension principle transfers fuzzy sets across related universes via functions \(y=f(x)\).
-    \item Multiple preimages require aggregation (e.g., \(\sup\) over inverse mappings with a chosen t\hyp{}norm).
-    \item Clear notation and figures (domains, mappings) prevent ambiguity in fuzzy transformations.
-\end{itemize}
-
-\medskip
-\noindent\textbf{Minimum viable mastery.}
-\begin{itemize}
-    \item Given \(y=f(x)\), compute \(\mu_Y(y)\) via inverse mappings and a chosen aggregation rule.
-    \item State when the mapping is one-to-one vs.\ many-to-one and how that changes the computation.
-    \item Track domain restrictions explicitly so transformed sets respect feasibility (e.g., square-root domains).
-\end{itemize}
-
-\noindent\textbf{Common pitfalls.}
-\begin{itemize}
-    \item Dropping multi-preimage cases and silently producing overconfident outputs.
-    \item Hiding domain restrictions, leading to membership mass on invalid regions.
-    \item Mixing notations for \(T\), \(\sup\), and complements across examples (hard to audit later).
-\end{itemize}
+This chapter establishes the transfer machinery used by inference: move labels across universes with the extension principle, handle many-to-one mappings with sup aggregation, and keep operator choices consistent across composition, projection, and complement. When debugging, check domain feasibility first, then preimage aggregation, then operator consistency; most silent errors come from one of those three.
 \end{tcolorbox}
 
 \begin{tcolorbox}[summarybox, title={Exercises and lab ideas}]
-\begin{itemize}
-    \item For a many-to-one map (e.g., \(y=x^2\)), compute the transformed fuzzy set and document how multiple preimages are aggregated.
-    \item Repeat one transfer example with a restricted domain and show exactly where infeasible \(x\)-values are removed.
-    \item Reproduce one chapter figure from code and verify one reported membership value against your implementation.
-\end{itemize}
-
-\medskip
-\noindent\textbf{Fast-track note.} The extension principle is the transfer layer for the full inference pipeline. In \Cref{chap:fuzzyinference}, each rule output uses the same transfer-and-aggregate pattern.
+Run one many-to-one transfer (e.g., \(y=x^2\)) and one constrained-domain transfer, then verify one reported membership value from code.
 \end{tcolorbox}
 
 \paragraph{Where we head next.} \Cref{chap:fuzzyinference} operationalizes these relation tools: each rule induces a fuzzy relation on input-output space, then sup-$T$ composition and projection produce the implied output set before aggregation and defuzzification. The same defaults (max--min with standard complement) carry over, as summarized in \eqref{eq:antecedent_min}--\eqref{eq:output_aggregation}.

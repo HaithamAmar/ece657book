@@ -205,49 +205,20 @@ For example:
 
 Each membership function maps from the relevant universe of discourse to $[0,1]$, i.e., $\mu_{\text{late}}: \mathbb{R} \rightarrow [0,1]$, so that linguistic labels become numeric degrees of support. The fuzzy inference system combines these membership values using \emph{t\hyp{}norm} operators (e.g., $\min$, product) to model logical conjunction and \emph{s\hyp{}norms} (e.g., $\max$) to model disjunction, thereby inferring the degree to which the conclusion $C$ holds. In practical systems the resulting fuzzy set is often \emph{defuzzified} (e.g., via centroid or maximum-membership methods) to obtain a single crisp recommendation.
 
-\paragraph{Advantages over Traditional Systems}
-
-Traditional rule-based systems or statistical models require precise numerical inputs or probability distributions. In contrast, fuzzy logic:
-\begin{itemize}
-    \item Does not require exact numerical data or probability distributions.
-    \item Allows direct encoding of expert knowledge in natural language.
-    \item Handles imprecision and vagueness inherent in human concepts.
-    \item Provides interpretable models that align with human reasoning.
-\end{itemize}
+\paragraph{Why this is useful in practice}
+Classical rule systems and purely statistical pipelines often assume either crisp thresholds or well-specified probability models. Fuzzy logic is useful when neither assumption is realistic: the data are coarse, the concepts are linguistic, and the control policy must still be auditable. In that setting, fuzzy sets let us encode expert knowledge directly, preserve graded boundaries, and still produce an interpretable decision path.
 
 \subsection{Comparison with Other Soft Computing Paradigms}
 \label{sec:softcomp_comparison_with_other_soft_computing_paradigms}
 
-\paragraph{Neural Networks}
-
-Neural networks model complex nonlinear relationships by learning from data. They transform input features $\mathbf{x} \in \mathbb{R}^n$ into new feature spaces through weighted sums and nonlinear activations:
-\begin{equation}
-    \mathbf{h} = \sigma(\mathbf{W}^\top \mathbf{x} + \mathbf{b}),
-\label{eq:auto_softcomp_8725b12d97}
-\end{equation}
-where $\mathbf{W} \in \mathbb{R}^{n \times m}$ maps the $n$-dimensional input into an $m$-dimensional hidden space, $\mathbf{b} \in \mathbb{R}^m$ is the bias vector, and $\sigma(\cdot)$ is a nonlinear activation function applied elementwise.
-
-Unlike fuzzy logic, neural networks require training on large datasets and do not inherently provide interpretable linguistic rules; there is, however, an active line of research on \emph{rule extraction} and network distillation aimed at recovering approximate linguistic descriptions from trained models.
-
-\paragraph{Genetic Algorithms}
-
-Genetic algorithms simulate evolutionary processes to optimize solutions by iteratively selecting, recombining, and mutating candidate solutions. They are useful for derivative-free optimization and problems with complex search spaces.
-
-\paragraph{Probabilistic Reasoning}
-
-Probabilistic methods model uncertainty explicitly using probability distributions and Bayesian inference. They require knowledge or estimation of underlying distributions, which may be difficult in many practical scenarios, but approximate inference schemes (e.g., Monte Carlo sampling, variational methods) can mitigate this requirement when exact distributions are unavailable.
+Neural networks, evolutionary search, probabilistic modeling, and fuzzy logic solve different bottlenecks. Neural networks are strongest when enough data exist and predictive accuracy is the main objective; evolutionary methods are effective when the objective is rugged or derivative-free; probabilistic models are strongest when uncertainty calibration is central. Fuzzy logic is the right tool when the specification is linguistic and the decision process must remain transparent. In practice, these are complementary, not competing, components.
 
 \subsection{Zadeh's Insight and the Birth of Fuzzy Logic}
 \label{sec:softcomp_zadeh_s_insight_and_the_birth_of_fuzzy_logic}
 
 Lotfi Zadeh, in the late 1960s, observed that classical statistics and probability theory demand precise knowledge of distributions and exact calculations, which is often unrealistic for human decision-making. Humans rely on approximate, linguistic knowledge rather than exact numerical data.
 
-Zadeh's key insight was to develop a mathematical framework that could:
-\begin{itemize}
-    \item Represent imprecise concepts using fuzzy sets.
-    \item Allow approximate reasoning with these fuzzy sets.
-    \item Enable machines to operate based on human-like linguistic rules.
-\end{itemize}
+Zadeh's contribution was to formalize a practical middle ground: represent imprecise concepts with membership functions, reason with them compositionally, and keep the rules close to human language. The point was not to replace probability, but to model vagueness directly when boundaries are conceptual rather than random.
 
 This approach revolutionized how we model uncertainty and reasoning in artificial intelligence and control systems.
 
@@ -407,6 +378,12 @@ This flexibility captures the inherent vagueness in many human concepts and perc
     \item \textbf{Robustness:} Systems can handle ambiguous or incomplete information gracefully.
 \end{itemize}
 
+\begin{tcolorbox}[summarybox, title={Author's note: why study fuzzy systems now?}]
+Fuzzy inference began in the 1960s, so it is reasonable to ask why this material still matters in a world shaped by large language models. The answer is practical and methodological. Practically, fuzzy systems remain useful when specifications are linguistic, data are limited, and the decision path must stay auditable (for example, policy-heavy control settings). Methodologically, they expose a core AI design pattern: represent vague concepts explicitly, compose rules, and inspect the resulting behavior under constraints.
+\par\smallskip
+This chapter is therefore not nostalgia. It is one lens for how intelligent behavior can be engineered. Modern systems can combine lenses: neural models for representation learning, fuzzy rules for explicit policy structure, and evolutionary search for tuning when gradients are unreliable.
+\end{tcolorbox}
+
 \subsection{From Crisp Sets to Fuzzy Sets}
 \label{sec:softcomp_from_crisp_sets_to_fuzzy_sets}
 
@@ -469,6 +446,9 @@ The same idea controls actuators more smoothly. In braking or thermostat control
 
 \paragraph{Next steps: membership functions, transformations, and inference}
 \Crefrange{chap:fuzzysets}{chap:fuzzyinference} now turn this motivation into a complete engineering pipeline. \Cref{chap:fuzzysets} builds the membership primitives. \Cref{chap:fuzzyrelations} moves those memberships between related universes through the extension principle. \Cref{chap:fuzzyinference} composes full rule systems and defuzzification into a final control decision. Keep this map in view: the next chapters add algebraic detail, but they serve one continuous workflow.
+
+\paragraph{Part transition thesis}
+As we move from the fuzzy trilogy to evolutionary computing, the design contract stays the same while the update mechanism changes. In Part III, behavior is shaped by rule composition over linguistic memberships. In Part IV, behavior is improved by population search over candidate encodings. Two different lenses, one engineering goal: build systems that perform reliably under realistic constraints.
 
 \begin{tcolorbox}[summarybox, title={Key takeaways}]
 \begin{itemize}
