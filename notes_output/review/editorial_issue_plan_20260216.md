@@ -1648,3 +1648,9 @@ Build notes (2026-02-17):
 - 2026-02-28: Ran `python3 notes_output/scripts/validate_math_examples_and_graphs.py --strict`. Result: PASS.
 - 2026-02-28: Ran `bash notes_output/scripts/run_production_checks.sh`. Result: PASS (release checks, Apple gatekeeper audits,
   and EPUBCheck all OK).
+
+## 2026-02-28 Rights/attribution inventory (publisher-facing)
+
+- `notes_output/review/rights_attribution_inventory_20260228.md`: generated an inventory of all compiled figures/tables/code
+  blocks with basic rights-risk heuristics and recommended actions. Result: no MED/HIGH items in the compiled manuscript;
+  the only explicit redraw warning is for `notes_output/fl-intro.tex` (not compiled) if it is ever reintroduced.
