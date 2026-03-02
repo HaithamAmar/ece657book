@@ -211,7 +211,9 @@ Classical rule systems and purely statistical pipelines often assume either cris
 \subsection{Comparison with Other Soft Computing Paradigms}
 \label{sec:softcomp_comparison_with_other_soft_computing_paradigms}
 
-Neural networks, evolutionary search, probabilistic modeling, and fuzzy logic solve different bottlenecks. Neural networks are strongest when enough data exist and predictive accuracy is the main objective; evolutionary methods are effective when the objective is rugged or derivative-free; probabilistic models are strongest when uncertainty calibration is central. Fuzzy logic is the right tool when the specification is linguistic and the decision process must remain transparent. In practice, these are complementary, not competing, components.
+Neural networks, evolutionary search, probabilistic modeling, and fuzzy logic solve different bottlenecks, even when they are applied to the same system. Neural networks are strongest when enough data exist and predictive accuracy is the main objective. Evolutionary methods are effective when the objective is rugged, discontinuous, simulator\hyp{}in\hyp{}the\hyp{}loop, or otherwise unfriendly to gradients. Probabilistic models are strongest when uncertainty semantics matter (calibration, risk, and decision thresholds). Fuzzy logic is strongest when the bottleneck is \emph{specification}: concepts are linguistic, boundaries are negotiable, and the decision logic must remain inspectable.
+
+In practice, these paradigms are complementary building blocks. A fuzzy controller can sit on top of neural features; evolutionary search can tune membership functions, rule weights, or neural hyperparameters; and probabilistic tools can sit alongside either when you need the output to carry a defensible notion of uncertainty. The goal of this part is not to pick a winner, but to give you multiple ways to represent, update, and audit intelligent behavior depending on what the application can actually provide (data, expert knowledge, simulators, or constraints).
 
 \subsection{Zadeh's Insight and the Birth of Fuzzy Logic}
 \label{sec:softcomp_zadeh_s_insight_and_the_birth_of_fuzzy_logic}

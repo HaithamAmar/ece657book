@@ -349,7 +349,13 @@ SOM training is typically stochastic: each input triggers an update, so the map 
 \subsection{Key Properties of Kohonen SOMs}
 \label{sec:som_key_properties_of_kohonen_soms}
 
-Three properties are worth keeping in mind. First, the SOM output grid is fixed by design: you choose the grid size up front, and it does not automatically scale with input dimension. Second, learning is driven by competition: each input selects a best-matching unit (BMU). Third, SOMs add cooperation on top of winner-takes-all by updating the BMU and its neighbors together, which is the mechanism that creates smooth organization on the grid rather than a shuffled bag of prototypes.
+Three properties are worth keeping in mind.
+
+First, the SOM output grid is fixed by design. You choose the grid size up front, and that choice acts like the \emph{resolution} of your map: a larger grid gives you more prototypes and finer visual detail, but it also needs enough data (and enough training) to populate the map meaningfully. A smaller grid forces a coarser organization and can merge behaviors that you might prefer to separate.
+
+Second, learning is driven by competition. Each input selects a best\hyp{}matching unit (BMU), and the BMU's prototype vector is the ``closest representative'' under your similarity rule. If you collapse the neighborhood to a winner\hyp{}only update (i.e., \(\sigma(t)\to 0\)), the algorithm becomes a form of online vector quantization: prototypes still move toward the data, but the \emph{layout} of prototypes on the grid has no reason to be ordered.
+
+Third, SOMs add cooperation on top of winner\hyp{}takes\hyp{}all by updating the BMU and its neighbors together. That cooperation is the mechanism that creates smooth organization on the grid rather than a shuffled bag of prototypes: broad neighborhoods early encourage global ordering, and shrinking neighborhoods later refine local structure without tearing the map.
 % Chapter 9 (continued)
 
 \subsection{Winner-Takes-All Learning and Weight Update Rules}
@@ -1074,7 +1080,9 @@ Each neuron \(j\) in \(\mathcal{N}(c)\) updates its weight vector according to \
 \subsection{Summary of Cooperative Competitive Learning Algorithm}
 \label{sec:som_summary_of_cooperative_competitive_learning_algorithm}
 
-Each training step repeats the same loop: present an input, identify the BMU using your chosen discriminant (dot product or distance), update the BMU and its neighbors with the cooperative rule, and then decay both the learning rate and neighborhood radius according to the schedule. Over many passes through the data, the neighborhood starts broad (to settle global ordering) and then shrinks (to refine local detail without tearing the map).
+Cooperative competitive learning is the winner\hyp{}takes\hyp{}all loop with one extra ingredient: a neighborhood kernel on the \emph{grid}. For each input \(\mathbf{x}(t)\), you (i) compute match scores, (ii) pick the BMU \(c\), (iii) compute neighborhood weights from grid distances \(\|\mathbf{r}_j-\mathbf{r}_c\|\), and (iv) update the BMU and its neighbors with the cooperative rule. The neighborhood term is what turns ``a set of prototypes'' into ``an organized map.''
+
+The two schedules play different roles. The learning rate \(\alpha(t)\) controls how fast prototypes move; the neighborhood width \(\sigma(t)\) controls \emph{how much} the map is encouraged to be globally ordered. If \(\sigma(t)\) shrinks too quickly, the map can freeze before it has a chance to organize (a common source of topology errors). If \(\sigma(t)\) stays large for too long, the map can remain smooth but blurry, with weak separation between regions. This is why the monitoring tools introduced earlier (e.g., QE/TE and stability across seeds) are not decoration: they are how you tell whether the schedule is producing the behavior you intended.
 \subsection{Wrapping Up the Kohonen Self-Organizing Map (SOM) Derivations}
 \label{sec:som_wrapping_up_the_kohonen_self_organizing_map_som_derivations}
 
