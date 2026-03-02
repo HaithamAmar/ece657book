@@ -402,7 +402,7 @@ As a concrete diagnostic, \Cref{fig:lec6-dropout} shows how dropout can flatten 
 \end{figure}
 
 
-\paragraph{Adaptive optimizers.} While plain SGD remains a workhorse, Adam and related methods adapt learning rates per-parameter \citep{Kingma2015}. \Cref{fig:lec6-optimizers} summarizes the typical loss trajectories; Adam converges faster initially, whereas SGD+momentum often attains a slightly lower asymptote after fine-tuning.
+\paragraph{Adaptive optimizers.} While plain SGD remains a workhorse, Adam and related methods adapt learning rates per-parameter \citep{Kingma2015}. \Cref{fig:lec6-optimizers} sketches typical loss trajectories; Adam often converges faster initially, whereas SGD+momentum can be steadier later (and sometimes attains a slightly lower asymptote after fine-tuning).
 
 \begin{figure}[t]
     \centering
@@ -416,7 +416,7 @@ As a concrete diagnostic, \Cref{fig:lec6-dropout} shows how dropout can flatten 
             \addplot[cbOrange, thick, samples=120, domain=0:60] {0.20 + 0.90*exp(-x/10)}; \addlegendentry{Adam}
         \end{axis}
     \end{tikzpicture}
-    \caption{Representative training curves for SGD with momentum versus Adam on the same CNN. The point is the typical shape: Adam often drops loss quickly early, while SGD+momentum can be steadier later.}
+    \caption{Schematic loss curves illustrating typical behavior: Adam often drops loss quickly early, while SGD+momentum can be steadier later.}
     \label{fig:lec6-optimizers}
 \end{figure}
 

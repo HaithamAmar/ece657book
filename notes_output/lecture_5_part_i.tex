@@ -75,7 +75,7 @@ The neighborhood influence is usually controlled by a kernel (often Gaussian) wh
 \end{figure}
 
 
-\Cref{fig:lec5-som-component-planes} pairs feature-plane views with U-Matrix (a neighbor-distance heat map) diagnostics for SOM audits.
+Two practical SOM diagnostics show up repeatedly: the U-Matrix (a neighbor-distance heat map) and component planes (feature-wise maps). We will use both later as quick audits for whether the map is organizing structure (rather than just shuffling prototypes).
 
 Before delving into the mathematical formulation and algorithmic details of SOMs, it is important to review two foundational concepts that underpin their operation: \emph{clustering} and \emph{dimensionality reduction}.
 
@@ -885,6 +885,8 @@ The grid structure and how the best matching unit (BMU) influences nearby neuron
     \caption{Left: a 5-by-5 SOM grid with the best matching unit (blue) and neighbors inside the Gaussian-kernel radius (green). Right: a toy U-Matrix (grayscale-safe colormap) showing average distances between neighboring codebook vectors; larger distances suggest likely cluster boundaries. Treat a U-Matrix as a qualitative boundary hint unless preprocessing and scaling are fixed.}
     \label{fig:lec5-som-lattice-umatrix}
 \end{figure}
+
+Component planes are the companion view to the U-Matrix: they show one feature at a time across the grid, which helps you interpret what a boundary is \emph{about} (\Cref{fig:lec5-som-component-planes}).
 
 \begin{figure}[t]
     \centering

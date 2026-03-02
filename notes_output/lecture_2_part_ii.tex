@@ -174,6 +174,50 @@ As shown in \Cref{fig:lec2_sigmoid_bce}, linear scores (logits), the binary cros
 
 \Cref{fig:lec1_mle_map} provides the low-data MAP-versus-MLE comparison used in this discussion.
 
+\begin{figure}[!htbp]
+        \centering
+\begin{tikzpicture}[background rectangle/.style={fill=white}, show background rectangle]
+            \begin{axis}[
+                width=0.65\linewidth,
+                height=0.35\linewidth,
+            xlabel={Sample size $n$},
+            ylabel={Estimate},
+            xmin=0, xmax=50,
+            ymin=0.2, ymax=1.0,
+            legend style={at={(0.02,0.98)}, anchor=north west},
+            axis background/.style={fill=white}
+        ]
+            \addplot[cbBlue, thick] table {
+                n est
+                0 0.5
+                5 0.56
+                10 0.60
+                20 0.63
+                30 0.64
+                40 0.65
+                50 0.65
+            };
+            \addlegendentry{MAP (prior $\mu_0=0.5$)}
+            \addplot[cbOrange, thick, dashed] table {
+                n est
+                0 0.5
+                5 0.58
+                10 0.62
+                20 0.66
+                30 0.69
+                40 0.71
+                50 0.72
+            };
+            \addlegendentry{MLE}
+                \draw[gray, dotted] (axis cs:0,0.7) -- node[anchor=south east, font=\scriptsize]{true mean $0.7$} (axis cs:50,0.7);
+        \end{axis}
+        \ensuretikzbackgroundlayers
+    \end{tikzpicture}
+        % Avoid inline math in captions; it wraps poorly in some EPUB renderers.
+        \caption{MAP estimates interpolate between the prior mean and the data-driven MLE. As the sample size grows, the MAP curve approaches the true mean; with little data, the prior dominates.}
+        \label{fig:lec1_mle_map}
+    \end{figure}
+
 \paragraph{Naive Bayes Approximation}
 One classical workaround is the Naive Bayes classifier, which assumes that the components of \(\mathbf{x}\) are conditionally independent given the class label. Under this assumption,
 \[
@@ -391,51 +435,6 @@ The ERM view in \Cref{chap:supervised} treats learning as minimizing an average 
     \item \textbf{MAP} maximizes the posterior, which multiplies the likelihood by a prior \(p(\boldsymbol{\beta})\). In optimization form, MAP adds a penalty \(-\log p(\boldsymbol{\beta})\), which is exactly regularization.
 \end{itemize}
 Two common priors explain the two penalties that appear most often in practice: a zero-mean Gaussian prior yields an L2 (ridge) penalty, while a Laplace prior yields an L1 (lasso) penalty. The schematic below illustrates the MLE\(\rightarrow\)MAP idea on a simple mean-estimation problem: with little data, the prior matters; with enough data, MAP approaches MLE.
-
-    \begin{figure}[!htbp]
-        \centering
-\begin{tikzpicture}[background rectangle/.style={fill=white}, show background rectangle]
-            \begin{axis}[
-                width=0.65\linewidth,
-                height=0.35\linewidth,
-            xlabel={Sample size $n$},
-            ylabel={Estimate},
-            xmin=0, xmax=50,
-            ymin=0.2, ymax=1.0,
-            legend style={at={(0.02,0.98)}, anchor=north west},
-            axis background/.style={fill=white}
-        ]
-            \addplot[cbBlue, thick] table {
-                n est
-                0 0.5
-                5 0.56
-                10 0.60
-                20 0.63
-                30 0.64
-                40 0.65
-                50 0.65
-            };
-            \addlegendentry{MAP (prior $\mu_0=0.5$)}
-            \addplot[cbOrange, thick, dashed] table {
-                n est
-                0 0.5
-                5 0.58
-                10 0.62
-                20 0.66
-                30 0.69
-                40 0.71
-                50 0.72
-            };
-            \addlegendentry{MLE}
-                \draw[gray, dotted] (axis cs:0,0.7) -- node[anchor=south east, font=\scriptsize]{true mean $0.7$} (axis cs:50,0.7);
-        \end{axis}
-        \ensuretikzbackgroundlayers
-    \end{tikzpicture}
-        % Avoid inline math in captions; it wraps poorly in some EPUB renderers.
-        \caption{MAP estimates interpolate between the prior mean and the data-driven MLE. As the sample size grows, the MAP curve approaches the true mean; with little data, the prior dominates.}
-        \label{fig:lec1_mle_map}
-    \end{figure}
-
 
 \FloatBarrier
 

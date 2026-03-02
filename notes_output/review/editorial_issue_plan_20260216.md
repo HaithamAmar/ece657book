@@ -1710,3 +1710,19 @@ Build notes (2026-02-17):
 - 2026-03-01: Ran `python3 notes_output/scripts/validate_math_examples_and_graphs.py --strict`. Result: PASS.
 - 2026-03-01: Ran `bash notes_output/scripts/run_production_checks.sh`. Result: PASS (release checks, Apple gatekeeper audits,
   and EPUBCheck all OK).
+
+## 2026-03-01 Figure truthfulness + EPUB placement polish (Chs 4/9/11/14/16) + bib metadata corrections
+
+- `notes_output/lecture_2_part_ii.tex` (Chapter 4): moved `fig:lec1_mle_map` to appear immediately after its first mention to reduce EPUB float drift.
+- `notes_output/lecture_5_part_i.tex` (Chapter 9): removed an early forward reference to component planes and added an in-place reference right next to the figure so the diagnostic is introduced where it is shown.
+- `notes_output/lecture_6.tex` (Chapter 11): clarified that optimizer curves are schematic (caption + nearby prose: ``summarizes'' -> ``sketches''; removed ``same CNN'' claim).
+- `notes_output/lecture_8_part_ii.tex` (Chapter 15): corrected soft-computing attribution wording after repurposing `Zadeh1997` to the information-granulation paper; kept the historical timeline honest.
+- `notes_output/lecture_9.tex` (Chapter 16): removed an out-of-place early reference to t-norm surfaces and moved `fig:tnorm-surfaces` into the t-norm section with a local lead-in sentence.
+- `notes_output/lecture_transformers.tex` (Chapter 14): defined LoRA at first mention and clarified the LoRA micro-view caption to explicitly state ``freeze \(\mathbf{W}\), learn \(\Delta\mathbf{W}=\mathbf{B}\mathbf{A}\)''.
+- `notes_output/refs.bib`: updated three high-visibility entries to verified, searchable metadata:
+  - `IEEEEthicallyAligned2019`: added canonical IEEE URL + access date and expanded title.
+  - `JurafskyMartin2023`: updated to official SLP3 draft year/edition and added URL + access date (key preserved to avoid citation churn).
+  - `Zadeh1997`: repurposed to ``Toward a theory of fuzzy information granulation...'' (*Fuzzy Sets and Systems*, 1997) with DOI.
+- `notes_output/upload/refs.bib`: mirrored the same metadata corrections to keep the upload bib in sync.
+- 2026-03-01: Ran `python3 notes_output/scripts/validate_math_examples_and_graphs.py --strict`. Result: PASS.
+- 2026-03-01: Ran `bash notes_output/scripts/run_production_checks.sh`. Result: PASS (release checks, Apple gatekeeper audits, EPUB citation visibility audit, and EPUBCheck all OK).

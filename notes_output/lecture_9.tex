@@ -319,9 +319,6 @@ For example, at \(x=22\) we have \(\mu_{\text{Medium}}(22)=(25-22)/5=0.6\) and \
     \label{fig:lec9-membership-overlap}
 \end{figure}
 
-
-\Cref{fig:tnorm-surfaces} compares operator shapes when choosing conjunction behavior in rule aggregation.
-
 \paragraph{Quick plotting snippet.} With \texttt{scikit-fuzzy} or plain \texttt{matplotlib} you can visualize overlaps to debug label choices:
 \begin{verbatim}
 import numpy as np, matplotlib.pyplot as plt
@@ -647,15 +644,6 @@ which recovers the standard complement when \(p=1\) and adjusts the steepness fo
 
 These operators allow for a nonlinear mapping of the complement, reflecting different degrees of confidence or hesitation in the membership values. Unlike the standard complement, most parameterized families \emph{do not} preserve involution \(C(C(\mu))=\mu\) for arbitrary \(p\); they are typically designed to satisfy boundary conditions and monotonicity instead. When strict involution is required, it is safest to use the standard complement.
 
-\begin{figure}[t]
-    \centering
-    \includegraphics[width=0.9\linewidth]{lec16_fuzzy_and}
-    % Avoid inline math in captions; it wraps poorly in some EPUB renderers.
-    \caption[Fuzzy AND surfaces for common t\hyp{}norms]{Fuzzy AND surfaces comparing minimum versus product t\hyp{}norms; analogous OR surfaces show similar differences. Choices here influence rule aggregation in \Cref{chap:fuzzyinference}. The plot makes the design choice visible: conservative minimum versus multiplicative attenuation. \textit{Source: author-generated.}}
-    \label{fig:tnorm-surfaces}
-\end{figure}
-
-
 \paragraph{Properties of Complement Operators}
 A commonly desired set of properties for a complement operator \( C \) is:
 \begin{itemize}
@@ -716,6 +704,16 @@ These properties ensure that \( T \) behaves like a generalized intersection ope
         T_{\text{Luk}}(x, y) = \max(0, x + y - 1).
     \]
 \end{itemize}
+
+For a geometric intuition, \Cref{fig:tnorm-surfaces} visualizes two common choices for fuzzy \texttt{AND}: the conservative minimum and the multiplicative product.
+
+\begin{figure}[t]
+    \centering
+    \includegraphics[width=0.9\linewidth]{lec16_fuzzy_and}
+    % Avoid inline math in captions; it wraps poorly in some EPUB renderers.
+    \caption[Fuzzy AND surfaces for common t\hyp{}norms]{Fuzzy AND surfaces comparing minimum versus product t\hyp{}norms; analogous OR surfaces show similar differences. Choices here influence rule aggregation in \Cref{chap:fuzzyinference}. The plot makes the design choice visible: conservative minimum versus multiplicative attenuation. \textit{Source: author-generated.}}
+    \label{fig:tnorm-surfaces}
+\end{figure}
 
 Each t\hyp{}norm captures different semantics of conjunction in fuzzy logic.
 

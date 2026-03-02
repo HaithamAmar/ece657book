@@ -300,7 +300,7 @@ For cross-attention, the formula is the same but keys/values come from encoder s
 \end{figure}
 \FloatBarrier
 
-\Cref{fig:lec13_micro_figures} provides a quick visual summary of positional encoding, key/value (KV) cache reuse, and Low-Rank Adaptation (LoRA) adapters.
+\Cref{fig:lec13_micro_figures} provides a quick visual summary of positional encoding, key/value (KV) cache reuse, and Low-Rank Adaptation (LoRA): a parameter-efficient tuning trick where the base weights stay fixed and you learn a small low-rank update.
 
 \begin{figure}[t]
     \centering
@@ -374,7 +374,7 @@ For cross-attention, the formula is the same but keys/values come from encoder s
     \end{tikzpicture}
     }%
     % Avoid inline math in captions; it wraps poorly in some EPUB renderers.
-    \caption{Transformer micro-views. Left: positional encodings (sinusoidal/rotary) add order information. Center: KV cache stores past keys/values so decoding a new token reuses prior context. Right: LoRA inserts low-rank adapters (B A) on top of a frozen weight matrix W for parameter-efficient tuning.}
+    \caption{Transformer micro-views. Left: positional encodings (sinusoidal/rotary) add order information. Center: KV cache stores past keys/values so decoding a new token reuses prior context. Right: LoRA freezes a base weight matrix \(\mathbf{W}\) and trains a low-rank update \(\Delta\mathbf{W}=\mathbf{B}\mathbf{A}\) for parameter-efficient tuning.}
     \label{fig:lec13_micro_figures}
 \end{figure}
 \FloatBarrier
