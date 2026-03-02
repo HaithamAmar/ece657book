@@ -1726,3 +1726,13 @@ Build notes (2026-02-17):
 - `notes_output/upload/refs.bib`: mirrored the same metadata corrections to keep the upload bib in sync.
 - 2026-03-01: Ran `python3 notes_output/scripts/validate_math_examples_and_graphs.py --strict`. Result: PASS.
 - 2026-03-01: Ran `bash notes_output/scripts/run_production_checks.sh`. Result: PASS (release checks, Apple gatekeeper audits, EPUB citation visibility audit, and EPUBCheck all OK).
+
+## 2026-03-02 Chapter 19 micro-section enrichment (thin subsections)
+
+- `notes_output/lecture_11.tex` (Chapter 19): expanded four previously thin micro-sections (<90 words) into teachable prose without removing content:
+  - `Illustrative Example`: clarified the rugged-landscape intuition and why population search helps beyond single-trajectory local methods.
+  - `Evolutionary Computing at a Glance`: added an engineering framing of exploration vs exploitation and the minimal diagnostics you watch in practice.
+  - `Implications for Genetic Algorithms`: made the biology-to-engineering mapping explicit and added the representation-sensitivity caveat (operators must respect encodings).
+  - `Population Initialization and Size`: added practical guidance on seeding and feasibility handling, plus the budget tradeoff \(B \approx M \times G\).
+- 2026-03-02: Ran `python3 notes_output/scripts/validate_math_examples_and_graphs.py --strict`. Result: PASS.
+- 2026-03-02: Ran `bash notes_output/scripts/run_production_checks.sh`. Result: PASS (release checks, Apple gatekeeper audits, EPUB citation visibility audit, and EPUBCheck all OK).
