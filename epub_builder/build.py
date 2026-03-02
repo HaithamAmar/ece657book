@@ -543,6 +543,16 @@ def build(*, variant: str, clean: bool, skip_validate: bool) -> Path:
                 cover_path = cand.resolve()
                 break
 
+    # Citeproc is required to render natbib citations as visible text in EPUB.
+    # We suppress citeproc's bibliography output because the book already inlines
+    # a BibTeX-rendered References section from `ece657_notes.bbl` (keeps `\nocite`
+    # behavior consistent with the PDF build).
+    bib_path = p.notes_output / "refs.bib"
+    if not bib_path.exists():
+        raise SystemExit(f"Missing bibliography file for EPUB citations: {bib_path}")
+    # Pandoc citeproc supports suppressing the bibliography via metadata.
+    citeproc_args = ["--citeproc", "--bibliography", str(bib_path), "-M", "suppress-bibliography=true"]
+
     pandoc_cmd = [
         "pandoc",
         "--from=latex",
@@ -564,6 +574,7 @@ def build(*, variant: str, clean: bool, skip_validate: bool) -> Path:
         "--output",
         str(out_epub),
         *pandoc_metadata_args,
+        *citeproc_args,
         str(preprocessed_tex),
     ]
     _run(pandoc_cmd, cwd=p.repo_root)

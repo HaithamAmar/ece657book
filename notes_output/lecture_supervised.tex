@@ -1,7 +1,7 @@
 % Chapter 3
 \section{Supervised Learning Foundations}\label{chap:supervised}
 
-\Cref{chap:symbolic} illustrated a non-statistical lens: solve problems by transformation search, with explicit goal tests. Here we shift to the data-driven lens. \Cref{fig:roadmap} marks this as the core supervised strand.
+\Cref{chap:symbolic} illustrated a non-statistical lens: solve problems by transformation search, with explicit goal tests. Here we shift to the data-driven lens. \Cref{fig:roadmap} marks this as the core supervised strand, but the continuity is intentional: we still specify state, define actions, set a budget, and verify outcomes.
 
 When a mapping is known, we use the formula: Celsius and Fahrenheit are linked by a simple rule, and many physical laws give direct input--output relationships. The problems that motivate machine learning do not. The mapping is unknown, messy, or only partially understood, so we settle for an approximation. That approximation might be statistical (learned from data), rule-based (encoded from experience), biologically inspired (neural computation), behavioral (fuzzy rules), or evolutionary (search over candidate solutions). This chapter focuses on the statistical, data-driven strand: supervised learning.
 
@@ -11,7 +11,7 @@ Supervised learning begins with three commitments: choose a functional form that
 
 The word \emph{fitting} is meant literally. In classical curve fitting---and in practical settings like sensor calibration---we choose parameters so a predicted curve (or surface) passes near measured points. Keep the camera thread from \Cref{chap:intro} in mind: a camera system is useful because it can predict something actionable from what it senses. A simple example is exposure calibration: we collect scenes with known reference targets, measure raw sensor readouts \(\mathbf{x}\), and learn parameters that map those readouts to a correction \(y\) so the system produces consistent brightness across conditions. The same pattern repeats at higher levels (object detection scores, tracking signals, alert decisions): the details change, but the core act is the same---use paired input/output examples to fit parameters that make predictions reliable.
 
-This chapter builds the supervised-learning toolkit around that central act. We first make the pieces explicit (data, models, and losses), then show what training looks like when it succeeds and when it fails (underfitting vs.\ overfitting). Next we formalize ERM and the main ``anti-memorization'' tools (regularization and validation). Finally, we work through linear regression as the first fully transparent case study where the entire pipeline is visible end to end.
+This chapter builds the supervised-learning toolkit around that central act. We first make the pieces explicit (data, models, and losses), then show what training looks like when it succeeds and when it fails (underfitting vs.\ overfitting). Next we formalize empirical risk minimization (ERM) and the main ``anti-memorization'' tools (regularization and validation). Finally, we work through linear regression as the first fully transparent case study where the entire pipeline is visible end to end.
 
 \begin{tcolorbox}[summarybox, title={Learning Outcomes}]
 \begin{itemize}
@@ -37,15 +37,15 @@ Data \(\rightarrow\) model \(\rightarrow\) objective \(\rightarrow\) audit. This
 \subsection{Problem Setup and Notation}
 \label{sec:supervised_problem_setup_and_notation}
 
-We observe a dataset \(\mathcal D = \{(\mathbf x_i, y_i)\}_{i=1}^N\) drawn i.i.d. from an unknown distribution \(\mathcal P\) on the input--output space \(\mathcal X \times \mathcal Y\). A hypothesis (model) \(h_\theta: \mathcal X \to \mathcal Y\) with parameters \(\theta\) produces predictions \(\hat{y}_i = h_\theta(\mathbf x_i)\). A pointwise loss function \(\ell(\hat{y}, y)\) measures the penalty incurred by predicting \(\hat{y}\) when the true label is \(y\).
+We observe a dataset \(\mathcal D = \{(\mathbf{x}_i, y_i)\}_{i=1}^N\) drawn independently and identically distributed (i.i.d.) from an unknown distribution \(\mathcal P\) on the input--output space \(\mathcal X \times \mathcal Y\). A hypothesis (model) \(h_\theta: \mathcal X \to \mathcal Y\) with parameters \(\theta\) produces predictions \(\hat{y}_i = h_\theta(\mathbf{x}_i)\). A pointwise loss function \(\ell(\hat{y}, y)\) measures the penalty incurred by predicting \(\hat{y}\) when the true label is \(y\).
 
 The \emph{population risk} and \emph{empirical risk} associated with \(h_\theta\) are
 \begin{align}
-R(h_\theta) &= \mathbb{E}_{(\mathbf x, y)\sim \mathcal P}\big[\ell\big(h_\theta(\mathbf x), y\big)\big], \\
-\hat R_N(h_\theta) &= \frac{1}{N} \sum_{i=1}^N \ell\big(h_\theta(\mathbf x_i), y_i\big).
+R(h_\theta) &= \mathbb{E}_{(\mathbf{x}, y)\sim \mathcal P}\big[\ell\big(h_\theta(\mathbf{x}), y\big)\big], \\
+\hat R_N(h_\theta) &= \frac{1}{N} \sum_{i=1}^N \ell\big(h_\theta(\mathbf{x}_i), y_i\big).
     \label{eq:auto:lecture_supervised:1}
 \end{align}
-Because \(\mathcal P\) is unknown, learning algorithms minimize empirical proxies of \(R(h_\theta)\). This is the formal version of the ``educated guess'' idea: we posit a model family \(h_\theta\), then use data to choose parameter values that make its predictions behave like the measured input--output pairs. In practice we do this on a \emph{training set} (the data used to fit parameters), and we reserve held-out data to check whether the fitted model is trustworthy; \Cref{sec:lec1_model_selection} makes these evaluation protocols precise.
+Because \(\mathcal P\) is unknown, learning algorithms minimize empirical proxies of \(R(h_\theta)\). We posit a model family \(h_\theta\) and use data to choose parameter values that make its predictions behave like the measured input--output pairs. In practice we do this on a \emph{training set} (the data used to fit parameters), and we reserve held-out data to check whether the fitted model is trustworthy; \Cref{sec:lec1_model_selection} makes these evaluation protocols precise. Audit is not an external add-on: in engineering terms, it is part of the model contract.
 
 \subsection{Fitting, Overfitting, and Underfitting}
 \label{sec:supervised_fitting_overfitting_and_underfitting}
@@ -111,7 +111,7 @@ We want a well-fitted model: low training error and comparable validation/test e
         \end{axis}
     \ensuretikzbackgroundlayers
     \end{tikzpicture}
-    \caption{Underfitting and overfitting as a function of model complexity. Training error typically decreases with complexity, while validation error often has a U-shape. Regularization and model selection aim to operate near the minimum of the validation curve. Use it when deciding whether to add capacity, add data, or add regularization.}
+    \caption{Schematic underfitting and overfitting as a function of model complexity. Training error typically decreases with complexity, while validation error often has a U-shape; regularization and model selection aim to operate near the minimum of the validation curve.}
     \label{fig:lec1_fit_regimes}
 \end{figure}
 
@@ -194,7 +194,7 @@ The difference is easiest to remember geometrically: L2 has round level sets, wh
         \end{scope}
     \ensuretikzbackgroundlayers
     \end{tikzpicture}
-    \caption{Why L1 promotes sparsity. Minimizing loss subject to an L2 constraint tends to hit a smooth boundary; an L1 constraint has corners aligned with coordinate axes, so tangency often occurs at a point where some coordinates are exactly zero. Use it when choosing between L1 and L2 penalties for feature selection.}
+    \caption{Why L1 promotes sparsity (geometry). Minimizing loss subject to an L2 constraint tends to hit a smooth boundary; an L1 constraint has corners aligned with coordinate axes, so tangency often occurs where some coordinates are exactly zero.}
     \label{fig:lec1_l1_l2_geometry}
 \end{figure}
 
@@ -227,7 +227,7 @@ The difference is easiest to remember geometrically: L2 has round level sets, wh
     \ensuretikzbackgroundlayers
 \end{tikzpicture}
     % Avoid inline math in captions; it wraps poorly in some EPUB renderers.
-    \caption{A typical lasso path as the regularization strength increases. Coefficients shrink, and some become exactly zero, yielding sparse models. Use it when interpreting how penalty strength trades accuracy for sparsity.}
+    \caption{Illustrative lasso path as the regularization strength increases. Coefficients shrink, and some become exactly zero, yielding sparse models; the shrinkage order depends on feature correlation and scaling.}
     \label{fig:lec1_lasso_path}
 \end{figure}
 
@@ -246,7 +246,7 @@ Setting \(\alpha=1\) recovers the lasso, \(\alpha=0\) yields ridge, and intermed
 \label{sec:supervised_common_loss_functions}
 
 Loss functions make the teacher signal quantitative: they decide what counts as a small mistake, what counts as a large one, and which kinds of errors matter most.
-For binary classification with labels \(y \in \{-1, +1\}\) and margin \(z = y\, f(\mathbf x)\), two standard losses are
+For binary classification with labels \(y \in \{-1, +1\}\) and margin \(z = y\, f(\mathbf{x})\), two standard losses are
 \begin{align}
 \ell_{\text{hinge}}(y, z) &= \max\bigl(0, 1 - z\bigr), &
 \ell_{\text{logistic}}(y, z) &= \log\bigl(1 + e^{-z}\bigr).
@@ -264,7 +264,7 @@ The Huber loss interpolates between these: it is quadratic when \(|e| \le \delta
 
 \begin{table}[!htbp]
 \centering
-\caption{Common losses and typical use (reference for \Crefrange{chap:supervised}{chap:perceptron}). Use it when matching a loss to a modeling assumption and a downstream decision metric.}
+\caption{Common losses and typical use (reference for \Crefrange{chap:supervised}{chap:perceptron}). Match the loss to your modeling assumptions (noise, margins) and to the downstream decision metric you care about.}
 \begin{tabular}{@{}>{\raggedright\arraybackslash}p{0.22\linewidth} >{\raggedright\arraybackslash}p{0.25\linewidth} >{\raggedright\arraybackslash}p{0.4\linewidth}@{}}
 \toprule
 \textbf{Loss} & \textbf{Convex?} & \textbf{Typical use} \\
@@ -305,7 +305,7 @@ Hinge / squared hinge & Yes & Margin-based classifiers (SVMs, large-margin perce
     \ensuretikzbackgroundlayers
 \end{tikzpicture}
     % Avoid inline math in captions; it wraps poorly in some EPUB renderers.
-    \caption{Classification losses as functions of the signed margin z. Use it when comparing how different losses treat confident mistakes and near-boundary points.}
+    \caption{Classification losses as functions of the signed margin \(z\). The curves highlight how different losses treat confident mistakes and near-boundary points.}
     \label{fig:lec1_class_losses}
 \end{figure}
 
@@ -338,7 +338,7 @@ Hinge / squared hinge & Yes & Margin-based classifiers (SVMs, large-margin perce
         \end{axis}
     \ensuretikzbackgroundlayers
     \end{tikzpicture}
-    \caption{Regression losses versus prediction error. The Huber loss transitions from quadratic to linear to reduce sensitivity to outliers. Use it when choosing a loss that is robust to heavy-tailed noise.}
+    \caption{Regression losses versus prediction error. The Huber loss transitions from quadratic to linear, reducing sensitivity to outliers while staying differentiable near zero.}
     \label{fig:lec1_reg_losses}
 \end{figure}
 
@@ -396,7 +396,7 @@ Practical workflows allocate data into training, validation, and test portions. 
         \draw[cbGray, -{Stealth[length=2.2mm]}, line width=0.8pt] (0,-0.38) -- node[below, text=cbGray, yshift=-2pt]{Shuffle, then split once or use $K$-fold CV} (1,-0.38);
     \ensuretikzbackgroundlayers
     \end{tikzpicture}
-    \caption{Dataset partitioning into training, validation, and test segments. Any resampling scheme should preserve disjoint evaluation data; when classes are imbalanced, shuffle within strata so each split reflects the overall class mix. Use it when designing splits that support trustworthy model selection and reporting.}
+    \caption{Dataset partitioning into training, validation, and test segments. Any resampling scheme should preserve disjoint evaluation data; when classes are imbalanced, shuffle within strata so each split reflects the overall class mix.}
     \label{fig:lec1_splits}
 \end{figure}
 
@@ -424,7 +424,7 @@ To make the workflow concrete, \Cref{fig:lec1_pipeline} summarizes the standard 
         \draw[->, thick, bend right=40] (train.south) to node[below, font=\scriptsize]{hyperparameter update} (val.south);
     \ensuretikzbackgroundlayers
     \end{tikzpicture}
-    \caption{Mini ERM pipeline (split once, iterate train/validate, then test only the best model on the held-out set). Use it when enforcing a clean separation between tuning and final reporting.}
+    \caption{Mini ERM pipeline (split once, iterate train/validate, then test only the best model on the held-out set). This keeps tuning decisions separate from final reporting.}
     \label{fig:lec1_pipeline}
 \end{figure}
 
@@ -478,7 +478,7 @@ Learning curves plot training and validation error against the number of trainin
         \end{axis}
 \ensuretikzbackgroundlayers
 \end{tikzpicture}
-    \caption{Learning curves reveal under/overfitting: the validation curve flattens while additional data continue to decrease training error only marginally. A shaded patience window marks when early stopping would halt if no validation improvement occurs. Use it when deciding whether you need more data, more capacity, or different regularization.}
+    \caption{Illustrative learning curves reveal under/overfitting: the validation curve flattens while additional data continue to decrease training error only marginally. A shaded patience window marks when early stopping would halt if no validation improvement occurs.}
     \label{fig:lec1_learning_curves}
 \end{figure}
 
@@ -510,7 +510,7 @@ Treat both as diagnostics rather than guarantees. Use them to decide whether to 
 \begin{figure}[t]
     \centering
     \includegraphics[width=0.78\linewidth]{assets/lec1/lec1_reliability_double}
-    \caption[Calibration and capacity diagnostics (reliability and double descent)]{Calibration and capacity diagnostics. Left: reliability diagram with binned predicted probabilities vs. empirical accuracy; Expected Calibration Error (ECE) measures deviation from the diagonal. Right: illustrative double\hyp{}descent risk vs.\ model size (log\hyp{}scale on the x\hyp{}axis); the dashed line sketches a scaling\hyp{}law trend for choosing capacity/regularization. Use it when deciding whether to prioritize calibration, more data, more capacity, or stronger regularization.}
+    \caption[Calibration and capacity diagnostics (reliability and double descent)]{Calibration and capacity diagnostics. Left: reliability diagram with binned predicted probabilities vs.\ empirical accuracy; Expected Calibration Error (ECE) measures deviation from the diagonal. Right: illustrative double\hyp{}descent risk vs.\ model size (log\hyp{}scale on the x\hyp{}axis); the dashed line sketches a scaling\hyp{}law trend for thinking about capacity and regularization. \textit{Source: author-generated.}}
     \label{fig:lec1-calibration-double-descent}
 \end{figure}
 
@@ -535,28 +535,27 @@ Regularization trades model complexity for generalization; \Cref{fig:lec1_ridge}
     \ensuretikzbackgroundlayers
     \end{tikzpicture}
     % Avoid inline math in captions; it wraps poorly in some EPUB renderers.
-    \caption{Ridge regularization shrinks parameter norms as the penalty strength increases. Use it when tuning weight decay to control variance without forcing sparsity.}
+    \caption{Ridge regularization shrinks parameter norms as the penalty strength increases. This controls variance without forcing sparsity.}
     \label{fig:lec1_ridge}
 \end{figure}
 
 \subsection{Linear regression: a first full case study}\label{sec:linear_regression_closed}
 
-Up to this point, the supervised-learning pipeline has been described in abstract terms: a dataset, a hypothesis class, an objective, and an audit. Linear regression is where those pieces become concrete enough that you can see every moving part at once.
+Up to this point, the supervised-learning pipeline has been described in abstract terms: a dataset, a hypothesis class, an objective, and an audit. Linear regression keeps the same pipeline but makes each component explicit enough to inspect end to end.
 
 \noindent A useful habit, before you commit to any model family, is to ask whether there is any signal to model in the first place. If the relationship were deterministic (like Celsius \(\leftrightarrow\) Fahrenheit), there would be nothing to learn. In supervised learning we assume the relationship is statistical: the same input can map to different outputs because of noise, missing variables, or genuine uncertainty. For simple problems, a scatter plot and a correlation coefficient can reveal whether a linear trend is even plausible. For high-dimensional data, analogous sanity checks (feature scaling, collinearity) help you decide whether linear regression is a sensible starting point or merely a baseline.
 
-\noindent In this section, the coefficients \(\boldsymbol{\beta}\) are the knobs we turn. ``Learning'' means using training pairs \((X,\mathbf{y})\) to estimate \(\boldsymbol{\beta}\) so predictions match observed targets as well as they can under the chosen objective. Because least squares is a convex, closed-form problem, repeating the fit with the same data returns the same solution (up to numerical tolerance). That transparency is exactly why linear regression is worth treating carefully: it makes the ideas of losses, optimization, regularization, and validation feel concrete before we move on to models where the same pipeline is less visible.
+\noindent In this section, the coefficients \(\boldsymbol{\beta}\) are the knobs we turn. ``Learning'' means estimating \(\boldsymbol{\beta}\) from \((\mathbf{X},\mathbf{y})\) so predictions align with observed targets under the chosen objective. Because least squares is convex with a closed form, repeating the fit on the same data returns the same solution (up to numerical tolerance). That determinism is the teaching benefit: it lets us isolate the roles of loss design, optimization, regularization, and validation before moving to models where those roles are harder to disentangle.
 
-\paragraph{Model.}
 Given inputs \(\mathbf{x}_i\in\mathbb{R}^d\) and continuous targets \(y_i\in\mathbb{R}\), the linear model predicts
 \begin{equation}
-    \hat{\mathbf{y}} = X\boldsymbol{\beta}, \qquad X\in\mathbb{R}^{N\times d}.
+    \hat{\mathbf{y}} = \mathbf{X}\boldsymbol{\beta}, \qquad \mathbf{X}\in\mathbb{R}^{N\times d}.
     \label{eq:linear_model}
 \end{equation}
 Equivalently, \(\hat{y}_i = \mathbf{x}_i^\top \boldsymbol{\beta}\) for each data point. The vector \(\boldsymbol{\beta}\) is the set of adjustable parameters: \emph{fitting} the model means choosing \(\boldsymbol{\beta}\) so that predictions align with observed outputs. The residual \(\mathbf{e}=\mathbf{y}-\hat{\mathbf{y}}\) captures what the model fails to explain on the data at hand.
 
-\paragraph{A noise model (why squared error shows up).}
-A common way to formalize ``measurement scatter'' is to write
+\smallskip
+\noindent A common way to formalize ``measurement scatter'' is to write
 \begin{equation}
     y_i = \mathbf{x}_i^\top\boldsymbol{\beta} + \varepsilon_i,
     \qquad \varepsilon_i \sim \mathcal{N}(0,\sigma^2),
@@ -569,42 +568,42 @@ where \(\varepsilon_i\) is observation noise (sensor noise, unmodeled effects, a
 \end{equation}
 and (assuming i.i.d.\ observations) the likelihood factorizes:
 \begin{equation}
-    p(\mathbf{y}\mid X,\boldsymbol{\beta})=\prod_{i=1}^N p(y_i\mid \mathbf{x}_i,\boldsymbol{\beta}).
+    p(\mathbf{y}\mid \mathbf{X},\boldsymbol{\beta})=\prod_{i=1}^N p(y_i\mid \mathbf{x}_i,\boldsymbol{\beta}).
 \label{eq:auto_supervised_bb73b50b8f}
 \end{equation}
 Maximizing the (log) likelihood is equivalent to minimizing the negative log-likelihood, and for Gaussian noise that becomes (up to constants and a scale factor \(1/(2\sigma^2)\)) the familiar sum of squared errors:
 \begin{equation}
-    -\log p(\mathbf{y}\mid X,\boldsymbol{\beta})
+    -\log p(\mathbf{y}\mid \mathbf{X},\boldsymbol{\beta})
     = \frac{1}{2\sigma^2}\sum_{i=1}^N (y_i-\mathbf{x}_i^\top\boldsymbol{\beta})^2 + \text{const}.
 \label{eq:auto_supervised_18a9c6ace6}
 \end{equation}
 This is the simplest example of a recurring theme: if you propose an ``educated guess'' model for how data are generated, training often becomes ``minimize a loss''.
 
-\paragraph{Objective.}
-To fit \(\boldsymbol{\beta}\), we need a grading rubric. Squared error is the standard starting point because it is smooth and strongly penalizes large mistakes:
+\smallskip
+\noindent To fit \(\boldsymbol{\beta}\), we need a grading rubric. Squared error is the standard starting point because it is smooth and strongly penalizes large mistakes:
 \begin{equation}
-    L(\boldsymbol{\beta}) = \tfrac{1}{2}\|\mathbf{y}-X\boldsymbol{\beta}\|_2^2.
+    L(\boldsymbol{\beta}) = \tfrac{1}{2}\|\mathbf{y}-\mathbf{X}\boldsymbol{\beta}\|_2^2.
 \label{eq:auto_supervised_57c930d476}
 \end{equation}
 The gradient is simple,
 \begin{equation}
-    \nabla_{\boldsymbol{\beta}}L(\boldsymbol{\beta}) = X^\top(X\boldsymbol{\beta}-\mathbf{y}),
+    \nabla_{\boldsymbol{\beta}}L(\boldsymbol{\beta}) = \mathbf{X}^\top(\mathbf{X}\boldsymbol{\beta}-\mathbf{y}),
 \label{eq:auto_supervised_9bb8d7206b}
 \end{equation}
-so gradient descent is explicit: \(\boldsymbol{\beta}\leftarrow \boldsymbol{\beta}-\eta X^\top(X\boldsymbol{\beta}-\mathbf{y})\). This same loop reappears later when the model is no longer linear and the loss is no longer quadratic.
+so gradient descent is explicit: \(\boldsymbol{\beta}\leftarrow \boldsymbol{\beta}-\eta \mathbf{X}^\top(\mathbf{X}\boldsymbol{\beta}-\mathbf{y})\). This same loop reappears later when the model is no longer linear and the loss is no longer quadratic.
 
-\paragraph{Closed form and geometry.}
-Least squares is convex and satisfies the normal equations:
+\smallskip
+\noindent Least squares is convex and satisfies the normal equations:
 \begin{equation}
-    X^\top X\,\hat{\boldsymbol{\beta}} = X^\top \mathbf{y}.
+    \mathbf{X}^\top \mathbf{X}\,\hat{\boldsymbol{\beta}} = \mathbf{X}^\top \mathbf{y}.
 \label{eq:auto_supervised_bce6291d37}
 \end{equation}
-When \(X^\top X\) is invertible, the solution can be written explicitly as
+When \(\mathbf{X}^\top \mathbf{X}\) is invertible, the solution can be written explicitly as
 \begin{equation}
-    \hat{\boldsymbol{\beta}} = (X^\top X)^{-1}X^\top \mathbf{y}.
+    \hat{\boldsymbol{\beta}} = (\mathbf{X}^\top \mathbf{X})^{-1}\mathbf{X}^\top \mathbf{y}.
 \label{eq:auto_supervised_44e6ba213f}
 \end{equation}
-Geometrically, the prediction \(\hat{\mathbf{y}}\) is the orthogonal projection of \(\mathbf{y}\) onto the column space of \(X\). In code, solve the linear system (QR/SVD) rather than forming \((X^\top X)^{-1}\) explicitly; collinearity can make \(X^\top X\) poorly conditioned even when the mathematics is correct.
+Geometrically, the prediction \(\hat{\mathbf{y}}\) is the orthogonal projection of \(\mathbf{y}\) onto the column space of \(\mathbf{X}\). In code, solve the linear system (QR/SVD) rather than forming \((\mathbf{X}^\top \mathbf{X})^{-1}\) explicitly; collinearity can make \(\mathbf{X}^\top \mathbf{X}\) poorly conditioned even when the mathematics is correct.
 
 \paragraph{Where overfitting enters.}
 With raw features, a linear model may underfit; with aggressive feature expansions (polynomials, splines, kernels, learned features), the same least-squares machinery can overfit. This is where the earlier tools matter. Regularization (ridge, lasso, elastic net) makes memorization harder; validation selects hyperparameters; learning curves diagnose whether error is limited by bias, variance, or data.
@@ -642,7 +641,7 @@ Ridge adds \(\lambda\|\boldsymbol{\beta}\|_2^2\) to the objective, shrinking coe
 \end{tcolorbox}
 
 \medskip
-\paragraph{Where we head next.} \Cref{chap:logistic} extends this ERM setup from continuous targets to discrete labels: outputs become class probabilities, the loss becomes cross\hyp{}entropy, and evaluation adds confusion matrices, ROC/PR curves, and threshold selection.
+\paragraph{Where we head next.} \Cref{chap:logistic} extends this ERM setup from continuous targets to discrete labels: outputs become class probabilities, the loss becomes cross\hyp{}entropy, and evaluation adds confusion matrices, ROC/PR curves, and threshold selection. Keep this chapter's audit loop close; the same split hygiene and validation logic are reused in later neural chapters and remain relevant when tuning fuzzy and evolutionary systems.
 
 
 \FloatBarrier

@@ -17,7 +17,7 @@ Local linguistic rules become a global behavior only after you commit to concret
 \end{tcolorbox}
 
 \paragraph{Running example checkpoint.}
-For the thermostat, each rule combines the temperature error (\textit{Cold}, \textit{Slightly Warm}, \ldots) and rate-of-change to set heater power. As you work through antecedent aggregation, implication, and defuzzification, keep one concrete rule base (e.g., ``IF error is Cold AND rate is Falling THEN heater power is High'') in mind; the formulas below map directly onto that setup.
+For the thermostat, each rule combines the temperature error (\textit{Cold}, \textit{Slightly Warm}, \ldots) and rate-of-change to set heater power. As you work through antecedent aggregation, implication, and defuzzification, keep one concrete rule base (e.g., ``IF error is Cold AND rate is Stable THEN heater power is High'') in mind; the formulas below map directly onto that setup.
 
 \subsection{Context and Motivation}
 \label{sec:fuzzyinference_context_and_motivation}
@@ -40,17 +40,22 @@ These rules are not immutable physical laws; they are codified experience. We re
 
 The key challenge is to systematically combine the antecedent fuzzy sets and then infer the output fuzzy set for each rule, before aggregating all rules to produce a final output.
 
+\begin{tcolorbox}[summarybox, title={Author's note: what makes a rule base ``good''?}]
+There is no single scalar score that certifies a rule base as ``good'' in all contexts. In practice, we look for four properties together: (i) \textbf{coverage} across normal and extreme operating regions, (ii) \textbf{controlled overlap} so neighboring rules blend instead of fighting, (iii) \textbf{monotonic trends} where the application expects them, and (iv) \textbf{conflict handling} when multiple rules fire strongly with different consequents. If one of these is missing, the controller may look reasonable in nominal conditions but fail abruptly at boundaries.
+\end{tcolorbox}
+
 \subsection{Rule Antecedent Composition}
 \label{sec:fuzzyinference_rule_antecedent_composition}
 
 Given a rule with $n$ antecedents, each associated with a fuzzy set $A_i$ and an input value $x_i$, the degree to which the rule is activated (also called the \emph{firing strength}) is computed by combining the membership values of each antecedent condition.
 
-\paragraph{Membership values of antecedents:} For each input $x_i$, the membership degree in fuzzy set $A_i$ is
+\paragraph{Membership values of antecedents.} For each input $x_i$, evaluate its degree of compatibility with label $A_i$:
 
 \begin{equation}
 \mu_{A_i}(x_i) \in [0,1]
 \label{eq:auto_fuzzyinference_57eb8c12c9}
 \end{equation}
+These values are the local evidence carried by the rule antecedent. The antecedent operator (min, product, or another \(T\)) then compresses that evidence vector into one firing strength that drives implication.
 
 \paragraph{Aggregation operator:} The combined antecedent membership is obtained by applying a fuzzy logical operator, typically the \emph{minimum} (intersection) or the \emph{product} operator:
 
@@ -95,29 +100,19 @@ When multiple rules are present, each produces an output fuzzy set $B'_j$ with m
 \mu_{B_{\text{agg}}}(y) = \max_j \mu_{B'_j}(y).
 \label{eq:output_aggregation}
 \end{equation}
+We denote this aggregated set by \(\mu_{B_{\text{agg}}}\); in the worked thermostat example we write \(\mu_{\text{out}}(u)\) for the same quantity to emphasize the output variable.
 
 The \emph{max} operator corresponds to the fuzzy union of the individual rule outputs, capturing the overall inference result.
-\paragraph{Other aggregations} Algebraic sum or bounded sum (\Cref{tab:tnorms}) are used when max is too brittle; they can over-saturate when many rules fire, so start with max unless smooth blending is required.
+\paragraph{Other aggregations}
+Algebraic sum or bounded sum (\Cref{tab:tnorms}) are useful when max is too brittle and you want multiple moderate rules to contribute jointly. The trade-off is saturation: if many rules fire at once, sum-style aggregation can flatten distinctions between candidate outputs. In controller-style designs, max is usually the safer default unless smoother blending is an explicit requirement.
 
 \subsection{Summary of the Fuzzy Inference Process}
 \label{sec:fuzzyinference_summary_of_the_fuzzy_inference_process}
 
-To summarize, the fuzzy inference process for a given input vector $\mathbf{x}$ proceeds as follows:
+For a compact algorithmic view, see the pipeline box after the worked example; it instantiates these same steps with explicit operators.
 
-\begin{enumerate}
-    \item For each rule $j$, compute the antecedent membership degree $\alpha_j$ using \eqref{eq:antecedent_min} or \eqref{eq:antecedent_prod}.
-\item Modify the consequent fuzzy set $B_j$ by applying the implication operator \eqref{eq:min_implication} or \eqref{eq:prod_implication} to obtain $B'_j$.
-\item Aggregate all $B'_j$ using \eqref{eq:output_aggregation} to obtain the overall output fuzzy set $B_{\text{agg}}$.
-\end{enumerate}
-
-\begin{tcolorbox}[summarybox, title={Risk \& audit}]
-\begin{itemize}
-    \item \textbf{Rule explosion:} too many overlapping rules can make behavior opaque; prune with coverage and conflict diagnostics.
-    \item \textbf{Operator mismatch:} min/product implication and max/sum aggregation produce different surfaces; choose once and document why.
-    \item \textbf{Membership miscalibration:} poorly scaled sets can overfire or underfire rules; audit control-surface smoothness and boundary behavior.
-    \item \textbf{Defuzzification sensitivity:} centroid vs.\ weighted average can shift outputs materially; test with edge-case inputs.
-    \item \textbf{Deployment drift:} sensor scaling changes break rule semantics; version normalization and monitor post-deployment residuals.
-\end{itemize}
+\begin{tcolorbox}[summarybox, title={Failure modes to monitor}]
+Most deployment failures come from five sources: rule explosion (opaque behavior), operator mismatch (surface shape changes), membership miscalibration (systematic over/under firing), defuzzifier sensitivity near boundaries, and sensor-scale drift after deployment. Keep these as explicit audit checks whenever you modify membership sets, operators, or normalization.
 \end{tcolorbox}
 
 In sup-$T$ form this is the same compositional rule of inference used in \Cref{chap:fuzzyrelations}; here \(T\) defaults to \(\min\) (or product) and \(\sup\) reduces to a max on discrete grids.
@@ -189,7 +184,8 @@ For inputs \(e=-2\) and \(r=0.5\),
 \mu_{\text{Stable}}(0.5)=0.5,\quad
 \mu_{\text{Rising}}(0.5)=0.25.
 \]
-With \(T=\min\) (\Cref{eq:antecedent_min}), the rule firing strengths are
+These come directly from the definitions: \(\mu_{\text{Cold}}(-2)=(0-(-2))/5=0.4\) and \(\mu_{\text{Rising}}(0.5)=0.5/2=0.25\).
+With \(T=\min\) (\eqref{eq:antecedent_min}), the rule firing strengths are
 \[
 \alpha_1=\min(0.4,0.5)=0.4,\quad
 \alpha_2=\min(0.4,0.25)=0.25,\quad
@@ -197,8 +193,8 @@ With \(T=\min\) (\Cref{eq:antecedent_min}), the rule firing strengths are
 \]
 
 \paragraph{Implication, aggregation, and defuzzification.}
-Using Mamdani min-implication (\Cref{eq:min_implication}), each consequent is clipped at its firing strength (e.g., \(\mu_{\text{High}}'(u)=\min(\alpha_1,\mu_{\text{High}}(u))\)). Aggregating consequents by max (\Cref{eq:output_aggregation}) yields \(\mu_{\text{out}}(u)\).
-Finally, centroid defuzzification (\Cref{eq:centroid_defuzz}) produces a crisp heater-power command. Using a uniform grid on \(u \in [0,1]\) (step \(10^{-4}\)) gives
+Using Mamdani min-implication (\eqref{eq:min_implication}), each consequent is clipped at its firing strength (e.g., \(\mu_{\text{High}}'(u)=\min(\alpha_1,\mu_{\text{High}}(u))\)). Aggregating consequents by max (\eqref{eq:output_aggregation}) yields \(\mu_{\text{out}}(u)\).
+Finally, centroid defuzzification (\eqref{eq:centroid_defuzz}) produces a crisp heater-power command. Using a uniform grid on \(u \in [0,1]\) (step \(10^{-4}\)) gives
 \[
 u^\star \approx 0.577.
 \]
@@ -212,11 +208,11 @@ In implementations, compute the centroid numerically (and log the grid/step size
 for each rule j:
     alpha_j = T( mu_A1(x1), ..., mu_An(xn) )
         # firing strength
-    mu_Bj_prime(y) = implication(alpha_j, mu_Bj(y))
+    mu_Bprime_j(y) = implication(alpha_j, mu_Bj(y))
         # clip or scale
-mu_Bagg(y) = S( mu_B1_prime(y), ..., mu_BR_prime(y) )
-    # aggregate
-y_star = centroid(mu_Bagg(y))
+mu_out(y) = S( mu_Bprime_1(y), ..., mu_Bprime_R(y) )
+    # aggregate (mu_out == mu_Bagg)
+y_star = centroid(mu_out(y))
     # or another defuzzifier
 \end{verbatim}
 Defaults: \(T=\min\) or product; \(S=\max\); centroid defuzzification. Non-singleton fuzzification (convolving input uncertainty with \(\mu_{A_i}\)) uses the same pipeline once the input blend is computed.
@@ -244,23 +240,21 @@ Defaults: \(T=\min\) or product; \(S=\max\); centroid defuzzification. Non-singl
 \subsection{Mamdani vs.\ Sugeno/Takagi--Sugeno systems}
 \label{sec:fuzzyinference_mamdani_vs_sugeno_takagi_sugeno_systems}
 
-Mamdani-style inference (scaled fuzzy consequents, centroid defuzzification) excels when linguistic interpretability is a priority and when rule consequents must remain human-readable.\\
-Sugeno/Takagi--Sugeno (TSK) systems replace fuzzy consequents with crisp functions such as affine models,
+Mamdani-style inference (clipped fuzzy consequents, centroid defuzzification) excels when linguistic interpretability is a priority and when rule consequents must remain human-readable.
+Sugeno/Takagi--Sugeno (TSK) systems replace fuzzy consequents with crisp functions such as affine models. Let \(r\) denote the rate-of-change (\(r=\dot{e}\)):
 \[
-\text{IF } e \text{ is } A_i \text{ AND } \dot{e} \text{ is } B_i \text{ THEN } u_i = p_i e + q_i \dot{e} + r_i.
+\text{IF } e \text{ is } A_i \text{ AND } r \text{ is } B_i \text{ THEN } u_i = p_i e + q_i r + r_i.
 \]
 Each rule still produces a firing strength $\lambda_i$ via a t\hyp{}norm, but the final output becomes the weighted average
 \[
 u^\ast = \frac{\sum_i \lambda_i u_i}{\sum_i \lambda_i},
 \]
 eliminating the defuzzification integral. The trade-offs are:
-{\raggedright
 \begin{itemize}
     \item \textbf{Mamdani:} transparent consequents, straightforward incorporation of expert knowledge, but higher computational cost due to aggregation and centroid evaluation.
     \item \textbf{Sugeno/TSK:} faster evaluation (weighted averages), amenable to gradient-based tuning of the consequent parameters, yet less interpretable because consequents are numerical functions rather than linguistic labels.
 \end{itemize}
-}
-For the thermostat example, Mamdani rules (``IF error is Cold AND rate is Falling THEN heater power is High'') are ideal when operators must audit decisions, whereas a Sugeno/TSK variant is preferable when embedding the controller into a high-speed or automatically tuned loop.
+For the thermostat example, Mamdani rules (``IF error is Cold AND rate is Stable THEN heater power is High'') are ideal when operators must audit decisions, whereas a Sugeno/TSK variant is preferable when embedding the controller into a high-speed or automatically tuned loop.
 \footnote{Classic sources: \citet{Mamdani1975} for clipping implication; \citet{TakagiSugeno1985} for TSK; \citet{Jang1993} for ANFIS; see also \citep{Klement2000,Dubois1988} for operator/implicator theory.}
 
 \begin{tcolorbox}[summarybox, title={Key takeaways}]
@@ -294,7 +288,7 @@ For the thermostat example, Mamdani rules (``IF error is Cold AND rate is Fallin
 \end{itemize}
 
 \medskip
-\noindent\textbf{If you are skipping ahead.} When you reach \Cref{chap:evo}, keep this chapter's audit instinct: log your design choices. Evolutionary and fuzzy systems both invite silent degrees of freedom that only become visible with disciplined reporting.
+\noindent\textbf{Fast-track note.} Before moving to \Cref{chap:evo}, keep the same audit discipline: log operator choices, memberships, and evaluation settings so results remain interpretable and reproducible.
 \end{tcolorbox}
 
-\paragraph{Where we head next.} \Cref{chap:evo} shifts from fuzzy controllers to evolutionary computing, where population-based search and optimization heuristics form the other major soft-computing pillar.
+\paragraph{Where we head next.} This trilogy treated fuzzy inference as a \emph{behavioral} design tool: we copied the \emph{form} of human reasoning explicitly (linguistic predicates, auditable operators, and rules you can inspect). \Cref{chap:evo} shifts to a different nature-inspired paradigm: instead of copying reasoning logic, we copy an \emph{adaptation process} we associate with natural evolution (selection + variation under a fitness budget) and hope useful structure emerges from the search---think Karl Sims\hyp{}style evolved behaviors as the intuition. The goal is not faithfulness to evolutionary theory; the goal is an algorithmic optimizer that can tune memberships, rule weights, and other discrete/continuous knobs when hand-tuning is brittle and evaluations are noisy, expensive, or constrained.

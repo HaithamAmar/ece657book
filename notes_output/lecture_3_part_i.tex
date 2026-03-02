@@ -7,7 +7,7 @@
 After this chapter, you should be able to:
 \begin{itemize}
   \item Describe the core ingredients of neural networks (architecture, activations, learning).
-  \item Explain how multilayer perceptrons learn via gradient\hyp{}based training.
+  \item Explain at a high level why multilayer perceptrons rely on smooth activations and gradient\hyp{}based training (\Cref{chap:mlp,chap:backprop}).
   \item Identify common pitfalls (saturation, poor initialization) and basic remedies.
 \end{itemize}
 \end{tcolorbox}
@@ -34,18 +34,12 @@ A biological neuron can be viewed as a processing unit that receives multiple in
 
 Incoming signals can excite or inhibit the neuron. When the combined influence crosses a threshold, the neuron ``fires'' and sends an impulse down the axon to connected neurons. Real neurons are richer than this sketch (timing, frequency, and graded effects matter), but the abstraction is enough to motivate an artificial unit that combines inputs, applies a nonlinearity, and emits an output.
 
-\paragraph{Complexities and Unknowns}
+\paragraph{Complexities and unknowns (and what we steal anyway).}
+Real neural tissue is a biophysical system: spikes, timing, chemistry, adaptation, and many interacting feedback loops. We do not pretend to model that faithfully here. Instead, we borrow an engineering abstraction that has two virtues: (i) it is composable, and (ii) it gives us a learning rule we can write down, debug, and scale.
 
-Despite extensive research, many aspects of neural function remain poorly understood. For our purposes, what matters is that even simple descriptions raise practical questions:
+So what do we \emph{keep} from biology? The idea that many small units, each doing a simple computation, can be wired into a larger system whose behavior is richer than any single unit. And what do we \emph{let go} of? The detailed mechanisms (spike timing, ion channels, and biological realism) that matter for neuroscience but are not necessary to build useful learning machines.
 
-\begin{itemize}
-    \item How signals arriving at different dendrites simultaneously interact.
-    \item The effect of signal timing and frequency on neuron firing.
-    \item The mechanisms of cooperation and competition among neurons.
-    \item How neural activity culminates in complex behaviors.
-\end{itemize}
-
-These uncertainties highlight why we do not try to copy biology literally. Instead, we build simplified artificial models that preserve the compositional story (many units, many connections) while making the update rule explicit and learnable.
+A good analogy is circuit design: you can build powerful systems out of simple, idealized components without simulating electron physics at every wire. In the same spirit, we keep the compositional story (many units, many connections) and insist that the update rule is explicit and learnable. This is a recurring theme in the book: we look to nature for candidate mechanisms behind intelligent behavior, describe them in scientific terms, and then simplify them until they become concrete engineering problems we can test and improve.
 
 \subsection{From Biological to Artificial Neural Networks}
 \label{sec:perceptron_from_biological_to_artificial_neural_networks}
@@ -70,12 +64,35 @@ To design an ANN that captures essential aspects of biological neural processing
 
 The concept of artificial neural networks dates back to the early 1940s, with pioneering work that attempted to mathematically model neuron behavior. Over the past eight decades, ANNs have evolved significantly, leading to a variety of architectures and learning algorithms. This evolution reflects ongoing efforts to better approximate biological intelligence and to address practical challenges in computation and learning.
 
-\subsection{Outline of Neural Network Study}
-\label{sec:perceptron_outline_of_neural_network_study}
+\paragraph{Where this fits in Part II.}\label{sec:perceptron_outline_of_neural_network_study}
+This chapter starts the neural strand by introducing the perceptron neuron (defined below) as the basic
+trainable unit: a weighted sum followed by an activation/threshold, together with the first learning rules
+(mistake-driven and gradient-driven). The point is not to model biology literally; the point is to steal an
+engineering abstraction we can write down, debug, and scale.
 
-This chapter introduces perceptrons and common activation functions. \Cref{chap:mlp} then develops multilayer perceptrons and the backpropagation machinery needed to train them; \Cref{chap:rnn} returns to sequence models with recurrent connections.
+\begin{tcolorbox}[summarybox, title={Part II local roadmap: what stays the same, what changes}]
+\textbf{What stays the same.} We still follow the empirical risk minimization (ERM) loop: choose a representation, define a loss, optimize, then verify with honest evaluation and diagnostics. As we proceed, you will find that this theme generalizes across many of the algorithms we discuss.
 
-Formal definitions of the perceptron neuron model (activation functions, weighted sums, and thresholds) follow in \Cref{sec:perceptron}. Refer back to the biological narrative above when interpreting the abstractions.
+\medskip
+\textbf{What changes (the design space).} Instead of choosing one linear model, we build systems by composing
+many simple units. Used on its own, a perceptron-like unit still induces a linear decision boundary in the
+original feature space (as in logistic regression). Its importance is that it is \emph{composable}: by changing
+how units are connected, what nonlinearities they apply, and what signals drive learning, we can move from a
+single linear boundary to richer nonlinear decision surfaces when the task demands it. Many of these design
+choices are loosely inspired by how we think biological systems process information (as sketched in the
+section that follows), but the target remains an engineering model, not a faithful brain simulation.
+
+\medskip
+\textbf{How the rest of Part II builds.}
+\begin{itemize}
+  \item \textbf{Units \(\rightarrow\) multilayer systems:} \Cref{chap:mlp} chains units into multilayer networks;
+  \Cref{chap:backprop} shows how to compute all gradients efficiently (the training engine).
+  \item \textbf{Architectures as inductive bias:} later chapters introduce structured connectivity (e.g., convolution,
+  recurrence, attention) that changes what patterns are easy to represent and what information can flow.
+  \item \textbf{Audit hooks:} keep learning curves, calibration, and slice checks alongside accuracy. A good loss is
+  not automatically a good decision.
+\end{itemize}
+\end{tcolorbox}
 
 % Chapter 5 (continued)
 
@@ -97,7 +114,7 @@ Mathematically, if we denote the input vector as \(\mathbf{x}\), the output of l
     \label{eq:feedforward}
 \end{align}
 where \(\mathbf{b}^{(l)}\) is the bias vector and \(f(\cdot)\) is the activation function applied element-wise.
-\paragraph{Shapes and convention.} We use the row-major (deep-learning) convention. A single example is a row vector \(\mathbf{a}^{(l)}\in\mathbb{R}^{1\times n_l}\), a mini\hyp{}batch stacks examples by rows \(A^{(l)}\in\mathbb{R}^{B\times n_l}\), and weights map features by right multiplication \(W^{(l)}\in\mathbb{R}^{n_{l-1}\times n_l}\). Biases \(b^{(l)}\in\mathbb{R}^{n_l}\) broadcast across the batch: \(Z^{(l)}=A^{(l-1)}W^{(l)}+\mathbf{1}(b^{(l)})^\top\). We reserve \(\phi(\cdot)\) for kernel feature maps (\Cref{app:kernels}).
+\paragraph{Shapes and convention.} We use the row-major (deep-learning) convention. A single example is a row vector \(\mathbf{a}^{(l)}\in\mathbb{R}^{1\times n_l}\), a mini\hyp{}batch stacks examples by rows \(\mathbf{A}^{(l)}\in\mathbb{R}^{B\times n_l}\), and weights map features by right multiplication \(\mathbf{W}^{(l)}\in\mathbb{R}^{n_{l-1}\times n_l}\). Biases \(\mathbf{b}^{(l)}\in\mathbb{R}^{n_l}\) broadcast across the batch: \(\mathbf{Z}^{(l)}=\mathbf{A}^{(l-1)}\mathbf{W}^{(l)}+\mathbf{1}(\mathbf{b}^{(l)})^\top\). For a concrete check, if \(B=4\), \(n_{l-1}=3\), and \(n_l=5\), then \(\mathbf{A}^{(l-1)}\in\mathbb{R}^{4\times 3}\), \(\mathbf{W}^{(l)}\in\mathbb{R}^{3\times 5}\), and \(\mathbf{Z}^{(l)}\in\mathbb{R}^{4\times 5}\). We reserve \(\phi(\cdot)\) for kernel feature maps (\Cref{app:kernels}).
 
 \paragraph{Recurrent Neural Networks}
 
@@ -273,21 +290,14 @@ This model laid the groundwork for later developments in neural networks, includ
 \subsection{McCulloch-Pitts neuron: examples and limits}
 \label{sec:perceptron_mcculloch_pitts_neuron_examples_and_limits}
 
-Recall that the McCulloch-Pitts (MP) neuron model is defined by a weighted sum of binary inputs compared against a threshold to produce a binary output. Formally, for inputs \(x_i \in \{0,1\}\) and weights \(w_i\), the neuron output \(y\) is given by
-\begin{align}
-    y = \begin{cases}
-    1 & \text{if } \sum_{i=1}^n w_i x_i \geq \theta, \\
-    0 & \text{otherwise},
-    \end{cases}
-    \label{eq:mp-neuron}
-\end{align}
-where \(\theta\) is the threshold.
+Recall the MP neuron definition in \eqref{eq:weighted_sum}--\eqref{eq:threshold_output} (equivalently \eqref{eq:neuron_output}); here we focus on logic-gate examples and the limitations that motivate learnable variants.
 
 \paragraph{Example: AND and OR gates}
 
-- For an AND gate with inputs \(x_1, x_2\), set weights \(w_1 = w_2 = 1\) and threshold \(\theta = 2\). The output is 1 only if both inputs are 1, matching the AND truth table.
-
-- For an OR gate, keep weights \(w_1 = w_2 = 1\) but set \(\theta = 1\). The output is 1 if at least one input is 1, matching the OR truth table.
+\begin{itemize}
+    \item \textbf{AND:} For inputs \(x_1, x_2\), set \(w_1 = w_2 = 1\) and \(\theta = 2\). The unit outputs 1 only when both inputs are 1, matching the AND truth table.
+    \item \textbf{OR:} Keep \(w_1 = w_2 = 1\) but set \(\theta = 1\). The unit outputs 1 when at least one input is 1, matching OR.
+\end{itemize}
 
 This demonstrates how the MP neuron can implement simple logical functions by appropriate choice of weights and threshold.
 
@@ -325,7 +335,7 @@ Convert with \texttt{y\_pm = 2*y01 - 1} and \texttt{y01 = (y\_pm + 1)/2}.
 Perceptron updates below use the \texttt{\{-1,+1\}} encoding.
 \end{tcolorbox}
 
-The perceptron learning rule iteratively updates weights to reduce classification errors, enabling the model to learn from data rather than relying on manual parameter selection. With labels \(y_i\in\{-1,+1\}\), a mistake triggers \( \mathbf{w}\leftarrow \mathbf{w} + \eta y_i \mathbf{x}_i\) and \( b\leftarrow b + \eta y_i\). The induced separating hyperplane and signed distance are illustrated in \cref{fig:lec3-perceptron-geometry}.
+The perceptron learning rule iteratively updates weights to reduce classification errors, enabling the model to learn from data rather than relying on manual parameter selection. The signed-margin derivation below yields the update used in practice; the induced separating hyperplane and signed distance are illustrated in \Cref{fig:lec3-perceptron-geometry}.
 
 \paragraph{Perceptron update from the signed margin.} Let \(d_i = y_i(\mathbf{w}^\top \mathbf{x}_i + b)\) be the signed margin. If \(d_i \ge 0\) the example is correctly classified; if \(d_i < 0\) the example is misclassified. A common perceptron criterion is
 \[
@@ -337,6 +347,46 @@ where \(\mathcal{M}\) is the set of misclassified examples. Taking a gradient st
 b \leftarrow b + \eta y_i,
 \]
 which is exactly the perceptron update. In augmented form, set \(x_0=1\) and \(w_0=b\), and the update becomes \(\mathbf{w} \leftarrow \mathbf{w} + \eta y_i \mathbf{x}_i\). Geometrically, each mistake nudges the hyperplane so the signed distance \(d_i\) increases.
+
+\begin{tcolorbox}[summarybox, title={Worked example: learning an OR gate by mistake-driven updates}]
+We use labels \(y\in\{-1,+1\}\) (so OR has targets \((-1,+1,+1,+1)\) for \((0,0),(0,1),(1,0),(1,1)\)),
+learning rate \(\eta=1\), and initialize \(\mathbf{w}=(0,0)\), \(b=0\). Cycle through the four inputs in that
+fixed order; whenever \(y(\mathbf{w}^\top\mathbf{x}+b)\le 0\), apply \(\mathbf{w}\leftarrow \mathbf{w}+y\mathbf{x}\),
+\(b\leftarrow b+y\).
+
+\medskip
+\noindent The sequence of updates (after each mistake) is:
+
+% QC-BEGIN: perceptron_or_trace
+% step epoch idx x1 x2 y w1 w2 b
+% 1 1 1 0 0 -1 0 0 -1
+% 2 1 2 0 1  1 0 1  0
+% 3 1 3 1 0  1 1 1  1
+% 4 2 1 0 0 -1 1 1  0
+% 5 3 1 0 0 -1 1 1 -1
+% 6 3 2 0 1  1 1 2  0
+% 7 4 1 0 0 -1 1 2 -1
+% 8 4 3 1 0  1 2 2  0
+% 9 5 1 0 0 -1 2 2 -1
+% QC-END: perceptron_or_trace
+\[
+\begin{array}{r|c|c|c}
+\text{step} & (x_1,x_2),\,y & (w_1,w_2) & b \\
+\hline
+1 & (0,0),-1 & (0,0) & -1\\
+2 & (0,1),+1 & (0,1) & 0\\
+3 & (1,0),+1 & (1,1) & 1\\
+4 & (0,0),-1 & (1,1) & 0\\
+5 & (0,0),-1 & (1,1) & -1\\
+6 & (0,1),+1 & (1,2) & 0\\
+7 & (0,0),-1 & (1,2) & -1\\
+8 & (1,0),+1 & (2,2) & 0\\
+9 & (0,0),-1 & (2,2) & -1\\
+\end{array}
+\]
+After these 9 updates, predicting \(+1\) when \(\mathbf{w}^\top\mathbf{x}+b\ge 0\) (and \(-1\) otherwise) with
+\(\mathbf{w}=(2,2)\), \(b=-1\) labels all four OR inputs correctly.
+\end{tcolorbox}
 
 \paragraph{Perceptron convergence theorem.} If a training set is linearly separable with margin \(\gamma > 0\), the perceptron learning algorithm is guaranteed to find a separating hyperplane after at most \((R/\gamma)^2\) updates, where \(R\) bounds the input norms. Rescaling features changes \(R\) and \(\gamma\), so standardizing inputs tightens the bound. When the data are not separable the algorithm can cycle forever; \Cref{sec:mlp-limitations} (and \Cref{chap:mlp}) therefore emphasize feature scaling, bias terms, and the move to differentiable multilayer models to handle nonlinear problems.
 
@@ -387,6 +437,13 @@ Therefore the perceptron halts after finitely many mistakes on separable data. I
 \end{itemize}
 \end{tcolorbox}
 
+\begin{tcolorbox}[summarybox, title={Geometry intuition: beyond XOR (two triangles)}]
+XOR is the canonical non-separable toy, but the limitation is geometric, not specific to a truth table. A second picture to keep in mind is \emph{two interleaved triangles}: one class occupies the vertices of a large triangle, while the other occupies the vertices of a smaller triangle rotated inside it. No single line separates the two sets; any separating boundary must ``bend'' or be assembled from multiple linear pieces.
+\medskip
+
+\noindent\textbf{Why this matters.} A perceptron draws exactly one hyperplane, so it cannot represent such boundaries. \Cref{chap:mlp} restores expressivity by composing units so the overall decision boundary can be piecewise-linear (or curved) while still being trainable by gradients.
+\end{tcolorbox}
+
 \begin{figure}[t]
     \centering
     \begin{tikzpicture}
@@ -425,7 +482,7 @@ Therefore the perceptron halts after finitely many mistakes on separable data. I
         \end{axis}
     \end{tikzpicture}
     % Avoid inline math in captions; it wraps poorly in some EPUB renderers.
-    \caption{Perceptron geometry. Points on opposite sides of the separating hyperplane receive different labels, and signed distance to the boundary controls both prediction and update magnitude. Compare with \Cref{fig:lec2-logistic-boundary} in \Cref{chap:logistic}: both are linear separators, but logistic smooths the boundary into calibrated probabilities. Use it when relating margin geometry to update size and convergence.}
+    \caption{Perceptron geometry. Points on opposite sides of the separating hyperplane receive different labels, and signed distance to the boundary controls both prediction and update magnitude. Compare with \Cref{fig:lec2-logistic-boundary} in \Cref{chap:logistic}: both are linear separators, but logistic smooths the boundary into calibrated probabilities.}
     \label{fig:lec3-perceptron-geometry}
 \end{figure}
 
@@ -453,7 +510,9 @@ Linear score \(s(\mathbf{x})=\mathbf{w}^\top\mathbf{x}+b\). The perceptron predi
 \end{tcolorbox}
 
 \begin{tcolorbox}[summarybox, title={Author's note: what a single perceptron cannot express}]
-A single perceptron makes one global, all-or-none decision: one hyperplane, one threshold, one set of weights shared across every example. That simplicity is the point of the model, but it also explains its limitations. Many real problems require \emph{communities} of units that specialize: different hidden units respond to different regions, features, or patterns, and their combined vote produces a flexible decision surface. Multi-layer networks do not just add parameters; they add internal structure that lets different parts of the model ``care about'' different parts of the data.
+A single perceptron makes one global, all-or-none decision: one hyperplane, one threshold, one set of weights shared across every example. That simplicity is the point of the model, and it is also the source of the limitation.
+
+Many real problems need \emph{communities} of units that can specialize. Different hidden units respond to different regions, features, or patterns, and the model combines those responses into a richer decision surface. Multi-layer networks do not only add parameters; they add internal structure that lets different parts of the model ``care about'' different parts of the data.
 \end{tcolorbox}
 
 \begin{tcolorbox}[summarybox, title={Key takeaways}]
@@ -484,6 +543,6 @@ A single perceptron makes one global, all-or-none decision: one hyperplane, one 
 \end{tcolorbox}
 
 \medskip
-\paragraph{Where we head next.} Perceptrons are intentionally simple: hard thresholds and uniform updates. Their strengths (linear separation) and limits (for example XOR) motivate multilayer models. \Cref{chap:mlp} continues this thread by chaining units, defining a loss, and asking the key training question: \emph{how should weights change to improve performance?} That question leads directly to the chain rule and smooth activations. \Cref{chap:backprop} then scales the same bookkeeping to arbitrary depth and efficient implementation.
+\paragraph{Where we head next.} Perceptrons are intentionally simple: hard thresholds and uniform updates. Their strengths (linear separation) and limits (for example XOR) motivate multilayer models. \Cref{chap:mlp} continues this thread by chaining units, defining a loss, and asking the key training question: \emph{how should weights change to improve performance?} That question leads directly to the chain rule and smooth activations. \Cref{chap:backprop} then scales the same cache-and-chain-rule accounting to arbitrary depth and efficient implementation.
 
 \nocite{McCullochPitts1943, Rosenblatt1958, WidrowHoff1960, Rumelhart1986}

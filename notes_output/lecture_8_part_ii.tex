@@ -49,7 +49,7 @@ These limitations motivate the need for alternative computational frameworks tha
 \subsection{Soft Computing: Motivation and Definition}
 \label{sec:softcomp_soft_computing_motivation_and_definition}
 
-Soft computing, introduced by \citet{Zadeh1994,Zadeh1997} after his 1965 fuzzy sets paper, is a computational paradigm designed to handle problems where precision and certainty are either impossible or prohibitively expensive to obtain. Unlike hard computing, soft computing tolerates \emph{imprecision}, \emph{uncertainty}, and \emph{approximate reasoning} to achieve solutions that are:
+Soft computing, a label Zadeh popularized in the 1990s \citep{Zadeh1994}, is a computational paradigm designed to handle problems where precision and certainty are either impossible or prohibitively expensive to obtain. Unlike hard computing, soft computing tolerates \emph{imprecision}, \emph{uncertainty}, and \emph{approximate reasoning} to achieve solutions that are:
 \begin{itemize}
     \item \textbf{Tractable:} Computationally feasible to obtain,
     \item \textbf{Robust:} Insensitive to noise and variations,
@@ -59,7 +59,7 @@ Soft computing, introduced by \citet{Zadeh1994,Zadeh1997} after his 1965 fuzzy s
 Formally, soft computing is not a single homogeneous methodology but rather a \emph{partnership of distinct methods} that conform to these guiding principles. In Zadeh's broad usage, the principal constituents include:
 \begin{itemize}
     \item \textbf{Fuzzy Logic:} Handling imprecision and approximate reasoning,
-    \item \textbf{Neurocomputing (and neuro-fuzzy hybrids):} Learning from data through neural networks, sometimes combined with fuzzy rule bases (e.g., ANFIS),
+    \item \textbf{Neurocomputing (and neuro-fuzzy hybrids):} Learning from data through neural networks, sometimes combined with fuzzy rule bases (e.g., adaptive neuro-fuzzy inference system (ANFIS)),
     \item \textbf{Genetic Algorithms:} Evolutionary optimization inspired by natural selection.
 \end{itemize}
 
@@ -81,6 +81,8 @@ The key insight behind soft computing is to exploit the \emph{tolerance for impr
 
 This output is \emph{not precise} in the classical sense; it expresses uncertainty and partial belief. The system tolerates this imprecision and still makes a decision based on the highest probability, demonstrating robustness and flexibility.
 
+This is a probability story (uncertainty about which class is true). Fuzzy logic addresses a different interface: degrees of truth for linguistic predicates such as ``warm'' or ``slightly fast,'' even when measurements are exact. \Cref{chap:fuzzysets} makes that distinction concrete by writing membership functions and checking them at specific inputs.
+
 \subsection{Relationship Between Hard and Soft Computing}
 \label{sec:softcomp_relationship_between_hard_and_soft_computing}
 
@@ -90,7 +92,7 @@ We can conceptualize the landscape of computing as follows:
     \item \textbf{Soft Computing:} Approximate, tolerant of imprecision and uncertainty, heuristic.
 \end{itemize}
 
-There is some overlap, especially in optimization problems, which can be approached via either paradigm depending on the context and requirements.
+Hard computing insists on crisp logic and exact arithmetic: precise thresholds, deterministic algorithms, and guarantees when assumptions hold. Soft computing is approximate by design, trading exactness for robustness when concepts are linguistic, measurements are noisy, or the specification itself is negotiable. Many real systems blend the two: hard constraints and safety checks wrapped around a soft inner loop (approximate reasoning or heuristic search), chosen based on which assumptions you can justify and which failure modes you can tolerate.
 
 \subsection{Overview of Soft Computing Constituents}
 \label{sec:softcomp_overview_of_soft_computing_constituents}
@@ -127,18 +129,18 @@ For example, reading $24.5^\circ$C from a thermometer with $\pm 1^\circ$C resolu
 \subsection{Soft Computing: Motivation and Overview}
 \label{sec:softcomp_soft_computing_motivation_and_overview}
 
-Soft computing is not a monolithic framework but rather a coalition of distinct methods unified by a common goal: to exploit tolerance for imprecision, uncertainty, and partial truth to achieve tractability, robustness, and low solution cost. Unlike traditional hard computing, which demands exact inputs and produces precise outputs, soft computing embraces the inherent vagueness of many real-world problems, particularly those involving human reasoning and perception. The constituents mirror the probabilistic and connectionist tools from \Crefrange{chap:supervised}{chap:transformers} but favour interpretability and rule-based reasoning:
+Soft computing is defined in \Cref{sec:softcomp_soft_computing_motivation_and_definition}; here we map its constituents to where they are developed in this book so you can follow the learning outcomes above without re-reading the same motivation.
 \begin{itemize}
-    \item \textbf{Fuzzy Logic:} Captures human knowledge and reasoning expressed in linguistic terms, allowing approximate reasoning with imprecise concepts.
-    \item \textbf{Neurocomputing (Neural Networks):} Learning from data and pattern recognition; hybrids such as ANFIS \citep{Jang1993} blend fuzzy rules with trainable neural layers.
-    \item \textbf{Probabilistic modeling (already covered):} Bayesian/MAP views from \Crefrange{chap:supervised}{chap:logistic} remain complementary to fuzzy possibility views \citep{Dubois1988}, but the emphasis in this block is on rule-based reasoning rather than probabilistic inference.
-    \item \textbf{Genetic/Evolutionary Computation:} \Cref{chap:evo} shows how evolutionary search tunes rule bases and membership parameters \citep{Herrera2008,Ishibuchi2007}.
+    \item \textbf{Fuzzy logic:} this chapter and the fuzzy trilogy \Crefrange{chap:fuzzysets}{chap:fuzzyinference} build membership functions, rules, and inference pipelines.
+    \item \textbf{Neurocomputing and hybrids:} neural models live in \Crefrange{chap:supervised}{chap:transformers}; neuro-fuzzy hybrids such as ANFIS \citep{Jang1993} sit at the interface.
+    \item \textbf{Probabilistic modeling:} the statistical strand in \Crefrange{chap:supervised}{chap:logistic} remains complementary to fuzzy possibility views \citep{Dubois1988}.
+    \item \textbf{Evolutionary computation:} \Cref{chap:evo} shows how evolutionary search tunes rule bases and membership parameters \citep{Herrera2008,Ishibuchi2007}.
 \end{itemize}
 
 
 \begin{table}[t]
 \centering
-\caption{Fuzzy vs.\ probabilistic reasoning at a glance. Use it when deciding whether your uncertainty is about randomness (probability) or about graded concepts (fuzziness).}
+\caption{Fuzzy vs.\ probabilistic reasoning. Distinguishes randomness (probability) from graded concepts (fuzziness) when interpreting uncertainty.}
 \label{tab:fuzzy-vs-prob}
 \small
 \begin{tabular}{@{}p{0.23\linewidth} >{\raggedright\arraybackslash}p{0.34\linewidth} >{\raggedright\arraybackslash}p{0.34\linewidth}@{}}
@@ -154,11 +156,11 @@ Soft computing is not a monolithic framework but rather a coalition of distinct 
 \end{table}
 
 
-\Cref{tab:boolean-vs-fuzzy} provides a quick translation from crisp logic operators to fuzzy operators.
+\Cref{tab:boolean-vs-fuzzy} maps crisp logic operators to their fuzzy counterparts.
 
 \begin{table}[t]
 \centering
-\caption{Boolean operators vs.\ fuzzy operators at a glance. Use it when translating crisp logic rules into graded operators for fuzzy inference.}
+\caption{Boolean vs.\ fuzzy operators. Mapping from crisp logic rules to graded operators for fuzzy inference.}
 \label{tab:boolean-vs-fuzzy}
 \small
 \begin{tabular}{@{}p{0.23\linewidth} >{\raggedright\arraybackslash}p{0.34\linewidth} >{\raggedright\arraybackslash}p{0.34\linewidth}@{}}
@@ -203,61 +205,27 @@ For example:
 
 Each membership function maps from the relevant universe of discourse to $[0,1]$, i.e., $\mu_{\text{late}}: \mathbb{R} \rightarrow [0,1]$, so that linguistic labels become numeric degrees of support. The fuzzy inference system combines these membership values using \emph{t\hyp{}norm} operators (e.g., $\min$, product) to model logical conjunction and \emph{s\hyp{}norms} (e.g., $\max$) to model disjunction, thereby inferring the degree to which the conclusion $C$ holds. In practical systems the resulting fuzzy set is often \emph{defuzzified} (e.g., via centroid or maximum-membership methods) to obtain a single crisp recommendation.
 
-\paragraph{Advantages over Traditional Systems}
-
-Traditional rule-based systems or statistical models require precise numerical inputs or probability distributions. In contrast, fuzzy logic:
-\begin{itemize}
-    \item Does not require exact numerical data or probability distributions.
-    \item Allows direct encoding of expert knowledge in natural language.
-    \item Handles imprecision and vagueness inherent in human concepts.
-    \item Provides interpretable models that align with human reasoning.
-\end{itemize}
+\paragraph{Why this is useful in practice}
+Classical rule systems and purely statistical pipelines often assume either crisp thresholds or well-specified probability models. Fuzzy logic is useful when neither assumption is realistic: the data are coarse, the concepts are linguistic, and the control policy must still be auditable. In that setting, fuzzy sets let us encode expert knowledge directly, preserve graded boundaries, and still produce an interpretable decision path.
 
 \subsection{Comparison with Other Soft Computing Paradigms}
 \label{sec:softcomp_comparison_with_other_soft_computing_paradigms}
 
-\paragraph{Neural Networks}
-
-Neural networks model complex nonlinear relationships by learning from data. They transform input features $\mathbf{x} \in \mathbb{R}^n$ into new feature spaces through weighted sums and nonlinear activations:
-\begin{equation}
-    \mathbf{h} = \sigma(\mathbf{W}^\top \mathbf{x} + \mathbf{b}),
-\label{eq:auto_softcomp_8725b12d97}
-\end{equation}
-where $\mathbf{W} \in \mathbb{R}^{n \times m}$ maps the $n$-dimensional input into an $m$-dimensional hidden space, $\mathbf{b} \in \mathbb{R}^m$ is the bias vector, and $\sigma(\cdot)$ is a nonlinear activation function applied elementwise.
-
-Unlike fuzzy logic, neural networks require training on large datasets and do not inherently provide interpretable linguistic rules; there is, however, an active line of research on \emph{rule extraction} and network distillation aimed at recovering approximate linguistic descriptions from trained models.
-
-\paragraph{Genetic Algorithms}
-
-Genetic algorithms simulate evolutionary processes to optimize solutions by iteratively selecting, recombining, and mutating candidate solutions. They are useful for derivative-free optimization and problems with complex search spaces.
-
-\paragraph{Probabilistic Reasoning}
-
-Probabilistic methods model uncertainty explicitly using probability distributions and Bayesian inference. They require knowledge or estimation of underlying distributions, which may be difficult in many practical scenarios, but approximate inference schemes (e.g., Monte Carlo sampling, variational methods) can mitigate this requirement when exact distributions are unavailable.
+Neural networks, evolutionary search, probabilistic modeling, and fuzzy logic solve different bottlenecks. Neural networks are strongest when enough data exist and predictive accuracy is the main objective; evolutionary methods are effective when the objective is rugged or derivative-free; probabilistic models are strongest when uncertainty calibration is central. Fuzzy logic is the right tool when the specification is linguistic and the decision process must remain transparent. In practice, these are complementary, not competing, components.
 
 \subsection{Zadeh's Insight and the Birth of Fuzzy Logic}
 \label{sec:softcomp_zadeh_s_insight_and_the_birth_of_fuzzy_logic}
 
 Lotfi Zadeh, in the late 1960s, observed that classical statistics and probability theory demand precise knowledge of distributions and exact calculations, which is often unrealistic for human decision-making. Humans rely on approximate, linguistic knowledge rather than exact numerical data.
 
-Zadeh's key insight was to develop a mathematical framework that could:
-\begin{itemize}
-    \item Represent imprecise concepts using fuzzy sets.
-    \item Allow approximate reasoning with these fuzzy sets.
-    \item Enable machines to operate based on human-like linguistic rules.
-\end{itemize}
+Zadeh's contribution was to formalize a practical middle ground: represent imprecise concepts with membership functions, reason with them compositionally, and keep the rules close to human language. The point was not to replace probability, but to model vagueness directly when boundaries are conceptual rather than random.
 
 This approach revolutionized how we model uncertainty and reasoning in artificial intelligence and control systems.
 
 \subsection{Challenges in Fuzzy Logic Systems}
 \label{sec:softcomp_challenges_in_fuzzy_logic_systems}
 
-Despite its advantages, fuzzy logic faces several challenges:
-\begin{itemize}
-    \item \textbf{Lack of a systematic methodology:} Initially, there was no formal mechanism to construct fuzzy inference systems from human knowledge.
-    \item \textbf{Handling imprecision in linguistic terms:} Choosing membership functions and linguistic labels still relies on expert elicitation or data-driven tuning; poor choices can degrade system performance.
-
-\end{itemize}
+Despite its advantages, fuzzy logic has two honest challenges. First, there is rarely a single systematic recipe that turns ``expert knowledge'' into a complete, consistent rule base; design is iterative and coverage-driven. Second, linguistic labels still need engineering choices: membership functions and ranges come from elicitation or data-driven tuning, and poor choices show up directly as brittle or non-monotone behavior. We treat this as a design-and-audit problem: make defaults explicit, test edge cases numerically, and tune only after the basic behavior is correct.
 % Chapter 15 (continued)
 
 \subsection{Mathematical Languages as Foundations for Fuzzy Logic}
@@ -383,10 +351,9 @@ P \implies Q, \quad Q \implies R \quad \vdash \quad P \implies R.
 
 This transitive property of implication allows chaining of logical statements.
 
-\subsection{Fuzzy Logic as a New Mathematical Language}
+\paragraph{Fuzzy logic as a mathematical language.}
 \label{sec:softcomp_fuzzy_logic_as_a_new_mathematical_language}
-
-Zadeh's insight was to synthesize these classical mathematical languages into a new framework that could handle degrees of truth rather than binary true/false values. Fuzzy logic generalizes Boolean algebra by allowing truth values to range continuously over the interval $[0,1]$, representing partial truth
+Zadeh's insight was to synthesize these classical mathematical languages into a framework with graded truth values; the next section builds the intuition and contrasts crisp versus fuzzy reasoning.
 
 % Chapter 15 (continued)
 
@@ -405,6 +372,12 @@ This flexibility captures the inherent vagueness in many human concepts and perc
     \item \textbf{Expressiveness:} Allows linguistic hedging such as ``somewhat,'' ``maybe,'' or ``approximately.''
     \item \textbf{Robustness:} Systems can handle ambiguous or incomplete information gracefully.
 \end{itemize}
+
+\begin{tcolorbox}[summarybox, title={Author's note: why study fuzzy systems now?}]
+Fuzzy inference began in the 1960s, so it is reasonable to ask why this material still matters in a world shaped by large language models. The answer is practical and methodological. Practically, fuzzy systems remain useful when specifications are linguistic, data are limited, and the decision path must stay auditable (for example, policy-heavy control settings). Methodologically, they expose a core AI design pattern: represent vague concepts explicitly, compose rules, and inspect the resulting behavior under constraints.
+\par\smallskip
+This chapter is therefore not nostalgia. It is one lens for how intelligent behavior can be engineered. Modern systems can combine lenses: neural models for representation learning, fuzzy rules for explicit policy structure, and evolutionary search for tuning when gradients are unreliable.
+\end{tcolorbox}
 
 \subsection{From Crisp Sets to Fuzzy Sets}
 \label{sec:softcomp_from_crisp_sets_to_fuzzy_sets}
@@ -432,13 +405,13 @@ where \(\mu_{\tilde{A}}(x)\) quantifies the degree to which \(x\) belongs to \(\
 \subsubsection*{Example: Sizes as fuzzy sets}
 Consider the linguistic labels \texttt{Small}, \texttt{Medium}, and \texttt{Large} for weights (in kilograms). A crisp partition such as \([0,10],[11,20],[21,30]\) is disjoint; fuzzy sets allow these labels to overlap smoothly so a weight can belong to both \texttt{Medium} and \texttt{Large} to different degrees. See \Cref{chap:fuzzysets} (especially \Cref{sec:weight-membership}) for the explicit membership formulas and plots; here keep the intuition that fuzzy labels overlap and map a universe of discourse into \([0,1]\).
 
-\paragraph{Thermostat at a glance.} Throughout \Crefrange{chap:fuzzysets}{chap:fuzzyinference} we reuse a fuzzy thermostat: inputs are temperature error and rate (linguistic labels such as \texttt{Cold}, \texttt{Warm}, \texttt{Hot}; \texttt{Cooling}, \texttt{Stable}, \texttt{Heating}); rules map these to heater power; defuzzification turns the fuzzy action into a crisp control signal. Keep this loop in mind as membership functions and operators are introduced.
+\paragraph{Thermostat at a glance.} Throughout \Crefrange{chap:fuzzysets}{chap:fuzzyinference} we reuse a fuzzy thermostat: inputs are temperature error and rate (linguistic labels such as \texttt{Cold}, \texttt{Warm}, \texttt{Hot}; \texttt{Falling}, \texttt{Stable}, \texttt{Rising}); rules map these to heater power; defuzzification turns the fuzzy action into a crisp control signal. Keep this loop in mind as membership functions and operators are introduced.
 
 \begin{tcolorbox}[summarybox, title={Lab prep: fuzzy thermostat starter}]
 \begin{itemize}
     \item Install \texttt{scikit-fuzzy} and \texttt{matplotlib}.
     \item Define triangular membership functions for \texttt{Cold}/\texttt{Warm}/\texttt{Hot} over a temperature universe; plot the overlap.
-    \item Write one rule: IF error is \texttt{Cold} AND rate is \texttt{Heating} THEN power is \texttt{Low}; preview centroid defuzzification.
+    \item Write one rule: IF error is \texttt{Cold} AND rate is \texttt{Rising} THEN power is \texttt{Low}; preview centroid defuzzification.
 \end{itemize}
 \end{tcolorbox}
 
@@ -452,42 +425,25 @@ Consider the linguistic labels \texttt{Small}, \texttt{Medium}, and \texttt{Larg
 \end{itemize}
 \end{tcolorbox}
 
-\noindent\textbf{Forward pointer.} \Cref{chap:fuzzysets} builds the membership functions and universes for the thermostat inputs/outputs; \Crefrange{chap:fuzzyrelations}{chap:fuzzyinference} assemble full inference and defuzzification, and \Cref{chap:evo} shows how evolutionary search can tune rule bases and memberships.
+\noindent\textbf{Forward pointer.} \Cref{chap:fuzzysets} builds the membership functions and universes for the thermostat inputs/outputs; \Cref{chap:fuzzyrelations} provides the transfer operators (extension principle, projection, composition) that move fuzzy labels between related variables; and \Cref{chap:fuzzyinference} assembles full inference and defuzzification. \Cref{chap:evo} later returns to the other soft-computing pillar: evolutionary search as a tuning tool for rule bases and memberships.
 
 % Chapter 15: Conclusion and Closure
 
-\subsection{Wrapping Up Fuzzy Sets and Fuzzy Logic}
+\subsection{Wrapping up soft computing and previewing the fuzzy trilogy}
 \label{sec:softcomp_wrapping_up_fuzzy_sets_and_fuzzy_logic}
 
-In this final part of the chapter, we conclude our introduction to fuzzy sets and fuzzy logic by summarizing key concepts and clarifying the open points from the previous discussion.
+This chapter set the motivation: when specifications are linguistic and boundaries are negotiable, it is often better to model that vagueness explicitly than to force brittle crisp thresholds. The next three chapters turn that motivation into a workflow you can execute and audit.
 
-\paragraph{Fuzzy Sets Recap}
+\paragraph{Fuzzy sets recap and why it matters in practice}
+See \Cref{sec:softcomp_from_crisp_sets_to_fuzzy_sets} for the formal membership-function definition and \Cref{sec:softcomp_fuzzy_logic_motivation_and_intuition} for the crisp-versus-fuzzy contrast. The practical payoff is that one observation can carry multiple linguistic truths at once. For example, a height value can be partly ``short'' and partly ``medium,'' and that overlap is not ambiguity in the bad sense; it is deliberate tolerance around boundaries that would otherwise be brittle in a crisp model.
 
-Recall that a \emph{fuzzy set} \( A \) defined on a universe of discourse \( X \) is characterized by a \emph{membership function}
-\[
-\mu_A: X \to [0,1],
-\]
-which assigns to each element \( x \in X \) a degree of membership \(\mu_A(x)\) indicating the extent to which \( x \) belongs to the set \( A \). Unlike classical (crisp) sets where membership is binary (0 or 1), fuzzy sets allow partial membership, capturing the inherent vagueness of many real-world concepts.
+The same idea controls actuators more smoothly. In braking or thermostat control, we do not need to jump between ``off'' and ``full.'' We can combine fuzzy evidence and produce graded actions such as ``slightly increase'' or ``strongly reduce,'' which usually improves stability near operating thresholds.
 
-\paragraph{Universe of Discourse}
+\paragraph{Next steps: membership functions, transformations, and inference}
+\Crefrange{chap:fuzzysets}{chap:fuzzyinference} now turn this motivation into a complete engineering pipeline. \Cref{chap:fuzzysets} builds the membership primitives. \Cref{chap:fuzzyrelations} moves those memberships between related universes through the extension principle. \Cref{chap:fuzzyinference} composes full rule systems and defuzzification into a final control decision. Keep this map in view: the next chapters add algebraic detail, but they serve one continuous workflow.
 
-The \emph{universe of discourse} \( X \) is the domain over which fuzzy sets are defined. For example, if \( X \) represents the set of all students, fuzzy subsets could be ``tall students,'' ``medium height students,'' and ``short students,'' each with overlapping membership functions reflecting the subjective nature of these categories.
-
-\paragraph{Fuzziness and Degrees of Truth}
-
-Fuzzy logic extends classical Boolean logic by allowing truth values to range continuously between 0 and 1. This enables reasoning with imprecise or approximate information, such as the statement ``the water is warm,'' which is neither absolutely true nor false but has a degree of truthfulness.
-
-\paragraph{Example: Height Classification}
-
-Consider the linguistic variables ``short,'' ``medium,'' and ``tall.'' In classical logic, a person is either short or not, tall or not, with crisp boundaries. In fuzzy logic, these categories overlap, and a person's height can partially belong to multiple categories simultaneously. This reflects human intuition and natural language better than crisp sets.
-
-\paragraph{Fuzzy Actions and Control}
-
-In intelligent control systems, such as automotive braking, fuzzy logic allows the control actions to be fuzzy themselves. Instead of a binary decision to ``hit the brakes'' or ``not hit the brakes,'' the system can decide to apply the brakes ``somewhat,'' ``moderately,'' or ``strongly,'' based on fuzzy inputs like distance and speed. This leads to smoother, more adaptive control.
-
-\paragraph{Next Steps: Membership Functions and Fuzzy Inference Systems}
-
-\Crefrange{chap:fuzzysets}{chap:fuzzyinference} pick up the thermostat running example and formalize each stage: \Cref{chap:fuzzysets} constructs the membership functions for error/rate labels, \Cref{chap:fuzzyrelations} shows how relations and projections move information between universes, and \Cref{chap:fuzzyinference} assembles the full Mamdani/Sugeno inference pipeline. Keep this soft-computing overview handy as a conceptual map while those chapters work through the algebra.
+\paragraph{Part transition thesis}
+As we move from the fuzzy trilogy to evolutionary computing, the design contract stays the same while the update mechanism changes. In Part III, behavior is shaped by rule composition over linguistic memberships. In Part IV, behavior is improved by population search over candidate encodings. Two different lenses, one engineering goal: build systems that perform reliably under realistic constraints.
 
 \begin{tcolorbox}[summarybox, title={Key takeaways}]
 \begin{itemize}
@@ -514,13 +470,13 @@ In intelligent control systems, such as automotive braking, fuzzy logic allows t
 
 \begin{tcolorbox}[summarybox, title={Exercises and lab ideas}]
 \begin{itemize}
-    \item Implement a minimal example from this chapter and visualize intermediate quantities (plots or diagnostics) to match the pseudocode.
-    \item Stress-test a key hyperparameter or design choice discussed here and report the effect on validation performance or stability.
-    \item Re-derive one core equation or update rule by hand and check it numerically against your implementation.
+    \item Rewrite one crisp threshold policy (for example, braking or thermostat actuation) as fuzzy labels and evaluate at least three boundary cases.
+    \item On one toy rule base, compare max--min and max--product operator choices and explain how the output behavior changes.
+    \item Build a one-page setup sheet (universes, memberships, operator defaults) and use it to reproduce the same outputs after a delayed rerun.
 \end{itemize}
 
 \medskip
-\noindent\textbf{If you are skipping ahead.} When you reach \Crefrange{chap:fuzzysets}{chap:fuzzyinference}, keep the operator choices explicit and consistent. Many formatting and interpretation problems later come from hidden operator defaults.
+\noindent\textbf{Fast-track note.} As you move into \Crefrange{chap:fuzzysets}{chap:fuzzyinference}, keep operator choices explicit and consistent. Many downstream mismatches come from hidden defaults set at the start.
 \end{tcolorbox}
 
 \paragraph{Where we head next.} \Crefrange{chap:fuzzysets}{chap:fuzzyinference} carry the thermostat running example end-to-end: \Cref{chap:fuzzysets} builds membership functions, \Cref{chap:fuzzyrelations} transports information across universes through relations, and \Cref{chap:fuzzyinference} assembles full inference plus defuzzification.

@@ -18,10 +18,38 @@
   \item Two recurring toolkits: safe vs.\ heuristic moves (search) and ERM (model--loss--optimize--audit).
   \item Classification as a probabilistic decision problem: Bayes optimality and calibrated scores precede thresholds.
   \item Reading paths are a dependency graph: later chapters reuse diagnostics, notations, and audit habits introduced here.
+  \item \textbf{Unifying lens:} this Part fixes the representation and feedback signal, and the rest is choosing an update rule plus audits that prevent silent failure.
 \end{itemize}
 \end{tcolorbox}
 \part*{Part II: Neural networks, sequence modeling, and NLP}
 \addcontentsline{toc}{part}{Part II: Neural networks, sequence modeling, and NLP}
+\begin{tcolorbox}[summarybox, title={How to read Part II (rolling window)}]
+\begin{itemize}
+  \item \textbf{One loop, many architectures:} define a loss, run a forward pass, cache intermediates, backprop gradients, validate, then iterate.
+  \item \textbf{Two bottlenecks reappear:} expressivity (can the model represent the boundary?) and trainability (can gradients reach the parameters?).
+  \item \textbf{Continuity checks:} watch shapes and caching in feedforward models, watch masking in sequence models, and keep calibration/slice audits alongside accuracy.
+\end{itemize}
+\end{tcolorbox}
+\begin{tcolorbox}[summarybox, title={Part II bridge: from ERM to trainable architectures}]
+Part I treated learning as disciplined self-correction: represent the problem, define what ``wrong'' means
+(loss), improve systematically (optimization), and verify with honest splits and diagnostics. In Part II we
+keep that loop, but we make a second design choice explicit: we choose architectures that make learning
+possible at scale.
+
+The guiding question becomes: ``given this computation graph, can signals flow through it during both the
+forward pass (information) and the backward pass (gradients)?'' That is why we begin with the perceptron,
+build to multi-layer networks and backpropagation, then add structure that matches common data: convolution
+for images, recurrence and associative memory for state and recall, and attention for content-based retrieval
+in language and other sequences.
+
+Read the repeated ideas as purposeful: the ERM loop stays fixed, while the model class changes the kinds of
+generalization you can get and the kinds of bugs you can accidentally introduce (shape and caching mistakes,
+masking mistakes, and evaluation leakage).
+
+Payoffs to watch for: (i) backprop as reusable local error signals, (ii) inductive bias as the reason CNNs,
+RNNs, and attention behave differently under the same ERM procedure, and (iii) auditing beyond accuracy as
+the difference between a model with a low loss and a system that makes good decisions.
+\end{tcolorbox}
 \input{lecture_3_part_i.tex}
 \input{lecture_3_part_ii.tex}
 \input{lecture_4_part_i.tex}
@@ -39,12 +67,41 @@
   \item Depth and inductive bias trade parameters for structure (MLPs vs.\ CNNs vs.\ recurrence vs.\ attention).
   \item Stability tools recur across architectures: initialization, normalization, regularization, and validation-driven stopping.
   \item Sequence models turn memory into computation: unrolling, masking, and caching define what information can flow.
+  \item \textbf{Unifying lens:} this Part fixes the representation and feedback signal, and the rest is choosing an update rule plus audits that prevent silent failure.
 \end{itemize}
 \end{tcolorbox}
 % Former Part III (NLP applications) was collapsed into Part II; renumber Parts
 % here to keep the TOC continuous and avoid the appearance of a missing Part.
 \part*{Part III: Soft computing and fuzzy reasoning}
 \addcontentsline{toc}{part}{Part III: Soft computing and fuzzy reasoning}
+\begin{tcolorbox}[summarybox, title={How to read Part III (rolling window)}]
+\begin{itemize}
+  \item \textbf{A trilogy by design:} fuzzy sets \(\rightarrow\) fuzzy relations \(\rightarrow\) fuzzy inference; each chapter reuses the thermostat to add one layer of machinery.
+  \item \textbf{Repetition is intentional:} concepts reappear as intuition, then as algebra, then as end-to-end behavior. Read repeated material as ``preview vs.\ formalization vs.\ sanity-check.''
+  \item \textbf{Audit like an engineer:} keep universes/units explicit, pick operators explicitly, and verify edge cases numerically before tuning aesthetics.
+\end{itemize}
+\end{tcolorbox}
+\begin{tcolorbox}[summarybox, title={Part III bridge: specification becomes the model}]
+Parts I--II trained models by minimizing losses: we picked a hypothesis class, optimized it, and then audited
+generalization with careful validation. That approach is powerful when (i) you can collect enough data and
+(ii) the target behavior is well captured by a smooth objective.
+
+Part III is about a different pain point: in many engineered systems the bottleneck is not data, but
+\emph{specification}. The concepts you need are linguistic (``too warm'', ``slightly fast'', ``acceptable
+risk''), the boundaries are negotiable, and the decision logic often needs to remain auditable. Fuzzy
+reasoning treats that interface explicitly: we write membership functions to represent concepts, pick
+operators to combine them, and assemble rules whose effects you can inspect. Everyday language is good at
+expressing graded categories; fuzzy logic turns that graded meaning into a mathematical object you can test,
+debug, and tune.
+
+Read the repetition in this part as intentional: it is there to build familiarity with the machinery and to
+separate intuition from algebra. We revisit the same thermostat-style scenario as a preview, then as formal
+derivations, then as end-to-end behavior. Each pass adds one layer: fuzzy sets (building blocks), fuzzy
+relations (transfer and composition), and fuzzy inference (a complete controller).
+
+When you get stuck, debug like an engineer: keep universes and units explicit, state your operator defaults,
+and test edge cases numerically before you tune aesthetics.
+\end{tcolorbox}
 \input{lecture_8_part_ii.tex}
 \input{lecture_9.tex}
 \input{lecture_10_part_i.tex}
@@ -55,10 +112,18 @@
   \item Interpretability is a design variable: rules, operators, and defuzzification encode assumptions.
   \item Debugging is empirical: test edge cases, inspect rule firing, and validate monotonicity and scale.
   \item The same audit mindset applies: define failure modes up front and track them as you tune operators and rules.
+  \item \textbf{Unifying lens:} this Part fixes the representation and feedback signal, and the rest is choosing an update rule plus audits that prevent silent failure.
 \end{itemize}
 \end{tcolorbox}
 \part*{Part IV: Evolutionary optimization}
 \addcontentsline{toc}{part}{Part IV: Evolutionary optimization}
+\begin{tcolorbox}[summarybox, title={How to read Part IV (rolling window)}]
+\begin{itemize}
+  \item \textbf{Optimization lens:} treat evolutionary algorithms as a budgeted optimizer for black-box, noisy, or constrained objectives (not as biology).
+  \item \textbf{Repetition is intentional:} the GA loop appears as a big-picture story, then as operator details, then as a numeric trace you can verify in code.
+  \item \textbf{Reporting is part of correctness:} match evaluation budgets, run multiple seeds, and report distributions and constraint handling explicitly.
+\end{itemize}
+\end{tcolorbox}
 \input{lecture_11.tex}
 \begin{tcolorbox}[summarybox, title={Part IV takeaways}]
 \begin{itemize}
@@ -66,5 +131,6 @@
   \item Operators (selection, crossover, mutation) encode exploration vs.\ exploitation; tune them against variance across runs.
   \item Constraints and multi-objectives are first-class: define feasibility and trade-offs before optimizing.
   \item Report reproducibly: seeds, multiple runs, and distributions matter more than a single best trajectory.
+  \item \textbf{Unifying lens:} this Part fixes the representation and feedback signal, and the rest is choosing an update rule plus audits that prevent silent failure.
 \end{itemize}
 \end{tcolorbox}

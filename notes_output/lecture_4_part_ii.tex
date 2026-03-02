@@ -1,7 +1,7 @@
 % Chapter 8
 \section{Radial Basis Function Networks (RBFNs)}\label{chap:rbf}
 
-Building on the multilayer perceptron (MLP) architecture (\Cref{chap:mlp}) and its training machinery (\Cref{chap:backprop}), we now introduce radial basis function networks (RBFNs): three\hyp{}layer models with fixed nonlinear bases and a linear readout. \Cref{fig:roadmap} places this as the kernel/prototype branch alongside the MLP path.
+Building on the multilayer perceptron (MLP) architecture (\Cref{chap:mlp}) and its training machinery (\Cref{chap:backprop}), this chapter introduces radial basis function networks (RBFNs): three\hyp{}layer models with fixed nonlinear bases and a linear readout. \Cref{fig:roadmap} places this as the kernel/prototype branch alongside the MLP path.
 
 \begin{tcolorbox}[summarybox, title={Learning Outcomes}]
 \begin{itemize}
@@ -18,27 +18,19 @@ Make the nonlinearity explicit: use a fixed (or lightly tuned) basis expansion i
 \subsection{Overview and Motivation}
 \label{sec:rbf_overview_and_motivation}
 
-\paragraph{How to read this chapter.}
-\begin{itemize}
-    \item \textbf{Core thread (RBFNs):} architecture $\rightarrow$ basis functions and widths $\rightarrow$ linear solve (least squares / ridge) $\rightarrow$ kernel view and practical tuning.
-    \item \textbf{Optional bridge:} a short Wiener-filter refresher connects the RBFN linear solve to classical linear estimation; it is provided for context and can be skimmed without loss of continuity.
-\end{itemize}
+We start with the three-layer picture and the basis-function intuition, then write the same story in matrix form so training becomes a regularized least-squares solve. Near the end, we connect the finite-basis picture to the kernel viewpoint. (The short Wiener-filter box is optional context if you want the signal-processing parallel.)
 
-Unlike MLPs, which learn weights in every layer, an RBFN fixes the hidden nonlinearity and learns only the output weights. Concretely:
+Unlike MLPs, which learn weights in every layer, an RBFN separates the job into two parts. The hidden layer provides a fixed nonlinear feature map (set by centers and widths). The output layer then learns a linear combination of those features. That split is the main story here: choose the basis, then solve for the readout.
 
-\begin{itemize}
-    \item It has exactly three layers: an input layer, a single hidden layer, and an output layer.
-    \item The input layer simply forwards the raw feature vector to every hidden unit; there are no trainable weights on these connections because the hidden units encode their own parameters (centers and widths).
-    \item The hidden layer applies a nonlinear transformation to the input vector via a set of radial basis functions.
-    \item The output layer is a linear combination of the hidden layer outputs, with trainable weights.
-\end{itemize}
+The key idea is that ``nonlinear'' can come from the representation rather than the readout. Radial basis functions act like localized, kernel-style features; once you lift inputs into that feature space, the output layer is still linear, and the weights are responsible for finding the separating border. This is closely related to the kernel trick used in SVMs; \Cref{app:kernels} collects the classical kernel viewpoint.
 
-The RBFN was originally developed as a method to model nonlinear static processes by mapping data from a lower\hyp{}dimensional input space to a higher\hyp{}dimensional feature space. The key idea is that data which are \emph{not linearly separable} in the original input space can become \emph{linearly separable} after a suitable nonlinear transformation into a higher\hyp{}dimensional space. This concept is closely related to the kernel trick used in support vector machines (SVMs); \Cref{app:kernels} collects the classical kernel/SVM viewpoint in one place.
+\Cref{chap:supervised} frames this as a bias--variance tuning problem (capacity, regularization, and diagnostics via learning curves). Kernel methods such as kernel ridge regression and support vector machines (SVMs) interpret the same trade-off through an RBF kernel matrix; here we keep the bases explicit, then connect to the dual/kernel view later in the chapter.
 
-\Cref{chap:supervised} frames this as a bias--variance tuning problem (choose capacity, regularization, and diagnostics via learning curves). Kernel methods such as kernel ridge regression and SVMs interpret the same trade-off through an RBF kernel matrix; here we keep the bases explicit, then connect to the dual/kernel view later in the chapter.
+\paragraph{Running example: XOR as a representation problem.}
+XOR is the smallest reminder that a single line in the input space is not always enough. The point of RBF networks is not that the output layer becomes complicated; it stays linear. The complication is pushed into the feature map: the hidden units apply localized, kernel-like transforms, and the output weights are responsible for finding the separating border in that transformed space. We will return to XOR twice: first to see the feature map, then to see how the linear solve chooses the readout weights.
 
-\paragraph{Author's note: centers come from clustering.}
-The hidden layer of an RBF network is easiest to understand when its centers are viewed as K-means prototypes: pick a coverage of the input space that reflects the data distribution, assign widths accordingly, and let the output layer learn the linear weights on top of those prototypes. Unsupervised clustering up front makes the later supervised solve far more stable.
+\paragraph{Centers from clustering (a practical default).}
+The hidden layer of an RBF network is easiest to understand when its centers are viewed as k\hyp{}means prototypes: pick a coverage of the input space that reflects the data distribution, assign widths accordingly, and let the output layer learn the linear weights on top of those prototypes. Unsupervised clustering up front makes the later supervised solve far more stable.
 
 \subsection{Architecture of RBFNs}
 \label{sec:rbf_architecture_of_rbfns}
@@ -46,7 +38,7 @@ The hidden layer of an RBF network is easiest to understand when its centers are
 The RBFN consists of three layers:
 
 \begin{tcolorbox}[summarybox, title={Notation and shapes}]
-We denote each basis response by \(\varphi_i(\mathbf{x})\); stacking them yields \(\mathbf{G}(\mathbf{x})\in\mathbb{R}^M\) with entries \(G_i(\mathbf{x})=\varphi_i(\mathbf{x})\). For a dataset of \(N\) samples, the corresponding design matrix \(\Phi\in\mathbb{R}^{N\times M}\) stacks one transformed sample per row, with entries \(\Phi_{ji}=\varphi_i(\mathbf{x}_j)=G_i(\mathbf{x}_j)\). This matches the design-matrix convention used in \Cref{chap:supervised}.
+We denote each basis response by \(\varphi_i(\mathbf{x})\); stacking them yields \(\mathbf{G}(\mathbf{x})\in\mathbb{R}^M\) with entries \(G_i(\mathbf{x})=\varphi_i(\mathbf{x})\). For a dataset of \(N\) samples, the corresponding design matrix \(\boldsymbol{\Phi}\in\mathbb{R}^{N\times M}\) stacks one transformed sample per row, with entries \(\boldsymbol{\Phi}_{ji}=\varphi_i(\mathbf{x}_j)=G_i(\mathbf{x}_j)\). This matches the design-matrix convention used in \Cref{chap:supervised}.
 \end{tcolorbox}
 
 
@@ -84,13 +76,14 @@ We denote each basis response by \(\varphi_i(\mathbf{x})\); stacking them yields
         \node[below=1cm of y, font=\scriptsize] (bias) {bias $b$};
         \draw[->, cbOrange, dashed] (bias) -- (y);
         % notes
-        \node[align=left, font=\scriptsize, above=0.2cm of h1] {Centers/widths\\\((\boldsymbol{\mu}_i,\sigma_i)\) set by\\k-means or heuristics};
+        \node[align=left, font=\scriptsize, above=0.2cm of h1] {Centers/widths\\\((\mathbf{c}_i,\sigma_i)\) set by\\k-means or heuristics};
         \node[align=left, font=\scriptsize, right=0.3cm of y] {Linear weights \(w_i\)\\learned from data};
     \end{tikzpicture}
     % Avoid inline math in captions; it wraps poorly in some EPUB renderers.
-\caption{RBFN architecture. Inputs feed fixed radial units parameterized by centers and widths; a linear readout with weights and bias is trained by a regression or classification loss. Only the output weights are typically learned, while centers/widths come from k-means or spacing heuristics. Use it when separating representation design (centers/widths) from supervised readout training.}
+\caption{RBFN architecture. Inputs feed fixed radial units parameterized by centers and widths; a linear readout with weights and bias is trained by a regression or classification loss. Only the output weights are typically learned, while centers and widths come from clustering or spacing heuristics.}
     \label{fig:rbf_architecture_weights}
 \end{figure}
+\FloatBarrier
 
 \Cref{fig:rbf_architecture_weights} highlights the split between fixed radial features and a trained linear readout.
 
@@ -110,18 +103,19 @@ Once you have the architecture in mind, it helps to visualize what the hidden la
             legend style={at={(0.02,0.98)}, anchor=north west}
         ]
             \addplot[cbBlue, dashed, mark=*, mark repeat=25, mark options={fill=cbBlue}, domain=-4:4, samples=200]{exp(-((x+2)^2))};
-            \addlegendentry{$\phi_1$}
+            \addlegendentry{$\varphi_1$}
             \addplot[cbOrange, dashed, mark=square*, mark repeat=25, mark options={fill=cbOrange}, domain=-4:4, samples=200]{0.8*exp(-((x-0.5)^2)/0.5)};
-            \addlegendentry{$\phi_2$}
+            \addlegendentry{$\varphi_2$}
             \addplot[cbGreen, dashed, mark=triangle*, mark repeat=25, mark options={fill=cbGreen}, domain=-4:4, samples=200]{0.9*exp(-((x-2.2)^2)/0.7)};
-            \addlegendentry{$\phi_3$}
+            \addlegendentry{$\varphi_3$}
             \addplot[cbPink, thick, mark=diamond*, mark repeat=20, mark options={fill=cbPink}, domain=-4:4, samples=200]{exp(-((x+2)^2)) + 0.8*exp(-((x-0.5)^2)/0.5) + 0.9*exp(-((x-2.2)^2)/0.7)};
-            \addlegendentry{$\sum_j w_j \phi_j(x)$}
+            \addlegendentry{$\sum_j w_j \varphi_j(x)$}
         \end{axis}
     \end{tikzpicture}
-    \caption{Localized Gaussian basis functions (dashed) and their weighted sum (solid). Overlapping bumps allow RBF networks to interpolate complex signals smoothly. Use it when building intuition for locality and smooth interpolation in basis-function models.}
+    \caption{Localized Gaussian basis functions (dashed) and their weighted sum (solid). Overlapping bumps allow RBF networks to interpolate complex signals smoothly.}
     \label{fig:rbf_gaussian_bumps}
 \end{figure}
+\FloatBarrier
 
 
 \Cref{fig:rbf_centres} compares center-placement strategies used during initialization.
@@ -157,19 +151,16 @@ Once you have the architecture in mind, it helps to visualize what the hidden la
         \end{scope}
     \end{tikzpicture}
     % Avoid inline math in captions; it wraps poorly in some EPUB renderers.
-    \caption{Center placement and overlap. Top: K-means prototypes roughly tile the data manifold, giving even overlap; bottom: random centers can leave gaps or excessive overlap, influencing the width (sigma) choice and conditioning. Use it when choosing how to place centers before tuning the width parameter.}
+\caption{Center placement and overlap (schematic). K-means prototypes tend to tile the data manifold more evenly than random picks, giving more uniform receptive-field overlap. Random centers can leave gaps or create excessive overlap, which affects the width (sigma) choice and the conditioning of the later linear solve.}
     \label{fig:rbf_centres}
 \end{figure}
+\FloatBarrier
 
 
-\Cref{fig:rbf_primal_dual} clarifies primal-versus-dual trade-offs as basis count grows and Nystr\"om approximations become attractive.
 
-\begin{enumerate}
-    \item \textbf{Input layer:} Receives the input vector \(\mathbf{x} \in \mathbb{R}^n\).
-    \item \textbf{Hidden layer:} Applies a set of \(M\) nonlinear radial basis functions \(\{G_i(\mathbf{x})\}_{i=1}^M\) to the input. These functions serve as feature mappings.
-    \item \textbf{Output layer:} Computes a weighted sum of the hidden layer outputs to produce the final output vector \(\mathbf{y} \in \mathbb{R}^K\).
-\end{enumerate}
+Later in the chapter we contrast this finite-basis (``primal'') view with the kernel (``dual'') view and show how Nystr\"om-style approximations fit into the same story.
 
+\Cref{fig:rbf_architecture_weights} plus the overview above summarize the three-layer flow. Next we write the same story algebraically, so the training step becomes a linear solve with shapes you can check.
 The key distinction is that the input-to-hidden layer connections do not have trainable weights; instead, the hidden layer units themselves perform nonlinear transformations of the input.
 
 \subsubsection{Mathematical Formulation}
@@ -223,61 +214,130 @@ Other choices of radial basis functions are possible, but the Gaussian is the mo
 \subsection{Transforming Nonlinearly Separable Data into Linearly Separable Space}
 \label{sec:rbf_transforming_nonlinearly_separable_data_into_linearly_separable_space}
 
-Recall from the previous discussion that certain datasets are not linearly separable in their original input space. However, by applying nonlinear transformations, we can map the data into a new feature space where linear separation becomes possible.
+Some datasets are not linearly separable in the original input space. A nonlinear feature map can move the same points into a space where a single linear boundary is enough.
 
 Consider a nonlinear transformation function \( g(\cdot) \) applied to the input vector \( \mathbf{x} \in \mathbb{R}^n \), producing a transformed vector \( \mathbf{g}(\mathbf{x}) \in \mathbb{R}^m \). The goal is to find a weight vector \( \mathbf{w} \in \mathbb{R}^m \) such that the linear combination \( \mathbf{w}^\top \mathbf{g}(\mathbf{x}) \) separates the classes.
 
-\paragraph{Example Setup:}
-- Input vectors: \(\mathbf{x} \in \{0,1\}^2\) (e.g., \((0,0), (0,1), (1,0), (1,1)\))
-- Two neurons in the hidden layer, each associated with weight vectors \(\mathbf{v}_1\) and \(\mathbf{v}_2\).
-- Activation functions \(g_1(\mathbf{x})\) and \(g_2(\mathbf{x})\) correspond to these neurons.
-- Output is a linear combination of these activations:
-\[
-y = \mathbf{w}^\top \mathbf{g}(\mathbf{x}) = w_1 g_1(\mathbf{x}) + w_2 g_2(\mathbf{x}).
-\]
+\paragraph{Example setup (XOR).}
+\begin{itemize}
+    \item Inputs: \(\mathbf{x}\in\{0,1\}^2\) with the four corners \((0,0),(0,1),(1,0),(1,1)\).
+    \item Two radial units centered at \(\mathbf{c}_1=(0,0)^\top\) and \(\mathbf{c}_2=(1,1)^\top\).
+    \item Feature map: \(\mathbf{g}(\mathbf{x})=[g_1(\mathbf{x}),g_2(\mathbf{x})]^\top\) with Gaussian \(g_i\).
+    \item Linear readout: \(y = \mathbf{w}^\top \mathbf{g}(\mathbf{x})\).
+\end{itemize}
 
 \paragraph{Assumptions:}
-- For simplicity, set \(\sigma^2 = 1\) (so \(2\sigma^2 = 2\)) in the Gaussian kernel activation function.
-- Assume \(\mathbf{v}_1 = (0,0)^\top\) and \(\mathbf{v}_2 = (1,1)^\top\).
-- The activation function is Gaussian radial basis function (RBF):
-\[
-g_i(\mathbf{x}) = \exp\left(-\frac{\|\mathbf{x} - \mathbf{v}_i\|^2}{2\sigma^2}\right).
-\]
+\begin{itemize}
+    \item For simplicity, set \(\sigma^2 = 1\) (so \(2\sigma^2 = 2\)) in the Gaussian activation.
+    \item Use two centers: \(\mathbf{c}_1 = (0,0)^\top\) and \(\mathbf{c}_2 = (1,1)^\top\).
+    \item Use a Gaussian radial basis function (RBF):
+    \[
+    g_i(\mathbf{x}) = \exp\left(-\frac{\|\mathbf{x} - \mathbf{c}_i\|^2}{2\sigma^2}\right).
+    \]
+\end{itemize}
 
 \paragraph{Transformation Results:}
-Applying the transformation to the inputs yields new points in the \(g_1\)-\(g_2\) space. For example, the input \(\mathbf{x} = (0,0)\) maps to \((g_1, g_2) = (1, e^{-1})\), and \(\mathbf{x} = (1,1)\) maps to \((e^{-1}, 1)\). This transformation often results in the classes becoming linearly separable in the $g_1$--$g_2$ plane; plotting the four transformed points reveals that samples from different classes occupy opposite corners of the square, allowing a single linear decision boundary to separate them.
+Applying the transformation to the inputs yields new points in the \(g_1\)-\(g_2\) space. For example, the input \(\mathbf{x}=(0,0)\) maps to \((g_1,g_2)=(1,e^{-1})\), and \(\mathbf{x}=(1,1)\) maps to \((e^{-1},1)\). The two off-diagonal corners \((0,1)\) and \((1,0)\) map to the same feature point \((e^{-1/2},e^{-1/2})\). In this feature plane the XOR labels become linearly separable; for instance, the separator \(g_1+g_2=1.3\) places the diagonal corners on one side and the off-diagonal corners on the other (\Cref{fig:rbf_xor_feature_map}).
+
+\begin{figure}[t]
+    \centering
+\begin{tikzpicture}[background rectangle/.style={fill=white}, show background rectangle]
+        \begin{groupplot}[
+            group style={group size=2 by 1, horizontal sep=1.3cm},
+            width=0.44\linewidth,
+            height=0.34\linewidth,
+            axis lines=middle,
+            tick label style={font=\scriptsize},
+            label style={font=\scriptsize},
+            title style={font=\scriptsize, align=center},
+            axis background/.style={fill=white},
+            clip=false,
+        ]
+        \nextgroupplot[
+            title={Input space \((x_1,x_2)\)},
+            xlabel={$x_1$},
+            ylabel={$x_2$},
+            xmin=-0.1, xmax=1.1,
+            ymin=-0.1, ymax=1.1,
+            xtick={0,1},
+            ytick={0,1},
+        ]
+            % Class 0: (0,0) and (1,1)
+            \addplot[
+                only marks,
+                mark=o,
+                mark options={fill=white, draw=black},
+                mark size=2.6pt,
+            ] coordinates {(0,0) (1,1)};
+            % Class 1: (0,1) and (1,0)
+            \addplot[
+                only marks,
+                mark=square*,
+                mark options={fill=black, draw=black},
+                mark size=2.6pt,
+            ] coordinates {(0,1) (1,0)};
+            \node[font=\scriptsize, text=black!60, anchor=south] at (axis cs:0.5,0.05) {no single line separates XOR};
+
+        \nextgroupplot[
+            title={Feature space \((g_1,g_2)\)},
+            xlabel={$g_1$},
+            ylabel={$g_2$},
+            xmin=0.3, xmax=1.05,
+            ymin=0.3, ymax=1.05,
+            xtick={0.368,0.607,1.0},
+            ytick={0.368,0.607,1.0},
+        ]
+            % Class 0 in feature space.
+            \addplot[
+                only marks,
+                mark=o,
+                mark options={fill=white, draw=black},
+                mark size=2.6pt,
+            ] coordinates {(1.000000,0.367879) (0.367879,1.000000)};
+            % Class 1 corners coincide at the same feature point for this two-center example.
+            \addplot[
+                only marks,
+                mark=square*,
+                mark options={fill=black, draw=black},
+                mark size=2.6pt,
+            ] coordinates {(0.606531,0.606531)};
+            \node[font=\scriptsize, text=black!60, anchor=south] at (axis cs:0.606531,0.62) {(0,1) and (1,0) coincide};
+            % One valid separating border in feature space: g1 + g2 = 1.3.
+            \addplot[black!70, dashed, domain=0.3:1.05, samples=2] {1.3 - x};
+            \node[font=\scriptsize, text=black!60, anchor=north] at (axis cs:0.78,0.52) {$g_1+g_2=1.3$};
+        \end{groupplot}
+    \end{tikzpicture}
+    \caption{XOR before and after an RBF feature map. Left: in \((x_1,x_2)\), no single line separates the labels. Right: in \((g_1,g_2)\), the transformed points are linearly separable; one valid separating border is \(g_1+g_2=1.3\) (equivalently \(w=[1,1]\), \(b=-1.3\)).}
+    \label{fig:rbf_xor_feature_map}
+\end{figure}
+\FloatBarrier
 
 \subsection{Finding the Optimal Weight Vector \texorpdfstring{\(\mathbf{w}\)}{w}}
 \label{sec:rbf_finding_the_optimal_weight_vector_w_w}
 
-Given the transformed data \(\mathbf{g}(\mathbf{x})\) and desired outputs \(\mathbf{d}\), we want to find \(\mathbf{w}\) that minimizes the squared error between the predicted output and the target. Let \(\Phi\in\mathbb{R}^{N\times M}\) be the design matrix with entries \(\Phi_{ji}=\varphi_i(\mathbf{x}_j)=G_i(\mathbf{x}_j)\). The model predicts \(\hat{\mathbf{d}}=\Phi\mathbf{w}\), and the least-squares objective is
+Given the transformed data \(\mathbf{g}(\mathbf{x})\) and desired outputs \(\mathbf{d}\), we want to find \(\mathbf{w}\) that minimizes the squared error between the predicted output and the target. Using the design matrix \(\boldsymbol{\Phi}\) defined in the notation box, the model predicts \(\hat{\mathbf{d}}=\boldsymbol{\Phi}\mathbf{w}\), and the least-squares objective is
 \begin{equation}
-J(\mathbf{w}) = \|\mathbf{d} - \Phi \mathbf{w}\|^2.
+J(\mathbf{w}) = \|\mathbf{d} - \boldsymbol{\Phi} \mathbf{w}\|^2.
 \label{eq:cost_function}
 \end{equation}
 
-\paragraph{Normal Equations for the Weights:}
 Differentiating \eqref{eq:cost_function} with respect to \(\mathbf{w}\) and setting the gradient to zero yields
 \begin{equation}
-\Phi^\top \Phi \,\mathbf{w} = \Phi^\top \mathbf{d}.
+\boldsymbol{\Phi}^\top \boldsymbol{\Phi} \,\mathbf{w} = \boldsymbol{\Phi}^\top \mathbf{d}.
 \label{eq:normal_eq_weights}
 \end{equation}
-When \(\Phi^\top\Phi\) is well conditioned, the closed-form solution is \(\mathbf{w}^\star=(\Phi^\top\Phi)^{-1}\Phi^\top\mathbf{d}\); in practice we almost always add ridge regularization as described in the training section below.
+When \(\boldsymbol{\Phi}^\top\boldsymbol{\Phi}\) is well conditioned, the closed-form solution is \(\mathbf{w}^\star=(\boldsymbol{\Phi}^\top\boldsymbol{\Phi})^{-1}\boldsymbol{\Phi}^\top\mathbf{d}\); in practice we almost always add ridge regularization as described in the training section below.
 
-\paragraph{Conditioning and capacity.} When \(M\) is large and Gaussians overlap heavily, \(\Phi^\top\Phi\) can become ill-conditioned. Ridge regularization (adding \(\lambda I\)) stabilizes the solve and controls variance, mirroring the bias--variance trade-off from \Cref{chap:supervised}. Choosing \(M\), \(\sigma\), and \(\lambda\) together is essential for good generalization; \Cref{chap:supervised}'s learning-curve diagnostics apply directly, and kernel methods (e.g., kernel ridge regression or SVMs) interpret the same trade-off via RBF kernels.
+\paragraph{Conditioning and capacity.} When \(M\) is large and Gaussians overlap heavily, \(\boldsymbol{\Phi}^\top\boldsymbol{\Phi}\) can become ill-conditioned. Ridge regularization (adding \(\lambda I\)) stabilizes the solve and controls variance, mirroring the bias--variance trade-off from \Cref{chap:supervised}. Choosing \(M\), \(\sigma\), and \(\lambda\) together is essential for good generalization; \Cref{chap:supervised}'s learning-curve diagnostics apply directly, and kernel methods (e.g., kernel ridge regression or SVMs) interpret the same trade-off via RBF kernels.
 
 \subsection{The Role of the Transformation Function \texorpdfstring{\(g(\cdot)\)}{g(.)}}
 \label{sec:rbf_the_role_of_the_transformation_function_g_g}
 
-The design matrix \(\Phi\) is constructed by applying a nonlinear transformation \(g(\cdot)\) to the input data points relative to a set of centroids \(\{\mathbf{v}_i\}\). Each element of \(\Phi\) is typically defined as:
-\[
-\Phi_{ji} = g_i(\mathbf{x}_j) = g\left(\|\mathbf{x}_j - \mathbf{v}_i\|\right).
-\]
-where \(\|\cdot\|\) denotes a norm (usually Euclidean distance), and \(g(\cdot)\) is a nonlinear kernel or activation function.
+The nonlinear map \(g(\cdot)\) and its role in constructing \(\boldsymbol{\Phi}\) were defined in the transformation example above; here we focus on its parameters and how to choose it.
 
 Two parameters characterize \(g(\cdot)\):
 \begin{itemize}
-    \item \(\mathbf{v}_i\): the centroid or center of the \(i\)-th basis function.
+    \item \(\mathbf{c}_i\): the center of the \(i\)-th basis function.
     \item \(\sigma_i\): the width or spread parameter controlling the receptive field of the basis function.
 \end{itemize}
 
@@ -290,15 +350,15 @@ Two parameters characterize \(g(\cdot)\):
 \[
 g(r) = \frac{1}{r + \epsilon}, \quad \epsilon > 0,
 \]
-where \(r = \|\mathbf{x} - \mathbf{v}\|\). This function decreases as the distance increases but can become unbounded near zero, potentially causing numerical instability.
+where \(r = \|\mathbf{x} - \mathbf{c}\|\). This function decreases as the distance increases but can become unbounded near zero, potentially causing numerical instability.
 
 \paragraph{2. Gaussian Radial Basis Function:}
 \[
 g(r) = \exp\left(-\frac{r^2}{2\sigma^2}\right).
 \]
-This function is smooth, bounded, and has a clear interpretation as a localized receptive field centered at \(\mathbf{v}\) with width \(\sigma\). It is the most commonly used kernel in RBF networks.
+This function is smooth, bounded, and has a clear interpretation as a localized receptive field (the region of input space that activates the unit strongly) centered at \(\mathbf{c}\) with width \(\sigma\). It is the most commonly used kernel in RBF networks.
 
-\begin{tcolorbox}[summarybox, title={Author's note: why ``radial'' and why a Gaussian?}]
+\begin{tcolorbox}[summarybox, title={Why ``radial''? Why a Gaussian?}]
 An RBF unit is called \emph{radial} because its response depends primarily on distance from a center: points at the same radius (in the chosen metric) produce the same activation. The Gaussian basis is popular because it is smooth, has a clear center, and its width parameter \(\sigma\) directly controls locality: large \(\sigma\) makes each unit ``see'' broadly (risking underfit), while small \(\sigma\) makes units highly local (risking overfit and poor conditioning). The practical art is to pick centers that cover the data and then tune \(\sigma\) (and ridge \(\lambda\)) by validation, as in \Cref{fig:rbf_sigma_sweep}.
 \end{tcolorbox}
 
@@ -323,14 +383,14 @@ Choosing \(\sigma\) appropriately is critical for the network's performance:
 
 Consider a one-dimensional dataset with two classes (e.g., red and blue points). Projecting a sample \(x\) through the Gaussian basis functions produces feature activations
 \[
-\varphi_i(x) = \exp\!\left(-\frac{(x - v_i)^2}{2\sigma^2}\right),
+\varphi_i(x) = \exp\!\left(-\frac{(x - c_i)^2}{2\sigma^2}\right),
 \]
-which serve as localized similarity measures to each centroid \(v_i\). When \(\sigma\) is large, many points activate the same basis functions with comparable strength, leading to smooth decision boundaries after the linear output layer. When \(\sigma\) is small, only points very close to a centroid elicit large activations, yielding sharply varying boundaries that can overfit noise. Visualizing \(\varphi_i(x)\) for several centroids illustrates how tuning \(\sigma\) controls the flexibility of the classifier.
+which serve as localized similarity measures to each center \(c_i\). When \(\sigma\) is large, many points activate the same basis functions with comparable strength, leading to smooth decision boundaries after the linear output layer. When \(\sigma\) is small, only points very close to a center elicit large activations, yielding sharply varying boundaries that can overfit noise. Visualizing \(\varphi_i(x)\) for several centers illustrates how tuning \(\sigma\) controls the flexibility of the classifier.
 
 \begin{figure}[t]
     \centering
     \begin{tikzpicture}[scale=0.9]
-        \node at (0,3.2) {\small$\sigma$ sweep (two-moons)};
+        \node at (0,3.2) {\small$\sigma$ sweep (schematic)};
         % three panels
         \begin{scope}[shift={(-4,0)}]
             \draw[gray!40] (-1.8,-1.3) rectangle (1.8,1.3);
@@ -350,29 +410,30 @@ which serve as localized similarity measures to each centroid \(v_i\). When \(\s
         \end{scope}
     \end{tikzpicture}
     % Avoid inline math in captions; it wraps poorly in some EPUB renderers.
-    \caption{How the width parameter (sigma) influences decision boundaries on a 2D toy dataset. Too-large sigma underfits, intermediate sigma captures the boundary, too-small sigma overfits with fragmented regions. Validation curves in \Cref{chap:supervised} guide model size and regularization; they also motivate tuning sigma to balance smoothness against boundary fidelity.}
+\caption{Schematic illustration of how the width parameter \(\sigma\) influences decision boundaries: too-large \(\sigma\) underfits (bases overlap heavily and wash out locality), intermediate \(\sigma\) captures the boundary, and too-small \(\sigma\) can produce fragmented regions. For a computed XOR example, see \Cref{fig:rbf_boundary}.}
     \label{fig:rbf_sigma_sweep}
 \end{figure}
+\FloatBarrier
 
-\Cref{fig:rbf_boundary} shows how the RBF model bends the boundary on the XOR-style toy example.
+We return to this tuning picture again later with an XOR-style toy example, where the decision boundary is easy to visualize.
 
-\paragraph{Notation note.} In this chapter we write radial basis functions as \(\varphi_i(\cdot)\) and use \(\Phi\) for the associated design matrix. When we need a generic kernel feature map, we use \(\phi(\cdot)\) (consistent with \Cref{app:kernels}); when probability density functions are needed, we write them as \(p(\cdot)\). This avoids overloading a single symbol.
+\paragraph{Notation note.} In this chapter we write radial basis functions as \(\varphi_i(\cdot)\) and use \(\boldsymbol{\Phi}\) for the associated design matrix. When we need a generic kernel feature map, we use \(\phi(\cdot)\) (consistent with \Cref{app:kernels}); when probability density functions are needed, we write them as \(p(\cdot)\). This avoids overloading a single symbol.
 
 % Chapter 8
 
 \subsection{Radial Basis Function Networks: Parameter Estimation and Training}
 \label{sec:rbf_radial_basis_function_networks_parameter_estimation_and_training}
 
-Recall that in Radial Basis Function (RBF) networks, the hidden layer neurons compute outputs based on radial basis functions centered at certain points \( \mathbf{v}_i \) with spread parameters \( \sigma_i \). The output is a linear combination of these nonlinear transformations. The key challenge is to determine the parameters:
+Recall that in Radial Basis Function (RBF) networks, the hidden layer neurons compute outputs based on radial basis functions centered at certain points \( \mathbf{c}_i \) with spread parameters \( \sigma_i \). The output is a linear combination of these nonlinear transformations. The key challenge is to determine the parameters:
 \[
-\{ \mathbf{v}_i, \sigma_i, w_i \}_{i=1}^M,
+\{ \mathbf{c}_i, \sigma_i, w_i \}_{i=1}^M,
 \]
 where \( M \) is the number of hidden neurons.
 
-\paragraph{Finding the Centers \(\mathbf{v}_i\):}
+\paragraph{Finding the Centers \(\mathbf{c}_i\):}
 A natural approach to find the centers is to use clustering algorithms on the input data. For example, if we decide to have \( M \) hidden neurons, we run a clustering algorithm (e.g., K-means) to find \( M \) centroids:
 \[
-\mathbf{v}_1, \mathbf{v}_2, \ldots, \mathbf{v}_M.
+\mathbf{c}_1, \mathbf{c}_2, \ldots, \mathbf{c}_M.
 \]
 These centroids represent typical data points around which the radial basis functions are centered. This approach ensures that the radial basis functions cover the input space effectively.
 
@@ -381,7 +442,7 @@ The spread parameters control the width of each radial basis function. One can i
 \[
 \sigma \approx \frac{d_{\max}}{\sqrt{2M}},
 \]
-where \(d_{\max}\) is the maximum pairwise distance between centers and \(M\) the number of RBF units; this ensures neighboring receptive fields overlap without collapsing to a constant function. After setting this global width, refine to per-center widths by setting each \( \sigma_i \) proportional to the average distance between the centroid \( \mathbf{v}_i \) and its nearest neighboring centroids. Anisotropic variants scale each dimension separately but follow the same principle of matching the local density of prototypes.
+where \(d_{\max}\) is the maximum pairwise distance between centers and \(M\) the number of RBF units; this ensures neighboring receptive fields overlap without collapsing to a constant function. After setting this global width, refine to per-center widths by setting each \( \sigma_i \) proportional to the average distance between the center \( \mathbf{c}_i \) and its nearest neighboring centers. Anisotropic variants scale each dimension separately but follow the same principle of matching the local density of prototypes.
 
 \paragraph{Training the Output Weights \( w_i \):}
 Given fixed centers and spreads, the output weights \( w_i \) can be found by minimizing the squared error between the network output and the target values. The network output for an input \( \mathbf{x} \) is:
@@ -390,70 +451,73 @@ Given fixed centers and spreads, the output weights \( w_i \) can be found by mi
 \]
 where
 \[
-\varphi_i(\mathbf{x}) = \exp\left(-\frac{\|\mathbf{x} - \mathbf{v}_i\|^2}{2\sigma_i^2}\right).
+\varphi_i(\mathbf{x}) = \exp\left(-\frac{\|\mathbf{x} - \mathbf{c}_i\|^2}{2\sigma_i^2}\right).
 \]
 
     The training problem reduces to solving the linear system:
 \begin{align}
-\min_{\mathbf{w}} \| \mathbf{y} - \Phi \mathbf{w} \|^2,
+\min_{\mathbf{w}} \| \mathbf{y} - \boldsymbol{\Phi} \mathbf{w} \|^2,
 \label{eq:rbf_weight_training}
 \end{align}
-where \(\mathbf{y}\) is the vector of target outputs and \(\Phi\) is the design matrix with entries \(\Phi_{ji} = \varphi_i(\mathbf{x}_j)\).
-When \(\Phi^\top\Phi\) is well-conditioned, the ordinary least-squares solution is
+where \(\mathbf{y}\) is the vector of target outputs and \(\boldsymbol{\Phi}\) is the design matrix with entries \(\boldsymbol{\Phi}_{ji} = \varphi_i(\mathbf{x}_j)\).
+When \(\boldsymbol{\Phi}^\top\boldsymbol{\Phi}\) is well-conditioned, the ordinary least-squares solution is
 \[
-    \mathbf{w}^\star = (\Phi^\top \Phi)^{-1}\Phi^\top \mathbf{y}.
+    \mathbf{w}^\star = (\boldsymbol{\Phi}^\top \boldsymbol{\Phi})^{-1}\boldsymbol{\Phi}^\top \mathbf{y}.
 \]
 
 \begin{tcolorbox}[summarybox, title={Dual viewpoint: RBFN vs.\ kernel ridge regression}]
 Fixing the RBF centers and widths makes the hidden layer a finite basis expansion. Training restricts itself to the \(M\) coefficients \(\mathbf{w}\) and resembles kernel ridge regression with a truncated basis. In the dual view, kernel ridge regression solves
 \[
-\min_{\boldsymbol{\alpha}} \|\mathbf{y} - K \boldsymbol{\alpha}\|^2 + \lambda \boldsymbol{\alpha}^\top K \boldsymbol{\alpha},
+\min_{\boldsymbol{\alpha}} \|\mathbf{y} - \mathbf{K} \boldsymbol{\alpha}\|^2 + \lambda \boldsymbol{\alpha}^\top \mathbf{K} \boldsymbol{\alpha},
 \]
-where \(K_{ij} = k(\mathbf{x}_i,\mathbf{x}_j)\) uses the same Gaussian kernel. Setting \(M=N\) and letting the RBF centers coincide with the training points recovers this dual form exactly. Finite \(M\) acts like Nystr\"om approximation: \(\Phi \mathbf{w}\) projects onto a subset of kernel features.
+where \(\mathbf{K}_{ij} = k(\mathbf{x}_i,\mathbf{x}_j)\) uses the same Gaussian kernel. Setting \(M=N\) and letting the RBF centers coincide with the training points recovers this dual form exactly. Finite \(M\) acts like a Nystr\"om approximation: \(\boldsymbol{\Phi}\mathbf{w}\) projects onto a subset of kernel features using \(M<N\) landmark bases, rather than expanding on all \(N\) training points.
 
-Numerically, \(\Phi^\top \Phi\) can be ill-conditioned if the bases overlap excessively or if centers cluster tightly; kernel ridge has the same issue via \(K\). Regularization is therefore essential: add \(\lambda I\) before inversion,
+Numerically, \(\boldsymbol{\Phi}^\top \boldsymbol{\Phi}\) can be ill-conditioned if the bases overlap excessively or if centers cluster tightly; kernel ridge has the same issue via \(\mathbf{K}\). Regularization is therefore essential: add \(\lambda I\) before inversion,
 \[
-\mathbf{w}^\star = (\Phi^\top \Phi + \lambda I)^{-1} \Phi^\top \mathbf{y},
+\mathbf{w}^\star = (\boldsymbol{\Phi}^\top \boldsymbol{\Phi} + \lambda I)^{-1} \boldsymbol{\Phi}^\top \mathbf{y},
 \]
-mirroring the \(\lambda \boldsymbol{\alpha}^\top K \boldsymbol{\alpha}\) term in the dual problem. Larger \(\lambda\) damps coefficients when \(\sigma\) is large (heavy overlap) or when data are noisy, while smaller \(\lambda\) preserves sharper fits at the cost of conditioning. Choosing \(\lambda\) via cross-validation keeps both primal (RBFN) and dual (kernel ridge) systems stable.
+mirroring the \(\lambda \boldsymbol{\alpha}^\top \mathbf{K} \boldsymbol{\alpha}\) term in the dual problem. Larger \(\lambda\) damps coefficients when \(\sigma\) is large (heavy overlap) or when data are noisy, while smaller \(\lambda\) preserves sharper fits at the cost of conditioning. Choosing \(\lambda\) via cross-validation keeps both primal (RBFN) and dual (kernel ridge) systems stable.
 \end{tcolorbox}
+
+\Cref{fig:rbf_primal_dual} summarizes the primal and dual viewpoints side by side and highlights where a finite basis acts like a Nystr\"om approximation.
 
 \begin{figure}[t]
     \centering
     \begin{tikzpicture}[scale=0.95]
         \node at (-3,1.4) {\scriptsize Primal};
         \draw[gray!40] (-4,0) rectangle (-2,1);
-        \node[font=\scriptsize] at (-3,0.5) {$\Phi\in\mathbb{R}^{N\times M}$};
+        \node[font=\scriptsize] at (-3,0.5) {$\boldsymbol{\Phi}\in\mathbb{R}^{N\times M}$};
         \node[font=\scriptsize] at (-3,-0.1) {build features};
         \draw[->, thick] (-1.5,0.5) -- (-0.5,0.5);
         \node[font=\scriptsize] at (0.5,0.8) {solve};
-        \node[font=\scriptsize] at (0.5,0.4) {$(\Phi^\top\Phi+\lambda I)w=\Phi^\top y$};
+        \node[font=\scriptsize] at (0.5,0.4) {$(\boldsymbol{\Phi}^\top\boldsymbol{\Phi}+\lambda I)\mathbf{w}=\boldsymbol{\Phi}^\top \mathbf{y}$};
         \draw[gray!40] (2,0) rectangle (4,1);
-        \node[font=\scriptsize] at (3,0.5) {$w\in\mathbb{R}^{M}$};
+        \node[font=\scriptsize] at (3,0.5) {$\mathbf{w}\in\mathbb{R}^{M}$};
 
         \begin{scope}[shift={(0,-2)}]
-            \node at (-3,1.4) {\scriptsize Dual (kernel ridge/SVM)};
+            \node at (-3,1.4) {\scriptsize Dual (kernel ridge / SVM)};
             \draw[gray!40] (-4,0) rectangle (-2,1);
-        \node[font=\scriptsize] at (-3,0.5) {$K\in\mathbb{R}^{N\times N}$};
+        \node[font=\scriptsize] at (-3,0.5) {$\mathbf{K}\in\mathbb{R}^{N\times N}$};
         \node[font=\scriptsize] at (-3,-0.1) {kernel matrix};
         \draw[->, thick] (-1.5,0.5) -- (-0.5,0.5);
         \node[font=\scriptsize] at (0.5,0.8) {solve};
-        \node[font=\scriptsize] at (0.5,0.4) {$(K+\lambda I)\alpha=y$};
+        \node[font=\scriptsize] at (0.5,0.4) {$(\mathbf{K}+\lambda I)\boldsymbol{\alpha}=\mathbf{y}$};
         \draw[gray!40] (2,0) rectangle (4,1);
-        \node[font=\scriptsize] at (3,0.5) {$\alpha\in\mathbb{R}^{N}$};
+        \node[font=\scriptsize] at (3,0.5) {$\boldsymbol{\alpha}\in\mathbb{R}^{N}$};
     \end{scope}
     \draw[->, gray!60, dashed] (-1,-0.6) -- (1,-1.4) node[midway, sloped, above, gray!60]{Nystr\"om $M<N$};
 \end{tikzpicture}
     % Avoid inline math in captions; it wraps poorly in some EPUB renderers.
-    \caption{Primal (finite basis) vs.\ dual (kernel ridge) viewpoints. Using as many centers as data points recovers the dual form; using fewer centers corresponds to a Nystr\"om approximation. The same trade-off appears in kernel methods through the choice of kernel and effective rank. Use it when deciding whether to train a finite basis model or switch to a kernel viewpoint.}
+    \caption{Primal (finite basis) vs.\ dual (kernel ridge) viewpoints. Using as many centers as data points recovers the dual form; using fewer centers corresponds to a Nystr\"om approximation. The same trade-off appears in kernel methods through the choice of kernel and effective rank.}
 \label{fig:rbf_primal_dual}
 \end{figure}
+\FloatBarrier
 
-    To improve numerical stability or control model complexity, a Tikhonov (ridge) regulariser can be added,
-    \[
-        \mathbf{w}_\lambda^\star = (\Phi^\top \Phi + \lambda I)^{-1}\Phi^\top \mathbf{y}, \qquad \lambda>0,
-    \]
-    or more generally one can use the Moore--Penrose pseudoinverse \(\Phi^{+}\) when \(\Phi^\top\Phi\) is singular, yielding \(\mathbf{w}^\star = \Phi^{+}\mathbf{y}\). A quick dimensional sanity check is that \(\Phi\in\mathbb{R}^{N\times M}\), \(\mathbf{w}\in\mathbb{R}^M\), and \(\mathbf{y}\in\mathbb{R}^N\); all matrix products above respect these shapes.
+To improve numerical stability or control model complexity, a Tikhonov (ridge) regulariser can be added,
+\[
+    \mathbf{w}_\lambda^\star = (\boldsymbol{\Phi}^\top \boldsymbol{\Phi} + \lambda I)^{-1}\boldsymbol{\Phi}^\top \mathbf{y}, \qquad \lambda>0,
+\]
+or more generally one can use the Moore--Penrose pseudoinverse \(\boldsymbol{\Phi}^{+}\) when \(\boldsymbol{\Phi}^\top\boldsymbol{\Phi}\) is singular, yielding \(\mathbf{w}^\star = \boldsymbol{\Phi}^{+}\mathbf{y}\). A quick dimensional sanity check is that \(\boldsymbol{\Phi}\in\mathbb{R}^{N\times M}\), \(\mathbf{w}\in\mathbb{R}^M\), and \(\mathbf{y}\in\mathbb{R}^N\); all matrix products above respect these shapes.
 
 \paragraph{Iterative Optimization of \(\sigma_i\) and \( w_i \):}
 Since both \( \sigma_i \) and \( w_i \) affect the network output, an alternating optimization procedure can be employed:
@@ -472,10 +536,10 @@ where \( d \) is the input dimension.
 
 \paragraph{Summary of the Training Algorithm:}
 \begin{enumerate}
-    \item Use clustering (e.g., K-means) to find centers \( \mathbf{v}_i \) (or sample centers uniformly at random).
+    \item Use clustering (e.g., K-means) to find centers \( \mathbf{c}_i \) (or sample centers uniformly at random).
     \item Set widths \(\sigma_i\) via a rule-of-thumb (global \(\sigma\) from average center spacing or per-cluster covariance).
-    \item Build \(\Phi\) with entries \(\Phi_{ji}=\varphi_i(\mathbf{x}_j)\); choose a small grid of \(\lambda\) values and solve \((\Phi^\top\Phi+\lambda I)\mathbf{w}=\Phi^\top\mathbf{y}\).
-    \item Evaluate on a validation set and pick \((\sigma,\lambda, M)\) that minimizes validation loss; for classification, CE/hinge losses are also feasible with the same design matrix \(\Phi\).
+    \item Build \(\boldsymbol{\Phi}\) with entries \(\boldsymbol{\Phi}_{ji}=\varphi_i(\mathbf{x}_j)\); choose a small grid of \(\lambda\) values and solve \((\boldsymbol{\Phi}^\top\boldsymbol{\Phi}+\lambda I)\mathbf{w}=\boldsymbol{\Phi}^\top\mathbf{y}\).
+    \item Evaluate on a validation set and pick \((\sigma,\lambda, M)\) that minimizes validation loss; for classification, cross\hyp{}entropy or hinge losses are also feasible with the same design matrix \(\boldsymbol{\Phi}\).
 \end{enumerate}
 
 \begin{tcolorbox}[summarybox, title={Practical RBFN training (pseudocode)}]
@@ -497,71 +561,103 @@ Predict: yhat(x) = phi(x, Centers, sigma)^T w_lambda_star
 \mathbf{x}_1=(0,0),\;\mathbf{x}_2=(0,1),\;\mathbf{x}_3=(1,0),\;\mathbf{x}_4=(1,1),
 \qquad \mathbf{t}=[0,1,1,0].
 \]
-Choose \(M=4\) centers at the data and set a global \(\sigma\) from the mean inter-center distance (here \(\sigma\approx 0.8\)). Build \(\Phi\) with entries \(\Phi_{ji}=\exp\!\big(-\|\mathbf{x}_j-\mathbf{c}_i\|^2/(2\sigma^2)\big)\) and solve \((\Phi^\top\Phi+\lambda I)\mathbf{w}=\Phi^\top\mathbf{t}\) over a small grid \(\lambda\in\{10^{-4},10^{-3},10^{-2}\}\). The best \(\lambda\) yields a linear separator in the lifted \(\Phi\)-space that perfectly classifies XOR; widening \(\sigma\) underfits, while shrinking \(\sigma\) without ridge overfits via an ill-conditioned \(\Phi^\top\Phi\).
+Choose \(M=4\) centers at the data and set a global \(\sigma\) from the mean inter-center distance (here \(\sigma\approx 0.8\)). Build \(\boldsymbol{\Phi}\) with entries \(\boldsymbol{\Phi}_{ji}=\exp\!\big(-\|\mathbf{x}_j-\mathbf{c}_i\|^2/(2\sigma^2)\big)\) and solve \((\boldsymbol{\Phi}^\top\boldsymbol{\Phi}+\lambda I)\mathbf{w}=\boldsymbol{\Phi}^\top\mathbf{t}\) over a small grid \(\lambda\in\{10^{-4},10^{-3},10^{-2}\}\). The best \(\lambda\) yields a linear separator in the lifted \(\boldsymbol{\Phi}\)-space that classifies XOR. Widening \(\sigma\) makes bases overlap heavily and can wash out locality (very smooth boundaries and low margins), while shrinking \(\sigma\) makes the model extremely local and can create small islands that fit the training points but generalize poorly. Ridge helps whenever \(\boldsymbol{\Phi}^\top\boldsymbol{\Phi}\) is poorly conditioned (typically when bases overlap heavily or centers cluster).
 
-    \begin{figure}[t]
-        \centering
-            % Reproduce the plot directly in PGFPlots so it remains grayscale/KDP-safe.
-            \begin{tikzpicture}
-            \pgfplotsset{colormap={rbfclass}{
-                % Light vs. darker tint: still distinct in grayscale, but more pleasant in color.
-                color(0cm)=(white);
-                color(1cm)=(cbBlue!35)
-            }}
-        \begin{axis}[
-            width=0.72\linewidth,
-            height=0.72\linewidth,
-            xmin=-0.2, xmax=1.2,
-            ymin=-0.2, ymax=1.2,
-            xlabel={$x_1$},
-            ylabel={$x_2$},
-            grid=both,
-            grid style={gray!10},
-            axis on top,
-            clip=false,
-            colormap name=rbfclass,
-            point meta min=0,
-            point meta max=1,
-        ]
-            % Decision regions: binary shading under threshold \hat{y} = 0.5.
-            \addplot[
-                matrix plot*,
-                mesh/cols=29,
-                mesh/rows=29,
-                point meta=explicit,
-                forget plot,
-            ] table [x=x, y=y, meta=cls] {rbf_boundary_class_table_with_breaks.dat};
+\Cref{fig:rbf_boundary} shows one such boundary for a fixed choice of centers, width, and ridge regularization.
 
-        % Boundary contour at \hat{y} = 0.5 (precomputed from the same grid).
-            \addplot[
-                black,
-                very thick,
-                unbounded coords=jump,
-                forget plot,
-            ] table [x=x, y=y] {rbf_xor_contour_0p5.dat};
+\begin{figure}[t]
+    \centering
+    % Reproduce the plots directly in PGFPlots so they remain grayscale/KDP-safe.
+    % Data tables are generated by `notes_output/scripts/gen_rbf_xor_sigma_sweep_tables.py`.
+    \begin{tikzpicture}
+    \pgfplotsset{colormap={rbfclass}{
+        % Light vs. darker tint: still distinct in grayscale, but more pleasant in color.
+        color(0cm)=(white);
+        color(1cm)=(cbBlue!35)
+    }}
+                \begin{groupplot}[
+                    group style={group size=3 by 1, horizontal sep=0.9cm},
+                    width=0.31\linewidth,
+                    height=0.31\linewidth,
+                    xmin=-0.2, xmax=1.2,
+                    ymin=-0.2, ymax=1.2,
+                    grid=both,
+                    grid style={gray!10},
+                    axis on top,
+                    clip=false,
+                    colormap name=rbfclass,
+                    point meta min=0,
+                    point meta max=1,
+                    xlabel={$x_1$},
+                    xtick={0,1},
+                    ytick={0,1},
+                    tick label style={font=\scriptsize},
+                    label style={font=\scriptsize},
+                    title style={font=\scriptsize, align=center},
+                ]
+                \nextgroupplot[title={$\sigma=2.0$ (too broad)}, ylabel={$x_2$}]
+                    \addplot[
+                        matrix plot*,
+                        mesh/cols=29,
+                        mesh/rows=29,
+                        point meta=explicit,
+                        forget plot,
+                    ] table [x=x, y=y, meta=cls] {rbf_xor_sigma2p0_boundary_class_table_with_breaks.dat};
+                    \addplot[
+                        black,
+                        very thick,
+                        unbounded coords=jump,
+                        forget plot,
+                    ] table [x=x, y=y] {rbf_xor_sigma2p0_contour_0p5.dat};
+                    \addplot[only marks, mark=o, mark options={fill=white, draw=black}, mark size=2.6pt, forget plot]
+                        coordinates {(0,0) (1,1)};
+                    \addplot[only marks, mark=square*, mark options={fill=black, draw=black}, mark size=2.6pt, forget plot]
+                        coordinates {(0,1) (1,0)};
 
-        % Training points (XOR corners).
-            \addplot[
-                only marks,
-                mark=o,
-                mark options={fill=white, draw=black},
-                mark size=2.6pt,
-                forget plot,
-            ] coordinates {(0,0) (1,1)};
+                \nextgroupplot[title={$\sigma=0.8$ (balanced)}]
+                    \addplot[
+                        matrix plot*,
+                        mesh/cols=29,
+                        mesh/rows=29,
+                        point meta=explicit,
+                        forget plot,
+                    ] table [x=x, y=y, meta=cls] {rbf_xor_sigma0p8_boundary_class_table_with_breaks.dat};
+                    \addplot[
+                        black,
+                        very thick,
+                        unbounded coords=jump,
+                        forget plot,
+                    ] table [x=x, y=y] {rbf_xor_sigma0p8_contour_0p5.dat};
+                    \addplot[only marks, mark=o, mark options={fill=white, draw=black}, mark size=2.6pt, forget plot]
+                        coordinates {(0,0) (1,1)};
+                    \addplot[only marks, mark=square*, mark options={fill=black, draw=black}, mark size=2.6pt, forget plot]
+                        coordinates {(0,1) (1,0)};
 
-            \addplot[
-                only marks,
-                mark=square*,
-                mark options={fill=black, draw=black},
-                mark size=2.6pt,
-                forget plot,
-            ] coordinates {(0,1) (1,0)};
-        \end{axis}
-        \end{tikzpicture}
-        % Avoid inline math in captions; it wraps poorly in some EPUB renderers.
-        \caption{RBFN decision boundary on XOR with 4 centers, sigma = 0.8, and ridge lambda = 1e-3. Shading indicates the predicted class under a 0.5 threshold; the black contour marks the 0.5 boundary. Training points are overlaid (class 0: open circles; class 1: filled squares). See \Cref{fig:rbf_sigma_sweep} for sigma effects. Use it when checking whether center count and width are sufficient for a non-linear boundary.}
-        \label{fig:rbf_boundary}
-    \end{figure}
+                \nextgroupplot[title={$\sigma=0.25$ (too local)}]
+                    \addplot[
+                        matrix plot*,
+                        mesh/cols=29,
+                        mesh/rows=29,
+                        point meta=explicit,
+                        forget plot,
+                    ] table [x=x, y=y, meta=cls] {rbf_xor_sigma0p25_boundary_class_table_with_breaks.dat};
+                    \addplot[
+                        black,
+                        very thick,
+                        unbounded coords=jump,
+                        forget plot,
+                    ] table [x=x, y=y] {rbf_xor_sigma0p25_contour_0p5.dat};
+                    \addplot[only marks, mark=o, mark options={fill=white, draw=black}, mark size=2.6pt, forget plot]
+                        coordinates {(0,0) (1,1)};
+                    \addplot[only marks, mark=square*, mark options={fill=black, draw=black}, mark size=2.6pt, forget plot]
+                        coordinates {(0,1) (1,0)};
+                \end{groupplot}
+    \end{tikzpicture}
+    % Avoid inline math in captions; it wraps poorly in some EPUB renderers.
+    \caption{Effect of \(\sigma\) on an RBFN XOR boundary (4 centers at the data corners, ridge \(\lambda=10^{-3}\), threshold 0.5). Too-large \(\sigma\) makes bases overlap heavily, producing a very smooth, low-contrast boundary; intermediate \(\sigma\) yields a cleaner separation; too-small \(\sigma\) makes the model extremely local, producing small ``islands'' around prototypes.}
+    \label{fig:rbf_boundary}
+\end{figure}
+\FloatBarrier
 
 
 \subsection{Remarks on Radial Basis Function Networks}
@@ -578,76 +674,16 @@ Choose \(M=4\) centers at the data and set a global \(\sigma\) from the mean int
 
 \paragraph{Disadvantages:}
 \begin{itemize}
-    \item \textbf{Parameter selection:} Choosing the number of neurons \( M \), centers \( \mathbf{v}_i \), and spreads \( \sigma_i \) is nontrivial and often requires heuristics or cross-validation.
+    \item \textbf{Parameter selection:} Choosing the number of neurons \( M \), centers \( \mathbf{c}_i \), and spreads \( \sigma_i \) is nontrivial and often requires heuristics or cross-validation.
     \item \textbf{Scalability:} The number of radial units required can grow quickly with input dimensionality, increasing computation and storage costs.
     \item \textbf{Center determination:} Identifying good centers (via clustering or other heuristics) can be computationally expensive and sensitive to noisy data.
 \end{itemize}
 
 % Chapter 8: Finalizing Derivations and Closure
 
-\subsection*{Optional sidebar: Wiener filter refresher}
-
-\paragraph{Sidebar: why include Wiener filtering here?} RBF networks inherit many ideas from linear estimation (projection onto bases, Gaussian kernels). The short Wiener-filter recap below is optional; feel free to skim or treat it as context that connects kernelized least-squares estimators to the localized nonlinear networks that opened this chapter.
-
-Recall from the previous discussion that the Wiener filter aims to minimize the mean squared error (MSE) between the desired signal \( d(t) \) and the filter output \( y(t) \), where
-\[
-y(t) = \mathbf{w}^T \mathbf{x}(t),
-\]
-with \(\mathbf{w}\) the filter coefficient vector and \(\mathbf{x}(t)\) the input vector.
-
-The MSE cost function is
-\begin{equation}
-J(\mathbf{w}) = \mathbb{E}\left[ |d(t) - \mathbf{w}^T \mathbf{x}(t)|^2 \right].
-\label{eq:mse_cost}
-\end{equation}
-
-To find the optimal \(\mathbf{w}^\star\), we set the gradient of \(J(\mathbf{w})\) with respect to \(\mathbf{w}\) to zero:
-\[
-\nabla_{\mathbf{w}} J(\mathbf{w}) = -2 \mathbf{p} + 2 \mathbf{R} \mathbf{w} = \mathbf{0},
-\]
-where
-\[
-\mathbf{R} = \mathbb{E}[\mathbf{x}(t) \mathbf{x}^T(t)], \quad \mathbf{p} = \mathbb{E}[d(t) \mathbf{x}(t)].
-\]
-
-Solving for \(\mathbf{w}\), we obtain the Wiener-Hopf equation:
-\begin{equation}
-\mathbf{R} \mathbf{w}^\star = \mathbf{p}.
-\label{eq:wiener_hopf}
-\end{equation}
-
-Assuming \(\mathbf{R}\) is invertible, the optimal filter coefficients are
-\begin{equation}
-\mathbf{w}^\star = \mathbf{R}^{-1} \mathbf{p}.
-\label{eq:wiener_solution}
-\end{equation}
-
-This completes the derivation of the Wiener filter solution.
-
-\paragraph{Optional: interpretation and properties}
-
-\paragraph{Interpretation:} The Wiener filter can be viewed as the linear estimator that projects the desired signal \(d(t)\) onto the subspace spanned by the input vector \(\mathbf{x}(t)\) in the least-squares sense.
-
-\paragraph{Properties:}
-\begin{itemize}
-    \item \textbf{Optimality:} Minimizes the MSE among all linear filters.
-    \item \textbf{Stationarity:} Requires knowledge of the second-order statistics \(\mathbf{R}\) and \(\mathbf{p}\), which are assumed stationary.
-    \item \textbf{Causality:} The Wiener filter as derived is non-causal; causal versions require additional constraints.
-\end{itemize}
-
-\paragraph{Optional: frequency-domain form}
-
-For stationary processes, the Wiener filter can be equivalently expressed in the frequency domain. Let \(S_{xx}(\omega)\) and \(S_{dx}(\omega)\) denote the power spectral density (PSD) of the input and the cross-PSD between desired and input signals, respectively. Then the frequency response of the Wiener filter is
-\begin{equation}
-H(\omega) = \frac{S_{dx}(\omega)}{S_{xx}(\omega)}.
-\label{eq:wiener_freq}
-\end{equation}
-
-This expression provides insight into the filter's behavior as a frequency-selective operator that emphasizes frequencies where the desired signal and input are strongly correlated.
-
-\paragraph{Optional: why adaptive filtering comes next}
-
-While the Wiener filter provides a closed-form solution, in practice the statistics \(\mathbf{R}\) and \(\mathbf{p}\) are often unknown or time-varying. This motivates adaptive filtering algorithms such as LMS and RLS, which iteratively approximate \(\mathbf{w}^\star\) using observed data.
+\begin{tcolorbox}[summarybox, title={Sidebar (optional): Wiener filtering in one paragraph}]
+The Wiener filter is the same least-squares projection story in signal-processing notation. In the Wiener case, you write the linear estimator as \(y(t)=\mathbf{w}^\top\mathbf{x}(t)\) and the normal equations involve second-order statistics \(\mathbf{R}=\mathbb{E}[\mathbf{x}\mathbf{x}^\top]\) and \(\mathbf{p}=\mathbb{E}[d\,\mathbf{x}]\), giving \(\mathbf{R}\mathbf{w}^\star=\mathbf{p}\). In an RBF network, you replace the raw input \(\mathbf{x}\) by fixed nonlinear features \(\boldsymbol{\Phi}\) (built from radial units), and the same idea becomes \((\boldsymbol{\Phi}^\top\boldsymbol{\Phi}+\lambda I)\mathbf{w}^\star=\boldsymbol{\Phi}^\top\mathbf{y}\). The point of the sidebar is just this mapping: both are ``fit a linear readout to fixed features,'' and conditioning/regularization control how stable that fit is.
+\end{tcolorbox}
 
 \subsection{Preview: Unsupervised and Localized Learning}
 \label{sec:rbf_preview_unsupervised_and_localized_learning}

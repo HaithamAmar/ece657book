@@ -30,10 +30,7 @@ A classic example illustrating the power of such representations is the analogy:
 This demonstrates that vector arithmetic on word embeddings can capture meaningful relationships between words. The goal is to find a vector space embedding where semantic similarity corresponds to geometric closeness.
 
 \paragraph{How this chapter is organized.}
-\begin{itemize}
-    \item \textbf{Core path:} distributional hypothesis $\rightarrow$ Word2Vec (CBOW/skip-gram) objectives $\rightarrow$ negative sampling $\rightarrow$ how to evaluate embeddings (analogy/neighbors) $\rightarrow$ how embeddings plug into RNNs/attention models.
-    \item \textbf{Optional detours:} deeper objective derivations, historical notes, and the deployment/fairness discussion (important when embeddings are used in decisions rather than as a pure feature extractor).
-\end{itemize}
+We start with the linguistic idea (distributional semantics) and immediately turn it into an engineering object: a lookup table of vectors that make prediction from nearby words easier. From there we build the two Word2Vec objectives (CBOW and skip-gram), show why full softmax is expensive, and introduce negative sampling as the practical workaround. We then discuss how to sanity-check an embedding space (neighbors and analogies) and close with what can go wrong in deployment (bias, leakage, and basic audits).
 
 \paragraph{Notation.}
 We use \(V\) for vocabulary size, \(d\) for embedding dimension, \(\mathbf{x}_t\) for one-hot token indicators, and \(\mathbf{e}_t\) for learned embedding vectors. When symbols collide with earlier chapters (e.g., \(d\) as data dimension vs.\ embedding size), the local meaning is authoritative; \Cref{app:notation_collisions} gives the global index.
@@ -61,9 +58,9 @@ Fix a dictionary of size \(V\). A token at position \(t\) can be represented as 
 \noindent This is the same friction point you saw in \Cref{sec:rnn_sentiment_worked_example}: the sequence model can only be as systematic as its input geometry.
 
 \paragraph{Embedding lookup as learned features.}
-Instead of using the identity basis, we learn a table \(\mathbf{E}\in\mathbb{R}^{V\times d}\) whose rows are trainable parameters. A one-hot indicator becomes a row lookup:
+Instead of using the identity basis, we learn an embedding table \(\mathbf{W}\in\mathbb{R}^{V\times d}\) whose rows are trainable parameters. A one-hot indicator becomes a row lookup:
 \[
-\mathbf{e}_t=\mathbf{x}_t\mathbf{E}\in\mathbb{R}^{1\times d}.
+\mathbf{e}_t=\mathbf{x}_t\mathbf{W}\in\mathbb{R}^{1\times d}.
 \]
 This is the same linear algebra as one-hot, but now the coordinates are \emph{learned} so that similar words end up nearby when that helps prediction.
 
@@ -72,7 +69,7 @@ A useful mental model is to imagine that each word is a \emph{graded bundle of a
 \begin{table}[t]
 \centering
 \small
-\caption{Feature-based word vectorization example. Each word is mapped to a vector of graded semantic features; fractional entries (e.g., 0.5) indicate mixed usage across contexts. Use it when building intuition for how discrete symbols become vectors that downstream models can consume.}
+\caption{Feature-based word vectorization example. Each word is mapped to a vector of graded semantic features; fractional entries (e.g., 0.5) indicate mixed usage across contexts. Treat this as an intuition pump: real embedding coordinates are learned from data rather than hand-assigned.}
 \label{tab:word_feature_vectorization}
 \begin{tabular}{l|cccccccc}
 \textbf{Word} & Gender & Royalty & Age & Person & Fruit & Title & Abstract & Sweet \\
@@ -89,6 +86,14 @@ royal & 0 & 1 & 0.5 & 0 & 0 & 1 & 1 & 0 \\
 \end{table}
 
 \Cref{tab:word_feature_vectorization} gives a concrete intuition for mapping symbolic tokens into graded feature vectors.
+
+\begin{tcolorbox}[summarybox, title={Numeric check: why the analogy arithmetic can work}]
+Using the toy feature vectors in \Cref{tab:word_feature_vectorization}, the analogy is literal:
+\[
+\mathbf{v}(\text{king})-\mathbf{v}(\text{man})+\mathbf{v}(\text{woman})=\mathbf{v}(\text{queen}).
+\]
+Real embeddings are not hand-designed, so the equality is only approximate, but the geometry is the same: a shared ``relation direction'' can show up as an approximately consistent offset across many word pairs. In this toy table, you can verify the identity directly from the entries.
+\end{tcolorbox}
 
 Of course, hand-crafting features does not scale to large vocabularies, and it bakes in subjective choices. The central move of modern embeddings is to let the \emph{training objective} discover whatever coordinates best support prediction from context.
 
@@ -175,63 +180,27 @@ With the conceptual picture fixed, we now run one continuous derivation path fro
 
 % Chapter 13 (continued)
 
-\paragraph{Neural network architecture for word embeddings.}
+\paragraph{Embedding lookup as a tiny network (shapes).}
 \label{sec:nlp_neural_network_architecture_for_word_embeddings}
-
-For a concrete setup, take a corpus with vocabulary size \( V = 10{,}000 \) and embedding dimension \( d = 300 \). The goal is to learn one dense vector per vocabulary item.
-
-\paragraph{Input Representation}
-
-Each input word is represented as a one-hot row vector \(\mathbf{x} \in \mathbb{R}^{1\times V}\), where only one element is 1 (corresponding to the word index) and the rest are 0. For example, if the word "want" is the \(i\)-th word in the vocabulary, then \(\mathbf{x}_i = 1\) and \(\mathbf{x}_j = 0\) for \(j \neq i\).
-
-\paragraph{Network Structure}
-
-We consider a simple feedforward neural network with:
-
-\begin{itemize}
-    \item An input layer of size \(V\) (one-hot encoded words).
-    \item A hidden layer of size \(d = 300\), which will serve as the embedding layer.
-    \item An output layer of size \(V\), which predicts the target word.
-\end{itemize}
-
-The weight matrix between the input and hidden layer is denoted as
-\[
-W \in \mathbb{R}^{V \times d}.
-\]
-Each row \(W_{i,:}\) corresponds to the embedding vector of the \(i\)-th word.
-
-\paragraph{Forward Pass}
-
-Given an input word represented by \(\mathbf{x}\), the hidden layer output \(\mathbf{h} \in \mathbb{R}^d\) is computed as:
+Fix a vocabulary of size \(V\) and an embedding dimension \(d\) (e.g., \(V=10{,}000\), \(d=300\)). A token is an index \(i\in\{1,\ldots,V\}\), represented as a one-hot row vector \(\mathbf{x}\in\{0,1\}^{1\times V}\). The embedding table \(\mathbf{W}\in\mathbb{R}^{V\times d}\) is trainable, and the embedding for the token is the row lookup
 \begin{align}
-    \mathbf{h} &= \mathbf{x} W, \label{eq:hidden_layer}
+    \mathbf{h} &= \mathbf{x}\mathbf{W}\in\mathbb{R}^{1\times d}. \label{eq:hidden_layer}
 \end{align}
-where \(\mathbf{x}\) is a \(1 \times V\) vector and \(W\) is \(V \times d\), resulting in \(\mathbf{h}\) of size \(1 \times d\).
+Because \(\mathbf{x}\) is one-hot, this multiplication selects exactly one row of \(\mathbf{W}\); that is the whole ``embedding lookup'' operation.
 
-Because \(\mathbf{x}\) is one-hot, this operation simply selects the row of \(W\) corresponding to the input word, i.e., the embedding vector for that word.
-
-\paragraph{Output Layer}
-
-The hidden layer output \(\mathbf{h}\) is then multiplied by an output matrix \(W_{\text{out}} \in \mathbb{R}^{d \times V}\) to produce the output logits \(\mathbf{z} \in \mathbb{R}^V\):
+To turn the lookup into a prediction task (CBOW or skip-gram), we add output-side vectors \(\mathbf{W}_{\text{out}}\in\mathbb{R}^{d\times V}\) and compute logits
 \begin{align}
-    \mathbf{z} &= \mathbf{h} W_{\text{out}}. \label{eq:output_logits}
+    \mathbf{z} &= \mathbf{h}\mathbf{W}_{\text{out}} \in \mathbb{R}^{1\times V}. \label{eq:output_logits}
 \end{align}
-
-These logits are then passed through a softmax function to produce a probability distribution over the vocabulary:
+These logits are passed through a softmax function to produce a probability distribution over the vocabulary:
 \begin{align}
     \hat{\mathbf{y}}_j = \frac{\exp(z_j)}{\sum_{k=1}^V \exp(z_k)}, \quad j=1,\ldots, V. \label{eq:softmax}
 \end{align}
-
-\paragraph{Training Objective}
-
-The target output \(\mathbf{y}\) is also a one-hot vector corresponding to the word we want to predict (e.g., the word "automatic"). The training objective is to minimize the cross\hyp{}entropy loss between the predicted distribution \(\hat{\mathbf{y}}\) and the target \(\mathbf{y}\):
+Training then minimizes cross\hyp{}entropy (equivalently, negative log-likelihood) against the one-hot target \(\mathbf{y}\):
 \begin{align}
     \mathcal{L} = - \sum_{j=1}^V y_j \log \hat{y}_j. \label{eq:cross_entropy}
 \end{align}
-
-\paragraph{Backpropagation and Weight Updates}
-
-During training, the weights \(\mathbf{W}\) and \(\mathbf{W}_{\text{out}}\) are updated via backpropagation to minimize \(\mathcal{L}\). This process adjusts the embeddings in \(\mathbf{W}\) so that words appearing in similar contexts have similar vector representations.
+During learning, \(\mathbf{W}\) and \(\mathbf{W}_{\text{out}}\) update so that words that share contexts end up with similar vectors.
 
 \paragraph{Context window and sequential input.}
 \label{sec:nlp_context_window_and_sequential_input}
@@ -256,7 +225,7 @@ The hidden representations \(\mathbf{h}^{(i)}\) for each context word can be com
 
 Note that the input vectors \(\mathbf{x}_{t+j}\) are extremely sparse (one-hot), and the embedding matrix \(\mathbf{W}\) is large (\(10{,}000 \times 300\), for example). However, the multiplication \(\mathbf{x}_{t+j}\mathbf{W}\) is efficient because it selects a single row of \(\mathbf{W}\) per input word.
 
-\paragraph{Interpretation of the weight matrix \texorpdfstring{\(W\)}{W}.}
+\paragraph{Interpretation of the weight matrix \texorpdfstring{\(\mathbf{W}\)}{W}.}
 \label{sec:nlp_interpretation_of_the_weight_matrix_w_w}
 
 The matrix \(\mathbf{W}\) can be interpreted as a lookup table: the \(i\)-th row is the embedding for word \(w_i\), and \(\mathbf{x}\mathbf{W}\) (with one-hot \(\mathbf{x}\)) selects that row directly.
@@ -340,7 +309,7 @@ Z = \sum_{w=1}^V \exp(\mathbf{h}\,\mathbf{u}_w)
 
 \begin{tcolorbox}[summarybox, title={Recipe: skip-gram with negative sampling}]
 Preprocess: tokenize (BPE/WordPiece or whitespace), lowercase if appropriate, drop rare words below a cutoff, subsample frequent words with \(t\approx 10^{-5}\).\\
-Hyperparameters: window \(c=2\)--\(5\) (often dynamic/symmetric), embedding dim \(d=100\)--\(300\), negatives \(k=5\)--\(20\), unigram noise \(P_n(w)\propto f(w)^{0.75}\), LR on the order of \(10^{-3}\)--\(10^{-2}\).\\
+Hyperparameters: window \(c=2\)--\(5\) (often dynamic/symmetric), embedding dim \(d=100\)--\(300\), negatives \(k=5\)--\(20\), unigram noise \(P_n(w)\propto f(w)^{0.75}\), learning rate on the order of \(10^{-3}\)--\(10^{-2}\).\\
 Per-positive loss (one context word): \(-\log \sigma(\mathbf{h}\,\mathbf{u}_{\text{pos}}) - \sum_{i=1}^k \log \sigma(-\mathbf{h}\,\mathbf{u}_{\text{neg}, i})\); complexity \(O(k)\) vs. \(O(V)\) for full softmax.
 \end{tcolorbox}
 
@@ -355,9 +324,7 @@ This is computationally expensive, especially when training on large corpora.
 \subsection{Efficient Training of Word Embeddings: Hierarchical Softmax and Negative Sampling}
 \label{sec:nlp_efficient_training_of_word_embeddings_hierarchical_softmax_and_negative_sampling}
 
-Recall from the previous discussion that computing the full softmax over a large vocabulary is computationally expensive. Specifically, given an input word, calculating the probability distribution over all possible output words in the vocabulary requires a normalization over potentially millions of terms, which is prohibitive in practice.
-
-There are two primary strategies to address this computational bottleneck:
+We now expand the two approximations introduced above---hierarchical softmax and negative sampling---and use them throughout the rest of the section.
 
 \paragraph{1. Hierarchical Softmax}
 Hierarchical softmax replaces the flat softmax layer with a binary tree representation of the vocabulary. Each word corresponds to a leaf node, and the probability of a word is decomposed into the probabilities of traversing the path from the root to that leaf. This reduces the computational complexity from \(O(V)\) to \(O(\log V)\), where \(V\) is the vocabulary size.
@@ -467,7 +434,7 @@ Recall that our goal is to obtain a global vector representation for words, capt
     \centering
     \includegraphics[width=0.82\linewidth]{lec14_analogy_geometry}
     % Avoid inline math in captions; it wraps poorly in some EPUB renderers.
-    \caption{Analogy geometry in embedding space. The offset ``v(king) - v(man) + v(woman) approx v(queen)'' forms a parallelogram; a similar gender direction shifts ``doctor'' toward ``nurse.'' Solid and dashed vectors highlight the shared relational direction. Points are shown after 2D PCA, so directions are approximate. Use it when checking whether embedding offsets encode consistent relations and reveal bias directions.}
+    \caption[Analogy geometry in embedding space]{Analogy geometry in embedding space. The offset ``v(king) - v(man) + v(woman) approx v(queen)'' forms a parallelogram; a similar gender direction shifts ``doctor'' toward ``nurse.'' Solid and dashed vectors highlight the shared relational direction. Points are shown after a 2D principal component analysis (PCA) projection, so directions are approximate. \textit{Source: author-generated schematic; inspired by \citet{Mikolov2013}.}}
     \label{fig:lec8-embedding-clusters}
 \end{figure}
 
@@ -546,9 +513,9 @@ where \( \alpha \in (0,1) \) and \( x_{\max} \) is a cutoff parameter.
 
 In the previous sections, we explored the formulation of word embeddings through co-occurrence statistics and matrix factorization approaches. This section closes the derivation arc and clarifies the role of bias terms and optimization strategies.
 
-Recall the key equation relating the word vectors \( \mathbf{v}_i \) and context vectors \( \mathbf{u}_k \) to the co-occurrence counts \( x_{ik} \):
+Recall the key equation relating the word vectors \( \mathbf{v}_i \) and context vectors \( \mathbf{u}_k \) to the co-occurrence counts \( X_{ik} \):
 \begin{equation}
-    \mathbf{v}_i\,\mathbf{u}_k + b_i + b_k = \log x_{ik},
+    \mathbf{v}_i\,\mathbf{u}_k + b_i + b_k = \log X_{ik},
     \label{eq:cooccurrence_log}
 \end{equation}
 where \( b_i \) and \( b_k \) are bias terms associated with the word and context, respectively.
@@ -559,7 +526,7 @@ Initially, two separate bias terms \( b_i \) and \( b_k \) were introduced to ac
 
 Hence, the equation can be rewritten as
 \begin{equation}
-    \mathbf{v}_i\,\mathbf{u}_k = \log x_{ik} - b_i - b_k.
+    \mathbf{v}_i\,\mathbf{u}_k = \log X_{ik} - b_i - b_k.
     \label{eq:cooccurrence_log_bias}
 \end{equation}
 
@@ -567,34 +534,25 @@ In practice, the biases \( b_i \) and \( b_k \) are learned jointly with the emb
 
 \paragraph{Objective Function and Optimization}
 
-Let the target embeddings be rows \( \mathbf{v}_i \in \mathbb{R}^{1\times d} \), the context embeddings be columns \( \mathbf{u}_k \in \mathbb{R}^{d\times 1} \), and the biases scalars \( b_i, b_k \in \mathbb{R} \). The scalar score \( \mathbf{v}_i\,\mathbf{u}_k \) therefore measures the alignment between the target and context embeddings. The goal is to find \( \{\mathbf{v}_i, \mathbf{u}_k, b_i, b_k\} \) that minimize the reconstruction error of the log co-occurrence matrix. Because raw counts span several orders of magnitude, the loss must behave like plain least squares for large \(x_{ik}\) yet dampen the influence of very small counts. Enforcing the limits \(f(x) \to 0\) as \(x \to 0\) and \(f(x) \to 1\) for \(x \ge x_{\max}\) yields the weighting scheme used by GloVe. The final weighted least-squares loss is
+Let the target embeddings be rows \( \mathbf{v}_i \in \mathbb{R}^{1\times d} \), the context embeddings be columns \( \mathbf{u}_k \in \mathbb{R}^{d\times 1} \), and the biases scalars \( b_i, b_k \in \mathbb{R} \). The scalar score \( \mathbf{v}_i\,\mathbf{u}_k \) therefore measures the alignment between the target and context embeddings. The goal is to find \( \{\mathbf{v}_i, \mathbf{u}_k, b_i, b_k\} \) that minimize the reconstruction error of the log co-occurrence matrix. Because raw counts span several orders of magnitude, the loss must behave like plain least squares for large \(X_{ik}\) yet dampen the influence of very small counts. Enforcing the limits \(f(x) \to 0\) as \(x \to 0\) and \(f(x) \to 1\) for \(x \ge x_{\max}\) yields the weighting scheme used by GloVe. The final weighted least-squares loss is
 \begin{equation}
-    J = \sum_{i=1}^{V}\sum_{k=1}^{V} f(x_{ik}) \left( \mathbf{v}_i\,\mathbf{u}_k + b_i + b_k - \log x_{ik} \right)^2,
+    J = \sum_{i=1}^{V}\sum_{k=1}^{V} f(X_{ik}) \left( \mathbf{v}_i\,\mathbf{u}_k + b_i + b_k - \log X_{ik} \right)^2,
     \label{eq:objective}
 \end{equation}
-where \( f(x) \) is the weighting function that downweights rare (or extremely common) co-occurrences to improve robustness. GloVe, for instance, uses the piecewise definition
-\begin{equation}
-    f(x) = \begin{cases}
-        \left(\frac{x}{x_{\max}}\right)^\alpha & \text{if } x < x_{\max}, \\
-        1 & \text{otherwise},
-    \end{cases}
-    \qquad 0 < \alpha \leq 1,
-    \label{eq:glove_weight}
-\end{equation}
-so that very small counts contribute little to the loss while still allowing moderately frequent pairs to influence the fit. In the original paper, practical defaults such as \(\alpha \approx 0.75\) and \(x_{\max}\approx 100\) were found to work well across a range of corpora \citep{Pennington2014}; keeping those guardrails explicit also explains why the same weighting recipe keeps reappearing in derived models.
+where \( f(x) \) is the weighting function that downweights rare (or extremely common) co-occurrences to improve robustness. GloVe uses the piecewise definition in \eqref{eq:weighting_function}, so very small counts contribute little to the loss while moderately frequent pairs still influence the fit. In the original paper, practical defaults such as \(\alpha \approx 0.75\) and \(x_{\max}\approx 100\) were found to work well across a range of corpora \citep{Pennington2014}; keeping those guardrails explicit also explains why the same weighting recipe keeps reappearing in derived models.
 
 \paragraph{Singular Value Decomposition (SVD) Connection}
 
-One approach to solving this problem is to perform a low-rank approximation of the matrix \( \log X \), where \( X = [x_{ik}] \) is the co-occurrence matrix and the logarithm is applied elementwise (with small smoothing constants, e.g., \(\epsilon = 10^{-8}\), added to avoid \(\log 0\)). The singular value decomposition (SVD) provides a principled method to find such a factorization:
+One approach to solving this problem is to perform a low-rank approximation of the matrix \( \log X \), where \( X = [X_{ik}] \) is the co-occurrence matrix and the logarithm is applied elementwise (with small smoothing constants, e.g., \(\epsilon = 10^{-8}\), added to avoid \(\log 0\)). The singular value decomposition (SVD) provides a principled method to find such a factorization:
 \begin{equation}
-    \log X \approx U_r \Sigma_r V_r^\top,
+    \log X \approx \mathbf{U}_r \boldsymbol{\Sigma}_r \mathbf{V}_r^\top,
     \label{eq:svd}
 \end{equation}
-where \(U_r \in \mathbb{R}^{V \times r}\) and \(V_r \in \mathbb{R}^{V \times r}\) contain the top-\(r\) singular vectors (for the desired embedding dimension \(d=r\)), and \(\Sigma_r \in \mathbb{R}^{r \times r}\) is a diagonal matrix of the corresponding singular values. The truncation rank \(r\), often between 100 and 300 in practice, acts exactly like the embedding dimensionality knob in neural models.
+where \(\mathbf{U}_r \in \mathbb{R}^{V \times r}\) and \(\mathbf{V}_r \in \mathbb{R}^{V \times r}\) contain the top-\(r\) singular vectors (for the desired embedding dimension \(d=r\)), and \(\boldsymbol{\Sigma}_r \in \mathbb{R}^{r \times r}\) is a diagonal matrix of the corresponding singular values. The truncation rank \(r\), often between 100 and 300 in practice, acts exactly like the embedding dimensionality knob in neural models.
 
 By setting
 \[
-\mathbf{v}_i = (U_r)_i \Sigma_r^{1/2}, \quad \mathbf{u}_k = (V_r)_k \Sigma_r^{1/2},
+\mathbf{v}_i = (\mathbf{U}_r)_i \boldsymbol{\Sigma}_r^{1/2}, \quad \mathbf{u}_k = (\mathbf{V}_r)_k \boldsymbol{\Sigma}_r^{1/2},
 \]
 we obtain embeddings that approximate the log co-occurrence matrix in a least-squares sense.
 
@@ -621,9 +579,11 @@ An important consideration in word embedding models is the presence of bias inhe
 
 \paragraph{Sources of Bias}
 
-- \textbf{Cultural Bias:} Text corpora often contain stereotypes or skewed representations of gender, ethnicity, and other social categories (e.g., news archives that associate ``nurse'' more frequently with women than men).
-- \textbf{Historical Bias:} Older texts may reflect outdated or prejudiced views. Digitized literature from the 19th century, for instance, over-represents colonial perspectives.
-- \textbf{Language-Specific Bias:} Different languages and dialects encode different cultural norms and connotations, such as grammatical gender or honorifics that privilege particular groups.
+\begin{itemize}
+    \item \textbf{Cultural bias:} Text corpora often contain stereotypes or skewed representations of gender, ethnicity, and other social categories (e.g., news archives that associate ``nurse'' more frequently with women than men).
+    \item \textbf{Historical bias:} Older texts may reflect outdated or prejudiced views. Digitized literature from the 19th century, for instance, over-represents colonial perspectives.
+    \item \textbf{Language-specific bias:} Different languages and dialects encode different cultural norms and connotations, such as grammatical gender or honorifics that privilege particular groups.
+\end{itemize}
 
 \paragraph{Impact on Embeddings}
 
@@ -635,10 +595,7 @@ illustrates that many embeddings support approximately linear semantic relations
 
 \paragraph{Debiasing Techniques}
 
-Addressing bias in embeddings is an active area of research. Techniques include:
-- \textit{Post-processing} embeddings to remove bias directions (e.g., Hard Debiasing by \citet{Bolukbasi2016}).
-- \textit{Data augmentation} to balance training corpora or swap gendered terms.
-- \textit{Regularization} during training to penalize biased associations or enforce equality constraints.
+There is no single fix, because the ``bias direction'' you measure depends on the corpus, the task, and the group definitions you care about. In practice, mitigations usually fall into three buckets: post-processing (identify a direction and project it out; e.g., Hard Debiasing by \citet{Bolukbasi2016}), data-side interventions (rebalance or augment so the corpus does not teach the same stereotype as strongly), and objective-side constraints (regularize training so certain associations are discouraged). The key is to treat mitigation as iterative: apply a change, then rerun the same probes and downstream slices you used to detect the issue.
 
 \paragraph{Cross-Lingual Challenges}
 
@@ -647,8 +604,8 @@ When extending embeddings to multiple languages, biases can manifest differently
 \begin{tcolorbox}[summarybox, title={Practical bias checks}]
 \begin{itemize}
     \item \textbf{Dataset audit:} Inspect class balance, label sources, and sensitive attributes; check for under-represented groups and spurious correlations (e.g., profession \(\leftrightarrow\) gender cues).
-    \item \textbf{Calibration and reliability:} Evaluate calibration (ECE, reliability diagrams) overall and for key subgroups; severely miscalibrated models magnify harm when used for decision support.
-    \item \textbf{Disaggregated evaluation:} Report accuracy, ROC/PR, and calibration metrics by subgroup rather than only aggregate scores; look for systematic performance gaps.
+    \item \textbf{Calibration and reliability:} Evaluate calibration (expected calibration error (ECE), reliability diagrams) overall and for key subgroups; severely miscalibrated models magnify harm when used for decision support.
+    \item \textbf{Disaggregated evaluation:} Report accuracy, receiver operating characteristic / precision--recall (ROC/PR), and calibration metrics by subgroup rather than only aggregate scores; look for systematic performance gaps.
     \item \textbf{Mitigation loop:} Combine data interventions (rebalancing, augmentation) with model-side debiasing and re-evaluation; treat mitigation as an iterative, experiment-driven process.
 \end{itemize}
 \end{tcolorbox}
@@ -662,7 +619,7 @@ Embedding spaces faithfully capture geometry (analogies, clusters) precisely bec
 \begin{enumerate}
     \item \textbf{Purpose \& consent.} Document the use-case, decision stakes, and where humans remain in the loop; distinguish exploratory prototypes from production decision aids.
     \item \textbf{Data lineage \& licensing.} Track licenses for each corpus (newswire, Common Crawl, proprietary logs) and state whether downstream users may redistribute the embeddings or derived models.
-    \item \textbf{Privacy \& security.} Scan corpora for PII, redact when necessary, and restrict raw-data access. When embeddings leave the lab, accompany them with an acceptable-use policy and redaction guarantees.
+    \item \textbf{Privacy \& security.} Scan corpora for personally identifiable information (PII), redact when necessary, and restrict raw-data access. When embeddings leave the lab, accompany them with an acceptable-use policy and redaction guarantees.
     \item \textbf{Monitoring.} Deploy subgroup-aware metrics, calibration checks, and toxicity filters in production; log drifts and institute retraining/rollback thresholds.
     \item \textbf{Documentation.} Ship a short ``model card'' summarizing intended uses, failure modes, and evaluation data so downstream teams can reason about fit-for-purpose decisions.
 \end{enumerate}

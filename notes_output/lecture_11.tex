@@ -2,9 +2,12 @@
 \section{Introduction to Evolutionary Computing}\label{chap:evo}
 \graphicspath{{assets/lec19/}}
 
-Parts I--IV built three complementary toolkits: optimize models against data (ERM), learn representations with gradients, and encode auditable heuristics with fuzzy rules. Each is powerful when you can write a smooth objective or commit to a compact rule base. Many engineering choices, however, live outside that comfort zone: the knobs are discrete or tightly constrained, evaluations are noisy or expensive, and the landscape is rugged enough that local improvement is unreliable.
+Parts I--III built three complementary toolkits: optimize models against data (ERM), learn representations with gradients, and encode auditable heuristics with fuzzy rules. Each is powerful when you can write a smooth objective or commit to a compact rule base. Many engineering choices, however, live outside that comfort zone: the knobs are discrete or tightly constrained, evaluations are noisy or expensive, and the landscape is rugged enough that local improvement is unreliable.
 
 Evolutionary computing treats that situation as search. Instead of following gradients or hand\hyp{}tuning rules, we maintain a population of candidate designs, score them with a fitness function, and use selection plus variation to explore and refine solutions within a fixed budget. After the fuzzy trilogy (\Crefrange{chap:softcomp}{chap:fuzzyinference}), this chapter develops the evolutionary strand introduced in \Cref{chap:intro} and focuses on population\hyp{}based optimization under constraints, budgets, and stochastic noise.
+
+\paragraph{A distinct paradigm (and what ``nature-inspired'' means here).}
+Fuzzy inference systems are a behavioral modeling tool: we write down the reasoning logic directly so a human can audit why a particular decision was made. Evolutionary computing aims at a different target. It encodes \emph{candidate designs} and uses a simplified selection--variation loop---an algorithmic echo of natural evolution---to search for designs that perform well under a fixed evaluation budget (the Karl Sims\hyp{}style intuition: emergence via selection and variation, not hand-coded reasoning; see \citealp{Sims1994}). The point is not to be faithful to evolutionary biology; the point is that this process can produce designs that respond well to situations under constraints and noise even when gradients are unavailable and the knobs are mixed discrete/continuous.
 
 \begin{tcolorbox}[summarybox, title={Learning Outcomes}]
 \begin{itemize}
@@ -25,6 +28,58 @@ Evolutionary computing is the strand you reach for when the objective is a black
 
 In the fuzzy trilogy, once you commit to membership shapes and a rule base, a practical question remains: how do you tune those choices (and their trade-offs) when hand tweaks do not scale? Evolutionary search provides a disciplined answer: score candidate controllers, select the better ones, perturb/recombine them, and keep iterating until the improvements flatten or the budget runs out.
 
+\begin{tcolorbox}[summarybox, title={Author's note: why GAs are still relevant in 2026}]
+Genetic algorithms remain relevant because many high-impact optimization loops are still black-box, noisy, and mixed discrete/continuous. Hyperparameter and pipeline tuning are canonical examples: one evaluation may be expensive, stochastic, and constraint-laden, while gradients are unavailable or misleading at the system level. In that setting, population search is not a historical artifact; it is an engineering tool for budgeted improvement.
+\par\smallskip
+This also explains the bridge from Part III. Fuzzy systems expose structured, interpretable policy components (membership shapes and rules), and evolutionary search provides a practical mechanism for tuning those components when manual adjustment does not scale.
+\end{tcolorbox}
+
+\begin{tcolorbox}[summarybox, title={Application note: budgeted search in the wild (locomotion, ML/LLMs, and physical experiments)}]
+\textbf{Robot gait / locomotion.} Suppose we want a legged robot to move forward robustly across slightly different terrains. The design has mixed knobs: continuous parameters (gains, trajectory coefficients, penalty weights) and discrete choices (controller mode, safety logic, constraint-handling policy). A single trial is expensive and noisy (contact dynamics, initial conditions, sensor noise), so it is natural to treat performance as a black-box fitness, average over multiple seeds, and search under a strict evaluation budget.\par
+\textbf{Hyperparameter and pipeline tuning (including LLM systems).} Many modern learning pipelines have the same structure: discrete design choices (model family, system configuration variant, data filters) plus continuous knobs (learning rates, thresholds, temperatures), measured by an empirical score with variance across runs. Evolutionary search is attractive when gradients are unavailable, the evaluation surface is rugged, or the objective invites silent failure modes (metric gaming, constraint violations). Read this chapter as the non\hyp{}differentiable sibling of ERM: same objective\hyp{}and\hyp{}audit discipline, different update mechanism.\par
+\textbf{Physical-world analogy (jet nozzle).} Classic evolution-strategy examples describe optimizing a jet-nozzle shape via random mutations plus selection: you do not differentiate the wind tunnel; you spend a limited trial budget to evolve better designs. The point of the analogy is not biology, but budgeted optimization under constraints.
+\end{tcolorbox}
+
+\begin{tcolorbox}[summarybox, title={Application example: GA tuning of a previously built fuzzy controller}]
+Revisit the Mamdani-style fuzzy controller from the fuzzy trilogy (\Crefrange{chap:softcomp}{chap:fuzzyinference}). Inputs such as tracking error \(e_t=r_t-y_t\) and change-of-error \(\Delta e_t\) are fuzzified, rules fire, consequents are aggregated, and a centroid defuzzifier produces a crisp action \(u_t\).
+\par\smallskip
+A GA enters only as a tuning layer \emph{around} that fixed pipeline. A chromosome encodes quantities already introduced in Part~III: membership-function parameters (e.g., breakpoints of triangular/trapezoidal sets), optional rule weights, and (if you allow it) a discrete choice of operator defaults from a small admissible set (t\hyp{}norm, s\hyp{}norm, implication, defuzzifier).
+\par\smallskip
+If you want the membership functions to reflect graded human judgments (not only closed-loop performance), you can tune those same parameters against expert-provided pairs \(\{(x_i,\hat{\mu}_i)\}\) while enforcing ordering and overlap constraints. The GA does not change what a membership function \emph{means}; it only gives you a disciplined search procedure for fitting its shape under constraints.
+\par\smallskip
+Each chromosome is evaluated by running the closed loop and scoring a fitness/objective such as
+\[
+J = w_1\,\mathrm{MAE}(e) + w_2\,\mathrm{Overshoot} + w_3\,\mathrm{ControlEffort}
+    + \lambda\,\mathrm{Penalty}_{\text{constraints}} ,
+\]
+where the penalty term covers hard limits (actuator saturation, safety constraints, monotonicity constraints on memberships). This is the same fuzzy controller you can audit by inspection, with a different answer to the tuning question: instead of hand tweaking, you search under a fixed evaluation budget.
+\end{tcolorbox}
+
+\begin{tcolorbox}[summarybox, title={Application example: GA over neural networks (outer-loop design search)}]
+Neural networks are trained by gradients, but many \emph{design} decisions around them are discrete, constrained, and evaluation\hyp{}limited. Consider designing a CNN or an RNN for a fixed task and dataset. The inner loop is familiar: train by backpropagation and score generalization on a validation split. The outer loop is the hard part: choose architecture and training knobs under a compute budget.
+\par\smallskip
+A GA makes that outer loop explicit. Encode a candidate design as a chromosome \(\mathbf{g}\) containing discrete choices (depth, width, kernel sizes, pooling schedule, sequence length/window, optimizer family) and continuous knobs (learning rate, weight decay, dropout rate). Define an objective that matches the book's audit discipline:
+\[
+J(\mathbf{g}) = \widehat{\mathcal{L}}_{\text{val}}(\mathbf{g})
+  + \lambda\,\mathrm{Penalty}_{\text{latency/memory}}(\mathbf{g}),
+\]
+where \(\widehat{\mathcal{L}}_{\text{val}}(\mathbf{g})\) is measured after a fixed training budget (epochs, steps, or wall time) using the same monitoring habits from earlier chapters (learning curves, calibration, slice checks).
+\par\smallskip
+The point is not to replace backpropagation. The point is that evolutionary search can sit \emph{above} backpropagation when the knobs are mixed and the evaluation surface is noisy: it proposes designs, you train them, you score them, and selection plus variation keeps improving what you try next under a fixed budget.
+\end{tcolorbox}
+
+\begin{tcolorbox}[summarybox, title={Application example: jet-nozzle shape optimization (experiment in the loop)}]
+In a wind-tunnel setting, the ``model'' is a physical experiment and the design variables are geometric. Let \(\mathbf{x}\) parameterize a nozzle profile (for example, a small set of spline control points subject to thickness and smoothness constraints). A natural objective is ``maximize thrust'' (or efficiency) while penalizing constraint violations:
+\[
+\min_{\mathbf{x}\in\mathcal{D}} \; J(\mathbf{x}) = -T(\mathbf{x}) + \rho\,\mathrm{Penalty}_{\text{manufacturing/safety}}(\mathbf{x}).
+\]
+There is no gradient through the tunnel. Each evaluation consumes time and budget, and measurements are noisy. Evolutionary search fits this regime: maintain a population of candidate shapes, test them, keep the better ones, perturb/recombine, and iterate until the improvement stalls or the trial budget is exhausted.
+\end{tcolorbox}
+
+\begin{tcolorbox}[summarybox, title={When GA is not the first choice}]
+If the objective is smooth, gradients are trustworthy, and constraints are easy to encode, gradient-based or convex optimization methods are usually faster and easier to tune. Use GA when those assumptions fail: discontinuities, mixed-variable encodings, simulator-in-the-loop objectives, or hard constraints that make local gradients uninformative.
+\end{tcolorbox}
+
 \subsection{Philosophical and Historical Background}
 \label{sec:evo_philosophical_and_historical_background}
 
@@ -40,13 +95,13 @@ Evolutionary algorithms borrow the language of biology to provide a disciplined 
 \label{sec:evo_problem_setting_optimization}
 
 \begin{tcolorbox}[summarybox, title={Notation handoff}]
-Vectors of candidate solutions are written as \(\mathbf{x}\), objective values as \(f(\mathbf{x})\), and population members as individuals/chromosomes depending on encoding. If symbol reuse from earlier chapters becomes ambiguous, default to local definitions and consult \Cref{app:notation_collisions}.
+Vectors of candidate solutions are written as \(\mathbf{x}\), objective values as \(J(\mathbf{x})\), and population members as individuals/chromosomes depending on encoding. If symbol reuse from earlier chapters becomes ambiguous, default to local definitions and consult \Cref{app:notation_collisions}.
 \end{tcolorbox}
 
-Consider an optimization problem where the goal is to find an input vector \( \mathbf{x} \in \mathbb{R}^n \) that minimizes (or maximizes) a given objective function \( f: \mathbb{R}^n \to \mathbb{R} \). Formally, we want to solve
+Consider an optimization problem where the goal is to find an input vector \( \mathbf{x} \in \mathbb{R}^n \) that minimizes (or maximizes) a given objective function \( J: \mathbb{R}^n \to \mathbb{R} \). Formally, we want to solve
 
 \begin{align}
-    \mathbf{x}^* = \arg \min_{\mathbf{x} \in \mathcal{D}} f(\mathbf{x}), \label{eq:optimization_problem}
+    \mathbf{x}^* = \arg \min_{\mathbf{x} \in \mathcal{D}} J(\mathbf{x}), \label{eq:optimization_problem}
 \end{align}
 
 where \(\mathcal{D} \subseteq \mathbb{R}^n\) is the feasible domain incorporating any bound, equality, or inequality constraints required by the application.
@@ -54,8 +109,10 @@ where \(\mathcal{D} \subseteq \mathbb{R}^n\) is the feasible domain incorporatin
 \paragraph{Challenges:}
 
 \begin{itemize}
-    \item The function \( f \) may be \emph{non-convex}, exhibiting multiple local minima and maxima.
-    \item There may be no closed-form or deterministic method to find the global optimum.
+    \item The function \( J \) may be \emph{non-convex}, exhibiting multiple local minima and maxima.
+    \item The objective or constraints may be undefined or discontinuous in parts of the domain, breaking gradient assumptions.
+    \item The feasible set may include combinatorial or integer constraints that resist continuous methods.
+    \item There may be no closed-form or deterministic method to find the global optimum, especially for NP-hard variants.
     \item The search space \(\mathcal{D}\) can be large or complex, making exhaustive search (brute force) computationally prohibitive.
     \item Real-time or practical constraints often require solutions within limited time frames.
 \end{itemize}
@@ -63,7 +120,7 @@ where \(\mathcal{D} \subseteq \mathbb{R}^n\) is the feasible domain incorporatin
 \subsection{Illustrative Example}
 \label{sec:evo_illustrative_example}
 
-Imagine a function \( f \) with multiple peaks and valleys (local maxima and minima). The global minimum is the lowest valley, but many local minima exist that can trap naive optimization methods.
+Imagine a function \( J \) with multiple peaks and valleys (local maxima and minima). The global minimum is the lowest valley, but many local minima exist that can trap naive optimization methods.
 
 \paragraph{Goal:} Instead of guaranteeing the global optimum, evolutionary computing aims to find a \emph{good enough} solution---one that is sufficiently close to optimal and found within a reasonable computational budget.
 
@@ -78,49 +135,41 @@ While brute force search guarantees finding the global optimum by evaluating all
 \end{itemize}
 
 For example, in control systems, one might want to tune parameters to regulate temperature or pressure optimally. Waiting for a brute force search to complete could be unacceptable, whereas a near-optimal solution found quickly is valuable.
+In realistic workflows, one evaluation may involve simulation runtime, hardware experiments, or human-in-the-loop checks. Under those costs, exhaustive enumeration is not just slow but operationally infeasible, which is why evolutionary methods are framed as budgeted search.
 
 \subsection{Summary}
 \label{sec:evo_summary}
 
-Evolutionary computing provides a framework to address complex optimization problems by mimicking evolutionary processes. It embraces the notion of \emph{approximate} solutions that are computationally feasible and practically useful.
+Checkpoint: you now have the \emph{why} for evolutionary search---rugged landscapes, constraints, discontinuities, and budgets that make local improvement unreliable. The rest of this chapter develops one canonical workflow in three passes:
+(i) a big-picture story (population + evaluation + variation),
+(ii) operator-level definitions (selection/crossover/mutation and constraint handling),
+and (iii) an implementation-facing sanity-check (flowchart, pseudocode, and a one-generation numeric trace).
+Read repeated mentions of ``the GA loop'' as \emph{preview \(\rightarrow\) formalization \(\rightarrow\) checklist}, not as duplication.
 
-The sections that follow develop the core components of evolutionary algorithms: representations, selection, crossover/mutation operators, constraint handling, and representative applications.
-
-This ``rugged landscape'' picture is a useful mental model when you later interpret convergence traces, premature stagnation, and diversity metrics in population-based search.
+Keep the ``rugged landscape'' picture in mind when you later interpret convergence traces, premature stagnation, and diversity metrics in population-based search.
 
 \subsection{Challenges in Continuous Optimization and Motivation for Evolutionary Computing}
 \label{sec:evo_challenges_in_continuous_optimization_and_motivation_for_evolutionary_computing}
 
 In many continuous optimization problems, the objective function may be undefined or discontinuous in certain regions of the domain. For example, consider a function with singularities or points where the function value is not defined (akin to division by zero). Such characteristics pose significant challenges for classical optimization methods such as gradient descent or hill climbing, which rely on smoothness and continuity to navigate the search space effectively.
 
-\paragraph{Issues with Traditional Methods}
-\begin{itemize}
-    \item \textbf{Undefined regions:} The presence of undefined or discontinuous regions means that the gradient or directional derivatives may not exist, preventing the use of gradient-based methods.
-    \item \textbf{Local optima and plateaus:} Even when the function is defined, it may have multiple local optima or flat regions where the gradient is zero, causing algorithms to get stuck.
-    \item \textbf{Complex constraints:} Problems such as integer programming introduce combinatorial constraints that are not amenable to continuous optimization techniques.
-    \item \textbf{Computational complexity:} Many optimization problems are NP-hard, meaning no known deterministic polynomial-time algorithm can solve them exactly.
-\end{itemize}
+These issues compound the nonconvexity and constraint challenges above: discontinuities and combinatorial feasibility break gradient assumptions, and global guarantees are out of reach for many NP-hard variants. Given these challenges, deterministic approaches may be infeasible or computationally expensive. Instead, we can tolerate approximate solutions and employ heuristic or metaheuristic methods that explore the search space more flexibly. This motivates the use of \emph{evolutionary computing} methods.
 
-Given these challenges, deterministic approaches may be infeasible or computationally expensive. Instead, we can tolerate approximate solutions and employ heuristic or metaheuristic methods that explore the search space more flexibly. This motivates the use of \emph{evolutionary computing} methods.
-
-\subsection{Introduction to Evolutionary Computing}
+\subsection{Evolutionary Computing at a Glance}
 \label{sec:evo_introduction_to_evolutionary_computing}
 
-Evolutionary computing (EC) is a class of algorithms inspired by the process of natural evolution. These algorithms are designed to iteratively improve candidate solutions to optimization problems by mimicking mechanisms such as selection, reproduction, and mutation observed in biological evolution.
-
-\paragraph{Key Idea}
-The goal is to design an algorithm that can solve parameter estimation or optimization problems by evolving a population of candidate solutions over successive generations. Unlike deterministic methods, evolutionary algorithms do not require gradient information or continuity and can handle complex, multimodal, and constrained problems.
-
-\paragraph{Genetic Algorithms (GAs)}
-One of the most well-known evolutionary algorithms is the Genetic Algorithm (GA). GAs attempt to \emph{naively mimic} the process of biological evolution, albeit with a simplified and abstracted model of genetic mechanisms.
+Evolutionary computing treats optimization as budgeted population search: evaluate candidates, bias reproduction toward better ones, generate variation (crossover/mutation), replace the population, and repeat until budget or convergence criteria trigger. Genetic algorithms are the canonical instance of this loop. The core tradeoff is always the same: exploration for coverage versus exploitation for immediate gains.
 
 \subsection{Biological Inspiration: Evolutionary Concepts}
 \label{sec:evo_biological_inspiration_evolutionary_concepts}
+
+This section sets terminology and motivation. If you already think of a GA as ``selection + variation + replacement under a fitness budget,'' use it as a notation pass; the algorithmic details begin in \Cref{sec:evo_genetic_algorithms_modeling_chromosomes}.
 
 To understand GAs, we briefly review relevant biological concepts:
 
 \paragraph{Chromosomes and Genes}
 In biology, an organism's genetic information is encoded in chromosomes, which are long sequences of DNA. Each chromosome contains many genes, which determine specific traits.
+In GA terms, this maps to representation: one chromosome encodes one candidate solution, and each gene encodes one design decision (binary switch, integer slot, real-valued parameter, or subtree element).
 
 \paragraph{Cell Division: Mitosis vs. Meiosis}
 \begin{itemize}
@@ -130,9 +179,9 @@ In biology, an organism's genetic information is encoded in chromosomes, which a
 
 \paragraph{Genetic Recombination and Variation}
 \begin{sloppypar}
-During meiosis, chromosomes undergo \emph{crossover} events. Segments of genetic material are exchanged between paired chromosomes.\\
-Recombination increases genetic diversity.
+During meiosis, chromosomes undergo \emph{crossover} events. Segments of genetic material are exchanged between paired chromosomes. Recombination increases genetic diversity.
 \end{sloppypar}
+This intuition is carried directly into algorithm design: crossover recombines useful partial structures from different parents, while mutation injects fresh variation so search does not collapse prematurely around one basin.
 
 \paragraph{Inheritance and Heredity}
 The offspring's chromosomes are a mixture of the parents' genetic material, but not a simple half-and-half split. Instead, genes from multiple previous generations contribute to the genetic makeup, introducing variability and enabling adaptation over time.
@@ -140,15 +189,7 @@ The offspring's chromosomes are a mixture of the parents' genetic material, but 
 \subsection{Implications for Genetic Algorithms}
 \label{sec:evo_implications_for_genetic_algorithms}
 
-The biological processes suggest several principles that GAs incorporate:
-
-\begin{itemize}
-    \item \textbf{Population-based search:} Maintain a population of candidate solutions (analogous to organisms).
-    \item \textbf{Selection:} Preferentially choose better solutions to reproduce, mimicking survival of the fittest.
-    \item \textbf{Crossover (Recombination):} Combine parts of two or more parent solutions to create offspring solutions, promoting exploration of new regions in the search space.
-    \item \textbf{Mutation:} Introduce random changes to offspring to maintain diversity and avoid premature convergence.
-    \item \textbf{Generational evolution:} Repeat the process over multiple generations, gradually improving solution quality.
-\end{itemize}
+In GA terms, the biology analogy reduces to an engineering cycle: keep a population (coverage), apply fitness-based selection (pressure), recombine parents (structure transfer), mutate offspring (novelty), and replace survivors (iteration). Each operator controls a specific failure mode: too much pressure collapses diversity, too little pressure stalls progress, and weak mutation traps the search in local basins.
 
 The stochastic nature of these operations allows GAs to explore complex, multimodal landscapes and handle problems where deterministic methods struggle.
 
@@ -186,8 +227,8 @@ Budget dictates population size and diversity mechanisms. If evaluations are che
 In the previous discussion, we introduced the concept of diversity in genetic algorithms (GAs) and the probabilistic nature of evolutionary processes. We now delve deeper into modeling chromosomes and the mechanisms of genetic inheritance, crossover, and mutation, drawing parallels to optimization problems.
 
 \begin{tcolorbox}[summarybox, title={Genetic algorithm at a glance}]
-\textbf{Objective:} Optimize an objective \(J(\mathbf{x})\) over a discrete or continuous search space by evolving a population of encoded candidate solutions according to selection, crossover, and mutation.\\
-\textbf{Key hyperparameters:} Population size, selection pressure (tournament size or selection temperature), crossover and mutation rates, encoding scheme, and stopping criteria (max generations, no-improvement window, target fitness).\\
+\textbf{Objective:} Optimize an objective \(J(\mathbf{x})\) over a discrete or continuous search space by evolving a population of encoded candidate solutions according to selection, crossover, and mutation.\par
+\textbf{Key hyperparameters:} Population size, selection pressure (tournament size or selection temperature), crossover and mutation rates, encoding scheme, and stopping criteria (max generations, no-improvement window, target fitness).\par
 \textbf{Common pitfalls:} Premature convergence due to excessive selection pressure or low mutation, deceptive fitness landscapes, constraint violations when mutation or crossover produce infeasible solutions, and overinterpreting stochastic runs without multiple seeds.
 \end{tcolorbox}
 
@@ -201,15 +242,7 @@ where each gene \( c_i \) encodes a particular trait or parameter, and \( L \) i
 
 \paragraph{Inheritance and Crossover}
 
-During reproduction, chromosomes from parent individuals combine to form offspring. This process involves:
-
-\begin{itemize}
-    \item \textbf{Passing genes as-is:} Some genes may be inherited unchanged from a parent.
-    \item \textbf{Crossover:} Portions of chromosomes from two parents are recombined to produce new gene sequences in offspring.
-    \item \textbf{Mutation:} Occasionally, genes may undergo random changes, introducing new genetic material.
-\end{itemize}
-
-These mechanisms can be visualized by considering crossover as splicing two parent strings according to a binary mask and mutation as independently flipping bits with a small probability.
+During reproduction, offspring inherit genes from parents via crossover and mutation (with some genes passing through unchanged). The next figure gives an intuitive operator-level picture; full selection and crossover details follow in \Cref{sec:evo_selection_in_genetic_algorithms} and \Cref{sec:evo_crossover_operator}.
 
 
 \begin{figure}[t]
@@ -250,7 +283,7 @@ These mechanisms can be visualized by considering crossover as splicing two pare
                 \node[font=\scriptsize, below=0.15cm of repair] {or penalty/feasible-first};
         \end{groupplot}
     \end{tikzpicture}
-    \caption{Evolutionary micro-operators. Left: fitter individuals get sampled more often (roulette/tournament). Middle: crossover splices parents by a mask (one-point shown). Right: constraint handling routes offspring through repair/penalty/feasibility before evaluation. Use it when mapping an implementation to the canonical operator loop.}
+    \caption{Evolutionary micro-operators. Left: fitter individuals get sampled more often (roulette/tournament). Middle: crossover splices parents by a mask (one-point shown). Right: constraint handling routes offspring through repair/penalty/feasibility before evaluation. Use this to map an implementation to the canonical operator loop.}
     \label{fig:lec11-ea-micro}
 \end{figure}
 
@@ -258,41 +291,28 @@ These mechanisms can be visualized by considering crossover as splicing two pare
 
 \paragraph{Modeling the Genetic Operations}
 
-Let \(\mathbf{p}_1\) and \(\mathbf{p}_2\) be parent chromosomes. The offspring chromosome \(\mathbf{o}\) is formed by combining segments from \(\mathbf{p}_1\) and \(\mathbf{p}_2\) according to a crossover pattern \( \mathbf{x} \), and then applying mutation \( \mathbf{m} \):
+Let \(\mathbf{p}_1\) and \(\mathbf{p}_2\) be parent chromosomes. The offspring chromosome \(\mathbf{o}\) is formed by combining segments from \(\mathbf{p}_1\) and \(\mathbf{p}_2\) according to a crossover pattern, and then applying mutation:
 \begin{align}
-    \mathbf{o} = \text{Mutate} \big( \text{Crossover}(\mathbf{p}_1, \mathbf{p}_2, \mathbf{x}) \big).
-    \label{eq:auto:lecture_11:1}
+    \mathbf{o} = \text{Mutate}\big(\text{Crossover}(\mathbf{p}_1, \mathbf{p}_2, \mathbf{u})\big).
+    \label{eq:evo_offspring_from_parents}
 \end{align}
 
-The crossover operator selects which genes come from which parent, often modeled by a binary mask \( \mathbf{x} \in \{0,1\}^L \), where
+The crossover operator selects which genes come from which parent, often modeled by a binary mask \(\mathbf{u}\in\{0,1\}^L\), where
 \[
 o_i = \begin{cases}
-(p_1)_i, & \text{if } x_i = 0, \\
-(p_2)_i, & \text{if } x_i = 1.
+(p_1)_i, & \text{if } u_i = 0, \\
+(p_2)_i, & \text{if } u_i = 1.
 \end{cases}
 \]
 
-Mutation introduces random changes with a small probability \( \mu \), altering gene \( o_i \) to a different value.
+Mutation (see \Cref{sec:evo_mutation_operator}) perturbs genes with a small probability \(p_m\).
 
-\paragraph{Fitness and Selection}
-
-Each gene or chromosome corresponds to a phenotype, representing a candidate solution with an associated fitness value \( f(\mathbf{o}) \). Fitness quantifies the quality or suitability of the solution, guiding the selection process for reproduction.
-
-Consider a set of objects (e.g., facial features such as nose, eyes, lips) encoded by chromosomes. Each object variant has a fitness value reflecting its quality or adaptation. For example, fitness values might be:
+\paragraph{Fitness and selection (preview)}
+Chromosomes encode candidate solutions (phenotypes), and fitness scores quantify how well each candidate meets the objective. For example, consider chromosomes representing facial feature variants with fitness values
 \[
-f = \{80, 75, 60, 65, 40, 20\}
+f = \{80, 75, 60, 65, 40, 20\}.
 \]
-
-Over many generations, chromosomes with higher fitness values have a higher probability of surviving and reproducing, while those with lower fitness tend to be eliminated.
-
-\paragraph{Probabilistic Survival and Evolution}
-
-The survival probability \( P_s \) of a chromosome depends on its fitness and the evolutionary dynamics:
-\[
-P_s(\mathbf{c}) \approx \frac{f(\mathbf{c})}{\sum_{\mathbf{c}'} f(\mathbf{c}')}.
-\]
-
-Over multiple generations, this leads to the propagation of fitter chromosomes and the gradual improvement of the population.
+Higher-fitness chromosomes should be sampled more often, but not deterministically: occasional selection of weaker candidates preserves diversity and reduces premature convergence. A simple baseline is roulette selection: normalize nonnegative fitness values into probabilities and sample with replacement. The point is the \emph{bias} toward what works (not biological fidelity); we formalize selection and work a roulette example in \Cref{sec:evo_selection_in_genetic_algorithms}.
 
 \subsection{Mapping Genetic Algorithms to Optimization Problems}
 \label{sec:evo_mapping_genetic_algorithms_to_optimization_problems}
@@ -329,14 +349,12 @@ The fitness function guides the search towards optimal solutions. The closer a c
 f(\mathbf{c}) \propto \text{closeness to optimum}.
 \]
 
-This relationship allows GAs to explore the solution space stochastically, balancing exploitation of high-fitness regions and exploration via mutation and
-
-% Continuing Chapter 19 notes on Genetic Algorithms and Encoding
+This relationship allows GAs to explore the solution space stochastically, balancing exploitation of high-fitness regions and exploration via mutation and recombination.
 
 \subsection{Encoding in Genetic Algorithms}
 \label{sec:evo_encoding_in_genetic_algorithms}
 
-Recall that encoding is the process of representing the parameters of an optimization problem as a genotype, typically a string of symbols (often binary digits), which can be manipulated by genetic operators such as crossover and mutation.
+We use the chromosome representation from \Cref{sec:evo_genetic_algorithms_modeling_chromosomes}; the focus here is how different encodings affect operators, constraints, and search efficiency.
 
 \paragraph{Genotype and Phenotype}
 \begin{itemize}
@@ -404,6 +422,7 @@ subject to
 \[
 0 < x \leq 15
 \]
+For example, \(x=5\) gives \(f(x)=5/2+125/5=27.5\).
 
 \paragraph{Encoding Strategy}
 \begin{itemize}
@@ -420,7 +439,7 @@ x = \text{decimal value of binary string}
 If the decoded value is zero, it is invalid due to division by zero, so such genotypes are discarded or penalized.
 
 \paragraph{Fitness Evaluation}
-The fitness function corresponds to the objective function \( f(x) \), possibly with penalties for constraint violations.
+For minimization problems, selection still expects ``higher is better,'' so define fitness as a monotone transform of the cost (e.g., \(F(x)=-f(x)\) or \(F(x)=1/(1+f(x))\)), and then incorporate penalties or feasibility rules for constraint violations.
 
 \subsection{Population Initialization and Size}
 \label{sec:evo_population_initialization_and_size}
@@ -440,38 +459,33 @@ For the problem above, a population of 50 individuals with 4-bit genotypes repre
 \subsection{Genetic Operators}
 \label{sec:evo_genetic_operators}
 
-After initialization, genetic operators are applied to evolve the population.
+After initialization, genetic operators are applied to evolve the population. In practice, these operators
+are the \emph{control knobs} that decide how aggressively the search exploits what looks good versus how
+much it explores new regions of the design space.
 
-\subsubsection{Selection}
-\label{sec:evo_selection_sub}
+\paragraph{Where operators sit in the GA loop.}
+At a high level, each generation repeats the same pipeline:
+\begin{enumerate}
+    \item Evaluate fitness (and apply penalties/feasibility rules if constrained).
+    \item Select parents (controls \emph{selection pressure}).
+    \item Generate variation via crossover and mutation (controls \emph{mixing} and \emph{novelty}).
+    \item Form the next population (often with elitism or replacement rules).
+\end{enumerate}
 
-Selection chooses individuals for reproduction based on fitness.
-
-\paragraph{Common Methods}
-\begin{itemize}
-    \item \textbf{Roulette Wheel Selection:} Probability proportional to fitness.
-    \item \textbf{Tournament Selection:} Randomly select a group and choose the best.
-    \item \textbf{Rank Selection:} Rank individuals and assign selection probabilities accordingly.
-\end{itemize}
-
-\subsubsection{Crossover}
-\label{sec:evo_crossover_sub}
-
-Crossover combines parts of two parent genotypes to produce offspring.
-
-\paragraph{Binary Crossover}
-\begin{itemize}
-    \item \textbf{Single-point:} Choose a crossover point and swap the tail segments of two parents.
-    \item \textbf{Two-point:} Choose two crossover points and exchange the intermediate segment.
-    \item \textbf{Uniform:} Swap genes independently with a fixed probability.
-\end{itemize}
+The next subsections unpack these pieces: selection in \Cref{sec:evo_selection_in_genetic_algorithms}, crossover in \Cref{sec:evo_crossover_operator}, and mutation in \Cref{sec:evo_mutation_operator}.
 
 % Chapter 19 (continued)
 
 \subsection{Selection in Genetic Algorithms}
 \label{sec:evo_selection_in_genetic_algorithms}
 
-After encoding candidate solutions as chromosomes (e.g., binary strings), the next step in a genetic algorithm (GA) is \emph{selection}, which determines which chromosomes will be chosen to reproduce and form the next generation. The goal is to favor chromosomes with higher fitness, thereby guiding the search toward better solutions.
+Selection answers the question: \emph{who gets to reproduce?} It is the main mechanism that biases sampling
+toward better candidates, and it therefore determines the algorithm's \emph{selection pressure}. Too much
+pressure collapses diversity and risks premature convergence; too little reduces the GA to near-random
+search. In this section we formalize how fitness values translate into parent choice (roulette-style
+probabilities), then compare alternatives (ranking and tournament selection) that are often more stable when
+raw fitness values are poorly scaled. The goal is to connect the big-picture GA loop to implementable parent
+selection rules you can audit and tune.
 
 \subsubsection{Fitness and Selection Probability}
 \label{sec:evo_fitness_and_selection_probability_sub}
@@ -484,6 +498,10 @@ A common approach to selection is to assign each chromosome a probability of bei
     \label{eq:selection_probability}
 \end{align}
 where $p_i$ is the probability that chromosome $i$ is selected.
+
+\paragraph{Practical note (fitness scaling).}
+Proportional (roulette) selection assumes \emph{nonnegative} fitness values. If your objective can be negative (as in \Cref{tab:ga-toy}) or you are minimizing a cost, define a shifted/scaled fitness, e.g.,
+\(\tilde f_i = f_i - \min_j f_j + \varepsilon\) with \(\varepsilon>0\), or use rank/tournament selection, which only relies on order comparisons.
 
 \paragraph{Roulette Wheel Selection}
 
@@ -506,6 +524,7 @@ The total fitness is $100$, so the selection probabilities are:
 \[
 p = [0.10, 0.20, 0.05, 0.15, 0.50].
 \]
+For instance, \(p_2 = 20/100 = 0.20\) and \(p_5 = 50/100 = 0.50\).
 Chromosome 5 has a 50\% chance of selection, making it likely to be chosen multiple times.
 
 \subsubsection{Ranking Selection}
@@ -554,7 +573,7 @@ Ranking selection can be combined with \emph{elitism}, where the best chromosome
 \subsection{Crossover Operator}
 \label{sec:evo_crossover_operator}
 
-After selection, the \emph{crossover} operator generates new offspring chromosomes by recombining parts of two parent chromosomes. This mimics biological reproduction and promotes exploration of the solution space.
+After selection, the \emph{crossover} operator generates new offspring chromosomes by recombining parts of two parent chromosomes; this formalizes the intuition previewed above and supports controlled exploration.
 
 \subsubsection{One-Point Crossover}
 \label{sec:evo_one_point_crossover_sub}
@@ -578,36 +597,13 @@ One-point crossover proceeds as follows:
     \end{align*}
 \end{enumerate}
 
-This operator allows mixing of genetic
+This operator allows mixing of genetic material between parents to create novel combinations.
 
-\subsection{Crossover Operators in Genetic Algorithms}
-\label{sec:evo_crossover_operators_in_genetic_algorithms}
+\paragraph{Multi-point and uniform crossover.}
+Two-point or multi-point crossover swaps multiple segments between parents; uniform crossover swaps each gene independently with a fixed probability. These variants increase mixing but can disrupt building blocks if overused.
 
-In genetic algorithms, \emph{crossover} is a fundamental operator used to combine the genetic information of two parent chromosomes to produce new offspring. The intuition behind crossover is to exchange segments of parent chromosomes to explore new regions of the solution space.
-
-\paragraph{Single-point crossover} is the simplest form of crossover. Given two parent chromosomes, a crossover point is selected randomly along their length. The offspring are created by taking the segment before the crossover point from the first parent and the segment after the crossover point from the second parent, and vice versa. Formally, if the parents are represented as sequences:
-\[
-P_1 = (p_1^{(1)}, p_2^{(1)}, \ldots, p_c^{(1)}, \ldots, p_n^{(1)}), \quad
-P_2 = (p_1^{(2)}, p_2^{(2)}, \ldots, p_c^{(2)}, \ldots, p_n^{(2)}),
-\]
-where \(c\) is the crossover point, then the offspring are:
-\[
-O_1 = (p_1^{(1)}, p_2^{(1)}, \ldots, p_c^{(1)}, p_{c+1}^{(2)}, \ldots, p_n^{(2)}),
-\]
-\[
-O_2 = (p_1^{(2)}, p_2^{(2)}, \ldots, p_c^{(2)}, p_{c+1}^{(1)}, \ldots, p_n^{(1)}).
-\]
-
-\paragraph{Multi-point crossover} generalizes this idea by selecting multiple crossover points. For example, in two-point crossover, two points \(c_1\) and \(c_2\) are chosen, and segments between these points are swapped between parents. This can be visualized as:
-\[
-P_1 = \underbrace{p_1^{(1)} \ldots p_{c_1}^{(1)}}_{\text{segment 1}} \underbrace{p_{c_1+1}^{(1)} \ldots p_{c_2}^{(1)}}_{\text{segment 2}} \underbrace{p_{c_2+1}^{(1)} \ldots p_n^{(1)}}_{\text{segment 3}},
-\]
-\[
-P_2 = \underbrace{p_1^{(2)} \ldots p_{c_1}^{(2)}}_{\text{segment 1}} \underbrace{p_{c_1+1}^{(2)} \ldots p_{c_2}^{(2)}}_{\text{segment 2}} \underbrace{p_{c_2+1}^{(2)} \ldots p_n^{(2)}}_{\text{segment 3}}.
-\]
-Offspring can be generated by swapping segment 2 between parents, or by other combinations, leading to multiple possible crossover outcomes.
-
-\paragraph{Probabilistic nature of crossover} requires assigning a \emph{crossover probability} \(p_c\), which governs how often crossover is applied during reproduction. Typically, \(p_c\) is set between 0.6 and 0.9, balancing exploration and exploitation.
+\paragraph{Crossover probability.}
+Apply crossover with probability \(p_c\) (typically 0.6--0.9). When crossover is skipped, offspring are usually copied forward and then mutated, which helps preserve good structures while maintaining exploration.
 
 \subsection{Mutation Operator}
 \label{sec:evo_mutation_operator}
@@ -624,35 +620,35 @@ Mutation introduces random alterations to individual chromosomes, mimicking biol
 \]
 The mutation is applied with a small \emph{mutation probability} \(p_m\), often on the order of \(10^{-3}\) to \(10^{-1}\).
 
-\paragraph{Mutation operator formalization} Given a chromosome \(\mathbf{x}\in\{0,1\}^n\), mutation produces \(\mathbf{x}'\) by mutating each gene \(x_i\) independently with probability \(p_m\):
+\paragraph{Mutation operator formalization}
+Given a binary chromosome \(\mathbf{c}\in\{0,1\}^L\), mutation produces \(\mathbf{c}'\) by mutating each bit \(c_i\) independently with probability \(p_m\):
 \[
-x_i' = \begin{cases}
-1 - x_i, & \text{with probability } p_m, \\
- x_i, & \text{with probability } 1 - p_m
+c_i' = \begin{cases}
+1 - c_i, & \text{with probability } p_m, \\
+c_i, & \text{with probability } 1 - p_m.
 \end{cases}
 \]
 
 \subsection{Summary of Genetic Operators and Their Probabilities}
 \label{sec:evo_summary_of_genetic_operators_and_their_probabilities}
 
-The three main genetic operators in a genetic algorithm are:
-
+You have now seen each operator in isolation. When you implement a GA, you typically configure the loop with a small set of \emph{operator knobs}:
 \begin{itemize}
-    \item \textbf{Selection:} Chooses chromosomes for reproduction based on fitness.
-    \item \textbf{Crossover:} Combines genetic material from two parents to produce offspring.
-    \item \textbf{Mutation:} Introduces random changes to chromosomes to maintain diversity.
+    \item \textbf{Selection scheme + pressure:} roulette/ranking/tournament selection, plus an explicit pressure parameter (e.g., fitness scaling, rank parameter \(s\), tournament size) and often an elitism rate (top \(k\) or top \(e\%\) copied forward).
+    \item \textbf{Crossover probability \(p_c\):} with probability \(p_c\), recombine two parents; otherwise copy parents forward (and still allow mutation).
+    \item \textbf{Mutation probability \(p_m\):} for binary encodings, mutate each bit independently with probability \(p_m\) (a common default is \(p_m \approx 1/L\) for length \(L\)); for real encodings, \(p_m\) usually corresponds to a mutation \emph{scale} (e.g., Gaussian noise standard deviation) rather than bit flips.
 \end{itemize}
 
-Each operator is governed by a probability parameter:
+To keep notation compact later, we write these scheme-dependent settings abstractly as
 \[
 \begin{aligned}
-p_s &= \text{probability of selection},\\
-p_c &= \text{probability of crossover},\\
-p_m &= \text{probability of mutation}
+p_s &\equiv \text{selection pressure parameter(s) (scheme-dependent)},\\
+p_c &= \text{probability of applying crossover},\\
+p_m &= \text{mutation probability (per gene/bit, unless stated otherwise)}.
 \end{aligned}
 \]
 
-Tuning these probabilities is critical for balancing exploration and exploitation and for avoiding premature convergence.
+Tuning these settings controls exploration versus exploitation and strongly affects whether the algorithm stagnates early or continues to make progress.
 
 % Chapter 19 (continued)
 
@@ -751,7 +747,7 @@ In practice, a combination of these criteria is often used. For example, one mig
             \node[anchor=south east, font=\scriptsize] at (axis cs:31.5,0.82){Flat region $\Rightarrow$ consider stopping};
         \end{axis}
     \end{tikzpicture}
-    \caption{Illustrative GA run showing the best and mean normalized fitness over 50 generations. Flat regions motivate ``no improvement'' stopping rules, while steady separation between best and mean indicates ongoing selection pressure. Use it when diagnosing premature convergence versus ongoing exploration.}
+    \caption{Illustrative GA run showing the best and mean normalized fitness over 50 generations. Flat regions motivate ``no improvement'' stopping rules, while steady separation between best and mean indicates ongoing selection pressure. Helpful for diagnosing premature convergence versus ongoing exploration.}
     \label{fig:lec11-ga-progress}
 \end{figure}
 
@@ -759,20 +755,7 @@ In practice, a combination of these criteria is often used. For example, one mig
 \subsection{Summary of Genetic Algorithm Workflow}
 \label{sec:evo_summary_of_genetic_algorithm_workflow}
 
-To summarize the GA process:
-
-\begin{enumerate}
-    \item \textbf{Initialization:} Generate an initial population of chromosomes (candidate solutions).
-    \item \textbf{Fitness Evaluation:} Compute the fitness value for each chromosome based on the objective function.
-    \item \textbf{Termination Check:} If a satisfactory solution is found or a stopping criterion is met, terminate.
-    \item \textbf{Selection:} Select parent chromosomes based on fitness (e.g., roulette wheel, tournament).
-    \item \textbf{Crossover:} Apply crossover operators to parents to produce offspring.
-    \item \textbf{Mutation:} Apply mutation operators to offspring to maintain diversity.
-    \item \textbf{Replacement:} Form the new population from offspring (and possibly some parents).
-    \item \textbf{Repeat:} Return to step 2.
-\end{enumerate}
-
-This iterative cycle continues until convergence or stopping criteria are met. The flow diagram in \Cref{fig:lec11-ga-flow} summarizes the control structure on a single page for quick reference.
+This is the implementation-facing assembly of the GA loop. Earlier sections motivated the need for population-based search and defined each operator; here we put them back together and give three complementary sanity-check views: \Cref{fig:lec11-ga-flow} for control flow, \Cref{tab:ga-toy} for a one-generation numeric trace, and \Cref{sec:evo_pseudocode_representation} for a minimal implementation recipe. All three describe the same loop at different levels of detail.
 
 \begin{figure}[!ht]
 \centering
@@ -831,11 +814,11 @@ This iterative cycle continues until convergence or stopping criteria are met. T
 
 \end{tikzpicture}
 \end{adjustbox}
-\caption{GA flowchart showing the iterative process: initialization leads to fitness evaluation and a termination check. If not terminated, the algorithm proceeds through selection, crossover, mutation, and replacement, which then feeds the next generation's fitness evaluation. Use it when verifying that your implementation preserves the intended control flow.}
+\caption{GA flowchart showing the iterative process: initialization leads to fitness evaluation and a termination check. If not terminated, the algorithm proceeds through selection, crossover, mutation, and replacement, which then feeds the next generation's fitness evaluation. Reference when verifying that your implementation preserves the intended control flow.}
 \label{fig:lec11-ga-flow}
 \end{figure}
 
-
+For the toy generation in \Cref{tab:ga-toy}, fitness values are computed using \(f(x)=\cos(5\pi x)\exp(-x^2)\) from \Cref{sec:evo_example_ga_for_a_constrained_optimization_problem}.
 
 \begin{table}[h]
 \centering
@@ -844,14 +827,14 @@ This iterative cycle continues until convergence or stopping criteria are met. T
 \toprule
 Step & Example bitstrings & Decoded \(x\) & Fitness \(f(x)\) \\
 \midrule
-Initial (subset) & \(\,0001_2\), \(\,0010_2\), \(\,0101_2\), \(\,0111_2\) & 0.0625, 0.125, 0.3125, 0.4375 & 0.40, 0.13, -0.52, -0.02 \\
-Select parents (example) & \(\,0010_2\), \(\,0101_2\) & 0.125, 0.3125 & 0.13, -0.52 \\
-Crossover (one-point) & Parents: \(\,00|10\), \(\,01|01\) \(\to\) offspring: \(\,00|01\), \(\,01|10\) & 0.0625, 0.3750 & 0.40, 0.29 \\
-Mutation (flip one bit) & \(\,0110_2 \to 0111_2\) & 0.4375 & -0.02 \\
+Initial (subset) & \(\,0001_2\), \(\,0010_2\), \(\,0101_2\), \(\,0111_2\) & 0.0625, 0.125, 0.3125, 0.4375 & 0.553, -0.377, 0.177, 0.687 \\
+Select parents (example) & \(\,0010_2\), \(\,0101_2\) & 0.125, 0.3125 & -0.377, 0.177 \\
+Crossover (one-point) & Parents: \(\,00|10\), \(\,01|01\) \(\to\) offspring: \(\,00|01\), \(\,01|10\) & 0.0625, 0.3750 & 0.553, 0.803 \\
+Mutation (flip one bit) & \(\,0110_2 \to 0111_2\) & 0.4375 & 0.687 \\
 \bottomrule
 \end{tabularx}
 % Avoid inline math in captions; it wraps poorly in some EPUB renderers.
-\caption{Toy GA generation on a bounded interval. One crossover and mutation illustrate how the fitness function guides selection before the next generation. Use it when explaining how variation operators interact with selection pressure.}
+\caption{Toy GA generation on a bounded interval. One crossover and mutation illustrate how the fitness function guides selection before the next generation. Use this to explain how variation operators interact with selection pressure.}
 \label{tab:ga-toy}
 \end{table}
 
@@ -865,7 +848,7 @@ Mutation (flip one bit) & \(\,0110_2 \to 0111_2\) & 0.4375 & -0.02 \\
 \subsection{Pseudocode Representation}
 \label{sec:evo_pseudocode_representation}
 
-The GA can be expressed in pseudocode as follows:
+The GA can be expressed in pseudocode as follows. Treat this as the ``minimum viable'' skeleton; a production implementation additionally records random seeds, evaluation budgets, constraint handling decisions, and per-generation diagnostics (best/mean fitness, diversity) so results are reproducible and interpretable.
 
 \begin{verbatim}
 Initialize population P with N chromosomes
@@ -885,7 +868,7 @@ Return best chromosome found
 \subsection{Example: GA for a Constrained Optimization Problem}
 \label{sec:evo_example_ga_for_a_constrained_optimization_problem}
 
-Consider the problem of minimizing the function:
+Consider the problem of \emph{maximizing} the function:
 \[
 f(x) = \cos(5 \pi x) \cdot \exp(-x^2)
 \]
@@ -898,17 +881,17 @@ with a precision of three decimal places.
 \paragraph{GA Parameters:}
 \begin{itemize}
     \item Population size: 10 chromosomes
-    \item Encoding: Real-valued \(x\) encoded with 3 decimal places (i.e., precision of 0.001)
+    \item Encoding: Fixed-point with resolution 0.001: store an integer \(n\in\{0,1,\ldots,500\}\) and decode via \(x=n/1000\) (a 9-bit representation covers 0--511)
     \item Crossover probability: 25\%
     \item Mutation probability: 10\%
-    \item Selection: All chromosomes are selected for crossover or mutation (no explicit selection probability)
+    \item Selection: Truncation selection (example): select the top five chromosomes by fitness as parents each generation
 \end{itemize}
 
 \paragraph{Initialization:}
 Generate 10 random values of \(x\) uniformly distributed in \([0, 0.5]\), each rounded to three decimal places. When prior designs or surrogate models exist, \emph{warm start} a few chromosomes with those known-good solutions before filling the rest randomly; seeding accelerates convergence without losing diversity if you keep most of the population stochastic.
 
 \paragraph{Fitness Evaluation:}
-Calculate \(f(x)\) for each chromosome. Since this is a minimization problem, fitness can be defined as the negative of the function value or by using a suitable transformation to ensure higher fitness corresponds to better solutions.
+Calculate \(f(x)\) for each chromosome and treat it as a fitness score (higher is better). If instead you are minimizing a cost, convert it to fitness via a monotone transform (e.g., \(-J(x)\), a shifted score, or a rank-based scheme) so that selection still prefers better candidates.
 
 \paragraph{Evolutionary Cycle:}
 Apply selection, crossover, and mutation to produce new offspring, then evaluate their fitness. Repeat this process for multiple generations until convergence criteria are met.
@@ -916,16 +899,27 @@ Apply selection, crossover, and mutation to produce new offspring, then evaluate
 \paragraph{Remarks:}
 In practice, some initial chromosomes may fall outside the constraint bounds due to rounding or mutation; these should be clipped or repaired to maintain feasibility.
 
-As an illustration, consider an initial population with fitness values computed directly from \(f(x)\):
+As an illustration, if the initial population contains
 \[
-\{0.041,\;0.178,\;0.203,\;0.247,\;0.311,\;0.328,\;0.359,\;0.402,\;0.435,\;0.496\}.
+\begin{aligned}
+x &\in \{0.04,\;0.09,\;0.13,\;0.18,\;0.22,\;0.27,\\
+&\qquad 0.31,\;0.36,\;0.42,\;0.48\},
+\end{aligned}
 \]
-Each chromosome uses a 9\text{-}bit fixed-point code (3 fractional digits), decoded by interpreting the bits as an integer \(n\) and scaling via \(x=n/1000\). Chromosomes decoding to \(x=0\) are discarded or repaired.
+then the corresponding objective values are
+\[
+\begin{aligned}
+f(x) &\in \{0.808,\;0.155,\;-0.446,\;-0.921,\;-0.906,\;-0.422,\\
+&\qquad 0.142,\;0.711,\;0.797,\;0.245\},
+\end{aligned}
+\]
+rounded to three decimals.
+Each chromosome uses a 9\text{-}bit fixed-point code (3 fractional digits), decoded by interpreting the bits as an integer \(n\) and scaling via \(x=n/1000\). Any decoded values outside \([0,\,0.5]\) are repaired (e.g., clipped to bounds); note that \(x=0\) is allowed in this example.
 
 A single generation could proceed as follows:
 \begin{itemize}
     \item Select the top five chromosomes by fitness.
-    \item Apply one-point crossover at the 5th bit to produce offspring (e.g., parents 0.203 and 0.359 yield 0.209 and 0.353).
+    \item Apply one-point crossover on the 9-bit fixed-point codes (MSB-first). For example, \(0.203 \mapsto 011001011_2\) and \(0.359 \mapsto 101100111_2\); cutting after 5 bits and swapping tails yields offspring \(011000111_2 \mapsto 0.199\) and \(101101011_2 \mapsto 0.363\).
     \item Mutate each bit with probability 0.1, ensuring all decoded values remain within \([0,\,0.5]\).
     \item Re-evaluate fitness and retain the best ten individuals for the next generation.
 \end{itemize}
@@ -934,10 +928,10 @@ A single generation could proceed as follows:
 \begin{itemize}
     \item \textbf{Penalty methods} soften constraints by augmenting the fitness with a violation term, e.g., \(F(\mathbf{x}) = f(\mathbf{x})+\lambda \sum_k \max\{0, g_k(\mathbf{x})\}^2\); increase \(\lambda\) when infeasible individuals survive too often.
     \item \textbf{Repair operators} project infeasible chromosomes back into the feasible region (clip bound violations, renormalize equality constraints, or rerun a problem-specific solver) before evaluation.
-\item \textbf{Feasibility-first selection} ranks feasible candidates ahead of infeasible ones, then compares raw fitness only within each group; among infeasible solutions, select those with the smallest violation.
-\item \textbf{Deb's feasibility rules} \citep{Deb2001Book}: (i) if one solution is feasible and the other is not, pick the feasible one; (ii) if both are feasible, pick the better objective; (iii) if both are infeasible, pick the one with smaller total constraint violation. Adaptive penalties can be layered on top when violations persist.
+    \item \textbf{Feasibility-first selection} ranks feasible candidates ahead of infeasible ones, then compares raw fitness only within each group; among infeasible solutions, select those with the smallest violation.
+    \item \textbf{Deb's feasibility rules} \citep{Deb2001Book}: (i) if one solution is feasible and the other is not, pick the feasible one; (ii) if both are feasible, pick the better objective; (iii) if both are infeasible, pick the one with smaller total constraint violation. Adaptive penalties can be layered on top when violations persist.
 \end{itemize}
-\paragraph{Reproducibility and fair comparison} Fix random seeds when debugging, run many seeds (e.g., 20+) for reporting, match evaluation budgets across algorithms, and report mean/median best-so-far with variability bands. Log all hyperparameters and share code/configs to make comparisons fair, following \Cref{app:repro_standards} as the default reporting template.
+\paragraph{Reproducibility and fair comparison} Fix random seeds when debugging, run many seeds (e.g., 20+) for reporting, match evaluation budgets across algorithms, and report mean/median best-so-far with variability bands. Log all hyperparameters and share code/configs to make comparisons fair, following \Cref{app:repro_standards} as the default reporting protocol.
 Penalty terms are easy to implement, repair operators exploit domain knowledge, and feasibility-first policies are useful in safety-critical controllers where violating constraints is unacceptable even temporarily.
 \end{tcolorbox}
 
@@ -946,26 +940,7 @@ Penalty terms are easy to implement, repair operators exploit domain knowledge, 
 \subsection{Genetic Algorithms: Iterative Process and Convergence}
 \label{sec:evo_genetic_algorithms_iterative_process_and_convergence}
 
-Recall that in genetic algorithms (GAs), we start with an initial population of candidate solutions, each represented by a chromosome encoding a potential solution vector. The fitness of each candidate is evaluated by plugging the encoded values into the objective function. Based on these fitness values, selection probabilities are assigned, favoring candidates with higher fitness (for maximization problems) or lower fitness (for minimization problems).
-
-\paragraph{Selection and Reproduction}
-
-Selection is typically stochastic but biased towards fitter individuals. For example, in a population of size $N=10$, some individuals may be selected multiple times, while others may not be selected at all. This process ensures that better solutions have a higher chance of propagating their genetic material to the next generation.
-
-\paragraph{Crossover and Mutation}
-
-After selection, genetic operators such as crossover and mutation are applied:
-
-\begin{itemize}
-    \item \textbf{Crossover:} With a certain probability (e.g., 25\%), pairs of selected chromosomes exchange segments of their genetic code to produce offspring. This recombination explores new regions of the solution space by mixing existing solutions.
-    \item \textbf{Mutation:} With a smaller probability (e.g., 10\%), random changes are introduced to individual genes in the chromosomes. Mutation maintains genetic diversity and helps prevent premature convergence to local optima.
-\end{itemize}
-
-\paragraph{Evolution Over Generations}
-
-By iterating the cycle of selection, crossover, and mutation over multiple generations, the population gradually evolves towards better solutions. Early generations may have widely dispersed candidate solutions, but as evolution proceeds, solutions cluster around local maxima or minima of the fitness landscape.
-
-In practice, after a sufficient number of generations (e.g., 16 in the example), the algorithm often converges to a solution with the highest fitness value found so far. While this is not guaranteed to be the global optimum, it often provides a very good approximation.
+This section focuses on convergence behavior; the GA cycle itself is summarized in \Cref{sec:evo_summary_of_genetic_algorithm_workflow} and the control flow in \Cref{fig:lec11-ga-flow}. Over generations, populations tend to cluster around better regions of the fitness landscape; flat best\hyp{}fitness curves signal stagnation, while a persistent gap between best and mean indicates ongoing selection pressure (see \Cref{fig:lec11-ga-progress}). Convergence typically occurs after a problem\hyp{}dependent number of generations, and the best\hyp{}so\hyp{}far solution should be treated as a high\hyp{}quality approximation rather than a guaranteed global optimum.
 
 \subsection{Beyond canonical GAs: real-coded strategies}
 \label{sec:evo_beyond_canonical_gas_real_coded_strategies}
@@ -976,6 +951,14 @@ Bit-string encodings are ideal for combinatorial search, yet most engineering pr
     \item \textbf{Covariance Matrix Adaptation Evolution Strategy (CMA-ES)} \citep{Hansen2001} maintains a multivariate Gaussian search distribution. Successful steps update the mean, adapt the global step size, and rotate the covariance to align with the landscape's principal directions. CMA-ES shines on smooth, ill-conditioned black-box functions where gradients are unavailable but the objective rewards second-order adaptation.
     \item \textbf{Differential Evolution (DE)} \citep{Storn1997} perturbs a target vector with scaled differences of two other individuals, \(\mathbf{v} = \mathbf{x}_r + F(\mathbf{x}_p - \mathbf{x}_q)\), then mixes \(\mathbf{v}\) with the original via binomial or exponential crossover. This simple mechanism balances exploration/exploitation with only three hyperparameters \((F,\, C_r,\, N)\) and handles noisy, non-smooth objectives well.
 \end{itemize}
+
+\begin{tcolorbox}[summarybox, title={Evolution strategies (ES): step-size adaptation and self-adaptation}]
+Evolution strategies are a real-coded evolutionary family that makes one engineering idea explicit: \emph{mutation step size is part of the algorithm's state, not a fixed constant.} In a simple isotropic form,
+\[
+\mathbf{x}'=\mathbf{x}+\boldsymbol{\epsilon},\qquad \boldsymbol{\epsilon}\sim\mathcal{N}(\mathbf{0},\,\sigma^2\mathbf{I}),
+\]
+where \(\sigma\) controls exploration (large \(\sigma\)) versus local refinement (small \(\sigma\)). A classic adaptive heuristic is the ``1/5 success rule'': if more than 20\% of recent mutations improve fitness, increase \(\sigma\); if fewer than 20\% succeed, decrease \(\sigma\). Self-adaptive variants go one step further by embedding \(\sigma\) (and sometimes covariance structure) into the chromosome itself so selection pressure co-evolves the search behavior alongside the solution parameters.
+\end{tcolorbox}
 
 Both algorithms plug into the same evaluation loop shown earlier and can reuse the constraint-handling policies in the preceding box. In practice many teams prototype with DE (fast, few knobs) and switch to CMA-ES when the problem demands higher precision or adaptive covariance modeling.
 
@@ -1056,7 +1039,7 @@ Consider evolving a program that controls a robot's movement based on sensor inp
 
 \paragraph{Summary}
 
-Genetic programming generalizes genetic
+Genetic programming generalizes genetic algorithms by evolving program structures (often trees) rather than fixed-length chromosomes.
 
 \subsection{Wrapping Up Genetic Algorithms and Genetic Programming}
 \label{sec:evo_wrapping_up_genetic_algorithms_and_genetic_programming}
@@ -1065,19 +1048,13 @@ In this final segment of the chapter, we conclude our discussion on genetic algo
 
 \paragraph{Recap of Genetic Algorithms}
 
-Genetic algorithms are population-based metaheuristic optimization methods inspired by natural selection and genetics. They operate on a population of candidate solutions, iteratively applying genetic operators such as selection, crossover, and mutation to evolve solutions toward optimality. The key components include:
-
+Genetic algorithms are population-based metaheuristics; the earlier sections already define selection, crossover, mutation, and the loop in detail. For recap, keep the design levers in view and revisit the worked traces when needed:
 \begin{itemize}
-    \item \textbf{Representation:} Encoding candidate solutions as chromosomes (bit strings, real vectors, etc.).
-    \item \textbf{Fitness Function:} Quantifies the quality of each candidate solution.
-    \item \textbf{Genetic Operators:}
-    \begin{itemize}
-        \item \emph{Selection} favors fitter individuals.
-        \item \emph{Crossover} recombines genetic material from parents.
-        \item \emph{Mutation} introduces random variations.
-    \end{itemize}
-    \item \textbf{Evolutionary Cycle:} Repeat selection and genetic operations until convergence or stopping criteria are met.
+    \item \textbf{Representation:} How solutions are encoded (bit strings, real vectors, trees) and what constraints must be preserved.
+    \item \textbf{Fitness and evaluation:} What you reward, how you handle noisy measurements, and how constraints enter the score.
+    \item \textbf{Operator/loop settings:} Selection pressure, crossover/mutation rates, and stopping criteria.
 \end{itemize}
+See \Cref{sec:evo_summary_of_genetic_algorithm_workflow} for control flow, \Cref{tab:ga-toy} for a numeric generation trace, and \Crefrange{sec:evo_selection_in_genetic_algorithms}{sec:evo_mutation_operator} for operator details.
 
 \paragraph{Genetic Programming: Structure over Parameters}
 
@@ -1124,7 +1101,7 @@ When two or more objectives conflict, we seek a set of Pareto-optimal solutions 
 \begin{figure}[t]
     \centering
     \includegraphics[width=0.58\linewidth]{lec19_pareto}
-\caption{Sample Pareto front for two objectives. NSGA-II keeps all non-dominated points (blue) while pushing dominated solutions (orange) toward the front via selection, yielding a spread of trade-offs in one run. Use it when interpreting multi-objective results as trade-offs, not a single optimum.}
+\caption[Sample Pareto front for two objectives]{Sample Pareto front for two objectives. NSGA-II keeps all non-dominated points (blue) while pushing dominated solutions (orange) toward the front via selection, yielding a spread of trade-offs in one run. The point is to interpret multi-objective results as a set of trade-offs rather than a single optimum. \textit{Source: author-generated.}}
 \label{fig:lec11-pareto}
 \end{figure}
 
@@ -1163,7 +1140,7 @@ When two or more objectives conflict, we seek a set of Pareto-optimal solutions 
 \end{itemize}
 
 \medskip
-\noindent\textbf{If you are skipping ahead.} This chapter is largely self-contained. If you revisit earlier model chapters, keep the common thread in mind: every method still requires a clear objective, a diagnostic that detects failure, and a reporting protocol that survives replication.
+\noindent\textbf{Fast-track note.} This chapter is largely self-contained. If you revisit earlier model chapters, keep the common thread explicit: each method still needs a clear objective, a diagnostic that exposes failure, and a reporting protocol that survives replication.
 \end{tcolorbox}
 
 \paragraph{Where we head next.} This chapter closes the soft-computing thread. For targeted refreshers, \Cref{app:linear_systems} summarizes linear-systems prerequisites and \Cref{app:kernels} consolidates kernel-method context used earlier in the book.

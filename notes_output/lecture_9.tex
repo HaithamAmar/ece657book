@@ -2,7 +2,7 @@
 \section{Fuzzy Sets and Membership Functions: Foundations and Representations}\label{chap:fuzzysets}
 \graphicspath{{assets/lec9/}{assets/lec16/}}
 
-\noindent Building on \Cref{chap:softcomp}, we formalize the foundations of fuzzy logic: universes of discourse, fuzzy sets, membership functions, and the operators used throughout the fuzzy trilogy. These tools define the thermostat labels used later and prepare the transfer/inference steps developed in \Crefrange{chap:fuzzyrelations}{chap:fuzzyinference}.
+\noindent Building on \Cref{chap:softcomp}, we formalize the foundations of fuzzy logic: universes of discourse, fuzzy sets, membership functions, and the operators used throughout the fuzzy trilogy. You will see some ideas from \Cref{chap:softcomp} again, but now in a form you can compute and sanity-check numerically (a deliberate preview\(\rightarrow\)formalization pattern). These tools define the thermostat labels used later and prepare the transfer/inference steps developed in \Crefrange{chap:fuzzyrelations}{chap:fuzzyinference}.
 
 \begin{tcolorbox}[summarybox, title={Learning Outcomes}]
 After this chapter, you should be able to:
@@ -35,6 +35,10 @@ Consider the thermostat's temperature error \(e = T_{\text{room}} - T_{\text{set
     \label{eq:fuzzysets_cold_membership_example}
 \end{equation}
 With this design, \(e=-2\) yields \(\mu_{\text{Cold}}(-2)=0.5\): ``cold'' is half true. Later chapters reuse this shoulder \emph{shape} but may shift its breakpoints to reflect different sensors, comfort bands, or operating assumptions. This number is not a probability; it is a degree of truth for a linguistic predicate. The rest of this chapter is about making these mappings explicit (shapes, overlaps, and operators) so they can be inspected and tuned rather than assumed.
+
+\begin{tcolorbox}[summarybox, title={Author's note: membership design is where judgment enters}]
+Membership functions are an explicit way to encode boundary subjectivity. At the extremes, many labels are uncontroversial (very short vs.\ very tall, clearly cold vs.\ clearly hot). The modeling work happens in the overlap zone. We choose shapes and breakpoints so borderline cases are represented as graded truth rather than forced yes/no decisions. In practice, start by anchoring obvious extremes from measurements, then tune overlap widths to match observed behavior and control smoothness.
+\end{tcolorbox}
 
 \subsection{Fuzzy sets and the universe of discourse}
 \label{sec:fuzzysets_recap_fuzzy_sets_and_the_universe_of_discourse}
@@ -117,7 +121,7 @@ This function assigns membership 1 at \( x = c \), decreasing linearly to zero a
 
 Crisp (classical) sets assign membership values in the binary set \(\{0,1\}\), so each element either belongs to the set or it does not. In contrast, fuzzy sets allow intermediate membership values, enabling gradual transitions between full inclusion and full exclusion. Understanding this contrast highlights why membership functions are central to fuzzy logic.
 \begin{tcolorbox}[title={Imprecision vs. Fuzziness (recap)}, colback=gray!5, colframe=gray!40, boxrule=0.4pt]
-As discussed in \cref{sec:imprecision-fuzziness}, \textbf{imprecision} concerns uncertainty about the exact value or boundary (e.g., measurement noise or coarse resolution), whereas \textbf{fuzziness} concerns graded membership in a concept (e.g., the degree to which a speed is ``slow'') even when measurements are exact. Probability models uncertainty about events; fuzzy logic models degrees of truth of linguistic predicates.
+As discussed in \Cref{sec:imprecision-fuzziness}, \textbf{imprecision} concerns uncertainty about the exact value or boundary (e.g., measurement noise or coarse resolution), whereas \textbf{fuzziness} concerns graded membership in a concept (e.g., the degree to which a speed is ``slow'') even when measurements are exact. Probability models uncertainty about events; fuzzy logic models degrees of truth of linguistic predicates.
 \end{tcolorbox}
 
 \subsection{Membership Functions in Fuzzy Sets}
@@ -210,6 +214,7 @@ Similarly, the membership for grade \(B\) could be written as
 0, & x > 90,
 \end{cases}
 \]
+so a borderline score such as \(x=79\) yields \(\mu_C(79)=(80-79)/5=0.2\) and \(\mu_B(79)=(79-75)/5=0.8\): mostly \(B\) but still partially \(C\).
 with analogous expressions for the \(A\) and \(D\) categories. These overlapping trapezoids capture the intuition that a borderline score (e.g., \(79\)) can simultaneously belong to both \(C\) and \(B\) to different degrees, as sketched in \Cref{fig:lec9-grade-trapezoids}.
 \begin{figure}[ht]
     \centering
@@ -246,7 +251,7 @@ with analogous expressions for the \(A\) and \(D\) categories. These overlapping
         \end{axis}
     \end{tikzpicture}
     % Avoid inline math in captions; it wraps poorly in some EPUB renderers.
-    \caption{Trapezoidal membership functions for grades C and B with the overlapping region shaded. Scores near 78--82 partially satisfy both grade definitions. Use it when designing overlapping grade/linguistic bins so boundary cases behave smoothly.}
+    \caption{Trapezoidal membership functions for grades C and B with the overlapping region shaded. Scores near 78--82 partially satisfy both grade definitions. This overlap design keeps boundary cases smooth instead of forcing abrupt label switches.}
     \label{fig:lec9-grade-trapezoids}
 \end{figure}
 
@@ -284,6 +289,7 @@ and
 \end{cases}
 \]
 The overlap reflects the vagueness of the labels: a weight near 22~kg partially satisfies both \texttt{Medium} and \texttt{Large}.
+For example, at \(x=22\) we have \(\mu_{\text{Medium}}(22)=(25-22)/5=0.6\) and \(\mu_{\text{Large}}(22)=(22-20)/5=0.4\).
 
 \begin{figure}[t]
     \centering
@@ -309,12 +315,9 @@ The overlap reflects the vagueness of the labels: a weight near 22~kg partially 
             \addplot[gray, dashed] coordinates {(25,0) (25,1.05)};
         \end{axis}
     \end{tikzpicture}
-    \caption[Overlapping membership functions for Small/Medium/Large labels]{Overlapping membership functions for the ``Small'', ``Medium'', and ``Large'' weight labels. The shaded overlaps capture gradual transitions. Use it when tuning membership overlaps so small numeric changes do not cause abrupt rule changes.}
+    \caption[Overlapping membership functions for Small/Medium/Large labels]{Overlapping membership functions for the ``Small'', ``Medium'', and ``Large'' weight labels. The shaded overlaps capture gradual transitions and reduce abrupt rule changes for small numeric perturbations.}
     \label{fig:lec9-membership-overlap}
 \end{figure}
-
-
-\Cref{fig:tnorm-surfaces} compares operator shapes when choosing conjunction behavior in rule aggregation.
 
 \paragraph{Quick plotting snippet.} With \texttt{scikit-fuzzy} or plain \texttt{matplotlib} you can visualize overlaps to debug label choices:
 \begin{verbatim}
@@ -372,16 +375,18 @@ These distinctions help in modeling asymmetric uncertainties or preferences.
 It is crucial to distinguish between \emph{probability} and \emph{possibility} when interpreting membership functions:
 
 \begin{itemize}
-    \item \textbf{Probability} measures the likelihood of an event occurring based on frequency or relative occurrence in repeated trials. Probabilities of mutually exclusive and exhaustive events sum to 1:
+    \item \textbf{Probability} models uncertainty about events under a probabilistic model. In both frequentist and Bayesian interpretations, probabilities satisfy additivity over mutually exclusive events:
     \[
     \sum_i P(E_i) = 1.
     \]
-    For example, the probability that a ball drawn from a bag is red, blue, or black sums to 1.
+    For example, the probabilities of mutually exclusive outcomes (red, blue, black) in one draw sum to 1.
 
-    \item \textbf{Possibility}, on the other hand, measures the degree of plausibility or evidence supporting an event, without requiring additivity or summation to 1. Possibility values reflect uncertainty or vagueness rather than frequency. For example, a doctor's confidence in a surgery's success might be expressed as a possibility of 0.75, indicating a degree of belief rather than a statistical frequency.
+    \item \textbf{Possibility} measures compatibility/plausibility of values with a vague concept, and it is not additive in the probabilistic sense. A possibility distribution \(\pi(x)\) is usually normalized by \(\sup_x \pi(x)=1\), not by summation.
 \end{itemize}
 
-Thus, membership functions in fuzzy sets represent \emph{possibility} rather than \emph{probability}. This distinction is fundamental in fuzzy logic and inference (cf.~\Cref{tab:fuzzy-vs-prob} in \Cref{chap:softcomp}). When treating a membership as a possibility distribution \(\pi(x)\), we usually normalize so that \(\sup_x \pi(x)=1\), yielding \(\Pi(A)=\sup_{x\in A}\pi(x)\) and \(N(A)=1-\Pi(A^c)\).
+Thus, membership functions in fuzzy sets represent \emph{possibility} rather than \emph{probability}. This distinction is fundamental in fuzzy logic and inference (cf.~\Cref{tab:fuzzy-vs-prob} in \Cref{chap:softcomp}). When treating a membership as a possibility distribution \(\pi(x)\), we normalize by \(\sup_x \pi(x)=1\), yielding \(\Pi(A)=\sup_{x\in A}\pi(x)\) and \(N(A)=1-\Pi(A^c)\).
+
+A practical sanity check is to ask what ``0.7'' means in context. If it is probability, it speaks to event uncertainty under a probability model. If it is fuzzy membership, it means ``compatible to degree 0.7'' with a linguistic predicate. The same number can appear in both settings, but the semantics and valid operations are different.
 
 \begin{tcolorbox}[summarybox, title={Alpha-cuts, convexity, and fuzzy numbers}]
 \begin{itemize}
@@ -450,10 +455,9 @@ Throughout the book we adopt $\wedge=\min$ and $\vee=\max$ as the default t-/s\h
 
 \Crefrange{eq:fuzzy_union}{eq:fuzzy_complement} already define the max/min/standard-complement pair that we use by default. Rather than restate them, we emphasise their practical role: unions aggregate rule consequents, intersections combine antecedents, and complements capture linguistic negations. The thermostat example later in the chapter uses these defaults unless stated otherwise.
 
-\subsection{Graphical Interpretation}
+\paragraph{Graphical interpretation}
 \label{sec:fuzzysets_graphical_interpretation}
-
-For continuous universes, the union and intersection membership functions can be visualized as the pointwise maximum and minimum of the two membership curves, respectively. The complement is obtained by reflecting the membership function about the horizontal line \(\mu = 0.5\): every membership degree \(m\) is mapped to \(1-m\).
+For continuous universes, the union and intersection membership functions are the pointwise maximum and minimum of the two curves, respectively. A complement mirrors memberships around \(\mu=0.5\): every membership degree \(m\) maps to \(1-m\). When you sketch these operations quickly, plot both curves on the same axes and take the upper (union) or lower (intersection) envelope. The same pointwise definitions apply to discrete universes; you simply compute the max/min values at each listed \(x_i\).
 
 \subsection{Additional Fuzzy Set Operations}
 \label{sec:fuzzysets_additional_fuzzy_set_operations}
@@ -507,12 +511,23 @@ An alternative definition of difference is the bounded difference:
 \subsection{Example: Union and Intersection of Fuzzy Sets}
 \label{sec:fuzzysets_example_union_and_intersection_of_fuzzy_sets}
 
-Consider two fuzzy sets
+Use the pointwise definitions in \eqref{eq:fuzzy_union}--\eqref{eq:fuzzy_intersection} to compute unions or intersections for any pair of fuzzy sets; the next subsection lifts these operations to relations via Cartesian products.
+\paragraph{Example.}
+Let \(X=\{x_1,x_2,x_3\}\) and define memberships in the order \((x_1,x_2,x_3)\):
+\[
+\mu_A=\{0.2,\,0.7,\,0.4\}, \qquad \mu_B=\{0.6,\,0.3,\,0.9\}.
+\]
+Then
+\begin{align*}
+\mu_{A\cup B} &= \{\max(0.2,0.6),\; \max(0.7,0.3),\; \max(0.4,0.9)\} = \{0.6,\,0.7,\,0.9\},\\
+\mu_{A\cap B} &= \{\min(0.2,0.6),\; \min(0.7,0.3),\; \min(0.4,0.9)\} = \{0.2,\,0.3,\,0.4\}.
+\end{align*}
+The union keeps the larger membership at each point, while the intersection keeps the smaller.
 
 \subsection{Cartesian Product of Fuzzy Sets}
 \label{sec:fuzzysets_cartesian_product_of_fuzzy_sets}
 
-Recall that fuzzy sets are characterized by membership functions assigning to each element a membership grade in $[0,1]$. When dealing with two fuzzy sets $A$ and $B$ defined on universes $X$ and $Y$ respectively, the \emph{Cartesian product} $A \times B$ is a fuzzy relation on the product space $X \times Y$.
+Using the membership-function definition from \Cref{sec:fuzzysets_fuzzy_sets_core_concepts_and_terminology}, the \emph{Cartesian product} of two fuzzy sets $A$ on $X$ and $B$ on $Y$ is a fuzzy relation on the product space $X \times Y$.
 
 \paragraph{Definition:} The membership function of the Cartesian product $A \times B$ is defined as
 \begin{equation}
@@ -592,13 +607,16 @@ These properties ensure that fuzzy set operations behave in a consistent and alg
 \subsection{Fuzzy Set Operators}
 \label{sec:fuzzysets_fuzzy_set_operators}
 
-While operations such as union, intersection, and complement define how to combine or modify fuzzy sets, \emph{operators} formalize the logic or rules by which these combinations occur. Operators are mappings that take one or more fuzzy sets and produce another fuzzy set, often encapsulating specific logical or algebraic behavior.
+While operations such as union, intersection, and complement define how to combine or modify fuzzy sets, \emph{operators} formalize the rules behind those combinations. In practice, an operator is a mapping on membership grades that encodes how conservative or permissive the model should be when evidence conflicts.
 
-\paragraph{Examples of Operators:}
+Three operator families appear repeatedly in the fuzzy trilogy:
 \begin{itemize}
-    \item \textbf{Equality operator:} Checks if two fuzzy sets are equal by comparing membership functions.
-
+    \item \textbf{Unary operators:} complement and linguistic hedges (for example, ``not,'' ``very,'' ``more or less'') that reshape a single membership function.
+    \item \textbf{Binary operators:} t\hyp{}norms and s\hyp{}norms that implement fuzzy AND/OR and determine how multiple antecedents combine.
+    \item \textbf{Relation operators:} extension, projection, and composition operators that transport fuzzy information between related universes.
 \end{itemize}
+
+The next subsection starts with unary negation operators, because complement choice directly affects De Morgan duality and downstream rule behavior.
 % Chapter 16 (continued)
 
 \subsection{Complement Operators in Fuzzy Logic}
@@ -606,9 +624,8 @@ While operations such as union, intersection, and complement define how to combi
 
 In classical logic, the complement of a proposition \( A \) is simply \( 1 - \mu_A(x) \), where \(\mu_A(x)\) is the membership function of \( A \). However, in fuzzy logic, this complement operation can be generalized to allow more flexible modeling of uncertainty and partial membership.
 
-\paragraph{Standard Complement}
-The standard complement operator is defined as:
-the standard fuzzy negation \(C(\mu)=1-\mu\), so \(\mu_{A^c}(x)=1-\mu_A(x)\) as in \Cref{eq:fuzzy_complement}. This operator is linear and intuitive but may not capture all nuances of uncertainty.
+\paragraph{Standard complement}
+We use the standard fuzzy negation \(C(\mu)=1-\mu\), so \(\mu_{A^c}(x)=1-\mu_A(x)\) (see \eqref{eq:fuzzy_complement}). It is simple, involutive, and usually the safest default unless a parameterized negation is explicitly required.
 
 \paragraph{Parameterized Complement Operators}
 To generalize the complement, choose a negation operator \(C_p:[0,1]\to[0,1]\) and apply it pointwise: \(\mu_{C_p(A)}(x)=C_p(\mu_A(x))\). One common (Sugeno-type) family is
@@ -627,19 +644,6 @@ which recovers the standard complement when \(p=1\) and adjusts the steepness fo
 
 These operators allow for a nonlinear mapping of the complement, reflecting different degrees of confidence or hesitation in the membership values. Unlike the standard complement, most parameterized families \emph{do not} preserve involution \(C(C(\mu))=\mu\) for arbitrary \(p\); they are typically designed to satisfy boundary conditions and monotonicity instead. When strict involution is required, it is safest to use the standard complement.
 
-\begin{figure}[t]
-    \centering
-    \includegraphics[width=0.9\linewidth]{lec16_fuzzy_and}
-    \ifdefined\HCode
-        \caption{Fuzzy AND surfaces comparing minimum versus product t\hyp{}norms; analogous OR surfaces show similar differences. Choices here influence rule aggregation in \Cref{chap:fuzzyinference}. Use it when deciding whether conjunction should behave like a conservative minimum or a multiplicative attenuation.}
-    \else
-        % Avoid inline math in captions; it wraps poorly in some EPUB renderers.
-        \caption{Fuzzy AND surfaces comparing minimum versus product t\hyp{}norms; analogous OR surfaces show similar differences. Choices here influence rule aggregation in \Cref{chap:fuzzyinference}. Use it when deciding whether conjunction should behave like a conservative minimum or a multiplicative attenuation.}
-    \fi
-    \label{fig:tnorm-surfaces}
-\end{figure}
-
-
 \paragraph{Properties of Complement Operators}
 A commonly desired set of properties for a complement operator \( C \) is:
 \begin{itemize}
@@ -650,9 +654,8 @@ A commonly desired set of properties for a complement operator \( C \) is:
 
 The standard complement satisfies all three. Parameterized complements typically satisfy the first two, while involution may be relaxed to gain extra modeling flexibility; one should check involution explicitly if it is required by a particular application.
 
-\subsection{Triangular norms (t\hyp{}
-\label{sec:fuzzysets_triangular_norms_t}norms)}
-\label{sec:fuzzysets_triangular_norms_t_sec_fuzzysets_triangular_norms_t_norms}
+\subsection{Triangular norms (t\hyp{}norms)}
+\label{sec:fuzzysets_triangular_norms_t_norms}
 
 \paragraph{Motivation}
 In fuzzy logic, the logical \texttt{AND} operation is generalized by \emph{triangular norms} (t\hyp{}norms). These are binary operators that combine membership values while preserving certain desirable properties analogous to intersection in classical set theory.
@@ -702,14 +705,23 @@ These properties ensure that \( T \) behaves like a generalized intersection ope
     \]
 \end{itemize}
 
+For a geometric intuition, \Cref{fig:tnorm-surfaces} visualizes two common choices for fuzzy \texttt{AND}: the conservative minimum and the multiplicative product.
+
+\begin{figure}[t]
+    \centering
+    \includegraphics[width=0.9\linewidth]{lec16_fuzzy_and}
+    % Avoid inline math in captions; it wraps poorly in some EPUB renderers.
+    \caption[Fuzzy AND surfaces for common t\hyp{}norms]{Fuzzy AND surfaces comparing minimum versus product t\hyp{}norms; analogous OR surfaces show similar differences. Choices here influence rule aggregation in \Cref{chap:fuzzyinference}. The plot makes the design choice visible: conservative minimum versus multiplicative attenuation. \textit{Source: author-generated.}}
+    \label{fig:tnorm-surfaces}
+\end{figure}
+
 Each t\hyp{}norm captures different semantics of conjunction in fuzzy logic.
 
 \paragraph{Interpretation}
 The t\hyp{}norm generalizes the classical intersection operator to fuzzy sets by ensuring the output membership value remains within \([0,1]\) and respects the ordering and boundary conditions expected of an intersection.
 
-\subsection{Triangular conorms (t\hyp{}
-\label{sec:fuzzysets_triangular_conorms_t}conorms / s\hyp{}norms)}
-\label{sec:fuzzysets_triangular_conorms_t_sec_fuzzysets_triangular_conorms_t_conorms_s_norms}
+\subsection{Triangular conorms (t\hyp{}conorms / s\hyp{}norms)}
+\label{sec:fuzzysets_triangular_conorms_t_conorms_s_norms}
 
 \paragraph{Definition}
 The dual concept to t\hyp{}norms is the \textbf{triangular conorm} (t\hyp{}conorm), also called an \emph{s\hyp{}norm}, which generalizes the logical \texttt{OR} operation. A t\hyp{}conorm \( S: [0,1]^2 \to [0,1] \) satisfies:
@@ -740,14 +752,7 @@ Note that the algebraic sum explicitly enforces \(S_{\text{sum}}(x, y)=x+y-xy \l
 \subsection{T-Norms and S-Norms: Complementarity and Properties}
 \label{sec:fuzzysets_t_norms_and_s_norms_complementarity_and_properties}
 
-Recall that a \emph{t\hyp{}norm} is a binary operator \( T: [0,1]^2 \to [0,1] \) modeling the fuzzy intersection, and an \emph{s\hyp{}norm} (or t\hyp{}conorm) \( S: [0,1]^2 \to [0,1] \) models the fuzzy union. These operators satisfy certain axioms such as commutativity, associativity, monotonicity, and boundary conditions:
-\[
-\begin{cases}
-T(x,1) = x, & T(x,0) = 0, \\
-S(x,0) = x, & S(x,1) = 1,
-\end{cases}
-\]
-for all \( x \in [0,1] \).
+We use the t\hyp{}norm and s\hyp{}norm definitions from the previous two subsections; here we focus on their complementarity via negation.
 
 An important relationship between t\hyp{}norms and s\hyp{}norms is their complementarity via a negation operator. Throughout this section we use the \emph{standard} fuzzy negation \(N(x) = 1 - x\), so that the complement of \(\mu_A\) is
 \[
@@ -766,9 +771,8 @@ S(\mu_A(x), \mu_B(x)) = 1 - T(1 - \mu_A(x), 1 - \mu_B(x)).
 
 This duality ensures that the fuzzy intersection and union are consistent with respect to complementation, generalizing classical De Morgan's laws.
 
-\subsection{Examples of common t\hyp{}
-\label{sec:fuzzysets_examples_of_common_t}norm/s\hyp{}norm pairs}
-\label{sec:fuzzysets_examples_of_common_t_sec_fuzzysets_examples_of_common_t_norm_s_norm_pairs}
+\subsection{Examples of common t\hyp{}norm / s\hyp{}norm pairs}
+\label{sec:fuzzysets_examples_common_t_s_norm_pairs}
 
 Several standard t\hyp{}norms and their corresponding s\hyp{}norms are widely used:
 
@@ -932,6 +936,10 @@ Note that:
 
 This chapter completes the toolkit for generating new membership functions from existing ones via fuzzy-set operations. Membership functions encode graded belonging over a universe of discourse, and algebraic manipulation of those functions is central to fuzzy logic and fuzzy inference.
 
+Two transfer cues matter for what comes next. First, treat membership functions as \emph{objects you can manipulate}: once the shapes are written down, you can reason about overlaps, negations, and edge cases without guessing. Second, the same max/min mindset will reappear when we move from sets to \emph{relations}: we will build fuzzy relations over Cartesian products and then compose them (a matrix-like operation) to propagate graded information between universes.
+
+As you generate new membership functions below, keep a short audit checklist: verify the output stays in \([0,1]\), check endpoints and monotonicity where intended, and confirm that the universe/units match the linguistic meaning. Those checks are invariants you will want to preserve later when you tune breakpoints, operator defaults, or rule bases.
+
 \subsubsection{Generating New Membership Functions via Set Operations}
 \label{sec:fuzzysets_generating_new_membership_functions_via_set_operations_sub}
 
@@ -1029,7 +1037,7 @@ The next step is to formalize the \emph{implication} and \emph{aggregation} oper
 \begin{table}[t]
 \centering
 % Avoid inline math in captions; it wraps poorly in some EPUB renderers.
-\caption{Typical operator choices in fuzzy inference and their qualitative effects. Here the t-norm implements fuzzy AND, the s-norm implements fuzzy OR, and the implication shapes consequents. Use it when choosing default operators for a Mamdani-style pipeline and predicting qualitative behavior.}
+\caption{Typical operator choices in fuzzy inference and their qualitative effects. Here the t\hyp{}norm implements fuzzy AND, the s\hyp{}norm implements fuzzy OR, and the implication shapes consequents. The table supports default-operator selection for a Mamdani-style pipeline and anticipates qualitative output behavior.}
 \label{tab:fuzzy-operators}
 \begin{tabularx}{\linewidth}{@{}>{\raggedright\arraybackslash}X>{\raggedright\arraybackslash}X>{\raggedright\arraybackslash}X>{\raggedright\arraybackslash}X@{}}
 \toprule
@@ -1101,7 +1109,7 @@ For symmetric triangles, the centroid of a truncated Medium set remains at $0.5$
 \[
     s^{\star} \approx \frac{0.3\cdot 0.5 + 0.133\cdot 0.833}{0.3+0.133} \approx 0.58.
 \]
-An exact centroid can be computed analytically or numerically by integrating the clipped shapes; the approximation above matches a direct trapezoidal integration on a uniform grid (10k points), which yields $s^\star \approx 0.580$ to three decimals. See \cref{fig:fuzzy-end-to-end} for the membership functions and clipping levels used in this example.
+An exact centroid can be computed analytically or numerically by integrating the clipped shapes; the approximation above matches a direct trapezoidal integration on a uniform grid (10k points), which yields $s^\star \approx 0.580$ to three decimals. See \Cref{fig:fuzzy-end-to-end} for the membership functions and clipping levels used in this example.
 Practical tip: libraries such as \texttt{scikit-fuzzy} provide a tested \texttt{defuzz} (centroid) routine; when in doubt, compute the centroid numerically rather than relying on heuristic convex combinations.
 
 \begin{figure}[t]
@@ -1153,7 +1161,7 @@ Practical tip: libraries such as \texttt{scikit-fuzzy} provide a tested \texttt{
         \end{groupplot}
     \end{tikzpicture}
     % Avoid inline math in captions; it wraps poorly in some EPUB renderers.
-    \caption{End-to-end fuzzy inference example. (A) Consequent membership functions with clipping levels from firing strengths at T = 27 deg C. (B) Aggregated output set (max of truncated consequents) and a centroid marker near s* approx 0.58. Use it when sanity-checking clipping, aggregation, and centroid defuzzification end to end.}
+    \caption{End-to-end fuzzy inference example. (A) Consequent membership functions with clipping levels from firing strengths at T = 27 deg C. (B) Aggregated output set (max of truncated consequents) and a centroid marker near s* approx 0.58. This trace provides an end-to-end sanity check for clipping, aggregation, and centroid defuzzification.}
     \label{fig:fuzzy-end-to-end}
 \end{figure}
 
@@ -1190,7 +1198,7 @@ Practical tip: libraries such as \texttt{scikit-fuzzy} provide a tested \texttt{
 \end{itemize}
 
 \medskip
-\noindent\textbf{If you are skipping ahead.} The rest of the fuzzy chapters build on these primitives. If you find later rule outputs unstable, the first place to revisit is the universe scaling and overlap choices here.
+\noindent\textbf{Fast-track note.} Later fuzzy chapters build directly on these primitives. If rule outputs become unstable, revisit universe scaling and membership overlap first.
 \end{tcolorbox}
 
-\paragraph{Where we head next.} \Cref{chap:fuzzyrelations} moves from fuzzification/defuzzification mechanics to system-level design and adaptive fuzzy controllers; relation operators and projections there connect these set-level tools to control and hybrid schemes.
+\paragraph{Where we head next.} \Cref{chap:fuzzyrelations} moves from set-level primitives to \emph{transfer}: how to push fuzzy labels through mappings between related universes (extension principle, projection, and composition). \Cref{chap:fuzzyinference} then uses those relation tools to assemble complete rule composition and defuzzification pipelines.

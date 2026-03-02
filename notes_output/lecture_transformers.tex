@@ -1,68 +1,194 @@
 % Chapter 14
 \section{Transformers: Attention-Based Sequence Modeling}\label{chap:transformers}
 
-\Cref{chap:rnn} made the sequence problem explicit: stateful computation plus gradients that must flow across time. \Cref{chap:nlp} then supplied the representation layer that makes those sequence objectives practical. This chapter keeps those representations but removes recurrence, replacing it with attention so information can move globally within a layer.
+\Cref{chap:rnn} made the sequence problem explicit: stateful computation plus gradients that must flow across time. \Cref{chap:nlp} then supplied the representation layer that makes those sequence objectives practical. This chapter keeps those representations but loosens the ``one step at a time'' constraint: instead of marching through time, we let each position look around and pull in what it needs through attention.
 
 \begin{tcolorbox}[summarybox, title={Learning Outcomes}]
 After this chapter, you should be able to:
 \begin{itemize}
-  \item Write the scaled dot-product attention and multi-head attention formulas.
-  \item Explain positional encodings and masking (causal/padding) in training/inference.
-  \item Describe encoder/decoder stacks, residuals, layer norm, and training stabilizers.
-  \item Compare RNNs vs. Transformers and know when each is preferable.
-  \item Outline common pretraining and fine-tuning strategies (MLM/CLM, LoRA/IA3) and decoding.
+  \item Explain the encoder--decoder bottleneck and how attention fixes it in sequence-to-sequence problems.
+  \item Write scaled dot-product attention and multi-head attention, and interpret them as weighted averages.
+  \item Distinguish self-attention from cross-attention and describe where each appears in a Transformer.
+  \item Explain positional encodings and masking (padding/causal) in training and decoding.
+  \item Describe a Transformer block (residual paths, layer norm, FFN) and common objectives (MLM/CLM) and families (BERT/GPT/encoder--decoder).
 \end{itemize}
 \end{tcolorbox}
 
 \begin{tcolorbox}[summarybox, title={Design motif}]
-Control information flow with structure (masks, normalization, residual paths) so optimization remains stable while context windows grow.
+Make information flow explicit. Attention is a controlled mixing operation; masks enforce which interactions are allowed; residual paths and normalization keep optimization stable as models deepen and context windows grow.
 \end{tcolorbox}
 
-\subsection{Why transformers after RNNs?}
+\begin{tcolorbox}[perspectivebox, title={Author's note: models, world models, and language models (an opinionated lens)}]
+A \emph{model} predicts outcomes from captured information. In the chapters so far, that ``outcome'' ranged
+from a class label, to a time-step forecast, to a retrieved memory pattern.
+
+A \emph{world model}, as I use the phrase here, is aspirational: it is the idea of a general-purpose internal
+model that can represent situations and dynamics well enough to support planning, counterplanning, and
+``what-if'' reasoning. Whether we can build such systems reliably is part of the larger research program.
+
+Language models are a simplified and very constrained training interface to this aspiration: at training time
+the next action is a token predicted from previous tokens. My opinion is that this setup can \emph{suggest}
+a kind of internal world structure (because the output must remain internally and externally consistent to be
+useful), but it does not \emph{guarantee} that a faithful world model has formed. Fluency is not proof of
+understanding; it is a behavior you still have to audit.
+\end{tcolorbox}
+
+\subsection{From encoder--decoder bottlenecks to attention}
 \label{sec:transformers_why_transformers_after_rnns}
-The RNN chapter (\Cref{chap:rnn}) closed with recurrent models that process tokens sequentially: information must travel through time steps, training cannot fully parallelize across positions, and gradients can still struggle on long contexts even with gating. The embeddings chapter (\Cref{chap:nlp}) addressed a different bottleneck---how tokens become vectors so many\hyp{}to\hyp{}one decisions (e.g., sentiment classification) can generalize across similar words. Transformers replace recurrence with attention so every position can condition on any other in a single layer, enabling parallel hardware use and more direct long-range interactions \citep{Vaswani2017}.
+Sequence-to-sequence (seq2seq) problems have a natural story: read an input sequence and produce an output sequence. Translation is the canonical example. In the classical encoder--decoder picture, the encoder reads the source sentence and produces a representation; the decoder then uses that representation to generate the target sentence token by token.
 
-\begin{tcolorbox}[summarybox, title={Risk \& audit}]
-\begin{itemize}
-    \item \textbf{Masking errors:} audit causal and padding masks; subtle bugs can leak future tokens or corrupt attention weights.
-    \item \textbf{Evaluation leakage:} benchmark contamination (train/test overlap) can inflate results; prefer held-out slices and time-based splits when possible.
-    \item \textbf{Long-context failure:} measure how quality degrades with sequence length; do not assume attention implies usable memory.
-    \item \textbf{Calibration and confidence:} likelihood and token probabilities need not align with factual correctness; audit reliability for downstream decisions.
-    \item \textbf{Reproducibility:} log tokenizer, data filters, and decoding settings; minor changes can swing outcomes more than architectural tweaks.
-\end{itemize}
-\end{tcolorbox}
+We will keep the term \emph{token} from \Cref{chap:nlp}: a token is a discrete symbol index that gets mapped to a vector. In text it might be a word or subword; in other sequence problems it can be any event ID you embed into a feature vector.
+
+The practical bottleneck is the fixed-vector squeeze. If the decoder is only given one summary vector, it is forced to carry \emph{everything} about the source through time, even when the next output token only depends on a small part of the input. Attention is the engineering fix: at each decoding step, compute a weighted average of the encoder states and let that mixture act as the context for the next prediction. In other words, the decoder is allowed to look back at the encoder's ``memory'' and ask which source positions matter \emph{right now}.
+
+Transformers \citep{Vaswani2017} take that idea seriously and push it further. They remove recurrence and make ``look around and mix'' the core operation inside a layer. This allows parallel computation across positions and makes long-range interactions a first-class design choice rather than a side effect of how well information survives through many recurrent steps.
+
+\paragraph{Seq2seq with attention (cross-attention).}
+In an encoder--decoder RNN, the encoder produces a sequence of hidden states \(\{\mathbf{h}_j\}_{j=1}^{S}\) from the input \(\{\mathbf{x}_j\}\), and the decoder produces a sequence of states \(\{\mathbf{s}_t\}_{t=1}^{T}\) while generating the output \(\{y_t\}\). A convenient probabilistic view of translation is
+\begin{equation}
+    p(\mathbf{y}\mid \mathbf{x})
+    = \prod_{t=1}^{T} p\!\left(y_t \mid y_{<t}, \mathbf{x}\right).
+    \label{eq:transformers_seq2seq_factorization}
+\end{equation}
+The ``one-vector bottleneck'' appears when the decoder is forced to rely on a single summary of the entire input. Attention replaces that with a \emph{per-step context}:
+\begin{equation}
+\begin{split}
+    e_{t j} &= a(\mathbf{s}_{t-1}, \mathbf{h}_j),\\
+    \alpha_{t j} &= \operatorname{softmax}_j(e_{t j}),\\
+    \mathbf{c}_t &= \sum_{j=1}^{S} \alpha_{t j}\,\mathbf{h}_j.
+\end{split}
+\label{eq:transformers_context_seq2seq}
+\end{equation}
+Here \(\operatorname{softmax}_j\) denotes a softmax over the source positions \(j\); explicitly,
+\[
+\alpha_{t j}=\frac{\exp(e_{t j})}{\sum_{j'=1}^{S}\exp(e_{t j'})}.
+\]
+This normalization makes the weights nonnegative and ensures they sum to one across \(j\).
+The scoring function \(a(\cdot,\cdot)\) can be a dot product, a bilinear form, or a small MLP, and
+\(\mathbf{c}_t\) is the context the decoder uses when predicting \(y_t\).
+This style of encoder--decoder attention traces back to early neural machine translation work
+\citep{Bahdanau2015}.
+That is the core move: different output positions can ``look back'' at different parts of the source.
+This is the bridge from encoder--decoder RNNs to Transformers: the attention math stays; what changes is
+that Transformers build the states \(\mathbf{h}_j\) and \(\mathbf{s}_t\) without recurrence.
 
 \subsection{Scaled Dot-Product Attention}
 \label{sec:transformers_scaled_dot_product_attention}
-\begin{tcolorbox}[summarybox, title={Author's note: attention allocates focus per token}]
-It is helpful to view attention as each token asking ``who else helps me understand my role,'' with masks and layer norms enforcing the rules of that dialogue. The scaled dot-product equations that follow quantify that per-token focus allocation.
+\begin{tcolorbox}[summarybox, title={Author's note: attention is a weighted average}]
+RNNs and gated cells give you a way to carry \emph{memory} forward, but memory is not the same thing as
+\emph{relevance}. When you read a page, some words are glue and some words carry the meaning you need
+right now; your mind does not treat the whole history as equally important at every step.
+
+I like to read attention as the engineering version of relevance: a weighted retrieval operator, not a
+mystical reasoning module. A query asks what is needed, keys advertise what each candidate is about, and
+values carry the content that gets mixed. Similarity scores between queries and keys become nonnegative
+weights that sum to one; the output is the weighted sum of the value vectors.
 \end{tcolorbox}
 
+\begin{tcolorbox}[summarybox, title={A tiny analogy: keys, values, and weighted retrieval}]
+Think of a tiny ``database'' with keys \(\{70,80\}\) and values \(\{1000,1500\}\). If your query is exactly \(70\), you retrieve \(1000\). If your query is \(75\), there is no exact match, so you can do a soft retrieval: score each key by a similarity such as
+\[
+s_i = \frac{1}{|k_i-q|+\epsilon},
+\]
+then normalize those scores so they sum to one and use them as weights on the values. Here \(|70-75|=|80-75|=5\), so \(s_1\approx s_2\approx 0.2\), the normalized weights are \((0.5,0.5)\), and the weighted average gives \(0.5\cdot 1000 + 0.5\cdot 1500 = 1250\).
+\par\smallskip
+This is only an intuition pump: Transformers do not use scalar keys like ``70.'' They learn vector keys and queries and score them in a learned feature space. But the weighted-average mechanism is exactly the same.
+\end{tcolorbox}
+
+At the per-position level, the computation is
+\[
+\mathbf{z}_i = \sum_{j} \alpha_{ij}\,\mathbf{v}_j,\qquad
+\alpha_{ij} \ge 0,\quad \sum_j \alpha_{ij} = 1,
+\]
 Given query, key, value matrices \(\mathbf{Q} \in \mathbb{R}^{n_q \times d_k}\), \(\mathbf{K} \in \mathbb{R}^{n_k \times d_k}\), and \(\mathbf{V} \in \mathbb{R}^{n_k \times d_v}\), the basic attention operation is
 \begin{equation}
     \operatorname{Attn}(\mathbf{Q}, \mathbf{K}, \mathbf{V})
     = \operatorname{softmax}\!\left(\frac{\mathbf{Q}\mathbf{K}^\top}{\sqrt{d_k}}\right) \mathbf{V}.
-\label{eq:auto_transformers_0c8cb47ef2}
+    \label{eq:transformers_scaled_dot_product_attention}
 \end{equation}
 Here \(n_q\) is the sequence length of the queries and \(n_k\) the sequence length of keys/values. We keep the same sequence-first convention used in \Cref{chap:rnn,chap:nlp}: rows index time positions (a ``token dimension'') and columns index features, while batch elements are processed independently. The \(1/\sqrt{d_k}\) factor stabilizes gradients by keeping logits in a reasonable range.
 
+It is often helpful to name the attention-weight matrix
+\[
+\mathbf{A}=\operatorname{softmax}\!\left(\frac{\mathbf{Q}\mathbf{K}^\top}{\sqrt{d_k}}\right),
+\]
+where the softmax is applied \emph{row-wise} (each query position gets a distribution over keys).
+Then the output is simply \(\mathbf{Z}=\mathbf{A}\mathbf{V}\). The whole pipeline is differentiable, so the
+projection matrices that create \(Q,K,V\) can be learned by backpropagation.
+
+\paragraph{Where do \(Q,K,V\) come from?}
+Start from token vectors stacked into a matrix \(\mathbf{X}\in\mathbb{R}^{n\times d_{\text{model}}}\) (one row per position). For a \emph{single head}, learned projections produce
+\begin{equation}
+    \mathbf{Q}=\mathbf{X}\mathbf{W}^Q,\qquad
+    \mathbf{K}=\mathbf{X}\mathbf{W}^K,\qquad
+    \mathbf{V}=\mathbf{X}\mathbf{W}^V,
+    \label{eq:transformers_qkv_projections}
+\end{equation}
+with \(\mathbf{W}^Q,\mathbf{W}^K\in\mathbb{R}^{d_{\text{model}}\times d_k}\) and \(\mathbf{W}^V\in\mathbb{R}^{d_{\text{model}}\times d_v}\).
+In self-attention, \(\mathbf{X}\) is the same sequence for all three. In cross-attention (seq2seq), \(\mathbf{Q}\) typically comes from decoder states while \(\mathbf{K},\mathbf{V}\) come from encoder states; the math is unchanged. Multi-head attention simply runs this projection-and-attend pattern several times in parallel with separate \(\mathbf{W}_i^Q,\mathbf{W}_i^K,\mathbf{W}_i^V\).
+
+\begin{tcolorbox}[summarybox, title={Worked example: 2-token causal self-attention (one head)}]
+Let \(d_k=d_v=2\) and \(Q=K=V=\mathbf{I}_2\). Without masking, the scaled scores are
+\[
+S=\frac{QK^\top}{\sqrt{d_k}}=\frac{1}{\sqrt{2}}\mathbf{I}_2.
+\]
+A \emph{causal mask} forbids looking into the future: for query index \(i\), mask out all keys with index \(j>i\) by setting those logits to \(-\infty\) (so they vanish after the softmax).
+
+Row 1 can only attend to itself, so \(\alpha_{1\cdot}=[1,0]\). Row 2 sees logits \([0,\,1/\sqrt{2}]\), so
+\[
+\begin{aligned}
+u &= e^{1/\sqrt{2}},\\
+\alpha_{2\cdot} &= \operatorname{softmax}\!\left([0,\,1/\sqrt{2}]\right)
+= \left[\frac{1}{1+u},\;\frac{u}{1+u}\right]\\
+&\approx[0.330238,\;0.669762].
+\end{aligned}
+\]
+Because \(V=\mathbf{I}_2\), the attention output equals the weight matrix: \(\operatorname{Attn}(Q,K,V)=\alpha\).
+\end{tcolorbox}
+
 \begin{tcolorbox}[summarybox, title={Shape ledger}]
-We treat mini\hyp{}batches as \(\mathbf{X}\in\mathbb{R}^{B\times n \times d_{\text{model}}}\) (batch, sequence, features). After the linear projections each head carries \(\mathbf{Q},\mathbf{K}\in\mathbb{R}^{B\times h \times n \times d_k}\), \(\mathbf{V}\in\mathbb{R}^{B\times h \times n \times d_v}\), and the attention weights live in \(\mathbb{R}^{B\times h \times n \times n}\). Reading dimensions in this order avoids confusion when mixing frameworks; \(h\cdot d_k = d_{\text{model}}\) (often \(d_v=d_k\)). FFN inner widths typically 2--4\(\times d_{\text{model}}\).
+We treat mini\hyp{}batches as \(\mathbf{X}\in\mathbb{R}^{B\times n \times d_{\text{model}}}\) (batch, sequence, features). After the linear projections each head carries \(\mathbf{Q},\mathbf{K}\in\mathbb{R}^{B\times h \times n \times d_k}\), \(\mathbf{V}\in\mathbb{R}^{B\times h \times n \times d_v}\), and the attention weights live in \(\mathbb{R}^{B\times h \times n \times n}\). Reading dimensions in this order avoids confusion when mixing frameworks; \(h\cdot d_k = d_{\text{model}}\) (often \(d_v=d_k\)). FFN inner widths typically 2--4$\times d_{\text{model}}$.
 \end{tcolorbox}
 
 \begin{tcolorbox}[summarybox, title={Complexity and memory}]
 Naive attention is \(O(n^2 d_{\text{model}})\) compute and \(O(n^2)\) memory per head/layer for the attention map; this dominates long sequences. FlashAttention reduces activation I/O but keeps the quadratic arithmetic; sparse/linear variants reduce the \(n^2\) factor by trading exactness for structure (see Longformer/BigBird/Reformer/Performer/Linformer). Causal/padding masks do not change complexity, only which entries participate.
 \end{tcolorbox}
 
+\subsection{Self-attention vs.\ cross-attention}
+\label{sec:transformers_self_attention_vs_cross_attention}
+The same equations serve two distinct roles.
+\emph{Self-attention} means \(Q,K,V\) come from the same sequence. This is the retrieval story turned inward:
+each position forms a query and pulls a weighted average over values from the whole sequence, producing a
+\emph{contextualized} representation of that token. In decoder-only generation, self-attention is typically
+\emph{causal}: the mask enforces that position \(t\) can only use positions \(\le t\).
+
+This is why the same surface form can behave differently depending on what surrounds it. In the phrase
+``red flag,'' the useful information is often the idiom (a warning sign), not the literal color red or a physical
+flag. In ``red coat,'' red is literal. Self-attention gives the model a mechanism to build token
+representations that reflect these different roles by mixing in different neighbors with different weights.
+Self-attention by itself does not know what ``before'' and ``after'' mean: without positional information the operation is permutation-equivariant. That is why we explicitly add positional encodings in \Cref{sec:transformers_positional_information}.
+
+\emph{Cross-attention} is the seq2seq bridge. Here the queries come from the decoder states, but the keys and values come from the encoder outputs. In translation terms: each output position asks a question (query) and then pulls a weighted average over the source-side memory (keys/values) to decide what to emit next.
+
 \subsection{Multi-Head Attention (MHA)}
 \label{sec:transformers_multi_head_attention_mha}
+One attention head gives you one similarity space. Multi-head attention gives you several in parallel: each head learns its own projections and can focus on different relations at the same time (local vs.\ global cues, syntactic vs.\ semantic signals, or different parts of an image-like grid). You should not read heads as guaranteed ``modules'' with fixed roles; the point is capacity and parallel views under the same weighted-average mechanism.
+
+One intuition I find useful in language is that several relations matter at once. Some languages encode gender;
+some emphasize agreement; and word order can differ substantially across languages (subject--verb--object versus
+other patterns). During translation you may need to track several of these constraints simultaneously while still
+resolving local collocations. Multi-head attention gives the model multiple learned ``views'' at the same time:
+each head has its own projection matrices and can compute a different attention pattern over the same sequence.
+
 Multiple heads attend in parallel after learned linear projections:
 \begin{align}
-    \mathrm{head}_i &= \operatorname{Attn}(\mathbf{Q}\mathbf{W}_i^Q,\, \mathbf{K}\mathbf{W}_i^K,\, \mathbf{V}\mathbf{W}_i^V),\\
-    \operatorname{MHA}(\mathbf{Q},\mathbf{K},\mathbf{V}) &= [\mathrm{head}_1;\ldots;\mathrm{head}_h]\, \mathbf{W}^O,
-    \label{eq:auto:lecture_transformers:1}
+    \mathrm{head}_i &= \operatorname{Attn}(\mathbf{X}\mathbf{W}_i^Q,\, \mathbf{X}\mathbf{W}_i^K,\, \mathbf{X}\mathbf{W}_i^V),\\
+    \operatorname{MHA}(\mathbf{X}) &= [\mathrm{head}_1;\ldots;\mathrm{head}_h]\, \mathbf{W}^O,
+    \label{eq:transformers_mha}
 \end{align}
-with \(\mathbf{W}_i^Q \in \mathbb{R}^{d_{\text{model}} \times d_k}\), \(\mathbf{W}_i^K \in \mathbb{R}^{d_{\text{model}} \times d_k}\), \(\mathbf{W}_i^V \in \mathbb{R}^{d_{\text{model}} \times d_v}\), and output projection \(\mathbf{W}^O\). \Cref{fig:lec13_transformer_block} bundles scaled dot-product attention, multi-head concatenation, and the residual pre-LN block so the entire signal path is visible at a glance.
+with \(\mathbf{W}_i^Q \in \mathbb{R}^{d_{\text{model}} \times d_k}\), \(\mathbf{W}_i^K \in \mathbb{R}^{d_{\text{model}} \times d_k}\), \(\mathbf{W}_i^V \in \mathbb{R}^{d_{\text{model}} \times d_v}\), and output projection \(\mathbf{W}^O\in\mathbb{R}^{(h d_v)\times d_{\text{model}}}\).
+For cross-attention, the formula is the same but keys/values come from encoder states: \(\operatorname{Attn}(\mathbf{X}_{\text{dec}}\mathbf{W}_i^Q,\,\mathbf{X}_{\text{enc}}\mathbf{W}_i^K,\,\mathbf{X}_{\text{enc}}\mathbf{W}_i^V)\).
+\Cref{fig:lec13_transformer_block} bundles scaled dot-product attention, multi-head concatenation, and the residual pre-LN block so the entire signal path is visible at a glance.
 
 \begin{figure}[h]
     \centering
@@ -150,7 +276,7 @@ with \(\mathbf{W}_i^Q \in \mathbb{R}^{d_{\text{model}} \times d_k}\), \(\mathbf{
         \node[sum] (add1_real) at ([yshift=-0.5cm]mha_real.south) {+};
 
         \node[func, minimum width=2.4cm] (ln2_real) at ([yshift=-0.6cm]add1_real.south) {LayerNorm};
-        \node[proc, minimum width=2.4cm] (ffn_real) at ([yshift=-0.6cm]ln2_real.south) {FFN (GELU)};
+        \node[proc, minimum width=2.4cm] (ffn_real) at ([yshift=-0.6cm]ln2_real.south) {FFN};
         \node[sum] (add2_real) at ([yshift=-0.5cm]ffn_real.south) {+};
 
         \draw[wire] (in_c) -- (ln1_real.north);
@@ -169,11 +295,12 @@ with \(\mathbf{W}_i^Q \in \mathbb{R}^{d_{\text{model}} \times d_k}\), \(\mathbf{
         \draw[->, dotted, gray!60] (postln.west) -- (add2_real.east);
     \end{tikzpicture}}
     % Avoid dense inline math in captions; it wraps poorly in EPUB renderers.
-    \caption{Schematic: Reference schematic for the Transformer. Left: scaled dot-product attention. Center: multi-head concatenation with an output projection. Right: pre-LN encoder block combining attention, FFN, and residual connections; a post-LN variant simply moves each LayerNorm after its residual add (dotted alternative, not shown).}
+    \caption{Reference schematic for the Transformer. Left: scaled dot-product attention. Center: multi-head concatenation with an output projection. Right: pre-LN encoder block combining attention, FFN, and residual connections; a post-LN variant simply moves each LayerNorm after its residual add (dotted alternative, not shown).}
     \label{fig:lec13_transformer_block}
 \end{figure}
+\FloatBarrier
 
-\Cref{fig:lec13_micro_figures} is the compact visual bridge for positional encoding, KV cache reuse, and LoRA adapters.
+\Cref{fig:lec13_micro_figures} provides a quick visual summary of positional encoding, key/value (KV) cache reuse, and Low-Rank Adaptation (LoRA): a parameter-efficient tuning trick where the base weights stay fixed and you learn a small low-rank update.
 
 \begin{figure}[t]
     \centering
@@ -202,7 +329,7 @@ with \(\mathbf{W}_i^Q \in \mathbb{R}^{d_{\text{model}} \times d_k}\), \(\mathbf{
             clip=false
         ]
             \addplot[enc, cbBlue, samples=200, domain=0:2*pi] {sin(deg(x))};
-            \addplot[enc, cbOrange, samples=200, domain=0:2*pi] {sin(deg(2*x))};
+            \addplot[enc, cbOrange, samples=200, domain=0:2*pi] {cos(deg(x))};
         \end{axis}
         \node[anchor=south, font=\small] at ([yshift=12pt]p1.south) {Positional encodings};
         \node[anchor=north, font=\small] at ([yshift=2pt]p1.south) {sinusoidal / RoPE};
@@ -247,109 +374,77 @@ with \(\mathbf{W}_i^Q \in \mathbb{R}^{d_{\text{model}} \times d_k}\), \(\mathbf{
     \end{tikzpicture}
     }%
     % Avoid inline math in captions; it wraps poorly in some EPUB renderers.
-    \caption{Schematic: Transformer micro-views. Left: positional encodings (sinusoidal/rotary) add order information. Center: KV cache stores past keys/values so decoding a new token reuses prior context. Right: LoRA inserts low-rank adapters (B A) on top of a frozen weight matrix W for parameter-efficient tuning.}
+    \caption{Transformer micro-views. Left: positional encodings (sinusoidal/rotary) add order information. Center: KV cache stores past keys/values so decoding a new token reuses prior context. Right: LoRA freezes a base weight matrix \(\mathbf{W}\) and trains a low-rank update \(\Delta\mathbf{W}=\mathbf{B}\mathbf{A}\) for parameter-efficient tuning.}
     \label{fig:lec13_micro_figures}
 \end{figure}
+\FloatBarrier
 
+\subsection{Positional encodings (order without recurrence)}
+\label{sec:transformers_positional_information}
+Transformers lack recurrence, so order has to be injected explicitly. A simple baseline (from \citet{Vaswani2017}) is a sinusoidal positional encoding: for position \(\mathrm{pos}\) and feature index \(i\),
+\begin{align}
+    \mathrm{PE}(\mathrm{pos},\,2i)   &= \sin\!\left(\frac{\mathrm{pos}}{10000^{2i/d_{\text{model}}}}\right),\\
+    \mathrm{PE}(\mathrm{pos},\,2i+1) &= \cos\!\left(\frac{\mathrm{pos}}{10000^{2i/d_{\text{model}}}}\right).
+    \label{eq:transformers_sinusoidal_pe}
+\end{align}
+You add this vector (or a learned alternative) to the token embedding at each position. The engineering point is not the specific constant; it is that different dimensions oscillate at different frequencies, so nearby positions look similar in some coordinates and far positions look different in others.
 
-\Cref{fig:lec13-masks} shows how padding and causal masks constrain attention patterns.
+A tempting baseline is to represent the position as an ID (or a one-hot vector) and treat it like any other lookup. That \emph{can} work as a table, but it is a poor fit for how attention does its comparisons. One-hot positions are orthogonal: under dot products they only tell you ``same position'' versus ``different position,'' not whether two positions are one step apart or fifty steps apart. A fixed table also has a hard maximum length: if you trained up to \(n=512\) and you now see position 513, you must extend (and usually re-train) the lookup.
 
-\paragraph{Micro attention example (2 tokens, causal mask).}
-Let \(Q=K=V=\begin{bmatrix}1&0\\0&1\end{bmatrix}\) and \(d_k=2\).
-Use a causal mask that sets all logits \emph{above} the diagonal to \(-\infty\), so those entries vanish after the softmax.
-The unscaled score matrix is \(\begin{bmatrix}1&0\\0&1\end{bmatrix}\); after masking and dividing by \(\sqrt{2}\), the first row softmaxes to \([1,0]\) and the second to \([\tfrac{e^{0}}{e^{0}+e^{1/\sqrt{2}}},\tfrac{e^{1/\sqrt{2}}}{e^{0}+e^{1/\sqrt{2}}}]\).
-These are exactly the attention weights, and because \(V\) is the identity the attention output equals the weight matrix:
+Sinusoidal encodings bake in a gentle geometry. For one frequency \(\omega\), the sin/cos pair satisfies
 \[
-\operatorname{Attn}(Q, K, V)=
 \begin{bmatrix}
-1&0\\
-\tfrac{1}{1+e^{1/\sqrt{2}}} & \tfrac{e^{1/\sqrt{2}}}{1+e^{1/\sqrt{2}}}
+\sin(\omega(\mathrm{pos}+\Delta))\\
+\cos(\omega(\mathrm{pos}+\Delta))
+\end{bmatrix}
+=
+\begin{bmatrix}
+\cos(\omega\Delta) & \sin(\omega\Delta)\\
+-\sin(\omega\Delta) & \cos(\omega\Delta)
+\end{bmatrix}
+\begin{bmatrix}
+\sin(\omega\,\mathrm{pos})\\
+\cos(\omega\,\mathrm{pos})
 \end{bmatrix},
 \]
-which grounds the shapes and masking rules before we move on to larger examples.
-This toy case instantiates the left panel of \Cref{fig:lec13_transformer_block} with \(Q=K=V=\mathbf{I}_2\) and a \(2\times 2\) causal mask.
+so a fixed offset \(\Delta\) acts like a rotation in that 2D subspace. Across many frequencies, this becomes a multi-scale position code: low-frequency terms vary slowly (coarse, long-range cues) while high-frequency terms vary quickly (fine, local cues). Because attention is built on dot products and similarities, that structure gives the model a usable notion of ``near'' and ``far'' without having to relearn distance from scratch, and it lets you evaluate \(\mathrm{PE}(\mathrm{pos},\cdot)\) beyond the training window.
 
-\subsection{Positional Information}
-\label{sec:transformers_positional_information}
-Transformers lack recurrence, so order is encoded explicitly. Two common choices:
-\begin{itemize}
-  \item \textbf{Sinusoidal encodings:} add \(\mathbf{P}\) with fixed sine/cosine frequencies to token embeddings.
-  \item \textbf{Learned encodings:} learn a position embedding table and add to token embeddings.
-\end{itemize}
-Relative position encodings generalize better to long contexts and variable windows.
+You can view the input to the first block as
+\[
+\mathbf{H}_0 = \operatorname{Embed}(\text{tokens}) + \operatorname{PosEnc}(\text{positions}),
+\]
+where both terms produce vectors in \(\mathbb{R}^{d_{\text{model}}}\) and the sum is taken position-wise.
 
-\subsection{Masks and Training Objectives}
+In modern practice you will also see learned positional embeddings, relative-position schemes, and rotary position embeddings (RoPE). The chapter keeps sinusoidal PE as the clean reference, and we treat other variants as drop-in replacements that mainly change how well models extrapolate to longer contexts or shifting windows.
+
+\subsection{Objectives and masks}
 \label{sec:transformers_masks_and_training_objectives}
-\begin{itemize}
-  \item \textbf{Causal masks} zero out attention to future positions for autoregressive language models.
-  \item \textbf{Padding masks} prevent attending to padding tokens in batches.
-  \item \textbf{Pretraining:} masked language modeling (MLM; encoder) and causal LM (CLM; decoder-only). Sequence-to-sequence uses teacher forcing with encoder\,\(\to\)decoder cross-attention.
-\end{itemize}
+Two masks show up so often that it is worth naming them early.
+A \emph{causal mask} forbids attention to future positions; this is what makes next-token generation well-defined.
+A \emph{padding mask} forbids attention to padded positions inserted only to make batches rectangular.
+Both are easy to get wrong: a single missing mask can leak information from the future or silently change what the model is allowed to use.
+See \Cref{fig:lec13_masks} for a concrete picture of both patterns (queries on rows, keys on columns).
 
-\subsection{Encoder/Decoder Stacks and Stabilizers}
-\label{sec:transformers_encoder_decoder_stacks_and_stabilizers}
-Each block uses residual connections and layer normalization:
-\begin{align}
-\mathbf{H}' &= \operatorname{LayerNorm}(\mathbf{H} + \operatorname{MHA}(\mathbf{H},\mathbf{H},\mathbf{H})),\\
-\mathbf{H}_{\text{out}} &= \operatorname{LayerNorm}(\mathbf{H}' + \operatorname{FFN}(\mathbf{H}')).
-    \label{eq:auto:lecture_transformers:2}
-\end{align}
-The feed-forward sublayer (FFN) is position-wise, typically two linear layers with a nonlinearity (e.g., GELU). Dropout and label smoothing are common.
+In implementation, masks are usually applied additively to attention logits before softmax:
+\begin{equation}
+\mathbf{S}_{\text{mask}}
+= \frac{\mathbf{Q}\mathbf{K}^\top}{\sqrt{d_k}} + \mathbf{M},
+\qquad
+M_{ij} =
+\begin{cases}
+0, & \text{if key } j \text{ is visible to query } i,\\
+-\infty, & \text{if key } j \text{ is masked.}
+\end{cases}
+\label{eq:transformers_additive_mask_logits}
+\end{equation}
+Then \(\mathbf{A}=\operatorname{softmax}(\mathbf{S}_{\text{mask}})\) row-wise and \(\mathbf{Z}=\mathbf{A}\mathbf{V}\), so masked positions contribute zero probability.
 
-\begin{tcolorbox}[summarybox, title={Transformer block (pre-LN) pseudocode}]
-\begin{verbatim}
-function Block(H):
-    # Pre-normalize inputs (pre-LN stabilizes deep stacks)
-    H_norm = LayerNorm(H)
-    attn = MHA(H_norm, H_norm, H_norm)
-    H = H + Dropout(attn)
-    H_norm = LayerNorm(H)
-    ff = FFN(H_norm)
-    return H + Dropout(ff)
-\end{verbatim}
-Decoder blocks add causal masks and cross-attention with encoder states. Pre-LN (shown here) is now common because it keeps gradients well behaved for very deep stacks; post-LN (original Transformer) is still used in smaller models.
-\end{tcolorbox}
-
-\begin{tcolorbox}[summarybox, title={Training defaults (decoder-only, 2024)}]
-AdamW with cosine decay and 1--3\% warmup; LR \(\sim10^{-3}\) for small models, \(1{-}2\times10^{-4}\) for mid-size. Weight decay \(\approx 0.01\) (exclude biases/LayerNorm gains). Attention/MLP dropout \(\approx0.1\); clip global norm to 1.0. Mixed precision (FP16/BF16) plus gradient checkpointing for long contexts; tie input embeddings to the LM head; use causal masks for CLM, padding masks for packed batches.
-\end{tcolorbox}
-
-\begin{tcolorbox}[summarybox, title={One training step (decoder-only, causal mask)}]
-\begin{verbatim}
-x = tokenizer(batch_text)                # [B, T]
-mask = causal_mask(x)                    # [B, 1, T, T]
-h = embed(x) + pos(x)                    # [B, T, d_model]
-for block in blocks:
-    h = block(h, mask)                   # pre-LN MHA + FFN
-logits = lm_head(h)                      # [B, T, vocab]
-loss = CE(logits[:, :-1], x[:, 1:])      # next-token
-loss.backward()
-clip_grad_norm_(model.parameters(), 1.0)
-opt.step(); opt.zero_grad()
-\end{verbatim}
-At inference, reuse cached K/V states per layer instead of recomputing attention over the full prefix.
-\end{tcolorbox}
-\paragraph{Code--math dictionary.} In code blocks, \texttt{x} is the token-index tensor (input IDs), \texttt{h} is the hidden-state array \(\mathbf{H}\), \texttt{mask} is the attention mask, and \texttt{embed(x)} denotes an embedding lookup into the learned matrix \(\mathbf{E}\) (written algebraically as a row-selection or \(\mathbf{E}[w_t]\) in \Cref{chap:nlp}).
-
-\subsection{Long Contexts and Efficient Attention}
-\label{sec:transformers_long_contexts_and_efficient_attention}
-Memory and compute scale quadratically with sequence length. Practical systems therefore mix several tricks:
-\begin{itemize}
-    \item \textbf{Sparse or local attention} (e.g., Longformer, BigBird) to limit each query to a sliding or block-sparse neighborhood.
-    \item \textbf{Low-rank/kernelized approximations} and recurrent chunking (Performer, Transformer-XL) so that computation/storage grows roughly linearly in context length.
-    \item \textbf{Relative/rotary positions and cache reuse} to extrapolate beyond training lengths and avoid recomputing past keys/values during autoregressive decoding.
-    \item \textbf{I/O-aware kernels} such as FlashAttention that stream tiles through SRAM so the quadratic pattern remains exact without exhausting memory.
-\end{itemize}
-
-\subsection{Fine-Tuning and Parameter-Efficient Adaptation}
-\label{sec:transformers_fine_tuning_and_parameter_efficient_adaptation}
-Full fine-tuning updates all weights. Parameter-efficient methods (LoRA, IA3, adapters, prefix/prompt tuning) inject small trainable modules while freezing most of the base model, enabling rapid adaptation. Beyond RLHF, preference-based objectives such as DPO, KTO, or ORPO optimize alignment directly from ranked pairs without a full reinforcement-learning loop.
-
-\subsection{Decoding and Evaluation}
-\label{sec:transformers_decoding_and_evaluation}
-Autoregressive generation uses greedy, beam search, top-\(p\) (nucleus), or top-\(k\) sampling. For safety and quality, monitor repetition, degeneration, and calibration. For classification tasks, prefer metrics aligned with class balance (AUPRC on imbalanced sets).
-
-\paragraph{When to use which.} Beam search suits short factual tasks; top-\(p\)/top-\(k\) sampling suits open-ended generation; temperature controls diversity/style. Track perplexity for language modeling (see \Cref{chap:nlp}) and win-rates or task metrics for downstream tasks.
+One subtle point is \emph{why} the causal mask is needed during training. At inference time the future does not exist, so a
+decoder cannot look ahead even if it wanted to. But during training we often feed the full target sequence (teacher forcing:
+provide the ground-truth previous tokens)
+so we can compute a loss at every position. Without a causal mask, the decoder would ``cheat'' by attending to future target
+tokens. The causal mask enforces the same information constraint at training time that you will have at decoding time.
+This connects directly to KV caching in decoder inference: with one-token-at-a-time decoding, the cache only stores past keys/values, so there are no future columns to attend to; during training (full sequence in parallel), the explicit causal mask is still required.
 
 \begin{figure}[t]
     \centering
@@ -444,25 +539,240 @@ Autoregressive generation uses greedy, beam search, top-\(p\) (nucleus), or top-
                 \node[font=\scriptsize, anchor=north east] at (axis cs:4.4,4.4) {future masked};
         \end{groupplot}
     \end{tikzpicture}
-    \caption{Schematic: Attention masks visualized as heatmaps (queries on rows, keys on columns). Left: padding mask zeroes attention into padded positions of a shorter sequence in a packed batch. Right: causal mask enforces autoregressive flow by blocking attention to future tokens.}
-    \label{fig:lec13-masks}
+    \caption{Attention masks as heatmaps (queries on rows, keys on columns). Left: padding mask zeroes out attention to padded \emph{key columns} of a shorter sequence in a packed batch; padded-query rows are typically ignored downstream by output/loss masking. Right: causal mask enforces autoregressive flow by blocking attention to future tokens.}
+    \label{fig:lec13_masks}
 \end{figure}
+\FloatBarrier
 
+The training objective is usually a cross-entropy (CE) loss, i.e., a negative log-likelihood (NLL) of the correct label under the model's predicted distribution. In sequence modeling, you typically sum (or average) that loss across time positions and across batch elements.
+
+We will return to the main Transformer families (encoder-only vs.\ decoder-only vs.\ encoder--decoder) after we write down the block structure in \Cref{sec:transformers_encoder_decoder_stacks_and_stabilizers}. The core idea is simple: families differ mostly by which masks they apply and which prediction problem they are trained on, not by a different attention mechanism.
+
+\subsection{Transformer blocks and training stabilizers}
+\label{sec:transformers_encoder_decoder_stacks_and_stabilizers}
+Transformer blocks are built from the same few ingredients repeated many times: attention, a small feed-forward network, and
+stability glue (residual connections, normalization, dropout). Residual connections keep a direct path for information and
+gradients: the input to a sublayer is added back to its output so the model can refine a representation without destroying it.
+LayerNorm stabilizes scale by normalizing each token vector across its feature dimension; unlike BatchNorm it does not depend
+on batch statistics, which matters for variable-length sequences and small batches.
+
+In the \emph{pre-LN} layout (common in modern implementations), each sublayer sees a normalized input and then its output is
+added back to the residual stream:
+\begin{align}
+\mathbf{H}_1 &= \mathbf{H} + \operatorname{MHA}(\operatorname{LayerNorm}(\mathbf{H})),\\
+\mathbf{H}_{\text{out}} &= \mathbf{H}_1 + \operatorname{FFN}(\operatorname{LayerNorm}(\mathbf{H}_1)).
+    \label{eq:transformers_preln_block}
+\end{align}
+The original Transformer applied LayerNorm after each residual add (post-LN); the attention and FFN computations are the same,
+only the placement of normalization changes.
+
+The feed-forward sublayer (FFN) is applied independently to each position (row). In matrix form it is typically two linear
+layers with a nonlinearity:
+\begin{equation}
+    \operatorname{FFN}(\mathbf{H})
+    = \sigma(\mathbf{H}\mathbf{W}_1 + \mathbf{b}_1)\mathbf{W}_2 + \mathbf{b}_2,
+    \label{eq:transformers_ffn}
+\end{equation}
+where \(\sigma\) is commonly ReLU (original paper) or GELU (many modern stacks), \(\mathbf{W}_1\in\mathbb{R}^{d_{\text{model}}\times d_{\text{ff}}}\),
+\(\mathbf{W}_2\in\mathbb{R}^{d_{\text{ff}}\times d_{\text{model}}}\), and the biases are broadcast across positions. Dropout and label smoothing are common.
+
+\begin{tcolorbox}[summarybox, title={Author's note: attention mixes; the FFN refines (two different jobs)}]
+Self-attention is where tokens ``talk'' to each other. It is the part of the block that \emph{mixes across positions}: each token forms a query, assigns weights over other tokens' keys, and pulls a weighted average of their values.
+
+The feed-forward sublayer is different. It is applied \emph{independently} to each token: the same small MLP processes every position, taking whatever the attention step mixed in and turning it into a cleaner set of features for the next layer. If you like metaphors, I think of attention as the class discussion and the FFN as the private tutor: the discussion lets you hear from others; the tutor helps you rewrite your notes in a form you can use.
+\end{tcolorbox}
+
+\paragraph{Decoder blocks: masked self-attention plus cross-attention.}
+Encoder blocks use self-attention (typically with a padding mask) plus an FFN. Decoder blocks add a second attention step: first \emph{masked} self-attention over the partially generated target (causal mask), then cross-attention into the encoder outputs. In that cross-attention, the query comes from the decoder stream while the keys and values come from the encoder stream. It is the same weighted-average mechanism, but now the memory lives on the source side and the questions live on the target side.
+
+\begin{tcolorbox}[summarybox, breakable, title={Implementation sketch: block pseudocode, training defaults, and one step}]
+\noindent\textbf{Block pseudocode (pre-LN).}
+\begin{verbatim}
+function Block(H, mask=None):
+    # Pre-normalize inputs (pre-LN stabilizes deep stacks)
+    H_norm = LayerNorm(H)
+    attn = MHA(H_norm, H_norm, H_norm, mask)
+    H = H + Dropout(attn)
+    H_norm = LayerNorm(H)
+    ff = FFN(H_norm)
+    return H + Dropout(ff)
+\end{verbatim}
+Decoder blocks add a causal mask on self-attention, and encoder--decoder variants also insert cross-attention (queries from decoder; keys/values from encoder outputs). Pre-LN (shown here) is now common because it keeps gradients well behaved for very deep stacks; post-LN (original Transformer) is still used in smaller models.
+\medskip
+\noindent\textbf{Training defaults (decoder-only, practical baseline).}
+AdamW with cosine decay and 1--3\% warmup; LR \(\sim 10^{-3}\) for small models, \(1\text{--}2\times 10^{-4}\) for mid-size. Weight decay \(\approx 0.01\) (exclude biases/LayerNorm gains). Attention/MLP dropout \(\approx 0.1\); clip global norm to 1.0. Mixed precision (FP16/BF16) plus gradient checkpointing for long contexts; tie input embeddings to the LM head; use causal masks for CLM and padding masks for packed batches.
+
+\medskip
+\noindent\textbf{One training step (decoder-only, causal mask).}
+\begin{verbatim}
+x = tokenizer(batch_text)                # [B, T]
+mask = causal_mask(x)                    # [B, 1, T, T]
+h = embed(x) + pos(x)                    # [B, T, d_model]
+for block in blocks:
+    h = block(h, mask)                   # pre-LN MHA + FFN
+logits = lm_head(h)                      # [B, T, vocab]
+loss = CE(logits[:, :-1], x[:, 1:])      # next-token
+loss.backward()
+clip_grad_norm_(model.parameters(), 1.0)
+opt.step(); opt.zero_grad()
+\end{verbatim}
+At inference, reuse cached K/V states (see \Cref{fig:lec13_micro_figures} and \Cref{sec:transformers_advanced_attention_and_efficiency_notes_snapshot}).
+\end{tcolorbox}
+\paragraph{KV cache in plain terms (decoder inference).}
+At generation step \(t\), the decoder computes one new query vector \(\mathbf{q}_t\). The old keys/values from steps \(1,\dots,t-1\) are already stored in memory, so you do \emph{not} recompute them. You only compute \(\mathbf{k}_t,\mathbf{v}_t\), append them to the cache, and attend over the full cached set:
+\begin{equation}
+\mathbf{z}_t
+= \operatorname{softmax}\!\left(\frac{\mathbf{q}_t \mathbf{K}_{1:t}^{\top}}{\sqrt{d_k}}\right)\mathbf{V}_{1:t},
+\label{eq:transformers_kv_cache_decode_step}
+\end{equation}
+where \(\mathbf{K}_{1:t}\) and \(\mathbf{V}_{1:t}\) are the matrices formed by stacking all cached keys/values up to step \(t\). The engineering tradeoff is simple: bigger context means bigger cache. So context size is not only a modeling choice; it is also a memory/latency budget choice at inference time.
+
+\begin{tcolorbox}[summarybox, title={Tokenization note from a GPT-2-style implementation (why students should care)}]
+The nanochat reference implementation reinforces four practical points:
+\begin{itemize}
+    \item GPT-style tokenizers are often \emph{byte-level BPE}: this avoids unknown-token failures on odd characters and mixed text.
+    \item A begin-of-sequence delimiter is treated as a real token (often named \texttt{<|bos|>} or historically \texttt{<|endoftext|>}).
+    \item The same tokenizer must be used at train and inference time; changing it changes token IDs and breaks model behavior.
+    \item Tokenization affects effective context usage: if text splits into fewer tokens, the same context window can carry more content.
+\end{itemize}
+For readers who are not programming-focused: think of tokenization as the model's ``measurement scale.'' If you change the scale, all learned weights are calibrated to the wrong units. For a compact, end-to-end study repo (tokenizer through serving), nanochat is a good example to browse. \citep{KarpathyNanochat}
+\end{tcolorbox}
+\paragraph{Code--math dictionary.} In code blocks, \texttt{x} is the token-index tensor (input IDs), \texttt{h} is the token-representation array \(\mathbf{H}\), \texttt{mask} is the attention mask, and \texttt{embed(x)} denotes an embedding lookup into the learned table \(\mathbf{W}\) (written algebraically as a row-selection, e.g., \(\mathbf{W}[w_t]\), in \Cref{chap:nlp}).
+
+\subsection{BERT vs.\ GPT vs.\ encoder--decoder}
+\label{sec:transformers_model_families}
+Once you have attention blocks, most of the ``model family'' distinctions come from two choices: (i) which directions a position is allowed to attend to (masking), and (ii) what prediction problem you train on. Encoder-only stacks are built to produce strong \emph{representations}; decoder-only stacks are built to \emph{generate}; encoder--decoder stacks are built to condition one sequence on another (translation is the clean example).
+
+\paragraph{BERT: encoder-only, bidirectional self-attention, masked-token prediction.}
+BERT \citep{Devlin2019} is a stack of Transformer \emph{encoders}. There is no causal mask: each token can attend to both left and right context, so the representation at position \(i\) can use the whole sentence. In practice you still apply a padding mask when you batch variable-length sequences; ``bidirectional'' means ``not restricted to past-only,'' not ``no masking ever.''
+Pre-training uses \emph{masked language modeling} (MLM): choose a subset of token positions \(\mathcal{M}\) and ask the model to reconstruct the original tokens from a corrupted input. If \(w_{1:n}\) are the original token IDs and \(\tilde{w}_{1:n}\) is the corrupted sequence (where some positions were replaced by \texttt{[MASK]} or other substitutions), a convenient loss view is
+\begin{equation}
+    \mathcal{L}_{\text{MLM}}
+    = -\sum_{i\in\mathcal{M}} \log p_\theta\!\left(w_i \mid \tilde{w}_{1:n}\right),
+    \label{eq:transformers_mlm_objective}
+\end{equation}
+where the model produces a vocabulary distribution at each position and we only score the masked positions.
+Because masked tokens are predicted using \emph{both} left and right context, MLM does not train a left-to-right next-token factorization. This is why BERT is usually used as an encoder (representations + classifiers) rather than as a free-form decoder without additional machinery.
+The original BERT recipe masked about 15\% of tokens and used a pragmatic corruption mix: most masked positions are replaced by \texttt{[MASK]}, some by a random token, and some are left unchanged so the model does not overfit to seeing \texttt{[MASK]} at fine-tuning time \citep{Devlin2019}.
+
+\begin{tcolorbox}[summarybox, title={Author's note: Word2Vec vs.\ BERT (the intuition that still helps)}]
+Word2Vec \citep{Mikolov2013} taught us a useful lesson: meaning leaks into geometry through co-occurrence. If you repeatedly see certain words together, a vector model can pick that up and cluster them.
+
+I like to see BERT as a more powerful version of the same distributional idea. The training question is still ``can you predict a missing piece from what surrounds it?'' The difference is that the representation is no longer one vector \emph{per vocabulary item}. BERT produces a \emph{contextual} vector per token occurrence: the vector for ``bank'' in ``river bank'' is not forced to match the vector for ``bank'' in ``bank account,'' because the surrounding tokens are part of the computation.
+\end{tcolorbox}
+
+\paragraph{\texttt{[CLS]} as a learned pooling token.}
+BERT-style models typically prepend a special \texttt{[CLS]} token and (for sentence pairs) separate segments with \texttt{[SEP]}. In the original setup, a small \emph{token-type} (segment) embedding marks whether each token came from sentence A or sentence B \citep{Devlin2019}. Because \texttt{[CLS]} participates in the same self-attention as every other token, its representation vector is repeatedly updated as the model mixes information across the sequence. In practice, the final-layer \texttt{[CLS]} vector is treated as a learned, task-adaptable summary and is fed to a small classifier head for sentence-level tasks.
+
+\begin{tcolorbox}[summarybox, title={BERT inputs in one line (token + position + segment)}]
+At position \(i\), BERT forms an input vector by summing three components \citep{Devlin2019}:
+\[
+\mathbf{x}_i
+= \mathbf{e}_{\text{tok}}(w_i)
++ \mathbf{e}_{\text{pos}}(i)
++ \mathbf{e}_{\text{seg}}(s_i),
+\]
+where \(w_i\) is the token ID, \(i\) is the position index, and \(s_i\in\{\mathrm{A},\mathrm{B}\}\) indicates which sentence/segment the token belongs to (for single-sentence inputs, \(s_i\) is constant).
+\end{tcolorbox}
+
+The original BERT paper also used an auxiliary ``next sentence prediction'' (NSP) objective for sentence pairs; later variants often drop it. For our purposes, the core encoder-only story is: bidirectional self-attention plus an objective that forces representations to be predictive of missing content.
+
+\paragraph{GPT: decoder-only, causal self-attention, next-token prediction.}
+GPT-style models are stacks of Transformer \emph{decoders} with the cross-attention removed: they use masked (causal) self-attention plus an FFN in each block. The causal mask enforces the autoregressive factorization:
+\begin{equation}
+    p_\theta(w_{1:n}) = \prod_{t=1}^{n-1} p_\theta\!\left(w_{t+1}\mid w_{1:t}\right),
+    \label{eq:transformers_clm_factorization}
+\end{equation}
+and the training objective (causal language modeling, CLM) is the corresponding negative log-likelihood,
+\begin{equation}
+    \mathcal{L}_{\text{CLM}}
+    = -\sum_{t=1}^{n-1} \log p_\theta\!\left(w_{t+1}\mid w_{1:t}\right).
+    \label{eq:transformers_clm_objective}
+\end{equation}
+This is where it is easy to mix up training and generation. During training you do \emph{not} feed back the model's sampled token at each step; you feed the true prefix (teacher forcing) and compute the loss for all positions in parallel under the causal mask (as in the code block earlier). During inference you do sample/argmax and append one token at a time, and that is where decoding settings (temperature, top-\(k\), top-\(p\)) matter; see \Cref{sec:transformers_decoding_and_evaluation}.
+
+Historically, GPT-1 used a 12-layer decoder-only stack with about 117M parameters and showed that simple next-token pre-training can transfer to many downstream tasks with surprisingly little architectural customization \citep{Radford2018}. GPT-2 and later work scaled the same basic recipe with larger models and broader data \citep{Radford2019,Brown2020}.
+
+\paragraph{Encoder--decoder (seq2seq): conditional generation via cross-attention.}
+Encoder--decoder Transformers keep the clean translation structure: the encoder reads the source; the decoder generates the target with causal self-attention plus cross-attention into the encoder outputs. This remains a natural fit whenever the output is explicitly conditioned on an input sequence (translation, summarization, structured prediction). Text-to-text models such as T5 make this conditioning view explicit by casting many tasks into a single seq2seq format \citep{Raffel2020}.
+
+\subsection{Long Contexts and Efficient Attention}
+\label{sec:transformers_long_contexts_and_efficient_attention}
+Memory and compute scale quadratically with sequence length. Practical systems therefore mix several tricks:
+\begin{itemize}
+    \item \textbf{Sparse or local attention} (e.g., Longformer, BigBird) to limit each query to a sliding or block-sparse neighborhood.
+    \item \textbf{Low-rank/kernelized approximations} and recurrent chunking (Performer, Transformer-XL) so that computation/storage grows roughly linearly in context length.
+    \item \textbf{I/O-aware kernels} such as FlashAttention that stream tiles through SRAM so the \(O(n^2)\) attention computation remains exact while memory stays manageable.
+\end{itemize}
+Relative/rotary position schemes and KV caching are summarized in \Cref{sec:transformers_advanced_attention_and_efficiency_notes_snapshot} and \Cref{fig:lec13_micro_figures}.
+
+\subsection{Fine-Tuning and Parameter-Efficient Adaptation}
+\label{sec:transformers_fine_tuning_and_parameter_efficient_adaptation}
+Pre-training gives you a general-purpose language model; fine-tuning adapts that model to a task, domain, or interaction style. \emph{Full fine-tuning} updates all weights, which can yield the best performance when you have enough high-quality data and a stable objective, but it is also the easiest to overfit or to accidentally ``forget'' useful general behavior.
+
+\emph{Parameter-efficient fine-tuning (PEFT)} methods (LoRA, adapters, prefix/prompt tuning, and related variants) inject small trainable modules while freezing most of the base model, enabling rapid adaptation with lower memory and more predictable changes. In LoRA, you freeze a weight matrix \(\mathbf{W}\) and learn a low-rank update \(\Delta \mathbf{W}=\mathbf{B}\mathbf{A}\) (rank \(r\)), so only a small number of parameters move during tuning. These methods are attractive when you want many task-specific variants of a shared base model, or when you need to keep the base weights fixed for deployment and auditing.
+
+\paragraph{Audit hooks for adaptation.}
+Regardless of whether you update all weights or only a small adapter, treat fine-tuning like any other ERM pipeline: keep a held-out evaluation set that matches the deployment slice, monitor calibration and failure modes (not just loss), and log the exact base checkpoint, tokenizer, and data snapshot so results are reproducible. When fine-tuning for instruction-following or conversational behavior, add explicit tests for regressions (refusals, hallucinations on factual probes, and brittleness to prompt variants) rather than relying on a single aggregate score.
+
+\subsection{Decoding and Evaluation}
+\label{sec:transformers_decoding_and_evaluation}
+Training produces a distribution over the next token; decoding turns that distribution into an actual sequence. For decoder-only models, decoding runs autoregressively: predict \(p_\theta(x_{t+1}\mid x_{1:t})\), choose a token, append it, and repeat. This is also where the KV cache matters (see \Cref{fig:lec13_micro_figures}): you reuse past keys/values so generating one more token does not require recomputing attention over the entire prefix from scratch.
+
+\paragraph{From token representations to a next-token distribution.}
+At position \(t\), the final block produces a token representation \(\mathbf{h}_t\in\mathbb{R}^{d_{\text{model}}}\). A language model head is a linear map into the vocabulary \(\mathcal{V}\):
+\begin{equation}
+    \boldsymbol{\ell}_t = \mathbf{h}_t \mathbf{W}_{\text{out}} + \mathbf{b}_{\text{out}}, \qquad
+    \boldsymbol{\ell}_t \in \mathbb{R}^{|\mathcal{V}|},
+    \label{eq:transformers_lm_head_logits}
+\end{equation}
+where \(\boldsymbol{\ell}_t\) are the logits (unnormalized scores). Softmax converts logits to probabilities,
+\(p_\theta(x_{t+1}=v\mid x_{1:t})=\operatorname{softmax}(\boldsymbol{\ell}_t)_v\),
+and the cross-entropy (CE) loss trains the model to put mass on the observed next token.
+
+\paragraph{Temperature and sampling (how you choose a token).}
+Temperature rescales logits before softmax:
+\begin{equation}
+    p_T(v\mid x_{1:t}) = \operatorname{softmax}\!\left(\boldsymbol{\ell}_t/T\right)_v, \qquad T>0.
+    \label{eq:transformers_temperature_softmax}
+\end{equation}
+Small \(T\) makes the distribution sharper (more deterministic); large \(T\) makes it flatter (more random). The limit \(T\to 0\) approaches greedy argmax behavior; the limit \(T\to\infty\) approaches a uniform distribution. Temperature \(T=0\) is not defined mathematically; in code it is simply implemented as ``take \(\arg\max\).'' A common sampling implementation is the roulette-wheel (inverse-CDF) rule: draw \(u\sim \mathrm{Uniform}(0,1)\), accumulate the probabilities until the cumulative sum exceeds \(u\), and pick that token. In practice you often combine this with top-\(k\) or nucleus (top-\(p\)) truncation: restrict to a shortlist of likely tokens, renormalize, then sample.
+
+Greedy decoding takes the argmax at each step; it is fast and often strong for short, factual completions, but it can get stuck in repetitive loops. Beam search keeps multiple partial hypotheses; it can improve likelihood but sometimes harms perceived quality in open-ended generation. Sampling (often with top-\(k\) or top-\(p\) truncation) trades certainty for diversity; pick it deliberately and log the settings.
+
+For evaluation, perplexity summarizes next-token performance for language modeling (see \Cref{chap:nlp}), but it does not tell you whether generations are useful, safe, or faithful. For downstream classification, prefer metrics that match the deployment slice (e.g., AUPRC for imbalanced problems) and keep decoding settings logged alongside checkpoints so results are reproducible.
+
+\subsection{Audit and failure modes (short list)}
+\label{sec:transformers_audit_and_failure_modes}
+\begin{tcolorbox}[summarybox, title={Audit and failure modes (engineering view)}]
+\begin{itemize}
+    \item \textbf{Masking bugs:} missing/incorrect causal masks can leak future tokens; missing padding masks can let padding dominate attention in batched training.
+    \item \textbf{Train/inference mismatch:} teacher forcing during training does not automatically tell you how errors compound during decoding; test the decoding strategy you plan to ship.
+    \item \textbf{Long-context degradation:} attention enables long-range access, but quality can still decay with length; measure how performance changes as you increase context.
+    \item \textbf{Calibration vs.\ correctness:} high probability is not a guarantee of correctness; audit reliability on slices and stress tests, not just average loss.
+    \item \textbf{Reproducibility:} tokenizer choices, data filters, and decoding hyperparameters can swing results; log them as part of the experiment.
+\end{itemize}
+\end{tcolorbox}
 
 \subsection{Alignment (Brief)}
 \label{sec:transformers_alignment_brief}
-Post-training alignment shapes model behavior to human preferences. RLHF optimizes a policy against a learned reward model; DPO offers a simpler objective based on preference pairs.
+Post-training \emph{alignment} shapes model behavior to match human preferences, safety constraints, and interaction norms. In broad terms, alignment objectives do not change the Transformer mechanics; they change what you reward during optimization (and therefore what behaviors are reinforced).
 
-\subsection{Advanced attention and efficiency notes (2024 snapshot)}
-\label{sec:transformers_advanced_attention_and_efficiency_notes_2024_snapshot}
+RLHF optimizes a policy against a learned reward model (with careful regularization to avoid drifting too far from the base model). Preference-based objectives such as DPO, KTO, or ORPO optimize directly from ranked pairs without a full reinforcement-learning loop.
+
+\paragraph{Alignment is not a proof of correctness.}
+Alignment can improve helpfulness and reduce obvious failures, but it can also introduce new ones (reward hacking, over-refusal, brittleness to prompt phrasing, or degraded performance off-distribution). Treat it as an engineering stage with explicit test suites and logging: evaluate on held-out tasks, check calibration and refusal behavior, and track changes relative to the pre-alignment model.
+
+\subsection{Advanced notes (optional)}
+\label{sec:transformers_advanced_attention_and_efficiency_notes_snapshot}
 \begin{itemize}
     \item \textbf{Relative/rotary positions.} RoPE \citep{Su2021RoPE} and ALiBi \citep{Press2022ALiBi} replace absolute sinusoidal embeddings with rotation/bias terms so extrapolating to longer sequences no longer requires re-fitting positional lookups; the trade-off is that absolute tables keep fixed anchors for classification tokens while rotary/relative schemes favour extrapolation and smoothly sliding windows.
     \item \textbf{KV-cache management.} Decoder-only inference stores per-layer key/value tensors; chunked caching, paged attention, and sliding windows keep memory linear in context length. Speculative decoding and assisted decoding reuse a lightweight draft model to propose tokens that the full model verifies before committing.
     \item \textbf{Efficient kernels.} FlashAttention \citep{Dao2022FlashAttention} computes attention blocks in streaming tiles to keep activations in SRAM. Long-context variants mix windowed attention, recurrent memory, or low-rank adapters; state-space models such as Mamba \citep{Gu2023Mamba} provide linear-time alternatives that back-propagate through implicitly defined kernels.
     \item \textbf{Mixture-of-experts and routing.} Sparse MoE layers \citep{Shazeer2017MoE} add conditional capacity; router z-losses, capacity factors, and load-balancing losses are essential to avoid expert collapse.
-    \item \textbf{Parameter-efficient tuning.} LoRA/QLoRA \citep{Hu2022LoRA,Dettmers2023QLoRA} insert low-rank adapters; DoRA/LoRA-FA refine the decomposition by separating direction and magnitude to better preserve pretrained weights. Adapter stacks and prefix tuning remain competitive for small target datasets.
     \item \textbf{Test-time scaling.} Curriculum-based sampling (nucleus, temperature annealing), classifier-free guidance, and beam-search variants all tune the accuracy/latency frontier; plan to log decoding hyperparameters alongside checkpoints so experiments are reproducible.
 \end{itemize}
+Parameter-efficient tuning methods are covered in \Cref{sec:transformers_fine_tuning_and_parameter_efficient_adaptation}.
 
 \subsection{RNNs vs. Transformers: When and Why}
 \label{sec:transformers_rnns_vs_transformers_when_and_why}
@@ -480,16 +790,9 @@ Equivariance & N/A & Permutation-equivariant until positions (cf. conv translati
 \end{tabular}
 \end{center}
 
-\begin{tcolorbox}[summarybox, title={Practitioner box: pitfalls and checks}]
-\textbf{Pitfalls:} training instability (lr too high), attention collapse, over-length inputs.\newline
-\textbf{Checks:} monitor loss/entropy, validation perplexity, and attention patterns on probes.\newline
-\textbf{Hyperparams:} heads (4--16), depth (6--24), \(d_{\text{model}}\) (256--2048), FFN multiplier (\(\times 2\)--\(\times 4\)).
-\end{tcolorbox}
-
-\subsection*{Notes}
-Terminology: masked-LM and next-token LM are \emph{self-supervised} (targets derived from input), not unsupervised. For embeddings downstream, we adopt row-embedding convention consistent with \Crefrange{chap:backprop}{chap:rbf}.
-
 \begin{tcolorbox}[summarybox, title={Key takeaways}]
+\noindent\textbf{Terminology.} Masked-LM and next-token LM are \emph{self-supervised} (targets derived from input), not unsupervised.
+\par\smallskip
 \begin{itemize}
     \item Attention replaces recurrence with content-based mixing, enabling highly parallel training but introducing quadratic cost in sequence length.
     \item Practical stability depends on details (pre-LN vs.\ post-LN, optimizer choices, masking, and careful decoding/evaluation).
@@ -497,16 +800,16 @@ Terminology: masked-LM and next-token LM are \emph{self-supervised} (targets der
 \end{itemize}
 
 \medskip
-\noindent\textbf{Minimum viable mastery.}
+\noindent\textbf{What to be able to do.}
 \begin{itemize}
     \item Compute masked attention for a short sequence and explain why the mask enforces causality.
     \item Explain pre-LN vs.\ post-LN and why residual paths influence optimization stability.
     \item Describe KV caching and how it changes inference-time cost compared to training-time cost.
 \end{itemize}
 
-\noindent\textbf{Common pitfalls.}
+\noindent\textbf{Common pitfalls to watch for.}
 \begin{itemize}
-    \item Incorrect masking (future leakage) or inconsistent tokenization between train and evaluation.
+    \item Incorrect masking (future leakage) or inconsistent tokenization between training and evaluation.
     \item Reporting speed or memory without stating context length, batch size, and caching assumptions.
     \item Treating decoding strategy as an afterthought; greedy, beam, and sampling regimes change observed quality.
 \end{itemize}
@@ -516,7 +819,7 @@ Terminology: masked-LM and next-token LM are \emph{self-supervised} (targets der
 \begin{itemize}
     \item Hand-compute a 2-token attention step with masking; verify against a short script.
     \item Implement a single-block decoder-only transformer (embed + pos + pre-LN MHA + FFN) and train on a tiny character corpus; report perplexity.
-    \item Compare naive attention vs.\ FlashAttention on \(n \in \{256, 1024, 4096\}\); log peak memory and tokens/sec.
+    \item Compare naive attention vs.\ FlashAttention on \(n \in \{256, 1024, 4096\}\); log peak memory and tokens/s.
     \item Fine-tune a base model with RoPE vs.\ ALiBi and evaluate extrapolation to 2\(\times\) the training context.
     \item Implement DPO on a small preference dataset; report win-rates versus the SFT baseline.
 \end{itemize}
@@ -526,5 +829,5 @@ Terminology: masked-LM and next-token LM are \emph{self-supervised} (targets der
 \end{tcolorbox}
 
 \medskip
-\paragraph{Where we head next.} \Cref{chap:softcomp} steps away from neural sequence models and re-enters the broader soft-computing toolkit (fuzzy logic and evolutionary ideas) previewed in \Cref{chap:intro}. Read this chapter as the endpoint of the neural sequence thread: representation objectives from \Cref{chap:nlp} plus masking/calibration discipline from \Crefrange{chap:rnn}{chap:transformers}.
-
+\paragraph{Where we head next.}
+Up to here, most updates were differentiable: loss \(\rightarrow\) gradients \(\rightarrow\) parameters. \Cref{chap:softcomp} pivots to a different design point under the same engineering loop: \emph{explicit rules and graded concepts} (fuzzy systems), where the representation is linguistic membership and the update mechanism is rule composition and operator choices. \Cref{chap:evo} then closes the loop with \emph{budgeted black\hyp{}box search} (evolutionary optimization) for cases where gradients are unavailable, objectives are rugged, or constraints dominate.

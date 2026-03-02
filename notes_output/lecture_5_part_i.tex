@@ -1,15 +1,15 @@
 % Chapter 9
-\section[Self-Organizing Networks]{Introduction to Self-Organizing Networks and Unsupervised Learning}\label{chap:som}
+\section{Introduction to Self-Organizing Networks and Unsupervised Learning}\label{chap:som}
 \graphicspath{{assets/lec5/}}
 
-\Cref{chap:rbf} offered a nonlinearity that stays close to linear algebra (basis expansion + linear solve). Here we switch to unsupervised learning: self-organizing maps discover prototypes and organize them on a lattice without labels. \Cref{fig:roadmap} highlights this as the competitive/unsupervised branch.
+\Cref{chap:rbf} kept nonlinearity close to linear algebra: once you fix a set of basis functions, you lift the inputs into a feature space and (often) solve a regularized least-squares problem for the output weights. Now we switch the question. Instead of ``how do I fit targets?'', we ask: when labels are missing, expensive, or not even the right interface, what structure is already present in the inputs?
 
-This chapter opens the unsupervised neural thread with \emph{Self-Organizing Maps} (SOMs), also known as Kohonen maps. \Cref{chap:hopfield} then studies Hopfield networks as an energy\hyp{}based associative memory model. Both operate without explicit targets, in contrast to the supervised ERM pipeline in \Cref{chap:supervised}.
+This chapter opens the unsupervised neural thread with \emph{Self-Organizing Maps} (SOMs), also known as Kohonen maps. You learn a set of prototypes and place them on a grid so that, as training progresses, units that are neighbors on the grid tend to respond to similar inputs. \Cref{chap:hopfield} then studies Hopfield networks as an energy\hyp{}based associative memory model. Both operate without explicit targets, but they use that freedom differently: SOMs emphasize organization and visualization, while Hopfield emphasizes retrieval dynamics.
 
 \begin{tcolorbox}[summarybox, title={Learning Outcomes}]
 \begin{itemize}
     \item Describe how competitive learning, cooperation, and annealing interact in SOM training.
-    \item Monitor SOM quality via quantization/topographic errors and interpret U-Matrices.
+    \item Monitor SOM quality via quantization error (QE), topographic error (TE), and interpret U-matrices (unified distance matrix plots).
     \item Connect SOMs to broader unsupervised techniques (clustering, dimensionality reduction) and know when to use each.
 \end{itemize}
 \end{tcolorbox}
@@ -21,24 +21,21 @@ Competition plus cooperation: pick a winner, then let its neighbors learn too, s
 \subsection{Overview of Self-Organizing Networks}
 \label{sec:som_overview_of_self_organizing_networks}
 
-Self-organizing networks are a class of neural networks designed to discover inherent structures in input data by organizing neurons in a way that reflects the statistical properties of the data. The most prominent example is the \emph{Self-Organizing Map} (SOM), introduced by Teuvo Kohonen. SOMs are widely used for tasks such as clustering, visualization, and dimensionality reduction.
+Self-organizing networks aim to discover structure in input data without labels. The most prominent example is the \emph{Self-Organizing Map} (SOM), introduced by Teuvo Kohonen. SOMs are used for clustering and for building a visualization-friendly map of a high-dimensional dataset.
 
-The key characteristics of SOMs include:
-\begin{itemize}
-    \item \textbf{Unsupervised learning:} No labeled outputs are required; the network self-organizes based on input similarity.
-    \item \textbf{Competitive learning:} Neurons compete to become the "winner" for a given input, and only the winner and its neighbors update their weights.
-    \item \textbf{Topology preservation:} The network maps high-dimensional input data onto a usually two-dimensional grid of neurons, preserving the topological relationships of the input space.
-\end{itemize}
+The idea is fairly intuitive. If the data have a meaningful notion of similarity in the original space, then repeated \emph{competition} (pick the best-matching unit) and \emph{cooperation} (update its neighbors as well) can organize a fixed 2D \emph{grid} of prototype vectors so that nearby grid locations tend to represent nearby regions of the data. The map is not a perfect geometric embedding; it is an engineered bias that often produces a useful, inspectable picture.
+
+SOMs are trained without labeled outputs; the only signal is input similarity under your chosen distance. Learning is \emph{competitive} (each input picks a best\hyp{}matching unit) but also \emph{cooperative} (neighbors of the winner move too). That neighborhood coupling is the deliberate bias: it encourages nearby grid locations to represent similar inputs, so the map can be read both as a set of prototypes and as a visualization.
 
 \begin{tcolorbox}[summarybox, title={Historical intuition: two sheets and topographic neighborhoods}]
-A useful way to picture SOMs is as two coupled ``sheets'': an input space and a fixed lattice of units. Each input is connected (in principle) to the whole lattice, but learning makes some regions of the lattice respond strongly (excitation) while others respond weakly (inhibition). The payoff is a \emph{topographic} map: inputs that are far apart in the original space can end up near one another on the lattice if they are statistically similar under the features the SOM has learned.
+A useful way to picture SOMs is as two coupled ``sheets'': an input space and a fixed 2D grid of units. Each input is connected (in principle) to the whole grid, but learning makes some regions respond strongly (excitation) while others respond weakly (inhibition). The payoff is a \emph{topographic} map: inputs that are far apart in the original space can end up near one another on the grid if they are statistically similar under the features the SOM has learned.
 \end{tcolorbox}
 
 \begin{tcolorbox}[summarybox, title={Author's note: tie SOMs back to clustering and dimensionality reduction}]
-SOMs live in the same ecosystem as clustering and dimensionality reduction: they learn prototypes without labels and simultaneously organize those prototypes on a low-dimensional lattice. Treat the update rules as a carefully annealed clustering algorithm whose output just happens to be arranged on a grid for interpretability.
+SOMs live in the same ecosystem as clustering and dimensionality reduction: they learn prototypes without labels and simultaneously organize those prototypes on a low-dimensional grid. Treat the update rules as a carefully annealed clustering algorithm whose output just happens to be arranged on a grid for interpretability.
 \end{tcolorbox}
 
-The neighborhood influence is usually controlled by a kernel (often Gaussian) whose amplitude decays with lattice distance and shrinks as training progresses, so early updates promote global organization while later updates refine only the closest units. \Cref{fig:lec5-learning-rate} juxtaposes these two time scales: the left panel shows why coarse early steps help traverse the energy landscape quickly, while the right panel compares two decaying learning-rate schedules commonly used when training SOMs.
+The neighborhood influence is usually controlled by a kernel (often Gaussian) whose amplitude decays with grid distance and shrinks as training progresses, so early updates promote global organization while later updates refine only the closest units. \Cref{fig:lec5-learning-rate} juxtaposes these two time scales: the left panel shows why coarse early steps help traverse the energy landscape quickly, while the right panel compares two decaying learning-rate schedules commonly used when training SOMs.
 
 \begin{figure}[t]
     \centering
@@ -73,12 +70,12 @@ The neighborhood influence is usually controlled by a kernel (often Gaussian) wh
             \legend{$\alpha(t)=0.3\, e^{-t/15}$,$\alpha(t)=0.25\cdot0.85^{t}$}
         \end{groupplot}
     \end{tikzpicture}
-    \caption{Learning-rate scheduling intuition. On a smooth objective (left), large initial steps quickly cover ground and roughly align prototypes, while a decaying step-size refines the solution near convergence. Right: common exponential and multiplicative decays used in SOM training. Use it when choosing a schedule that converges without freezing too early.}
+    \caption{Learning-rate scheduling intuition (schematic). On a smooth objective (left), large initial steps quickly cover ground and roughly align prototypes, while a decaying step-size refines the solution near convergence. Right: common exponential and multiplicative decays used in SOM training.}
     \label{fig:lec5-learning-rate}
 \end{figure}
 
 
-\Cref{fig:lec5-som-component-planes} pairs feature-plane views with U-Matrix diagnostics for SOM audits.
+Two practical SOM diagnostics show up repeatedly: the U-Matrix (a neighbor-distance heat map) and component planes (feature-wise maps). We will use both later as quick audits for whether the map is organizing structure (rather than just shuffling prototypes).
 
 Before delving into the mathematical formulation and algorithmic details of SOMs, it is important to review two foundational concepts that underpin their operation: \emph{clustering} and \emph{dimensionality reduction}.
 
@@ -92,20 +89,20 @@ Clustering is the process of grouping a set of objects such that objects within 
 \end{itemize}
 In the classical formulation used here (e.g., for K-means), the clusters form a partition of $\mathcal{X}$: they are disjoint and their union equals the entire dataset.
 
-\paragraph{Example:} Consider three types of geometric shapes (triangles, circles, and squares) represented only by their feature vectors without labels. Clustering aims to group these shapes into clusters corresponding to their types based on similarity in features, even though the network does not know the labels.
+\paragraph{Example:} Think of clustering as ``discovering operating modes'' from measurements. Your \(\mathbf{x}_i\) could be a feature vector extracted from vibration spectra, network traffic, or sensor logs. Without labels, you still want the algorithm to separate one regime from another because the points inside a regime are genuinely similar in the feature space.
 
 \paragraph{K-means Clustering:} A classical and widely used clustering algorithm is \emph{K-means}, which operates as follows:
 \begin{enumerate}
-    \item Initialize $K$ cluster centroids $\{\mathbf{v}_1, \mathbf{v}_2, \ldots, \mathbf{v}_K\}$ randomly.
+    \item Initialize $K$ cluster centroids $\{\mathbf{m}_1, \mathbf{m}_2, \ldots, \mathbf{m}_K\}$ randomly.
     \item For each data point $\mathbf{x}_i$, assign it to the cluster with the nearest centroid:
     \begin{equation}
-        c_i = \arg\min_{k} \|\mathbf{x}_i - \mathbf{v}_k\|_2,
+        c_i = \arg\min_{k} \|\mathbf{x}_i - \mathbf{m}_k\|_2,
         \label{eq:auto_som_a96d59060d}
     \end{equation}
     where $\|\cdot\|_2$ denotes the Euclidean norm.
     \item Update each centroid as the mean of all points assigned to it:
     \begin{equation}
-        \mathbf{v}_k = \frac{1}{|C_k|} \sum_{\mathbf{x}_i \in C_k} \mathbf{x}_i,
+        \mathbf{m}_k = \frac{1}{|C_k|} \sum_{\mathbf{x}_i \in C_k} \mathbf{x}_i,
         \label{eq:auto_som_5cd43ad14e}
     \end{equation}
     where $|C_k|$ is the number of points in cluster $C_k$.
@@ -114,10 +111,12 @@ In the classical formulation used here (e.g., for K-means), the clusters form a 
 
 K-means is an unsupervised learning method because it does not require labeled data; it discovers clusters purely based on feature similarity.
 
+Keep the K-means update in mind: SOMs reuse the same prototype-moving idea, but add a neighborhood on a fixed 2D grid so the prototypes are not only learned, but also \emph{organized} for inspection.
+
 \subsection{Dimensionality Reduction: Simplifying High-Dimensional Data}
 \label{sec:som_dimensionality_reduction_simplifying_high_dimensional_data}
 
-Dimensionality reduction refers to techniques that transform high-dimensional data into a lower-dimensional representation while preserving important structural properties, such as pairwise distances, variance, or neighborhood relationships. This is crucial for:
+Dimensionality reduction is what you do when the ambient dimension is too large to see and reason about directly. You accept some information loss, but you try to preserve the relationships you care about (variance, distances, neighborhoods) so the reduced view remains useful. This matters for:
 \begin{itemize}
     \item \textbf{Visualization:} Humans can easily interpret data in two or three dimensions.
     \item \textbf{Computational efficiency:} Reducing dimensions can simplify subsequent processing.
@@ -155,41 +154,44 @@ Dimensionality reduction refers to techniques that transform high-dimensional da
             };
         \end{groupplot}
     \end{tikzpicture}
-    \caption{Classical MDS intuition. Projecting a cube onto a plane via an orthogonal map yields a square (left), whereas an oblique projection along a body diagonal produces a hexagon (right). The local adjacency of vertices is preserved even though metric structure is distorted. Use it when interpreting low-dimensional embeddings as geometry-preserving only in limited ways.}
+    \caption{Classical MDS intuition (schematic). Projecting a cube onto a plane via an orthogonal map yields a square (left), whereas an oblique projection along a body diagonal produces a hexagon (right). The local adjacency of vertices is preserved even though metric structure is distorted.}
     \label{fig:lec5-mds-projection}
 \end{figure}
 
 
-\paragraph{Challenges:} Reducing dimensions inevitably leads to some loss of information. The goal is to minimize this loss while achieving a more tractable representation.
-
-\paragraph{Common Techniques:} Principal Component Analysis (PCA) is a linear method that preserves orthogonal directions of maximum variance (the eigenvectors of the covariance matrix), while classical Multidimensional Scaling (MDS) reconstructs an embedding by double-centering a squared-distance matrix (\(B = -\tfrac{1}{2} J D^{(2)} J\), where \(D^{(2)}_{ij} = \|\mathbf{x}_i - \mathbf{x}_j\|_2^2\) and \(J = I - \tfrac{1}{n} \mathbf{1}\mathbf{1}^\top\) is the centering matrix) and performing eigen-decomposition so that Euclidean pairwise distances are approximated as closely as possible. Methods such as t-SNE or UMAP provide nonlinear embeddings that emphasize local neighborhoods but typically do not preserve global distances. Self-Organizing Maps also serve as a nonlinear dimensionality reduction technique by mapping high-dimensional inputs onto a low-dimensional lattice while preserving neighborhood relationships among data points, albeit on a discrete grid rather than a continuous embedding.
+Common techniques include Principal Component Analysis (PCA), which preserves directions of maximum variance, and classical Multidimensional Scaling (MDS), which reconstructs a configuration whose pairwise distances match the original ones as closely as possible (via double-centering the squared-distance matrix and an eigen-decomposition). Nonlinear methods such as t\hyp{}distributed stochastic neighbor embedding (t\hyp{}SNE) or Uniform Manifold Approximation and Projection (UMAP) emphasize local neighborhoods but typically sacrifice global distance fidelity. SOMs will give us a different kind of reduction: a \emph{discrete} map built from learned prototypes on a 2D grid, not a continuous coordinate chart.
 
 % Chapter 9 (continued)
 
 \subsection{Dimensionality Reduction and Feature Mapping}
 \label{sec:som_dimensionality_reduction_and_feature_mapping}
 
-Recall from the previous discussion that dimensionality reduction aims to map a high-dimensional feature space into a lower-dimensional representation while preserving as much information as possible. This is crucial in many applications such as image processing, speech recognition, and pattern analysis, where the original data may have many correlated or redundant features yet the geometric relationships (distances, variance directions, neighborhoods) must remain meaningful.
-
-For example, consider a face represented by multiple features: eyes, nose, mouth, ears, shape of the face, etc. If we want to reduce this to three dimensions, we must carefully choose which features to combine or discard so that the essential characteristics of the face remain recognizable. A naive reduction that drops important features arbitrarily will result in poor representation.
-
-Depending on the application, the map may be linear (a projection as in PCA) or nonlinear (a learned embedding as in t-SNE or SOM; note that SOMs produce a discrete lattice embedding rather than a continuous Euclidean embedding).
-The goal is to find a mapping
+The dimensionality-reduction goals were covered in \Cref{sec:som_dimensionality_reduction_simplifying_high_dimensional_data}; here we make explicit what kind of ``mapping'' a SOM actually learns. A SOM does not return a continuous coordinate system like PCA or classical MDS. Instead, it learns a \emph{finite set} of prototype vectors \(\{\mathbf{w}_i\}\) arranged on a low-dimensional grid with fixed coordinates \(\{\mathbf{r}_i\}\). Each input \(\mathbf{x}\in\mathbb{R}^n\) is mapped to the grid by choosing its best matching unit (BMU),
 \[
-f: \mathbb{R}^n \rightarrow \mathbb{R}^m, \quad m < n,
+c(\mathbf{x})=\operatorname*{argmin}_i \|\mathbf{x}-\mathbf{w}_i\|_2^2,
 \]
-such that the new feature vector \(\mathbf{y} = f(\mathbf{x})\) retains the salient structure of \(\mathbf{x}\), for example by approximately preserving pairwise distances, nearest neighbors, or dominant variance directions. Modern algorithms discover these combinations automatically from data, often in an unsupervised manner (PCA, t-SNE, SOM). Supervised (e.g., Linear Discriminant Analysis) and semi-supervised variants also exist, where label information guides \(f\), rather than relying on manual feature selection. For instance, PCA derives \(f\) analytically via eigen-decomposition of the covariance matrix, whereas t-SNE and SOM learn \(f\) iteratively from data.
+and then using \(\mathbf{r}_{c(\mathbf{x})}\) (or a neighborhood-smoothed variant) as the reduced representation. In that sense, the map \(f:\mathbb{R}^n \to \mathbb{R}^m\) is \emph{implicit}: it is realized by nearest-prototype assignment plus fixed grid coordinates.
+
+This ``discrete embedding'' view is the reason SOMs are useful for visualization and clustering at the same time: nearby grid locations tend to represent nearby regions of the input space, but grid distance is only an \emph{approximate} proxy for geometry. Read the map primarily as neighborhood structure and qualitative ordering, not as a metric-preserving chart.
+
+\begin{tcolorbox}[summarybox, title={How to read a SOM map as a feature representation}]
+\begin{itemize}
+    \item \textbf{Out-of-sample mapping:} a new point maps to its BMU index \(c(\mathbf{x})\) and grid coordinate \(\mathbf{r}_{c(\mathbf{x})}\).
+    \item \textbf{What transfers from PCA/MDS:} you can still ask whether neighborhoods are preserved and whether the map is stable across runs.
+    \item \textbf{What does not transfer:} do not treat grid distance as true Euclidean distance in data space; the representation is discrete and only approximately geometry-preserving.
+\end{itemize}
+\end{tcolorbox}
 
 \subsection{Self-Organizing Maps (SOMs): Introduction}
 \label{sec:som_self_organizing_maps_soms_introduction}
 
-Self-Organizing Maps (SOMs), also known as Kohonen maps, provide a powerful approach to unsupervised learning that combines clustering and dimensionality reduction. Unlike supervised neural networks, SOMs learn without explicit target outputs or labels. Instead, they discover the underlying structure of the input data by organizing neurons in a topological map.
+Self-Organizing Maps (SOMs), also known as Kohonen maps, sit at a practical intersection: they behave like a prototype-based clustering method, but the prototypes are arranged on a 2D grid so you can inspect how the dataset organizes itself. Unlike supervised neural networks, SOMs learn without explicit target outputs or labels. Instead, they organize a bank of prototype vectors so that nearby units on the grid tend to represent similar inputs.
 
 \begin{tcolorbox}[summarybox, title={SOM at a glance}]
-\textbf{Objective:} Learn prototype vectors \(\mathbf{w}_i\) arranged on a low-dimensional lattice such that nearby neurons represent nearby regions of the input space (topographic mapping).\\
-\textbf{Key hyperparameters:} Map size and topology, initial learning rate \(\alpha(0)\), neighborhood width \(\sigma(0)\) and their decay schedules, distance metric (typically squared Euclidean).\\
-\textbf{Defaults:} Start with a 2D rectangular grid, squared Euclidean distance, exponentially decaying \(\alpha(t)\) and \(\sigma(t)\), and a number of neurons comparable to or slightly larger than the expected number of clusters.\\
-\textbf{Common pitfalls:} Too small a map (forcing unrelated inputs to share neurons), overly fast decay of \(\alpha(t)\) or \(\sigma(t)\) (freezing the map early), and interpreting the lattice as metric when it is only approximately topology-preserving.
+\textbf{What it learns:} Prototype vectors \(\mathbf{w}_i\) in input space, arranged on a fixed 2D grid so that neighboring units tend to represent neighboring regions of the data (topographic mapping).\\
+\textbf{Knobs you actually tune:} Map size/topology, the learning-rate schedule \(\alpha(t)\), the neighborhood width \(\sigma(t)\) and its decay, and the distance metric (typically squared Euclidean).\\
+\textbf{A practical starting point:} A 2D rectangular grid, squared Euclidean distance, exponential decays for \(\alpha(t)\) and \(\sigma(t)\), and a number of units comparable to (or slightly larger than) the number of clusters you expect to resolve.\\
+\textbf{Common ways to fool yourself:} Using a map that is too small, shrinking \(\alpha(t)\) or \(\sigma(t)\) too quickly (the map freezes before it organizes), and reading grid distance as if it were a true metric in data space.
 \end{tcolorbox}
 
 \paragraph{Historical Context}
@@ -198,22 +200,15 @@ The concept of SOMs traces back to early models of self-organizing topographic m
 
 \paragraph{Basic Architecture}
 
-Conceptually, the SOM consists of two stages:
-
-\begin{itemize}
-    \item \textbf{Input layer:} A vector \(\mathbf{x} \in \mathbb{R}^n\) representing the input features.
-    \item \textbf{Output layer (map):} A usually two-dimensional grid of units (neurons). Each neuron \(i\) is assigned a fixed coordinate vector \(\mathbf{r}_i = [u_i, v_i]^\top\) with \(u_i, v_i \in \mathbb{Z}\) together with a weight vector \(\mathbf{w}_i \in \mathbb{R}^n\). The coordinates \(\mathbf{r}_i\) determine geometric proximity on the lattice and are used by the neighborhood function (\Cref{sec:som_neighborhood}).
-\end{itemize}
+Architecturally, a SOM pairs an input vector \(\mathbf{x}\in\mathbb{R}^n\) with a usually two-dimensional grid of units. Each unit \(i\) has (i) a fixed grid coordinate \(\mathbf{r}_i=[u_i,v_i]^\top\) with \(u_i,v_i\in\mathbb{Z}\), and (ii) a prototype (codebook) vector \(\mathbf{w}_i\in\mathbb{R}^n\). The coordinates \(\mathbf{r}_i\) define proximity \emph{on the grid} and enter the neighborhood function (\Cref{sec:som_neighborhood}); the prototypes \(\mathbf{w}_i\) are what you compare to data points when you pick the winner.
 
 Each output neuron therefore possesses a weight vector of the same dimensionality as the input, so evaluating the match between an input and the map amounts to comparing the input against every stored prototype. The neurons then compete; the closest (best matching) unit "wins" and its neighbors are allowed to adapt by nudging their weight vectors toward the input, while distant units remain unchanged during that update. The resulting organization produces a discrete map that preserves qualitative ordering; it approximates the topology of the input space without providing a continuous Euclidean embedding.
 
 \paragraph{Key Concept: Topographic Mapping}
 
-The fundamental idea is that inputs that are similar in the original space will activate output units that are close to each other on the map. This preserves the topological relationships of the input data in the reduced-dimensional output space.
+The fundamental idea is simple: inputs that are similar in the original space should activate units that are close to each other on the map. In practice, that means if \(\mathbf{x}_1\) and \(\mathbf{x}_2\) are close in \(\mathbb{R}^n\), then their best matching units should end up near each other on the 2D grid. The neighborhood update is the mechanism that encourages this: when one unit wins, its neighbors are pulled in the same direction, so ``similar inputs'' repeatedly shape the same local region of the map.
 
-Formally, if \(\mathcal{N}_\epsilon(\mathbf{x}) = \{\mathbf{z} \, | \, \|\mathbf{z}-\mathbf{x}\|_2 < \epsilon\}\) denotes an Euclidean \(\epsilon\)-neighborhood of an input vector, the SOM training procedure aims to ensure that the image of this neighborhood under the map lies within a small neighborhood of the BMU on the lattice. In practice the preservation is approximate (see, e.g., \citealp{Kohonen2001} for discussion), but it is sufficient to maintain qualitative ordering of regions in the input manifold.
-
-For example, two inputs \(\mathbf{x}_1\) and \(\mathbf{x}_2\) that are close in \(\mathbb{R}^n\) will select best matching units whose lattice locations \(\mathbf{r}_i\) and \(\mathbf{r}_j\) are neighbors on the output grid. This spatial organization is what makes SOMs particularly useful for visualization and clustering.
+If you want a compact formal statement, let \(\mathcal{N}_\epsilon(\mathbf{x})=\{\mathbf{z}\,|\,\|\mathbf{z}-\mathbf{x}\|_2<\epsilon\}\) be a small neighborhood in input space. SOM training aims (approximately) to map \(\mathcal{N}_\epsilon(\mathbf{x})\) into a small neighborhood around the BMU on the grid (see \citealp{Kohonen2001} for details and caveats). The guarantee is not exact; the engineering goal is a stable qualitative ordering that makes the map readable.
 
 \subsection{Conceptual Description of SOM Operation}
 \label{sec:som_conceptual_description_of_som_operation}
@@ -227,7 +222,6 @@ For example, two inputs \(\mathbf{x}_1\) and \(\mathbf{x}_2\) that are close in 
     \end{equation}
     that is, the BMU index \(c\) minimizes the squared Euclidean distance between \(\mathbf{x}\) and the candidate prototype \(\mathbf{w}_i\).
     Minimizing the squared distance yields the same winner as minimizing the unsquared norm but streamlines gradient derivations, so we retain the squared form for consistency with later update rules.
-Here \(\|\cdot\|_2\) denotes the Euclidean norm unless explicitly stated otherwise. Euclidean distance is the default choice because it yields particularly simple gradient expressions for the update rule \eqref{eq:som_update}, but alternatives such as Mahalanobis distance (for anisotropic covariance structures) or cosine-based measures (e.g., the cosine distance \(d_{\cos}(\mathbf{x}, \mathbf{w}_i) = 1 - \frac{\mathbf{x}^\top \mathbf{w}_i}{\|\mathbf{x}\|_2\,\|\mathbf{w}_i\|_2}\)) can be used; the metric must be chosen to reflect the notion of similarity relevant to the application. Throughout this section we denote the best matching unit (BMU) by the index \(c\); alternative notations such as \(j^\star\) or \(i^\star\) in the literature refer to the same winning neuron.
 
     \item \textbf{Cooperation:} Define a neighborhood function \(h_{ci}(t)\) that determines the degree of influence the BMU has on its neighbors in the output grid. This function decreases with the distance between neurons \(c\) and \(i\) on the map and with time \(t\).
 
@@ -237,6 +231,10 @@ Here \(\|\cdot\|_2\) denotes the Euclidean norm unless explicitly stated otherwi
     \end{equation}
     where \(\alpha(t)\) is the learning rate, which decreases over time, and the effective width of \(h_{ci}(t)\) likewise shrinks so that large-scale ordering occurs early and fine-tuning occurs later (see \Cref{sec:som_neighborhood}).
 \end{enumerate}
+
+\begin{tcolorbox}[summarybox, title={Author's note: distance is part of the model}]
+The BMU rule is only as sensible as your distance. Euclidean distance is the default because it makes the update rule simple, but it assumes features are commensurate. In practice you almost always normalize inputs (and sometimes whiten them) so that one coordinate does not dominate the match by sheer scale. If your notion of ``similar'' is directional rather than magnitude-based, cosine distance is often a better choice; if covariance is strongly anisotropic, a Mahalanobis distance can be justified.
+\end{tcolorbox}
 
 \begin{tcolorbox}[summarybox, title={Tiny numeric step (online update)}]
 Input \(\mathbf{x}=[0.2,0.8]\), two map units with weights \(\mathbf{w}_1=[0.1,0.9]\), \(\mathbf{w}_2=[0.7,0.3]\), coordinates \(\mathbf{r}_1=[0,0]\), \(\mathbf{r}_2=[1,0]\), \(\alpha=0.5\), \(\sigma=1\). BMU \(c=1\) (closest to \(\mathbf{x}\)). Neighborhoods: \(h_{11}=1\), \(h_{21}=\exp(-1/2)\approx 0.607\). Updates:
@@ -252,14 +250,11 @@ This iterative process causes the map to self-organize, with neurons specializin
 \subsection{Mathematical Formulation of SOM}
 \label{sec:som_mathematical_formulation_of_som}
 
-Let the input space be \(\mathcal{X} \subseteq \mathbb{R}^n\), and the output map be a lattice of neurons indexed by \(i\), each with weight vector \(\mathbf{w}_i \in \mathbb{R}^n\).
+Let the input space be \(\mathcal{X} \subseteq \mathbb{R}^n\), and the output map be a grid of neurons indexed by \(i\), each with weight vector \(\mathbf{w}_i \in \mathbb{R}^n\).
 
 \paragraph{Best Matching Unit (BMU)}
 
-Given an input \(\mathbf{x}\), the BMU is found by minimizing the squared distance:
-\begin{equation*}
-    c = \arg\min_{i} \|\mathbf{x} - \mathbf{w}_i\|_2^2.
-\end{equation*}
+We reuse the BMU definition in \eqref{eq:bmu}; the same squared-distance criterion carries into the formal derivation here.
 
 \paragraph{Neighborhood Function}
 
@@ -268,7 +263,12 @@ A common choice for the neighborhood kernel is the Gaussian function
     h_{ci}(t) = \exp\left(-\frac{\| \mathbf{r}_c - \mathbf{r}_i \|^2}{2\sigma^2(t)}\right),
     \label{eq:gaussian_neighborhood_short}
 \end{equation}
-where $\mathbf{r}_i$ denotes the lattice coordinates of neuron $i$ and $\sigma(t)$ is the neighborhood radius that decreases monotonically with $t$. Early in training $\sigma(t)$ is large, encouraging broad cooperation; as $\sigma(t)$ shrinks, only neurons near the BMU continue to adapt (\Cref{fig:lec5-gaussian-neighborhood}).
+where $\mathbf{r}_i$ denotes the grid coordinates of neuron $i$ and $\sigma(t)$ is the neighborhood radius that decreases monotonically with $t$. A common schedule is an exponential decay:
+\begin{equation}
+    \sigma(k) = \sigma_0 e^{-k/\tau},
+    \label{eq:som_sigma_schedule}
+\end{equation}
+where $k$ counts updates and $\tau$ sets how quickly the neighborhood shrinks. Early in training $\sigma(t)$ is large, encouraging broad cooperation; as $\sigma(t)$ shrinks, only neurons near the BMU continue to adapt (\Cref{fig:lec5-gaussian-neighborhood}).
 \begin{figure}[t]
     \centering
     \begin{tikzpicture}
@@ -277,7 +277,7 @@ where $\mathbf{r}_i$ denotes the lattice coordinates of neuron $i$ and $\sigma(t
             height=5cm,
             xmin=0, xmax=4,
             ymin=0, ymax=1.05,
-            xlabel={Lattice distance $\|\mathbf{r}_c-\mathbf{r}_i\|_2$},
+            xlabel={Grid distance $\|\mathbf{r}_c-\mathbf{r}_i\|_2$},
             ylabel={$h_{ci}(t)$},
             legend style={at={(0.02,0.98)}, anchor=north west, draw=none, fill=none}
         ]
@@ -288,7 +288,7 @@ where $\mathbf{r}_i$ denotes the lattice coordinates of neuron $i$ and $\sigma(t
         \end{axis}
     \end{tikzpicture}
     % Avoid inline math in captions; it wraps poorly in some EPUB renderers.
-    \caption{Gaussian neighborhood weights in SOM training. Early iterations use a broad kernel so many neighbors adapt; later iterations shrink the neighborhood width sigma(t) so only units near the BMU update. Use it when tuning sigma(t) to trade global ordering for local refinement.}
+    \caption{Gaussian neighborhood weights in SOM training (schematic). Early iterations use a broad kernel so many neighbors adapt; later iterations shrink the neighborhood width \(\sigma(t)\) so only units near the BMU update.}
     \label{fig:lec5-gaussian-neighborhood}
 \end{figure}
 
@@ -298,50 +298,24 @@ where $\mathbf{r}_i$ denotes the lattice coordinates of neuron $i$ and $\sigma(t
 \subsection{Kohonen Self-Organizing Maps (SOMs): Network Architecture and Operation}
 \label{sec:som_kohonen_self_organizing_maps_soms_network_architecture_and_operation}
 
-Building on the inspiration from perceptrons, Kohonen Self-Organizing Maps (SOMs) introduce a distinctive neural network architecture designed for unsupervised learning and feature mapping. Unlike classical supervised networks, SOMs aim to discover the underlying structure of the input data by organizing neurons in a fixed, usually low-dimensional, lattice.
+So far we have described SOMs as an algorithmic loop: find the BMU, update the BMU and its neighbors, and anneal the step size and neighborhood width over time. If you prefer to think in terms of a network diagram, this subsection restates the same story as a concrete architecture you can trace and implement.
 
 \paragraph{Network Structure}
 
-\begin{itemize}
-    \item \textbf{Input layer:} The input vector \(\mathbf{x} \in \mathbb{R}^n\) represents the feature space, where \(n\) is the input dimension.
-    \item \textbf{Output layer (map):} A fixed lattice of neurons arranged in a low-dimensional grid, e.g., a \(6 \times 4\) or \(3 \times 3\) grid, independent of the input dimension.
-    \item \textbf{Connectivity:} Each neuron in the output layer is fully connected to all input components via a weight vector \(\mathbf{w}_i \in \mathbb{R}^n\), where \(i\) indexes the neuron.
-\end{itemize}
+The map is a fixed 2D grid of units. Each unit \(i\) stores a prototype vector \(\mathbf{w}_i\) in input space and has a fixed grid coordinate \(\mathbf{r}_i\). Every input is compared against every stored prototype.
 
 \paragraph{Mapping and Competition}
 
-The SOM maps the high-dimensional input \(\mathbf{x}\) to a single neuron in the output lattice that best represents the input. This is achieved by measuring the similarity between \(\mathbf{x}\) and each neuron's weight vector \(\mathbf{w}_i\). The neuron with the highest similarity (or equivalently, the smallest distance) is declared the \emph{winner}.
-
-Formally, the winning neuron \(c\) for input \(\mathbf{x}\) is given by
-\begin{align}
-    c = \arg \min_i \|\mathbf{x} - \mathbf{w}_i\|_2^2, \label{eq:winner_neuron}
-\end{align}
-where \(\|\cdot\|_2\) denotes the Euclidean norm. Squaring the norm leaves the minimizer unchanged (\(\arg\min_{i} \|\mathbf{x}-\mathbf{w}_i\|_2 = \arg\min_{i} \|\mathbf{x}-\mathbf{w}_i\|_2^2\)), but simplifies derivatives in the subsequent learning rule. Alternative similarity metrics (e.g., cosine distance) can replace \(\|\mathbf{x}-\mathbf{w}_i\|_2\) when appropriate.
+For a given input \(\mathbf{x}\), the units compete by similarity (or distance) between \(\mathbf{x}\) and \(\mathbf{w}_i\). The closest unit wins; this is the BMU rule in \eqref{eq:bmu}.
 
 \paragraph{Weight Update Rule}
 
-Only the winning neuron and its neighbors in the lattice update their weights to better represent the input. This competitive learning rule can be expressed as
-\begin{align}
-    \mathbf{w}_i(t+1) = \mathbf{w}_i(t) + \alpha(t) \, h_{ci}(t) \, \big(\mathbf{x}(t) - \mathbf{w}_i(t)\big), \label{eq:som_weight_update}
-\end{align}
-where the learning rate symbol matches the one used in the conceptual outline,
-\begin{itemize}
-    \item \(\alpha(t)\) is the learning rate at iteration \(t\),
-    \item \(h_{ci}(t)\) is the neighborhood function centered on the winning neuron \(c\), typically a Gaussian kernel that decreases with the lattice distance between neurons \(c\) and \(i\) (see \Cref{eq:gaussian_neighborhood_short}).
-\end{itemize}
-
-This update rule ensures that the winning neuron and its neighbors move closer to the input vector, preserving topological relationships in the input space.
-Intuitively, simultaneous adaptation of the BMU and its nearby units keeps neighboring weight vectors in similar regions of the input space, so the lattice retains the ordering of the data manifold.
+Only the winning unit and its neighbors on the grid update; the update rule is \eqref{eq:som_update}. The important qualitative effect is that one input does not just move one prototype; it moves a small \emph{patch} of prototypes in the same direction, which is what makes the grid organize into a readable map rather than a bag of unrelated cluster centers.
 
 \subsection{Example: SOM with a \texorpdfstring{\(3 \times 3\)}{3x3} Output Map and 4-Dimensional Input}
 \label{sec:som_example_som_with_a_3_3_3x3_output_map_and_4_dimensional_input}
 
-Consider a SOM with the following specifications:
-\begin{itemize}
-    \item Input dimension: \(n = 4\), so each input vector is \(\mathbf{x} = [x_1, x_2, x_3, x_4]^T\).
-    \item Output lattice: \(3 \times 3\) grid, totaling 9 neurons indexed \(i = 1, \ldots, 9\).
-    \item Each neuron \(i\) has a weight vector \(\mathbf{w}_i \in \mathbb{R}^4\).
-\end{itemize}
+To make the symbols concrete, consider a SOM whose inputs live in \(\mathbb{R}^4\) and whose output map is a \(3\times 3\) grid. Each unit \(i\in\{1,\dots,9\}\) stores a prototype vector \(\mathbf{w}_i\in\mathbb{R}^4\). For a single input \(\mathbf{x}=[x_1,x_2,x_3,x_4]^\top\), the job of the map is to (i) decide which prototype matches best, then (ii) move that prototype \emph{and a small neighborhood around it} toward \(\mathbf{x}\).
 
 \paragraph{Feedforward Computation}
 
@@ -360,87 +334,36 @@ c =
 \arg \min_i d_i, & \text{if distances are used as in } \eqref{eq:neuron_distance}.
 \end{cases}
 \]
+In practice the distance form is the most common in SOM code. If you do use dot-product similarity, normalize inputs (and often prototypes) so that ``largest dot product'' corresponds to your notion of ``closest.''
 
 \paragraph{Weight Initialization and Update}
 
-Weights \(\mathbf{w}_i\) are typically initialized randomly or sampled from the input distribution. During training, for each input \(\mathbf{x}\), the winning neuron \(c\) and its neighbors update their weights according to \eqref{eq:som_weight_update}.
-
-\paragraph{Illustration}
-
-\begin{itemize}
-    \item Suppose the input \(\mathbf{x}\) is presented.
-    \item Compute \(y_i = \mathbf{w}_i^T \mathbf{x}\) for all neurons \(i\).
-    \item Identify the winning neuron \(c\) with the highest \(y_i\).
-    \item Update \(\mathbf{w}_c\) and neighboring weights \(\mathbf{w}_i\) using \eqref{eq:som_weight_update}.
-\end{itemize}
+Weights \(\mathbf{w}_i\) are typically initialized randomly (often by sampling from the data) or by a PCA-style seeding if you want a stable orientation. One training step then has a predictable shape: compute the match scores (usually \(d_i\)), pick the BMU \(c\), compute neighborhood weights from the grid distances \(\|\mathbf{r}_i-\mathbf{r}_c\|\), and apply the update in \eqref{eq:som_update} to the BMU and a small neighborhood patch. For a fully worked numeric update with actual numbers, see the earlier \emph{Tiny numeric step (online update)} box; the point of the present \(3\times 3\) example is to keep the dimensions explicit so you can track what gets computed where.
 
 This process repeats over many inputs, gradually organizing the map such that neighboring neurons respond to similar inputs, effectively performing a topology-preserving dimensionality reduction.
 
-The lattice coordinates \(\mathbf{r}_i \in \mathbb{Z}^2\) introduced for the neighborhood kernel serve as the geometry of the output grid; distances such as \(\|\mathbf{r}_i - \mathbf{r}_c\|_2\) determine how strongly each neuron responds when \(c\) wins. Broad kernels (large \(\sigma(t)\)) encourage global ordering early in training, whereas shrinking \(\sigma(t)\) confines adaptation to local neighborhoods so that fine-grained structure emerges. Alternative kernel shapes (e.g., Epanechnikov, bubble) can be used, though Gaussians provide smooth decay and convenient derivatives.
+The grid coordinates \(\mathbf{r}_i \in \mathbb{Z}^2\) introduced for the neighborhood kernel serve as the geometry of the output map; distances such as \(\|\mathbf{r}_i - \mathbf{r}_c\|_2\) determine how strongly each neuron responds when \(c\) wins. Broad kernels (large \(\sigma(t)\)) encourage global ordering early in training, whereas shrinking \(\sigma(t)\) confines adaptation to local neighborhoods so that fine-grained structure emerges. Alternative kernel shapes (e.g., Epanechnikov, bubble) can be used, though Gaussians provide smooth decay and convenient derivatives.
 
-SOM training is typically stochastic: each input triggers an update, so the map continuously refines prototypes as data arrive. Batch variants exist, but online updates capture streaming data and mirror Kohonen's original algorithm. Initialization also affects convergence; besides random sampling, practical systems often initialize weights along leading principal components to align the lattice orientation with the data manifold.
+SOM training is typically stochastic: each input triggers an update, so the map continuously refines prototypes as data arrive. Batch variants exist, but online updates capture streaming data and mirror Kohonen's original algorithm.
 
 \subsection{Key Properties of Kohonen SOMs}
 \label{sec:som_key_properties_of_kohonen_soms}
 
-\begin{itemize}
-    \item \textbf{Fixed output dimension:} The lattice size is a design choice specified a priori and does not automatically scale with the input dimension.
-    \item \textbf{Winner-takes-all competition:} Only the best matching unit and its neighbors adapt their weights, encouraging topological ordering.
-    \item \textbf{Neighborhood cooperation:} Updating neighboring neurons enforces smooth transitions across the map.
-\end{itemize}
+Three properties are worth keeping in mind. First, the SOM output grid is fixed by design: you choose the grid size up front, and it does not automatically scale with input dimension. Second, learning is driven by competition: each input selects a best-matching unit (BMU). Third, SOMs add cooperation on top of winner-takes-all by updating the BMU and its neighbors together, which is the mechanism that creates smooth organization on the grid rather than a shuffled bag of prototypes.
 % Chapter 9 (continued)
 
 \subsection{Winner-Takes-All Learning and Weight Update Rules}
 \label{sec:som_winner_takes_all_learning_and_weight_update_rules}
 
-Recall that in competitive learning networks, the neuron with the highest discriminant value for a given input \(\mathbf{x}\) is declared the \emph{winner}. This subsection analyzes the classical \emph{winner-takes-all} (WTA) principle in which only the winning neuron updates its weights, while all others remain unchanged. In the SOM setting discussed earlier, a softened variant is used in which the winner and its lattice neighbors update together.
+Recall that in competitive learning networks, the neuron with the highest discriminant value for a given input \(\mathbf{x}\) is declared the \emph{winner}. This subsection analyzes the classical \emph{winner-takes-all} (WTA) principle in which only the winning neuron updates its weights, while all others remain unchanged. In the SOM setting discussed earlier, a softened variant is used in which the winner and its grid neighbors update together.
 
 \paragraph{Discriminant Function and Similarity Measures}
 
-The discriminant value for neuron \(j\) is typically computed from a similarity or distance measure between the input \(\mathbf{x}\) and the neuron's weight vector \(\mathbf{w}_j\). Two common formulations are:
-
-\begin{itemize}
-    \item \textbf{Maximizing similarity:}
-    \[
-    g_j(\mathbf{x}) = \mathbf{w}_j^\top \mathbf{x}.
-    \]
-    where a higher inner product indicates greater similarity.
-
-    \item \textbf{Minimizing distance:}
-    \[
-    d_j(\mathbf{x}) = \|\mathbf{x} - \mathbf{w}_j\|_2^2.
-    \]
-    where a smaller Euclidean distance indicates greater similarity.
-\end{itemize}
-
-While both are valid, minimizing the Euclidean distance is often preferred for weight updates because it leads to more tractable learning rules.
+The discriminant measures in \eqref{eq:neuron_activation} (dot-product similarity) and \eqref{eq:neuron_distance} (squared Euclidean distance) are the same ones used in the earlier example; we reuse them here, favoring the distance form when deriving updates.
 
 \paragraph{Weight Update Rule}
 
-Once the winning neuron \(c\) is identified, its weight vector \(\mathbf{w}_{c}\) is updated to better represent the input \(\mathbf{x}\). The general update rule is:
-
-\begin{equation}
-\mathbf{w}_{c}(t+1) = \mathbf{w}_{c}(t) + \Delta \mathbf{w}_{c}(t).
-\label{eq:weight_update_general}
-\end{equation}
-
-where \(t\) indexes the iteration or training cycle and \(\Delta \mathbf{w}_{c}(t) = \mathbf{w}_{c}(t+1) - \mathbf{w}_{c}(t)\).
-
-The increment \(\Delta \mathbf{w}_{c}(t)\) is chosen to reduce the distance between \(\mathbf{w}_{c}\) and \(\mathbf{x}\), but not to make them identical immediately. This is because:
-
-\begin{itemize}
-    \item Multiple inputs \(\mathbf{x}\) may be represented by the same neuron.
-    \item Immediate convergence to a single input would prevent generalization.
-\end{itemize}
-
-Hence, the update is typically proportional to the difference between \(\mathbf{x}\) and \(\mathbf{w}_{c}\):
-
-\begin{equation}
-\Delta \mathbf{w}_{c}(t) = \alpha(t) \left( \mathbf{x} - \mathbf{w}_{c}(t) \right).
-\label{eq:weight_update_delta}
-\end{equation}
-
-where \(\alpha(t) \in [0,1)\) is the \emph{learning rate} at iteration \(t\). The learning rate controls the step size so that \(\mathbf{w}_c\) moves toward \(\mathbf{x}\) gradually rather than collapsing to it in a single update.
+Once the winning neuron \(c\) is identified, WTA is the SOM update \eqref{eq:som_update} with a collapsed neighborhood: set \(h_{ci}(t)=1\) for \(i=c\) and \(h_{ci}(t)=0\) otherwise. The learning rate \(\alpha(t)\) still controls step size so the winner moves toward \(\mathbf{x}\) gradually rather than collapsing to it in a single update.
 
 \paragraph{Learning Rate Schedule}
 
@@ -464,7 +387,7 @@ Practitioners often start with \(\alpha(0)\) in the range \(0.05\)--\(0.5\) and 
         \[
         c = \arg \max_j g_j(\mathbf{x}) \quad \text{or} \quad c = \arg \min_j d_j(\mathbf{x})
         \]
-        \item Update the winning neuron's weights using \eqref{eq:weight_update_general} and \eqref{eq:weight_update_delta}.
+        \item Update the winning neuron's weights using \eqref{eq:som_update} with \(h_{ci}(t)\) collapsed to a winner-only update.
     \end{enumerate}
     \item Decrease learning rate \(\alpha(t)\) according to schedule.
     \item Repeat until convergence or maximum iterations reached.
@@ -497,35 +420,71 @@ The initial weights \(\mathbf{w}_j(0)\) for neurons \(j=1,2,3\) are:
 
 where row \(j\) contains the initial weight vector \(\mathbf{w}_j(0)\) for neuron \(j = 1,2,3\).
 
-% Chapter 9 (continued)
+\paragraph{Input vectors}
+Let the four inputs be
+\[
+\mathbf{x}_1=
+\begin{bmatrix}
+0.1\\ 0.3\\ 0.4\\ 0.2
+\end{bmatrix},\quad
+\mathbf{x}_2=
+\begin{bmatrix}
+0.8\\ 0.7\\ 0.2\\ 0.1
+\end{bmatrix},\quad
+\mathbf{x}_3=
+\begin{bmatrix}
+0.2\\ 0.2\\ 0.1\\ 0.9
+\end{bmatrix},\quad
+\mathbf{x}_4=
+\begin{bmatrix}
+0.4\\ 0.6\\ 0.5\\ 0.3
+\end{bmatrix}.
+\]
+We walk through one update explicitly for \(\mathbf{x}_1\); the remaining inputs follow the same steps.
+
+\paragraph{Step 1: pick the winner for \(\mathbf{x}_1\).}
+Using squared Euclidean distance \(d_j=\|\mathbf{x}_1-\mathbf{w}_j(0)\|_2^2\),
+\begin{align*}
+d_1 &= (0.2-0.1)^2 + (0.3-0.3)^2 + (0.5-0.4)^2 + (0.1-0.2)^2 = 0.03,\\
+d_2 &= \|\mathbf{x}_1-\mathbf{w}_2(0)\|_2^2 = 0.14,\qquad
+d_3 = \|\mathbf{x}_1-\mathbf{w}_3(0)\|_2^2 = 0.13.
+\end{align*}
+So the winner is \(c=\arg\min_j d_j = 1\).
+
+\paragraph{Step 2: update the winner.}
+At \(t=0\) the learning rate is \(\alpha(0)=0.3\), and only the winner updates:
+\[
+\mathbf{w}_1(1)=\mathbf{w}_1(0)+\alpha(0)\big(\mathbf{x}_1-\mathbf{w}_1(0)\big)
+=
+\begin{bmatrix}
+0.17\\ 0.30\\ 0.47\\ 0.13
+\end{bmatrix}.
+\]
+For the next input, \(t=1\) so \(\alpha(1)=0.3\times 0.5 = 0.15\), and the same computation repeats with the new winner.
+
+% QC-BEGIN: som_competitive_learning_example
+% d 0.03 0.14 0.13 winner 1
+% w1_new 0.17 0.30 0.47 0.13
+% alpha0 0.30 alpha1 0.15
+% QC-END: som_competitive_learning_example
 
 \subsection{Winner-Takes-All Learning Recap}
 \label{sec:som_winner_takes_all_learning_recap}
 
-Recall from the previous discussion that in the Winner-Takes-All (WTA) learning scheme, for each input vector \(\mathbf{x}\), we compute the similarity (or distance) between \(\mathbf{x}\) and each neuron's weight vector \(\mathbf{w}_j\). The neuron \(c\) with the minimum distance (or maximum similarity) is declared the winner:
-\begin{align}
-c = \arg \min_j \|\mathbf{x} - \mathbf{w}_j\|_2^2.
-    \label{eq:auto:lecture_5_part_i:1}
-\end{align}
+The WTA selection and update were defined in \Cref{sec:som_winner_takes_all_learning_and_weight_update_rules}; the numerical example above uses the same BMU criterion \eqref{eq:bmu} and the winner-only form of the update in \eqref{eq:som_update}.
 
-Only the weights of the winning neuron are updated according to:
-\begin{align}
-\mathbf{w}_{c}(t+1) = \mathbf{w}_{c}(t) + \alpha(t) \left( \mathbf{x} - \mathbf{w}_{c}(t) \right),
-\label{eq:wta_weight_update}
-\end{align}
-where \(\alpha(t)\) is the learning rate (constant or decaying).
-In the full SOM update of \eqref{eq:som_weight_update}, this increment is additionally scaled by the neighborhood kernel \(h_{ci}(t)\) so that only units with lattice coordinates \(\mathbf{r}_i\) near the BMU location \(\mathbf{r}_c\) receive appreciable adjustments.
+\paragraph{How WTA relates to SOMs.}
+You can view WTA learning as a limiting case of SOM training where the neighborhood collapses to a single unit: \(h_{ci}(t)=\mathbf{1}[i=c]\). Adding a nontrivial neighborhood \(h_{ci}(t)\) is what turns pure prototype learning into a \emph{topographic} map: neighbors are encouraged to represent similar inputs, and the grid becomes a structured visualization rather than an unstructured codebook.
 
-This process is repeated for each input in the training set, and multiple epochs are run with a gradually decreasing \(\alpha\) until convergence.
-
-\paragraph{Practical considerations} In both SOMs and WTA networks, input vectors are commonly normalized (e.g., zero mean and unit variance) so that distance comparisons are meaningful. Training is typically terminated when weight changes fall below a small threshold or after a prescribed number of epochs.
+\paragraph{Practical considerations.}
+In both SOMs and WTA networks, input vectors are commonly normalized (e.g., zero mean and unit variance) so that distance comparisons are meaningful. Training is typically terminated when weight changes fall below a small threshold or after a prescribed number of epochs.
 
 \subsection{Regularization and Monitoring During SOM Training}
 \label{sec:som_regularization_and_monitoring_during_som_training}
 
 Even though SOMs are inherently unsupervised, their training dynamics still benefit from the same regularization heuristics used in supervised settings. Two complementary diagnostics are especially useful in practice.
 
-\paragraph{Bias--variance view.} Increasing the lattice resolution or keeping the kernel width large for too long can overfit local noise. \Cref{fig:lec5-bias-variance} visualizes the familiar \(U\)-shaped trade-off: the left regime underfits (high bias), whereas the right regime yields jagged maps (high variance).
+\paragraph{Bias--variance view.} Increasing the grid resolution or keeping the kernel width large for too long can overfit local noise. \Cref{fig:lec5-bias-variance} visualizes the familiar \(U\)-shaped trade-off: the left regime underfits (high bias), whereas the right regime yields jagged maps (high variance).
 
 \begin{figure}[t]
     \centering
@@ -549,7 +508,7 @@ Even though SOMs are inherently unsupervised, their training dynamics still bene
             \node[anchor=west, font=\scriptsize, text=cbPink] at (axis cs:0.45,0.32){validation floor};
         \end{axis}
     \end{tikzpicture}
-    \caption{Bias--variance trade-off when sweeping SOM capacity (number of units or kernel width). The optimum appears near the knee where bias and variance intersect. Use it when selecting map size/capacity via validation curves rather than aesthetics.}
+    \caption{Illustrative bias--variance trade-off when sweeping SOM capacity (number of units or kernel width). The optimum appears near the knee where bias and variance intersect.}
     \label{fig:lec5-bias-variance}
 \end{figure}
 
@@ -591,7 +550,7 @@ Even though SOMs are inherently unsupervised, their training dynamics still bene
                 \fi
         \end{groupplot}
     \end{tikzpicture}
-    \caption{Regularization smooths the loss surface. Coupling neighboring prototypes (right) yields wider, flatter basins than the jagged unregularized landscape (left). Use it when explaining why regularization can improve stability and generalization.}
+    \caption{Regularization smooths an objective surface (schematic). Coupling neighboring prototypes (right) yields wider, flatter basins than the jagged unregularized landscape (left).}
     \label{fig:lec5-regularization}
 \end{figure}
 
@@ -622,7 +581,7 @@ Even though SOMs are inherently unsupervised, their training dynamics still bene
         \end{axis}
     \end{tikzpicture}
     % Avoid inline math in captions; it wraps poorly in some EPUB renderers.
-    \caption{Quantization error combined with an entropy-style regularizer (modern SOM variant; for example, a negative sum of p log p over unit usage). Valleys arise when prototypes cover the space evenly; ridges highlight collapse or poor topological preservation. Use it when diagnosing prototype collapse versus healthy coverage.}
+    \caption{Illustrative objective surface combining quantization error and an entropy-style regularizer (a modern SOM variant; for example, a negative sum of \(p\log p\) over unit usage). Valleys arise when prototypes cover the space evenly; ridges highlight collapse or poor topological preservation.}
     \label{fig:lec5-crossentropy}
 \end{figure}
 
@@ -631,7 +590,37 @@ Even though SOMs are inherently unsupervised, their training dynamics still bene
 \[
     \text{QE} = \frac{1}{N}\sum_{i=1}^N \bigl\|\mathbf{x}_i - \mathbf{w}_{b_i}\bigr\|_2,
 \]
-which measures reconstruction fidelity. The \emph{topographic error} is the fraction of inputs whose first- and second-best BMUs are not adjacent on the lattice (default: 4-neighbor connectivity), capturing topology preservation. Both metrics reappear in later figures; we monitor QE for representation quality and TE for magnification distortions.
+which measures reconstruction fidelity. The \emph{topographic error} is the fraction of inputs whose first- and second-best BMUs are not adjacent on the grid (default: 4-neighbor connectivity), capturing topology preservation. Both metrics reappear in later figures; we monitor QE for representation quality and TE for magnification distortions.
+
+\begin{tcolorbox}[summarybox, title={Tiny numeric check: QE vs.\ TE (they can disagree)}]
+To see what these metrics measure, consider a \(2\times 2\) SOM grid with fixed coordinates
+\(\mathbf{r}_1=[0,0]\), \(\mathbf{r}_2=[1,0]\), \(\mathbf{r}_3=[0,1]\), \(\mathbf{r}_4=[1,1]\) (4-neighbor adjacency). Let the prototypes in input space be
+\[
+\mathbf{w}_1=[0,0],\quad \mathbf{w}_2=[2,0],\quad \mathbf{w}_3=[0,2],\quad \mathbf{w}_4=[0.25,0.25].
+\]
+Notice that \(\mathbf{w}_4\) is close to \(\mathbf{w}_1\) in input space, even though units 4 and 1 are diagonal neighbors on the grid.
+
+Now evaluate four inputs, using squared Euclidean distance to pick the best and second-best matches:
+\[
+\mathbf{x}_1=[0.30,0.30],\ \mathbf{x}_2=[1.80,0.20],\ \mathbf{x}_3=[0.20,1.70],\ \mathbf{x}_4=[0.05,0.05].
+\]
+The BMU/second-BMU pairs are \((4,1)\), \((2,4)\), \((3,4)\), \((1,4)\). Under 4-neighbor adjacency, pairs \((4,1)\) and \((1,4)\) are \emph{not} adjacent (diagonal), so \(\text{TE}=2/4=0.5\).
+Meanwhile the average distance to the BMU is \(\text{QE}\approx 0.1962\).
+
+The lesson is that QE is a ``prototype fit'' score, while TE is an ``ordering'' score. You can improve QE by moving prototypes toward the data while still tearing the map if nearby grid units do not represent nearby regions of the input space.
+\end{tcolorbox}
+
+% QC-BEGIN: som_qe_te_example
+% w1 0.00 0.00
+% w2 2.00 0.00
+% w3 0.00 2.00
+% w4 0.25 0.25
+% x1 0.30 0.30 bmu 4 sbmu 1 adj 0
+% x2 1.80 0.20 bmu 2 sbmu 4 adj 1
+% x3 0.20 1.70 bmu 3 sbmu 4 adj 1
+% x4 0.05 0.05 bmu 1 sbmu 4 adj 0
+% QE 0.196205 TE 0.500000
+% QC-END: som_qe_te_example
 
 \begin{tcolorbox}[summarybox, title={Batch SOM in practice}, breakable]
 Online SOM updates one sample at a time: pick a best-matching unit (BMU), nudge it and its neighbors, move on. Batch SOM instead aggregates responsibilities across a dataset (or mini\hyp{}batch) before shifting prototypes:
@@ -699,7 +688,7 @@ Most modern SOM libraries expose both modes, so choose the update rule that matc
             \addplot[cbPink, very thick, domain=0:60]{0.25} node[pos=0.62, anchor=south west, font=\scriptsize, text=cbPink]{stop window};
         \end{axis}
     \end{tikzpicture}
-    \caption{Validation curves used to identify an early\hyp{}stopping knee. When both quantization and topographic errors flatten (shaded band), further training risks map drift. Use it when deciding where to stop training based on stability, not only final error.}
+    \caption{Illustrative validation curves used to identify an early\hyp{}stopping knee. When both quantization and topographic errors flatten (shaded band), further training risks map drift.}
     \label{fig:lec5-early-stopping}
 \end{figure}
 
@@ -713,6 +702,8 @@ While WTA is simple and effective for clustering, it has some limitations:
     \item The hard competition ignores relationships among neighboring neurons.
     \item The resulting clusters correspond to hard assignments, so boundaries between codebook vectors are sharp with little smoothing across neighboring neurons.
 \end{itemize}
+There is also a very practical failure mode: you can drive the prototypes toward the data (so QE improves) while the \emph{grid organization} never really forms. If you start with \(\sigma(t)\approx 1\) from the very beginning (or you drop neighborhood updates entirely), nearby grid locations can end up representing unrelated regions of the input space. The map looks like a shuffled deck: the U-Matrix becomes speckled, and TE stays stubbornly high because the second-best match for a point often lives far away on the grid. The fix is not a new objective; it is simply the training schedule: use a broad neighborhood early so large-scale ordering can settle, then shrink \(\sigma(t)\) so the map can refine without smearing away detail.
+More importantly for SOMs, plain WTA gives you \emph{prototypes} but not necessarily a readable \emph{map}. If only the winner moves, nothing forces neighboring grid units to represent neighboring regions of the data; the prototypes can end up arranged arbitrarily across the grid, and small changes in initialization can produce very different-looking maps. Cooperation is the fix: early in training you use a broad neighborhood (large \(\sigma(t)\)) so an input shapes a local patch rather than a single unit, which encourages global ordering; later you shrink \(\sigma(t)\) so the map can refine without smearing away detail.
 The geometric effect of these limitations is easiest to see in \Cref{fig:lec5-softmax-regions}: the left panel shows the brittle Voronoi partitions created by a strict winner-takes-all rule, whereas the right panel demonstrates how shrinking the neighborhood kernel produces softer responsibilities and smoother maps.
 
 \pgfmathdeclarefunction{somindex}{2}{%
@@ -770,10 +761,10 @@ The geometric effect of these limitations is easiest to see in \Cref{fig:lec5-so
                 \addplot+[only marks, mark=*, mark size=1.8pt, color=cbOrange] coordinates {(0.8,0.25)};
                 \addplot+[only marks, mark=*, mark size=1.8pt, color=cbGreen] coordinates {(0.28,0.78)};
                 \addplot+[only marks, mark=*, mark size=1.8pt, color=cbPink] coordinates {(0.78,0.78)};
-                \node[font=\scriptsize, anchor=west, cbBlue] at (axis cs:0.22,0.22){$r_1$};
-                \node[font=\scriptsize, anchor=west, cbOrange] at (axis cs:0.82,0.25){$r_2$};
-                \node[font=\scriptsize, anchor=south west, cbGreen] at (axis cs:0.3,0.82){$r_3$};
-                \node[font=\scriptsize, anchor=south east, cbPink] at (axis cs:0.78,0.82){$r_4$};
+                \node[font=\scriptsize, anchor=west, cbBlue] at (axis cs:0.22,0.22){$\mathbf{w}_1$};
+                \node[font=\scriptsize, anchor=west, cbOrange] at (axis cs:0.82,0.25){$\mathbf{w}_2$};
+                \node[font=\scriptsize, anchor=south west, cbGreen] at (axis cs:0.3,0.82){$\mathbf{w}_3$};
+                \node[font=\scriptsize, anchor=south east, cbPink] at (axis cs:0.78,0.82){$\mathbf{w}_4$};
             \nextgroupplot[
                 title={Soft assignments},
                 view={0}{90},
@@ -788,7 +779,7 @@ The geometric effect of these limitations is easiest to see in \Cref{fig:lec5-so
                 \node[font=\scriptsize, anchor=south east, fill=white, inner sep=1pt] at (axis cs:0.98,0.05){$\sigma(t)\ \text{small}$};
             \end{groupplot}
     \end{tikzpicture}
-    \caption{Voronoi-like regions induced by SOM prototypes (left) and the corresponding softmax confidence after shrinking the neighborhood kernel (right). Softer updates blur the decision frontiers and reduce jagged mappings between adjacent neurons. Use it when interpreting a prototype map as a piecewise-constant partition of feature space.}
+    \caption{Voronoi-like regions induced by fixed prototypes in input space (left) and the corresponding soft assignments after sharpening the neighborhood kernel (right). Softer updates blur the decision frontiers and reduce jagged mappings between adjacent units (schematic illustration).}
     \label{fig:lec5-softmax-regions}
 \end{figure}
 
@@ -800,16 +791,17 @@ To address these issues, the concept of \emph{cooperation} among neurons is intr
 
 \paragraph{Neighborhood Concept}
 
-Consider the output layer arranged in a 2D grid (or lattice) of neurons. For each input \(\mathbf{x}\), after determining the winning neuron \(c\), we define a neighborhood \(\mathcal{N}(c)\) consisting of neurons close to \(c\) in the output space. In practice the neighborhood weight is supplied by the kernel \(h_{jc}(t)\) of \eqref{eq:gaussian_neighborhood_short}, which is positive for units inside the neighborhood (and decays with the lattice distance \(\|\mathbf{r}_j - \mathbf{r}_c\|\)) and zero for units far away.
+Consider the output layer arranged in a 2D grid of neurons. For each input \(\mathbf{x}\), after determining the winning neuron \(c\), we define a neighborhood \(\mathcal{N}(c)\) consisting of neurons close to \(c\) on the grid. In practice the neighborhood weight is supplied by the kernel \(h_{jc}(t)\) of \eqref{eq:gaussian_neighborhood_short}, which is positive for units inside the neighborhood (and decays with the grid distance \(\|\mathbf{r}_j - \mathbf{r}_c\|\)) and zero for units far away.
 
 The neighborhood size typically shrinks over time during training, starting large to encourage global ordering and gradually reducing to fine-tune local details.
 
-\paragraph{Weight Update with Neighborhood Cooperation} The lattice structure and how the best matching unit (BMU) influences nearby neurons are visualized in \cref{fig:lec5-som-lattice-umatrix}. The U-Matrix on the right provides a quick diagnostic for cluster boundaries during training.
+\paragraph{Weight Update with Neighborhood Cooperation}
+The grid structure and how the best matching unit (BMU) influences nearby neurons are visualized in \Cref{fig:lec5-som-lattice-umatrix}. The U-Matrix on the right provides a quick diagnostic for cluster boundaries during training.
 
 \begin{figure}[t]
     \centering
     \begin{tikzpicture}[scale=0.9]
-        % Left panel: lattice
+        % Left panel: grid
         \begin{scope}
             % draw grid of neurons
             \foreach \i in {0,...,4} {
@@ -827,7 +819,7 @@ The neighborhood size typically shrinks over time during training, starting larg
             \draw[<->, gray!70] (2,2.2) -- (3,2.2);
             \node[font=\scriptsize, gray!70] at (2.5,2.45) {$\|\mathbf{r}_j-\mathbf{r}_c\|=1$};
             \node at (2,-0.5) {$\mathbf{r}_c$};
-            \node[align=center] at (2,-1.1) {SOM lattice and BMU neighborhood};
+            \node[align=center] at (2,-1.1) {SOM grid and BMU neighborhood};
         \end{scope}
 
         % Right panel: U-Matrix (toy heatmap; colored but grayscale-friendly)
@@ -890,9 +882,11 @@ The neighborhood size typically shrinks over time during training, starting larg
         \end{scope}
     \end{tikzpicture}
     % Avoid inline math in captions; it wraps poorly in some EPUB renderers.
-    \caption{Left: a 5-by-5 SOM lattice with best matching unit (blue) and neighbors inside the Gaussian-kernel radius (green). Right: a toy U-Matrix (grayscale-safe colormap) showing average distances between neighboring codebook vectors; larger distances indicate likely cluster boundaries. Use it when reading U-Matrices as boundary hints, not absolute distances.}
+    \caption{Left: a 5-by-5 SOM grid with the best matching unit (blue) and neighbors inside the Gaussian-kernel radius (green). Right: a toy U-Matrix (grayscale-safe colormap) showing average distances between neighboring codebook vectors; larger distances suggest likely cluster boundaries. Treat a U-Matrix as a qualitative boundary hint unless preprocessing and scaling are fixed.}
     \label{fig:lec5-som-lattice-umatrix}
 \end{figure}
+
+Component planes are the companion view to the U-Matrix: they show one feature at a time across the grid, which helps you interpret what a boundary is \emph{about} (\Cref{fig:lec5-som-component-planes}).
 
 \begin{figure}[t]
     \centering
@@ -1009,7 +1003,7 @@ The neighborhood size typically shrinks over time during training, starting larg
                 };
         \end{groupplot}
     \end{tikzpicture}
-\caption{Component planes for three features on a trained SOM (toy data). Each plane maps one feature across the grid; aligned bright/dark regions reveal correlated features and complement the U-Matrix in \Cref{fig:lec5-som-lattice-umatrix}. Interpret brightness comparatively within a plane rather than as an absolute scale. Use it when diagnosing which input features drive map organization.}
+\caption{Component planes for three features on a trained SOM (toy data). Each plane maps one feature across the grid; aligned bright/dark regions reveal correlated features and complement the U-Matrix in \Cref{fig:lec5-som-lattice-umatrix}. Interpret brightness comparatively within a plane rather than as an absolute scale.}
     \label{fig:lec5-som-component-planes}
 \end{figure}
 
@@ -1035,7 +1029,7 @@ h_{j c}(t) = \begin{cases}
 
 \paragraph{Gaussian Neighborhood Function}
 
-A common choice for \(h_{j c}(t)\) is a Gaussian function based on the distance between neurons \(j\) and \(c\) on the output lattice:
+A common choice for \(h_{j c}(t)\) is a Gaussian function based on the distance between neurons \(j\) and \(c\) on the output grid:
 \begin{align}
 h_{j c}(t) = \exp \left( - \frac{\| \mathbf{r}_j - \mathbf{r}_{c} \|^2}{2 \sigma^2(t)} \right),
 \label{eq:gaussian_neighborhood}
@@ -1055,7 +1049,7 @@ The cooperative update encourages neighboring neurons to become sensitive to sim
 \subsection{Example: Neighborhood Update Illustration}
 \label{sec:som_example_neighborhood_update_illustration}
 
-Suppose the output neurons are arranged in a 2D lattice as shown schematically in \Cref{fig:som_neighborhood}, where each neuron is indexed by its grid coordinates. For an input \(\mathbf{x}\), neuron \(c\) wins. The neighborhood \(\mathcal{N}(c)\) might include neurons within a radius \(\sigma\) around \(c\).
+Suppose the output neurons are arranged in a 2D grid as shown schematically in \Cref{fig:som_neighborhood}, where each neuron is indexed by its grid coordinates. For an input \(\mathbf{x}\), neuron \(c\) wins. The neighborhood \(\mathcal{N}(c)\) might include neurons within a radius \(\sigma\) around \(c\).
 
 \begin{figure}[t]
     \centering
@@ -1070,7 +1064,7 @@ Suppose the output neurons are arranged in a 2D lattice as shown schematically i
         \node at (2,1.5) {\scriptsize BMU $c$};
         \node[cbGreen!70!black] at (3.6,1) {\scriptsize radius $\sigma(t)$};
     \end{tikzpicture}
-    \caption{SOM lattice with the best-matching unit (BMU) highlighted in blue and a dashed neighborhood radius indicating which prototype vectors receive cooperative updates. Use it when visualizing the cooperative update neighborhood around the BMU.}
+    \caption{SOM grid with the best-matching unit (BMU) highlighted in blue and a dashed neighborhood radius indicating which prototype vectors receive cooperative updates (schematic).}
     \label{fig:som_neighborhood}
 \end{figure}
 
@@ -1080,16 +1074,11 @@ Each neuron \(j\) in \(\mathcal{N}(c)\) updates its weight vector according to \
 \subsection{Summary of Cooperative Competitive Learning Algorithm}
 \label{sec:som_summary_of_cooperative_competitive_learning_algorithm}
 
-\begin{enumerate}
-    \item Present an input vector and identify the winning neuron using the discriminant function.
-    \item Update the winning neuron's weights and those of its neighbors according to the cooperative rule.
-    \item Decrease the learning rate and neighborhood radius according to the annealing schedule.
-    \item Repeat for all inputs until the map stabilizes or a maximum number of epochs is reached.
-\end{enumerate}
+Each training step repeats the same loop: present an input, identify the BMU using your chosen discriminant (dot product or distance), update the BMU and its neighbors with the cooperative rule, and then decay both the learning rate and neighborhood radius according to the schedule. Over many passes through the data, the neighborhood starts broad (to settle global ordering) and then shrinks (to refine local detail without tearing the map).
 \subsection{Wrapping Up the Kohonen Self-Organizing Map (SOM) Derivations}
 \label{sec:som_wrapping_up_the_kohonen_self_organizing_map_som_derivations}
 
-We conclude our derivation and discussion of the Kohonen Self-Organizing Map (SOM) learning algorithm by summarizing the key components and their evolution during training.
+At this point the SOM training story is complete: you have a similarity rule (to pick a winner), a neighborhood rule (to decide who else learns), and schedules that anneal both over time. The only subtlety is that these pieces interact. A large neighborhood early is what gives you global organization; a small neighborhood late is what lets prototypes settle into fine detail without tearing the map.
 
 Recall the weight update rule for neuron \( j \) at time step \( t \):
 \begin{align}
@@ -1114,7 +1103,7 @@ The neighborhood function \( h_{j, c}(t) \) typically takes a Gaussian form:
 \end{align}
 where:
 \begin{itemize}
-    \item \(\mathbf{r}_j\) and \(\mathbf{r}_{c}\) are the positions of neurons \( j \) and \( c \) on the SOM lattice.
+    \item \(\mathbf{r}_j\) and \(\mathbf{r}_{c}\) are the positions of neurons \( j \) and \( c \) on the SOM grid.
     \item \(\sigma(t)\) is the neighborhood radius, which decreases over time.
 \end{itemize}
 
@@ -1133,7 +1122,7 @@ where \(\alpha_0\) and \(\sigma_0\) are initial values, and \(\tau_\alpha, \tau_
 \paragraph{Summary of the Six Learning Steps}
 \label{sec:som_training_steps}
 
-SOM training iteratively repeats the following six steps:
+One run of SOM training is repetitive in a good way: you keep presenting inputs, keep finding the BMU, and keep nudging a neighborhood patch until the map stops moving. The following pseudocode is the same loop written in a way you can implement directly.
 
 \begin{tcolorbox}[summarybox, title={Self-Organizing Map (SOM) training pseudocode}]
 \begin{enumerate}
@@ -1154,7 +1143,7 @@ SOM training iteratively repeats the following six steps:
 
 \begin{tcolorbox}[summarybox, title={Batch SOM (deterministic pass)}]
 \begin{enumerate}
-    \item Fix centers \(\mathbf{r}_j\) on the lattice; initialize \(\mathbf{w}_j\) (random data or along PCA directions).
+    \item Fix centers \(\mathbf{r}_j\) on the grid; initialize \(\mathbf{w}_j\) (random data or along PCA directions).
     \item Repeat until convergence or max epochs:
     \begin{enumerate}
         \item Assign each \(\mathbf{x}_n\) to its BMU \(c_n\).
@@ -1165,52 +1154,62 @@ SOM training iteratively repeats the following six steps:
         \item Decay \(\alpha(t),\sigma(t)\).
     \end{enumerate}
 \end{enumerate}
-Batch SOM (one pass per epoch) is deterministic given the assignments; it often stabilises faster than purely online updates.
+Batch SOM (one pass per epoch) is deterministic given the assignments; it often stabilizes faster than purely online updates.
 \end{tcolorbox}
 
-\noindent These procedural steps implement three conceptual \emph{stages}: (1) \textbf{Initialization} (seed the weight lattice), (2) \textbf{Competition} (select the best-matching unit for each input), and (3) \textbf{Cooperation} (neighborhood-weighted updates plus the associated parameter decay). Calling out these stages separately helps when comparing SOMs to other competitive-learning algorithms later in the chapter.
-
-These steps are repeated until convergence criteria are met, such as a maximum number of iterations or a threshold on weight changes.
-
-\paragraph{Stages vs. Steps}
-
-It is important to distinguish between the \emph{three stages} of SOM learning and the \emph{six steps} described above:
-
-\begin{itemize}
-    \item \textbf{Stages:}
-    \begin{enumerate}
-    \item \emph{Initialization:} setting up the network.
-    \item \emph{Competition:} neurons compete to respond to input.
-    \item \emph{Cooperation:} neighboring neurons cooperate to update weights.
-    \end{enumerate}
-    \item \textbf{Steps:} The six procedural steps in \Cref{sec:som_training_steps} that operationalize these stages during training.
-\end{itemize}
+\noindent I find it useful to tell the SOM story in \emph{three stages}, even though the code is often written as a longer checklist. The stages are: \textbf{Initialization} (seed the prototype grid), \textbf{Competition} (pick a best-matching unit for each input), and \textbf{Cooperation} (update a neighborhood and decay \(\alpha(t)\) and \(\sigma(t)\)). The six-step procedure in \Cref{sec:som_training_steps} is simply one way to operationalize those stages when you implement the algorithm and decide when to stop.
 
 \subsection{Applications of Kohonen Self-Organizing Maps}
 \label{sec:som_applications_of_kohonen_self_organizing_maps}
 
-Kohonen SOMs are widely used for:
+Kohonen SOMs show up when you want \emph{both} a prototype model and a picture you can reason about. In practice they tend to be used in three roles:
 
 \begin{itemize}
-    \item \textbf{Clustering:} Grouping similar data points without supervision.
-    \item \textbf{Dimensionality Reduction:} Mapping high-dimensional data onto a low-dimensional space (often arranged as a discrete lattice in SOM implementations) for visualization and exploratory analysis.
-    \item \textbf{Data Visualization:} Providing intuitive heatmaps or component planes that reveal correlations and patterns across features.
+    \item \textbf{Clustering / regime discovery:} Group similar points without supervision and summarize each region by a prototype vector (e.g., operating modes in telemetry features).
+    \item \textbf{Exploratory reduction:} Map high-dimensional data onto a 2D grid index for visualization and exploratory analysis. You do not get a continuous coordinate system; you get a discrete map that is often easier to inspect.
+    \item \textbf{Visualization diagnostics:} Use U-Matrices and component planes as ``instrument panels'' that reveal boundaries, smoothness, and which input features drive the organization.
 \end{itemize}
+
+\begin{tcolorbox}[summarybox, title={Author's note: when a SOM is the wrong tool}]
+If your only goal is to assign points to \(K\) groups and summarize each group by a center, k-means is usually the simpler baseline. If you want a continuous low-dimensional chart with a clear linear story, start with PCA; if you need a global distance-preserving embedding, MDS is a better conceptual match. If your goal is a local-neighborhood visualization and you accept distortion of global geometry, methods like UMAP/t-SNE are often more visually dramatic.
+
+I reach for a SOM when I want three things at once: (i) prototypes I can inspect, (ii) a fixed 2D organization that is stable enough to compare across runs, and (iii) diagnostics (U-Matrix/component planes, QE/TE) that tell me whether the picture is trustworthy. If you cannot define a sensible distance (or you cannot normalize features so distance means something), a SOM will happily organize noise.
+\end{tcolorbox}
+
+\begin{tcolorbox}[summarybox, title={Application example: website sessions as behavioral modes}]
+Consider a website where the system you are trying to understand is not a motor or a circuit, but a stream of user sessions. Each session becomes a data point \(\mathbf{x}\): dwell time, number of pages, scroll depth, time-to-first-interaction, device class, referrer type, returning vs.\ new, and a few content signals (e.g., the category of the first page visited, or an embedding of the landing-page text). You may not have labels for ``intent,'' but you do expect recurring modes: quick bounce, comparison shopping, documentation lookup, checkout flow, support troubleshooting, and so on.
+
+A SOM is useful here because it gives you prototypes \(\mathbf{w}_i\) (representative session fingerprints) \emph{and} a 2D grid you can inspect. After training, each session maps to a best-matching unit (BMU). Dense patches of mapped sessions indicate common behavior; ridges in the U-Matrix suggest boundaries where neighboring prototypes are far apart, which often corresponds to genuinely different behaviors under your feature choices. Component planes then turn the picture into an explanation: you can see, for example, that one boundary is mostly driven by dwell time and scroll depth, while another is driven by referrer and device. In practice you read these plots as heat maps over the 2D grid: different behaviors show up as different regions you can name, compare, and inspect.
+
+\textbf{Recommendation:} treat preprocessing as part of the model. Normalize continuous features, log-scale heavy-tailed counts, and be deliberate about how you represent categorical variables (one-hot, grouped buckets, or a small embedding) so Euclidean distance matches your notion of similarity.
+
+\textbf{Audit hook:} rerun with a few seeds and a time-based split. If the map reorganizes completely across runs or across weeks, you are seeing instability or seasonality rather than durable structure.
+\end{tcolorbox}
+
+\begin{tcolorbox}[summarybox, title={Application example: mapping page archetypes and performance drivers}]
+A second, complementary use is to map \emph{pages} (or queries) rather than sessions. Here each data point \(\mathbf{x}\) describes a URL or content item: a text embedding of the page, topic/category tags, layout signals (word count, number of images), and aggregate behavior metrics (click-through rate (CTR) from search, median dwell time, bounce rate, conversion rate, and the fraction of visits from mobile). You are effectively asking: which pages are similar in content and behavior, and where do the sharp breaks live?
+
+A SOM turns this into a visual inventory. Pages with similar content and similar usage patterns compete for the same region of the grid, and the U-Matrix highlights boundaries between page families (e.g., ``documentation-like'' pages versus ``marketing-like'' pages). Component planes are the practical payoff: they show which variables line up with those boundaries. If one region lights up on ``mobile fraction'' and ``bounce rate,'' you immediately get a hypothesis about responsiveness or page speed. If another region is coherent in ``topic embedding'' but not in conversion, you have found a content family that is consistent but not effective.
+
+\textbf{Recommendation:} separate what you want to \emph{organize by} (content similarity) from what you want to \emph{diagnose} (performance metrics). A simple approach is to train the SOM on content-heavy features, then overlay performance as color/slices; otherwise the map can end up organizing primarily by whatever has the largest numeric range.
+
+\textbf{Audit hook:} overlay slices (language, device, traffic source). If the map's dominant structure is ``source domain'' or ``mobile vs.\ desktop,'' that may be a useful finding, but it is also a warning that your feature design is driving the story.
+\end{tcolorbox}
 
 \paragraph{Relation to k-means and modern variants}
 
-When the SOM lattice is collapsed to a single point, the algorithm reduces to a k-means-style prototype update without any notion of neighborhood \citep{MacQueen1967}; SOMs therefore sit between pure clustering (k-means) and manifold learning, adding a topographic prior that encourages neighboring units to represent similar inputs. Recent ``neural-SOM'' hybrids embed SOM-like updates inside deep networks, but still rely on the same BMU search and neighborhood-weighted updates described above.
+When the neighborhood is collapsed to a single winner (no neighbors), the update reduces to a k-means-style prototype move without any notion of grid organization \citep{MacQueen1967}; SOMs therefore sit between pure clustering (k-means) and manifold learning, adding a topographic prior that encourages neighboring units to represent similar inputs. Recent ``neural-SOM'' hybrids embed SOM-like updates inside deep networks, but still rely on the same BMU search and neighborhood-weighted updates described above.
 
 \begin{tcolorbox}[summarybox, title={Theory notes and recipes}]
-\textbf{Convergence/magnification:} With decays \(\alpha(t)\to 0\), \(\sigma(t)\to 0\) and \(\sum_t \alpha(t)=\infty\), \(\sum_t \alpha^2(t)<\infty\), SOM updates converge under mild assumptions \citep{ErwinObermayerSchulten1992,CottrellFort1986}. Lattice density follows data density (magnification) so dense regions attract more neurons.\\
-\textbf{Map-size/schedule recipe:} Use \(5\sqrt{N}\)--\(10\sqrt{N}\) neurons when unsure; hex grids reduce anisotropy; toroidal lattices mitigate edges. Initialize \(\mathbf{w}_j\) from data or first two PCs; \(\alpha_0\in[0.1,0.5]\to \alpha_{\min}\approx 10^{-3}\); \(\sigma_0\) equal to the map radius, decaying to 1--1.5 cells.
+\textbf{Convergence/magnification (theory lens):} With decays \(\alpha(t)\to 0\), \(\sigma(t)\to 0\) and \(\sum_t \alpha(t)=\infty\), \(\sum_t \alpha^2(t)<\infty\), SOM updates converge under mild assumptions \citep{ErwinObermayerSchulten1992,CottrellFort1986}. One qualitative takeaway is \emph{magnification}: dense regions of the data tend to attract more units of the map.\\
+\textbf{A practical recipe (engineering lens):} If I have no prior, I treat these as starting points, not rules. Use \(5\sqrt{N}\)--\(10\sqrt{N}\) units when unsure; hex grids reduce anisotropy; wrap-around (toroidal) grids reduce edge effects. Initialize \(\mathbf{w}_j\) from data or along the first two PCs; pick \(\alpha_0\in[0.1,0.5]\) and decay toward \(\alpha_{\min}\approx 10^{-3}\); set \(\sigma_0\) to roughly the map radius and decay toward 1--1.5 cells.
 \end{tcolorbox}
 
 \begin{tcolorbox}[summarybox, title={Related and growing variants}]
-\textbf{Neural Gas / Growing Neural Gas} \citep{MartinetzBerkovichSchulten1993,Fritzke1994GrowingNeuralGas} drop the fixed lattice and learn topology or add units dynamically. \textbf{GTM} (Bishop et al.) provides a probabilistic, topographic embedding with likelihoods/uncertainty. SOMs sit between k-means (no topology) and these adaptive-topology models.
+\textbf{Neural Gas / Growing Neural Gas} \citep{MartinetzBerkovichSchulten1993,Fritzke1994GrowingNeuralGas} drop the fixed grid and instead learn neighborhood structure (and, in the growing variants, add units dynamically). \textbf{Generative topographic mapping (GTM)} (Bishop et al.) provides a probabilistic, topographic embedding with likelihoods/uncertainty. I like to remember the landscape this way: k-means gives prototypes with no organization; SOMs add a fixed organizing prior; these variants let the organization itself adapt.
 \end{tcolorbox}
 
-\paragraph{Complexity and out-of-sample mapping.} A full online epoch costs \(O(NM)\) (N data, M units); batch passes cost similar but fewer epochs. For large M, use approximate nearest-neighbor BMU search (k-d trees, FAISS). New points map via their BMU; optional soft responsibilities use \(h_{ci}\) for smoothing.
+\paragraph{Complexity and out-of-sample mapping.} A full online epoch costs \(O(NM)\) (N data, M units); batch passes cost similar but fewer epochs. For large M, use approximate nearest-neighbor BMU search (k-d trees or vector-index libraries such as FAISS). New points map via their BMU; optional soft responsibilities use \(h_{ci}\) for smoothing.
 \paragraph{Theory link to other chapters.} SOMs learn prototypes like the centers in \Cref{chap:rbf} but add a topographic prior; quality diagnostics (QE/TE) can be tracked with the validation-curve diagnostics in \Cref{chap:supervised}. For task-driven embeddings, see \Cref{chap:cnn,chap:nlp}; Hopfield (\Cref{chap:hopfield}) contrasts with energy-based associative recall.
 
 \paragraph{Quality measures and magnification.} Two diagnostics are standard when reporting SOM quality:
@@ -1222,7 +1221,7 @@ Tracking both metrics reveals whether the neighborhood decay is too slow (over-s
 
 \begin{tcolorbox}[summarybox, title={Key takeaways}]
 \begin{itemize}
-    \item SOMs perform topology-preserving vector quantization on a discrete lattice.
+    \item SOMs perform topology-preserving vector quantization on a discrete grid.
     \item A shrinking neighborhood and decaying learning rate drive coarse-to-fine organization.
     \item U-Matrices and quantization/topographic errors are practical diagnostics for convergence.
 \end{itemize}
@@ -1239,7 +1238,7 @@ Tracking both metrics reveals whether the neighborhood decay is too slow (over-s
 \begin{itemize}
     \item Using a map that is too small or a neighborhood decay that is too aggressive (tearing the topology).
     \item Skipping input normalization, causing prototypes to track scale rather than structure.
-    \item Treating lattice distance as a true metric in data space (SOM topology is approximate, not exact geometry).
+    \item Treating grid distance as a true metric in data space (SOM topology is approximate, not exact geometry).
     \item Over-interpreting a single run without checking QE/TE plateaus and sensitivity to initialization.
 \end{itemize}
 \end{tcolorbox}
