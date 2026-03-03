@@ -1812,3 +1812,10 @@ Build notes (2026-02-17):
 - `notes_output/lecture_11.tex`: acknowledged Bayesian optimization as a strong alternative when evaluation budgets are tiny (with a tutorial citation).
 - 2026-03-03: Ran `python3 notes_output/scripts/validate_math_examples_and_graphs.py --strict`. Result: PASS.
 - 2026-03-03: Ran `bash notes_output/scripts/run_production_checks.sh`. Result: PASS (release checks, Apple gatekeeper audits, EPUB citation visibility audit, and EPUBCheck all OK).
+
+## 2026-03-03 Scope + definition-at-first-use polish (small but reviewer-visible)
+
+- `notes_output/lecture_1_intro.tex`: added a short scope note pointing RL readers to a dedicated reference, and added a footnote caveating the SAE-levels analogy (example only, not a claimed mapping).
+- `notes_output/lecture_6.tex`: defined ``receptive field'' at first use (region of the input grid that can influence a unit) to avoid a jargon drop.
+- 2026-03-03: Ran `python3 notes_output/scripts/validate_math_examples_and_graphs.py --strict`. Result: PASS.
+- 2026-03-03: Ran `bash notes_output/scripts/run_production_checks.sh`. Result: PASS (release checks, Apple gatekeeper audits, EPUB citation visibility audit, and EPUBCheck all OK).

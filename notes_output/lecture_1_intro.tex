@@ -215,7 +215,7 @@ These capabilities can be realized in various architectures, ranging from connec
 
 \paragraph{Levels of Intelligence (as an organizing lens)}
 
-Intelligence is not necessarily binary (intelligent vs.\ non-intelligent); rather, deployed systems combine different degrees of reactivity, deliberation, and adaptation. For the purposes of this book we use a four-layer shorthand---reactive systems (level 1), deliberative planners (level 2), adaptive learners (level 3), and meta-cognitive agents that reason about their own policies (level 4)---as an informal organizing lens rather than a strict hierarchy. It is compatible with domain-specific taxonomies (e.g., SAE Levels~0--5 for automated driving). We use \Cref{fig:big-picture-map} and \Cref{tab:big-picture-models} as the global ``design-space map'' that situates each model family by level, model nature, and learning signal.
+Intelligence is not necessarily binary (intelligent vs.\ non-intelligent); rather, deployed systems combine different degrees of reactivity, deliberation, and adaptation. For the purposes of this book we use a four-layer shorthand---reactive systems (level 1), deliberative planners (level 2), adaptive learners (level 3), and meta-cognitive agents that reason about their own policies (level 4)---as an informal organizing lens rather than a strict hierarchy. It is compatible with domain-specific taxonomies (e.g., SAE Levels~0--5 for automated driving)\footnote{SAE Levels are defined for driving automation; we cite them here only as an example of a domain-specific capability scale, not as a claimed one-to-one mapping to the four-layer lens used in this book.}. We use \Cref{fig:big-picture-map} and \Cref{tab:big-picture-models} as the global ``design-space map'' that situates each model family by level, model nature, and learning signal.
 
 \paragraph{Connectionist vs.\ agent-based/decentralized approaches}
 
@@ -419,6 +419,7 @@ Readers arrive with different goals. The roadmap is intentionally a dependency g
     \item \textbf{Control/systems path:} \Crefrange{chap:intro}{chap:supervised} $\rightarrow$ \Cref{chap:hopfield} $\rightarrow$ \Crefrange{chap:softcomp}{chap:fuzzyinference} $\rightarrow$ \Cref{chap:evo}.
     \item \textbf{Soft-computing path:} \Crefrange{chap:intro}{chap:supervised} $\rightarrow$ \Crefrange{chap:softcomp}{chap:fuzzyinference} with optional detours to \Cref{chap:mlp} and \Cref{chap:evo}.
 \end{enumerate}
+Reinforcement learning is a major pillar of modern AI, but it is not a primary focus of this book; for a dedicated treatment, see \citep{SuttonBarto2018}.
 
 \subsection{Using and Navigating This Book}
 \label{sec:intro_using_and_navigating_this_book}

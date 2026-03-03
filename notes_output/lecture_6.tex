@@ -41,6 +41,7 @@ CNNs emerged as a pragmatic answer: keep end-to-end gradient training, but bake 
     \item \textbf{Going deeper:} depth as receptive-field growth, and why stacked small kernels can see large spatial extent.
     \item \textbf{Training toolkit:} the stabilizers you will reuse later (initialization, activations, normalization, regularization, optimizers).
 \end{itemize}
+One term we will use early is \emph{receptive field}: the receptive field of a feature value is the region of the input grid that can influence it. The word is literal---outside that region, the unit does not ``receive'' signal from the input---and stacking layers grows this region.
 
 \subsection{Why fully connected layers break on images}
 \label{sec:cnn_why_fully_connected_layers_break_on_images}
