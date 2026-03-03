@@ -15,10 +15,9 @@ As soon as we try to compute those derivatives, a key obstacle appears: hard thr
 By the end of this chapter, you should be able to:
 \begin{itemize}
     \item Write a complete forward pass for a two\hyp{}neuron chain, including intermediate quantities \((p_1,y_1,p_2,y_2)\).
-    \item Choose a simple scalar performance function \(P\) and explain what ``improving performance'' means in that setting.
-    \item Use the chain rule to derive the gradients for \(w_2,b_2,\mathbf{w}_1,b_1\) and interpret the \(\delta\) notation as reusable local error signals.
-    \item Explain (concretely) why hard thresholds break derivative-based updates and why smooth activations fix the learning signal.
-    \item Sanity-check an update with one tiny numerical example before you scale the same logic to many layers.
+    \item Choose a scalar performance function \(P\), explain what ``improving performance'' means, and sanity\hyp{}check one tiny update numerically.
+    \item Use the chain rule to derive the gradients for \(w_2,b_2,\mathbf{w}_1,b_1\) and interpret \(\delta\) terms as reusable local error signals.
+    \item Explain why hard thresholds break derivative\hyp{}based learning and why smooth activations restore a usable learning signal.
 \end{itemize}
 \end{tcolorbox}
 

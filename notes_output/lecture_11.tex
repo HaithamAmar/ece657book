@@ -1144,6 +1144,9 @@ When two or more objectives conflict, we seek a set of Pareto-optimal solutions 
     \item Using aggressive selection and low mutation, collapsing diversity and getting stuck in deceptive basins.
     \item Comparing algorithms without matching evaluation budget (fitness calls), constraint handling, and stopping rules.
 \end{itemize}
+
+\medskip
+\noindent\textbf{Ethical considerations.} Evolutionary search will exploit whatever you write down as fitness. If the objective is a proxy for the real goal, the optimizer can ``win'' in ways you did not intend (metric gaming, unsafe corner solutions, hidden constraint violations). Treat objective design and constraint auditing as part of system safety, not as afterthoughts.
 \end{tcolorbox}
 
 \begin{tcolorbox}[summarybox, title={Exercises and lab ideas}]

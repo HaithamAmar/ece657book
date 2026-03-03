@@ -1848,3 +1848,16 @@ Build notes (2026-02-17):
 - `notes_output/ece657_notes.pdf`: rebuilt (now includes the index).
 - 2026-03-03: Ran `python3 notes_output/scripts/validate_math_examples_and_graphs.py --strict`. Result: PASS.
 - 2026-03-03: Ran `bash notes_output/scripts/run_production_checks.sh`. Result: PASS (release checks, Apple gatekeeper audits, EPUB citation visibility audit, and EPUBCheck all OK).
+
+## 2026-03-03 Book-review closeout polish (preface dedup + SOM/Hopfield polish + ethics + learning outcomes)
+
+- `notes_output/preface.tex`: removed an accidental duplicated paragraph and tightened a couple of phrases (idiom/polish) so the preface reads cleanly end-to-end.
+- `notes_output/lecture_supervised.tex`: standardized loss notation to \(\mathcal{L}\) (avoid bare \(L\) as a collision-prone symbol).
+- `notes_output/lecture_5_part_i.tex`: added the Kohonen citation at first historical mention and added a compact, formal U-matrix definition near first use.
+- `notes_output/lecture_3_part_i.tex`: standardized the sign function mention to `\(\mathrm{sgn}(\cdot)\)` to match the chapter's notation note.
+- `notes_output/lecture_4_part_i.tex`: added a brief early caveat that squared error is used for chain-rule clarity; for probability-like outputs, cross-entropy with sigmoid/softmax is the standard default.
+- `notes_output/lecture_5_part_ii.tex`: added an explicit Hopfield \(\rightarrow\) attention/Transformers forward pointer (continuous retrieval view) with a modern Hopfield reference.
+- `notes_output/lecture_6.tex`, `notes_output/lecture_11.tex`, `notes_output/lecture_1_intro.tex`: added short, scoped ethical-considerations reminders in the relevant takeaways/overview boxes (bias/surveillance, objective gaming/constraints, and a global framing note).
+- `notes_output/lecture_3_part_ii.tex`, `notes_output/lecture_6.tex`, `notes_output/lecture_transformers.tex`: standardized Learning Outcomes to 3--4 measurable bullets (reduced 5-item lists by merging overlapping items).
+- 2026-03-03: Ran `python3 notes_output/scripts/validate_math_examples_and_graphs.py --strict`. Result: PASS.
+- 2026-03-03: Ran `bash notes_output/scripts/run_production_checks.sh`. Result: PASS (release checks, Apple gatekeeper audits, EPUB citation visibility audit, and EPUBCheck all OK).

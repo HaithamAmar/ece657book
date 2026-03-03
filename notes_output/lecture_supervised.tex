@@ -585,12 +585,12 @@ This is the simplest example of a recurring theme: if you propose an ``educated 
 \smallskip
 \noindent To fit \(\boldsymbol{\beta}\), we need a grading rubric. Squared error is the standard starting point because it is smooth and strongly penalizes large mistakes:
 \begin{equation}
-    L(\boldsymbol{\beta}) = \tfrac{1}{2}\|\mathbf{y}-\mathbf{X}\boldsymbol{\beta}\|_2^2.
+    \mathcal{L}(\boldsymbol{\beta}) = \tfrac{1}{2}\|\mathbf{y}-\mathbf{X}\boldsymbol{\beta}\|_2^2.
 \label{eq:sse_objective}
 \end{equation}
 The gradient is simple,
 \begin{equation}
-    \nabla_{\boldsymbol{\beta}}L(\boldsymbol{\beta}) = \mathbf{X}^\top(\mathbf{X}\boldsymbol{\beta}-\mathbf{y}),
+    \nabla_{\boldsymbol{\beta}}\mathcal{L}(\boldsymbol{\beta}) = \mathbf{X}^\top(\mathbf{X}\boldsymbol{\beta}-\mathbf{y}),
 \label{eq:sse_gradient}
 \end{equation}
 so gradient descent is explicit: \(\boldsymbol{\beta}\leftarrow \boldsymbol{\beta}-\eta \mathbf{X}^\top(\mathbf{X}\boldsymbol{\beta}-\mathbf{y})\). This same loop reappears later when the model is no longer linear and the loss is no longer quadratic.

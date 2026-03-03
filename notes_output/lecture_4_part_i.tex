@@ -50,7 +50,7 @@ where $b_j^{(l)}$ is the bias term for neuron $j$ in layer $l$, and $f(\cdot)$ i
 \subsection{Loss and Objective}
 \label{sec:backprop_loss_and_objective}
 
-To keep the algebra uncluttered (and aligned with \Cref{chap:mlp}), we use a simple squared\hyp{}error objective. Let the network output be \(\mathbf{a}^{(L)}\) and let \(\mathbf{t}\) be the target. For classification, \(\mathbf{t}\) is often one\hyp{}hot (a vector with a 1 at the correct class index and 0 elsewhere). For a single example, a standard choice is the half-squared error:
+To keep the algebra uncluttered (and aligned with \Cref{chap:mlp}), we use a simple squared\hyp{}error objective. Let the network output be \(\mathbf{a}^{(L)}\) and let \(\mathbf{t}\) be the target. For classification, \(\mathbf{t}\) is often one\hyp{}hot (a vector with a 1 at the correct class index and 0 elsewhere). If you want the output to behave like a probability vector, you normally pair that target with a sigmoid/softmax output and cross\hyp{}entropy; we keep squared error here so the chain rule is the only moving part. For a single example, a standard choice is the half-squared error:
 \begin{equation}
     \mathcal{L} = \frac{1}{2} \sum_k \left( t_k - a_k^{(L)} \right)^2. \label{eq:error_function}
 \end{equation}

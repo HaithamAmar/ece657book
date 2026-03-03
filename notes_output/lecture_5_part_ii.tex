@@ -36,6 +36,8 @@ Classical Hopfield networks are the clean case: binary states, symmetric weights
 The intuition that survives is the one we care about: memory is an energy landscape, and recall is descent toward an attractor (pattern completion).
 
 Modern systems borrow the geometry without necessarily inheriting the guarantee. Many ``memory'' mechanisms are differentiable, learned from data, and content-addressable at scale; the symmetry that makes Hopfield proofs work is not always present. Keep the attractor picture, but do not over-assume the math.
+
+A useful concrete connection is modern attention: scaled dot-product attention (introduced later in \Cref{chap:transformers}) can be interpreted as a continuous Hopfield-style retrieval step \citep{Ramsauer2021}. Keep that in mind as you read both chapters.
 \end{tcolorbox}
 
 \begin{tcolorbox}[summarybox, title={Author's note: stabilizing recurrence}]

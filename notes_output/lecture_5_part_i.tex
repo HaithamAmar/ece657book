@@ -26,7 +26,7 @@ Competition plus cooperation: pick a winner, then let its neighbors learn too, s
 \subsection{Overview of Self-Organizing Networks}
 \label{sec:som_overview_of_self_organizing_networks}
 
-Self-organizing networks aim to discover structure in input data without labels. The most prominent example is the \emph{Self-Organizing Map} (SOM), introduced by Teuvo Kohonen. SOMs are used for clustering and for building a visualization-friendly map of a high-dimensional dataset.
+Self-organizing networks aim to discover structure in input data without labels. The most prominent example is the \emph{Self-Organizing Map} (SOM), introduced by Teuvo Kohonen \citep{Kohonen1982}. SOMs are used for clustering and for building a visualization-friendly map of a high-dimensional dataset.
 
 The idea is fairly intuitive. If the data have a meaningful notion of similarity in the original space, then repeated \emph{competition} (pick the best-matching unit) and \emph{cooperation} (update its neighbors as well) can organize a fixed 2D \emph{grid} of prototype vectors so that nearby grid locations tend to represent nearby regions of the data. The map is not a perfect geometric embedding; it is an engineered bias that often produces a useful, inspectable picture.
 
@@ -80,7 +80,11 @@ The neighborhood influence is usually controlled by a kernel (often Gaussian) wh
 \end{figure}
 
 
-Two practical SOM diagnostics show up repeatedly: the U-Matrix (a neighbor-distance heat map) and component planes (feature-wise maps). We will use both later as quick audits for whether the map is organizing structure (rather than just shuffling prototypes).
+Two practical SOM diagnostics show up repeatedly: the U-Matrix (a neighbor-distance heat map) and component planes (feature-wise maps). We will use both later as quick audits for whether the map is organizing structure (rather than just shuffling prototypes). A compact definition is: for each unit \(i\) with prototype \(\mathbf{w}_i\), the U\hyp{}Matrix value is the average distance to its grid neighbors \(\mathcal{N}(i)\),
+\[
+U(i)=\frac{1}{|\mathcal{N}(i)|}\sum_{j\in\mathcal{N}(i)}\|\mathbf{w}_i-\mathbf{w}_j\|,
+\]
+where \(\mathcal{N}(i)\) is typically the 4\hyp{}neighbor or 8\hyp{}neighbor set on the 2D grid.
 
 Before delving into the mathematical formulation and algorithmic details of SOMs, it is important to review two foundational concepts that underpin their operation: \emph{clustering} and \emph{dimensionality reduction}.
 

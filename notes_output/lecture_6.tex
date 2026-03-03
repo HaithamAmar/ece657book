@@ -21,9 +21,8 @@ After this chapter, you should be able to:
 \begin{itemize}
   \item Derive convolution/cross-correlation with stride and padding in 1D/2D.
   \item Explain receptive-field growth across layers and the role of downsampling.
-  \item Choose losses and metrics deliberately (e.g., cross-entropy vs.\ mean squared error (MSE); accuracy vs.\ calibration) for CNN-based models.
   \item Read a CNN as a learned feature map and connect that viewpoint to linear margins (hinge/soft-margin) and earlier kernel-style ideas in \Cref{chap:supervised}.
-  \item Describe practical stabilizers (batch normalization (BN), dropout, weight decay, optimizers) and the failure signatures they address.
+  \item Choose losses/metrics deliberately and apply practical stabilizers (BN, dropout, weight decay, optimizers) by recognizing the failure signatures they address.
 \end{itemize}
 \end{tcolorbox}
 
@@ -469,6 +468,9 @@ This omits batching, convolution strides, and optimizer detail but highlights th
     \item Forgetting train/eval mode for batchnorm/dropout, producing misleading validation curves.
     \item Treating pooling as mandatory or always beneficial; in some tasks, stride-2 convolutions or anti-aliasing are better choices.
 \end{itemize}
+
+\medskip
+\noindent\textbf{Ethical considerations.} CNNs are often deployed where mistakes have real cost (medical triage, access control, surveillance). Treat data provenance and slice audits as part of correctness: a high top\hyp{}1 accuracy on a benchmark does not guarantee fair or safe behavior in a new population or capture setup.
 \end{tcolorbox}
 
 \begin{tcolorbox}[summarybox, title={Exercises and lab ideas}]
