@@ -532,7 +532,7 @@ def _build_checks() -> list[CheckSpec]:
         ),
         CheckSpec(
             name="CNN stride/padding output-size formula",
-            labels=("eq:auto:lecture_6:1",),
+            labels=("eq:cnn_output_size",),
             fn=check_cnn_stride_padding_output_formula,
         ),
         CheckSpec(
@@ -722,4 +722,3 @@ def main() -> int:
 
 if __name__ == "__main__":
     raise SystemExit(main())
-

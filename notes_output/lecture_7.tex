@@ -310,17 +310,15 @@ Consider a simple RNN cell with the following update equations:
 \label{sec:rnn_recurrent_neural_network_rnn_architectures_and_loss_computation}
 
 Recall from previous discussions that the loss function for classification tasks often involves cross\hyp{}entropy terms of the form:
-\begin{equation}
-\mathcal{L} = - \sum_{i} y_i \log \hat{y}_i,
-\label{eq:auto_rnn_5a12cb8d8f}
-\end{equation}
+\[
+\mathcal{L} = - \sum_{i} y_i \log \hat{y}_i.
+\]
 where \( y_i \) is the true label (often one-hot encoded) and \( \hat{y}_i \) is the predicted probability for class \( i \). When \( \hat{y} = y \), the loss is zero, indicating perfect prediction.
 
 For RNNs, the total loss over a sequence is typically the sum of losses at each time step:
-\begin{equation}
-\mathcal{L}_{\text{total}} = \sum_{t=1}^T \mathcal{L}_t,
-\label{eq:auto_rnn_04c572b36d}
-\end{equation}
+\[
+\mathcal{L}_{\text{total}} = \sum_{t=1}^T \mathcal{L}_t.
+\]
 where \( T \) is the sequence length.
 
 \paragraph{Forward and Backward Passes in RNNs}
@@ -418,10 +416,9 @@ Empirically, simple (ungated) RNNs often struggle to preserve dependencies beyon
 \paragraph{Parameter Updates}
 
 At each time step, the gradient of the loss with respect to parameters (e.g., weights \( W \)) depends on the chain of partial derivatives through the network states:
-\begin{equation}
+\[
 \frac{\partial \mathcal{L}}{\partial W} = \sum_{t=1}^T \frac{\partial \mathcal{L}_t}{\partial W}.
-\label{eq:auto_rnn_228bc3ab0f}
-\end{equation}
+\]
 Because of parameter sharing, the same \( W \) influences multiple time steps, and the total gradient is the sum over these contributions.
 
 \subsection{Stabilizing Recurrent Training}
@@ -920,10 +917,9 @@ One canonical sequence task is \emph{next-step prediction}: use the history up t
 Language modeling is the discrete-symbol case: predict the next token from the preceding prefix.
 
 Recall that the goal is to estimate the conditional probability of a word \( w_t \) given the sequence of previous words \( w_1, w_2, \ldots, w_{t-1} \):
-\begin{equation}
+\[
     P(w_t \mid w_1, w_2, \ldots, w_{t-1}).
-\label{eq:auto_rnn_991224fcd0}
-\end{equation}
+\]
 
 This probability can be modeled using an RNN, which maintains a hidden state \( \mathbf{h}_t \) that summarizes the history up to time \( t \). A common indexing choice is: consume the current token \(w_t\) (as an embedding \(\mathbf{x}_t\)) and predict the \emph{next} token \(w_{t+1}\). This is equivalent to modeling \(P(w_t\mid w_{1: t-1})\) after a one-step shift.
 \begin{align}
@@ -940,7 +936,7 @@ What the model can remember (and what it must forget) is governed by the state d
 Given a training sequence \( (w_1, w_2, \ldots, w_T) \), we typically train by minimizing the negative log-likelihood (NLL) (equivalently, maximizing the likelihood). With the next-token convention, the loss is
 \begin{equation}
     \mathcal{L}(\theta) = -\sum_{t=1}^{T-1} \log P(w_{t+1} \mid w_1, \ldots, w_t; \theta).
-\label{eq:auto_rnn_1c468f5940}
+\label{eq:rnn_next_token_nll}
 \end{equation}
 
 This is just cross-entropy over the vocabulary at each step: the model is rewarded for assigning high probability to the observed next token. A common reporting metric is \emph{perplexity}, defined as \(\exp(\text{average NLL per token})\); lower perplexity means the model assigns higher probability to the observed text. If you are not working with text, you can ignore perplexity---the underlying idea is simply ``negative log-likelihood per step.'' \Cref{chap:nlp} returns to this objective in a more application-facing way (tokenization, embeddings, and audit considerations).

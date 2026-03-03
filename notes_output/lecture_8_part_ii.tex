@@ -25,10 +25,9 @@ We revisit a smart thermostat that regulates a room using two linguistic inputs 
 \label{sec:softcomp_hard_computing_the_classical_paradigm}
 
 Hard computing refers to the classical approach to computation where the goal is to produce precise, unambiguous, and mathematically exact outputs. This paradigm assumes that the relationships between inputs and outputs can be modeled accurately using well-defined mathematical equations. For example, Einstein's mass-energy equivalence formula,
-\begin{equation}
+\[
 E = mc^2,
-\label{eq:auto_softcomp_35ca93a64c}
-\end{equation}
+\]
 is a precise, unambiguous, and exact mathematical expression.
 
 In hard computing, the process typically involves:
@@ -190,10 +189,9 @@ This statement involves vague concepts such as ``late,'' ``congested,'' and ``wi
 \paragraph{Fuzzy Rules and Approximate Reasoning}
 
 A fuzzy rule typically has the form:
-\begin{equation}
+\[
     \text{IF } A \text{ AND } B \text{ THEN } C,
-\label{eq:auto_softcomp_faadf52146}
-\end{equation}
+\]
 where $A$, $B$, and $C$ are fuzzy propositions characterized by membership functions rather than crisp sets.
 
 For example:
@@ -240,11 +238,10 @@ Recall that the motivation behind fuzzy logic was to develop a mathematical and 
 
 Relational algebra is a formal language used primarily in database theory to manipulate sets and relations. It provides operators such as union ($\cup$), intersection ($\cap$), and set difference ($\setminus$) that operate on sets:
 
-\begin{align}
+\begin{align*}
 A \cup B &= \{ x \mid x \in A \text{ or } x \in B \}, \\
 A \cap B &= \{ x \mid x \in A \text{ and } x \in B \}.
-    \label{eq:auto:lecture_8_part_ii:1}
-\end{align}
+\end{align*}
 
 The third canonical operator is the set difference
 \[
@@ -259,12 +256,11 @@ These operators have well-defined meanings and predictable outputs, making relat
 
 Boolean algebra is the algebraic structure underlying classical logic and digital circuits. It operates on binary variables taking values in $\{0,1\}$, with logical operators such as \texttt{AND} ($\wedge$), \texttt{OR} ($\vee$), and \texttt{XOR} ($\oplus$):
 
-\begin{align}
+\begin{align*}
 A \vee B &= 1 \quad \text{if } A=1 \text{ or } B=1, \\
 A \wedge B &= 1 \quad \text{if } A=1 \text{ and } B=1, \\
 A \oplus B &= 1 \quad \text{if } A \neq B.
-    \label{eq:auto:lecture_8_part_ii:2}
-\end{align}
+\end{align*}
 Conversely, \(A \vee B = 0\) only when both inputs are 0, and \(A \wedge B = 0\) unless both inputs equal 1; the XOR operator returns 0 exactly when both operands share the same truth value.
 
 Boolean algebra provides a crisp, binary framework where propositions are either true or false, with no intermediate values. This crispness is a limitation when modeling real-world phenomena involving gradations of truth.
@@ -295,10 +291,9 @@ Predicate algebra thus provides a linguistic and symbolic framework to express c
 
 Propositional calculus (or propositional logic) deals with propositions and their logical connectives. It focuses on the relationships between propositions without internal structure. The basic form involves premises and conclusions, such as:
 
-\begin{align}
-P \implies Q, \quad P \quad \Rightarrow \quad Q,
-    \label{eq:auto:lecture_8_part_ii:3}
-\end{align}
+\[
+P \implies Q, \quad P \quad \Rightarrow \quad Q.
+\]
 
 where $P$ and $Q$ are propositions, and $\implies$ denotes implication.
 
@@ -312,10 +307,9 @@ If $P \implies Q$ and $P$ is true, then $Q$ must be true.
 
 Symbolically,
 
-\begin{align}
+\[
 P \implies Q, \quad P \quad \vdash \quad Q.
-    \label{eq:auto:lecture_8_part_ii:4}
-\end{align}
+\]
 
 This rule affirms the consequent by affirming the antecedent.
 
@@ -329,10 +323,9 @@ If $P \implies Q$ and $Q$ is false, then $P$ must be false.
 
 Symbolically,
 
-\begin{align}
+\[
 P \implies Q, \quad \neg Q \quad \vdash \quad \neg P.
-    \label{eq:auto:lecture_8_part_ii:5}
-\end{align}
+\]
 
 This rule denies the antecedent by denying the consequent. However, as noted, this inference can sometimes be risky or invalid in practical scenarios due to exceptions or additional factors.
 
@@ -346,10 +339,9 @@ If $P \implies Q$ and $Q \implies R$, then $P \implies R$.
 
 Symbolically,
 
-\begin{align}
+\[
 P \implies Q, \quad Q \implies R \quad \vdash \quad P \implies R.
-    \label{eq:auto:lecture_8_part_ii:6}
-\end{align}
+\]
 
 This transitive property of implication allows chaining of logical statements.
 

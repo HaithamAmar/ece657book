@@ -50,11 +50,9 @@ There is no single scalar score that certifies a rule base as ``good'' in all co
 Given a rule with $n$ antecedents, each associated with a fuzzy set $A_i$ and an input value $x_i$, the degree to which the rule is activated (also called the \emph{firing strength}) is computed by combining the membership values of each antecedent condition.
 
 \paragraph{Membership values of antecedents.} For each input $x_i$, evaluate its degree of compatibility with label $A_i$:
-
-\begin{equation}
-\mu_{A_i}(x_i) \in [0,1]
-\label{eq:auto_fuzzyinference_57eb8c12c9}
-\end{equation}
+\[
+\mu_{A_i}(x_i) \in [0,1].
+\]
 These values are the local evidence carried by the rule antecedent. The antecedent operator (min, product, or another \(T\)) then compresses that evidence vector into one firing strength that drives implication.
 
 \paragraph{Aggregation operator:} The combined antecedent membership is obtained by applying a fuzzy logical operator, typically the \emph{minimum} (intersection) or the \emph{product} operator:

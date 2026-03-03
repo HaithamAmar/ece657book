@@ -60,11 +60,7 @@ A \emph{membership function} \(\mu_A(x)\) maps each element \( x \) in the unive
 
 \paragraph{Example:} Consider the fuzzy set \textit{Slow Speed} defined over the universe of speeds \( X \subseteq \mathbb{R} \). The membership function \(\mu_{\text{Slow}}(x)\) might assign high membership values to speeds near 20 km/h and gradually decrease as speed increases, reflecting the gradual transition from "slow" to "not slow."
 
-\paragraph{Mathematical Representation:} For each \( x \in X \),
-\begin{equation}
-    \mu_A(x) \in [0,1].
-\label{eq:auto_fuzzysets_13bb7d7cc1}
-\end{equation}
+\paragraph{Mathematical representation.} For each \(x \in X\), the membership grade satisfies \(\mu_A(x)\in[0,1]\).
 
 The fuzzy set \( A \) can be represented as the collection of ordered pairs:
 \begin{equation}
@@ -81,10 +77,9 @@ The universe \( X \) can be either discrete or continuous, which affects how fuz
 \label{sec:fuzzysets_discrete_universe_sub}
 
 When \( X = \{ x_1, x_2, \ldots, x_n \} \) is finite or countable, the fuzzy set \( A \) is represented as a finite collection of ordered pairs:
-\begin{equation}
+\[
     A = \{ (x_1, \mu_A(x_1)), (x_2, \mu_A(x_2)), \ldots, (x_n, \mu_A(x_n)) \}.
-\label{eq:auto_fuzzysets_c35ca1378f}
-\end{equation}
+\]
 
 Typically, membership values equal to zero are omitted for brevity, since they indicate no membership.
 
@@ -340,26 +335,23 @@ plt.legend(); plt.show()
 Recall that a \emph{fuzzy set} \( A \) on a universe \( X \) is characterized by a membership function \(\mu_A: X \to [0,1]\), where \(\mu_A(x)\) quantifies the degree to which element \( x \) belongs to \( A \). Unlike crisp sets, where membership is binary (0 or 1), fuzzy sets allow partial membership.
 
 \paragraph{Support Set} The \emph{support} of a fuzzy set \( A \) is the set of all elements with nonzero membership:
-\begin{equation}
+\[
     \mathrm{supp}(A) = \{ x \in X \mid \mu_A(x) > 0 \}.
-\label{eq:auto_fuzzysets_4ef37cdc50}
-\end{equation}
+\]
 This set captures all elements that belong to \( A \) to some degree.
 
 \paragraph{Core Set} The \emph{core} of \( A \) is the set of elements fully belonging to \( A \):
-\begin{equation}
+\[
     \mathrm{core}(A) = \{ x \in X \mid \mu_A(x) = 1 \}.
-\label{eq:auto_fuzzysets_459fd72830}
-\end{equation}
+\]
 The core set generalizes the notion of crisp membership to fuzzy sets.
 
 \paragraph{Normality} A fuzzy set \( A \) is said to be \emph{normal} if there exists at least one element \( x \in X \) such that \(\mu_A(x) = 1\). Otherwise, \( A \) is \emph{subnormal}. Normality ensures the fuzzy set has at least one element fully included.
 
 \paragraph{Crossover Points} For many membership functions, especially triangular or trapezoidal shapes, the \emph{crossover points} \( c^-_A \) and \( c^+_A \) are defined as the points where the membership function crosses the value \( 0.5 \):
-\begin{equation}
+\[
     \mu_A(c^-_A) = \mu_A(c^+_A) = 0.5.
-\label{eq:auto_fuzzysets_17a14afb75}
-\end{equation}
+\]
 These points are useful for interpreting the "core region" and the "fuzzy boundary" of the set.
 
 \paragraph{Open and Closed Fuzzy Sets}
@@ -443,11 +435,10 @@ which preserves $C_p(0)=1$ and $C_p(1)=0$ but is involutive only when $p=0$. Whe
 
 \paragraph{Remarks}
 These operations satisfy properties analogous to classical set theory but adapted to fuzzy membership values. For completeness, De Morgan's laws in fuzzy logic can be written either as equivalences between sets or explicitly in max/min form:
-\begin{align}
+\begin{align*}
     \mu_{(A \cap B)^c}(x) &= \mu_{A^c \cup B^c}(x) = \max\big(1-\mu_A(x),\,1-\mu_B(x)\big), \\
     \mu_{(A \cup B)^c}(x) &= \mu_{A^c \cap B^c}(x) = \min\big(1-\mu_A(x),\,1-\mu_B(x)\big).
-    \label{eq:auto:lecture_9:1}
-\end{align}
+\end{align*}
 Throughout the book we adopt $\wedge=\min$ and $\vee=\max$ as the default t-/s\hyp{}norm pair with the standard complement \(1-\mu\) (the De Morgan triple used again in \Cref{chap:fuzzyinference} unless noted otherwise); alternative norms appear later in operator tables.
 % Chapter 16 (continued)
 
@@ -559,39 +550,34 @@ Note that the Cartesian product lifts the fuzzy sets from one-dimensional member
 The fuzzy set operations (union, intersection, complement) satisfy several important algebraic properties analogous to classical set theory, but defined in terms of membership functions.
 
 \paragraph{Commutativity:}
-\begin{align}
+\begin{align*}
     \mu_{A \cap B}(x) &= \mu_{B \cap A}(x), \\
     \mu_{A \cup B}(x) &= \mu_{B \cup A}(x).
-    \label{eq:auto:lecture_9:2}
-\end{align}
+\end{align*}
 
 \paragraph{Associativity:}
-\begin{align}
+\begin{align*}
     \mu_{(A \cap B) \cap C}(x) &= \mu_{A \cap (B \cap C)}(x), \\
     \mu_{(A \cup B) \cup C}(x) &= \mu_{A \cup (B \cup C)}(x).
-    \label{eq:auto:lecture_9:3}
-\end{align}
+\end{align*}
 
 \paragraph{Distributivity:}
-\begin{align}
+\begin{align*}
     \mu_{A \cup (B \cap C)}(x) &= \mu_{(A \cup B) \cap (A \cup C)}(x), \\
     \mu_{A \cap (B \cup C)}(x) &= \mu_{(A \cap B) \cup (A \cap C)}(x).
-    \label{eq:auto:lecture_9:4}
-\end{align}
+\end{align*}
 
 \paragraph{Identity Elements:}
-\begin{align}
+\begin{align*}
     \mu_{A \cup \emptyset}(x) &= \mu_A(x), \\
     \mu_{A \cap X}(x) &= \mu_A(x),
-    \label{eq:auto:lecture_9:5}
-\end{align}
+\end{align*}
 where $\emptyset$ is the empty fuzzy set with membership zero everywhere, and $X$ is the universal fuzzy set with membership one everywhere.
 
 \paragraph{Involution:}
-\begin{equation}
-    \mu_{(A^c)^c}(x) = \mu_A(x),
-\label{eq:auto_fuzzysets_39167e7aef}
-\end{equation}
+\[
+    \mu_{(A^c)^c}(x) = \mu_A(x).
+\]
 In operator notation this reads \(C(C(\mu_A(x))) = \mu_A(x)\): applying the complement twice recovers the original membership degree. For the standard fuzzy complement \(C(\mu_A(x)) = 1 - \mu_A(x)\), involution is just the identity
 \[
 1 - \bigl(1 - \mu_A(x)\bigr) = \mu_A(x),
@@ -629,17 +615,15 @@ We use the standard fuzzy negation \(C(\mu)=1-\mu\), so \(\mu_{A^c}(x)=1-\mu_A(x
 
 \paragraph{Parameterized Complement Operators}
 To generalize the complement, choose a negation operator \(C_p:[0,1]\to[0,1]\) and apply it pointwise: \(\mu_{C_p(A)}(x)=C_p(\mu_A(x))\). One common (Sugeno-type) family is
-\begin{equation}
+\[
     C_p(\mu) = \frac{1 - \mu}{1 + p \mu}, \qquad p \ge 0,
-\label{eq:auto_fuzzysets_dc1115a9e1}
-\end{equation}
+\]
 which reduces to the standard complement when \(p=0\).
 
 Another simple family is a power-law negation:
-\begin{equation}
+\[
     C_p(\mu) = (1 - \mu)^{p}, \qquad p > 0,
-\label{eq:auto_fuzzysets_c976938164}
-\end{equation}
+\]
 which recovers the standard complement when \(p=1\) and adjusts the steepness for other \(p\).
 
 These operators allow for a nonlinear mapping of the complement, reflecting different degrees of confidence or hesitation in the membership values. Unlike the standard complement, most parameterized families \emph{do not} preserve involution \(C(C(\mu))=\mu\) for arbitrary \(p\); they are typically designed to satisfy boundary conditions and monotonicity instead. When strict involution is required, it is safest to use the standard complement.

@@ -43,14 +43,12 @@ General recurrent networks can behave unpredictably because feedback can create 
 In 1982, John Hopfield introduced a special class of recurrent networks by putting engineering constraints on the feedback loop \citep{Hopfield1982}. The constraints are simple enough to implement, and each one buys you a piece of the convergence story.
 
 First, make the weights symmetric and remove self-loops:
-\begin{equation}
-    w_{ij} = w_{ji} \quad \forall i, j,
-    \label{eq:auto_hopfield_591d3daa63}
-\end{equation}
-\begin{equation}
-    w_{ii} = 0 \quad \forall i.
-    \label{eq:auto_hopfield_bd57392190}
-\end{equation}
+\[
+\begin{aligned}
+    w_{ij} &= w_{ji} \quad \forall i, j,\\
+    w_{ii} &= 0 \quad \forall i.
+\end{aligned}
+\]
 Second, keep neuron states binary, \(s_i \in \{+1,-1\}\), so the network evolves by flipping bits rather than flowing through a continuous activation curve.
 
 Under these choices you can define a Lyapunov energy \(E(\mathbf{s})\) (a scalar function that decreases under the update) and choose an asynchronous (one\hyp{}neuron\hyp{}at\hyp{}a\hyp{}time) update rule so that each flip never increases \(E\). That is the key move: the network becomes a descent process in a finite state space, so it must settle at a fixed point. Those fixed points are the stored patterns (and their complements), plus whatever spurious attractors appear when the network is heavily loaded.
@@ -62,10 +60,9 @@ Consider a Hopfield network with \(N\) neurons. The state vector is \(\mathbf{s}
 Throughout this discussion \(w_{ij}\) denotes the weight applied to state \(s_j\) when computing the input to neuron \(i\), so column indices correspond to presynaptic neurons.
 
 The \emph{local field} or \emph{input energy} to neuron \(i\) is defined as
-\begin{equation}
+\[
     h_i(t) = \sum_{j=1}^N w_{ij} s_j(t).
-\label{eq:auto_hopfield_5a6eb676df}
-\end{equation}
+\]
 The scalar \(h_i(t)\) therefore represents the total input (or \emph{local field}) accumulated at neuron \(i\) before thresholding during iteration \(t\).
 
 The neuron updates its state according to the sign of \(h_i(t)\) relative to a threshold \(\theta_i\):
@@ -178,11 +175,10 @@ W = \begin{bmatrix}
 \]
 
 Let the initial state be \(\mathbf{s} = (1,\,1,\,-1)\). Using the energy definition with the \(\frac{1}{2}\) factor to avoid double counting, we obtain
-\begin{align}
-    E(\mathbf{s}) &= -\frac{1}{2} \sum_{i=1}^3 \sum_{j=1}^3 w_{ij} s_i s_j \nonumber \\
+\begin{align*}
+    E(\mathbf{s}) &= -\frac{1}{2} \sum_{i=1}^3 \sum_{j=1}^3 w_{ij} s_i s_j \\
     &= -\frac{1}{2} \Big[ 2 \cdot 3 \cdot (1)(1) + 2 \cdot (-4) \cdot (1)(-1) + 2 \cdot 2 \cdot (1)(-1) \Big] = -5.
-    \label{eq:auto:lecture_5_part_ii:1}
-\end{align}
+\end{align*}
 
 \paragraph{State update attempts:}
 One way to check whether \(\mathbf{s}=(1,1,-1)\) is stable is to try each single-neuron flip and recompute \(E\). Flipping \(s_1\) gives \(E(-1,1,-1)=9\); flipping \(s_2\) gives \(E(1,-1,-1)=-3\); and flipping \(s_3\) gives \(E(1,1,1)=-1\). Each move raises the energy relative to \(-5\), so no asynchronous update would accept it: the state is a local minimum.
@@ -253,18 +249,13 @@ We use the energy in \eqref{eq:energy_function}; the goal is to show that each s
 \subsubsection{Energy Change Upon Updating a Single Neuron}
 \label{sec:hopfield_energy_change_upon_updating_a_single_neuron_sub}
 
-Consider updating neuron \( i \) from old state \( s_i^{\text{old}} \) to new state \( s_i^{\text{new}} \). All other neuron states \( s_j \) for \( j \neq i \) remain fixed. The change in energy is
-\begin{equation}
-    \Delta E = E_{\text{new}} - E_{\text{old}}.
-\label{eq:auto_hopfield_927711ec51}
-\end{equation}
+Consider updating neuron \( i \) from old state \( s_i^{\text{old}} \) to new state \( s_i^{\text{new}} \). All other neuron states \( s_j \) for \( j \neq i \) remain fixed. The change in energy is \(\Delta E = E_{\text{new}} - E_{\text{old}}\).
 
 Using \eqref{eq:energy_function}, write out the energies explicitly:
-\begin{align}
+\begin{align*}
     E_{\text{old}} &= -\frac{1}{2} \sum_{k=1}^N \sum_{l=1}^N w_{kl} s_k^{\text{old}} s_l^{\text{old}} + \sum_{k=1}^N \theta_k s_k^{\text{old}}, \\
     E_{\text{new}} &= -\frac{1}{2} \sum_{k=1}^N \sum_{l=1}^N w_{kl} s_k^{\text{new}} s_l^{\text{new}} + \sum_{k=1}^N \theta_k s_k^{\text{new}}.
-    \label{eq:auto:lecture_5_part_ii:2}
-\end{align}
+\end{align*}
 
 Since only \( s_i \) changes, and weights are symmetric with zero diagonal \( w_{ii} = 0 \), the difference simplifies to
 \begin{align}

@@ -52,10 +52,9 @@ An important (and still practical) lesson from this era is the ``garbage in, gar
 
 The symbolic formalism used in modern AI emerged in the 19th and early 20th centuries. Works by George Boole (1847), Gottlob Frege (1879), Giuseppe Peano (1889), and later Bertrand Russell and Alfred North Whitehead (1910--1913) introduced algebraic and predicate-calculus notations that underpin automated reasoning. Formal inference rules such as:
 
-\begin{align}
+\[
 \text{If } A = B \text{ and } B = C, \text{ then } A = C.
-    \label{eq:auto:lecture_1_intro:1}
-\end{align}
+\]
 
 This exemplifies the transitivity of equality---an example of a valid inference rule operating on equality relations---and provides a basis for reasoning systems that manipulate symbols according to formal rules.
 
@@ -385,6 +384,7 @@ The book also maintains a deliberate dual emphasis: representation learning with
         \node[block, right=of log] (mlp) {MLP\\(Backprop)};
         \node[block, right=of mlp] (cnn) {CNN\\(Conv/Pool)};
         \node[block, right=of cnn] (rnn) {RNN\\(BPTT)};
+        \node[block, right=of rnn] (trf) {Transformers\\(Attention)};
         % Branch: SOM -> Fuzzy
         \node[block, below=1.2cm of mlp] (som) {SOM\\(Competitive)};
         \node[block, right=of som] (fuzzy) {Fuzzy Sets\\\& Inference};
@@ -396,21 +396,22 @@ The book also maintains a deliberate dual emphasis: representation learning with
         \draw[->] (log) -- (mlp);
         \draw[->] (mlp) -- (cnn);
         \draw[->] (cnn) -- (rnn);
+        \draw[->] (rnn) -- (trf);
         % Arrows branches
         \draw[->] (mlp) -- (som);
         \draw[->] (som) -- (fuzzy);
         \draw[->] (opt) -- (ga);
         % Cross-links (light)
         \draw[->, gray!60] (mlp) to[bend left=15] (ga);
-        \draw[->, gray!60] (fuzzy) to[bend right=20] (rnn);
+        \draw[->, gray!60] (fuzzy) to[bend right=20] (trf);
     \end{tikzpicture}%
     }
     \captionsetup{justification=raggedright}
-    \caption{Roadmap of the book strands (core supervised path; SOM/fuzzy; optimization/evolutionary). It also serves as a quick prerequisite map when you want to jump ahead and later backfill foundations.}
+    \caption{Roadmap of the book strands (core supervised path through attention models; SOM/fuzzy; optimization/evolutionary). It also serves as a quick prerequisite map when you want to jump ahead and later backfill foundations.}
     \label{fig:roadmap}
 \end{figure}
 
-\Cref{fig:roadmap} summarizes the narrative arc of the book: a core supervised path (linear and logistic regression to MLPs to CNNs to RNNs), a branch through competitive learning and fuzzy inference for rule-based reasoning, and a parallel thread on optimization culminating in evolutionary computing. Early on, \Cref{chap:symbolic} provides a complementary symbolic-search perspective so we can contrast ``intelligence via transformations'' with ERM-based modeling. Chapters cross-reference one another so you can skim the path most relevant to your project and return for foundational refreshers as needed.
+\Cref{fig:roadmap} summarizes the narrative arc of the book: a core supervised path (linear and logistic regression to MLPs to CNNs to RNNs and attention/Transformers), a branch through competitive learning and fuzzy inference for rule-based reasoning, and a parallel thread on optimization culminating in evolutionary computing. Early on, \Cref{chap:symbolic} provides a complementary symbolic-search perspective so we can contrast ``intelligence via transformations'' with ERM-based modeling. Chapters cross-reference one another so you can skim the path most relevant to your project and return for foundational refreshers as needed.
 
 Readers arrive with different goals. The roadmap is intentionally a dependency graph rather than a single linear track; the following paths are common starting points:
 \begin{enumerate}

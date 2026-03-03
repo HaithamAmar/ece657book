@@ -68,32 +68,28 @@ That step is not ``wrong,'' but it is expensive. Flattening has two major drawba
 The punchline is not that dense networks ``cannot'' learn images; it is that the price is too high. Without any architectural prior, you pay in parameters, data, and compute. Convolutions and pooling supply that prior: they make the model spend capacity on local patterns and reuse those patterns across the grid.
 
 The number of weights between the input and hidden layer is:
-\begin{equation}
+\[
 65,536 \times 100 = 6,553,600,
-\label{eq:auto_cnn_ed5e022844}
-\end{equation}
+\]
 and between the hidden and output layer (assuming 4 output classes) is:
-\begin{equation}
+\[
 100 \times 4 = 400.
-\label{eq:auto_cnn_9b56be8916}
-\end{equation}
+\]
 
 Thus, the first layer alone requires learning over 6 million parameters before we even consider deeper architectures. Coupled with the additional 400 output weights (plus biases), the optimization problem quickly becomes data-hungry and computationally expensive.
 
 \paragraph{Data requirements (a sanity check).}
 When a model has millions of free parameters and no strong architectural prior, you are asking the data to do most of the work: it must fit the mapping and also implicitly teach the model what kinds of patterns are worth representing. A crude sanity check sometimes used in practice is to compare the number of labeled examples to the number of parameters:
-\begin{equation}
+\[
 N_{\text{samples}} \geq 10 \times N_{\text{parameters}}.
-\label{eq:auto_cnn_acca81a25c}
-\end{equation}
+\]
 
 Read this as a warning sign, not a requirement. Inductive bias (convolutions), regularization, and augmentation reduce the effective degrees of freedom, and pretraining changes the problem entirely because you are no longer learning all features from scratch.
 
 For the dense first layer in this example calculation, the back-of-the-envelope lands in the tens of millions of labeled images:
-\begin{equation}
+\[
 N_{\text{samples}} \gtrsim 10 \times 6{,}553{,}600 \approx 65{,}536{,}000,
-\label{eq:auto_cnn_a651e49be4}
-\end{equation}
+\]
 The point is not the exact number; it is the scale mismatch between dense connectivity and the datasets most people can realistically label. Without additional structure, many very different parameter settings can fit the same training set; the architecture and the training recipe decide whether any of those settings generalize in a way you can trust.
 
 \paragraph{Computational and storage constraints.}
@@ -132,9 +128,10 @@ For an input feature map \(X\) and filter \(K\), the (cross-correlation) output 
 In most deep-learning libraries, the operation called ``convolution'' is technically \emph{cross-correlation}: the kernel is not flipped before sliding. The name stuck because the two operations differ only by a reversal of the kernel, and the kernel is learned anyway. What matters in practice is that the ``filter'' is a small learned weight matrix that is applied repeatedly across space (weight sharing). Learn the shapes, the stride/padding accounting, and the inductive bias; the terminology is imperfect but the idea is powerful.
 \end{tcolorbox}
 With stride \(s\) and padding \(p\), the output size along one axis is
-\[
+\begin{equation}
 \left\lfloor \frac{n + 2p - k}{s} \right\rfloor + 1,
-\]
+\label{eq:cnn_output_size}
+\end{equation}
 so padding controls resolution while stride controls downsampling. Pooling then aggregates local neighborhoods (typically max or average) to build invariance and further reduce spatial size.
 
 Convolution itself is a linear map; the nonlinearity enters when we apply an activation after each convolutional block. Stacking these linear--nonlinear stages yields hierarchical feature detectors (edges \(\rightarrow\) textures \(\rightarrow\) parts \(\rightarrow\) objects) without abandoning the backprop training machinery.
@@ -250,10 +247,9 @@ With the architectural motivation in place, we now focus on how these models are
 We already derived the gradient-descent training loop in \Cref{chap:mlp}: define a loss \(\mathcal{L}\), compute gradients, then update parameters. CNNs keep the same loop. The key difference is weight sharing: a convolutional filter is applied at many spatial locations, so a single filter coefficient collects learning signal from every location where it was used.
 
 For a weight $w$, the update rule is
-\begin{align}
+\[
 w \leftarrow w - \eta \frac{\partial \mathcal{L}}{\partial w}.
-    \label{eq:auto:lecture_6:1}
-\end{align}
+\]
 where $\eta$ is the learning rate.
 
 \paragraph{Backpropagation and gradient computation}

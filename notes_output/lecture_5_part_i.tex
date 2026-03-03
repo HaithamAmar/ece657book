@@ -95,17 +95,15 @@ In the classical formulation used here (e.g., for K-means), the clusters form a 
 \begin{enumerate}
     \item Initialize $K$ cluster centroids $\{\mathbf{m}_1, \mathbf{m}_2, \ldots, \mathbf{m}_K\}$ randomly.
     \item For each data point $\mathbf{x}_i$, assign it to the cluster with the nearest centroid:
-    \begin{equation}
-        c_i = \arg\min_{k} \|\mathbf{x}_i - \mathbf{m}_k\|_2,
-        \label{eq:auto_som_a96d59060d}
-    \end{equation}
-    where $\|\cdot\|_2$ denotes the Euclidean norm.
+    \[
+        c_i = \arg\min_{k} \|\mathbf{x}_i - \mathbf{m}_k\|_2.
+    \]
+    Here \(\|\cdot\|_2\) denotes the Euclidean norm.
     \item Update each centroid as the mean of all points assigned to it:
-    \begin{equation}
-        \mathbf{m}_k = \frac{1}{|C_k|} \sum_{\mathbf{x}_i \in C_k} \mathbf{x}_i,
-        \label{eq:auto_som_5cd43ad14e}
-    \end{equation}
-    where $|C_k|$ is the number of points in cluster $C_k$.
+    \[
+        \mathbf{m}_k = \frac{1}{|C_k|} \sum_{\mathbf{x}_i \in C_k} \mathbf{x}_i.
+    \]
+    Here \( |C_k| \) is the number of points in cluster \( C_k \).
     \item Repeat steps 2 and 3 until convergence (i.e., cluster assignments no longer change significantly).
 \end{enumerate}
 
@@ -1071,10 +1069,9 @@ The two schedules play different roles. The learning rate \(\alpha(t)\) controls
 At this point the SOM training story is complete: you have a similarity rule (to pick a winner), a neighborhood rule (to decide who else learns), and schedules that anneal both over time. The only subtlety is that these pieces interact. A large neighborhood early is what gives you global organization; a small neighborhood late is what lets prototypes settle into fine detail without tearing the map.
 
 Recall the weight update rule for neuron \( j \) at time step \( t \):
-\begin{align}
+\[
     \Delta \mathbf{w}_j(t) = \alpha(t) \, h_{j, c}(t) \left[ \mathbf{x}(t) - \mathbf{w}_j(t) \right].
-    \label{eq:auto:lecture_5_part_i:2}
-\end{align}
+\]
 where:
 \begin{itemize}
     \item \(\mathbf{x}(t)\) is the input vector at time \( t \).
