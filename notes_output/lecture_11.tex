@@ -1,5 +1,11 @@
 % Chapter 19
 \section{Introduction to Evolutionary Computing}\label{chap:evo}
+\index{evolutionary computing}
+\index{genetic algorithm (GA)}
+\index{selection (GA)}
+\index{crossover (GA)}
+\index{mutation (GA)}
+\index{fitness function}
 \graphicspath{{assets/lec19/}}
 
 Parts I--III built three complementary toolkits: optimize models against data (ERM), learn representations with gradients, and encode auditable heuristics with fuzzy rules. Each is powerful when you can write a smooth objective or commit to a compact rule base. Many engineering choices, however, live outside that comfort zone: the knobs are discrete or tightly constrained, evaluations are noisy or expensive, and the landscape is rugged enough that local improvement is unreliable.
@@ -77,7 +83,7 @@ There is no gradient through the tunnel. Each evaluation consumes time and budge
 \end{tcolorbox}
 
 \begin{tcolorbox}[summarybox, title={When GA is not the first choice}]
-If the objective is smooth, gradients are trustworthy, and constraints are easy to encode, gradient-based or convex optimization methods are usually faster and easier to tune. Use GA when those assumptions fail: discontinuities, mixed-variable encodings, simulator-in-the-loop objectives, or hard constraints that make local gradients uninformative.
+If the objective is smooth, gradients are trustworthy, and constraints are easy to encode, gradient-based or convex optimization methods are usually faster and easier to tune. When the evaluation budget is tiny (tens to hundreds of trials), Bayesian optimization can be a strong alternative \citep{Frazier2018}. Use GA when those assumptions fail: discontinuities, mixed-variable encodings, simulator-in-the-loop objectives, or hard constraints that make local gradients uninformative.
 \end{tcolorbox}
 
 \subsection{Philosophical and Historical Background}
@@ -120,9 +126,11 @@ where \(\mathcal{D} \subseteq \mathbb{R}^n\) is the feasible domain incorporatin
 \subsection{Illustrative Example}
 \label{sec:evo_illustrative_example}
 
-Imagine a function \( J \) with multiple peaks and valleys (local maxima and minima). The global minimum is the lowest valley, but many local minima exist that can trap naive optimization methods.
+Imagine a function \( J \) with multiple peaks and valleys (local maxima and minima). The global minimum is the lowest valley, but many local minima exist that can trap naive optimization methods. A local method (think: ``follow the slope downhill'') commits to one trajectory: once it falls into a basin, it has no built-in mechanism to ``jump'' to a different valley unless you restart it or inject noise.
 
-\paragraph{Goal:} Instead of guaranteeing the global optimum, evolutionary computing aims to find a \emph{good enough} solution---one that is sufficiently close to optimal and found within a reasonable computational budget.
+Evolutionary computing approaches the same picture by keeping \emph{many} candidates alive at once. A population gives you coverage: some candidates sit near promising regions, others explore alternatives. Selection then biases the next round toward candidates that look better under \(J\), while variation operators propose new points that can move across basins.
+
+\paragraph{Goal:} Instead of guaranteeing the global optimum, evolutionary computing aims to find a \emph{good enough} solution---one that is sufficiently close to optimal and found within a reasonable computational budget. This goal is practical: when one objective evaluation is expensive (simulation, hardware, or human checks), the right question is often ``what is the best design I can get before I run out of budget?''
 
 \subsection{Why Not Brute Force?}
 \label{sec:evo_why_not_brute_force}
@@ -158,7 +166,9 @@ These issues compound the nonconvexity and constraint challenges above: disconti
 \subsection{Evolutionary Computing at a Glance}
 \label{sec:evo_introduction_to_evolutionary_computing}
 
-Evolutionary computing treats optimization as budgeted population search: evaluate candidates, bias reproduction toward better ones, generate variation (crossover/mutation), replace the population, and repeat until budget or convergence criteria trigger. Genetic algorithms are the canonical instance of this loop. The core tradeoff is always the same: exploration for coverage versus exploitation for immediate gains.
+Evolutionary computing treats optimization as budgeted population search: evaluate candidates, bias reproduction toward better ones, generate variation (crossover/mutation), replace the population, and repeat until budget or convergence criteria trigger. Genetic algorithms are the canonical instance of this loop.
+
+The core tradeoff is always the same: exploration for coverage versus exploitation for immediate gains. In engineering terms, you want enough selection pressure to make progress, but not so much that the population collapses around one mediocre basin too early. This is why GA work is rarely just ``run the loop'': you also watch traces (best/mean fitness) and at least one diversity proxy, and you adjust operators when the behavior stops matching your intent.
 
 \subsection{Biological Inspiration: Evolutionary Concepts}
 \label{sec:evo_biological_inspiration_evolutionary_concepts}
@@ -191,7 +201,7 @@ The offspring's chromosomes are a mixture of the parents' genetic material, but 
 
 In GA terms, the biology analogy reduces to an engineering cycle: keep a population (coverage), apply fitness-based selection (pressure), recombine parents (structure transfer), mutate offspring (novelty), and replace survivors (iteration). Each operator controls a specific failure mode: too much pressure collapses diversity, too little pressure stalls progress, and weak mutation traps the search in local basins.
 
-The stochastic nature of these operations allows GAs to explore complex, multimodal landscapes and handle problems where deterministic methods struggle.
+Two clarifications keep the analogy honest. First, ``genes'' are not physical objects in a GA; they are coordinates in an \emph{encoding}. That means operator design must respect the representation: swapping substrings is natural for binary strings, but it can break permutation encodings unless you use permutation-safe crossover/mutation. Second, the point of stochasticity is not randomness for its own sake; it is controlled variability that lets the algorithm explore complex, multimodal landscapes when deterministic methods struggle or when gradients are not trustworthy.
 
 \subsection{Summary of Biological Mechanisms Modeled in GAs}
 \label{sec:evo_summary_of_biological_mechanisms_modeled_in_gas}
@@ -444,7 +454,9 @@ For minimization problems, selection still expects ``higher is better,'' so defi
 \subsection{Population Initialization and Size}
 \label{sec:evo_population_initialization_and_size}
 
-Once encoding is decided, the initial population is generated by randomly sampling genotypes within the feasible space.
+Once encoding is decided, the initial population is generated by sampling genotypes within the search space. Purely random initialization is the default because it makes minimal assumptions and gives broad coverage early. If you have domain knowledge, you can also seed a fraction of the population with plausible candidates (and keep the remainder random) so the search starts with both coverage and a few ``good guesses.''
+
+For constrained problems, initialization is also where you decide how you will treat feasibility: sample only feasible candidates (possibly with a repair step), or allow infeasible ones but attach penalties/feasibility rules during fitness evaluation. Either way, the initialization policy quietly shapes what the algorithm can discover in its first few generations.
 
 \paragraph{Population Size}
 \begin{itemize}
@@ -452,6 +464,8 @@ Once encoding is decided, the initial population is generated by randomly sampli
     \item Smaller populations may converge prematurely.
     \item Typical sizes range from 20 to several hundreds depending on problem complexity.
 \end{itemize}
+
+\noindent A useful engineering view is to think in terms of evaluation budget. If you can afford \(B\) objective evaluations total, then (up to bookkeeping overhead) you are choosing how to split that budget between population size \(M\) and number of generations \(G\): roughly \(B \approx M \times G\). Large \(M\) buys diversity per generation; large \(G\) buys more refinement steps. The right balance depends on evaluation cost and on how quickly selection pressure collapses diversity for your encoding.
 
 \paragraph{Example}
 For the problem above, a population of 50 individuals with 4-bit genotypes representing \( x \in [1,15] \) can be initialized by randomly generating 50 binary strings of length 4.
@@ -1130,6 +1144,9 @@ When two or more objectives conflict, we seek a set of Pareto-optimal solutions 
     \item Using aggressive selection and low mutation, collapsing diversity and getting stuck in deceptive basins.
     \item Comparing algorithms without matching evaluation budget (fitness calls), constraint handling, and stopping rules.
 \end{itemize}
+
+\medskip
+\noindent\textbf{Ethical considerations.} Evolutionary search will exploit whatever you write down as fitness. If the objective is a proxy for the real goal, the optimizer can ``win'' in ways you did not intend (metric gaming, unsafe corner solutions, hidden constraint violations). Treat objective design and constraint auditing as part of system safety, not as afterthoughts.
 \end{tcolorbox}
 
 \begin{tcolorbox}[summarybox, title={Exercises and lab ideas}]

@@ -14,9 +14,84 @@ Quick sanity checks for numerical examples up to Chapter 18.
 - GA toy initial population bounds (Ch. 19)
 """
 
+import re
 import numpy as np
 from math import exp
 from pathlib import Path
+
+
+ROOT = Path(__file__).resolve().parents[1]
+
+
+def _read_tex(rel_path: str) -> str:
+    return (ROOT / rel_path).read_text(encoding="utf-8", errors="ignore")
+
+
+def _clean_tex_number(s: str) -> str:
+    # Examples we expect to see in the book:
+    #   6{,}553{,}600
+    #   65,536
+    #   3/4
+    #   -0.75
+    s2 = s.replace(r"\,", "")
+    s2 = s2.replace("{,}", "")
+    s2 = re.sub(r"[{},\s]", "", s2)
+    return s2
+
+
+def _parse_tex_number(s: str) -> float:
+    cleaned = _clean_tex_number(s)
+    if re.fullmatch(r"-?\d+/\d+", cleaned):
+        num, den = cleaned.split("/", 1)
+        return float(num) / float(den)
+    return float(cleaned)
+
+
+def _slice_between(tex_text: str, start: str, end: str) -> str:
+    i0 = tex_text.find(start)
+    if i0 == -1:
+        raise AssertionError(f"Missing start marker: {start!r}")
+    i1 = tex_text.find(end, i0 + len(start))
+    if i1 == -1:
+        raise AssertionError(f"Missing end marker: {end!r}")
+    return tex_text[i0:i1]
+
+
+def _extract_tcolorbox_body(tex_text: str, title: str) -> str:
+    pattern = re.compile(
+        r"\\begin\{tcolorbox\}\[[^\]]*title=\{" + re.escape(title) + r"\}[^\]]*\]([\s\S]*?)\\end\{tcolorbox\}",
+        re.MULTILINE,
+    )
+    m = pattern.search(tex_text)
+    if not m:
+        raise AssertionError(f"Missing tcolorbox with title={title!r}")
+    return m.group(1)
+
+
+def _parse_matrix_body(body: str) -> np.ndarray:
+    # Parse the content between \begin{bmatrix}...\end{bmatrix} (or pmatrix)
+    # into a numeric numpy array. Cells are separated by '&' and rows by '\\'.
+    rows: list[list[float]] = []
+    for raw_row in re.split(r"\\\\", body):
+        row = raw_row.strip()
+        if not row:
+            continue
+        cells = [c.strip() for c in row.split("&")]
+        if not cells:
+            continue
+        rows.append([_parse_tex_number(c) for c in cells])
+    if not rows:
+        raise AssertionError("Parsed empty matrix body")
+    ncols = {len(r) for r in rows}
+    if len(ncols) != 1:
+        raise AssertionError(f"Ragged matrix rows: column counts={sorted(ncols)}")
+    return np.array(rows, dtype=float)
+
+
+def _parse_int_tuple(s: str) -> tuple[int, ...]:
+    s2 = s.replace(r"\,", "").replace(" ", "")
+    parts = [p for p in s2.split(",") if p]
+    return tuple(int(p) for p in parts)
 
 
 def check_perceptron_or_gate_trace():
@@ -133,90 +208,85 @@ def hopfield_energy(w, s, theta=None):
     return -0.5 * np.sum(w * np.outer(s, s)) + np.sum(theta * s)
 
 
-def _extract_qc_block(tex_text: str, name: str) -> list[str]:
-    begin = f"% QC-BEGIN: {name}"
-    end = f"% QC-END: {name}"
-    i0 = tex_text.find(begin)
-    if i0 == -1:
-        raise AssertionError(f"Missing QC block begin marker for {name}")
-    i1 = tex_text.find(end, i0)
-    if i1 == -1:
-        raise AssertionError(f"Missing QC block end marker for {name}")
-    block = tex_text[i0 + len(begin) : i1].splitlines()
-    lines = []
-    for raw in block:
-        s = raw.strip()
-        if not s.startswith("%"):
-            continue
-        payload = s.lstrip("%").strip()
-        if not payload:
-            continue
-        lines.append(payload)
-    return lines
-
-
 def check_hopfield():
     """
-    Hopfield 3-neuron energy check (Ch. 10), QC-backed from the TeX source.
+    Hopfield numerical examples (Ch. 10), verified against book-visible values.
 
-    Verifies the energies reported in the example, plus one asynchronous update
-    from a noisy probe back to the stored pattern.
+    This check is intentionally tied to what is printed in the chapter: matrices,
+    states, and energies are parsed from the LaTeX source (not from QC comments).
     """
-    root = Path(__file__).resolve().parents[1]
-    tex = (root / "lecture_5_part_ii.tex").read_text(encoding="utf-8", errors="ignore")
-    qc = _extract_qc_block(tex, "hopfield_energy_example")
+    tex = _read_tex("lecture_5_part_ii.tex")
+    energies: dict[str, float] = {}
 
-    W_rows = []
-    theta = None
-    cases = {}
-    noisy = None
+    # ------------------------------------------------------------------
+    # 3-neuron energy example: parse W, states, and energies from the text.
+    # ------------------------------------------------------------------
+    sec3 = _slice_between(
+        tex,
+        r"\subsection{Example: Energy Calculation and State Updates}",
+        r"\subsection{Energy Function and Convergence of Hopfield Networks}",
+    )
 
-    for line in qc:
-        parts = line.split()
-        tag = parts[0]
-        if tag == "W":
-            if len(parts) != 4:
-                raise AssertionError(f"Malformed Hopfield QC W row: {line!r}")
-            W_rows.append([float(parts[1]), float(parts[2]), float(parts[3])])
-        elif tag == "theta":
-            if len(parts) != 4:
-                raise AssertionError(f"Malformed Hopfield QC theta row: {line!r}")
-            theta = np.array([float(parts[1]), float(parts[2]), float(parts[3])], dtype=float)
-        elif tag in ("s0", "flip_s1", "flip_s2", "flip_s3"):
-            if len(parts) != 6 or parts[4] != "E":
-                raise AssertionError(f"Malformed Hopfield QC case row: {line!r}")
-            s = np.array([float(parts[1]), float(parts[2]), float(parts[3])], dtype=float)
-            E = float(parts[5])
-            cases[tag] = (s, E)
-        elif tag == "noisy":
-            # noisy 1 1 1 update_i 3 s1 1 1 -1 E -5
-            if len(parts) != 12 or parts[4] != "update_i" or parts[6] != "s1" or parts[10] != "E":
-                raise AssertionError(f"Malformed Hopfield QC noisy row: {line!r}")
-            s_noisy = np.array([float(parts[1]), float(parts[2]), float(parts[3])], dtype=float)
-            update_i = int(parts[5])
-            s_after = np.array([float(parts[7]), float(parts[8]), float(parts[9])], dtype=float)
-            E_after = float(parts[11])
-            noisy = (s_noisy, update_i, s_after, E_after)
+    mW = re.search(r"W\s*=\s*\\begin\{bmatrix\}([\s\S]*?)\\end\{bmatrix\}", sec3, re.DOTALL)
+    if not mW:
+        raise AssertionError("Could not parse 3-neuron Hopfield W matrix from the chapter text")
+    W = _parse_matrix_body(mW.group(1))
+    if W.shape != (3, 3):
+        raise AssertionError(f"Unexpected Hopfield W shape: {W.shape}, expected (3,3)")
 
-    if len(W_rows) != 3:
-        raise AssertionError("Hopfield QC must include 3 W rows")
-    if theta is None:
-        raise AssertionError("Hopfield QC missing theta row")
-    if set(cases.keys()) != {"s0", "flip_s1", "flip_s2", "flip_s3"}:
-        raise AssertionError("Hopfield QC missing one of s0/flip_s1/flip_s2/flip_s3")
-    if noisy is None:
-        raise AssertionError("Hopfield QC missing noisy update row")
+    # Baseline state (as written) and its reported energy.
+    ms0 = re.search(r"initial state be\s*\\\(\\mathbf\{s\}\s*=\s*\(([^)]*)\)\\\)", sec3)
+    if not ms0:
+        raise AssertionError("Could not parse the initial state tuple for the Hopfield example")
+    s0 = np.array(_parse_int_tuple(ms0.group(1)), dtype=float)
+    if s0.shape != (3,):
+        raise AssertionError(f"Unexpected Hopfield initial state length: {s0.shape}")
 
-    W = np.array(W_rows, dtype=float)
+    mE0 = re.search(r"\\Big\[[\s\S]*?\\Big\]\s*=\s*(-?\d+(?:\.\d+)?)\s*\.", sec3, re.DOTALL)
+    if not mE0:
+        raise AssertionError("Could not parse the reported E(s) value in the 3-neuron example derivation")
+    E0_expected = float(mE0.group(1))
 
-    energies = {}
-    for name, (s, E_expected) in cases.items():
-        E = hopfield_energy(W, s, theta=theta)
-        if abs(E - E_expected) > 1e-9:
-            raise AssertionError(f"Hopfield {name} energy mismatch: actual={E}, expected={E_expected}")
-        energies[name] = E
+    theta = np.zeros(3, dtype=float)
+    E0_actual = hopfield_energy(W, s0, theta=theta)
+    if abs(E0_actual - E0_expected) > 1e-9:
+        raise AssertionError(f"Hopfield E(s0) mismatch: actual={E0_actual}, expected={E0_expected}")
+    energies["s0"] = float(E0_actual)
 
-    s_noisy, update_i, s_after, E_after_expected = noisy
+    # The text reports the energies of three single-bit flips explicitly.
+    flip_re = re.compile(r"E\(([^)]*)\)\s*=\s*(-?\d+(?:\.\d+)?)")
+    flip_expected: dict[tuple[int, int, int], float] = {}
+    for state_str, E_str in flip_re.findall(sec3):
+        tup = _parse_int_tuple(state_str)
+        if len(tup) != 3:
+            continue
+        flip_expected[tup] = float(E_str)
+
+    expected_states = {
+        "flip_s1": (-1, 1, -1),
+        "flip_s2": (1, -1, -1),
+        "flip_s3": (1, 1, 1),
+    }
+    for key, st in expected_states.items():
+        if st not in flip_expected:
+            raise AssertionError(f"Missing reported energy for Hopfield state {st} in the text")
+        E_exp = flip_expected[st]
+        E_act = hopfield_energy(W, np.array(st, dtype=float), theta=theta)
+        if abs(E_act - E_exp) > 1e-9:
+            raise AssertionError(f"Hopfield {key} energy mismatch: actual={E_act}, expected={E_exp}")
+        energies[key] = float(E_act)
+
+    # Noisy probe update (as described): (1,1,1) -> update neuron 3 -> (1,1,-1).
+    m_noisy = re.search(r"noisy pattern\s*\\\(\(([^)]*)\)\\\)", sec3)
+    m_after = re.search(r"returning to\s*\\\(\(([^)]*)\)\\\)", sec3)
+    if not m_noisy or not m_after:
+        raise AssertionError("Could not parse noisy probe and recovered state tuples from the Hopfield text")
+    s_noisy = np.array(_parse_int_tuple(m_noisy.group(1)), dtype=float)
+    s_after = np.array(_parse_int_tuple(m_after.group(1)), dtype=float)
+    if s_noisy.shape != (3,) or s_after.shape != (3,):
+        raise AssertionError("Malformed noisy/probe tuples in Hopfield example")
+
+    update_i = 3  # The text explicitly discusses neuron 3 and sets s_3 <- -1.
     i = update_i - 1
     h = float(W[i] @ s_noisy - theta[i])
     s_next = s_noisy.copy()
@@ -224,257 +294,264 @@ def check_hopfield():
     if not np.allclose(s_next, s_after):
         raise AssertionError(f"Hopfield noisy update state mismatch: actual={s_next}, expected={s_after}")
     E_after = hopfield_energy(W, s_next, theta=theta)
-    if abs(E_after - E_after_expected) > 1e-9:
-        raise AssertionError(f"Hopfield noisy update energy mismatch: actual={E_after}, expected={E_after_expected}")
-    energies["noisy_after"] = E_after
+    if abs(E_after - E0_expected) > 1e-9:
+        raise AssertionError(f"Hopfield noisy update energy mismatch: actual={E_after}, expected={E0_expected}")
+    energies["noisy_after"] = float(E_after)
 
-    # Optional QC-backed Hebbian single-pattern weight example (4 neurons).
-    # This is separate from the 3-neuron energy-descent example and is meant
-    # to verify the explicit matrix shown in the text.
-    if "% QC-BEGIN: hopfield_single_pattern_weights" in tex:
-        qc2 = _extract_qc_block(tex, "hopfield_single_pattern_weights")
-        b = None
-        W2_rows = []
-        h_expected = None
-        recall_s0 = None
-        recall_E0 = None
-        recall_steps = []
-        for line in qc2:
-            parts = line.split()
-            tag = parts[0]
-            if tag in ("b", "xi"):
-                if len(parts) != 5:
-                    raise AssertionError(f"Malformed Hopfield QC b row: {line!r}")
-                b = np.array([float(parts[1]), float(parts[2]), float(parts[3]), float(parts[4])], dtype=float)
-            elif tag == "W":
-                if len(parts) != 5:
-                    raise AssertionError(f"Malformed Hopfield QC W row (4D): {line!r}")
-                W2_rows.append([float(parts[1]), float(parts[2]), float(parts[3]), float(parts[4])])
-            elif tag == "h":
-                if len(parts) != 5:
-                    raise AssertionError(f"Malformed Hopfield QC h row: {line!r}")
-                h_expected = np.array(
-                    [float(parts[1]), float(parts[2]), float(parts[3]), float(parts[4])], dtype=float
-                )
-            elif tag == "recall_s0":
-                # recall_s0 1 -1 -1 -1 E 0.5
-                if len(parts) != 7 or parts[5] != "E":
-                    raise AssertionError(f"Malformed Hopfield QC recall_s0 row: {line!r}")
-                recall_s0 = np.array([float(parts[1]), float(parts[2]), float(parts[3]), float(parts[4])], dtype=float)
-                recall_E0 = float(parts[6])
-            elif tag == "recall_step":
-                # recall_step 1 update_i 2 h 0.25 s 1 1 -1 -1 E 0.0
-                if (
-                    len(parts) != 13
-                    or parts[2] != "update_i"
-                    or parts[4] != "h"
-                    or parts[6] != "s"
-                    or parts[11] != "E"
-                ):
-                    raise AssertionError(f"Malformed Hopfield QC recall_step row: {line!r}")
-                step = int(parts[1])
-                update_i = int(parts[3])
-                h = float(parts[5])
-                s_after = np.array([float(parts[7]), float(parts[8]), float(parts[9]), float(parts[10])], dtype=float)
-                E_after = float(parts[12])
-                recall_steps.append((step, update_i, h, s_after, E_after))
+    # ------------------------------------------------------------------
+    # 4-neuron Hebbian single-pattern weight example + recall trace.
+    # ------------------------------------------------------------------
+    sec4 = _slice_between(
+        tex,
+        r"\subsection{Example: Weight Calculation for a Single Pattern}",
+        r"\subsection{Finalizing the Hopfield Network Derivation and Discussion}",
+    )
 
-        if b is None:
-            raise AssertionError("Hopfield QC (single pattern) missing b row")
-        if len(W2_rows) != 4:
-            raise AssertionError("Hopfield QC (single pattern) must include 4 W rows")
-        if h_expected is None:
-            raise AssertionError("Hopfield QC (single pattern) missing h row")
+    m_xi = re.search(r"\\mathbf\{\\xi\}\s*=\s*\(([^)]*)\)", sec4)
+    if not m_xi:
+        raise AssertionError("Could not parse the 4-neuron pattern xi in the Hopfield chapter")
+    xi = np.array(_parse_int_tuple(m_xi.group(1)), dtype=float)
+    if xi.shape != (4,):
+        raise AssertionError(f"Unexpected xi length: {xi.shape}")
 
-        n = b.size
-        W2 = np.array(W2_rows, dtype=float)
-        W2_expected = np.outer(b, b) / float(n)
+    iW = sec4.find(r"\mathbf{W}")
+    if iW == -1:
+        raise AssertionError("Could not find the W definition in the 4-neuron Hopfield example")
+    subW = sec4[iW:]
+    mW4 = re.search(
+        r"\\frac\{(\d+)\}\{(\d+)\}\s*\\begin\{(bmatrix|pmatrix)\}([\s\S]*?)\\end\{\3\}",
+        subW,
+        re.DOTALL,
+    )
+    if not mW4:
+        raise AssertionError("Could not parse the scaled 4x4 W matrix in the Hopfield chapter")
+    scale = float(mW4.group(1)) / float(mW4.group(2))
+    W4_int = _parse_matrix_body(mW4.group(4))
+    W4 = scale * W4_int
+    if W4.shape != (4, 4):
+        raise AssertionError(f"Unexpected W shape: {W4.shape}, expected (4,4)")
+
+    W4_expected = np.outer(xi, xi) / float(xi.size)
+    np.fill_diagonal(W4_expected, 0.0)
+    if not np.allclose(W4, W4_expected, atol=1e-12, rtol=0.0):
+        raise AssertionError("Hopfield single-pattern W mismatch vs Hebbian formula")
+
+    # Parse the printed local field vector h.
+    mh = re.search(r"\\mathbf\{h\}[\s\S]*?\\begin\{bmatrix\}([\s\S]*?)\\end\{bmatrix\}", sec4, re.DOTALL)
+    if not mh:
+        raise AssertionError("Could not parse the printed Hopfield local field vector h")
+    h_print = _parse_matrix_body(mh.group(1)).reshape(-1)
+    if h_print.shape != (4,):
+        raise AssertionError(f"Unexpected h vector length: {h_print.shape}")
+    h_act = W4 @ xi
+    if not np.allclose(h_act, h_print, atol=1e-12, rtol=0.0):
+        raise AssertionError(f"Hopfield h mismatch: actual={h_act}, expected={h_print}")
+    if not np.allclose(np.where(h_act >= 0.0, 1.0, -1.0), xi):
+        raise AssertionError("Hopfield fixed-point sanity check failed: sign(W xi) != xi")
+
+    # Parse recall trace table (two asynchronous flips) and the energy sequence.
+    box_title = "Numeric recall trace (two asynchronous flips)"
+    box = _extract_tcolorbox_body(sec4, box_title)
+    mEseq = re.search(r"E=([0-9.+-]+)\s*\\rightarrow\s*([0-9.+-]+)\s*\\rightarrow\s*([0-9.+-]+)", box)
+    if not mEseq:
+        raise AssertionError("Could not parse the printed Hopfield recall energy sequence")
+    E_seq_expected = [float(mEseq.group(1)), float(mEseq.group(2)), float(mEseq.group(3))]
+
+    # Extract tabular lines for steps 0/1/2.
+    mtab = re.search(r"\\begin\{tabular\}[\s\S]*?\\midrule([\s\S]*?)\\bottomrule", box, re.DOTALL)
+    if not mtab:
+        raise AssertionError("Could not parse the Hopfield recall trace table")
+    tab = mtab.group(1)
+    steps: list[tuple[int, int, float, tuple[int, int, int, int]]] = []
+    for raw in tab.splitlines():
+        line = raw.strip()
+        if not line or "&" not in line or line.startswith("%"):
+            continue
+        line = line.rstrip("\\").strip()
+        cells = [c.strip() for c in line.split("&")]
+        if len(cells) < 4:
+            continue
+        step = int(cells[0])
+        if step == 0:
+            # 0 & -- & -- & (state)
+            mstate = re.search(r"(?<!\\)\(([^)]*)\)", cells[3])
+            if not mstate:
+                raise AssertionError("Could not parse Hopfield recall step-0 state")
+            steps.append((0, 0, 0.0, _parse_int_tuple(mstate.group(1))))
+            continue
+
+        mi = re.search(r"i\s*=\s*(\d+)", cells[1])
+        mhv = re.search(r"=\s*([0-9.+-]+)", cells[2])
+        mstate = re.search(r"(?<!\\)\(([^)]*)\)", cells[3])
+        if not (mi and mhv and mstate):
+            continue
+        update_i = int(mi.group(1))
+        h_val = float(mhv.group(1))
+        state_tup = _parse_int_tuple(mstate.group(1))
+        if len(state_tup) != 4:
+            raise AssertionError("Malformed state tuple in Hopfield recall table")
+        steps.append((step, update_i, h_val, state_tup))
+
+    steps_sorted = sorted(steps, key=lambda t: t[0])
+    if [t[0] for t in steps_sorted] != [0, 1, 2]:
+        raise AssertionError(f"Unexpected recall trace steps: {[t[0] for t in steps_sorted]}")
+
+    s_prev = np.array(steps_sorted[0][3], dtype=float)
+    # Verify step 1 and step 2, plus energies.
+    E0 = hopfield_energy(W4, s_prev, theta=np.zeros_like(s_prev))
+    if abs(E0 - E_seq_expected[0]) > 1e-12:
+        raise AssertionError(f"Hopfield recall E0 mismatch: actual={E0}, expected={E_seq_expected[0]}")
+    for idx, (step, update_i, h_expected, s_after_tup) in enumerate(steps_sorted[1:], start=1):
+        i = update_i - 1
+        h_step = float(W4[i] @ s_prev)
+        if abs(h_step - h_expected) > 1e-12:
+            raise AssertionError(f"Hopfield recall step {step} h mismatch: actual={h_step}, expected={h_expected}")
+        s_next = s_prev.copy()
+        s_next[i] = 1.0 if h_step >= 0.0 else -1.0
+        if not np.allclose(s_next, np.array(s_after_tup, dtype=float), atol=1e-12, rtol=0.0):
+            raise AssertionError(f"Hopfield recall step {step} state mismatch: actual={s_next}, expected={s_after_tup}")
+        E_step = hopfield_energy(W4, s_next, theta=np.zeros_like(s_next))
+        if abs(E_step - E_seq_expected[idx]) > 1e-12:
+            raise AssertionError(
+                f"Hopfield recall step {step} energy mismatch: actual={E_step}, expected={E_seq_expected[idx]}"
+            )
+        s_prev = s_next
+
+    energies["hebbian_single_pattern_h1"] = float(h_act[0])
+    energies["hebbian_single_pattern_h2"] = float(h_act[1])
+    energies["hebbian_single_pattern_h3"] = float(h_act[2])
+    energies["hebbian_single_pattern_h4"] = float(h_act[3])
+
+    # ------------------------------------------------------------------
+    # 4-neuron one-flip memory recovery example (book-visible).
+    # ------------------------------------------------------------------
+    m_mem_start = tex.find(r"\paragraph{Example: Memory recovery (one flip)}")
+    if m_mem_start != -1:
+        mem = tex[m_mem_start : tex.find(r"\paragraph{Spurious attractors}", m_mem_start)]
+
+        m_xi2 = re.search(r"\\mathbf\{\\xi\}\s*=\s*\(([^)]*)\)\^T", mem)
+        if not m_xi2:
+            raise AssertionError("Could not parse xi in the Hopfield memory-recovery example")
+        xi2 = np.array(_parse_int_tuple(m_xi2.group(1)), dtype=float)
+        if xi2.shape != (4,):
+            raise AssertionError("Unexpected xi shape in memory-recovery example")
+
+        iW2 = mem.find(r"\mathbf{W} = \frac{1}{4}")
+        if iW2 == -1:
+            raise AssertionError("Could not find the printed W matrix in the memory-recovery example")
+        mW2 = re.search(
+            r"\\frac\{(\d+)\}\{(\d+)\}\s*\\begin\{pmatrix\}([\s\S]*?)\\end\{pmatrix\}",
+            mem[iW2:],
+            re.DOTALL,
+        )
+        if not mW2:
+            raise AssertionError("Could not parse the printed W matrix in the memory-recovery example")
+        scale2 = float(mW2.group(1)) / float(mW2.group(2))
+        W2_int = _parse_matrix_body(mW2.group(3))
+        W2 = scale2 * W2_int
+        W2_expected = np.outer(xi2, xi2) / float(xi2.size)
         np.fill_diagonal(W2_expected, 0.0)
         if not np.allclose(W2, W2_expected, atol=1e-12, rtol=0.0):
-            raise AssertionError("Hopfield single-pattern W mismatch vs Hebbian formula")
-
-        h = W2 @ b
-        if not np.allclose(h, h_expected, atol=1e-12, rtol=0.0):
-            raise AssertionError(f"Hopfield single-pattern h mismatch: actual={h}, expected={h_expected}")
-
-        b_hat = np.where(h >= 0.0, 1.0, -1.0)
-        if not np.allclose(b_hat, b):
-            raise AssertionError(f"Hopfield single-pattern fixed-point mismatch: sign(Wb)={b_hat}, b={b}")
-
-        if recall_s0 is not None:
-            if recall_E0 is None:
-                raise AssertionError("Hopfield QC recall_s0 missing E value")
-            E0 = hopfield_energy(W2, recall_s0, theta=np.zeros_like(recall_s0))
-            if abs(E0 - recall_E0) > 1e-12:
-                raise AssertionError(f"Hopfield recall E0 mismatch: actual={E0}, expected={recall_E0}")
-
-            # Validate each step as an asynchronous sign update from the previous state.
-            s_prev = recall_s0.copy()
-            for (step, update_i, h_exp, s_after, E_after_exp) in sorted(recall_steps, key=lambda t: t[0]):
-                i = update_i - 1
-                h_act = float(W2[i] @ s_prev)
-                if abs(h_act - h_exp) > 1e-12:
-                    raise AssertionError(f"Hopfield recall step {step} h mismatch: actual={h_act}, expected={h_exp}")
-                s_next = s_prev.copy()
-                s_next[i] = 1.0 if h_act >= 0.0 else -1.0
-                if not np.allclose(s_next, s_after, atol=1e-12, rtol=0.0):
-                    raise AssertionError(
-                        f"Hopfield recall step {step} state mismatch: actual={s_next}, expected={s_after}"
-                    )
-                E_act = hopfield_energy(W2, s_next, theta=np.zeros_like(s_next))
-                if abs(E_act - E_after_exp) > 1e-12:
-                    raise AssertionError(
-                        f"Hopfield recall step {step} energy mismatch: actual={E_act}, expected={E_after_exp}"
-                    )
-                s_prev = s_next
-
-        energies["hebbian_single_pattern_h1"] = float(h[0])
-        energies["hebbian_single_pattern_h2"] = float(h[1])
-        energies["hebbian_single_pattern_h3"] = float(h[2])
-        energies["hebbian_single_pattern_h4"] = float(h[3])
-
-    # QC-backed 4-neuron, one-flip memory recovery example (separate section).
-    if "% QC-BEGIN: hopfield_memory_recovery_4n" in tex:
-        qc3 = _extract_qc_block(tex, "hopfield_memory_recovery_4n")
-        xi = None
-        W3_rows = []
-        s0 = None
-        E0_expected = None
-        step = None
-        update_i = None
-        h_expected = None
-        s_after_expected = None
-        E_after_expected = None
-
-        for line in qc3:
-            parts = line.split()
-            tag = parts[0]
-            if tag == "xi":
-                if len(parts) != 5:
-                    raise AssertionError(f"Malformed Hopfield QC xi row: {line!r}")
-                xi = np.array([float(parts[1]), float(parts[2]), float(parts[3]), float(parts[4])], dtype=float)
-            elif tag == "W":
-                if len(parts) != 5:
-                    raise AssertionError(f"Malformed Hopfield QC W row (4D): {line!r}")
-                W3_rows.append([float(parts[1]), float(parts[2]), float(parts[3]), float(parts[4])])
-            elif tag == "s0":
-                if len(parts) != 7 or parts[5] != "E":
-                    raise AssertionError(f"Malformed Hopfield QC s0 row (4D): {line!r}")
-                s0 = np.array([float(parts[1]), float(parts[2]), float(parts[3]), float(parts[4])], dtype=float)
-                E0_expected = float(parts[6])
-            elif tag == "step":
-                # step 1 update_i 4 h -0.75 s -1 -1 1 -1 E -1.5
-                if (
-                    len(parts) != 13
-                    or parts[2] != "update_i"
-                    or parts[4] != "h"
-                    or parts[6] != "s"
-                    or parts[11] != "E"
-                ):
-                    raise AssertionError(f"Malformed Hopfield QC step row (4D): {line!r}")
-                step = int(parts[1])
-                update_i = int(parts[3])
-                h_expected = float(parts[5])
-                s_after_expected = np.array([float(parts[7]), float(parts[8]), float(parts[9]), float(parts[10])], dtype=float)
-                E_after_expected = float(parts[12])
-
-        if xi is None:
-            raise AssertionError("Hopfield QC (memory recovery) missing xi row")
-        if len(W3_rows) != 4:
-            raise AssertionError("Hopfield QC (memory recovery) must include 4 W rows")
-        if s0 is None or E0_expected is None:
-            raise AssertionError("Hopfield QC (memory recovery) missing s0/E0")
-        if step is None or update_i is None or h_expected is None or s_after_expected is None or E_after_expected is None:
-            raise AssertionError("Hopfield QC (memory recovery) missing step payload")
-        if step != 1:
-            raise AssertionError("Hopfield QC (memory recovery) expects exactly step 1")
-
-        W3 = np.array(W3_rows, dtype=float)
-        n = xi.size
-        W3_expected = np.outer(xi, xi) / float(n)
-        np.fill_diagonal(W3_expected, 0.0)
-        if not np.allclose(W3, W3_expected, atol=1e-12, rtol=0.0):
             raise AssertionError("Hopfield memory-recovery W mismatch vs Hebbian formula")
 
-        theta3 = np.zeros_like(xi)
-        E0 = hopfield_energy(W3, s0, theta=theta3)
-        if abs(E0 - E0_expected) > 1e-12:
-            raise AssertionError(f"Hopfield memory-recovery E0 mismatch: actual={E0}, expected={E0_expected}")
+        ms_probe = re.search(r"\\mathbf\{s\}\^\{\(0\)\}=\[([^\]]+)\]\^T", mem)
+        if not ms_probe:
+            raise AssertionError("Could not parse s^(0) in the Hopfield memory-recovery example")
+        s_probe = np.array(_parse_int_tuple(ms_probe.group(1)), dtype=float)
+
+        mi = re.search(r"update neuron\s*\\\(\s*(\d+)\s*\\\)", mem)
+        if not mi:
+            raise AssertionError("Could not parse which neuron is updated in the memory-recovery example")
+        update_i = int(mi.group(1))
+        if update_i != 4:
+            raise AssertionError(f"Memory-recovery example is expected to update neuron 4, got neuron {update_i}")
+
+        mh4 = re.search(r"h_4=.*?=\s*([+-]?[0-9.]+)", mem, re.DOTALL)
+        if not mh4:
+            raise AssertionError("Could not parse the printed h4 value in memory-recovery example")
+        h4_expected = float(mh4.group(1))
+
+        mEdrop = re.search(
+            r"energy drops from\s*\\\(\s*E=([+-]?[0-9.]+)\s*\\\)\s*to\s*\\\(\s*E=([+-]?[0-9.]+)\s*\\\)",
+            mem,
+        )
+        if not mEdrop:
+            raise AssertionError("Could not parse the printed energy drop in memory-recovery example")
+        E0_exp = float(mEdrop.group(1))
+        E1_exp = float(mEdrop.group(2))
+
+        E0_act = hopfield_energy(W2, s_probe, theta=np.zeros_like(s_probe))
+        if abs(E0_act - E0_exp) > 1e-12:
+            raise AssertionError(f"Hopfield memory-recovery E0 mismatch: actual={E0_act}, expected={E0_exp}")
 
         i = update_i - 1
-        h_act = float(W3[i] @ s0)
-        if abs(h_act - h_expected) > 1e-12:
-            raise AssertionError(f"Hopfield memory-recovery h mismatch: actual={h_act}, expected={h_expected}")
+        h4_act = float(W2[i] @ s_probe)
+        if abs(h4_act - h4_expected) > 1e-12:
+            raise AssertionError(f"Hopfield memory-recovery h mismatch: actual={h4_act}, expected={h4_expected}")
+        s_next = s_probe.copy()
+        s_next[i] = 1.0 if h4_act >= 0.0 else -1.0
 
-        s_next = s0.copy()
-        s_next[i] = 1.0 if h_act >= 0.0 else -1.0
-        if not np.allclose(s_next, s_after_expected, atol=1e-12, rtol=0.0):
-            raise AssertionError(
-                f"Hopfield memory-recovery state mismatch: actual={s_next}, expected={s_after_expected}"
-            )
+        E1_act = hopfield_energy(W2, s_next, theta=np.zeros_like(s_next))
+        if abs(E1_act - E1_exp) > 1e-12:
+            raise AssertionError(f"Hopfield memory-recovery E1 mismatch: actual={E1_act}, expected={E1_exp}")
 
-        E_after = hopfield_energy(W3, s_next, theta=theta3)
-        if abs(E_after - E_after_expected) > 1e-12:
-            raise AssertionError(f"Hopfield memory-recovery E_after mismatch: actual={E_after}, expected={E_after_expected}")
-
-        energies["memory_recovery_h"] = float(h_act)
-        energies["memory_recovery_E0"] = float(E0)
-        energies["memory_recovery_E1"] = float(E_after)
+        energies["memory_recovery_h"] = float(h4_act)
+        energies["memory_recovery_E0"] = float(E0_act)
+        energies["memory_recovery_E1"] = float(E1_act)
 
     return energies
 
 
 def check_cnn_flatten_params() -> dict[str, float]:
     """
-    CNN flattening parameter-count sanity check (Ch. 11), QC-backed from the TeX source.
+    CNN flattening parameter-count sanity check (Ch. 11), verified against book-visible values.
 
     Verifies the vectorized input dimension and the first-layer parameter count used in the
     ``fully connected layers break on images'' motivation.
     """
-    root = Path(__file__).resolve().parents[1]
-    tex = (root / "lecture_6.tex").read_text(encoding="utf-8", errors="ignore")
-    qc = _extract_qc_block(tex, "cnn_flatten_params")
+    tex = _read_tex("lecture_6.tex")
+    sec = _slice_between(
+        tex,
+        r"\subsection{Why fully connected layers break on images}",
+        r"\subsection{Sparse connectivity and parameter sharing}",
+    )
 
-    H = W = vec = hidden = W1 = classes = W2 = rule = nparams = approx = None
-    for line in qc:
-        parts = line.split()
-        tag = parts[0]
-        if tag == "H":
-            # H 256 W 256 vec 65536
-            if len(parts) != 6 or parts[2] != "W" or parts[4] != "vec":
-                raise AssertionError(f"Malformed CNN flatten QC line: {line!r}")
-            H = int(parts[1])
-            W = int(parts[3])
-            vec = int(parts[5])
-        elif tag == "hidden":
-            # hidden 100 W1 6553600
-            if len(parts) != 4 or parts[2] != "W1":
-                raise AssertionError(f"Malformed CNN flatten QC hidden line: {line!r}")
-            hidden = int(parts[1])
-            W1 = int(parts[3])
-        elif tag == "classes":
-            # classes 4 W2 400
-            if len(parts) != 4 or parts[2] != "W2":
-                raise AssertionError(f"Malformed CNN flatten QC classes line: {line!r}")
-            classes = int(parts[1])
-            W2 = int(parts[3])
-        elif tag == "samples_rule":
-            # samples_rule 10 Nparams 6553600 approx 65536000
-            if len(parts) != 6 or parts[2] != "Nparams" or parts[4] != "approx":
-                raise AssertionError(f"Malformed CNN flatten QC samples_rule line: {line!r}")
-            rule = int(parts[1])
-            nparams = int(parts[3])
-            approx = int(parts[5])
+    mHW = re.search(r"\\mathbb\{R\}\^\{(\d+)\s*\\times\s*(\d+)\}", sec)
+    if not mHW:
+        raise AssertionError("Could not parse image dimensions for CNN flatten example")
+    H = int(mHW.group(1))
+    W = int(mHW.group(2))
 
-    for name, val in (
-        ("H/W/vec", (H, W, vec)),
-        ("hidden/W1", (hidden, W1)),
-        ("classes/W2", (classes, W2)),
-        ("rule/nparams/approx", (rule, nparams, approx)),
-    ):
-        if any(v is None for v in val):
-            raise AssertionError(f"CNN flatten QC missing {name}")
+    mvec = re.search(r"\\mathrm\{vec\}\(X\)\s*\\in\s*\\mathbb\{R\}\^\{([^}]*)\}", sec)
+    if not mvec:
+        raise AssertionError("Could not parse vec(X) dimension for CNN flatten example")
+    vec = int(_parse_tex_number(mvec.group(1)))
 
+    # Two explicit arithmetic equations: vec*hidden=W1 and hidden*classes=W2.
+    mult_re = re.compile(r"([0-9{,}\\,]+)\s*\\times\s*([0-9{,}\\,]+)\s*=\s*([0-9{,}\\,]+)")
+    mults = [(a, b, c) for (a, b, c) in mult_re.findall(sec)]
+    if len(mults) < 2:
+        raise AssertionError("Could not find the two arithmetic parameter-count equations in the CNN chapter")
+
+    # Heuristic: the large product is vec*hidden (~millions) and the small is hidden*classes (~hundreds).
+    parsed = [(int(_parse_tex_number(a)), int(_parse_tex_number(b)), int(_parse_tex_number(c))) for (a, b, c) in mults]
+    parsed_sorted = sorted(parsed, key=lambda t: t[2], reverse=True)
+    vec_lhs, hidden, W1 = parsed_sorted[0]
+    hidden2, classes, W2 = parsed_sorted[-1]
+
+    if vec_lhs != vec:
+        raise AssertionError(f"CNN W1 equation uses vec={vec_lhs}, but vec(X) line reports {vec}")
+    if hidden2 != hidden:
+        raise AssertionError("CNN hidden dimension mismatch between equations")
+
+    # Back-of-envelope sample rule: 10 x 6,553,600 ≈ 65,536,000.
+    m_rule = re.search(r"10\s*\\times\s*([0-9{,}\\,]+)\s*\\approx\s*([0-9{,}\\,]+)", sec)
+    if not m_rule:
+        raise AssertionError("Could not parse the sample-rule back-of-envelope equation in the CNN chapter")
+    nparams = int(_parse_tex_number(m_rule.group(1)))
+    approx = int(_parse_tex_number(m_rule.group(2)))
+
+    # Verify arithmetic.
     computed_vec = int(H * W)
     if computed_vec != vec:
         raise AssertionError(f"CNN vec mismatch: actual={computed_vec}, expected={vec}")
@@ -484,44 +561,55 @@ def check_cnn_flatten_params() -> dict[str, float]:
     computed_W2 = int(hidden * classes)
     if computed_W2 != W2:
         raise AssertionError(f"CNN W2 mismatch: actual={computed_W2}, expected={W2}")
-    computed_approx = int(rule * nparams)
+    computed_approx = int(10 * nparams)
     if computed_approx != approx:
         raise AssertionError(f"CNN sample-rule approx mismatch: actual={computed_approx}, expected={approx}")
+
+    # Sanity check that the printed "N_parameters" corresponds to W1 in this toy.
+    if nparams != W1:
+        raise AssertionError(f"CNN N_parameters mismatch: expected {W1}, got {nparams}")
 
     return dict(vec=float(vec), W1=float(W1), W2=float(W2), approx=float(approx))
 
 
 def check_cnn_1d_xcorr_stride_pad() -> dict[str, float | list[float]]:
     """
-    1D cross-correlation numeric example (Ch. 11), QC-backed from the TeX source.
+    1D cross-correlation numeric example (Ch. 11), verified against book-visible values.
 
     Verifies the output length and values for the stride/padding worked example.
     """
-    root = Path(__file__).resolve().parents[1]
-    tex = (root / "lecture_6.tex").read_text(encoding="utf-8", errors="ignore")
-    qc = _extract_qc_block(tex, "cnn_1d_xcorr_stride_pad")
+    tex = _read_tex("lecture_6.tex")
+    box = _extract_tcolorbox_body(tex, "Worked example: 1D cross-correlation values (stride + padding)")
 
-    x = w = None
-    p = s = L = None
-    y_expected = None
-    for line in qc:
-        parts = line.split()
-        tag = parts[0]
-        if tag == "x":
-            x = np.array([float(v) for v in parts[1:]], dtype=float)
-        elif tag == "w":
-            w = np.array([float(v) for v in parts[1:]], dtype=float)
-        elif tag == "p":
-            p = int(parts[1])
-        elif tag == "s":
-            s = int(parts[1])
-        elif tag == "L":
-            L = int(parts[1])
-        elif tag == "y":
-            y_expected = [float(v) for v in parts[1:]]
+    def _parse_bracket_list(name: str) -> np.ndarray:
+        m = re.search(rf"\\mathbf\{{{re.escape(name)}\}}=\[([^\]]+)\]", box)
+        if not m:
+            raise AssertionError(f"Could not parse {name} list in CNN xcorr example")
+        vals = [_parse_tex_number(v) for v in m.group(1).split(",")]
+        return np.array(vals, dtype=float)
 
-    if x is None or w is None or p is None or s is None or L is None or y_expected is None:
-        raise AssertionError("CNN 1D xcorr QC missing x/w/p/s/L/y")
+    x = _parse_bracket_list("x")
+    w = _parse_bracket_list("w")
+
+    mp = re.search(r"padding\s*\\\(p=([0-9]+)\\\)", box)
+    ms = re.search(r"stride\s*\\\(s=([0-9]+)\\\)", box)
+    if not mp or not ms:
+        raise AssertionError("Could not parse padding/stride in CNN xcorr example")
+    p = int(mp.group(1))
+    s = int(ms.group(1))
+
+    mL = re.search(r"=([0-9]+)\s*\.\s*\]\s*Sliding", box, re.DOTALL)
+    if not mL:
+        # Fall back: parse the last integer after the output-length equation.
+        mL = re.search(r"output length is[\s\S]*?=\s*([0-9]+)\s*\.", box, re.DOTALL)
+    if not mL:
+        raise AssertionError("Could not parse the output length L in CNN xcorr example")
+    L = int(mL.group(1))
+
+    my = re.search(r"\\mathbf\{y\}=\[([^\]]+)\]", box)
+    if not my:
+        raise AssertionError("Could not parse the output y list in CNN xcorr example")
+    y_expected = [float(_parse_tex_number(v)) for v in my.group(1).split(",")]
 
     n = int(x.shape[0])
     k = int(w.shape[0])
@@ -544,51 +632,60 @@ def check_cnn_1d_xcorr_stride_pad() -> dict[str, float | list[float]]:
 
 def check_cnn_shape_bookkeeping() -> dict[str, float]:
     """
-    CNN shape bookkeeping example (Ch. 11), QC-backed from the TeX source.
+    CNN shape bookkeeping example (Ch. 11), verified against book-visible values.
 
     Verifies the conv output size, pooling output size, and flatten dimension.
     """
-    root = Path(__file__).resolve().parents[1]
-    tex = (root / "lecture_6.tex").read_text(encoding="utf-8", errors="ignore")
-    qc = _extract_qc_block(tex, "cnn_shape_bookkeeping")
+    tex = _read_tex("lecture_6.tex")
+    box = _extract_tcolorbox_body(tex, "Dimensionality accounting example")
 
-    H = W = Cin = None
-    k = stride = pad = Cout = outH = outW = None
-    pool = pool_stride = poolH = poolW = None
-    flat = None
+    # Input tensor size HxWxCin.
+    m_in = re.search(r"size\s*\\\((\d+)\\times(\d+)\\times(\d+)\\\)", box)
+    if not m_in:
+        raise AssertionError("Could not parse CNN shape input dimensions")
+    H, W, Cin = map(int, m_in.groups())
 
-    for line in qc:
-        parts = line.split()
-        tag = parts[0]
-        if tag == "input":
-            if len(parts) != 4:
-                raise AssertionError(f"Malformed CNN shape QC input line: {line!r}")
-            H, W, Cin = map(int, parts[1:])
-        elif tag == "conv":
-            # conv k 3 stride 1 pad 0 cout 10 out_hw 48 48
-            if len(parts) != 12 or parts[1] != "k" or parts[3] != "stride" or parts[5] != "pad" or parts[7] != "cout" or parts[9] != "out_hw":
-                raise AssertionError(f"Malformed CNN shape QC conv line: {line!r}")
-            k = int(parts[2])
-            stride = int(parts[4])
-            pad = int(parts[6])
-            Cout = int(parts[8])
-            outH = int(parts[10])
-            outW = int(parts[11])
-        elif tag == "pool":
-            # pool window 2 stride 2 out_hw 24 24
-            if len(parts) != 8 or parts[1] != "window" or parts[3] != "stride" or parts[5] != "out_hw":
-                raise AssertionError(f"Malformed CNN shape QC pool line: {line!r}")
-            pool = int(parts[2])
-            pool_stride = int(parts[4])
-            poolH = int(parts[6])
-            poolW = int(parts[7])
-        elif tag == "flatten":
-            if len(parts) != 2:
-                raise AssertionError(f"Malformed CNN shape QC flatten line: {line!r}")
-            flat = int(parts[1])
+    m_conv = re.search(
+        r"Apply\s*\\\((\d+)\\\)\s*filters of size\s*\\\((\d+)\\times(\d+)\\\)\s*with stride\s*\\\((\d+)\\\)\s*and valid padding",
+        box,
+    )
+    if not m_conv:
+        raise AssertionError("Could not parse CNN conv hyperparameters in shape example")
+    Cout = int(m_conv.group(1))
+    k = int(m_conv.group(2))
+    _k2 = int(m_conv.group(3))
+    if _k2 != k:
+        raise AssertionError("CNN shape example expects square kxk filters")
+    stride = int(m_conv.group(4))
+    pad = 0
 
-    if any(v is None for v in (H, W, Cin, k, stride, pad, Cout, outH, outW, pool, pool_stride, poolH, poolW, flat)):
-        raise AssertionError("CNN shape QC missing one or more required fields")
+    m_out = re.search(r"output is\s*\\\((\d+)\\times(\d+)\\times(\d+)\\\)", box)
+    if not m_out:
+        raise AssertionError("Could not parse CNN conv output dimensions in shape example")
+    outH, outW, outC = map(int, m_out.groups())
+    if outC != Cout:
+        raise AssertionError("CNN shape example conv output channel mismatch")
+
+    m_pool = re.search(r"Apply\s*\\\((\d+)\\times(\d+)\\\)\s*max pooling with stride\s*\\\((\d+)\\\)", box)
+    if not m_pool:
+        raise AssertionError("Could not parse CNN pooling hyperparameters in shape example")
+    pool = int(m_pool.group(1))
+    _p2 = int(m_pool.group(2))
+    if _p2 != pool:
+        raise AssertionError("CNN shape example expects square pooling window")
+    pool_stride = int(m_pool.group(3))
+
+    m_pool_out = re.search(r"pooled output is\s*\\\((\d+)\\times(\d+)\\times(\d+)\\\)", box)
+    if not m_pool_out:
+        raise AssertionError("Could not parse CNN pooled output dimensions in shape example")
+    poolH, poolW, poolC = map(int, m_pool_out.groups())
+    if poolC != Cout:
+        raise AssertionError("CNN shape example pooled output channel mismatch")
+
+    m_flat = re.search(r"=([0-9]+)(?:\\\))?\s*features", box)
+    if not m_flat:
+        raise AssertionError("Could not parse CNN flatten feature count in shape example")
+    flat = int(m_flat.group(1))
 
     outH_c = int((H + 2 * pad - k) // stride + 1)
     outW_c = int((W + 2 * pad - k) // stride + 1)

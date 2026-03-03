@@ -1,5 +1,10 @@
 % Chapter 17
 \section{Fuzzy Set Transformations Between Related Universes}\label{chap:fuzzyrelations}
+\index{extension principle}
+\index{fuzzy relation}
+\index{composition (fuzzy relations)}
+\index{t-norm}
+\index{t-conorm}
 \graphicspath{{assets/lec10/}}
 
 Building on \Cref{chap:fuzzysets}, we address a fundamental question: \emph{How do we transfer fuzzy knowledge from one universe of discourse to another related universe?} This arises whenever the same linguistic label must be reused across units, sensors, or derived variables (Celsius vs.\ Fahrenheit; position vs.\ velocity), each with its own universe and membership functions. This chapter develops that transfer layer so \Cref{chap:fuzzyinference} can assemble full inference pipelines.
@@ -95,13 +100,11 @@ The strongest preimage membership determines the membership of \(y\). When the m
 \subsection{Interpretation}
 \label{sec:fuzzyrelations_interpretation}
 
-For single-input mappings, the output membership is the strongest preimage; when multiple fuzzy inputs are involved we first combine their memberships with a chosen t\hyp{}norm (cf. \eqref{eq:extension-two-var}) and then take the supremum. Intuitively, this means:
+For single\hyp{}input mappings, the output membership is the strongest preimage; when multiple fuzzy inputs are involved we first combine their memberships with a chosen t\hyp{}norm (cf. \eqref{eq:extension-two-var}) and then take the supremum. It helps to read this as a two\hyp{}stage logic:
 
-\begin{quote}
-\emph{The degree to which \( y \) belongs to the transformed fuzzy set \( B \) is determined by the strongest membership degree among all \( x \) values that map to \( y \), appropriately combined.}
-\end{quote}
+\emph{Within one candidate explanation} (one preimage tuple), a t\hyp{}norm plays the role of ``AND'' by combining the memberships that must simultaneously hold. \emph{Across all candidate explanations} that map to the same \(y\), the supremum plays the role of ``OR'' by keeping the strongest support. In discrete examples the supremum collapses to a max, which makes the meaning especially transparent.
 
-This approach preserves the logical interpretation of membership values and respects the structure of the mapping \( f \).
+This matters because membership values are degrees of compatibility, not probabilities to be summed. If many different \(x\) values map to the same \(y\), we do not want \(y\) to look ``more true'' simply because there are many redundant preimages; we want \(y\) to inherit the best support that the mapping can provide. This approach preserves the logical interpretation of membership values and respects the structure of the mapping \( f \).
 
 \subsection{Transformation of Fuzzy Sets Between Universes}
 \label{sec:fuzzyrelations_transformation_of_fuzzy_sets_between_universes}
@@ -316,10 +319,9 @@ We define projection operators in this section and later reuse them in the dimen
 \paragraph{Cartesian Product of Fuzzy Sets}
 
 Given fuzzy sets \( A \subseteq X \) and \( B \subseteq Y \) with membership functions \( \mu_A \) and \( \mu_B \), their Cartesian product \( R = A \times B \) is defined by
-\begin{equation}
-    \mu_R(x, y) = T(\mu_A(x), \mu_B(y)),
-\label{eq:auto_fuzzyrelations_41c4751ec2}
-\end{equation}
+\[
+    \mu_R(x, y) = T(\mu_A(x), \mu_B(y)).
+\]
 where \( T \) is a chosen t\hyp{}norm, commonly the minimum operator:
 \[
     T(a, b) = \min(a, b).

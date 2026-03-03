@@ -1,5 +1,10 @@
 % Chapter 9
 \section{Introduction to Self-Organizing Networks and Unsupervised Learning}\label{chap:som}
+\index{self-organizing map (SOM)}
+\index{unsupervised learning}
+\index{quantization error (QE)}
+\index{topographic error (TE)}
+\index{U-matrix}
 \graphicspath{{assets/lec5/}}
 
 \Cref{chap:rbf} kept nonlinearity close to linear algebra: once you fix a set of basis functions, you lift the inputs into a feature space and (often) solve a regularized least-squares problem for the output weights. Now we switch the question. Instead of ``how do I fit targets?'', we ask: when labels are missing, expensive, or not even the right interface, what structure is already present in the inputs?
@@ -21,7 +26,7 @@ Competition plus cooperation: pick a winner, then let its neighbors learn too, s
 \subsection{Overview of Self-Organizing Networks}
 \label{sec:som_overview_of_self_organizing_networks}
 
-Self-organizing networks aim to discover structure in input data without labels. The most prominent example is the \emph{Self-Organizing Map} (SOM), introduced by Teuvo Kohonen. SOMs are used for clustering and for building a visualization-friendly map of a high-dimensional dataset.
+Self-organizing networks aim to discover structure in input data without labels. The most prominent example is the \emph{Self-Organizing Map} (SOM), introduced by Teuvo Kohonen \citep{Kohonen1982}. SOMs are used for clustering and for building a visualization-friendly map of a high-dimensional dataset.
 
 The idea is fairly intuitive. If the data have a meaningful notion of similarity in the original space, then repeated \emph{competition} (pick the best-matching unit) and \emph{cooperation} (update its neighbors as well) can organize a fixed 2D \emph{grid} of prototype vectors so that nearby grid locations tend to represent nearby regions of the data. The map is not a perfect geometric embedding; it is an engineered bias that often produces a useful, inspectable picture.
 
@@ -75,7 +80,11 @@ The neighborhood influence is usually controlled by a kernel (often Gaussian) wh
 \end{figure}
 
 
-Two practical SOM diagnostics show up repeatedly: the U-Matrix (a neighbor-distance heat map) and component planes (feature-wise maps). We will use both later as quick audits for whether the map is organizing structure (rather than just shuffling prototypes).
+Two practical SOM diagnostics show up repeatedly: the U-Matrix (a neighbor-distance heat map) and component planes (feature-wise maps). We will use both later as quick audits for whether the map is organizing structure (rather than just shuffling prototypes). A compact definition is: for each unit \(i\) with prototype \(\mathbf{w}_i\), the U\hyp{}Matrix value is the average distance to its grid neighbors \(\mathcal{N}(i)\),
+\[
+U(i)=\frac{1}{|\mathcal{N}(i)|}\sum_{j\in\mathcal{N}(i)}\|\mathbf{w}_i-\mathbf{w}_j\|,
+\]
+where \(\mathcal{N}(i)\) is typically the 4\hyp{}neighbor or 8\hyp{}neighbor set on the 2D grid.
 
 Before delving into the mathematical formulation and algorithmic details of SOMs, it is important to review two foundational concepts that underpin their operation: \emph{clustering} and \emph{dimensionality reduction}.
 
@@ -95,17 +104,15 @@ In the classical formulation used here (e.g., for K-means), the clusters form a 
 \begin{enumerate}
     \item Initialize $K$ cluster centroids $\{\mathbf{m}_1, \mathbf{m}_2, \ldots, \mathbf{m}_K\}$ randomly.
     \item For each data point $\mathbf{x}_i$, assign it to the cluster with the nearest centroid:
-    \begin{equation}
-        c_i = \arg\min_{k} \|\mathbf{x}_i - \mathbf{m}_k\|_2,
-        \label{eq:auto_som_a96d59060d}
-    \end{equation}
-    where $\|\cdot\|_2$ denotes the Euclidean norm.
+    \[
+        c_i = \arg\min_{k} \|\mathbf{x}_i - \mathbf{m}_k\|_2.
+    \]
+    Here \(\|\cdot\|_2\) denotes the Euclidean norm.
     \item Update each centroid as the mean of all points assigned to it:
-    \begin{equation}
-        \mathbf{m}_k = \frac{1}{|C_k|} \sum_{\mathbf{x}_i \in C_k} \mathbf{x}_i,
-        \label{eq:auto_som_5cd43ad14e}
-    \end{equation}
-    where $|C_k|$ is the number of points in cluster $C_k$.
+    \[
+        \mathbf{m}_k = \frac{1}{|C_k|} \sum_{\mathbf{x}_i \in C_k} \mathbf{x}_i.
+    \]
+    Here \( |C_k| \) is the number of points in cluster \( C_k \).
     \item Repeat steps 2 and 3 until convergence (i.e., cluster assignments no longer change significantly).
 \end{enumerate}
 
@@ -349,7 +356,13 @@ SOM training is typically stochastic: each input triggers an update, so the map 
 \subsection{Key Properties of Kohonen SOMs}
 \label{sec:som_key_properties_of_kohonen_soms}
 
-Three properties are worth keeping in mind. First, the SOM output grid is fixed by design: you choose the grid size up front, and it does not automatically scale with input dimension. Second, learning is driven by competition: each input selects a best-matching unit (BMU). Third, SOMs add cooperation on top of winner-takes-all by updating the BMU and its neighbors together, which is the mechanism that creates smooth organization on the grid rather than a shuffled bag of prototypes.
+Three properties are worth keeping in mind.
+
+First, the SOM output grid is fixed by design. You choose the grid size up front, and that choice acts like the \emph{resolution} of your map: a larger grid gives you more prototypes and finer visual detail, but it also needs enough data (and enough training) to populate the map meaningfully. A smaller grid forces a coarser organization and can merge behaviors that you might prefer to separate.
+
+Second, learning is driven by competition. Each input selects a best\hyp{}matching unit (BMU), and the BMU's prototype vector is the ``closest representative'' under your similarity rule. If you collapse the neighborhood to a winner\hyp{}only update (i.e., \(\sigma(t)\to 0\)), the algorithm becomes a form of online vector quantization: prototypes still move toward the data, but the \emph{layout} of prototypes on the grid has no reason to be ordered.
+
+Third, SOMs add cooperation on top of winner\hyp{}takes\hyp{}all by updating the BMU and its neighbors together. That cooperation is the mechanism that creates smooth organization on the grid rather than a shuffled bag of prototypes: broad neighborhoods early encourage global ordering, and shrinking neighborhoods later refine local structure without tearing the map.
 % Chapter 9 (continued)
 
 \subsection{Winner-Takes-All Learning and Weight Update Rules}
@@ -461,12 +474,6 @@ At \(t=0\) the learning rate is \(\alpha(0)=0.3\), and only the winner updates:
 \end{bmatrix}.
 \]
 For the next input, \(t=1\) so \(\alpha(1)=0.3\times 0.5 = 0.15\), and the same computation repeats with the new winner.
-
-% QC-BEGIN: som_competitive_learning_example
-% d 0.03 0.14 0.13 winner 1
-% w1_new 0.17 0.30 0.47 0.13
-% alpha0 0.30 alpha1 0.15
-% QC-END: som_competitive_learning_example
 
 \subsection{Winner-Takes-All Learning Recap}
 \label{sec:som_winner_takes_all_learning_recap}
@@ -609,18 +616,6 @@ Meanwhile the average distance to the BMU is \(\text{QE}\approx 0.1962\).
 
 The lesson is that QE is a ``prototype fit'' score, while TE is an ``ordering'' score. You can improve QE by moving prototypes toward the data while still tearing the map if nearby grid units do not represent nearby regions of the input space.
 \end{tcolorbox}
-
-% QC-BEGIN: som_qe_te_example
-% w1 0.00 0.00
-% w2 2.00 0.00
-% w3 0.00 2.00
-% w4 0.25 0.25
-% x1 0.30 0.30 bmu 4 sbmu 1 adj 0
-% x2 1.80 0.20 bmu 2 sbmu 4 adj 1
-% x3 0.20 1.70 bmu 3 sbmu 4 adj 1
-% x4 0.05 0.05 bmu 1 sbmu 4 adj 0
-% QE 0.196205 TE 0.500000
-% QC-END: som_qe_te_example
 
 \begin{tcolorbox}[summarybox, title={Batch SOM in practice}, breakable]
 Online SOM updates one sample at a time: pick a best-matching unit (BMU), nudge it and its neighbors, move on. Batch SOM instead aggregates responsibilities across a dataset (or mini\hyp{}batch) before shifting prototypes:
@@ -1074,17 +1069,18 @@ Each neuron \(j\) in \(\mathcal{N}(c)\) updates its weight vector according to \
 \subsection{Summary of Cooperative Competitive Learning Algorithm}
 \label{sec:som_summary_of_cooperative_competitive_learning_algorithm}
 
-Each training step repeats the same loop: present an input, identify the BMU using your chosen discriminant (dot product or distance), update the BMU and its neighbors with the cooperative rule, and then decay both the learning rate and neighborhood radius according to the schedule. Over many passes through the data, the neighborhood starts broad (to settle global ordering) and then shrinks (to refine local detail without tearing the map).
+Cooperative competitive learning is the winner\hyp{}takes\hyp{}all loop with one extra ingredient: a neighborhood kernel on the \emph{grid}. For each input \(\mathbf{x}(t)\), you (i) compute match scores, (ii) pick the BMU \(c\), (iii) compute neighborhood weights from grid distances \(\|\mathbf{r}_j-\mathbf{r}_c\|\), and (iv) update the BMU and its neighbors with the cooperative rule. The neighborhood term is what turns ``a set of prototypes'' into ``an organized map.''
+
+The two schedules play different roles. The learning rate \(\alpha(t)\) controls how fast prototypes move; the neighborhood width \(\sigma(t)\) controls \emph{how much} the map is encouraged to be globally ordered. If \(\sigma(t)\) shrinks too quickly, the map can freeze before it has a chance to organize (a common source of topology errors). If \(\sigma(t)\) stays large for too long, the map can remain smooth but blurry, with weak separation between regions. This is why the monitoring tools introduced earlier (e.g., QE/TE and stability across seeds) are not decoration: they are how you tell whether the schedule is producing the behavior you intended.
 \subsection{Wrapping Up the Kohonen Self-Organizing Map (SOM) Derivations}
 \label{sec:som_wrapping_up_the_kohonen_self_organizing_map_som_derivations}
 
 At this point the SOM training story is complete: you have a similarity rule (to pick a winner), a neighborhood rule (to decide who else learns), and schedules that anneal both over time. The only subtlety is that these pieces interact. A large neighborhood early is what gives you global organization; a small neighborhood late is what lets prototypes settle into fine detail without tearing the map.
 
 Recall the weight update rule for neuron \( j \) at time step \( t \):
-\begin{align}
+\[
     \Delta \mathbf{w}_j(t) = \alpha(t) \, h_{j, c}(t) \left[ \mathbf{x}(t) - \mathbf{w}_j(t) \right].
-    \label{eq:auto:lecture_5_part_i:2}
-\end{align}
+\]
 where:
 \begin{itemize}
     \item \(\mathbf{x}(t)\) is the input vector at time \( t \).

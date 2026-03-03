@@ -1,5 +1,9 @@
 % Chapter 7
 \section{Backpropagation Learning in Multi-Layer Perceptrons}\label{chap:backprop}
+\index{backpropagation}
+\index{gradient}
+\index{gradient check}
+\index{cross-entropy}
 \graphicspath{{assets/lec4/}}
 
 Building on the two\hyp{}neuron derivation in \Cref{chap:mlp}, we scale the same idea to an \(L\)\hyp{}layer multi\hyp{}layer perceptron (MLP). Conceptually it is still the chain rule; what changes is the accounting. We compute layerwise error signals (the \(\delta\)'s), reuse them to obtain every weight and bias gradient, and organize the work into a backward sweep you can implement and debug. The goal is practical: you should be able to trace one forward pass, write down one backward pass, and know exactly which stored intermediate values each gradient depends on. By the end of this chapter, the backpropagation algorithm should feel like a concrete procedure rather than a black box.
@@ -46,7 +50,7 @@ where $b_j^{(l)}$ is the bias term for neuron $j$ in layer $l$, and $f(\cdot)$ i
 \subsection{Loss and Objective}
 \label{sec:backprop_loss_and_objective}
 
-To keep the algebra uncluttered (and aligned with \Cref{chap:mlp}), we use a simple squared\hyp{}error objective. Let the network output be \(\mathbf{a}^{(L)}\) and let \(\mathbf{t}\) be the target. For classification, \(\mathbf{t}\) is often one\hyp{}hot (a vector with a 1 at the correct class index and 0 elsewhere). For a single example, a standard choice is the half-squared error:
+To keep the algebra uncluttered (and aligned with \Cref{chap:mlp}), we use a simple squared\hyp{}error objective. Let the network output be \(\mathbf{a}^{(L)}\) and let \(\mathbf{t}\) be the target. For classification, \(\mathbf{t}\) is often one\hyp{}hot (a vector with a 1 at the correct class index and 0 elsewhere). If you want the output to behave like a probability vector, you normally pair that target with a sigmoid/softmax output and cross\hyp{}entropy; we keep squared error here so the chain rule is the only moving part. For a single example, a standard choice is the half-squared error:
 \begin{equation}
     \mathcal{L} = \frac{1}{2} \sum_k \left( t_k - a_k^{(L)} \right)^2. \label{eq:error_function}
 \end{equation}
@@ -83,17 +87,16 @@ To formalize this, we introduce the following notation:
 \end{itemize}
 These definitions carry directly into the forward-pass recap below, where we chain the affine map and nonlinearity across layers.
 \paragraph{Notation handoff.}
-Across this chapter, \(a\) denotes activations and \(z\) denotes pre-activations; this pairing is reused in later deep-learning chapters. If you jump into chapters out of order, keep \Cref{app:notation_collisions} nearby for symbol overloads.
+In \Cref{chap:mlp} we wrote a unit as \(y=f(p)\), where \(p\) is the pre\hyp{}activation and \(y\) is the post\hyp{}activation output. In this chapter we use the standard deep-learning pair \(a=f(z)\): \(p \leftrightarrow z\) and \(y \leftrightarrow a\). The calculus is unchanged; the notation just scales cleanly to many layers and batch matrix form. If you jump into chapters out of order, keep \Cref{app:notation_collisions} nearby for symbol overloads.
 
 \subsection{Forward Pass Recap}
 \label{sec:backprop_forward_pass_recap}
 
 The forward pass computes activations layer by layer:
-\begin{align}
+\begin{align*}
     z_j^{(l)} &= \sum_i a_i^{(l-1)} w_{ij}^{(l)} + b_j^{(l)}, \\
     a_j^{(l)} &= f\big(z_j^{(l)}\big).
-    \label{eq:auto:lecture_4_part_i:1}
-\end{align}
+\end{align*}
 
 The output layer activations \(a_k^{(L)}\) are compared to the targets \(t_k\) to form a loss (e.g., \Cref{eq:error_function}), and backpropagation propagates that output error backward through the layers to compute every weight gradient efficiently.
 
@@ -146,7 +149,7 @@ Our goal is the gradient of the loss with respect to each weight \(w_{ij}^{(l)}\
 We will continue with the squared\hyp{}error loss from \Cref{chap:mlp}:
 \begin{equation}
 \mathcal{L} = \frac{1}{2} \sum_{k} (t_k - a_k^{(L)})^2.
-\label{eq:auto_backprop_4c440b0502}
+\label{eq:backprop_mse_loss}
 \end{equation}
 where \( t_k \) is the target output and \( a_k^{(L)} \) is the activation of output neuron \( k \). Other losses change only a few local derivatives (most notably at the output layer), but the backprop recursion and overall structure are the same.
 
@@ -767,7 +770,7 @@ Then the chain rule gives a reusable backward recursion:
 \begin{align}
 \boldsymbol{\delta}^{(L)} &= \nabla_{\mathbf{A}^{(L)}} \mathcal{L} \odot f^{(L)\prime}(\mathbf{Z}^{(L)}), \\
 \boldsymbol{\delta}^{(l-1)} &= \left(\boldsymbol{\delta}^{(l)}(\mathbf{W}^{(l)})^\top\right) \odot f^{(l-1)\prime}(\mathbf{Z}^{(l-1)}), \quad l = L, \ldots, 2,
-    \label{eq:auto:lecture_4_part_i:2}
+    \label{eq:backprop_delta_recursion}
 \end{align}
 where \(\odot\) denotes element-wise multiplication and \(f^{(l)\prime}\) is the derivative of the activation function at layer \( l \).
 
@@ -785,7 +788,7 @@ These equations are the whole story: cache forward values, propagate \(\delta\)'
 \begin{tcolorbox}[summarybox, title={Key takeaways}]
 \textbf{If you remember only a few things}
 \begin{itemize}
-    \item Backpropagation is the chain rule organized: cache forward values, propagate \(\delta\)'s backward using \Cref{eq:auto:lecture_4_part_i:2}, then assemble gradients with \Cref{eq:grad_W,eq:grad_b}.
+    \item Backpropagation is the chain rule organized: cache forward values, propagate \(\delta\)'s backward using \Cref{eq:backprop_delta_recursion}, then assemble gradients with \Cref{eq:grad_W,eq:grad_b}.
     \item The \(\delta\)'s are not mysterious: they are sensitivities (\(\partial \mathcal{L}/\partial \mathbf{Z}^{(l)}\)) that you reuse to update every parameter.
     \item For softmax + cross\hyp{}entropy, the output-layer error simplifies to \((\hat{\mathbf{Y}}-\mathbf{Y})/B\); a small finite-difference check can confirm this identity, and it is used in the modern-practice code pattern earlier in the chapter.
     \item When training misbehaves, debug like an engineer: overfit a tiny batch, run a finite-difference check, then inspect per-layer gradient norms and shapes.
@@ -815,6 +818,36 @@ These equations are the whole story: cache forward values, propagate \(\delta\)'
     \item \textbf{Fail fast:} gradient-check one tiny network and overfit one tiny batch before you trust results on a real dataset.
     \item \textbf{Make runs comparable:} record seeds, optimizer, schedule, and stopping rule. The reporting checklist in \Cref{app:repro_standards} helps keep comparisons honest.
 \end{itemize}
+\end{tcolorbox}
+
+\begin{tcolorbox}[summarybox, breakable, title={Backpropagation (dense MLP) pseudocode}]
+\footnotesize
+\begin{verbatim}
+function MLPTrainStep(X, Y, params, eta):
+    # X: B x d_in, Y: B x d_out; params: {W[l], b[l]} for l=1..L
+    # Forward (cache everything the backward pass will reuse)
+    A[0] <- X
+    for l in 1..L:
+        Z[l] <- A[l-1] @ W[l]
+        Z[l] <- Z[l] + b[l]   # b broadcast across the batch
+        A[l] <- f_l(Z[l])
+    # Backward (delta[l] = dL/dZ[l])
+    dA <- dLoss_dA(A[L], Y)
+    delta[L] <- dA * fprime_L(Z[L])
+    for l in L..1:
+        gradW[l] <- transpose(A[l-1]) @ delta[l] / B
+        gradb[l] <- sum_rows(delta[l]) / B
+        if l > 1:
+            dAprev <- delta[l] @ transpose(W[l])
+            delta[l-1] <- dAprev * fprime_{l-1}(Z[l-1])
+    # Update
+    for l in 1..L:
+        W[l] <- W[l] - eta * gradW[l]
+        b[l] <- b[l] - eta * gradb[l]
+    return params
+\end{verbatim}
+\normalsize
+This matches the matrix-form recap: the forward pass produces activations and caches; the backward pass propagates layerwise error signals and assembles gradients; the update step is an optimizer choice (plain SGD shown here). The most common implementation bugs are shape errors and missing transposes, so keep the shape ledger and one tiny gradient check close.
 \end{tcolorbox}
 
 \begin{tcolorbox}[summarybox, title={Exercises and lab ideas}]

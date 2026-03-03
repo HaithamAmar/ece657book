@@ -1,5 +1,10 @@
 % Chapter 13
 \section{Neural Network Applications in Natural Language Processing}\label{chap:nlp}
+\index{natural language processing (NLP)}
+\index{word embedding}
+\index{Word2Vec}
+\index{negative sampling}
+\index{tokenization}
 \graphicspath{{assets/lec8/}{assets/lec14/}}
 
 \Cref{chap:rnn} framed language as prediction under context: the model must assign probability to the next token from a compressed state. That framing makes the bottleneck obvious. Tokens are discrete identifiers, while the model is a continuous function; if the input geometry is unhelpful, the network cannot generalize systematically from one string to another.
@@ -246,10 +251,9 @@ Each context token is encoded as a one-hot row in \(\mathbb{R}^{1\times V}\), th
 
 The CBOW model computes the average of the embeddings of the context words using an \emph{input} embedding matrix \(\mathbf{W}\) and predicts with a separate \emph{output} embedding matrix \(\mathbf{W}_{\text{out}}\):
 
-\begin{align}
+\[
 \mathbf{h} = \frac{1}{2c} \sum_{\substack{-c \leq j \leq c \\ j \neq 0}} \mathbf{x}_{t+j}\mathbf{W}
-    \label{eq:auto:lecture_8_part_i:1}
-\end{align}
+\]
 
 where \( \mathbf{x}_{t+j} \) is the one-hot vector for the context word at position \( t+j \), and \(c\) denotes the \emph{half-window} size (there are \(2c\) context words around \(w_t\) when the document is long enough).
 
@@ -272,17 +276,15 @@ Training maximizes corpus log-likelihood, updating both \(\mathbf{W}\) and outpu
 
 The detailed skip-gram form reverses CBOW: use center word \(w_t\) to predict each context token \(w_{t+j}\) in window \(c\):
 
-\begin{align}
+\[
 \prod_{\substack{-c \leq j \leq c \\ j \neq 0}} P(w_{t+j} \mid w_t)
-    \label{eq:auto:lecture_8_part_i:2}
-\end{align}
+\]
 
 The input is the one-hot vector \( \mathbf{x}_t \) representing the center word, which is projected into the embedding space via the same input embedding matrix \( \mathbf{W} \in \mathbb{R}^{V \times d} \):
 
-\begin{align}
+\[
 \mathbf{h} = \mathbf{x}_t\mathbf{W}
-    \label{eq:auto:lecture_8_part_i:3}
-\end{align}
+\]
 
 Each context word \( w_{t+j} \) is predicted by applying a softmax over the output vectors (again using the output-embedding matrix \(\mathbf{W}_{\text{out}}\)):
 
@@ -302,10 +304,9 @@ where \( \mathbf{u}_w \) are the output vectors as before.
 
 Both CBOW and skip-gram models require computing the softmax normalization over the entire vocabulary \( V \), which can be very large (e.g., \( V = 10,000 \) or more). The denominator in equations \eqref{eq:cbow-softmax} and \eqref{eq:skipgram-softmax} involves summing exponentials over all vocabulary words:
 
-\begin{align}
+\[
 Z = \sum_{w=1}^V \exp(\mathbf{h}\,\mathbf{u}_w)
-    \label{eq:auto:lecture_8_part_i:4}
-\end{align}
+\]
 
 \begin{tcolorbox}[summarybox, title={Recipe: skip-gram with negative sampling}]
 Preprocess: tokenize (BPE/WordPiece or whitespace), lowercase if appropriate, drop rare words below a cutoff, subsample frequent words with \(t\approx 10^{-5}\).\\
@@ -488,7 +489,7 @@ This equation suggests that the log co-occurrence counts can be approximated by 
 Given the corpus co-occurrence matrix \( X = [X_{ik}] \), our goal is to find word vectors \( \mathbf{v}_i \), \( \mathbf{u}_k \) and biases \( b_i, b_k \) that minimize the reconstruction error:
 \begin{equation}
     J = \sum_{i, k} f(X_{ik}) \left( \mathbf{v}_i\,\mathbf{u}_k + b_i + b_k - \log X_{ik} \right)^2,
-\label{eq:auto_nlp_be1df77f53}
+\label{eq:glove_objective}
 \end{equation}
 where \( f \) is a weighting function that controls the influence of each co-occurrence pair.
 

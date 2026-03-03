@@ -1726,3 +1726,138 @@ Build notes (2026-02-17):
 - `notes_output/upload/refs.bib`: mirrored the same metadata corrections to keep the upload bib in sync.
 - 2026-03-01: Ran `python3 notes_output/scripts/validate_math_examples_and_graphs.py --strict`. Result: PASS.
 - 2026-03-01: Ran `bash notes_output/scripts/run_production_checks.sh`. Result: PASS (release checks, Apple gatekeeper audits, EPUB citation visibility audit, and EPUBCheck all OK).
+
+## 2026-03-02 Chapter 19 micro-section enrichment (thin subsections)
+
+- `notes_output/lecture_11.tex` (Chapter 19): expanded four previously thin micro-sections (<90 words) into teachable prose without removing content:
+  - `Illustrative Example`: clarified the rugged-landscape intuition and why population search helps beyond single-trajectory local methods.
+  - `Evolutionary Computing at a Glance`: added an engineering framing of exploration vs exploitation and the minimal diagnostics you watch in practice.
+  - `Implications for Genetic Algorithms`: made the biology-to-engineering mapping explicit and added the representation-sensitivity caveat (operators must respect encodings).
+  - `Population Initialization and Size`: added practical guidance on seeding and feasibility handling, plus the budget tradeoff \(B \approx M \times G\).
+- 2026-03-02: Ran `python3 notes_output/scripts/validate_math_examples_and_graphs.py --strict`. Result: PASS.
+- 2026-03-02: Ran `bash notes_output/scripts/run_production_checks.sh`. Result: PASS (release checks, Apple gatekeeper audits, EPUB citation visibility audit, and EPUBCheck all OK).
+
+## 2026-03-02 Remove QC markers from sources (book-visible numeric verification remains strict)
+
+- Removed all `% QC-BEGIN: ...` / `% QC-END: ...` marker blocks from chapter sources while preserving every numeric/figure claim
+  by shifting verification to parse book-visible values:
+  - `notes_output/lecture_3_part_i.tex` (Chapter 5): removed Perceptron OR-trace QC block; book-visible trace remains.
+  - `notes_output/lecture_5_part_i.tex` (Chapter 9): removed SOM competitive-learning + QE/TE QC blocks; examples remain in-box.
+  - `notes_output/lecture_5_part_ii.tex` (Chapter 10): removed Hopfield QC blocks; numeric traces remain as printed tables/equations.
+  - `notes_output/lecture_6.tex` (Chapter 11): removed CNN QC blocks; numeric examples remain as printed values.
+  - `notes_output/lecture_7.tex` (Chapter 12): removed RNN two-step QC block; numeric example remains as printed values.
+- `notes_output/scripts/check_numeric_examples.py`: refactored to parse and verify the book-visible numbers directly (no hidden QC comments).
+- `notes_output/scripts/validate_math_examples_and_graphs.py`: hardened LaTeX parsing for SOM examples (handles `\\` line breaks and
+  strips punctuation in numeric fields); relaxed QE rounding tolerance to match the printed precision.
+- `notes_output/ece657_notes.pdf`: rebuilt.
+- 2026-03-02: Ran `python3 notes_output/scripts/validate_math_examples_and_graphs.py --strict`. Result: PASS.
+- 2026-03-02: Ran `bash notes_output/scripts/run_production_checks.sh`. Result: PASS (release checks, Apple gatekeeper audits, EPUB citation visibility audit, and EPUBCheck all OK).
+
+## 2026-03-02 Micro-section enrichment (Chapters 9/15/17)
+
+- `notes_output/lecture_5_part_i.tex` (Chapter 9): expanded two previously short subsections to reduce flow interruptions:
+  - `Key Properties of Kohonen SOMs`: clarified the grid-as-resolution idea, connected cooperation to topology preservation, and explained the winner-only collapse as online vector quantization.
+  - `Summary of Cooperative Competitive Learning Algorithm`: made the loop read as an engineering recipe (what gets computed in what order) and clarified the distinct roles of \(\alpha(t)\) vs \(\sigma(t)\) with monitoring cues (QE/TE, stability across seeds).
+- `notes_output/lecture_8_part_ii.tex` (Chapter 15): strengthened `Comparison with Other Soft Computing Paradigms` into a clearer ``bottleneck'' view and added a concrete hybridization paragraph (neural features + fuzzy specification + GA tuning + probabilistic uncertainty).
+- `notes_output/lecture_10_part_i.tex` (Chapter 17): expanded the `Interpretation` subsection to explicitly frame the extension principle aggregation as ``AND within preimage, OR across preimages'' and to prevent probability-like misreadings of membership accumulation.
+- 2026-03-02: Ran `python3 notes_output/scripts/validate_math_examples_and_graphs.py --strict`. Result: PASS.
+- 2026-03-02: Ran `bash notes_output/scripts/run_production_checks.sh`. Result: PASS (release checks, Apple gatekeeper audits, EPUB citation visibility audit, and EPUBCheck all OK).
+
+## 2026-03-03 Remove `eq:auto...` labels (publisher-facing) + restore equation hygiene
+
+- Removed remaining machine-generated `\label{eq:auto...}` labels across chapters/appendices and restored EPUB equation-number parity:
+  - Converted unreferenced display math to unnumbered `\[...\]`/`align*` to reduce clutter.
+  - Added descriptive `\label{eq:...}` identifiers to core definitions/objectives where numbering is useful (ERM/regularized ERM, elastic net, linear-regression likelihood/NLL, OLS closed form; backprop MSE loss; CNN output-size formula; RNN NLL objective).
+- `notes_output/lecture_1_intro.tex`: updated the roadmap to explicitly include Transformers (Attention) and removed numbering from a non-referenced “transitivity” example display.
+- `notes_output/scripts/verify_proof_integrity.py`: updated the CNN stride/padding check to target the new stable label `eq:cnn_output_size`.
+- `notes_output/EPUB_PUBLISHING_QC.md`: updated policy to forbid machine-generated equation labels in publish sources; clarified the “number only what you reference” convention.
+- 2026-03-03: Ran `python3 notes_output/scripts/validate_math_examples_and_graphs.py --strict`. Result: PASS.
+- 2026-03-03: Ran `bash notes_output/scripts/run_production_checks.sh`. Result: PASS (release checks, Apple gatekeeper audits, EPUB citation visibility audit, and EPUBCheck all OK).
+
+## 2026-03-03 Notation collisions + running-head polish (print/EPUB) + small production cleanup
+
+- `notes_output/notation.tex`: moved the short orientation paragraph and “Conventions” header to appear before the symbol table (so the table is not the first thing readers see).
+- `notes_output/appendix_notation_collisions.tex`: expanded the collisions index with the most common confusions and a compact disambiguation rule:
+  - \(n\): feature dimension vs sequence length.
+  - \(d\): input/feature dimension vs embedding width (\(d_{\text{model}}\)).
+  - \(\phi,\varphi,\Phi\): kernel feature map vs RBF basis vs design matrix.
+- `notes_output/lecture_10_part_ii.tex`: removed a stray `\markboth{...}{}` manual running-head override to keep headers consistent across chapters.
+- `notes_output/ece657_notes.tex` (print): adjusted running heads to a standard book pattern (verso shows book title; recto shows chapter number + title), added a safe truncation for long titles, and fixed `\setcounter{...}{...}` brace style.
+- `notes_output/ece657_ebook.tex` (EPUB): added a global `\graphicspath{{assets/}}` fallback and fixed `\setcounter{...}{...}` brace style.
+- 2026-03-03: Ran `python3 notes_output/scripts/validate_math_examples_and_graphs.py --strict`. Result: PASS.
+- 2026-03-03: Ran `bash notes_output/scripts/run_production_checks.sh`. Result: PASS (release checks, Apple gatekeeper audits, EPUB citation visibility audit, and EPUBCheck all OK).
+
+## 2026-03-03 Appendix ordering + course-only logistics framing
+
+- `notes_output/book_appendices.tex`: reordered appendices to match the intended lookup frequency:
+  - Notation collisions and reproducibility standards first (most often consulted),
+  - then kernel methods and linear-systems primer,
+  - course logistics remains course-edition only.
+- `notes_output/appendix_logistics.tex`: added a prominent course-only header box and tightened the opening so non-course readers can skip immediately.
+- `notes_output/ece657_notes.pdf`: rebuilt.
+- 2026-03-03: Ran `python3 notes_output/scripts/validate_math_examples_and_graphs.py --strict`. Result: PASS.
+- 2026-03-03: Ran `bash notes_output/scripts/run_production_checks.sh`. Result: PASS (release checks, Apple gatekeeper audits, EPUB citation visibility audit, and EPUBCheck all OK).
+
+## 2026-03-03 Bibliography + citation integrity pass (foundational refs + missing cites)
+
+- `notes_output/refs.bib`: added missing foundational and review-requested references:
+  - Slagle (symbolic integration), Vapnik (statistical learning theory), Fisher (MLE foundations), Tikhonov (regularization),
+    Brier + Gneiting/Raftery (proper scoring rules), Frazier (Bayesian optimization tutorial), Sutton \& Barto (RL reference),
+    LeCun (LeNet/CNN origins), and the Ultralytics YOLO software citation.
+  - Added a stable URL fallback for `Tikhonov1963` so the entry is searchable.
+- `notes_output/lecture_1_intro.tex`: cited Slagle's integration system and the YOLOv8 example (Ultralytics citation).
+- `notes_output/lecture_supervised.tex`: cited proper scoring rules sources; added ERM and regularization foundation citations (Vapnik, Tikhonov).
+- `notes_output/lecture_2_part_ii.tex`: cited Fisher for MLE and clarified MAP/regularization citations (Bishop, plus a short Tikhonov tie-back for L2).
+- `notes_output/lecture_6.tex`: added LeNet-era citations at first historical mention (LeCun 1989/1998).
+- `notes_output/lecture_11.tex`: acknowledged Bayesian optimization as a strong alternative when evaluation budgets are tiny (with a tutorial citation).
+- 2026-03-03: Ran `python3 notes_output/scripts/validate_math_examples_and_graphs.py --strict`. Result: PASS.
+- 2026-03-03: Ran `bash notes_output/scripts/run_production_checks.sh`. Result: PASS (release checks, Apple gatekeeper audits, EPUB citation visibility audit, and EPUBCheck all OK).
+
+## 2026-03-03 Scope + definition-at-first-use polish (small but reviewer-visible)
+
+- `notes_output/lecture_1_intro.tex`: added a short scope note pointing RL readers to a dedicated reference, and added a footnote caveating the SAE-levels analogy (example only, not a claimed mapping).
+- `notes_output/lecture_6.tex`: defined ``receptive field'' at first use (region of the input grid that can influence a unit) to avoid a jargon drop.
+- 2026-03-03: Ran `python3 notes_output/scripts/validate_math_examples_and_graphs.py --strict`. Result: PASS.
+- 2026-03-03: Ran `bash notes_output/scripts/run_production_checks.sh`. Result: PASS (release checks, Apple gatekeeper audits, EPUB citation visibility audit, and EPUBCheck all OK).
+
+## 2026-03-03 Add EPUB-safe pseudocode boxes (Perceptron + Backprop)
+
+- `notes_output/lecture_3_part_i.tex`: added a compact, implementation-minded perceptron training loop pseudocode box (update-on-mistake) and tied it forward to logistic regression and the MLP/backprop chapters.
+- `notes_output/lecture_4_part_i.tex`: added a dense-MLP backprop training-step pseudocode box that mirrors the matrix-form derivation (cache forward quantities, propagate \(\delta\)'s, assemble gradients, then update). Shortened long verbatim lines to avoid overfull boxes in the PDF build.
+- `artifacts/qc/bib_style_report.md`: wrote a short bibliography style policy report (0 errors/warnings) to keep QC evidence in the repo alongside the existing ref-coverage report.
+- `notes_output/ece657_notes.pdf`: rebuilt.
+- 2026-03-03: Ran `python3 notes_output/scripts/validate_math_examples_and_graphs.py --strict`. Result: PASS.
+- 2026-03-03: Ran `bash notes_output/scripts/run_production_checks.sh`. Result: PASS (release checks, Apple gatekeeper audits, EPUB citation visibility audit, and EPUBCheck all OK).
+
+## 2026-03-03 Preface + acknowledgments: provenance clarity and explicit credit
+
+- `notes_output/preface.tex`: removed the ``framework not originally mine'' phrasing and reframed the organizing perspective as a lens refined through teaching and debugging (keeping the tone consistent with the rest of the front matter).
+- `notes_output/acknowledgments.tex`: expanded acknowledgments to include explicit credit to Prof.~Fakhri Karray (ECE~657 origins), plus the institutional and practical support that made the manuscript possible (students' feedback loops, colleagues' perspective, and the reproducibility tooling ecosystem).
+- `notes_output/ece657_notes.pdf`: rebuilt.
+- 2026-03-03: Ran `python3 notes_output/scripts/validate_math_examples_and_graphs.py --strict`. Result: PASS.
+- 2026-03-03: Ran `bash notes_output/scripts/run_production_checks.sh`. Result: PASS (release checks, Apple gatekeeper audits, EPUB citation visibility audit, and EPUBCheck all OK).
+
+## 2026-03-03 PDF subject index (makeidx) + reproducible build integration
+
+- Implemented a PDF-only subject index so the print build has a traditional back-of-book index, while the EPUB build remains clean and reflow-friendly.
+- `.gitignore`: ignore generated index artifacts (`notes_output/*.idx`, `notes_output/*.ind`, `notes_output/*.ilg`).
+- `notes_output/ece657_notes.tex` (print): enabled index generation (`makeidx` + `\makeindex`) and printed the index at the end of the book (added an `Index` entry to the ToC).
+- `notes_output/ece657_ebook.tex` (EPUB): added safe no-op fallbacks for `\index`, `\makeindex`, and `\printindex` so shared chapter sources can include index terms without affecting EPUB builds.
+- `notes_output/scripts/run_editorial_qc.sh`: added a `makeindex` step when an `.idx` is produced, then re-ran the TeX build so the final PDF includes the generated index.
+- Seeded initial `\index{...}` terms at the start of each chapter (`\section{...}`) to make the index useful with minimal churn (terms map to where each topic is introduced).
+- `notes_output/ece657_notes.pdf`: rebuilt (now includes the index).
+- 2026-03-03: Ran `python3 notes_output/scripts/validate_math_examples_and_graphs.py --strict`. Result: PASS.
+- 2026-03-03: Ran `bash notes_output/scripts/run_production_checks.sh`. Result: PASS (release checks, Apple gatekeeper audits, EPUB citation visibility audit, and EPUBCheck all OK).
+
+## 2026-03-03 Book-review closeout polish (preface dedup + SOM/Hopfield polish + ethics + learning outcomes)
+
+- `notes_output/preface.tex`: removed an accidental duplicated paragraph and tightened a couple of phrases (idiom/polish) so the preface reads cleanly end-to-end.
+- `notes_output/lecture_supervised.tex`: standardized loss notation to \(\mathcal{L}\) (avoid bare \(L\) as a collision-prone symbol).
+- `notes_output/lecture_5_part_i.tex`: added the Kohonen citation at first historical mention and added a compact, formal U-matrix definition near first use.
+- `notes_output/lecture_3_part_i.tex`: standardized the sign function mention to `\(\mathrm{sgn}(\cdot)\)` to match the chapter's notation note.
+- `notes_output/lecture_4_part_i.tex`: added a brief early caveat that squared error is used for chain-rule clarity; for probability-like outputs, cross-entropy with sigmoid/softmax is the standard default.
+- `notes_output/lecture_5_part_ii.tex`: added an explicit Hopfield \(\rightarrow\) attention/Transformers forward pointer (continuous retrieval view) with a modern Hopfield reference.
+- `notes_output/lecture_6.tex`, `notes_output/lecture_11.tex`, `notes_output/lecture_1_intro.tex`: added short, scoped ethical-considerations reminders in the relevant takeaways/overview boxes (bias/surveillance, objective gaming/constraints, and a global framing note).
+- `notes_output/lecture_3_part_ii.tex`, `notes_output/lecture_6.tex`, `notes_output/lecture_transformers.tex`: standardized Learning Outcomes to 3--4 measurable bullets (reduced 5-item lists by merging overlapping items).
+- 2026-03-03: Ran `python3 notes_output/scripts/validate_math_examples_and_graphs.py --strict`. Result: PASS.
+- 2026-03-03: Ran `bash notes_output/scripts/run_production_checks.sh`. Result: PASS (release checks, Apple gatekeeper audits, EPUB citation visibility audit, and EPUBCheck all OK).

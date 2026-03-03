@@ -1,5 +1,15 @@
 % Chapter 14
 \section{Transformers: Attention-Based Sequence Modeling}\label{chap:transformers}
+\index{transformer}
+\index{attention}
+\index{attention!self-attention}
+\index{attention!cross-attention}
+\index{multi-head attention}
+\index{positional encoding}
+\index{BERT}
+\index{GPT}
+\index{LoRA}
+\index{KV cache}
 
 \Cref{chap:rnn} made the sequence problem explicit: stateful computation plus gradients that must flow across time. \Cref{chap:nlp} then supplied the representation layer that makes those sequence objectives practical. This chapter keeps those representations but loosens the ``one step at a time'' constraint: instead of marching through time, we let each position look around and pull in what it needs through attention.
 
@@ -8,9 +18,8 @@ After this chapter, you should be able to:
 \begin{itemize}
   \item Explain the encoder--decoder bottleneck and how attention fixes it in sequence-to-sequence problems.
   \item Write scaled dot-product attention and multi-head attention, and interpret them as weighted averages.
-  \item Distinguish self-attention from cross-attention and describe where each appears in a Transformer.
-  \item Explain positional encodings and masking (padding/causal) in training and decoding.
-  \item Describe a Transformer block (residual paths, layer norm, FFN) and common objectives (MLM/CLM) and families (BERT/GPT/encoder--decoder).
+  \item Distinguish self-attention from cross-attention and describe where each appears, including masking (padding/causal) and positional encodings.
+  \item Describe a Transformer block (residual paths, layer norm, FFN) and the common objectives (MLM/CLM) behind the major families (BERT/GPT/encoder--decoder).
 \end{itemize}
 \end{tcolorbox}
 

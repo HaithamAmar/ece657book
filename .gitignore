@@ -41,3 +41,9 @@ notes_output/*.lot
 notes_output/*.fls
 notes_output/*.fdb_latexmk
 notes_output/*.synctex.gz
+notes_output/*.idx
+notes_output/*.ind
+notes_output/*.ilg
+
+# Book review source (keep extracted action items tracked instead)
+notes_output/book_review.docx

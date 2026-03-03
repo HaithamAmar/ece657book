@@ -38,10 +38,11 @@
         \usepackage{enumitem}
         \setlist{itemsep=0.25em, topsep=0.25em}
 \usepackage{graphicx}
+\graphicspath{{assets/}} % fallback for common figure location
 \usepackage{adjustbox}
 \usepackage[font=small, labelfont=bf]{caption}
 \usepackage{subcaption}
-\captionsetup{justification=centering, singlelinecheck=false}
+\captionsetup{justification=centering, singlelinecheck=true}
 \captionsetup[figure]{width=0.9\linewidth}
 % Timestamp marker for rebuilds
 % (No effect on content; used to force fresh PDF generation when needed.)
@@ -56,18 +57,22 @@
         \titlespacing*{\subsubsection}{0pt}{*1.5}{*0.8}
         % Running headers/footers
         \usepackage{fancyhdr}
+        \usepackage{truncate}
         \pagestyle{fancy}
         \fancyhf{}
-        \fancyhead[L]{\small Modern Intelligent Systems}
-        % Short running heads: show only the section number to avoid overlap with long titles
-        \fancyhead[R]{\small \nouppercase{\leftmark}}
+        % Book-style running heads (twoside): book title on verso, chapter on recto.
+        \fancyhead[LE]{\small Modern Intelligent Systems}
+        \fancyhead[RO]{\small \nouppercase{\leftmark}}
         \fancyfoot[C]{\thepage}
-        \renewcommand{\sectionmark}[1]{\markboth{\thesection}{}}
+        \renewcommand{\sectionmark}[1]{%
+          \markboth{\thesection\ ---\ \truncate{0.9\textwidth}{#1}}{}}
         \setlength{\headheight}{26pt}
         \setlength{\headsep}{24pt}
         \usepackage{placeins}
         \usepackage{xcolor}
         \usepackage{bookmark}
+\usepackage{makeidx}
+\makeindex
 \usepackage{booktabs}
 \usepackage{tabularx}
 \usepackage{tikz}
@@ -185,8 +190,8 @@
 \newcommand{\ChapterOnly}[2]{\chapnum{#1}{#2}}
 \makeatother
 
-\setcounter{secnumdepth}3
-\setcounter{tocdepth}2
+\setcounter{secnumdepth}{3}
+\setcounter{tocdepth}{2}
 
 \makeatletter
 % ---- Publishing polish: TOC/LOF/LOT spacing ----
@@ -243,5 +248,10 @@
 \newpage
 % Appendices
 \input{book_appendices.tex}
+
+\newpage
+\phantomsection
+\addcontentsline{toc}{section}{Index}
+\printindex
 
         \end{document}

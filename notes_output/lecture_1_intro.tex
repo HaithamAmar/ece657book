@@ -1,5 +1,9 @@
 % Chapter 1
 \section{About This Book}\label{chap:intro}
+\index{intelligent system}
+\index{representation}
+\index{audit}
+\index{meta-cognition}
 
 Intelligent systems are engineered artifacts that perceive, reason, and act under constraints. This chapter sets the shared vocabulary (historical context, core definitions, recurring design themes), and \Cref{fig:roadmap} shows how the strands connect and where to enter.
 
@@ -52,10 +56,9 @@ An important (and still practical) lesson from this era is the ``garbage in, gar
 
 The symbolic formalism used in modern AI emerged in the 19th and early 20th centuries. Works by George Boole (1847), Gottlob Frege (1879), Giuseppe Peano (1889), and later Bertrand Russell and Alfred North Whitehead (1910--1913) introduced algebraic and predicate-calculus notations that underpin automated reasoning. Formal inference rules such as:
 
-\begin{align}
+\[
 \text{If } A = B \text{ and } B = C, \text{ then } A = C.
-    \label{eq:auto:lecture_1_intro:1}
-\end{align}
+\]
 
 This exemplifies the transitivity of equality---an example of a valid inference rule operating on equality relations---and provides a basis for reasoning systems that manipulate symbols according to formal rules.
 
@@ -65,7 +68,7 @@ The mid-20th century marked a pivotal moment with Alan Turing's proposal of the 
 
 \paragraph{Early Machine Learning and Symbolic AI}
 
-Following the Turing Test, research into machine learning and symbolic AI accelerated. In the 1950s, the perceptron model was introduced as an early neural network capable of binary classification. Around the same time, James Slagle developed an early influential AI program: a symbolic integration system capable of performing calculus operations symbolically rather than numerically. This line of work anticipated themes later formalized in decision procedures for elementary integration \citep{Risch1969} and demonstrated that machines could manipulate abstract symbols to solve problems, a core idea in symbolic AI.
+Following the Turing Test, research into machine learning and symbolic AI accelerated. In the 1950s, the perceptron model was introduced as an early neural network capable of binary classification. Around the same time, James Slagle developed an early influential AI program: a symbolic integration system capable of performing calculus operations symbolically rather than numerically \citep{Slagle1963}. This line of work anticipated themes later formalized in decision procedures for elementary integration \citep{Risch1969} and demonstrated that machines could manipulate abstract symbols to solve problems, a core idea in symbolic AI.
 
 \paragraph{Summary of Key Historical Milestones}
 
@@ -194,7 +197,7 @@ The design checklist above becomes concrete when we dissect a deployed system. C
     \item[Representation] Images are streamed as \(H\times W\times 3\) tensors; regions of interest and background models are maintained to suppress noise.
     \item[Objectives/constraints] Maintain $<200$\, ms end-to-end latency and $<1\%$ false negatives; respect privacy/retention policies.
     \item[Hardware (perception/action)] CMOS (complementary metal-oxide-semiconductor) sensor, on-board DSP (digital signal processor)/accelerator, motorized pan/tilt for re-targeting.
-    \item[Software (reasoning)] A YOLO-style object detector (e.g., YOLOv8) fine-tuned on site-specific data, fused with Kalman filters for track smoothing and MPC (model predictive control) logic that commands the pan/tilt actuator or triggers alerts.
+    \item[Software (reasoning)] A YOLO-style object detector (e.g., YOLOv8 \citep{Jocher2023UltralyticsYOLOv8}) fine-tuned on site-specific data, fused with Kalman filters for track smoothing and MPC (model predictive control) logic that commands the pan/tilt actuator or triggers alerts.
     \item[Integration] Edge inference handles immediate reactions; metadata is sent to a cloud analytics service that enriches logs and retrains models (predicting the future by anticipating recurrent intrusion times).
 \end{description}
 \end{tcolorbox}
@@ -216,7 +219,7 @@ These capabilities can be realized in various architectures, ranging from connec
 
 \paragraph{Levels of Intelligence (as an organizing lens)}
 
-Intelligence is not necessarily binary (intelligent vs.\ non-intelligent); rather, deployed systems combine different degrees of reactivity, deliberation, and adaptation. For the purposes of this book we use a four-layer shorthand---reactive systems (level 1), deliberative planners (level 2), adaptive learners (level 3), and meta-cognitive agents that reason about their own policies (level 4)---as an informal organizing lens rather than a strict hierarchy. It is compatible with domain-specific taxonomies (e.g., SAE Levels~0--5 for automated driving). We use \Cref{fig:big-picture-map} and \Cref{tab:big-picture-models} as the global ``design-space map'' that situates each model family by level, model nature, and learning signal.
+Intelligence is not necessarily binary (intelligent vs.\ non-intelligent); rather, deployed systems combine different degrees of reactivity, deliberation, and adaptation. For the purposes of this book we use a four-layer shorthand---reactive systems (level 1), deliberative planners (level 2), adaptive learners (level 3), and meta-cognitive agents that reason about their own policies (level 4)---as an informal organizing lens rather than a strict hierarchy. It is compatible with domain-specific taxonomies (e.g., SAE Levels~0--5 for automated driving)\footnote{SAE Levels are defined for driving automation; we cite them here only as an example of a domain-specific capability scale, not as a claimed one-to-one mapping to the four-layer lens used in this book.}. We use \Cref{fig:big-picture-map} and \Cref{tab:big-picture-models} as the global ``design-space map'' that situates each model family by level, model nature, and learning signal.
 
 \paragraph{Connectionist vs.\ agent-based/decentralized approaches}
 
@@ -385,6 +388,7 @@ The book also maintains a deliberate dual emphasis: representation learning with
         \node[block, right=of log] (mlp) {MLP\\(Backprop)};
         \node[block, right=of mlp] (cnn) {CNN\\(Conv/Pool)};
         \node[block, right=of cnn] (rnn) {RNN\\(BPTT)};
+        \node[block, right=of rnn] (trf) {Transformers\\(Attention)};
         % Branch: SOM -> Fuzzy
         \node[block, below=1.2cm of mlp] (som) {SOM\\(Competitive)};
         \node[block, right=of som] (fuzzy) {Fuzzy Sets\\\& Inference};
@@ -396,21 +400,22 @@ The book also maintains a deliberate dual emphasis: representation learning with
         \draw[->] (log) -- (mlp);
         \draw[->] (mlp) -- (cnn);
         \draw[->] (cnn) -- (rnn);
+        \draw[->] (rnn) -- (trf);
         % Arrows branches
         \draw[->] (mlp) -- (som);
         \draw[->] (som) -- (fuzzy);
         \draw[->] (opt) -- (ga);
         % Cross-links (light)
         \draw[->, gray!60] (mlp) to[bend left=15] (ga);
-        \draw[->, gray!60] (fuzzy) to[bend right=20] (rnn);
+        \draw[->, gray!60] (fuzzy) to[bend right=20] (trf);
     \end{tikzpicture}%
     }
     \captionsetup{justification=raggedright}
-    \caption{Roadmap of the book strands (core supervised path; SOM/fuzzy; optimization/evolutionary). It also serves as a quick prerequisite map when you want to jump ahead and later backfill foundations.}
+    \caption{Roadmap of the book strands (core supervised path through attention models; SOM/fuzzy; optimization/evolutionary). It also serves as a quick prerequisite map when you want to jump ahead and later backfill foundations.}
     \label{fig:roadmap}
 \end{figure}
 
-\Cref{fig:roadmap} summarizes the narrative arc of the book: a core supervised path (linear and logistic regression to MLPs to CNNs to RNNs), a branch through competitive learning and fuzzy inference for rule-based reasoning, and a parallel thread on optimization culminating in evolutionary computing. Early on, \Cref{chap:symbolic} provides a complementary symbolic-search perspective so we can contrast ``intelligence via transformations'' with ERM-based modeling. Chapters cross-reference one another so you can skim the path most relevant to your project and return for foundational refreshers as needed.
+\Cref{fig:roadmap} summarizes the narrative arc of the book: a core supervised path (linear and logistic regression to MLPs to CNNs to RNNs and attention/Transformers), a branch through competitive learning and fuzzy inference for rule-based reasoning, and a parallel thread on optimization culminating in evolutionary computing. Early on, \Cref{chap:symbolic} provides a complementary symbolic-search perspective so we can contrast ``intelligence via transformations'' with ERM-based modeling. Chapters cross-reference one another so you can skim the path most relevant to your project and return for foundational refreshers as needed.
 
 Readers arrive with different goals. The roadmap is intentionally a dependency graph rather than a single linear track; the following paths are common starting points:
 \begin{enumerate}
@@ -418,6 +423,7 @@ Readers arrive with different goals. The roadmap is intentionally a dependency g
     \item \textbf{Control/systems path:} \Crefrange{chap:intro}{chap:supervised} $\rightarrow$ \Cref{chap:hopfield} $\rightarrow$ \Crefrange{chap:softcomp}{chap:fuzzyinference} $\rightarrow$ \Cref{chap:evo}.
     \item \textbf{Soft-computing path:} \Crefrange{chap:intro}{chap:supervised} $\rightarrow$ \Crefrange{chap:softcomp}{chap:fuzzyinference} with optional detours to \Cref{chap:mlp} and \Cref{chap:evo}.
 \end{enumerate}
+Reinforcement learning is a major pillar of modern AI, but it is not a primary focus of this book; for a dedicated treatment, see \citep{SuttonBarto2018}.
 
 \subsection{Using and Navigating This Book}
 \label{sec:intro_using_and_navigating_this_book}
@@ -445,6 +451,9 @@ Readers arrive with different goals. The roadmap is intentionally a dependency g
     \item Confusing ``probability'' with ``decision'': many later failures come from thresholds and costs, not from modeling.
     \item Letting notation drift: keep \Cref{app:notation_collisions} close when symbols are reused in different chapters.
 \end{itemize}
+\medskip
+\textbf{Ethical considerations}
+Even a technically correct model can be harmful when it is deployed as a decision rule. When systems touch people, treat audits (slices, calibration, robustness, and constraint checks) as part of the design contract, not as optional polish.
 \end{tcolorbox}
 
 \begin{tcolorbox}[summarybox, title={Exercises and lab ideas}]

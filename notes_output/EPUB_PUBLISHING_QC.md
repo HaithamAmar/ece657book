@@ -25,8 +25,7 @@ change exists.
 - **Rule:** every numbered display-math environment (especially `\begin{align}` / `\begin{equation}`) must contain at least one `\label{eq:...}`.
 - **Why:** Pandoc’s MathML output has no native equation numbers; our EPUB pipeline renders numbers only for labeled equations using the LaTeX `.aux` file.
 - **Guardrail:** `notes_output/scripts/check_equations.py` enforces this and rejects common footguns like `$$...$$` or `equation*` blocks that still contain `\label{eq:...}`.
-- **Practice:** if a multi-line `align` block is just a derivation (not referenced), it may remain unlabeled *only if* it is converted to `align*`.
-- **Note:** we permit “non-semantic” auto-labels in sources (e.g., `\label{eq:auto:lecture_8_part_i:3}`) when an `align` block is unreferenced but we still want its number visible in EPUB for reader trust and PDF/EPUB parity.
+- **Practice:** if a display is not referenced later, prefer an unnumbered environment (`\[...\]`, `align*`, `equation*`) so the reader is not forced to track equation numbers that never get used. Reserve numbering for equations you will cite, and use stable, descriptive labels (`\label{eq:<topic>}`); avoid machine-generated labels in publish sources.
 - **Citations:** production builds must contain no unresolved citations (no `[?]` markers). The structural verifier enforces this, and the aux compile reuses `notes_output/ece657_notes.bbl` when available to reduce citation drift.
 - **Crossrefs:** LaTeX sources must not use `\ref{chap:...}` / `\ref{fig:...}` / `\ref{tab:...}` / `\ref{sec:...}` / `\ref{app:...}` / `\ref{eq:...}`. Use `\Cref/\cref` for chapters/sections/figures/tables/appendices and `\eqref` for equations. The editorial QC runs `notes_output/scripts/check_crossrefs.py`.
 
@@ -41,7 +40,7 @@ change exists.
    - Implementation: after building the EPUB, the builder checks that every `fig:` label present in the build `.aux` exists as a corresponding `<figure id="fig:...">` in the EPUB and that it contains renderable content (typically `<img>`).
 2. **Reference continuity**: cross-references (Chapter/Figure/Table/Section/Appendix/Equation) must be readable and numbered consistently with the PDF.
    - Headings that should be numbered must have explicit `\\label{sec:...}` anchors in the LaTeX sources. Use `python3 epub_builder/scripts/add_missing_heading_labels.py` to fill in missing subsection/subsubsection labels (idempotent).
-   - Equation numbers in EPUB are only shown for labeled equations. Use `python3 epub_builder/scripts/add_missing_equation_labels.py` to fill in missing `\\label{eq:...}` for `equation` environments (idempotent).
+   - Equation numbers in EPUB are only shown for labeled equations. Keep numbered equations labeled with descriptive `\\label{eq:...}` (and keep unreferenced derivations unnumbered); `python3 notes_output/scripts/check_equations.py` enforces the rule.
 3. **High-resolution figures**: images must be crisp on high-density displays; prefer vector→high-DPI rasterization when necessary.
 4. **No clipping**: long display math must not be cut off; allow scrolling as a last resort.
 5. **Readable tables**: tables must never shrink to microscopic text on narrow screens.

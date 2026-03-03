@@ -1,5 +1,10 @@
 % Chapter 10
 \section{Hopfield Networks: Introduction and Context}\label{chap:hopfield}
+\index{Hopfield network}
+\index{associative memory}
+\index{energy function}
+\index{attractor}
+\index{spurious state}
 
 \Cref{chap:som} focused on self-organizing maps and unsupervised feature maps; we now transition to another unsupervised/energy-based model: the \emph{Hopfield network}, a recurrent system that stores patterns as attractors. \Cref{fig:roadmap} marks this as the energy-based branch. The debug mindset carries over, but the diagnostics change: SOMs are easiest to audit through map geometry (U-matrix/component planes), while Hopfield recall is easiest to audit through an energy trace and overlap with the intended memory.
 
@@ -31,6 +36,8 @@ Classical Hopfield networks are the clean case: binary states, symmetric weights
 The intuition that survives is the one we care about: memory is an energy landscape, and recall is descent toward an attractor (pattern completion).
 
 Modern systems borrow the geometry without necessarily inheriting the guarantee. Many ``memory'' mechanisms are differentiable, learned from data, and content-addressable at scale; the symmetry that makes Hopfield proofs work is not always present. Keep the attractor picture, but do not over-assume the math.
+
+A useful concrete connection is modern attention: scaled dot-product attention (introduced later in \Cref{chap:transformers}) can be interpreted as a continuous Hopfield-style retrieval step \citep{Ramsauer2021}. Keep that in mind as you read both chapters.
 \end{tcolorbox}
 
 \begin{tcolorbox}[summarybox, title={Author's note: stabilizing recurrence}]
@@ -43,14 +50,12 @@ General recurrent networks can behave unpredictably because feedback can create 
 In 1982, John Hopfield introduced a special class of recurrent networks by putting engineering constraints on the feedback loop \citep{Hopfield1982}. The constraints are simple enough to implement, and each one buys you a piece of the convergence story.
 
 First, make the weights symmetric and remove self-loops:
-\begin{equation}
-    w_{ij} = w_{ji} \quad \forall i, j,
-    \label{eq:auto_hopfield_591d3daa63}
-\end{equation}
-\begin{equation}
-    w_{ii} = 0 \quad \forall i.
-    \label{eq:auto_hopfield_bd57392190}
-\end{equation}
+\[
+\begin{aligned}
+    w_{ij} &= w_{ji} \quad \forall i, j,\\
+    w_{ii} &= 0 \quad \forall i.
+\end{aligned}
+\]
 Second, keep neuron states binary, \(s_i \in \{+1,-1\}\), so the network evolves by flipping bits rather than flowing through a continuous activation curve.
 
 Under these choices you can define a Lyapunov energy \(E(\mathbf{s})\) (a scalar function that decreases under the update) and choose an asynchronous (one\hyp{}neuron\hyp{}at\hyp{}a\hyp{}time) update rule so that each flip never increases \(E\). That is the key move: the network becomes a descent process in a finite state space, so it must settle at a fixed point. Those fixed points are the stored patterns (and their complements), plus whatever spurious attractors appear when the network is heavily loaded.
@@ -62,10 +67,9 @@ Consider a Hopfield network with \(N\) neurons. The state vector is \(\mathbf{s}
 Throughout this discussion \(w_{ij}\) denotes the weight applied to state \(s_j\) when computing the input to neuron \(i\), so column indices correspond to presynaptic neurons.
 
 The \emph{local field} or \emph{input energy} to neuron \(i\) is defined as
-\begin{equation}
+\[
     h_i(t) = \sum_{j=1}^N w_{ij} s_j(t).
-\label{eq:auto_hopfield_5a6eb676df}
-\end{equation}
+\]
 The scalar \(h_i(t)\) therefore represents the total input (or \emph{local field}) accumulated at neuron \(i\) before thresholding during iteration \(t\).
 
 The neuron updates its state according to the sign of \(h_i(t)\) relative to a threshold \(\theta_i\):
@@ -178,11 +182,10 @@ W = \begin{bmatrix}
 \]
 
 Let the initial state be \(\mathbf{s} = (1,\,1,\,-1)\). Using the energy definition with the \(\frac{1}{2}\) factor to avoid double counting, we obtain
-\begin{align}
-    E(\mathbf{s}) &= -\frac{1}{2} \sum_{i=1}^3 \sum_{j=1}^3 w_{ij} s_i s_j \nonumber \\
+\begin{align*}
+    E(\mathbf{s}) &= -\frac{1}{2} \sum_{i=1}^3 \sum_{j=1}^3 w_{ij} s_i s_j \\
     &= -\frac{1}{2} \Big[ 2 \cdot 3 \cdot (1)(1) + 2 \cdot (-4) \cdot (1)(-1) + 2 \cdot 2 \cdot (1)(-1) \Big] = -5.
-    \label{eq:auto:lecture_5_part_ii:1}
-\end{align}
+\end{align*}
 
 \paragraph{State update attempts:}
 One way to check whether \(\mathbf{s}=(1,1,-1)\) is stable is to try each single-neuron flip and recompute \(E\). Flipping \(s_1\) gives \(E(-1,1,-1)=9\); flipping \(s_2\) gives \(E(1,-1,-1)=-3\); and flipping \(s_3\) gives \(E(1,1,1)=-1\). Each move raises the energy relative to \(-5\), so no asynchronous update would accept it: the state is a local minimum.
@@ -203,19 +206,6 @@ For clarity, \Cref{tab:hopfield-deltaE} reports the energy change for each singl
     \caption{Single-neuron flips from \((1,1,-1)\); all raise the energy, so the state is a local minimum.}
     \label{tab:hopfield-deltaE}
 \end{table}
-
-% QC-BEGIN: hopfield_energy_example
-% W 0 3 -4
-% W 3 0 2
-% W -4 2 0
-% theta 0 0 0
-% s0 1 1 -1 E -5
-% flip_s1 -1 1 -1 E 9
-% flip_s2 1 -1 -1 E -3
-% flip_s3 1 1 1 E -1
-% noisy 1 1 1 update_i 3 s1 1 1 -1 E -5
-% QC-END: hopfield_energy_example
-
 
 Because every single-neuron flip raises the energy, the state \((1,1,-1)\) is a stable local minimum for this network.
 If the network is perturbed slightly (for instance, by flipping \(s_3\) to \(+1\) to create the noisy pattern \((1,1,1)\)), the next asynchronous update flips it back. In this state the local field at neuron 3 is \(h_3=-4(1)+2(1)=-2\), so the update rule sets \(s_3\leftarrow -1\), returning to \((1,1,-1)\). The energy drops from \(-1\) to \(-5\), which is the basic content-addressable recall behavior.
@@ -266,18 +256,13 @@ We use the energy in \eqref{eq:energy_function}; the goal is to show that each s
 \subsubsection{Energy Change Upon Updating a Single Neuron}
 \label{sec:hopfield_energy_change_upon_updating_a_single_neuron_sub}
 
-Consider updating neuron \( i \) from old state \( s_i^{\text{old}} \) to new state \( s_i^{\text{new}} \). All other neuron states \( s_j \) for \( j \neq i \) remain fixed. The change in energy is
-\begin{equation}
-    \Delta E = E_{\text{new}} - E_{\text{old}}.
-\label{eq:auto_hopfield_927711ec51}
-\end{equation}
+Consider updating neuron \( i \) from old state \( s_i^{\text{old}} \) to new state \( s_i^{\text{new}} \). All other neuron states \( s_j \) for \( j \neq i \) remain fixed. The change in energy is \(\Delta E = E_{\text{new}} - E_{\text{old}}\).
 
 Using \eqref{eq:energy_function}, write out the energies explicitly:
-\begin{align}
+\begin{align*}
     E_{\text{old}} &= -\frac{1}{2} \sum_{k=1}^N \sum_{l=1}^N w_{kl} s_k^{\text{old}} s_l^{\text{old}} + \sum_{k=1}^N \theta_k s_k^{\text{old}}, \\
     E_{\text{new}} &= -\frac{1}{2} \sum_{k=1}^N \sum_{l=1}^N w_{kl} s_k^{\text{new}} s_l^{\text{new}} + \sum_{k=1}^N \theta_k s_k^{\text{new}}.
-    \label{eq:auto:lecture_5_part_ii:2}
-\end{align}
+\end{align*}
 
 Since only \( s_i \) changes, and weights are symmetric with zero diagonal \( w_{ii} = 0 \), the difference simplifies to
 \begin{align}
@@ -439,18 +424,6 @@ Step & Update & Local field & New state \\
 The energy drops along the way: \(E=0.5 \rightarrow 0 \rightarrow -1.5\).
 \end{tcolorbox}
 
-% QC-BEGIN: hopfield_single_pattern_weights
-% xi 1 1 1 -1
-% W 0 0.25 0.25 -0.25
-% W 0.25 0 0.25 -0.25
-% W 0.25 0.25 0 -0.25
-% W -0.25 -0.25 -0.25 0
-% h 0.75 0.75 0.75 -0.75
-% recall_s0 1 -1 -1 -1 E 0.5
-% recall_step 1 update_i 2 h 0.25 s 1 1 -1 -1 E 0.0
-% recall_step 2 update_i 3 h 0.75 s 1 1 1 -1 E -1.5
-% QC-END: hopfield_single_pattern_weights
-
 \subsection{Finalizing the Hopfield Network Derivation and Discussion}
 \label{sec:hopfield_finalizing_the_hopfield_network_derivation_and_discussion}
 
@@ -549,16 +522,6 @@ Now start from a one-bit-corrupted probe \(\mathbf{s}^{(0)}=[-1,-1,1,1]^T\), wit
 h_4=\sum_j w_{4j}s_j = -0.75 \quad\Rightarrow\quad s_4\leftarrow -1,
 \]
 so in one asynchronous flip we recover \(\mathbf{s}^{(1)}=\mathbf{\xi}\). The energy drops from \(E=0\) to \(E=-1.5\) under \eqref{eq:energy_function}. The appearance of \(-\mathbf{\xi}\) as a fixed point is expected: the energy only depends on products \(s_i s_j\), so negating all bits leaves every term unchanged.
-
-% QC-BEGIN: hopfield_memory_recovery_4n
-% xi -1 -1 1 -1
-% W 0 0.25 -0.25 0.25
-% W 0.25 0 -0.25 0.25
-% W -0.25 -0.25 0 -0.25
-% W 0.25 0.25 -0.25 0
-% s0 -1 -1 1 1 E 0.0
-% step 1 update_i 4 h -0.75 s -1 -1 1 -1 E -1.5
-% QC-END: hopfield_memory_recovery_4n
 
 \paragraph{Spurious attractors}
 

@@ -1,5 +1,10 @@
 % Chapter 11
 \section{Convolutional Neural Networks and Deep Training Tools}\label{chap:cnn}
+\index{convolutional neural network (CNN)}
+\index{convolution}
+\index{receptive field}
+\index{batch normalization (BN)}
+\index{dropout}
 \graphicspath{{assets/lec6/}{assets/lec8/}}
 
 \Cref{chap:hopfield} used energy to make recurrence stable: dynamics settle, memories persist, and failure has a concrete signature. Vision problems have a different flavor. The system must form a representation that is rich enough to support decisions, yet structured enough to learn from finite data.
@@ -16,9 +21,8 @@ After this chapter, you should be able to:
 \begin{itemize}
   \item Derive convolution/cross-correlation with stride and padding in 1D/2D.
   \item Explain receptive-field growth across layers and the role of downsampling.
-  \item Choose losses and metrics deliberately (e.g., cross-entropy vs.\ mean squared error (MSE); accuracy vs.\ calibration) for CNN-based models.
   \item Read a CNN as a learned feature map and connect that viewpoint to linear margins (hinge/soft-margin) and earlier kernel-style ideas in \Cref{chap:supervised}.
-  \item Describe practical stabilizers (batch normalization (BN), dropout, weight decay, optimizers) and the failure signatures they address.
+  \item Choose losses/metrics deliberately and apply practical stabilizers (BN, dropout, weight decay, optimizers) by recognizing the failure signatures they address.
 \end{itemize}
 \end{tcolorbox}
 
@@ -33,7 +37,7 @@ The core backprop loop from earlier chapters scales to high-dimensional percepti
 
 This is also where the training loop became practical at scale: large datasets and modern accelerators made iterative optimization feasible, and architectural priors such as locality and weight sharing made that optimization sample-efficient on image grids.
 
-CNNs emerged as a pragmatic answer: keep end-to-end gradient training, but bake in locality and translation structure through sparse connectivity and shared weights. The result is a model class that is both more sample-efficient and more computationally viable on large grids.
+CNNs emerged as a pragmatic answer: keep end-to-end gradient training, but bake in locality and translation structure through sparse connectivity and shared weights. Early convolutional networks such as LeNet established this recipe on document and zip-code recognition tasks \citep{LeCun1989,LeCun1998}. The result is a model class that is both more sample-efficient and more computationally viable on large grids.
 
 \paragraph{How to read this chapter.}
 \begin{itemize}
@@ -41,6 +45,7 @@ CNNs emerged as a pragmatic answer: keep end-to-end gradient training, but bake 
     \item \textbf{Going deeper:} depth as receptive-field growth, and why stacked small kernels can see large spatial extent.
     \item \textbf{Training toolkit:} the stabilizers you will reuse later (initialization, activations, normalization, regularization, optimizers).
 \end{itemize}
+One term we will use early is \emph{receptive field}: the receptive field of a feature value is the region of the input grid that can influence it. The word is literal---outside that region, the unit does not ``receive'' signal from the input---and stacking layers grows this region.
 
 \subsection{Why fully connected layers break on images}
 \label{sec:cnn_why_fully_connected_layers_break_on_images}
@@ -68,39 +73,28 @@ That step is not ``wrong,'' but it is expensive. Flattening has two major drawba
 The punchline is not that dense networks ``cannot'' learn images; it is that the price is too high. Without any architectural prior, you pay in parameters, data, and compute. Convolutions and pooling supply that prior: they make the model spend capacity on local patterns and reuse those patterns across the grid.
 
 The number of weights between the input and hidden layer is:
-\begin{equation}
+\[
 65,536 \times 100 = 6,553,600,
-\label{eq:auto_cnn_ed5e022844}
-\end{equation}
+\]
 and between the hidden and output layer (assuming 4 output classes) is:
-\begin{equation}
+\[
 100 \times 4 = 400.
-\label{eq:auto_cnn_9b56be8916}
-\end{equation}
+\]
 
 Thus, the first layer alone requires learning over 6 million parameters before we even consider deeper architectures. Coupled with the additional 400 output weights (plus biases), the optimization problem quickly becomes data-hungry and computationally expensive.
 
-% QC-BEGIN: cnn_flatten_params
-% H 256 W 256 vec 65536
-% hidden 100 W1 6553600
-% classes 4 W2 400
-% samples_rule 10 Nparams 6553600 approx 65536000
-% QC-END: cnn_flatten_params
-
 \paragraph{Data requirements (a sanity check).}
 When a model has millions of free parameters and no strong architectural prior, you are asking the data to do most of the work: it must fit the mapping and also implicitly teach the model what kinds of patterns are worth representing. A crude sanity check sometimes used in practice is to compare the number of labeled examples to the number of parameters:
-\begin{equation}
+\[
 N_{\text{samples}} \geq 10 \times N_{\text{parameters}}.
-\label{eq:auto_cnn_acca81a25c}
-\end{equation}
+\]
 
 Read this as a warning sign, not a requirement. Inductive bias (convolutions), regularization, and augmentation reduce the effective degrees of freedom, and pretraining changes the problem entirely because you are no longer learning all features from scratch.
 
 For the dense first layer in this example calculation, the back-of-the-envelope lands in the tens of millions of labeled images:
-\begin{equation}
+\[
 N_{\text{samples}} \gtrsim 10 \times 6{,}553{,}600 \approx 65{,}536{,}000,
-\label{eq:auto_cnn_a651e49be4}
-\end{equation}
+\]
 The point is not the exact number; it is the scale mismatch between dense connectivity and the datasets most people can realistically label. Without additional structure, many very different parameter settings can fit the same training set; the architecture and the training recipe decide whether any of those settings generalize in a way you can trust.
 
 \paragraph{Computational and storage constraints.}
@@ -139,9 +133,10 @@ For an input feature map \(X\) and filter \(K\), the (cross-correlation) output 
 In most deep-learning libraries, the operation called ``convolution'' is technically \emph{cross-correlation}: the kernel is not flipped before sliding. The name stuck because the two operations differ only by a reversal of the kernel, and the kernel is learned anyway. What matters in practice is that the ``filter'' is a small learned weight matrix that is applied repeatedly across space (weight sharing). Learn the shapes, the stride/padding accounting, and the inductive bias; the terminology is imperfect but the idea is powerful.
 \end{tcolorbox}
 With stride \(s\) and padding \(p\), the output size along one axis is
-\[
+\begin{equation}
 \left\lfloor \frac{n + 2p - k}{s} \right\rfloor + 1,
-\]
+\label{eq:cnn_output_size}
+\end{equation}
 so padding controls resolution while stride controls downsampling. Pooling then aggregates local neighborhoods (typically max or average) to build invariance and further reduce spatial size.
 
 Convolution itself is a linear map; the nonlinearity enters when we apply an activation after each convolutional block. Stacking these linear--nonlinear stages yields hierarchical feature detectors (edges \(\rightarrow\) textures \(\rightarrow\) parts \(\rightarrow\) objects) without abandoning the backprop training machinery.
@@ -175,15 +170,6 @@ y_2 &= \langle[3,1,0],[1,0,-1]\rangle = 3,
 so \(\mathbf{y}=[-2,-1,3]\).
 \end{tcolorbox}
 
-% QC-BEGIN: cnn_1d_xcorr_stride_pad
-% x 1 2 0 3 1
-% w 1 0 -1
-% p 1
-% s 2
-% L 3
-% y -2 -1 3
-% QC-END: cnn_1d_xcorr_stride_pad
-
 \paragraph{Convolutional hyperparameters (what you choose up front).}
 \label{sec:cnn_convolutional_hyperparameters_what_you_choose_up_front}
 \begin{itemize}
@@ -210,13 +196,6 @@ Real inputs are multi-channel. A red\hyp{}green\hyp{}blue (RGB) image has three 
 \begin{tcolorbox}[summarybox, title={Dimensionality accounting example}]
 Start with an input tensor of size \(50\times50\times30\). Apply \(10\) filters of size \(3\times3\) with stride \(1\) and valid padding. The spatial size becomes \(50-3+1=48\), so the output is \(48\times48\times10\). Apply \(2\times2\) max pooling with stride \(2\): the spatial size becomes \(\left\lfloor(48-2)/2\right\rfloor + 1 = 24\), so the pooled output is \(24\times24\times10\). Flattening that volume yields \(24\cdot24\cdot10=5760\) features for a dense classifier.
 \end{tcolorbox}
-
-% QC-BEGIN: cnn_shape_bookkeeping
-% input 50 50 30
-% conv k 3 stride 1 pad 0 cout 10 out_hw 48 48
-% pool window 2 stride 2 out_hw 24 24
-% flatten 5760
-% QC-END: cnn_shape_bookkeeping
 
 \paragraph{From feature maps to classifiers.}
 \label{sec:cnn_from_feature_maps_to_classifiers}
@@ -273,10 +252,9 @@ With the architectural motivation in place, we now focus on how these models are
 We already derived the gradient-descent training loop in \Cref{chap:mlp}: define a loss \(\mathcal{L}\), compute gradients, then update parameters. CNNs keep the same loop. The key difference is weight sharing: a convolutional filter is applied at many spatial locations, so a single filter coefficient collects learning signal from every location where it was used.
 
 For a weight $w$, the update rule is
-\begin{align}
+\[
 w \leftarrow w - \eta \frac{\partial \mathcal{L}}{\partial w}.
-    \label{eq:auto:lecture_6:1}
-\end{align}
+\]
 where $\eta$ is the learning rate.
 
 \paragraph{Backpropagation and gradient computation}
@@ -490,6 +468,9 @@ This omits batching, convolution strides, and optimizer detail but highlights th
     \item Forgetting train/eval mode for batchnorm/dropout, producing misleading validation curves.
     \item Treating pooling as mandatory or always beneficial; in some tasks, stride-2 convolutions or anti-aliasing are better choices.
 \end{itemize}
+
+\medskip
+\noindent\textbf{Ethical considerations.} CNNs are often deployed where mistakes have real cost (medical triage, access control, surveillance). Treat data provenance and slice audits as part of correctness: a high top\hyp{}1 accuracy on a benchmark does not guarantee fair or safe behavior in a new population or capture setup.
 \end{tcolorbox}
 
 \begin{tcolorbox}[summarybox, title={Exercises and lab ideas}]

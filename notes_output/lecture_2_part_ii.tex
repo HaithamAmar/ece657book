@@ -1,5 +1,9 @@
 %Chapter 4
 \section{Classification and Logistic Regression}\label{chap:logistic}
+\index{logistic regression}
+\index{cross-entropy}
+\index{negative log-likelihood (NLL)}
+\index{softmax}
 \Cref{chap:symbolic} illustrated intelligence as transformation search with explicit goal tests. \Cref{chap:supervised} introduced the data\hyp{}driven view: represent a task with data, choose a hypothesis class, minimize empirical risk under regularization, and audit performance on held\hyp{}out data. This chapter extends that toolkit from regression to classification, and \Cref{fig:roadmap} places it on the core supervised path.
 
 \begin{tcolorbox}[summarybox, title={Learning Outcomes}]
@@ -431,10 +435,10 @@ Unlike linear regression, logistic regression does not have a closed-form soluti
 
 The ERM view in \Cref{chap:supervised} treats learning as minimizing an average loss plus (optionally) a regularizer. The probabilistic view arrives at the same objective from a different direction:
 \begin{itemize}
-    \item \textbf{MLE} maximizes the data likelihood under a chosen observation model (for logistic regression: Bernoulli with \(p_i=\sigma(\boldsymbol{\beta}^\top\tilde{\mathbf{x}}_i)\)).
-    \item \textbf{MAP} maximizes the posterior, which multiplies the likelihood by a prior \(p(\boldsymbol{\beta})\). In optimization form, MAP adds a penalty \(-\log p(\boldsymbol{\beta})\), which is exactly regularization.
+    \item \textbf{MLE} maximizes the data likelihood under a chosen observation model (for logistic regression: Bernoulli with \(p_i=\sigma(\boldsymbol{\beta}^\top\tilde{\mathbf{x}}_i)\)) \citep{Fisher1922}.
+    \item \textbf{MAP} maximizes the posterior, which multiplies the likelihood by a prior \(p(\boldsymbol{\beta})\). In optimization form, MAP adds a penalty \(-\log p(\boldsymbol{\beta})\), which is exactly regularization \citep{Bishop1995}.
 \end{itemize}
-Two common priors explain the two penalties that appear most often in practice: a zero-mean Gaussian prior yields an L2 (ridge) penalty, while a Laplace prior yields an L1 (lasso) penalty. The schematic below illustrates the MLE\(\rightarrow\)MAP idea on a simple mean-estimation problem: with little data, the prior matters; with enough data, MAP approaches MLE.
+Two common priors explain the two penalties that appear most often in practice: a zero-mean Gaussian prior yields an L2 (ridge) penalty, while a Laplace prior yields an L1 (lasso) penalty. The L2 penalty also has an older life as a stabilizer for ill-posed inverse problems (Tikhonov regularization) \citep{Tikhonov1963}. The schematic below illustrates the MLE\(\rightarrow\)MAP idea on a simple mean-estimation problem: with little data, the prior matters; with enough data, MAP approaches MLE.
 
 \FloatBarrier
 

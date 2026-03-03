@@ -1,5 +1,10 @@
 % Chapter 3
 \section{Supervised Learning Foundations}\label{chap:supervised}
+\index{supervised learning}
+\index{empirical risk minimization (ERM)}
+\index{regularization}
+\index{bias-variance tradeoff}
+\index{learning curve}
 
 \Cref{chap:symbolic} illustrated a non-statistical lens: solve problems by transformation search, with explicit goal tests. Here we shift to the data-driven lens. \Cref{fig:roadmap} marks this as the core supervised strand, but the continuity is intentional: we still specify state, define actions, set a budget, and verify outcomes.
 
@@ -41,9 +46,8 @@ We observe a dataset \(\mathcal D = \{(\mathbf{x}_i, y_i)\}_{i=1}^N\) drawn inde
 
 The \emph{population risk} and \emph{empirical risk} associated with \(h_\theta\) are
 \begin{align}
-R(h_\theta) &= \mathbb{E}_{(\mathbf{x}, y)\sim \mathcal P}\big[\ell\big(h_\theta(\mathbf{x}), y\big)\big], \\
-\hat R_N(h_\theta) &= \frac{1}{N} \sum_{i=1}^N \ell\big(h_\theta(\mathbf{x}_i), y_i\big).
-    \label{eq:auto:lecture_supervised:1}
+R(h_\theta) &= \mathbb{E}_{(\mathbf{x}, y)\sim \mathcal P}\big[\ell\big(h_\theta(\mathbf{x}), y\big)\big], \label{eq:population_risk}\\
+\hat R_N(h_\theta) &= \frac{1}{N} \sum_{i=1}^N \ell\big(h_\theta(\mathbf{x}_i), y_i\big). \label{eq:empirical_risk}
 \end{align}
 Because \(\mathcal P\) is unknown, learning algorithms minimize empirical proxies of \(R(h_\theta)\). We posit a model family \(h_\theta\) and use data to choose parameter values that make its predictions behave like the measured input--output pairs. In practice we do this on a \emph{training set} (the data used to fit parameters), and we reserve held-out data to check whether the fitted model is trustworthy; \Cref{sec:lec1_model_selection} makes these evaluation protocols precise. Audit is not an external add-on: in engineering terms, it is part of the model contract.
 
@@ -120,20 +124,21 @@ We want a well-fitted model: low training error and comparable validation/test e
 \subsection{Empirical Risk Minimization and Regularization}
 \label{sec:supervised_empirical_risk_minimization_and_regularization}
 
-To make the informal idea of ``fitting'' mathematically precise, we choose an objective and minimize it. The supervised-learning baseline is \emph{empirical risk minimization}: minimize the average loss on the training data.
+To make the informal idea of ``fitting'' mathematically precise, we choose an objective and minimize it. The supervised-learning baseline is \emph{empirical risk minimization}: minimize the average loss on the training data \citep{Vapnik1998}.
 
 This is the first place where the chapter's opening promises become concrete. If we do not know the true input--output law, we still need a disciplined way to compare candidate models and to say whether one parameter choice is better than another. The loss plays the role of the teacher's rubric, and ERM is the simplest way to aggregate that rubric over many examples: instead of arguing about one example at a time, we ask for parameters that perform well on average across the dataset.
 
 The \emph{empirical risk minimizer} (ERM) selects
 \begin{equation}
 \hat\theta_{\text{ERM}} = \arg\min_{\theta} \; \hat R_N(h_\theta).
-\label{eq:auto_supervised_ecc27ebd80}
+\label{eq:erm_solution}
 \end{equation}
 To mitigate overfitting, we often add a regularizer \(\Omega(\theta)\) with strength \(\lambda \ge 0\):
 \begin{equation}
 \hat\theta_\lambda = \arg\min_{\theta} \; \hat R_N(h_\theta) + \lambda\,\Omega(\theta), \qquad \Omega(\theta) \in \{\|\theta\|_2^2,\; \|\theta\|_1,\ldots\}.
-\label{eq:auto_supervised_11c23f9474}
+\label{eq:regularized_erm}
 \end{equation}
+For the common L2 penalty, this is the same mathematical move as Tikhonov regularization in inverse problems: stabilize fitting by penalizing large parameter norms \citep{Tikhonov1963}.
 
 \noindent Regularization is not an arbitrary penalty. It is the mathematical version of a teaching move: if a student can memorize every worked example, you change the exercises so memorization is less effective and understanding is rewarded. Regularization plays the same role. It makes some parameter settings expensive, which pushes learning toward explanations that generalize better.
 
@@ -238,7 +243,7 @@ The difference is easiest to remember geometrically: L2 has round level sets, wh
 Pure L1 or L2 penalties rarely dominate modern workflows; the \emph{elastic net} mixes them to balance sparsity and stability:
 \begin{equation}
     \hat{\theta}_{\alpha,\lambda} = \arg\min_{\theta} \hat{R}_N(h_\theta) + \lambda\Big(\alpha \|\theta\|_1 + \tfrac{1-\alpha}{2} \|\theta\|_2^2\Big), \qquad \alpha \in [0,1].
-\label{eq:auto_supervised_dda9108db8}
+\label{eq:elastic_net}
 \end{equation}
 Setting \(\alpha=1\) recovers the lasso, \(\alpha=0\) yields ridge, and intermediate values trace a solution path that tends to group correlated features while still pruning irrelevant ones. In practice we standardize the features once, draw a logarithmic grid of \(\lambda\) values, and run \(K\)-fold cross-validation for each pair \((\alpha,\lambda)\). The ``one-standard-error'' rule selects the largest \(\lambda\) whose validation error is within one standard error of the minimum. It gives a stable operating point and avoids over-interpreting tiny validation differences.
 
@@ -247,19 +252,17 @@ Setting \(\alpha=1\) recovers the lasso, \(\alpha=0\) yields ridge, and intermed
 
 Loss functions make the teacher signal quantitative: they decide what counts as a small mistake, what counts as a large one, and which kinds of errors matter most.
 For binary classification with labels \(y \in \{-1, +1\}\) and margin \(z = y\, f(\mathbf{x})\), two standard losses are
-\begin{align}
+\begin{align*}
 \ell_{\text{hinge}}(y, z) &= \max\bigl(0, 1 - z\bigr), &
 \ell_{\text{logistic}}(y, z) &= \log\bigl(1 + e^{-z}\bigr).
-    \label{eq:auto:lecture_supervised:2}
-\end{align}
+\end{align*}
 Here \(y\in\{-1,+1\}\); when labels are instead coded as \(y\in\{0,1\}\) (common in probability-of-class formulations), the margin expression uses \(y_{\pm1}=2y-1\) to map between codings.
 \Cref{fig:lec1_class_losses} visualizes these curves together with the squared hinge so you can match the algebra to the margin geometry.
 For regression with residual \(e = y - \hat{y}\), we frequently use
-\begin{align}
+\begin{align*}
     \ell_{\text{sq}}(e) &= \tfrac{1}{2} e^2, &
     \ell_{\text{abs}}(e) &= |e|.
-    \label{eq:auto:lecture_supervised:3}
-\end{align}
+\end{align*}
 The Huber loss interpolates between these: it is quadratic when \(|e| \le \delta\) and linear beyond that threshold (here the plot uses \(\delta=1\)), reducing sensitivity to outliers while remaining smooth around the origin.
 
 \begin{table}[!htbp]
@@ -367,7 +370,7 @@ Practical workflows allocate data into training, validation, and test portions. 
 \begin{tcolorbox}[summarybox, title={Proper scoring rules and calibration}, breakable]
 \small
 \begin{itemize}
-    \item \textbf{Log loss (cross\hyp{}entropy)} and the \textbf{Brier score} are \emph{proper} scoring rules: in expectation, they are minimized by predicting the true class probability.
+    \item \textbf{Log loss (cross\hyp{}entropy)} and the \textbf{Brier score} are \emph{proper} scoring rules: in expectation, they are minimized by predicting the true class probability \citep{Brier1950,Gneiting2007}.
     \item \textbf{Brier} is squared error in probability space; it penalizes confident mistakes less harshly than log loss and is often paired with reliability diagrams.
     \item \textbf{Log loss} heavily punishes overconfident errors (loss \(\to \infty\) as predicted probability \(\to 0\) on the true class), so it is a natural objective when probabilities will be thresholded downstream.
     \item \textbf{Practical tip:} train with log loss, but monitor both log loss and Brier score on validation data to catch calibration issues early.
@@ -559,36 +562,36 @@ Equivalently, \(\hat{y}_i = \mathbf{x}_i^\top \boldsymbol{\beta}\) for each data
 \begin{equation}
     y_i = \mathbf{x}_i^\top\boldsymbol{\beta} + \varepsilon_i,
     \qquad \varepsilon_i \sim \mathcal{N}(0,\sigma^2),
-\label{eq:auto_supervised_2dec229a60}
+\label{eq:linear_regression_noise_model}
 \end{equation}
 where \(\varepsilon_i\) is observation noise (sensor noise, unmodeled effects, annotation noise, etc.). Under this assumption,
 \begin{equation}
     p(y_i\mid \mathbf{x}_i,\boldsymbol{\beta})=\mathcal{N}(\mathbf{x}_i^\top\boldsymbol{\beta},\sigma^2),
-\label{eq:auto_supervised_4f4ef34b0d}
+\label{eq:linear_regression_likelihood}
 \end{equation}
 and (assuming i.i.d.\ observations) the likelihood factorizes:
 \begin{equation}
     p(\mathbf{y}\mid \mathbf{X},\boldsymbol{\beta})=\prod_{i=1}^N p(y_i\mid \mathbf{x}_i,\boldsymbol{\beta}).
-\label{eq:auto_supervised_bb73b50b8f}
+\label{eq:linear_regression_iid_likelihood}
 \end{equation}
 Maximizing the (log) likelihood is equivalent to minimizing the negative log-likelihood, and for Gaussian noise that becomes (up to constants and a scale factor \(1/(2\sigma^2)\)) the familiar sum of squared errors:
 \begin{equation}
     -\log p(\mathbf{y}\mid \mathbf{X},\boldsymbol{\beta})
     = \frac{1}{2\sigma^2}\sum_{i=1}^N (y_i-\mathbf{x}_i^\top\boldsymbol{\beta})^2 + \text{const}.
-\label{eq:auto_supervised_18a9c6ace6}
+\label{eq:gaussian_nll_sse}
 \end{equation}
 This is the simplest example of a recurring theme: if you propose an ``educated guess'' model for how data are generated, training often becomes ``minimize a loss''.
 
 \smallskip
 \noindent To fit \(\boldsymbol{\beta}\), we need a grading rubric. Squared error is the standard starting point because it is smooth and strongly penalizes large mistakes:
 \begin{equation}
-    L(\boldsymbol{\beta}) = \tfrac{1}{2}\|\mathbf{y}-\mathbf{X}\boldsymbol{\beta}\|_2^2.
-\label{eq:auto_supervised_57c930d476}
+    \mathcal{L}(\boldsymbol{\beta}) = \tfrac{1}{2}\|\mathbf{y}-\mathbf{X}\boldsymbol{\beta}\|_2^2.
+\label{eq:sse_objective}
 \end{equation}
 The gradient is simple,
 \begin{equation}
-    \nabla_{\boldsymbol{\beta}}L(\boldsymbol{\beta}) = \mathbf{X}^\top(\mathbf{X}\boldsymbol{\beta}-\mathbf{y}),
-\label{eq:auto_supervised_9bb8d7206b}
+    \nabla_{\boldsymbol{\beta}}\mathcal{L}(\boldsymbol{\beta}) = \mathbf{X}^\top(\mathbf{X}\boldsymbol{\beta}-\mathbf{y}),
+\label{eq:sse_gradient}
 \end{equation}
 so gradient descent is explicit: \(\boldsymbol{\beta}\leftarrow \boldsymbol{\beta}-\eta \mathbf{X}^\top(\mathbf{X}\boldsymbol{\beta}-\mathbf{y})\). This same loop reappears later when the model is no longer linear and the loss is no longer quadratic.
 
@@ -596,12 +599,12 @@ so gradient descent is explicit: \(\boldsymbol{\beta}\leftarrow \boldsymbol{\bet
 \noindent Least squares is convex and satisfies the normal equations:
 \begin{equation}
     \mathbf{X}^\top \mathbf{X}\,\hat{\boldsymbol{\beta}} = \mathbf{X}^\top \mathbf{y}.
-\label{eq:auto_supervised_bce6291d37}
+\label{eq:normal_equations}
 \end{equation}
 When \(\mathbf{X}^\top \mathbf{X}\) is invertible, the solution can be written explicitly as
 \begin{equation}
     \hat{\boldsymbol{\beta}} = (\mathbf{X}^\top \mathbf{X})^{-1}\mathbf{X}^\top \mathbf{y}.
-\label{eq:auto_supervised_44e6ba213f}
+\label{eq:ols_closed_form}
 \end{equation}
 Geometrically, the prediction \(\hat{\mathbf{y}}\) is the orthogonal projection of \(\mathbf{y}\) onto the column space of \(\mathbf{X}\). In code, solve the linear system (QR/SVD) rather than forming \((\mathbf{X}^\top \mathbf{X})^{-1}\) explicitly; collinearity can make \(\mathbf{X}^\top \mathbf{X}\) poorly conditioned even when the mathematics is correct.
 

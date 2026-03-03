@@ -57,52 +57,224 @@ def _assert_close(actual: float, expected: float, tol: float, msg: str) -> None:
 def _read(path: Path) -> str:
     return path.read_text(encoding="utf-8", errors="ignore")
 
+def _clean_tex_number(s: str) -> str:
+    # Examples we expect to see in the book:
+    #   6{,}553{,}600
+    #   65,536
+    #   3/4
+    #   -0.75
+    s2 = s.replace(r"\,", "")
+    s2 = s2.replace("{,}", "")
+    s2 = re.sub(r"[{},\s]", "", s2)
+    return s2
 
-def _extract_qc_block(tex_text: str, name: str) -> list[str]:
-    begin = f"% QC-BEGIN: {name}"
-    end = f"% QC-END: {name}"
-    i0 = tex_text.find(begin)
+
+def _parse_tex_number(s: str) -> float:
+    cleaned = _clean_tex_number(s)
+    if re.fullmatch(r"-?\d+/\d+", cleaned):
+        num, den = cleaned.split("/", 1)
+        return float(num) / float(den)
+    return float(cleaned)
+
+
+def _extract_tcolorbox_body(tex_text: str, title: str) -> str:
+    # Keep this tied to the book-visible box title, so edits to the box
+    # require updating the validator (strict truthfulness).
+    pattern = re.compile(
+        r"\\begin\{tcolorbox\}\[[^\]]*title=\{" + re.escape(title) + r"\}[^\]]*\]([\s\S]*?)\\end\{tcolorbox\}",
+        re.MULTILINE,
+    )
+    m = pattern.search(tex_text)
+    if not m:
+        raise AssertionError(f"Missing tcolorbox with title={title!r}")
+    return m.group(1)
+
+
+def _parse_perceptron_or_trace_table(tex_text: str) -> list[dict[str, int]]:
+    anchor = "The sequence of updates (after each mistake) is:"
+    i0 = tex_text.find(anchor)
     if i0 == -1:
-        raise AssertionError(f"Missing QC block begin marker for {name}")
-    i1 = tex_text.find(end, i0)
-    if i1 == -1:
-        raise AssertionError(f"Missing QC block end marker for {name}")
-    block = tex_text[i0 + len(begin) : i1].splitlines()
-    lines = []
-    for raw in block:
-        s = raw.strip()
-        if not s.startswith("%"):
-            continue
-        payload = s.lstrip("%").strip()
-        if not payload or payload.lower().startswith("step "):
-            continue
-        lines.append(payload)
-    return lines
-
-
-def _parse_perceptron_or_qc(lines: list[str]) -> list[dict[str, int]]:
-    out: list[dict[str, int]] = []
-    for line in lines:
-        # step epoch idx x1 x2 y w1 w2 b
-        parts = line.split()
-        if len(parts) != 9:
-            raise AssertionError(f"Malformed perceptron QC line: {line!r}")
-        step, epoch, idx, x1, x2, y, w1, w2, b = map(int, parts)
-        out.append(
-            dict(step=step, epoch=epoch, idx=idx, x1=x1, x2=x2, y=y, w1=w1, w2=w2, b=b)
+        raise AssertionError("Could not find OR-gate trace anchor in perceptron chapter")
+    a0 = tex_text.find(r"\begin{array}", i0)
+    a1 = tex_text.find(r"\end{array}", a0)
+    if a0 == -1 or a1 == -1:
+        raise AssertionError("Could not isolate OR-gate trace array environment")
+    arr = tex_text[a0:a1]
+    # Rows in the book look like:
+    #   1 & (0,0),-1 & (0,0) & -1\\
+    row_re = re.compile(
+        r"(\d+)\s*&\s*\((\d+),(\d+)\),\s*([+-]?\d+)\s*&\s*\(([-+]?\d+),([-+]?\d+)\)\s*&\s*([-+]?\d+)\s*\\\\"
+    )
+    rows: list[dict[str, int]] = []
+    for (step, x1, x2, y, w1, w2, b) in row_re.findall(arr):
+        rows.append(
+            dict(
+                step=int(step),
+                x1=int(x1),
+                x2=int(x2),
+                y=int(y),
+                w1=int(w1),
+                w2=int(w2),
+                b=int(b),
+            )
         )
-    return out
+    if not rows:
+        raise AssertionError("Failed to parse OR-gate trace rows from LaTeX array")
+    return rows
 
 
-def _parse_kv_qc(lines: list[str]) -> dict[str, float]:
-    out: dict[str, float] = {}
-    for line in lines:
-        for tok in line.split():
-            if "=" not in tok:
-                continue
-            k, v = tok.split("=", 1)
-            out[k] = float(v)
-    return out
+def _parse_scalar_after(token: str, text: str) -> float:
+    m = re.search(re.escape(token) + r"\s*=\s*([+-]?\d+(?:\.\d+)?)", text)
+    if not m:
+        raise AssertionError(f"Could not parse scalar after {token!r}")
+    return float(m.group(1))
+
+
+def _parse_som_competitive_expected(tex_text: str) -> dict[str, float | int | np.ndarray]:
+    # Extract the book-visible numbers for the competitive-learning walkthrough.
+    # We keep this tied to the specific boxed example (weights + x1 + computed d's and w1(1)).
+    # Initial W(0) matrix.
+    mW = re.search(r"\\mathbf\{W\}\(0\)\s*=\s*\\begin\{bmatrix\}([\s\S]*?)\\end\{bmatrix\}", tex_text)
+    if not mW:
+        raise AssertionError("Could not find W(0) matrix in SOM competitive example")
+    W_body = mW.group(1)
+    W_rows: list[list[float]] = []
+    for raw in W_body.splitlines():
+        line = raw.split("%", 1)[0].strip()
+        if not line or "&" not in line:
+            continue
+        line = line.rstrip("\\").strip()
+        parts = [p.strip() for p in line.split("&")]
+        W_rows.append([float(_parse_tex_number(p)) for p in parts])
+    W0 = np.array(W_rows, dtype=float)
+    _assert(W0.shape == (3, 4), f"Expected W(0) to be 3x4, got {W0.shape}")
+
+    # Input x1 vector.
+    mx = re.search(r"\\mathbf\{x\}_1\s*=\s*\\begin\{bmatrix\}([\s\S]*?)\\end\{bmatrix\}", tex_text)
+    if not mx:
+        raise AssertionError("Could not find x1 vector in SOM competitive example")
+    x_body = mx.group(1)
+    x_vals: list[float] = []
+    # The vectors in the book are written compactly as "0.1\\ 0.3\\ 0.4\\ 0.2".
+    # Normalize LaTeX line breaks into real newlines for parsing.
+    x_body_norm = x_body.replace("\\\\", "\n")
+    for raw in x_body_norm.splitlines():
+        line = raw.split("%", 1)[0].strip().rstrip("\\").strip()
+        if not line:
+            continue
+        x_vals.append(float(_parse_tex_number(line)))
+    x1 = np.array(x_vals, dtype=float)
+    _assert(x1.shape == (4,), f"Expected x1 to have 4 entries, got shape {x1.shape}")
+
+    # Expected distances and winner index from the explicit Step-1 derivation.
+    step1_anchor = r"\paragraph{Step 1: pick the winner for \(\mathbf{x}_1\).}"
+    i0 = tex_text.find(step1_anchor)
+    if i0 == -1:
+        raise AssertionError("Could not find Step 1 anchor in SOM competitive example")
+    i1 = tex_text.find(r"\paragraph{Step 2:", i0)
+    if i1 == -1:
+        raise AssertionError("Could not find Step 2 anchor in SOM competitive example")
+    step1 = tex_text[i0:i1]
+
+    md = re.search(
+        r"d_1\s*&=.*?=\s*([0-9.]+)\s*,\s*\\\\\s*d_2\s*&=.*?=\s*([0-9.]+)\s*,[\s\S]*?d_3\s*=.*?=\s*([0-9.]+)",
+        step1,
+        re.DOTALL,
+    )
+    if not md:
+        raise AssertionError("Could not parse d1/d2/d3 from SOM competitive Step 1 block")
+    # The last value may be sentence-terminated (e.g., "0.13."). Strip trailing punctuation.
+    def _fnum(s: str) -> float:
+        return float(s.rstrip(".,"))
+
+    d1, d2, d3 = (_fnum(md.group(1)), _fnum(md.group(2)), _fnum(md.group(3)))
+
+    mw = re.search(r"c=\s*\\arg\\min_j\s*d_j\s*=\s*(\d+)", step1)
+    if not mw:
+        raise AssertionError("Could not parse winner index c from SOM competitive Step 1 block")
+    winner = int(mw.group(1))
+
+    # Learning rate alpha(0) from the bullet list (alpha(0) = 0.3).
+    alpha0 = float(_parse_scalar_after(r"\alpha(0)", tex_text))
+
+    # Expected updated winner weights from Step 2 bmatrix.
+    step2_anchor = r"\paragraph{Step 2: update the winner.}"
+    j0 = tex_text.find(step2_anchor)
+    if j0 == -1:
+        raise AssertionError("Could not find Step 2 anchor in SOM competitive example")
+    j1 = tex_text.find(r"\subsection{Winner-Takes-All Learning Recap}", j0)
+    step2 = tex_text[j0:j1 if j1 != -1 else None]
+    mw1 = re.search(r"\\mathbf\{w\}_1\(1\)[\s\S]*?\\begin\{bmatrix\}([\s\S]*?)\\end\{bmatrix\}", step2)
+    if not mw1:
+        raise AssertionError("Could not parse w1(1) updated vector in SOM competitive example")
+    w1_body = mw1.group(1)
+    w1_vals: list[float] = []
+    w1_body_norm = w1_body.replace("\\\\", "\n")
+    for raw in w1_body_norm.splitlines():
+        line = raw.split("%", 1)[0].strip().rstrip("\\").strip()
+        if not line:
+            continue
+        w1_vals.append(float(_parse_tex_number(line)))
+    w1_new = np.array(w1_vals, dtype=float)
+    _assert(w1_new.shape == (4,), f"Expected w1_new to have 4 entries, got {w1_new.shape}")
+
+    # Alpha(1) is stated explicitly as 0.15.
+    malpha1 = re.search(r"\\alpha\(1\)\s*=\s*0\.3\\times\s*0\.5\s*=\s*([0-9.]+)", step2)
+    if not malpha1:
+        raise AssertionError("Could not parse alpha(1) from SOM competitive Step 2 block")
+    alpha1 = float(malpha1.group(1))
+
+    return {
+        "W0": W0,
+        "x1": x1,
+        "d_expected": np.array([d1, d2, d3], dtype=float),
+        "winner_expected": winner,
+        "alpha0": alpha0,
+        "alpha1": alpha1,
+        "w1_new_expected": w1_new,
+    }
+
+
+def _parse_som_qe_te_expected(tex_text: str) -> dict[str, object]:
+    body = _extract_tcolorbox_body(tex_text, r"Tiny numeric check: QE vs.\ TE (they can disagree)")
+
+    # Prototypes: \mathbf{w}_1=[0,0], ... \mathbf{w}_4=[0.25,0.25].
+    prot_re = re.compile(r"\\mathbf\{w\}_(\d)\s*=\s*\[([0-9.]+)\s*,\s*([0-9.]+)\]")
+    W: dict[int, np.ndarray] = {}
+    for idx_s, a_s, b_s in prot_re.findall(body):
+        W[int(idx_s)] = np.array([float(a_s), float(b_s)], dtype=float)
+    if len(W) != 4:
+        raise AssertionError(f"Expected 4 prototypes in QE/TE box, got {len(W)}")
+
+    # Inputs: \mathbf{x}_1=[0.30,0.30], ...
+    xin_re = re.compile(r"\\mathbf\{x\}_(\d)\s*=\s*\[([0-9.]+)\s*,\s*([0-9.]+)\]")
+    X: dict[int, np.ndarray] = {}
+    for idx_s, a_s, b_s in xin_re.findall(body):
+        X[int(idx_s)] = np.array([float(a_s), float(b_s)], dtype=float)
+    if len(X) != 4:
+        raise AssertionError(f"Expected 4 inputs in QE/TE box, got {len(X)}")
+
+    # Pairs: (4,1), (2,4), (3,4), (1,4)
+    pair_re = re.compile(r"\((\d)\s*,\s*(\d)\)")
+    pairs = [(int(a), int(b)) for a, b in pair_re.findall(body)]
+    # There are other parentheses in the box, so take the first four pairs after the sentence.
+    if len(pairs) < 4:
+        raise AssertionError("Could not parse BMU/second-BMU pairs from QE/TE box")
+    pairs = pairs[:4]
+
+    # TE: ... so \text{TE}=2/4=0.5.
+    m_te = re.search(r"\\text\{TE\}\s*=\s*2/4\s*=\s*([0-9.]+)", body)
+    if not m_te:
+        raise AssertionError("Could not parse TE value from QE/TE box")
+    te = float(m_te.group(1))
+
+    # QE: ... \text{QE}\approx 0.1962.
+    m_qe = re.search(r"\\text\{QE\}\\approx\s*([0-9.]+)", body)
+    if not m_qe:
+        raise AssertionError("Could not parse QE value from QE/TE box")
+    qe = float(m_qe.group(1))
+
+    return {"W": W, "X": X, "pairs": pairs, "QE": qe, "TE": te}
 
 
 def _extract_figure_block(tex_text: str, label: str) -> str:
@@ -218,16 +390,30 @@ def _curve(a: float, b: float, c: float, x: np.ndarray) -> np.ndarray:
 
 
 def check_numeric_examples_pack() -> dict[str, float]:
-    # Chapter 5: perceptron OR-gate update trace (verified against the QC comment block).
+    # Chapter 5: perceptron OR-gate update trace (verified against the book-visible table).
     p_or = check_perceptron_or_gate_trace()
     _assert(tuple(p_or["final_w"]) == (2, 2), "Perceptron OR final w mismatch")
     _assert(int(p_or["final_b"]) == -1, "Perceptron OR final b mismatch")
     _assert(int(p_or["num_updates"]) == 9, "Perceptron OR number of updates mismatch")
 
     lec3 = _read(ROOT / "lecture_3_part_i.tex")
-    qc_lines = _extract_qc_block(lec3, "perceptron_or_trace")
-    qc_trace = _parse_perceptron_or_qc(qc_lines)
-    _assert(qc_trace == p_or["trace"], "Perceptron OR QC trace does not match computed trace")
+    tex_trace = _parse_perceptron_or_trace_table(lec3)
+    computed_table = [
+        dict(
+            step=int(r["step"]),
+            x1=int(r["x1"]),
+            x2=int(r["x2"]),
+            y=int(r["y"]),
+            w1=int(r["w1"]),
+            w2=int(r["w2"]),
+            b=int(r["b"]),
+        )
+        for r in p_or["trace"]
+    ]
+    _assert(
+        tex_trace == computed_table,
+        "Perceptron OR trace table does not match computed mistake-driven updates",
+    )
 
     hopfield = check_hopfield()
     _assert_close(float(hopfield["s0"]), -5.0, 1e-9, "Hopfield E(s0)")
@@ -257,11 +443,25 @@ def check_numeric_examples_pack() -> dict[str, float]:
     _assert(float(rnn2["dL_dWhh_abs_err"]) < 5e-6, "RNN 2-step finite-diff gradient mismatch")
 
     lec7 = _read(ROOT / "lecture_7.tex")
-    rnn_qc_lines = _extract_qc_block(lec7, "chapter12_bptt_two_step")
-    rnn_qc = _parse_kv_qc(rnn_qc_lines)
-    _assert_close(float(rnn_qc["h1"]), float(rnn2["h1"]), 1e-12, "RNN 2-step QC h1 mismatch")
-    _assert_close(float(rnn_qc["h2"]), float(rnn2["h2"]), 1e-12, "RNN 2-step QC h2 mismatch")
-    _assert_close(float(rnn_qc["dL_dWhh"]), float(rnn2["dL_dWhh"]), 1e-12, "RNN 2-step QC grad mismatch")
+    rnn_box = _extract_tcolorbox_body(lec7, "Numeric check: shared weights mean summed gradients")
+    h1 = _parse_scalar_after("h_1", rnn_box)
+    h2 = _parse_scalar_after("h_2", rnn_box)
+    e1 = _parse_scalar_after("e_1=y_1-t_1", rnn_box)
+    e2 = _parse_scalar_after("e_2=y_2-t_2", rnn_box)
+    # The boxed example gives the final gradient explicitly.
+    m_grad = re.search(
+        r"\\frac\{\\partial\s+L\}\{\\partial\s+W_\{hh\}\}[\s\S]*?=\s*([0-9.]+)\s*\.",
+        rnn_box,
+        re.DOTALL,
+    )
+    if not m_grad:
+        raise AssertionError("Could not parse final dL/dWhh value from the RNN 2-step box")
+    grad = float(m_grad.group(1))
+    _assert_close(float(h1), float(rnn2["h1"]), 1e-12, "RNN 2-step h1 mismatch vs book box")
+    _assert_close(float(h2), float(rnn2["h2"]), 1e-12, "RNN 2-step h2 mismatch vs book box")
+    _assert_close(float(e1), float(rnn2["e1"]), 1e-12, "RNN 2-step e1 mismatch vs book box")
+    _assert_close(float(e2), float(rnn2["e2"]), 1e-12, "RNN 2-step e2 mismatch vs book box")
+    _assert_close(float(grad), float(rnn2["dL_dWhh"]), 1e-12, "RNN 2-step gradient mismatch vs book box")
 
     stride = check_stride_pad()
     _assert(int(stride["L"]) == 3, "Stride/padding L must be 3")
@@ -943,64 +1143,27 @@ def check_ch5_som_update() -> dict[str, float]:
 
 def check_som_competitive_learning_example() -> dict[str, float]:
     tex = _read(ROOT / "lecture_5_part_i.tex")
-    qc_lines = _extract_qc_block(tex, "som_competitive_learning_example")
+    exp = _parse_som_competitive_expected(tex)
 
-    expected_d: list[float] | None = None
-    expected_w1_new: list[float] | None = None
-    expected_winner: int | None = None
-    expected_alpha0: float | None = None
-    expected_alpha1: float | None = None
-
-    for line in qc_lines:
-        parts = line.split()
-        if not parts:
-            continue
-        if parts[0] == "d":
-            # d 0.03 0.14 0.13 winner 1
-            if len(parts) != 6 or parts[4] != "winner":
-                raise AssertionError(f"Malformed SOM competitive-learning QC line: {line!r}")
-            expected_d = [float(parts[1]), float(parts[2]), float(parts[3])]
-            expected_winner = int(parts[5])
-        elif parts[0] == "w1_new":
-            # w1_new 0.17 0.30 0.47 0.13
-            if len(parts) != 5:
-                raise AssertionError(f"Malformed SOM competitive-learning QC line: {line!r}")
-            expected_w1_new = [float(x) for x in parts[1:]]
-        elif parts[0] == "alpha0":
-            # alpha0 0.30 alpha1 0.15
-            if len(parts) != 4 or parts[2] != "alpha1":
-                raise AssertionError(f"Malformed SOM competitive-learning QC line: {line!r}")
-            expected_alpha0 = float(parts[1])
-            expected_alpha1 = float(parts[3])
-
-    if expected_d is None or expected_w1_new is None or expected_winner is None:
-        raise AssertionError("Missing SOM competitive-learning QC values")
-    if expected_alpha0 is None or expected_alpha1 is None:
-        raise AssertionError("Missing SOM competitive-learning alpha QC values")
-
-    W0 = np.array(
-        [
-            [0.2, 0.3, 0.5, 0.1],
-            [0.2, 0.3, 0.1, 0.4],
-            [0.3, 0.5, 0.2, 0.3],
-        ],
-        dtype=float,
-    )
-    x1 = np.array([0.1, 0.3, 0.4, 0.2], dtype=float)
+    W0 = exp["W0"]
+    x1 = exp["x1"]
+    d_expected = exp["d_expected"]
+    winner_expected = int(exp["winner_expected"])
+    alpha0 = float(exp["alpha0"])
+    alpha1_expected = float(exp["alpha1"])
+    w1_new_expected = exp["w1_new_expected"]
 
     d = np.sum((W0 - x1) ** 2, axis=1)
     winner = int(np.argmin(d) + 1)
-    _assert(winner == expected_winner, "Winner index mismatch")
-    for i, (actual, exp) in enumerate(zip(d.tolist(), expected_d, strict=True), start=1):
-        _assert_close(float(actual), float(exp), 1e-12, f"d{i} mismatch")
+    _assert(winner == winner_expected, "Winner index mismatch")
+    for i, (actual, expv) in enumerate(zip(d.tolist(), d_expected.tolist(), strict=True), start=1):
+        _assert_close(float(actual), float(expv), 1e-12, f"d{i} mismatch")
 
-    alpha0 = expected_alpha0
     w1_new = W0[0] + alpha0 * (x1 - W0[0])
-    for i, (actual, exp) in enumerate(zip(w1_new.tolist(), expected_w1_new, strict=True)):
-        _assert_close(float(actual), float(exp), 1e-12, f"w1_new[{i}] mismatch")
+    for i, (actual, expv) in enumerate(zip(w1_new.tolist(), w1_new_expected.tolist(), strict=True)):
+        _assert_close(float(actual), float(expv), 1e-12, f"w1_new[{i}] mismatch")
 
-    alpha1 = expected_alpha1
-    _assert_close(float(alpha1), float(alpha0 * 0.5), 1e-12, "alpha1 decay mismatch")
+    _assert_close(float(alpha1_expected), float(alpha0 * 0.5), 1e-12, "alpha(1) decay mismatch")
 
     return {
         "winner": float(winner),
@@ -1016,44 +1179,13 @@ def check_som_competitive_learning_example() -> dict[str, float]:
 
 def check_som_qe_te_example() -> dict[str, float]:
     tex = _read(ROOT / "lecture_5_part_i.tex")
-    qc_lines = _extract_qc_block(tex, "som_qe_te_example")
+    exp = _parse_som_qe_te_expected(tex)
 
-    W: dict[int, np.ndarray] = {}
-    X: list[np.ndarray] = []
-    expected_pairs: list[tuple[int, int, int]] = []  # (bmu, sbmu, adj)
-    expected_qe: float | None = None
-    expected_te: float | None = None
-
-    for line in qc_lines:
-        parts = line.split()
-        if not parts:
-            continue
-        tag = parts[0]
-        if tag.startswith("w"):
-            # w1 0.00 0.00
-            idx = int(tag[1:])
-            if len(parts) != 3:
-                raise AssertionError(f"Malformed SOM QE/TE QC line: {line!r}")
-            W[idx] = np.array([float(parts[1]), float(parts[2])], dtype=float)
-        elif tag.startswith("x"):
-            # x1 0.30 0.30 bmu 4 sbmu 1 adj 0
-            if len(parts) != 9 or parts[3] != "bmu" or parts[5] != "sbmu" or parts[7] != "adj":
-                raise AssertionError(f"Malformed SOM QE/TE QC line: {line!r}")
-            X.append(np.array([float(parts[1]), float(parts[2])], dtype=float))
-            expected_pairs.append((int(parts[4]), int(parts[6]), int(parts[8])))
-        elif tag == "QE":
-            # QE 0.196205 TE 0.500000
-            if len(parts) != 4 or parts[2] != "TE":
-                raise AssertionError(f"Malformed SOM QE/TE QC line: {line!r}")
-            expected_qe = float(parts[1])
-            expected_te = float(parts[3])
-
-    if len(W) != 4 or len(X) != 4:
-        raise AssertionError("Expected 4 prototypes and 4 inputs for SOM QE/TE example")
-    if expected_qe is None or expected_te is None:
-        raise AssertionError("Missing QE/TE values in SOM QE/TE QC block")
-    if len(expected_pairs) != 4:
-        raise AssertionError("Missing BMU/second-BMU pairs in SOM QE/TE QC block")
+    W = exp["W"]
+    X_map = exp["X"]
+    pairs = exp["pairs"]
+    expected_qe = float(exp["QE"])
+    expected_te = float(exp["TE"])
 
     # Fixed 2x2 grid coordinates for units 1..4.
     R = {
@@ -1067,7 +1199,8 @@ def check_som_qe_te_example() -> dict[str, float]:
     te_count = 0
     details: dict[str, float] = {}
 
-    for i, x in enumerate(X, start=1):
+    for i in range(1, 5):
+        x = X_map[i]
         d = {k: float(np.sum((x - w) ** 2)) for k, w in W.items()}
         order = sorted(d.items(), key=lambda kv: (kv[1], kv[0]))
         bmu = int(order[0][0])
@@ -1077,7 +1210,8 @@ def check_som_qe_te_example() -> dict[str, float]:
         rs = R[sbmu]
         adj = int((abs(int(rb[0] - rs[0])) + abs(int(rb[1] - rs[1]))) == 1)
 
-        exp_bmu, exp_sbmu, exp_adj = expected_pairs[i - 1]
+        exp_bmu, exp_sbmu = pairs[i - 1]
+        exp_adj = int((abs(int(R[exp_bmu][0] - R[exp_sbmu][0])) + abs(int(R[exp_bmu][1] - R[exp_sbmu][1]))) == 1)
         _assert(bmu == exp_bmu, f"BMU mismatch for x{i}")
         _assert(sbmu == exp_sbmu, f"Second BMU mismatch for x{i}")
         _assert(adj == exp_adj, f"Adjacency mismatch for x{i}")
@@ -1089,10 +1223,11 @@ def check_som_qe_te_example() -> dict[str, float]:
         details[f"x{i}_sbmu"] = float(sbmu)
         details[f"x{i}_adj"] = float(adj)
 
-    qe = qe_sum / len(X)
-    te = te_count / len(X)
+    qe = qe_sum / 4.0
+    te = te_count / 4.0
 
-    _assert_close(float(qe), float(expected_qe), 1e-6, "QE mismatch")
+    # QE is printed as an approximation to 4 decimals in the book.
+    _assert_close(float(qe), float(expected_qe), 5e-5, "QE mismatch")
     _assert_close(float(te), float(expected_te), 1e-12, "TE mismatch")
     details["QE"] = float(qe)
     details["TE"] = float(te)
