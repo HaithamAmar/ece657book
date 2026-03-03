@@ -77,7 +77,7 @@ There is no gradient through the tunnel. Each evaluation consumes time and budge
 \end{tcolorbox}
 
 \begin{tcolorbox}[summarybox, title={When GA is not the first choice}]
-If the objective is smooth, gradients are trustworthy, and constraints are easy to encode, gradient-based or convex optimization methods are usually faster and easier to tune. Use GA when those assumptions fail: discontinuities, mixed-variable encodings, simulator-in-the-loop objectives, or hard constraints that make local gradients uninformative.
+If the objective is smooth, gradients are trustworthy, and constraints are easy to encode, gradient-based or convex optimization methods are usually faster and easier to tune. When the evaluation budget is tiny (tens to hundreds of trials), Bayesian optimization can be a strong alternative \citep{Frazier2018}. Use GA when those assumptions fail: discontinuities, mixed-variable encodings, simulator-in-the-loop objectives, or hard constraints that make local gradients uninformative.
 \end{tcolorbox}
 
 \subsection{Philosophical and Historical Background}

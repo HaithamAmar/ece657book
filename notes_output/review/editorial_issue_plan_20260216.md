@@ -1797,3 +1797,18 @@ Build notes (2026-02-17):
 - `notes_output/ece657_notes.pdf`: rebuilt.
 - 2026-03-03: Ran `python3 notes_output/scripts/validate_math_examples_and_graphs.py --strict`. Result: PASS.
 - 2026-03-03: Ran `bash notes_output/scripts/run_production_checks.sh`. Result: PASS (release checks, Apple gatekeeper audits, EPUB citation visibility audit, and EPUBCheck all OK).
+
+## 2026-03-03 Bibliography + citation integrity pass (foundational refs + missing cites)
+
+- `notes_output/refs.bib`: added missing foundational and review-requested references:
+  - Slagle (symbolic integration), Vapnik (statistical learning theory), Fisher (MLE foundations), Tikhonov (regularization),
+    Brier + Gneiting/Raftery (proper scoring rules), Frazier (Bayesian optimization tutorial), Sutton \& Barto (RL reference),
+    LeCun (LeNet/CNN origins), and the Ultralytics YOLO software citation.
+  - Added a stable URL fallback for `Tikhonov1963` so the entry is searchable.
+- `notes_output/lecture_1_intro.tex`: cited Slagle's integration system and the YOLOv8 example (Ultralytics citation).
+- `notes_output/lecture_supervised.tex`: cited proper scoring rules sources; added ERM and regularization foundation citations (Vapnik, Tikhonov).
+- `notes_output/lecture_2_part_ii.tex`: cited Fisher for MLE and clarified MAP/regularization citations (Bishop, plus a short Tikhonov tie-back for L2).
+- `notes_output/lecture_6.tex`: added LeNet-era citations at first historical mention (LeCun 1989/1998).
+- `notes_output/lecture_11.tex`: acknowledged Bayesian optimization as a strong alternative when evaluation budgets are tiny (with a tutorial citation).
+- 2026-03-03: Ran `python3 notes_output/scripts/validate_math_examples_and_graphs.py --strict`. Result: PASS.
+- 2026-03-03: Ran `bash notes_output/scripts/run_production_checks.sh`. Result: PASS (release checks, Apple gatekeeper audits, EPUB citation visibility audit, and EPUBCheck all OK).

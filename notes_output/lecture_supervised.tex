@@ -119,7 +119,7 @@ We want a well-fitted model: low training error and comparable validation/test e
 \subsection{Empirical Risk Minimization and Regularization}
 \label{sec:supervised_empirical_risk_minimization_and_regularization}
 
-To make the informal idea of ``fitting'' mathematically precise, we choose an objective and minimize it. The supervised-learning baseline is \emph{empirical risk minimization}: minimize the average loss on the training data.
+To make the informal idea of ``fitting'' mathematically precise, we choose an objective and minimize it. The supervised-learning baseline is \emph{empirical risk minimization}: minimize the average loss on the training data \citep{Vapnik1998}.
 
 This is the first place where the chapter's opening promises become concrete. If we do not know the true input--output law, we still need a disciplined way to compare candidate models and to say whether one parameter choice is better than another. The loss plays the role of the teacher's rubric, and ERM is the simplest way to aggregate that rubric over many examples: instead of arguing about one example at a time, we ask for parameters that perform well on average across the dataset.
 
@@ -133,6 +133,7 @@ To mitigate overfitting, we often add a regularizer \(\Omega(\theta)\) with stre
 \hat\theta_\lambda = \arg\min_{\theta} \; \hat R_N(h_\theta) + \lambda\,\Omega(\theta), \qquad \Omega(\theta) \in \{\|\theta\|_2^2,\; \|\theta\|_1,\ldots\}.
 \label{eq:regularized_erm}
 \end{equation}
+For the common L2 penalty, this is the same mathematical move as Tikhonov regularization in inverse problems: stabilize fitting by penalizing large parameter norms \citep{Tikhonov1963}.
 
 \noindent Regularization is not an arbitrary penalty. It is the mathematical version of a teaching move: if a student can memorize every worked example, you change the exercises so memorization is less effective and understanding is rewarded. Regularization plays the same role. It makes some parameter settings expensive, which pushes learning toward explanations that generalize better.
 
@@ -364,7 +365,7 @@ Practical workflows allocate data into training, validation, and test portions. 
 \begin{tcolorbox}[summarybox, title={Proper scoring rules and calibration}, breakable]
 \small
 \begin{itemize}
-    \item \textbf{Log loss (cross\hyp{}entropy)} and the \textbf{Brier score} are \emph{proper} scoring rules: in expectation, they are minimized by predicting the true class probability.
+    \item \textbf{Log loss (cross\hyp{}entropy)} and the \textbf{Brier score} are \emph{proper} scoring rules: in expectation, they are minimized by predicting the true class probability \citep{Brier1950,Gneiting2007}.
     \item \textbf{Brier} is squared error in probability space; it penalizes confident mistakes less harshly than log loss and is often paired with reliability diagrams.
     \item \textbf{Log loss} heavily punishes overconfident errors (loss \(\to \infty\) as predicted probability \(\to 0\) on the true class), so it is a natural objective when probabilities will be thresholded downstream.
     \item \textbf{Practical tip:} train with log loss, but monitor both log loss and Brier score on validation data to catch calibration issues early.

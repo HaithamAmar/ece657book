@@ -33,7 +33,7 @@ The core backprop loop from earlier chapters scales to high-dimensional percepti
 
 This is also where the training loop became practical at scale: large datasets and modern accelerators made iterative optimization feasible, and architectural priors such as locality and weight sharing made that optimization sample-efficient on image grids.
 
-CNNs emerged as a pragmatic answer: keep end-to-end gradient training, but bake in locality and translation structure through sparse connectivity and shared weights. The result is a model class that is both more sample-efficient and more computationally viable on large grids.
+CNNs emerged as a pragmatic answer: keep end-to-end gradient training, but bake in locality and translation structure through sparse connectivity and shared weights. Early convolutional networks such as LeNet established this recipe on document and zip-code recognition tasks \citep{LeCun1989,LeCun1998}. The result is a model class that is both more sample-efficient and more computationally viable on large grids.
 
 \paragraph{How to read this chapter.}
 \begin{itemize}
