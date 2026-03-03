@@ -468,12 +468,6 @@ At \(t=0\) the learning rate is \(\alpha(0)=0.3\), and only the winner updates:
 \]
 For the next input, \(t=1\) so \(\alpha(1)=0.3\times 0.5 = 0.15\), and the same computation repeats with the new winner.
 
-% QC-BEGIN: som_competitive_learning_example
-% d 0.03 0.14 0.13 winner 1
-% w1_new 0.17 0.30 0.47 0.13
-% alpha0 0.30 alpha1 0.15
-% QC-END: som_competitive_learning_example
-
 \subsection{Winner-Takes-All Learning Recap}
 \label{sec:som_winner_takes_all_learning_recap}
 
@@ -615,18 +609,6 @@ Meanwhile the average distance to the BMU is \(\text{QE}\approx 0.1962\).
 
 The lesson is that QE is a ``prototype fit'' score, while TE is an ``ordering'' score. You can improve QE by moving prototypes toward the data while still tearing the map if nearby grid units do not represent nearby regions of the input space.
 \end{tcolorbox}
-
-% QC-BEGIN: som_qe_te_example
-% w1 0.00 0.00
-% w2 2.00 0.00
-% w3 0.00 2.00
-% w4 0.25 0.25
-% x1 0.30 0.30 bmu 4 sbmu 1 adj 0
-% x2 1.80 0.20 bmu 2 sbmu 4 adj 1
-% x3 0.20 1.70 bmu 3 sbmu 4 adj 1
-% x4 0.05 0.05 bmu 1 sbmu 4 adj 0
-% QE 0.196205 TE 0.500000
-% QC-END: som_qe_te_example
 
 \begin{tcolorbox}[summarybox, title={Batch SOM in practice}, breakable]
 Online SOM updates one sample at a time: pick a best-matching unit (BMU), nudge it and its neighbors, move on. Batch SOM instead aggregates responsibilities across a dataset (or mini\hyp{}batch) before shifting prototypes:

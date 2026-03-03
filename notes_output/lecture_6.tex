@@ -80,13 +80,6 @@ and between the hidden and output layer (assuming 4 output classes) is:
 
 Thus, the first layer alone requires learning over 6 million parameters before we even consider deeper architectures. Coupled with the additional 400 output weights (plus biases), the optimization problem quickly becomes data-hungry and computationally expensive.
 
-% QC-BEGIN: cnn_flatten_params
-% H 256 W 256 vec 65536
-% hidden 100 W1 6553600
-% classes 4 W2 400
-% samples_rule 10 Nparams 6553600 approx 65536000
-% QC-END: cnn_flatten_params
-
 \paragraph{Data requirements (a sanity check).}
 When a model has millions of free parameters and no strong architectural prior, you are asking the data to do most of the work: it must fit the mapping and also implicitly teach the model what kinds of patterns are worth representing. A crude sanity check sometimes used in practice is to compare the number of labeled examples to the number of parameters:
 \begin{equation}
@@ -175,15 +168,6 @@ y_2 &= \langle[3,1,0],[1,0,-1]\rangle = 3,
 so \(\mathbf{y}=[-2,-1,3]\).
 \end{tcolorbox}
 
-% QC-BEGIN: cnn_1d_xcorr_stride_pad
-% x 1 2 0 3 1
-% w 1 0 -1
-% p 1
-% s 2
-% L 3
-% y -2 -1 3
-% QC-END: cnn_1d_xcorr_stride_pad
-
 \paragraph{Convolutional hyperparameters (what you choose up front).}
 \label{sec:cnn_convolutional_hyperparameters_what_you_choose_up_front}
 \begin{itemize}
@@ -210,13 +194,6 @@ Real inputs are multi-channel. A red\hyp{}green\hyp{}blue (RGB) image has three 
 \begin{tcolorbox}[summarybox, title={Dimensionality accounting example}]
 Start with an input tensor of size \(50\times50\times30\). Apply \(10\) filters of size \(3\times3\) with stride \(1\) and valid padding. The spatial size becomes \(50-3+1=48\), so the output is \(48\times48\times10\). Apply \(2\times2\) max pooling with stride \(2\): the spatial size becomes \(\left\lfloor(48-2)/2\right\rfloor + 1 = 24\), so the pooled output is \(24\times24\times10\). Flattening that volume yields \(24\cdot24\cdot10=5760\) features for a dense classifier.
 \end{tcolorbox}
-
-% QC-BEGIN: cnn_shape_bookkeeping
-% input 50 50 30
-% conv k 3 stride 1 pad 0 cout 10 out_hw 48 48
-% pool window 2 stride 2 out_hw 24 24
-% flatten 5760
-% QC-END: cnn_shape_bookkeeping
 
 \paragraph{From feature maps to classifiers.}
 \label{sec:cnn_from_feature_maps_to_classifiers}

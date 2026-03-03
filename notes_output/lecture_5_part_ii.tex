@@ -204,19 +204,6 @@ For clarity, \Cref{tab:hopfield-deltaE} reports the energy change for each singl
     \label{tab:hopfield-deltaE}
 \end{table}
 
-% QC-BEGIN: hopfield_energy_example
-% W 0 3 -4
-% W 3 0 2
-% W -4 2 0
-% theta 0 0 0
-% s0 1 1 -1 E -5
-% flip_s1 -1 1 -1 E 9
-% flip_s2 1 -1 -1 E -3
-% flip_s3 1 1 1 E -1
-% noisy 1 1 1 update_i 3 s1 1 1 -1 E -5
-% QC-END: hopfield_energy_example
-
-
 Because every single-neuron flip raises the energy, the state \((1,1,-1)\) is a stable local minimum for this network.
 If the network is perturbed slightly (for instance, by flipping \(s_3\) to \(+1\) to create the noisy pattern \((1,1,1)\)), the next asynchronous update flips it back. In this state the local field at neuron 3 is \(h_3=-4(1)+2(1)=-2\), so the update rule sets \(s_3\leftarrow -1\), returning to \((1,1,-1)\). The energy drops from \(-1\) to \(-5\), which is the basic content-addressable recall behavior.
 
@@ -439,18 +426,6 @@ Step & Update & Local field & New state \\
 The energy drops along the way: \(E=0.5 \rightarrow 0 \rightarrow -1.5\).
 \end{tcolorbox}
 
-% QC-BEGIN: hopfield_single_pattern_weights
-% xi 1 1 1 -1
-% W 0 0.25 0.25 -0.25
-% W 0.25 0 0.25 -0.25
-% W 0.25 0.25 0 -0.25
-% W -0.25 -0.25 -0.25 0
-% h 0.75 0.75 0.75 -0.75
-% recall_s0 1 -1 -1 -1 E 0.5
-% recall_step 1 update_i 2 h 0.25 s 1 1 -1 -1 E 0.0
-% recall_step 2 update_i 3 h 0.75 s 1 1 1 -1 E -1.5
-% QC-END: hopfield_single_pattern_weights
-
 \subsection{Finalizing the Hopfield Network Derivation and Discussion}
 \label{sec:hopfield_finalizing_the_hopfield_network_derivation_and_discussion}
 
@@ -549,16 +524,6 @@ Now start from a one-bit-corrupted probe \(\mathbf{s}^{(0)}=[-1,-1,1,1]^T\), wit
 h_4=\sum_j w_{4j}s_j = -0.75 \quad\Rightarrow\quad s_4\leftarrow -1,
 \]
 so in one asynchronous flip we recover \(\mathbf{s}^{(1)}=\mathbf{\xi}\). The energy drops from \(E=0\) to \(E=-1.5\) under \eqref{eq:energy_function}. The appearance of \(-\mathbf{\xi}\) as a fixed point is expected: the energy only depends on products \(s_i s_j\), so negating all bits leaves every term unchanged.
-
-% QC-BEGIN: hopfield_memory_recovery_4n
-% xi -1 -1 1 -1
-% W 0 0.25 -0.25 0.25
-% W 0.25 0 -0.25 0.25
-% W -0.25 -0.25 0 -0.25
-% W 0.25 0.25 -0.25 0
-% s0 -1 -1 1 1 E 0.0
-% step 1 update_i 4 h -0.75 s -1 -1 1 -1 E -1.5
-% QC-END: hopfield_memory_recovery_4n
 
 \paragraph{Spurious attractors}
 
