@@ -816,6 +816,36 @@ These equations are the whole story: cache forward values, propagate \(\delta\)'
 \end{itemize}
 \end{tcolorbox}
 
+\begin{tcolorbox}[summarybox, breakable, title={Backpropagation (dense MLP) pseudocode}]
+\footnotesize
+\begin{verbatim}
+function MLPTrainStep(X, Y, params, eta):
+    # X: B x d_in, Y: B x d_out; params: {W[l], b[l]} for l=1..L
+    # Forward (cache everything the backward pass will reuse)
+    A[0] <- X
+    for l in 1..L:
+        Z[l] <- A[l-1] @ W[l]
+        Z[l] <- Z[l] + b[l]   # b broadcast across the batch
+        A[l] <- f_l(Z[l])
+    # Backward (delta[l] = dL/dZ[l])
+    dA <- dLoss_dA(A[L], Y)
+    delta[L] <- dA * fprime_L(Z[L])
+    for l in L..1:
+        gradW[l] <- transpose(A[l-1]) @ delta[l] / B
+        gradb[l] <- sum_rows(delta[l]) / B
+        if l > 1:
+            dAprev <- delta[l] @ transpose(W[l])
+            delta[l-1] <- dAprev * fprime_{l-1}(Z[l-1])
+    # Update
+    for l in 1..L:
+        W[l] <- W[l] - eta * gradW[l]
+        b[l] <- b[l] - eta * gradb[l]
+    return params
+\end{verbatim}
+\normalsize
+This matches the matrix-form recap: the forward pass produces activations and caches; the backward pass propagates layerwise error signals and assembles gradients; the update step is an optimizer choice (plain SGD shown here). The most common implementation bugs are shape errors and missing transposes, so keep the shape ledger and one tiny gradient check close.
+\end{tcolorbox}
+
 \begin{tcolorbox}[summarybox, title={Exercises and lab ideas}]
 \begin{itemize}
     \item \textbf{A full trace on paper:} pick a tiny network and write out the forward values and \(\delta\)'s by hand, then match them against a short script.

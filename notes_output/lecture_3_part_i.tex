@@ -500,6 +500,26 @@ A single perceptron makes one global, all-or-none decision: one hyperplane, one 
 Many real problems need \emph{communities} of units that can specialize. Different hidden units respond to different regions, features, or patterns, and the model combines those responses into a richer decision surface. Multi-layer networks do not only add parameters; they add internal structure that lets different parts of the model ``care about'' different parts of the data.
 \end{tcolorbox}
 
+\begin{tcolorbox}[summarybox, breakable, title={Perceptron learning loop (pseudocode)}]
+\footnotesize
+\begin{verbatim}
+function TrainPerceptron(X, y_pm1, eta, epochs):
+    # X: N x d features, y in {-1,+1}
+    w <- 0_d
+    b <- 0
+    for epoch in 1..epochs:
+        for i in 1..N:
+            s <- dot(w, X[i]) + b
+            yhat <- +1 if s >= 0 else -1
+            if yhat != y_pm1[i]:
+                w <- w + eta * y_pm1[i] * X[i]
+                b <- b + eta * y_pm1[i]
+    return w, b
+\end{verbatim}
+\normalsize
+The logic is intentionally simple: compute a signed score, threshold it, and update only on mistakes. Logistic regression keeps the same linear score but replaces the hard threshold with a probabilistic link and a smooth objective (\Cref{chap:logistic}); multilayer networks replace the single separator with learned intermediate features (\Crefrange{chap:mlp}{chap:backprop}).
+\end{tcolorbox}
+
 \begin{tcolorbox}[summarybox, title={Key takeaways}]
 \textbf{Minimum viable mastery}
 \begin{itemize}

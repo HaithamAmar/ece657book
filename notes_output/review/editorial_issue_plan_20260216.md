@@ -1819,3 +1819,12 @@ Build notes (2026-02-17):
 - `notes_output/lecture_6.tex`: defined ``receptive field'' at first use (region of the input grid that can influence a unit) to avoid a jargon drop.
 - 2026-03-03: Ran `python3 notes_output/scripts/validate_math_examples_and_graphs.py --strict`. Result: PASS.
 - 2026-03-03: Ran `bash notes_output/scripts/run_production_checks.sh`. Result: PASS (release checks, Apple gatekeeper audits, EPUB citation visibility audit, and EPUBCheck all OK).
+
+## 2026-03-03 Add EPUB-safe pseudocode boxes (Perceptron + Backprop)
+
+- `notes_output/lecture_3_part_i.tex`: added a compact, implementation-minded perceptron training loop pseudocode box (update-on-mistake) and tied it forward to logistic regression and the MLP/backprop chapters.
+- `notes_output/lecture_4_part_i.tex`: added a dense-MLP backprop training-step pseudocode box that mirrors the matrix-form derivation (cache forward quantities, propagate \(\delta\)'s, assemble gradients, then update). Shortened long verbatim lines to avoid overfull boxes in the PDF build.
+- `artifacts/qc/bib_style_report.md`: wrote a short bibliography style policy report (0 errors/warnings) to keep QC evidence in the repo alongside the existing ref-coverage report.
+- `notes_output/ece657_notes.pdf`: rebuilt.
+- 2026-03-03: Ran `python3 notes_output/scripts/validate_math_examples_and_graphs.py --strict`. Result: PASS.
+- 2026-03-03: Ran `bash notes_output/scripts/run_production_checks.sh`. Result: PASS (release checks, Apple gatekeeper audits, EPUB citation visibility audit, and EPUBCheck all OK).
