@@ -35,6 +35,7 @@
 \usepackage{enumitem}
 \setlist{itemsep=0.25em, topsep=0.25em}
 \usepackage{graphicx}
+\graphicspath{{assets/}} % fallback for common figure location
 \ifdefined\HCode
   % Prefer raster images for EPUB; readers do not reliably support embedded PDFs.
   % Keep `.pdf` as a fallback for TeX-only runs.
@@ -50,7 +51,7 @@
 \fi
 \usepackage[font=small, labelfont=bf]{caption}
 \usepackage{subcaption}
-\captionsetup{justification=centering, singlelinecheck=false}
+\captionsetup{justification=centering, singlelinecheck=true}
 \captionsetup[figure]{width=0.9\linewidth}
 \ifdefined\HCode
   % TeX4ht runs `latex` (DVI mode) and has been observed to hang with `microtype`
@@ -175,8 +176,8 @@
 \newcommand{\ChapterOnly}[2]{\chapnum{#1}{#2}}
 \makeatother
 
-\setcounter{secnumdepth}3
-\setcounter{tocdepth}2
+\setcounter{secnumdepth}{3}
+\setcounter{tocdepth}{2}
 
 \makeatletter
 % Ebook conversion is sensitive to TOC layout; still, 3-digit page numbers can

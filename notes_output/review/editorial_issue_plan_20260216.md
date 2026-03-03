@@ -1773,3 +1773,16 @@ Build notes (2026-02-17):
 - `notes_output/EPUB_PUBLISHING_QC.md`: updated policy to forbid machine-generated equation labels in publish sources; clarified the “number only what you reference” convention.
 - 2026-03-03: Ran `python3 notes_output/scripts/validate_math_examples_and_graphs.py --strict`. Result: PASS.
 - 2026-03-03: Ran `bash notes_output/scripts/run_production_checks.sh`. Result: PASS (release checks, Apple gatekeeper audits, EPUB citation visibility audit, and EPUBCheck all OK).
+
+## 2026-03-03 Notation collisions + running-head polish (print/EPUB) + small production cleanup
+
+- `notes_output/notation.tex`: moved the short orientation paragraph and “Conventions” header to appear before the symbol table (so the table is not the first thing readers see).
+- `notes_output/appendix_notation_collisions.tex`: expanded the collisions index with the most common confusions and a compact disambiguation rule:
+  - \(n\): feature dimension vs sequence length.
+  - \(d\): input/feature dimension vs embedding width (\(d_{\text{model}}\)).
+  - \(\phi,\varphi,\Phi\): kernel feature map vs RBF basis vs design matrix.
+- `notes_output/lecture_10_part_ii.tex`: removed a stray `\markboth{...}{}` manual running-head override to keep headers consistent across chapters.
+- `notes_output/ece657_notes.tex` (print): adjusted running heads to a standard book pattern (verso shows book title; recto shows chapter number + title), added a safe truncation for long titles, and fixed `\setcounter{...}{...}` brace style.
+- `notes_output/ece657_ebook.tex` (EPUB): added a global `\graphicspath{{assets/}}` fallback and fixed `\setcounter{...}{...}` brace style.
+- 2026-03-03: Ran `python3 notes_output/scripts/validate_math_examples_and_graphs.py --strict`. Result: PASS.
+- 2026-03-03: Ran `bash notes_output/scripts/run_production_checks.sh`. Result: PASS (release checks, Apple gatekeeper audits, EPUB citation visibility audit, and EPUBCheck all OK).

@@ -15,15 +15,18 @@ This appendix lists the most common \emph{notation collisions} in this book: sym
 \small
 {\setlength{\tabcolsep}{4pt}%
 \renewcommand{\arraystretch}{1.15}%
-\begin{tabular}{@{}>{\raggedright\arraybackslash}p{0.12\linewidth} >{\raggedright\arraybackslash}p{0.35\linewidth} >{\raggedright\arraybackslash}p{0.45\linewidth}@{}}
+\begin{tabular}{@{}>{\raggedright\arraybackslash}p{0.12\linewidth} >{\raggedright\arraybackslash}p{0.30\linewidth} >{\raggedright\arraybackslash}p{0.50\linewidth}@{}}
 \textbf{Symbol} & \textbf{Common meanings} & \textbf{Where to look / how to disambiguate} \\
 \hline
 \(\sigma\) & Sigmoid nonlinearity; standard deviation / scale; RBF width & \(\sigma(x)\) is always sigmoid; plain \(\sigma\) is a width/scale (e.g., RBFNs) unless the section is explicitly about activations. \\
 \(\lambda\) & Regularization strength; eigenvalue; Lagrange multiplier & Regularization uses \(\lambda\) alongside an objective; spectral topics use \(\lambda\) with matrices/operators; constraints use \(\lambda\) as a multiplier. \\
 \(p\) & Probability / density; padding (CNNs); momentum/\allowbreak parameter name in code & \(p(y\mid x)\) is probability; convolution padding is stated as \(p\) in the output-size formula with \(n, k, s\). \\
 \(L\) & Number of layers; sequence length; loss & Layer count uses \(L\) with indices \(l=1,\dots, L\); loss is \(\mathcal{L}\); sequence length is usually \(T\). \\
+\(n\) & Feature dimension; sequence length (tokens) & Supervised chapters use \(\mathbf{x}\in\mathbb{R}^n\) for feature dimension; sequence chapters use \(T\) for length, but \(n\) may appear in shape summaries. Disambiguate by nearby symbols: \(X\in\mathbb{R}^{N\times n}\), \(\mathbf{w}\in\mathbb{R}^n\) (features) versus indices \(t=1,\ldots,T\) (tokens/time). \\
+\(d\) & Data/feature dimension; embedding width & Most chapters: \(d\) is an input-feature dimension. In Transformers/NLP we write the embedding width as \(d_{\text{model}}\) (and per-head sizes \(d_k,d_v\)). When multiple ``dimensions'' appear together, prefer the subscripted forms. \\
 \(t\) & Time index; target vector/component & Time is \(t\) with sequences \(x_t, h_t\); targets use \(\mathbf{t}\) (bold) or \(t_k\) in loss definitions. \\
 \(h\) & Hypothesis function \(h_\theta\); hidden state \(h_t\) / hidden units \(h\) & Hypotheses appear as \(h_\theta(\cdot)\) in supervised chapters; hidden state uses a time index \(h_t\); hidden width uses a dimension symbol (e.g., \(h\) or \(d_h\)) in network-shape context. \\
+\(\phi,\varphi,\Phi\) & Feature map; RBF basis function; design matrix & Kernel methods use \(\phi(\cdot)\) for feature maps and \(\Phi\) for the resulting design matrix; RBF chapters reserve \(\varphi(\cdot)\) for radial basis functions. If you see \(\Phi\mathbf{w}\) it is a design matrix; if you see \(\varphi(\|\mathbf{x}-\mathbf{c}\|)\) it is an RBF. \\
 \end{tabular}
 }
 \end{center}
