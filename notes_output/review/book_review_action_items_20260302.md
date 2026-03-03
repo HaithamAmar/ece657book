@@ -193,7 +193,7 @@
 - [x] **Multiple chapters | graphicspath per chapter | Various**
   - Review severity: `MEDIUM`
   - Issue: Add global \graphicspath{{assets/}} in ece657_notes.tex as fallback. Document expected directory layout.
-- [ ] **appendix_logistics.tex | University-specific content in published book | Full appendix**
+- [x] **appendix_logistics.tex | University-specific content in published book | Full appendix**
   - Review severity: `MEDIUM`
   - Issue: Add a prominent header box: FOR ECE 657 AT UNIVERSITY OF WATERLOO ONLY. Consider whether this appendix belongs in the published book at all, or is better distributed as a separate course handout.
 - [x] **ece657_notes.tex | Running header (number only) | Lines 62-65**
@@ -348,7 +348,7 @@
   - Recommended change: Add a sentence acknowledging Bayesian optimization and model-based optimization as alternatives worth considering before choosing a GA approach.
 
 ### LaTeX / Production
-- [ ] **book_appendices.tex | Appendix ordering | Full file**
+- [x] **book_appendices.tex | Appendix ordering | Full file**
   - Review severity: `LOW`
   - Issue: Consider reordering: A = Notation Collisions (most consulted), B = Reproducibility Standards, C = Kernel Methods, D = Linear Systems Primer, E = Course Logistics (or remove from book).
 - [x] **ece657_notes.tex | \setcounter{secnumdepth}3 | Line 188**

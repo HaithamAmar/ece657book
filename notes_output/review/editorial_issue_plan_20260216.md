@@ -1786,3 +1786,14 @@ Build notes (2026-02-17):
 - `notes_output/ece657_ebook.tex` (EPUB): added a global `\graphicspath{{assets/}}` fallback and fixed `\setcounter{...}{...}` brace style.
 - 2026-03-03: Ran `python3 notes_output/scripts/validate_math_examples_and_graphs.py --strict`. Result: PASS.
 - 2026-03-03: Ran `bash notes_output/scripts/run_production_checks.sh`. Result: PASS (release checks, Apple gatekeeper audits, EPUB citation visibility audit, and EPUBCheck all OK).
+
+## 2026-03-03 Appendix ordering + course-only logistics framing
+
+- `notes_output/book_appendices.tex`: reordered appendices to match the intended lookup frequency:
+  - Notation collisions and reproducibility standards first (most often consulted),
+  - then kernel methods and linear-systems primer,
+  - course logistics remains course-edition only.
+- `notes_output/appendix_logistics.tex`: added a prominent course-only header box and tightened the opening so non-course readers can skip immediately.
+- `notes_output/ece657_notes.pdf`: rebuilt.
+- 2026-03-03: Ran `python3 notes_output/scripts/validate_math_examples_and_graphs.py --strict`. Result: PASS.
+- 2026-03-03: Ran `bash notes_output/scripts/run_production_checks.sh`. Result: PASS (release checks, Apple gatekeeper audits, EPUB citation visibility audit, and EPUBCheck all OK).
