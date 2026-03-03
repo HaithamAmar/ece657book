@@ -1762,3 +1762,14 @@ Build notes (2026-02-17):
 - `notes_output/lecture_10_part_i.tex` (Chapter 17): expanded the `Interpretation` subsection to explicitly frame the extension principle aggregation as ``AND within preimage, OR across preimages'' and to prevent probability-like misreadings of membership accumulation.
 - 2026-03-02: Ran `python3 notes_output/scripts/validate_math_examples_and_graphs.py --strict`. Result: PASS.
 - 2026-03-02: Ran `bash notes_output/scripts/run_production_checks.sh`. Result: PASS (release checks, Apple gatekeeper audits, EPUB citation visibility audit, and EPUBCheck all OK).
+
+## 2026-03-03 Remove `eq:auto...` labels (publisher-facing) + restore equation hygiene
+
+- Removed remaining machine-generated `\label{eq:auto...}` labels across chapters/appendices and restored EPUB equation-number parity:
+  - Converted unreferenced display math to unnumbered `\[...\]`/`align*` to reduce clutter.
+  - Added descriptive `\label{eq:...}` identifiers to core definitions/objectives where numbering is useful (ERM/regularized ERM, elastic net, linear-regression likelihood/NLL, OLS closed form; backprop MSE loss; CNN output-size formula; RNN NLL objective).
+- `notes_output/lecture_1_intro.tex`: updated the roadmap to explicitly include Transformers (Attention) and removed numbering from a non-referenced “transitivity” example display.
+- `notes_output/scripts/verify_proof_integrity.py`: updated the CNN stride/padding check to target the new stable label `eq:cnn_output_size`.
+- `notes_output/EPUB_PUBLISHING_QC.md`: updated policy to forbid machine-generated equation labels in publish sources; clarified the “number only what you reference” convention.
+- 2026-03-03: Ran `python3 notes_output/scripts/validate_math_examples_and_graphs.py --strict`. Result: PASS.
+- 2026-03-03: Ran `bash notes_output/scripts/run_production_checks.sh`. Result: PASS (release checks, Apple gatekeeper audits, EPUB citation visibility audit, and EPUBCheck all OK).
