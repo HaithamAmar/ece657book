@@ -1726,3 +1726,23 @@ Build notes (2026-02-17):
 - `notes_output/upload/refs.bib`: mirrored the same metadata corrections to keep the upload bib in sync.
 - 2026-03-01: Ran `python3 notes_output/scripts/validate_math_examples_and_graphs.py --strict`. Result: PASS.
 - 2026-03-01: Ran `bash notes_output/scripts/run_production_checks.sh`. Result: PASS (release checks, Apple gatekeeper audits, EPUB citation visibility audit, and EPUBCheck all OK).
+
+## 2026-03-02 Chapter 19 micro-section enrichment (thin subsections)
+
+- `notes_output/lecture_11.tex` (Chapter 19): expanded four previously thin micro-sections (<90 words) into teachable prose without removing content:
+  - `Illustrative Example`: clarified the rugged-landscape intuition and why population search helps beyond single-trajectory local methods.
+  - `Evolutionary Computing at a Glance`: added an engineering framing of exploration vs exploitation and the minimal diagnostics you watch in practice.
+  - `Implications for Genetic Algorithms`: made the biology-to-engineering mapping explicit and added the representation-sensitivity caveat (operators must respect encodings).
+  - `Population Initialization and Size`: added practical guidance on seeding and feasibility handling, plus the budget tradeoff \(B \approx M \times G\).
+- 2026-03-02: Ran `python3 notes_output/scripts/validate_math_examples_and_graphs.py --strict`. Result: PASS.
+- 2026-03-02: Ran `bash notes_output/scripts/run_production_checks.sh`. Result: PASS (release checks, Apple gatekeeper audits, EPUB citation visibility audit, and EPUBCheck all OK).
+
+## 2026-03-02 Micro-section enrichment (Chapters 9/15/17)
+
+- `notes_output/lecture_5_part_i.tex` (Chapter 9): expanded two previously short subsections to reduce flow interruptions:
+  - `Key Properties of Kohonen SOMs`: clarified the grid-as-resolution idea, connected cooperation to topology preservation, and explained the winner-only collapse as online vector quantization.
+  - `Summary of Cooperative Competitive Learning Algorithm`: made the loop read as an engineering recipe (what gets computed in what order) and clarified the distinct roles of \(\alpha(t)\) vs \(\sigma(t)\) with monitoring cues (QE/TE, stability across seeds).
+- `notes_output/lecture_8_part_ii.tex` (Chapter 15): strengthened `Comparison with Other Soft Computing Paradigms` into a clearer ``bottleneck'' view and added a concrete hybridization paragraph (neural features + fuzzy specification + GA tuning + probabilistic uncertainty).
+- `notes_output/lecture_10_part_i.tex` (Chapter 17): expanded the `Interpretation` subsection to explicitly frame the extension principle aggregation as ``AND within preimage, OR across preimages'' and to prevent probability-like misreadings of membership accumulation.
+- 2026-03-02: Ran `python3 notes_output/scripts/validate_math_examples_and_graphs.py --strict`. Result: PASS.
+- 2026-03-02: Ran `bash notes_output/scripts/run_production_checks.sh`. Result: PASS (release checks, Apple gatekeeper audits, EPUB citation visibility audit, and EPUBCheck all OK).
