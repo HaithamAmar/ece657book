@@ -1836,3 +1836,15 @@ Build notes (2026-02-17):
 - `notes_output/ece657_notes.pdf`: rebuilt.
 - 2026-03-03: Ran `python3 notes_output/scripts/validate_math_examples_and_graphs.py --strict`. Result: PASS.
 - 2026-03-03: Ran `bash notes_output/scripts/run_production_checks.sh`. Result: PASS (release checks, Apple gatekeeper audits, EPUB citation visibility audit, and EPUBCheck all OK).
+
+## 2026-03-03 PDF subject index (makeidx) + reproducible build integration
+
+- Implemented a PDF-only subject index so the print build has a traditional back-of-book index, while the EPUB build remains clean and reflow-friendly.
+- `.gitignore`: ignore generated index artifacts (`notes_output/*.idx`, `notes_output/*.ind`, `notes_output/*.ilg`).
+- `notes_output/ece657_notes.tex` (print): enabled index generation (`makeidx` + `\makeindex`) and printed the index at the end of the book (added an `Index` entry to the ToC).
+- `notes_output/ece657_ebook.tex` (EPUB): added safe no-op fallbacks for `\index`, `\makeindex`, and `\printindex` so shared chapter sources can include index terms without affecting EPUB builds.
+- `notes_output/scripts/run_editorial_qc.sh`: added a `makeindex` step when an `.idx` is produced, then re-ran the TeX build so the final PDF includes the generated index.
+- Seeded initial `\index{...}` terms at the start of each chapter (`\section{...}`) to make the index useful with minimal churn (terms map to where each topic is introduced).
+- `notes_output/ece657_notes.pdf`: rebuilt (now includes the index).
+- 2026-03-03: Ran `python3 notes_output/scripts/validate_math_examples_and_graphs.py --strict`. Result: PASS.
+- 2026-03-03: Ran `bash notes_output/scripts/run_production_checks.sh`. Result: PASS (release checks, Apple gatekeeper audits, EPUB citation visibility audit, and EPUBCheck all OK).

@@ -1,5 +1,9 @@
 % Chapter 7
 \section{Backpropagation Learning in Multi-Layer Perceptrons}\label{chap:backprop}
+\index{backpropagation}
+\index{gradient}
+\index{gradient check}
+\index{cross-entropy}
 \graphicspath{{assets/lec4/}}
 
 Building on the two\hyp{}neuron derivation in \Cref{chap:mlp}, we scale the same idea to an \(L\)\hyp{}layer multi\hyp{}layer perceptron (MLP). Conceptually it is still the chain rule; what changes is the accounting. We compute layerwise error signals (the \(\delta\)'s), reuse them to obtain every weight and bias gradient, and organize the work into a backward sweep you can implement and debug. The goal is practical: you should be able to trace one forward pass, write down one backward pass, and know exactly which stored intermediate values each gradient depends on. By the end of this chapter, the backpropagation algorithm should feel like a concrete procedure rather than a black box.

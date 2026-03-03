@@ -8,6 +8,14 @@ cd "${ROOT_DIR}"
 echo "[1/10] Building print/PDF (tectonic)…"
 tectonic -X compile --pass default --reruns 2 --keep-intermediates --keep-logs ece657_notes.tex >/dev/null
 
+# Optional (print/PDF only): build the subject index if the manuscript emits an
+# `.idx` file (via `makeidx` + `\index{...}`). EPUB builds ignore indexing.
+if [[ -f ece657_notes.idx ]]; then
+  echo "INFO: building subject index (makeindex)…"
+  makeindex -q ece657_notes.idx >/dev/null
+  tectonic -X compile --pass default --reruns 2 --keep-intermediates --keep-logs ece657_notes.tex >/dev/null
+fi
+
 echo "[2/10] Checking citations/BibTeX hygiene…"
 /usr/bin/python3 scripts/check_citations.py
 

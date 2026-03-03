@@ -1,5 +1,15 @@
 % Chapter 14
 \section{Transformers: Attention-Based Sequence Modeling}\label{chap:transformers}
+\index{transformer}
+\index{attention}
+\index{attention!self-attention}
+\index{attention!cross-attention}
+\index{multi-head attention}
+\index{positional encoding}
+\index{BERT}
+\index{GPT}
+\index{LoRA}
+\index{KV cache}
 
 \Cref{chap:rnn} made the sequence problem explicit: stateful computation plus gradients that must flow across time. \Cref{chap:nlp} then supplied the representation layer that makes those sequence objectives practical. This chapter keeps those representations but loosens the ``one step at a time'' constraint: instead of marching through time, we let each position look around and pull in what it needs through attention.
 

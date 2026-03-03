@@ -71,6 +71,8 @@
         \usepackage{placeins}
         \usepackage{xcolor}
         \usepackage{bookmark}
+\usepackage{makeidx}
+\makeindex
 \usepackage{booktabs}
 \usepackage{tabularx}
 \usepackage{tikz}
@@ -246,5 +248,10 @@
 \newpage
 % Appendices
 \input{book_appendices.tex}
+
+\newpage
+\phantomsection
+\addcontentsline{toc}{section}{Index}
+\printindex
 
         \end{document}

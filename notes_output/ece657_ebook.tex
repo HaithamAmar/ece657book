@@ -77,6 +77,12 @@
 \usepackage{pgfplots}
 \usepackage[authoryear]{natbib}
 \usepackage[most]{tcolorbox}
+
+% Indexing is enabled only for the print/PDF build. For EPUB/TeX4ht conversion,
+% treat `\index{...}` as a no-op so chapter sources can share index markers.
+\providecommand{\index}[1]{}
+\providecommand{\makeindex}{}
+\providecommand{\printindex}{}
 \makeatletter
 \AtBeginDocument{%
   \@ifundefined{pgf@layer@tcb@back}{%
