@@ -172,11 +172,11 @@
   - Recommended change: Either identify the framework explicitly with a citation, or rephrase to remove the attribution claim: 'the pedagogical arc that emerged over several offerings of ECE 657 proved invaluable.'
 
 ### Editorial / Writing / Voice
-- [ ] **ece657_notes.tex | Running headers show number only | Lines 62-65**
+- [x] **ece657_notes.tex | Running headers show number only | Lines 62-65**
   - Review severity: `MEDIUM`
   - Issue: The \sectionmark override sets headers to section NUMBER only. Reading 'Chapter 11' in the header is less useful than seeing the chapter title.
   - Recommended change: Change \renewcommand{\sectionmark}[1]{\markboth{\thesection}{}} to \renewcommand{\sectionmark}[1]{\markboth{\thesection\ ---\ #1}{}} to show number and title. Use \truncate{} from the truncate package for long titles.
-- [ ] **lecture_10_part_ii.tex (Ch.18, Fuzzy Inf.) | Manual \markboth override | Line 3**
+- [x] **lecture_10_part_ii.tex (Ch.18, Fuzzy Inf.) | Manual \markboth override | Line 3**
   - Review severity: `MEDIUM`
   - Issue: \markboth{Fuzzy inference}{} manually overrides the running header for this chapter, bypassing the fancyhdr setup. No other chapter does this. Likely a legacy artifact from standalone compilation.
   - Recommended change: Remove the \markboth{Fuzzy inference}{} command. The global \sectionmark handles this automatically.
@@ -190,16 +190,16 @@
   - Recommended change: Add: 'This view is widely held but debated; see [e.g., Bubeck et al. 2023 on GPT-4 capabilities, or Mitchell 2021 on AI reasoning] for alternative perspectives on what LLM competence implies.'
 
 ### LaTeX / Production
-- [ ] **Multiple chapters | graphicspath per chapter | Various**
+- [x] **Multiple chapters | graphicspath per chapter | Various**
   - Review severity: `MEDIUM`
   - Issue: Add global \graphicspath{{assets/}} in ece657_notes.tex as fallback. Document expected directory layout.
 - [ ] **appendix_logistics.tex | University-specific content in published book | Full appendix**
   - Review severity: `MEDIUM`
   - Issue: Add a prominent header box: FOR ECE 657 AT UNIVERSITY OF WATERLOO ONLY. Consider whether this appendix belongs in the published book at all, or is better distributed as a separate course handout.
-- [ ] **ece657_notes.tex | Running header (number only) | Lines 62-65**
+- [x] **ece657_notes.tex | Running header (number only) | Lines 62-65**
   - Review severity: `MEDIUM`
   - Issue: Change \sectionmark to include chapter title: \markboth{\thesection --- #1}{}
-- [ ] **lecture_10_part_ii.tex | Manual \markboth override | Line 3**
+- [x] **lecture_10_part_ii.tex | Manual \markboth override | Line 3**
   - Review severity: `MEDIUM`
   - Issue: Remove \markboth{Fuzzy inference}{} -- handled by global fancyhdr setup.
 
@@ -212,7 +212,7 @@
   - Review severity: `MEDIUM`
   - Issue: Verify that the loss function in Chapter 3 consistently uses calligraphic L (\mathcal{L}), not plain L, which the collision index reserves for number of layers or sequence length.
   - Recommended change: Run grep -n '\\mathcal{L}\|[^a-z]L[_^{]' lecture_supervised.tex to audit all loss symbol uses.
-- [ ] **notation.tex | Symbol table placement | Lines 6-51 vs 54-87**
+- [x] **notation.tex | Symbol table placement | Lines 6-51 vs 54-87**
   - Review severity: `MEDIUM`
   - Issue: The descriptive text ('This section collects book-wide notation...') appears AFTER the symbol table. Readers encounter the table without context.
   - Recommended change: Move introductory paragraph (lines 54-67) and the Conventions subsection header to BEFORE the table (before the \begingroup on line 6).
@@ -334,11 +334,11 @@
   - Review severity: `LOW`
   - Issue: Some chapters use (e.g., ...) parenthetically; others use e.g., in running text without parentheses. Should be standardized.
   - Recommended change: Standard practice: always use parenthetical form (e.g., ...) in running text. Apply consistently across all chapters.
-- [ ] **ece657_notes.tex | \setcounter command syntax | Line 188**
+- [x] **ece657_notes.tex | \setcounter command syntax | Line 188**
   - Review severity: `LOW`
   - Issue: \setcounter{secnumdepth}3 is valid but unconventional (missing braces around the value).
   - Recommended change: Change to: \setcounter{secnumdepth}{3}
-- [ ] **ece657_notes.tex | captionsetup justification | Line 44**
+- [x] **ece657_notes.tex | captionsetup justification | Line 44**
   - Review severity: `LOW`
   - Issue: singlelinecheck=false forces all captions to be centered, including single-line captions. This can produce unusual layouts for very short captions.
   - Recommended change: Change global default to singlelinecheck=true. Apply centering selectively: \captionsetup[figure]{justification=centering, singlelinecheck=false}
@@ -351,10 +351,10 @@
 - [ ] **book_appendices.tex | Appendix ordering | Full file**
   - Review severity: `LOW`
   - Issue: Consider reordering: A = Notation Collisions (most consulted), B = Reproducibility Standards, C = Kernel Methods, D = Linear Systems Primer, E = Course Logistics (or remove from book).
-- [ ] **ece657_notes.tex | \setcounter{secnumdepth}3 | Line 188**
+- [x] **ece657_notes.tex | \setcounter{secnumdepth}3 | Line 188**
   - Review severity: `LOW`
   - Issue: Change to \setcounter{secnumdepth}{3} (add braces).
-- [ ] **ece657_notes.tex | captionsetup singlelinecheck | Line 44**
+- [x] **ece657_notes.tex | captionsetup singlelinecheck | Line 44**
   - Review severity: `LOW`
   - Issue: Change global singlelinecheck to true; apply centering only to figure captions.
 
@@ -378,7 +378,7 @@
 - [ ] **Multiple chapters | e.g. parenthesization | Various**
   - Review severity: `LOW`
   - Issue: Always use (e.g., ...) in running text.
-- [ ] **ece657_notes.tex | \setcounter{secnumdepth}3 | Line 188**
+- [x] **ece657_notes.tex | \setcounter{secnumdepth}3 | Line 188**
   - Review severity: `LOW`
   - Issue: Add braces: \setcounter{secnumdepth}{3}
 - [ ] **lecture_3_part_i.tex | sign(0) vs sgn(0) | Lines 160 / 188-190**
