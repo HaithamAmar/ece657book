@@ -1737,6 +1737,22 @@ Build notes (2026-02-17):
 - 2026-03-02: Ran `python3 notes_output/scripts/validate_math_examples_and_graphs.py --strict`. Result: PASS.
 - 2026-03-02: Ran `bash notes_output/scripts/run_production_checks.sh`. Result: PASS (release checks, Apple gatekeeper audits, EPUB citation visibility audit, and EPUBCheck all OK).
 
+## 2026-03-02 Remove QC markers from sources (book-visible numeric verification remains strict)
+
+- Removed all `% QC-BEGIN: ...` / `% QC-END: ...` marker blocks from chapter sources while preserving every numeric/figure claim
+  by shifting verification to parse book-visible values:
+  - `notes_output/lecture_3_part_i.tex` (Chapter 5): removed Perceptron OR-trace QC block; book-visible trace remains.
+  - `notes_output/lecture_5_part_i.tex` (Chapter 9): removed SOM competitive-learning + QE/TE QC blocks; examples remain in-box.
+  - `notes_output/lecture_5_part_ii.tex` (Chapter 10): removed Hopfield QC blocks; numeric traces remain as printed tables/equations.
+  - `notes_output/lecture_6.tex` (Chapter 11): removed CNN QC blocks; numeric examples remain as printed values.
+  - `notes_output/lecture_7.tex` (Chapter 12): removed RNN two-step QC block; numeric example remains as printed values.
+- `notes_output/scripts/check_numeric_examples.py`: refactored to parse and verify the book-visible numbers directly (no hidden QC comments).
+- `notes_output/scripts/validate_math_examples_and_graphs.py`: hardened LaTeX parsing for SOM examples (handles `\\` line breaks and
+  strips punctuation in numeric fields); relaxed QE rounding tolerance to match the printed precision.
+- `notes_output/ece657_notes.pdf`: rebuilt.
+- 2026-03-02: Ran `python3 notes_output/scripts/validate_math_examples_and_graphs.py --strict`. Result: PASS.
+- 2026-03-02: Ran `bash notes_output/scripts/run_production_checks.sh`. Result: PASS (release checks, Apple gatekeeper audits, EPUB citation visibility audit, and EPUBCheck all OK).
+
 ## 2026-03-02 Micro-section enrichment (Chapters 9/15/17)
 
 - `notes_output/lecture_5_part_i.tex` (Chapter 9): expanded two previously short subsections to reduce flow interruptions:
