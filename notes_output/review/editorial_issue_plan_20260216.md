@@ -1828,3 +1828,11 @@ Build notes (2026-02-17):
 - `notes_output/ece657_notes.pdf`: rebuilt.
 - 2026-03-03: Ran `python3 notes_output/scripts/validate_math_examples_and_graphs.py --strict`. Result: PASS.
 - 2026-03-03: Ran `bash notes_output/scripts/run_production_checks.sh`. Result: PASS (release checks, Apple gatekeeper audits, EPUB citation visibility audit, and EPUBCheck all OK).
+
+## 2026-03-03 Preface + acknowledgments: provenance clarity and explicit credit
+
+- `notes_output/preface.tex`: removed the ``framework not originally mine'' phrasing and reframed the organizing perspective as a lens refined through teaching and debugging (keeping the tone consistent with the rest of the front matter).
+- `notes_output/acknowledgments.tex`: expanded acknowledgments to include explicit credit to Prof.~Fakhri Karray (ECE~657 origins), plus the institutional and practical support that made the manuscript possible (students' feedback loops, colleagues' perspective, and the reproducibility tooling ecosystem).
+- `notes_output/ece657_notes.pdf`: rebuilt.
+- 2026-03-03: Ran `python3 notes_output/scripts/validate_math_examples_and_graphs.py --strict`. Result: PASS.
+- 2026-03-03: Ran `bash notes_output/scripts/run_production_checks.sh`. Result: PASS (release checks, Apple gatekeeper audits, EPUB citation visibility audit, and EPUBCheck all OK).
