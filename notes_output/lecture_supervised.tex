@@ -45,10 +45,14 @@ Data \(\rightarrow\) model \(\rightarrow\) objective \(\rightarrow\) audit. This
 We observe a dataset \(\mathcal D = \{(\mathbf{x}_i, y_i)\}_{i=1}^N\) drawn independently and identically distributed (i.i.d.) from an unknown distribution \(\mathcal P\) on the input--output space \(\mathcal X \times \mathcal Y\). A hypothesis (model) \(h_\theta: \mathcal X \to \mathcal Y\) with parameters \(\theta\) produces predictions \(\hat{y}_i = h_\theta(\mathbf{x}_i)\). A pointwise loss function \(\ell(\hat{y}, y)\) measures the penalty incurred by predicting \(\hat{y}\) when the true label is \(y\).
 
 The \emph{population risk} and \emph{empirical risk} associated with \(h_\theta\) are
-\begin{align}
-R(h_\theta) &= \mathbb{E}_{(\mathbf{x}, y)\sim \mathcal P}\big[\ell\big(h_\theta(\mathbf{x}), y\big)\big], \label{eq:population_risk}\\
-\hat R_N(h_\theta) &= \frac{1}{N} \sum_{i=1}^N \ell\big(h_\theta(\mathbf{x}_i), y_i\big). \label{eq:empirical_risk}
-\end{align}
+
+\begin{equation}
+    \begin{aligned}
+        R(h_\theta) &= \mathbb{E}_{(\mathbf{x}, y)\sim \mathcal P}\big[\ell\big(h_\theta(\mathbf{x}), y\big)\big],\\
+        \hat R_N(h_\theta) &= \frac{1}{N} \sum_{i=1}^N \ell\big(h_\theta(\mathbf{x}_i), y_i\big).
+    \end{aligned}
+\end{equation}
+\label{eq:population_and_empirical_risk}
 Because \(\mathcal P\) is unknown, learning algorithms minimize empirical proxies of \(R(h_\theta)\). We posit a model family \(h_\theta\) and use data to choose parameter values that make its predictions behave like the measured input--output pairs. In practice we do this on a \emph{training set} (the data used to fit parameters), and we reserve held-out data to check whether the fitted model is trustworthy; \Cref{sec:lec1_model_selection} makes these evaluation protocols precise. Audit is not an external add-on: in engineering terms, it is part of the model contract.
 
 \subsection{Fitting, Overfitting, and Underfitting}
@@ -434,7 +438,7 @@ To make the workflow concrete, \Cref{fig:lec1_pipeline} summarizes the standard 
 
 \Cref{fig:lec1-calibration-double-descent} anchors the calibration and capacity diagnostics in this aside.
 
-Learning curves plot training and validation error against the number of training examples, revealing underfitting or overfitting regimes.
+Learning curves plot training and validation error against the number of training examples, revealing underfitting or overfitting regimes; \Cref{fig:lec1_learning_curves} shows the basic shapes to watch for.
 
 
 \begin{figure}[h]
@@ -633,12 +637,18 @@ Ridge adds \(\lambda\|\boldsymbol{\beta}\|_2^2\) to the objective, shrinking coe
 \end{itemize}
 \end{tcolorbox}
 
-\begin{tcolorbox}[summarybox, title={Exercises and lab ideas}]
-\begin{itemize}
-    \item Implement linear regression with ridge regularization using both (i) a closed-form solve (QR/SVD) and (ii) gradient descent; compare validation curves as \(\lambda\) varies.
-    \item Create a controlled overfitting experiment: increase polynomial feature degree or add noisy features, then use learning curves (\Cref{fig:lec1_learning_curves}) to diagnose bias vs.\ variance and decide how much regularization is needed.
-    \item Demonstrate a leakage failure mode by fitting preprocessing on the full dataset (incorrect) versus on the training split only (correct); report the difference in test error.
-\end{itemize}
+\begin{tcolorbox}[summarybox, title={Exercises}]
+\textbf{Exercise 1 (Medium).} Implement ridge regression two ways: (i) a closed-form solve (QR/SVD) and (ii) gradient descent. \\
+\textbf{Deliverable:} validation curves as \(\lambda\) varies, plus one paragraph comparing the two implementations.
+
+\smallskip
+\textbf{Exercise 2 (Medium).} Create a controlled overfitting experiment (polynomial degree or noisy features). \\
+\textbf{Deliverable:} learning curves + a bias/variance diagnosis and a concrete regularization choice justified by the curves.
+
+\smallskip
+\textbf{Exercise 3 (Easy).} Demonstrate leakage by fitting preprocessing on the full dataset (incorrect) vs.\ training split only (correct). \\
+\textbf{Deliverable:} the test error gap + a one-paragraph explanation of why the error is not ``real performance.''
+
 \medskip
 \noindent\textbf{If you are skipping ahead.} Keep the ERM loop and split hygiene close: model class, loss/regularizer, optimizer, and a clean train/val/test protocol. Those ideas are assumed immediately in \Cref{chap:logistic} and reused throughout the neural chapters.
 \end{tcolorbox}

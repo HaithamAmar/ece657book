@@ -327,18 +327,21 @@ To make the symbols concrete, consider a SOM whose inputs live in \(\mathbb{R}^4
 \paragraph{Feedforward Computation}
 
 For a given input \(\mathbf{x}\), each neuron computes a similarity score. Two common choices are:
-\begin{align}
-    y_i &= \mathbf{w}_i^\top \mathbf{x} && \text{(dot-product similarity)}, \label{eq:neuron_activation}\\
-    d_i &= \|\mathbf{x} - \mathbf{w}_i\|_2^2 && \text{(squared Euclidean distance)}. \label{eq:neuron_distance}
-\end{align}
+
+\begin{equation}
+    \begin{aligned}
+        y_i &= \mathbf{w}_i^\top \mathbf{x} \qquad &&\text{(dot-product similarity)},\\
+        d_i &= \|\mathbf{x} - \mathbf{w}_i\|_2^2 \qquad &&\text{(squared Euclidean distance)}.
+    \end{aligned}
+\end{equation}\label{eq:som_similarity_measures}
 In both expressions \(\mathbf{w}_i\) and \(\mathbf{x}\) are column vectors, so \( \mathbf{w}_i^\top \mathbf{x}\) is a scalar similarity score while \(d_i\) computes the squared Euclidean distance.
 
 When using dot products we select the neuron with the maximum \(y_i\); when using distances we equivalently select the neuron with the minimum \(d_i\) (or the maximum of \(-d_i\)):
 \[
 c =
 \begin{cases}
-\arg \max_i y_i, & \text{if similarities are measured via } \eqref{eq:neuron_activation},\\
-\arg \min_i d_i, & \text{if distances are used as in } \eqref{eq:neuron_distance}.
+\arg \max_i y_i, & \text{dot-product similarity},\\
+\arg \min_i d_i, & \text{squared Euclidean distance}.
 \end{cases}
 \]
 In practice the distance form is the most common in SOM code. If you do use dot-product similarity, normalize inputs (and often prototypes) so that ``largest dot product'' corresponds to your notion of ``closest.''
@@ -372,7 +375,7 @@ Recall that in competitive learning networks, the neuron with the highest discri
 
 \paragraph{Discriminant Function and Similarity Measures}
 
-The discriminant measures in \eqref{eq:neuron_activation} (dot-product similarity) and \eqref{eq:neuron_distance} (squared Euclidean distance) are the same ones used in the earlier example; we reuse them here, favoring the distance form when deriving updates.
+The discriminant measures in \Cref{eq:som_similarity_measures} are the same ones used in the earlier example; we reuse them here, favoring the distance form when deriving updates.
 
 \paragraph{Weight Update Rule}
 
@@ -1003,10 +1006,10 @@ Component planes are the companion view to the U-Matrix: they show one feature a
 \end{figure}
 
 The weight update rule generalizes to:
-\begin{align}
+\begin{equation}
 \mathbf{w}_j(t+1) = \mathbf{w}_j(t) + \alpha(t) \, h_{j c}(t) \left( \mathbf{x} - \mathbf{w}_j(t) \right),
 \label{eq:coop_weight_update}
-\end{align}
+\end{equation}
 where
 \begin{itemize}
     \item \(h_{j c}(t)\) is the \emph{neighborhood function} that quantifies the degree of cooperation between neuron \(j\) and the winner \(c\).
@@ -1025,10 +1028,10 @@ h_{j c}(t) = \begin{cases}
 \paragraph{Gaussian Neighborhood Function}
 
 A common choice for \(h_{j c}(t)\) is a Gaussian function based on the distance between neurons \(j\) and \(c\) on the output grid:
-\begin{align}
+\begin{equation}
 h_{j c}(t) = \exp \left( - \frac{\| \mathbf{r}_j - \mathbf{r}_{c} \|^2}{2 \sigma^2(t)} \right),
 \label{eq:gaussian_neighborhood}
-\end{align}
+\end{equation}
 where
 \begin{itemize}
     \item \(\mathbf{r}_j\) and \(\mathbf{r}_{c}\) are the coordinates of neurons \(j\) and \(c\) on the output grid.
@@ -1093,10 +1096,10 @@ where:
 \paragraph{Neighborhood Function and Its Role}
 
 The neighborhood function \( h_{j, c}(t) \) typically takes a Gaussian form:
-\begin{align}
+\begin{equation}
     h_{j, c}(t) = \exp\left(-\frac{\| \mathbf{r}_j - \mathbf{r}_{c} \|^2}{2\sigma^2(t)}\right).
     \label{eq:neighborhood_function}
-\end{align}
+\end{equation}
 where:
 \begin{itemize}
     \item \(\mathbf{r}_j\) and \(\mathbf{r}_{c}\) are the positions of neurons \( j \) and \( c \) on the SOM grid.
@@ -1239,7 +1242,7 @@ Tracking both metrics reveals whether the neighborhood decay is too slow (over-s
 \end{itemize}
 \end{tcolorbox}
 
-\begin{tcolorbox}[summarybox, title={Exercises and lab ideas}]
+\begin{tcolorbox}[summarybox, title={Exercises}]
 \begin{itemize}
     \item Train a \(10\times 10\) SOM on handwritten digits (MNIST) and plot component planes; report quantization/topographic errors as training progresses.
     \item Implement the six-step SOM procedure with both Gaussian and rectangular neighborhood functions and compare convergence speed.

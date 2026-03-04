@@ -1861,3 +1861,14 @@ Build notes (2026-02-17):
 - `notes_output/lecture_3_part_ii.tex`, `notes_output/lecture_6.tex`, `notes_output/lecture_transformers.tex`: standardized Learning Outcomes to 3--4 measurable bullets (reduced 5-item lists by merging overlapping items).
 - 2026-03-03: Ran `python3 notes_output/scripts/validate_math_examples_and_graphs.py --strict`. Result: PASS.
 - 2026-03-03: Ran `bash notes_output/scripts/run_production_checks.sh`. Result: PASS (release checks, Apple gatekeeper audits, EPUB citation visibility audit, and EPUBCheck all OK).
+
+## 2026-03-03 EPUB equation-number layout: avoid stacked numbers for short definition clusters
+
+- Goal: EPUB renderers often place multiple adjacent equation numbers as a stacked block detached from the individual lines. For short ``definition clusters'' (two related equations presented back-to-back), we prefer one numbered block to keep the EPUB typography readable.
+- `notes_output/lecture_supervised.tex`: grouped population risk + empirical risk into one numbered display (`eq:population_and_empirical_risk`).
+- `notes_output/lecture_5_part_i.tex`: grouped SOM dot-product similarity + squared-distance forms into one numbered display (`eq:som_similarity_measures`) and rewrote nearby prose to avoid per-line `\eqref` references.
+- `notes_output/lecture_4_part_i.tex`: grouped the forward-pass pair into one numbered display (`eq:forward_pass`), and grouped the parameter-gradient pair into one numbered display (`eq:backprop_param_grads`); updated takeaways references accordingly.
+- `notes_output/lecture_7.tex`: grouped the basic RNN state update + output equations into one numbered display (`eq:rnn_state_update`) and renamed the earlier generic recurrence equation to `eq:rnn_state_update_generic` to avoid duplicate anchors in EPUB.
+- `notes_output/scripts/check_equations.py`: equation-hygiene gate now accepts `\label{eq:...}` either inside `equation`-like environments or immediately after `\end{equation}`; it also disallows labels inside/after starred environments.
+- 2026-03-03: Ran `python3 notes_output/scripts/validate_math_examples_and_graphs.py --strict`. Result: PASS.
+- 2026-03-03: Ran `bash notes_output/scripts/run_production_checks.sh`. Result: PASS (release checks, Apple gatekeeper audits, EPUB citation visibility audit, and EPUBCheck all OK).

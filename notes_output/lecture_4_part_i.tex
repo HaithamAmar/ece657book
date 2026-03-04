@@ -41,11 +41,15 @@ A practical MLP rarely updates one coordinate at a time; gradients are treated a
 Consider a multi-layer perceptron with layers indexed by $l = 0, 1, \ldots, L$, where $l=0$ is the input layer and $L$ is the output layer. Each layer $l$ contains neurons indexed by $i$, and the output of neuron $i$ in layer $l$ is denoted by $a_i^{(l)}$. The input to this neuron before activation is denoted by $z_i^{(l)}$. The weights connecting neuron $i$ in layer $l-1$ to neuron $j$ in layer $l$ are denoted by $w_{ij}^{(l)}$.
 
 The forward pass through the network is given by:
-\begin{align}
-    z_j^{(l)} &= \sum_i a_i^{(l-1)} w_{ij}^{(l)} + b_j^{(l)}, \label{eq:forward_z} \\
-    a_j^{(l)} &= f\big(z_j^{(l)}\big), \label{eq:forward_a}
-\end{align}
-where $b_j^{(l)}$ is the bias term for neuron $j$ in layer $l$, and $f(\cdot)$ is the activation function, typically nonlinear (e.g., sigmoid, ReLU). Equation~\eqref{eq:forward_z} makes it explicit that we sum over every incoming neuron $i$ in layer $l-1$ to form the affine pre-activation $z_j^{(l)}$.
+
+\begin{equation}
+    \begin{aligned}
+        z_j^{(l)} &= \sum_i a_i^{(l-1)} w_{ij}^{(l)} + b_j^{(l)},\\
+        a_j^{(l)} &= f\big(z_j^{(l)}\big).
+    \end{aligned}
+\end{equation}
+\label{eq:forward_pass}
+where $b_j^{(l)}$ is the bias term for neuron $j$ in layer $l$, and $f(\cdot)$ is the activation function, typically nonlinear (e.g., sigmoid, ReLU). Equation~\eqref{eq:forward_pass} makes it explicit that we sum over every incoming neuron $i$ in layer $l-1$ to form the affine pre-activation $z_j^{(l)}$.
 
 \subsection{Loss and Objective}
 \label{sec:backprop_loss_and_objective}
@@ -127,7 +131,7 @@ def step_mse(X, t, params, eta):
             W2 - eta * grad_W2, b2 - eta * grad_b2)
 \end{verbatim}
 \normalsize
-The elementwise product \texttt{*} mirrors the Hadamard (element\hyp{}by\hyp{}element) product notation from \Crefrange{eq:forward_z}{eq:forward_a}. The key technical point is the \texttt{fprime} factors: this is exactly where hard thresholds break the learning signal.
+The elementwise product \texttt{*} mirrors the Hadamard (element\hyp{}by\hyp{}element) product notation from \Cref{eq:forward_pass}. The key technical point is the \texttt{fprime} factors: this is exactly where hard thresholds break the learning signal.
 \end{tcolorbox}
 
 \begin{tcolorbox}[summarybox, title={Shape ledger for an $L$-layer MLP (batch size $B$)}]
@@ -767,18 +771,22 @@ Define the error signal at layer \(l\) as:
 \]
 
 Then the chain rule gives a reusable backward recursion:
-\begin{align}
+\begin{equation}
+\begin{aligned}
 \boldsymbol{\delta}^{(L)} &= \nabla_{\mathbf{A}^{(L)}} \mathcal{L} \odot f^{(L)\prime}(\mathbf{Z}^{(L)}), \\
 \boldsymbol{\delta}^{(l-1)} &= \left(\boldsymbol{\delta}^{(l)}(\mathbf{W}^{(l)})^\top\right) \odot f^{(l-1)\prime}(\mathbf{Z}^{(l-1)}), \quad l = L, \ldots, 2,
-    \label{eq:backprop_delta_recursion}
-\end{align}
+\end{aligned}
+\end{equation}\label{eq:backprop_delta_recursion}
 where \(\odot\) denotes element-wise multiplication and \(f^{(l)\prime}\) is the derivative of the activation function at layer \( l \).
 
 Finally, turn those \(\delta\)'s into parameter gradients:
-\begin{align}
-\frac{\partial \mathcal{L}}{\partial \mathbf{W}^{(l)}} &= (\mathbf{A}^{(l-1)})^\top \boldsymbol{\delta}^{(l)}, \label{eq:grad_W}\\
-\frac{\partial \mathcal{L}}{\partial \mathbf{b}^{(l)}} &= \mathbf{1}^\top \boldsymbol{\delta}^{(l)}. \label{eq:grad_b}
-\end{align}
+
+\begin{equation}
+    \begin{aligned}
+        \frac{\partial \mathcal{L}}{\partial \mathbf{W}^{(l)}} &= (\mathbf{A}^{(l-1)})^\top \boldsymbol{\delta}^{(l)},\\
+        \frac{\partial \mathcal{L}}{\partial \mathbf{b}^{(l)}} &= \mathbf{1}^\top \boldsymbol{\delta}^{(l)}.
+    \end{aligned}
+\end{equation}\label{eq:backprop_param_grads}
 If your loss is defined as a mean over the batch, divide these batch sums by \(B\); the shape ledger earlier in the chapter uses that mean convention.
 
 These equations are the whole story: cache forward values, propagate \(\delta\)'s backward, then assemble gradients. \Cref{fig:lec4_backprop_flow} complements the algebra by showing how cached activations (forward arrows) line up with backward error signals in a simple two-layer network.
@@ -788,7 +796,7 @@ These equations are the whole story: cache forward values, propagate \(\delta\)'
 \begin{tcolorbox}[summarybox, title={Key takeaways}]
 \textbf{If you remember only a few things}
 \begin{itemize}
-    \item Backpropagation is the chain rule organized: cache forward values, propagate \(\delta\)'s backward using \Cref{eq:backprop_delta_recursion}, then assemble gradients with \Cref{eq:grad_W,eq:grad_b}.
+    \item Backpropagation is the chain rule organized: cache forward values, propagate \(\delta\)'s backward using \Cref{eq:backprop_delta_recursion}, then assemble gradients with \Cref{eq:backprop_param_grads}.
     \item The \(\delta\)'s are not mysterious: they are sensitivities (\(\partial \mathcal{L}/\partial \mathbf{Z}^{(l)}\)) that you reuse to update every parameter.
     \item For softmax + cross\hyp{}entropy, the output-layer error simplifies to \((\hat{\mathbf{Y}}-\mathbf{Y})/B\); a small finite-difference check can confirm this identity, and it is used in the modern-practice code pattern earlier in the chapter.
     \item When training misbehaves, debug like an engineer: overfit a tiny batch, run a finite-difference check, then inspect per-layer gradient norms and shapes.
@@ -850,7 +858,7 @@ function MLPTrainStep(X, Y, params, eta):
 This matches the matrix-form recap: the forward pass produces activations and caches; the backward pass propagates layerwise error signals and assembles gradients; the update step is an optimizer choice (plain SGD shown here). The most common implementation bugs are shape errors and missing transposes, so keep the shape ledger and one tiny gradient check close.
 \end{tcolorbox}
 
-\begin{tcolorbox}[summarybox, title={Exercises and lab ideas}]
+\begin{tcolorbox}[summarybox, title={Exercises}]
 \begin{itemize}
     \item \textbf{A full trace on paper:} pick a tiny network and write out the forward values and \(\delta\)'s by hand, then match them against a short script.
     \item \textbf{Finite differences:} implement a gradient check for one layer and report the worst relative error; track down the first mismatch.

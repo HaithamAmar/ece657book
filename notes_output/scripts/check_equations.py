@@ -36,6 +36,7 @@ class Finding:
 _EQ_LABEL_RE = re.compile(r"\\label\{(eq:[^}]+)\}")
 _BEGIN_RE = re.compile(r"\\begin\{([^}]+)\}")
 _END_RE = re.compile(r"\\end\{([^}]+)\}")
+_EQ_LABEL_PREFIX_RE = re.compile(r"\A\s*\\label\{(eq:[^}]+)\}")
 
 _INLINE_DISPLAYSTYLE = r"\(\displaystyle"
 
@@ -96,6 +97,22 @@ def _find_env_blocks(tex: str, *, env: str) -> list[tuple[int, int, str]]:
     return blocks
 
 
+def _has_eq_label_inline_or_after(tex: str, *, block: str, end_idx: int) -> bool:
+    """Return True if a numbered env block is labeled.
+
+    EPUB equation numbers are driven by LaTeX's .aux, so we require an explicit
+    `\\label{eq:...}`. For EPUB conversion, it can be useful to place the label
+    immediately after `\\end{equation}` (Pandoc sometimes handles this more cleanly).
+    We therefore accept either:
+      - a label inside the environment, OR
+      - a label immediately following the environment end (after whitespace).
+    """
+    if _EQ_LABEL_RE.search(block):
+        return True
+    tail = tex[end_idx : end_idx + 400]
+    return bool(_EQ_LABEL_PREFIX_RE.match(tail))
+
+
 def _remove_tikz(tex: str) -> str:
     # Avoid flagging \(\displaystyle ...\) inside TikZ node text; those are rendered as images.
     begin = "\\begin{tikzpicture}"
@@ -150,14 +167,17 @@ def main() -> int:
         # Starred equation-like envs must not carry eq: labels (they won't have stable numbers).
         for env in starred_envs:
             for s, _, block in _find_env_blocks(tex, env=env):
-                if _EQ_LABEL_RE.search(block):
+                # Disallow labels both inside and immediately after the starred env.
+                # A trailing label would typically bind to the *previous* numbered equation.
+                end_idx = s + len(block)
+                if _has_eq_label_inline_or_after(tex, block=block, end_idx=end_idx):
                     line = tex.count("\n", 0, s) + 1
                     errors.append(Finding(where=f"{p.relative_to(root)}:{line}", msg=f"{env} contains \\label{{eq:...}}; use the non-starred environment if numbering is intended"))
 
         # Non-starred equation-like envs must contain at least one eq: label.
         for env in numbered_envs:
-            for s, _, block in _find_env_blocks(tex, env=env):
-                if not _EQ_LABEL_RE.search(block):
+            for s, e, block in _find_env_blocks(tex, env=env):
+                if not _has_eq_label_inline_or_after(tex, block=block, end_idx=e):
                     line = tex.count("\n", 0, s) + 1
                     errors.append(Finding(where=f"{p.relative_to(root)}:{line}", msg=f"{env} has no \\label{{eq:...}} (EPUB shows numbers only for labeled equations via .aux)"))
 
