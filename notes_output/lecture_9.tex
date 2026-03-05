@@ -742,20 +742,15 @@ Note that the algebraic sum explicitly enforces \(S_{\text{sum}}(x, y)=x+y-xy \l
 
 We use the t\hyp{}norm and s\hyp{}norm definitions from the previous two subsections; here we focus on their complementarity via negation.
 
-An important relationship between t\hyp{}norms and s\hyp{}norms is their complementarity via a negation operator. Throughout this section we use the \emph{standard} fuzzy negation \(N(x) = 1 - x\), so that the complement of \(\mu_A\) is
-\[
-\mu_{A^c}(x) = 1 - \mu_A(x).
-\]
-
-With this explicit choice of negation, the complementarity between \(T\) and \(S\) reads:
+An important relationship between t\hyp{}norms and s\hyp{}norms is their complementarity via a negation operator. Throughout this section we use the \emph{standard} fuzzy negation \(N(x) = 1 - x\), so that the complement of \(\mu_A\) and the duality between \(T\) and \(S\) can be written together as
 \begin{equation}
-T(\mu_A(x), \mu_B(x)) = 1 - S(1 - \mu_A(x), 1 - \mu_B(x)),
+\begin{aligned}
+\mu_{A^c}(x) &= 1 - \mu_A(x),\\
+T(\mu_A(x), \mu_B(x)) &= 1 - S(1 - \mu_A(x), 1 - \mu_B(x)),\\
+S(\mu_A(x), \mu_B(x)) &= 1 - T(1 - \mu_A(x), 1 - \mu_B(x)).
+\end{aligned}
 \label{eq:tnorm-snorm-complement}
 \end{equation}
-and equivalently,
-\[
-S(\mu_A(x), \mu_B(x)) = 1 - T(1 - \mu_A(x), 1 - \mu_B(x)).
-\]
 
 This duality ensures that the fuzzy intersection and union are consistent with respect to complementation, generalizing classical De Morgan's laws.
 
@@ -790,9 +785,10 @@ In classical set theory, \(A \subseteq B\) means every element of \(A\) is also 
 
 \paragraph{Definition (Fuzzy Subset).}
 A fuzzy set \(A\) is a \emph{subset} of fuzzy set \(B\), denoted \(A \subseteq B\), if and only if
-\[
+\begin{equation}
 \mu_A(x) \leq \mu_B(x), \quad \forall x \in X,
-\]
+\label{eq:fuzzy_subset_relation}
+\end{equation}
 where \(X\) is the universe of discourse.
 
 If the inequality is strict for at least one \(x\), i.e., \(\mu_A(x) < \mu_B(x)\) for some \(x\), then \(A\) is a \emph{proper fuzzy subset} of \(B\).
@@ -802,12 +798,13 @@ If the inequality is strict for at least one \(x\), i.e., \(\mu_A(x) < \mu_B(x)\
 \subsection{Degree of Inclusion}
 \label{sec:fuzzysets_degree_of_inclusion}
 
-Because fuzzy membership values lie in \([0,1]\), the subset relation can be quantified by a scalar measure indicating \emph{how much} \(A\) is included in \(B\).
+Because fuzzy membership values lie in \([0,1]\), the subset relation in \eqref{eq:fuzzy_subset_relation} can also be quantified by a scalar measure indicating \emph{how much} \(A\) is included in \(B\).
 
 For practical work we often use an \emph{aggregate} measure:
-\[
+\begin{equation}
 \mathrm{incl}(A, B) = \frac{\sum_{x \in X} \min(\mu_A(x), \mu_B(x))}{\sum_{x \in X} \mu_A(x)}
-\]
+\label{eq:aggregate_inclusion}
+\end{equation}
 for discrete universes (integrals for continuous, assuming finite mass). It summarizes how much of the mass of \(A\) lies inside \(B\)'s support. A \emph{pointwise} alternative relies on an implicator \(I\) and defines \(\mathrm{Inc}(A, B)=\inf_x I(\mu_A(x),\mu_B(x))\) (see below); implicator-based grades avoid division by small \(\mu_B\) and behave well when \(B\) has zeros. Both constructions satisfy \(0 \leq \mathrm{incl}(A, B) \leq 1\), where 1 means \(A\) is fully included in \(B\).
 
 \subsection{Set Operations and Inclusion Properties}
@@ -844,12 +841,13 @@ One way to define this grade is:
 \label{eq:grade_inclusion}
 \end{equation}
 where \( I \) is an \emph{implicator} function, often derived from a chosen t\hyp{}norm \(T\). A common choice is the G\"odel implicator:
-\[
+\begin{equation}
 I(a, b) = \begin{cases}
 1, & \text{if } a \leq b, \\
 b, & \text{otherwise}.
 \end{cases}
-\]
+\label{eq:godel_implicator}
+\end{equation}
 
 Alternatively, if \( T \) is part of a residuated pair \((T, I)\), one sometimes writes
 \[
@@ -877,12 +875,13 @@ Similarly, the \emph{grade of equality} between fuzzy sets \( A \) and \( B \), 
 \label{eq:grade_equality}
 \end{equation}
 where \( J \) is an equality function. One convenient choice is
-\[
+\begin{equation}
 J(a, b) = \begin{cases}
 1, & \text{if } a = b, \\
 T(a, b), & \text{otherwise},
 \end{cases}
-\]
+\label{eq:equality_function}
+\end{equation}
 with \( T \) a \( t \)-norm, so that exact agreement receives unit credit while disagreements are down-weighted via \(T\). Other smooth symmetry measures (e.g., \(J(a, b) = 1 - |a-b|\)) can also be used; the key requirement is that \(J\) be symmetric, bounded in \([0,1]\), and reach 1 only when \(a=b\).
 
 This definition allows for a graded notion of equality, reflecting the fuzzy nature of the sets.

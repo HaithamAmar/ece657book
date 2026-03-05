@@ -52,15 +52,14 @@ One term we will use early is \emph{receptive field}: the receptive field of a f
 
 Dense feedforward networks can be competitive on small tabular problems, but on images they become data-hungry fast for two reasons: flattening throws away the grid structure, and dense connectivity explodes parameter count. The issue is not that the model class is ``wrong''; it is that the sample complexity and compute burden are badly mismatched to the structure of vision data.
 
-An image is naturally a 2D array (or a 3D tensor with channels). For example, a single-channel (grayscale) image of size $256 \times 256$ pixels can be represented as a matrix:
-\[
-X \in \mathbb{R}^{256 \times 256}.
-\]
-
-To input this into a traditional feedforward network, the image must be \textit{flattened} into a vector:
-\[
-\mathbf{x} = \mathrm{vec}(X) \in \mathbb{R}^{65,536},
-\]
+An image is naturally a 2D array (or a 3D tensor with channels). For example, a single-channel (grayscale) image of size $256 \times 256$ pixels can be represented and flattened as
+\begin{equation}
+\begin{aligned}
+X &\in \mathbb{R}^{256 \times 256},\\
+\mathbf{x} &= \mathrm{vec}(X) \in \mathbb{R}^{65,536},
+\end{aligned}
+\label{eq:cnn_image_vectorization}
+\end{equation}
 where $65,536 = 256 \times 256$ is the total number of pixels.
 
 That step is not ``wrong,'' but it is expensive. Flattening has two major drawbacks:
@@ -125,9 +124,10 @@ Here \(\sigma(\cdot)\) is used only as an activation nonlinearity, while earlier
 \label{sec:cnn_convolution_and_pooling_mechanics}
 
 For an input feature map \(X\) and filter \(K\), the (cross-correlation) output at spatial location \((i, j)\) is
-\[
+\begin{equation}
 (X * K)_{ij} = \sum_{u=0}^{k-1} \sum_{v=0}^{k-1} K_{uv}\, X_{i+u,\, j+v}.
-\]
+\label{eq:cnn_cross_correlation}
+\end{equation}
 
 \begin{tcolorbox}[summarybox, title={Author's note: ``convolution'' vs.\ cross-correlation}]
 In most deep-learning libraries, the operation called ``convolution'' is technically \emph{cross-correlation}: the kernel is not flipped before sliding. The name stuck because the two operations differ only by a reversal of the kernel, and the kernel is learned anyway. What matters in practice is that the ``filter'' is a small learned weight matrix that is applied repeatedly across space (weight sharing). Learn the shapes, the stride/padding accounting, and the inductive bias; the terminology is imperfect but the idea is powerful.
@@ -252,9 +252,10 @@ With the architectural motivation in place, we now focus on how these models are
 We already derived the gradient-descent training loop in \Cref{chap:mlp}: define a loss \(\mathcal{L}\), compute gradients, then update parameters. CNNs keep the same loop. The key difference is weight sharing: a convolutional filter is applied at many spatial locations, so a single filter coefficient collects learning signal from every location where it was used.
 
 For a weight $w$, the update rule is
-\[
+\begin{equation}
 w \leftarrow w - \eta \frac{\partial \mathcal{L}}{\partial w}.
-\]
+\label{eq:cnn_sgd_update}
+\end{equation}
 where $\eta$ is the learning rate.
 
 \paragraph{Backpropagation and gradient computation}
@@ -289,10 +290,11 @@ If the typical gain of these factors is greater than one, the signal grows as it
 
 \paragraph{Example: Activation function derivatives}
 
-Consider the sigmoid activation function $\sigma(x) = \frac{1}{1 + e^{-x}}$. Its derivative is:
-\[
+Consider the sigmoid activation function $\sigma(x) = \frac{1}{1 + e^{-x}}$. Its derivative is
+\begin{equation}
 \sigma'(x) = \sigma(x)(1 - \sigma(x)).
-\]
+\label{eq:cnn_sigmoid_derivative}
+\end{equation}
 Note that $\sigma'(x)$ approaches zero when $\sigma(x)$ is near 0 or 1, i.e., when the neuron output saturates. This saturation leads to very small gradients, exacerbating the vanishing gradient problem.
 The derivative is maximized at $\sigma(x)=0.5$, where $\sigma'(x)=0.25$, so repeatedly multiplying sigmoid derivatives can shrink gradients roughly like $0.25^L$ across $L$ layers.
 
@@ -318,9 +320,10 @@ Selecting activation functions whose derivatives do not vanish easily is crucial
 
 \begin{itemize}
     \item \textbf{ReLU (Rectified Linear Unit):} Defined as
-    \[
+    \begin{equation}
     \mathrm{ReLU}(x) = \max(0, x),
-    \]
+    \label{eq:cnn_relu_definition}
+    \end{equation}
     its derivative is 1 for positive inputs and 0 otherwise. This avoids saturation in the positive regime and helps maintain gradient flow.
 
     \item \textbf{Leaky ReLU and variants:} These allow a small, non-zero gradient when the input is negative, further mitigating dead neurons and keeping derivatives away from exact zero.

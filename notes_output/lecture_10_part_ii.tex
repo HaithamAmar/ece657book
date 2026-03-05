@@ -81,16 +81,15 @@ Once the antecedent firing strength $\alpha$ is computed, it is used to modify t
 
 \begin{itemize}
     \item \textbf{Minimum implication:} Truncate the consequent membership function at level $\alpha$,
-    \begin{equation}
-    \mu_{B'}(y) = \min \big( \alpha, \mu_B(y) \big).
-    \label{eq:min_implication}
-    \end{equation}
     \item \textbf{Product implication:} Scale the consequent membership function by $\alpha$,
-    \begin{equation}
-    \mu_{B'}(y) = \alpha \cdot \mu_B(y).
-    \label{eq:prod_implication}
-    \end{equation}
 \end{itemize}
+\begin{equation}
+\begin{aligned}
+\mu_{B'}(y) &= \min \big( \alpha, \mu_B(y) \big), \qquad \text{(minimum implication)},\\
+\mu_{B'}(y) &= \alpha \cdot \mu_B(y), \qquad \text{(product implication)}.
+\end{aligned}
+\label{eq:implication_operators}
+\end{equation}
 
 The resulting fuzzy set $B'$ represents the \emph{output fuzzy set} contributed by this particular rule.
 \begin{tcolorbox}[summarybox, title={Implication choices}]
@@ -184,26 +183,27 @@ For \(u\), use the standard three-label output family (Low/Medium/High) from \Cr
 
 \paragraph{Fuzzify inputs and compute firing strengths.}
 For inputs \(e=-2\) and \(r=0.5\),
-\[
-\mu_{\text{Cold}}(-2)=0.4,\quad
+\begin{equation}
+\begin{aligned}
+\mu_{\text{Cold}}(-2)&=0.4,\quad
 \mu_{\text{Comfy}}(-2)=0.2,\quad
 \mu_{\text{Stable}}(0.5)=0.5,\quad
-\mu_{\text{Rising}}(0.5)=0.25.
-\]
-These come directly from the definitions: \(\mu_{\text{Cold}}(-2)=(0-(-2))/5=0.4\) and \(\mu_{\text{Rising}}(0.5)=0.5/2=0.25\).
-With \(T=\min\) (\eqref{eq:antecedent_min}), the rule firing strengths are
-\[
-\alpha_1=\min(0.4,0.5)=0.4,\quad
+\mu_{\text{Rising}}(0.5)=0.25,\\
+\alpha_1&=\min(0.4,0.5)=0.4,\quad
 \alpha_2=\min(0.4,0.25)=0.25,\quad
 \alpha_3=0.2.
-\]
+\end{aligned}
+\label{eq:thermostat_firing_summary}
+\end{equation}
+These come directly from the definitions: \(\mu_{\text{Cold}}(-2)=(0-(-2))/5=0.4\) and \(\mu_{\text{Rising}}(0.5)=0.5/2=0.25\). The second line of \eqref{eq:thermostat_firing_summary} uses \(T=\min\) from \eqref{eq:antecedent_min}.
 
 \paragraph{Implication, aggregation, and defuzzification.}
-Using Mamdani min-implication (\eqref{eq:min_implication}), each consequent is clipped at its firing strength (e.g., \(\mu_{\text{High}}'(u)=\min(\alpha_1,\mu_{\text{High}}(u))\)). Aggregating consequents by max (\eqref{eq:output_aggregation}) yields \(\mu_{\text{out}}(u)\).
+Using Mamdani min-implication (the first line of \eqref{eq:implication_operators}), each consequent is clipped at its firing strength (e.g., \(\mu_{\text{High}}'(u)=\min(\alpha_1,\mu_{\text{High}}(u))\)). Aggregating consequents by max (\eqref{eq:output_aggregation}) yields \(\mu_{\text{out}}(u)\).
 Finally, centroid defuzzification (\eqref{eq:centroid_defuzz}) produces a crisp heater-power command. Using a uniform grid on \(u \in [0,1]\) (step \(10^{-4}\)) gives
-\[
+\begin{equation}
 u^\star \approx 0.577.
-\]
+\label{eq:thermostat_centroid_result}
+\end{equation}
 This value is above the midpoint because the \textit{Cold} rules (High/Medium consequents) fire more strongly than the \textit{Comfy} rule, while the positive rate term (\textit{Rising}) tempers full-\textit{High} output.
 In implementations, compute the centroid numerically (and log the grid/step size) rather than relying on heuristic convex combinations when overlap patterns become complex.
 

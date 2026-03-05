@@ -245,9 +245,10 @@ In the previous discussion, we introduced the concept of diversity in genetic al
 \paragraph{Chromosomes as Information Carriers}
 
 Recall that chromosomes in GAs represent candidate solutions encoded as strings of data. For modeling purposes, we consider each chromosome as a sequence of bits or symbols, each encoding a piece of information relevant to the problem domain. Formally, let a chromosome be represented as
-\[
+\begin{equation}
 \mathbf{c} = (c_1, c_2, \ldots, c_L),
-\]
+\label{eq:ga_chromosome_representation}
+\end{equation}
 where each gene \( c_i \) encodes a particular trait or parameter, and \( L \) is the chromosome length.
 
 \paragraph{Inheritance and Crossover}
@@ -308,12 +309,13 @@ Let \(\mathbf{p}_1\) and \(\mathbf{p}_2\) be parent chromosomes. The offspring c
 \end{equation}
 
 The crossover operator selects which genes come from which parent, often modeled by a binary mask \(\mathbf{u}\in\{0,1\}^L\), where
-\[
+\begin{equation}
 o_i = \begin{cases}
 (p_1)_i, & \text{if } u_i = 0, \\
 (p_2)_i, & \text{if } u_i = 1.
 \end{cases}
-\]
+\label{eq:ga_gene_selection_mask}
+\end{equation}
 
 Mutation (see \Cref{sec:evo_mutation_operator}) perturbs genes with a small probability \(p_m\).
 
@@ -605,10 +607,13 @@ One-point crossover proceeds as follows:
 \begin{enumerate}
     \item Choose a crossover point $k$ uniformly at random from $\{1, 2, \ldots, L-1\}$.
     \item Create two offspring by exchanging the tails of the parents at point $k$:
-    \begin{align*}
+    \begin{equation}
+    \begin{aligned}
         \text{Offspring 1} &= (c^{(1)}_1, \ldots, c^{(1)}_k, c^{(2)}_{k+1}, \ldots, c^{(2)}_L), \\
         \text{Offspring 2} &= (c^{(2)}_1, \ldots, c^{(2)}_k, c^{(1)}_{k+1}, \ldots, c^{(1)}_L).
-    \end{align*}
+    \end{aligned}
+    \label{eq:ga_one_point_crossover}
+    \end{equation}
 \end{enumerate}
 
 This operator allows mixing of genetic material between parents to create novel combinations.
@@ -636,12 +641,13 @@ The mutation is applied with a small \emph{mutation probability} \(p_m\), often 
 
 \paragraph{Mutation operator formalization}
 Given a binary chromosome \(\mathbf{c}\in\{0,1\}^L\), mutation produces \(\mathbf{c}'\) by mutating each bit \(c_i\) independently with probability \(p_m\):
-\[
+\begin{equation}
 c_i' = \begin{cases}
 1 - c_i, & \text{with probability } p_m, \\
 c_i, & \text{with probability } 1 - p_m.
 \end{cases}
-\]
+\label{eq:ga_bitflip_mutation}
+\end{equation}
 
 \subsection{Summary of Genetic Operators and Their Probabilities}
 \label{sec:evo_summary_of_genetic_operators_and_their_probabilities}

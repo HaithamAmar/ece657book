@@ -126,16 +126,15 @@ Y = \{0^2, (-1)^2, 1^2, 2^2\} = \{0, 1, 4\}.
 \]
 
 Calculating explicitly:
-\begin{align*}
+\begin{equation}
+\begin{aligned}
 \mu_B(0) &= \mu_A(0) = 0.141, \\
 \mu_B(1) &= \max\{\mu_A(-1), \mu_A(1)\} = \max\{0.340, 0.242\} = 0.340, \\
-\mu_B(4) &= \mu_A(2) = 0.4.
-\end{align*}
-
-Thus, the transformed fuzzy set \( B \) on \( Y \) is:
-\[
-B = \{(0, 0.141), (1, 0.340), (4, 0.4)\}.
-\]
+\mu_B(4) &= \mu_A(2) = 0.4, \\
+B &= \{(0, 0.141), (1, 0.340), (4, 0.4)\}.
+\end{aligned}
+\label{eq:extension_squared_example}
+\end{equation}
 
 Even on this very small domain the mapping \(f(x)=x^2\) is \emph{many-to-one}, because \(x=-1\) and \(x=1\) both map to \(y=1\); the example therefore highlights how the supremum handles multiple preimages.
 \begin{tcolorbox}[summarybox, title={Worked example: monotone map (Celsius \(\to\) Fahrenheit)}]
@@ -234,6 +233,13 @@ The minimum membership values for each pair are
     \min\{\mu_{A_1}(0), \mu_{A_2}(1)\} &= \min\{0.7, 0.4\} = 0.4.
 \end{align*}
 Taking the supremum gives \(\mu_B(1)=\max\{0.1,0.5,0.1,0.4\}=0.5\).
+\begin{equation}
+\begin{aligned}
+\mu_B(0) &= \min\{\mu_{A_1}(0), \mu_{A_2}(0)\} = 0.1,\\
+\mu_B(1) &= \max\{0.1, 0.5, 0.1, 0.4\} = 0.5.
+\end{aligned}
+\label{eq:extension_two_var_example}
+\end{equation}
 % Chapter 17 (continued)
 
 \subsection{Extension Principle Recap and Projection Operations}
@@ -319,13 +325,13 @@ We define projection operators in this section and later reuse them in the dimen
 \paragraph{Cartesian Product of Fuzzy Sets}
 
 Given fuzzy sets \( A \subseteq X \) and \( B \subseteq Y \) with membership functions \( \mu_A \) and \( \mu_B \), their Cartesian product \( R = A \times B \) is defined by
-\[
-    \mu_R(x, y) = T(\mu_A(x), \mu_B(y)).
-\]
-where \( T \) is a chosen t\hyp{}norm, commonly the minimum operator:
-\[
-    T(a, b) = \min(a, b).
-\]
+\begin{equation}
+\begin{aligned}
+\mu_R(x, y) &= T(\mu_A(x), \mu_B(y)),\\
+T(a, b) &= \min(a, b).
+\end{aligned}
+\label{eq:relation_cartesian_product}
+\end{equation}
 A \emph{t\hyp{}norm} is any binary operator \(T: [0,1]^2 \to [0,1]\) that is commutative, associative, monotone in each argument, and has \(1\) as identity, so it faithfully generalizes set intersection to graded memberships. Popular choices include the minimum, the product \(ab\), and the \L{}ukasiewicz t\hyp{}norm \(\max(0, a+b-1)\).
 
 
@@ -367,26 +373,22 @@ Often, we are interested in reducing the dimensionality of a fuzzy relation by p
 \paragraph{Definition (Projection onto $X$).}
 The projection of \( R \) onto \( X \), denoted \( \pi_X(R) \), keeps each \(x\)-row and asks for the strongest compatible \(y\)-value in that row:
 \begin{equation}
-    \mu_{\pi_X(R)}(x) = \sup_{y \in Y} \mu_R(x, y).
-    \label{eq:projection_x}
+    \begin{aligned}
+        \mu_{\pi_X(R)}(x) &= \sup_{y \in Y} \mu_R(x, y),\\
+        \mu_{\pi_Y(R)}(y) &= \sup_{x \in X} \mu_R(x, y),\\
+        \mu_{\pi_{\text{total}}(R)} &= \sup_{x \in X, y \in Y} \mu_R(x, y).
+    \end{aligned}
+    \label{eq:projection_operators}
 \end{equation}
 
 
 \paragraph{Definition (Projection onto $Y$).}
-Similarly, projection onto \( Y \), denoted \( \pi_Y(R) \), keeps each \(y\)-column and takes the strongest supporting \(x\)-value in that column:
-\begin{equation}
-    \mu_{\pi_Y(R)}(y) = \sup_{x \in X} \mu_R(x, y).
-    \label{eq:projection_y}
-\end{equation}
+Similarly, projection onto \( Y \), denoted \( \pi_Y(R) \), keeps each \(y\)-column and takes the strongest supporting \(x\)-value in that column; the second line of \eqref{eq:projection_operators} records that operator.
 
 
 \paragraph{Total Projection}
 
-The \emph{total projection} of \( R \) is the maximum membership value over the entire relation:
-\begin{equation}
-    \mu_{\pi_{\text{total}}(R)} = \sup_{x \in X, y \in Y} \mu_R(x, y).
-    \label{eq:total_projection}
-\end{equation}
+The \emph{total projection} of \( R \) is the maximum membership value over the entire relation; the third line of \eqref{eq:projection_operators} gives this global summary.
 
 \paragraph{Interpretation}
 \begin{itemize}
@@ -468,7 +470,7 @@ This operation "copies" the membership values of \(A\) uniformly along the \(Y\)
 
 \paragraph{Projection}
 
-Projection collapses relations back onto a target universe; use the definitions in \eqref{eq:projection_x}--\eqref{eq:projection_y} and apply them after cylindrical extension to recover the desired marginal.
+Projection collapses relations back onto a target universe; use the operators in \eqref{eq:projection_operators} and apply them after cylindrical extension to recover the desired marginal.
 
 \paragraph{Example}
 
@@ -599,9 +601,10 @@ While max--min is standard, other t\hyp{}norms and aggregation rules can be usef
 
 \begin{itemize}
     \item \textbf{Max-Product Composition:}
-    \[
+    \begin{equation}
     \mu_R(x, z) = \max_{y} \left( \mu_{R_1}(x, y) \cdot \mu_{R_2}(y, z) \right).
-    \]
+    \label{eq:max_product_composition}
+    \end{equation}
     Compared with max--min, this penalizes weak intermediate links more strongly and often yields smoother control surfaces.
 
     \item \textbf{Averaging-style aggregations:} In some applications, the final \(\max_y\) is replaced by weighted averaging over \(y\)-paths to preserve contributions from multiple moderate paths rather than only the strongest one.

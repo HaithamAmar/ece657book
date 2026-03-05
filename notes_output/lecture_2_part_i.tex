@@ -55,9 +55,10 @@ We define \emph{safe transformations} as invertible substitutions that allow bac
 \begin{itemize}
   \item \textbf{Constant factor extraction:} If \(G\) is an antiderivative of \(g\), then \(a g\) has antiderivative \(a G\); differentiating confirms \(\frac{d}{dx}[a G(x)] = a g(x)\).
   \item \textbf{Linear substitution:} Let \(u = ax + b\) with \(a \neq 0\). Differentiating gives \(du = a\, dx\) and hence \(dx = \frac{du}{a}\); substituting shows that
-  \[
+  \begin{equation}
     \int f(ax + b)\, dx = \frac{1}{a} \int f(u)\, du.
-  \]
+    \label{eq:linear_change_of_variables}
+  \end{equation}
   This is the standard change-of-variables formula.
   \item \textbf{Polynomial division:} If \( p(x) \) and \( q(x) \) are polynomials with \(\deg p \geq \deg q\), then perform polynomial division:
   \[
@@ -149,23 +150,22 @@ Recall the integral under consideration:
 
 For real-valued integration we restrict attention to \(|x| < 1\), ensuring the denominator \((1 - x^2)^{5/2}\) is well-defined and nonzero on the interval of interest.
 
-When encountering expressions involving \(1 - x^2\), a classical heuristic substitution is:
-\[
-x = \sin y,
-\]
-which leverages the Pythagorean identity:
-\[
-1 - \sin^2 y = \cos^2 y.
-\]
+When encountering expressions involving \(1 - x^2\), a classical heuristic substitution is the trigonometric setup
+\begin{equation}
+\begin{aligned}
+x &= \sin y,\\
+dx &= \cos y \, dy,\\
+1 - \sin^2 y &= \cos^2 y.
+\end{aligned}
+\label{eq:trig_substitution_setup}
+\end{equation}
+which leverages the Pythagorean identity in a form that immediately exposes a secant power after substitution.
 
 Applying this substitution transforms the integral into a trigonometric form that is often easier to handle.
 
 \paragraph{Step 1: Substitution and Differential}
 
-Set
-\[
-x = \sin y \quad \Longrightarrow \quad dx = \cos y \, dy.
-\]
+Set \(x = \sin y\), so \(dx = \cos y \, dy\) as in \eqref{eq:trig_substitution_setup}.
 We take \(y = \arcsin x\) with \(y \in \left[-\frac{\pi}{2}, \frac{\pi}{2}\right]\) so that the substitution remains bijective on the domain \(|x| \le 1\), and note \(\cos y \ge 0\) on this interval so that \(\sqrt{1-\sin^2 y}=\cos y\) is consistent with the chosen branch.
 
 Substituting into \eqref{eq:original_integral} and using \(dx = \cos y \, dy\) yields
@@ -190,9 +190,10 @@ At this stage, two common safe transformations are available:
 \begin{itemize}
   \item Express \(\sec^4 y\) in terms of \(\tan y\), using the identity \(\sec^2 y = 1 + \tan^2 y\), and then perform substitution \(u = \tan y\) with \(du = \sec^2 y \, dy\).
   \item Use reduction formulas for powers of secant directly, e.g.,
-  \[
-  \int \sec^{n} y \, dy = \frac{\sec^{n-2} y \tan y}{n-1} + \frac{n-2}{n-1} \int \sec^{n-2} y \, dy, \quad n > 1.
-  \]
+  \begin{equation}
+    \int \sec^{n} y \, dy = \frac{\sec^{n-2} y \tan y}{n-1} + \frac{n-2}{n-1} \int \sec^{n-2} y \, dy, \quad n > 1.
+    \label{eq:secant_reduction_formula}
+  \end{equation}
 \end{itemize}
 Standard reduction formulas provide a deterministic alternative if the substitution path is judged too costly.
 
@@ -223,10 +224,11 @@ To automate the choice, the system applies the cost heuristic defined above (tre
 \paragraph{Back-substitution and check}
 
 Using \(\tan y = \dfrac{x}{\sqrt{1-x^2}}\), both paths yield:
-\[
+\begin{equation}
 F(x) = 4 \left[ x (1 - x^2)^{-1/2} + \frac{x^3}{3(1 - x^2)^{3/2}} \right] + C.
-\]
-Differentiating term by term shows \(F'(x)=4(1-x^2)^{-5/2}\) on \(|x|<1\). Outside \((-1,1)\) the principal-branch integrand is complex-valued; a real continuation rewrites the integral as \(\int 4(x^2-1)^{-5/2}dx\) with \(x=\cosh t\).
+\label{eq:running_example_antiderivative}
+\end{equation}
+Differentiating \eqref{eq:running_example_antiderivative} term by term shows \(F'(x)=4(1-x^2)^{-5/2}\) on \(|x|<1\). Outside \((-1,1)\) the principal-branch integrand is complex-valued; a real continuation rewrites the integral as \(\int 4(x^2-1)^{-5/2}dx\) with \(x=\cosh t\).
 
 \paragraph{Pattern rule}
 For integrals of the form \(\int (1 - x^2)^{-k-1/2} dx\), the substitution \(x=\sin y\) reduces them to \(\int \sec^{2k} y\, dy\); apply the even-power reduction accordingly. This is why the \(1 - x^2\) pattern triggers the trigonometric branch.
@@ -557,22 +559,15 @@ The pseudocode mirrors the narrative: record the original integrand \(f_0\), tra
     \item \textbf{Domain reminders:} When substitutions shrink domains (e.g., \(x=\sin y\) enforces \(|x|\le1\)), log the restriction and branch choice so the numeric fallback samples within the valid range and the report is reproducible.
 \end{itemize}
 \end{tcolorbox}
-\begin{table}[t]
-\centering
-% Avoid inline math in captions; it wraps poorly in some EPUB renderers.
-\caption{Transformation toolkit (safe vs.\ heuristic). Preconditions keep domains/branches explicit (e.g., restrictions like ``x in (-1,1)'' for square-root expressions); principal branches unless noted.}
-\small
-\begin{tabularx}{0.96\linewidth}{@{}>{\raggedright\arraybackslash}p{0.22\linewidth} >{\raggedright\arraybackslash}X >{\raggedright\arraybackslash}X @{}}
-\toprule
- & \textbf{Safe} & \textbf{Heuristic} \\
-\midrule
-Constant factor & \(\int a\, g(x)\, dx = a\int g(x)\, dx\) (no domain change). & Completing the square before attempting trig substitutions; track any resulting branch cuts. \\
-Linear substitution & \(u=ax+b,\; dx=du/a\) with \(a\neq0\), invertible on the stated interval. & Trigonometric substitutions \(x=\sin u,\; x=\tan u,\; t=\tan(x/2)\) with domains \(u\in(-\tfrac{\pi}{2},\tfrac{\pi}{2})\) or stated principal branches. \\
-Polynomial division / partial fractions & Split improper rational functions into polynomial + proper fraction where denominators stay nonzero on the domain. & Rationalising substitutions such as \(x=1/u\) or \(x=u^2\) to expose hidden symmetry; avoid zeros/poles introduced by the map. \\
-Log-derivative pattern & \(\int f'(x)/f(x)\, dx = \log|f(x)|+C\) when \(f(x)\neq 0\) on the domain. & Template lookups (Beta/Gamma forms with parameter sign conditions, exponential-times-polynomial motifs, etc.). \\
-\bottomrule
-\end{tabularx}
-\end{table}
+\begin{tcolorbox}[summarybox, title={Transformation toolkit (safe vs.\ heuristic)}]
+\textbf{Preconditions.} Keep domains and branch choices explicit. For example, a square-root substitution may require \(x\in(-1,1)\). Assume principal branches unless noted.
+\begin{itemize}
+    \item \textbf{Constant factor.} \textbf{Safe:} \(\int a\, g(x)\, dx = a\int g(x)\, dx\) with no domain change. \textbf{Heuristic:} complete the square before trig substitutions, and track any branch cuts you introduce.
+    \item \textbf{Linear substitution.} \textbf{Safe:} \(u=ax+b,\; dx=du/a\) with \(a\neq0\), invertible on the stated interval. \textbf{Heuristic:} trig substitutions such as \(x=\sin u\), \(x=\tan u\), or \(t=\tan(x/2)\), with stated branch intervals.
+    \item \textbf{Polynomial division / partial fractions.} \textbf{Safe:} split an improper rational function into polynomial plus proper fraction while keeping denominators nonzero on the domain. \textbf{Heuristic:} rationalizing substitutions such as \(x=1/u\) or \(x=u^2\) to expose symmetry, while avoiding new zeros or poles.
+    \item \textbf{Log-derivative pattern.} \textbf{Safe:} \(\int f'(x)/f(x)\, dx = \log|f(x)|+C\) when \(f(x)\neq 0\) on the declared domain. \textbf{Heuristic:} template lookups such as Beta/Gamma forms or exponential-times-polynomial motifs, with parameter checks.
+\end{itemize}
+\end{tcolorbox}
 
 \paragraph{Worked example: Beta template vs.\ numeric fallback}
 Consider the Beta integral
