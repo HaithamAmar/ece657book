@@ -582,7 +582,7 @@ The learning rate sets the basic step scale; momentum averages recent gradient d
 
 Track both training and validation curves: a flat training loss usually points to an optimization issue (step size, activation saturation, initialization), while a widening train/validation gap points to capacity or regularization. Shuffle each epoch, checkpoint the best validation model, and let an early-stopping rule end runs before you overfit. In essence, the objective is to build confidence that your design decisions generalize out-of-sample; these curves give you a simple way to describe that generalization quantitatively.
 
-\subsection{Training Procedure and Epochs in Multi-Layer Perceptrons}
+\subsection{Training Procedure and Epochs}
 \label{sec:backprop_training_procedure_and_epochs_in_multi_layer_perceptrons}
 
 An epoch is one complete pass over the training set. Most implementations shuffle the data and iterate over mini\hyp{}batches: each update is cheaper than a full-batch gradient, and the resulting noise is often helpful for making progress.
@@ -741,12 +741,12 @@ y = x \sin x.
     \item If you report performance, report it as a reproducible experiment (seed, split, optimizer recipe). Avoid quoting a single ``typical'' number unless you can regenerate it.
 \end{itemize}
 
-\subsection{Applications of Multi-Layer Perceptrons}
+\subsection{Applications}
 \label{sec:backprop_applications_of_multi_layer_perceptrons}
 
 MLPs show up in two roles. Sometimes they are the whole model, as in small function-approximation and classification tasks. More often they are trainable blocks inside larger systems: the same affine\(\rightarrow\)nonlinearity pattern appears in convolutional networks, recurrent networks, and attention models. Later chapters return to this connection at scale. In all cases, the training signal still arrives as a loss at the output, and backpropagation is what assigns that loss to each parameter through the stored intermediate values from the forward pass.
 
-\subsection{Limitations of Multi-Layer Perceptrons}
+\subsection{Limitations}
 \label{sec:backprop_limitations_of_multi_layer_perceptrons}
 
 MLPs are flexible, but they require care to train reliably. The main limitations show up as training instability, sensitivity to design choices, and difficulty diagnosing silent implementation mistakes. Training can be sensitive: small changes to the random initialization, data order, or step-size settings can lead to noticeably different outcomes, especially when the problem is poorly conditioned.
@@ -757,7 +757,7 @@ MLPs are flexible, but they require care to train reliably. The main limitations
     \item \textbf{Silent implementation bugs:} shape/broadcasting mistakes can produce gradients that look plausible but are wrong. This is why the shape ledger and finite-difference checks in this chapter are part of the basic implementation discipline.
 \end{itemize}
 
-\subsection{Conclusion of Multi-Layer Perceptron Derivations}
+\subsection{Summary}
 \label{sec:backprop_conclusion_of_multi_layer_perceptron_derivations}
 
 At this point you have the full backprop workflow: store computations from the forward pass, compute \(\delta^{(L)}\), propagate \(\delta\)'s backward, and assemble gradients with the shapes kept honest. To close the derivation, it helps to write the same story once more in a compact matrix form.

@@ -1,5 +1,5 @@
 % Chapter 12
-\section{Introduction to Recurrent Neural Networks}\label{chap:rnn}
+\section{Recurrent Neural Networks: Dynamics, Memory, and Gating}\label{chap:rnn}
 \index{recurrent neural network (RNN)}
 \index{backpropagation through time (BPTT)}
 \index{vanishing gradient}
@@ -205,12 +205,7 @@ Unless there is a compelling reason to run to numerical convergence, stop as soo
             \node[font=\scriptsize, anchor=south west, gray!70] at (axis cs:20,0.08) {stop};
         \end{groupplot}
     \end{tikzpicture}
-    \ifdefined\HCode
-        \caption{Binary cross-entropy geometry (left), effect of learning-rate schedules on loss (middle), and the typical training/validation divergence that motivates early stopping (right).}
-    \else
-        % Avoid inline math in captions; it wraps poorly in some EPUB renderers.
-        \caption{Binary cross-entropy geometry (left), effect of learning-rate schedules on loss (middle), and the typical training/validation divergence that motivates early stopping (right).}
-    \fi
+    \caption{Binary cross-entropy geometry (left), effect of learning-rate schedules on loss (middle), and the typical training/validation divergence that motivates early stopping (right).}
     \label{fig:lec7-loss-hyperparams}
 \end{figure}
 
@@ -300,7 +295,7 @@ Consider a simple RNN cell with the following update equations:
         \node (y3) at (h3|-y1) {$y_{t+1}$};
         % Arrows
         \draw[arrow] (h1) -- node[above, font=\scriptsize] {$\mathbf{W}_{hh}$} (h2);
-        \draw[arrow] (h2) -- (h3);
+        \draw[arrow] (h2) -- node[above, font=\scriptsize] {$\mathbf{W}_{hh}$} (h3);
         \draw[arrow] (x1) -- node[midway, right, font=\scriptsize, xshift=1mm] {$\mathbf{W}_{xh}$} (h1);
         \draw[arrow] (x2) -- node[midway, right, font=\scriptsize, xshift=1mm] {$\mathbf{W}_{xh}$} (h2);
         \draw[arrow] (x3) -- node[midway, right, font=\scriptsize, xshift=1mm] {$\mathbf{W}_{xh}$} (h3);
@@ -692,7 +687,7 @@ Spectral norm \(\|\mathbf{W}_{hh}\|_2 \approx 1\) keeps gradients roughly stable
         \end{tikzpicture}%
     }
         \ifdefined\HCode
-            \caption{Long Short-Term Memory (LSTM) cell \citep{Hochreiter1997,Gers2000}.}
+            \caption{Long Short-Term Memory (LSTM) cell (Hochreiter and Schmidhuber, 1997; Gers, Schmidhuber, and Cummins, 2000).}
         \else
             \caption{Long Short-Term Memory (LSTM) cell \citep{Hochreiter1997,Gers2000}.}
         \fi
@@ -801,7 +796,7 @@ Spectral norm \(\|\mathbf{W}_{hh}\|_2 \approx 1\) keeps gradients roughly stable
         \end{tikzpicture}%
     }
     \ifdefined\HCode
-    \caption{Gated Recurrent Unit (GRU) cell \citep{Cho2014}.}
+    \caption{Gated Recurrent Unit (GRU) cell (Cho et al., 2014).}
     \else
     \caption{Gated Recurrent Unit (GRU) cell \citep{Cho2014}.}
     \fi

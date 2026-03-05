@@ -1,5 +1,5 @@
 % Chapter 19
-\section{Introduction to Evolutionary Computing}\label{chap:evo}
+\section{Evolutionary Computing: Search, Selection, and Adaptation}\label{chap:evo}
 \index{evolutionary computing}
 \index{genetic algorithm (GA)}
 \index{selection (GA)}
@@ -34,7 +34,7 @@ Evolutionary computing is the strand you reach for when the objective is a black
 
 In the fuzzy trilogy, once you commit to membership shapes and a rule base, a practical question remains: how do you tune those choices (and their trade-offs) when hand tweaks do not scale? Evolutionary search provides a disciplined answer: score candidate controllers, select the better ones, perturb/recombine them, and keep iterating until the improvements flatten or the budget runs out.
 
-\begin{tcolorbox}[summarybox, title={Author's note: why GAs are still relevant in 2026}]
+\begin{tcolorbox}[summarybox, title={Author's note: why GAs remain relevant in modern practice}]
 Genetic algorithms remain relevant because many high-impact optimization loops are still black-box, noisy, and mixed discrete/continuous. Hyperparameter and pipeline tuning are canonical examples: one evaluation may be expensive, stochastic, and constraint-laden, while gradients are unavailable or misleading at the system level. In that setting, population search is not a historical artifact; it is an engineering tool for budgeted improvement.
 \par\smallskip
 This also explains the bridge from Part III. Fuzzy systems expose structured, interpretable policy components (membership shapes and rules), and evolutionary search provides a practical mechanism for tuning those components when manual adjustment does not scale.
