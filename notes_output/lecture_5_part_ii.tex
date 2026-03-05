@@ -286,6 +286,7 @@ Then,
 \[
     \Delta E = - (s_i^{\text{new}} - s_i^{\text{old}}) h_i.
 \]
+Under the asynchronous sign update, a neuron flips only when the new state agrees with the sign of \(h_i\); therefore \(s_i^{\text{new}} - s_i^{\text{old}}\) has the same sign as \(h_i\), and the product above is non-negative. Hence every accepted flip satisfies \(\Delta E \le 0\).
 
 \paragraph{Numeric check (single flip).} With two neurons, weights \(w_{12}=w_{21}=1\), thresholds \( \theta_i=0\), and current state \((s_1, s_2) = (1,-1)\), the local field at neuron 1 is \(h_1 = 1\cdot (-1) = -1\). The update rule sets \(s_1^{\text{new}} = \operatorname{sign}(h_1) = -1\), so \(s_1^{\text{new}} - s_1^{\text{old}} = -2\) and \(\Delta E = -(-2)(-1) = -2 < 0\), confirming the energy drop predicted by \eqref{eq:deltaE}.
 \begin{tcolorbox}[summarybox, title={Modern Hopfield views and attention}]
