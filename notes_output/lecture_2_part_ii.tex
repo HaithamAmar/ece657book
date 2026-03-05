@@ -249,15 +249,14 @@ Binary labels and \(\pi(\mathbf{x})\) were defined in \Cref{sec:logistic_classif
 
 Logistic regression assumes that the \emph{log-odds} (also called the \emph{logit}) of the positive class is a linear function of the input features. Introducing the augmented feature vector \(\tilde{\mathbf{x}} = [1, x_1, \ldots, x_p]^\top\) and parameter vector \(\boldsymbol{\beta} = [\beta_0, \beta_1, \ldots, \beta_p]^\top\), we write
 \begin{equation}
-    \log \frac{\pi(\mathbf{x})}{1 - \pi(\mathbf{x})} = \boldsymbol{\beta}^\top \tilde{\mathbf{x}}.
+    \begin{aligned}
+        \log \frac{\pi(\mathbf{x})}{1 - \pi(\mathbf{x})} &= \boldsymbol{\beta}^\top \tilde{\mathbf{x}},\\
+        \pi(\mathbf{x}) &= \frac{1}{1 + \exp\left(-\boldsymbol{\beta}^\top \tilde{\mathbf{x}}\right)}.
+    \end{aligned}
     \label{eq:logit_linear}
 \end{equation}
 
-This implies that the posterior probability \(\pi(\mathbf{x})\) can be written as the \emph{logistic sigmoid} function applied to the linear predictor:
-\begin{equation}
-    \pi(\mathbf{x}) = \frac{1}{1 + \exp\left(-\boldsymbol{\beta}^\top \tilde{\mathbf{x}}\right)}.
-    \label{eq:logistic_probability}
-\end{equation}
+This implies that the posterior probability \(\pi(\mathbf{x})\) is the \emph{logistic sigmoid} applied to the linear predictor.
 
 \begin{tcolorbox}[summarybox, title={Author's note: why ``logistic'' and why ``regression''?}]
 \emph{Logistic} is the link function: a sigmoid takes a real score and turns it into a probability in \([0,1]\). And \emph{regression} is what remains linear: the \emph{log\hyp{}odds} (the logit) is modeled as a linear function of the features.
@@ -546,7 +545,7 @@ Use class or sample weights (e.g., inverse prevalence) inside the loss, and pick
 Discrimination metrics (ROC/PR, AUC) say how well a classifier ranks examples but not how reliable its probabilities are. Calibration methods such as Platt scaling and temperature scaling adjust the logits so that predicted probabilities match empirical frequencies (e.g., 0.8 scores correspond to \(\approx 80\%\) positives), often measured via Expected Calibration Error (ECE) and inspected with reliability diagrams \citep{Platt1999,Guo2017}.
 \end{tcolorbox}
 
-\begin{table}[h]
+\begin{table}[tbp]
 \centering
 \caption{Handling class imbalance for logistic models (\Cref{chap:logistic} reference table). A compact menu of resampling, weighting, and thresholding strategies for rare positives.}
 \begin{tabularx}{0.98\linewidth}{@{}>{\raggedright\arraybackslash}p{0.32\linewidth} >{\raggedright\arraybackslash}X@{}}
@@ -561,13 +560,20 @@ Threshold tuning & Choose a decision threshold based on PR curves or cost ratios
 \end{tabularx}
 \end{table}
 
-\begin{tcolorbox}[summarybox, title={Exercises and lab ideas}]
-\begin{itemize}
-    \item Implement a minimal example from this chapter and visualize intermediate quantities (plots or diagnostics) to match the pseudocode.
-    \item Stress-test a key hyperparameter or design choice discussed here and report the effect on validation performance or stability.
-    \item Re-derive one core equation or update rule by hand and check it numerically against your implementation.
-\end{itemize}
-\medskip
+\clearpage
+
+\begin{tcolorbox}[summarybox, title={Exercises}]
+\textbf{Exercise 1 (Easy).} Implement logistic regression from scratch (no library solver): forward logits, sigmoid, cross\hyp{}entropy, and gradients. Verify the gradient on a tiny dataset with a finite-difference check. \\
+\textbf{Deliverable:} the worst relative gradient error + the exact loss convention you used (sum vs.\ mean over batch).
+
+\smallskip
+\textbf{Exercise 2 (Medium).} Build an imbalanced binary dataset and treat thresholding as part of the model. Plot ROC and PR curves, pick a decision threshold that satisfies a stated constraint (e.g., max false-negative rate), and report calibration (reliability diagram or ECE). \\
+\textbf{Deliverable:} ROC/PR plots + the chosen threshold and the achieved constraint + one calibration diagnostic.
+
+\smallskip
+\textbf{Exercise 3 (Medium).} Run a slice audit: define 2--3 meaningful slices (by a feature range, a subgroup, or a covariate bin), and report how performance and calibration differ across slices. If one slice is worse, propose one concrete remedy (re-weighting, data collection, or a different feature). \\
+\textbf{Deliverable:} a small slice table + one paragraph describing the most actionable failure mode you found.
+\par\medskip
 \noindent\textbf{If you are skipping ahead.} Keep three ideas: (i) Bayes-optimal boundaries are a conceptual anchor, (ii) logistic regression is the first practical probabilistic baseline, and (iii) evaluation depends on costs, thresholds, and calibration. Those recur throughout the neural and deployment chapters and remain important whenever later chapters output scores that must be turned into decisions.
 \end{tcolorbox}
 

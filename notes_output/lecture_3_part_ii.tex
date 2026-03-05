@@ -57,10 +57,13 @@ A single unit (the perceptron) computes a weighted sum and then applies an activ
 where $\mathbf{x}\in\mathbb{R}^n$, $\mathbf{w}\in\mathbb{R}^n$, and $b$ is a bias. With one unit, the decision boundary $\mathbf{w}^\top\mathbf{x}+b=0$ is a hyperplane, so a single unit can only produce linear separations; XOR is the canonical reminder of that limitation.
 
 The smallest step beyond a single unit is a \emph{two\hyp{}neuron chain}: one unit feeds another. Write
-\begin{align}
+\begin{equation}
+\begin{aligned}
  p_1 &= \mathbf{w}_1^\top \mathbf{x} + b_1, & y_1 &= f(p_1), \\
- p_2 &= w_2 y_1 + b_2, & y_2 &= f(p_2). \label{eq:two_neuron_forward}
-\end{align}
+ p_2 &= w_2 y_1 + b_2, & y_2 &= f(p_2).
+\end{aligned}
+\label{eq:two_neuron_forward}
+\end{equation}
 This is the point where the unit becomes a building block: an intermediate signal $y_1$ is computed, reused, and then transformed again. Complexity now comes not only from what each block does in isolation, but from how the blocks connect, and how a change in one propagates to the other. We will reuse \Cref{fig:mlp_minimal_chain} as our tracking diagram when we apply the chain rule.
 
 \begin{figure}[t]
@@ -284,12 +287,14 @@ We now compute the gradients from the forward-pass equations in \eqref{eq:two_ne
 \end{itemize}
 
 For the second-layer parameters, the chain rule gives
-\begin{align}
+\begin{equation}
+\begin{aligned}
 \frac{\partial P}{\partial w_2}
-&= \frac{\partial P}{\partial y_2}\frac{\partial y_2}{\partial p_2}\frac{\partial p_2}{\partial w_2}
-= (y_2 - t)\, f'(p_2)\, y_1,
+&= \frac{\partial P}{\partial y_2}\frac{\partial y_2}{\partial p_2}\frac{\partial p_2}{\partial w_2} \\
+&= (y_2 - t)\, f'(p_2)\, y_1,
+\end{aligned}
 \label{eq:grad_w2}
-\end{align}
+\end{equation}
 and similarly
 \begin{equation}
 \frac{\partial P}{\partial b_2} = (y_2 - t) f'(p_2).
@@ -297,12 +302,14 @@ and similarly
 \end{equation}
 
 For the first-layer parameters, the effect of the second layer appears explicitly through the chain rule:
-\begin{align}
+\begin{equation}
+\begin{aligned}
 \frac{\partial P}{\partial \mathbf{w}_1}
 &= \frac{\partial P}{\partial y_2}\frac{\partial y_2}{\partial p_2}\frac{\partial p_2}{\partial y_1}\frac{\partial y_1}{\partial p_1}\frac{\partial p_1}{\partial \mathbf{w}_1} \\
 &= (y_2 - t)\, f'(p_2)\, w_2\, f'(p_1)\, \mathbf{x},
+\end{aligned}
 \label{eq:grad_w1}
-\end{align}
+\end{equation}
 with bias derivative
 \begin{equation}
 \frac{\partial P}{\partial b_1} = (y_2 - t) f'(p_2) w_2 f'(p_1).
@@ -386,13 +393,17 @@ You run a forward pass that stores what you will need, then a backward pass that
 \end{itemize}
 \end{tcolorbox}
 
-\begin{tcolorbox}[summarybox, title={Exercises and lab ideas}]
-\noindent\textbf{Try these while the network is still small.} These reinforce the two\hyp{}neuron derivation and prepare you for multi-layer accounting.
-\begin{itemize}
-    \item \textbf{Numerical gradient check:} Implement finite differences for the two\hyp{}neuron chain and compare to your analytic gradients; report relative error and track down the first mismatch.
-    \item \textbf{Step vs.\ sigmoid:} Replace the smooth activation with a hard threshold and observe what breaks when you try to compute updates via derivatives.
-    \item \textbf{XOR with two hidden units:} Train a tiny multi-layer perceptron (MLP) on XOR and plot its decision regions; note sensitivity to initialization and step size.
-\end{itemize}
+\begin{tcolorbox}[summarybox, title={Exercises}]
+\textbf{Exercise 1 (Easy).} Implement finite differences for the two\hyp{}neuron chain and compare to your analytic gradients. \\
+\textbf{Deliverable:} the worst relative error across parameters + the exact \(\epsilon\) you used and why it was not too large/small.
+
+\smallskip
+\textbf{Exercise 2 (Medium).} Replace the smooth activation with a hard threshold and attempt to train with the same gradient-descent recipe. Explain, in one paragraph, \emph{exactly} what breaks (mathematically and numerically) and which workaround you would adopt in practice (smooth surrogate, straight-through estimator, or a different optimization view). \\
+\textbf{Deliverable:} one training trace (loss vs.\ steps) + the paragraph explanation.
+
+\smallskip
+\textbf{Exercise 3 (Medium).} Train a tiny MLP on XOR and treat sensitivity as a debugging signal: run 10 random initializations under the same hyperparameters, then diagnose the variance. \\
+\textbf{Deliverable:} a plot of decision regions for 2 successful and 2 failed runs + one paragraph linking the outcomes to initialization scale and activation saturation.
 \medskip
 \noindent\textbf{If you are reading for implementation.} Be able to read a forward graph and a backward recursion: local derivatives, cached activations, and a scalar loss driving parameter updates. That is exactly what gets scaled up in deeper networks.
 \end{tcolorbox}

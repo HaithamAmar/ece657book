@@ -474,6 +474,8 @@ def render_report(chapters: Iterable[UnitAudit], appendices: Iterable[UnitAudit]
             "Design motif",
             "Risk & audit",
             "Key takeaways",
+            # Historical title was "Exercises and lab ideas"; newer chapters use "Exercises".
+            "Exercises",
             "Exercises and lab ideas",
             "Part I takeaways",
             "Part II takeaways",

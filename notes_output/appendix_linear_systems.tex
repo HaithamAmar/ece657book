@@ -51,10 +51,13 @@ where \(H(f)\) is the transform of \(h(t)\).
 \subsection*{State-Space Models and Transfer Functions}
 
 Many dynamical systems in this book are expressed in continuous-time state-space form:
-\begin{align}
-    \frac{d\mathbf{x}(t)}{dt} &= \mathbf{A}\mathbf{x}(t) + \mathbf{B}\mathbf{u}(t), \label{eq:state_space}\\
+\begin{equation}
+\begin{aligned}
+    \frac{d\mathbf{x}(t)}{dt} &= \mathbf{A}\mathbf{x}(t) + \mathbf{B}\mathbf{u}(t), \\
     \mathbf{y}(t) &= \mathbf{C}\mathbf{x}(t) + \mathbf{D}\mathbf{u}(t),
-\end{align}
+\end{aligned}
+\label{eq:state_space}
+\end{equation}
 where \(\mathbf{x}(t) \in \mathbb{R}^n\) is the state, \(\mathbf{u}(t) \in \mathbb{R}^m\) the input, and \(\mathbf{y}(t) \in \mathbb{R}^p\) the output.
 
 \paragraph{Homogeneous solution.}

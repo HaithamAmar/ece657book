@@ -36,7 +36,9 @@ PARA_REFERENCES_RE = re.compile(r"\\paragraph\{\s*References\.\s*\}")
 TITLE_LEARNING_OUTCOMES_RE = re.compile(r"title\s*=\s*\{\s*Learning\s+Outcomes\s*\}")
 TITLE_DESIGN_MOTIF_RE = re.compile(r"title\s*=\s*\{\s*Design\s+motif\s*\}")
 TITLE_KEY_TAKEAWAYS_RE = re.compile(r"title\s*=\s*\{\s*Key\s+takeaways\s*\}")
-TITLE_EXERCISES_RE = re.compile(r"title\s*=\s*\{\s*Exercises\s+and\s+lab\s+ideas\s*\}")
+# Historical title was "Exercises and lab ideas"; newer chapters use "Exercises".
+# Accept either to avoid churn while keeping the end-of-chapter kit consistent.
+TITLE_EXERCISES_RE = re.compile(r"title\s*=\s*\{\s*Exercises(?:\s+and\s+lab\s+ideas)?\s*\}")
 
 INLINE_DESIGN_MOTIF_RE = re.compile(r"\\textit\{\s*Design\s+motif\s*:", re.IGNORECASE)
 INLINE_KEY_TAKEAWAYS_RE = re.compile(r"\\textbf\{\s*Key\s+takeaways\s*\}", re.IGNORECASE)
@@ -136,7 +138,7 @@ def audit_chapter(chapter_index: int, chapter_path: Path, tex: str) -> ChapterAu
             a.issues.append('Missing tcolorbox titled "Key takeaways" near chapter end.')
 
     if not TITLE_EXERCISES_RE.search(tex):
-        a.issues.append('Missing tcolorbox titled "Exercises and lab ideas" near chapter end.')
+        a.issues.append('Missing tcolorbox titled "Exercises" near chapter end.')
 
     if not PARA_WHERE_NEXT_RE.search(tex):
         a.issues.append('Missing paragraph titled "Where we head next." near chapter end.')

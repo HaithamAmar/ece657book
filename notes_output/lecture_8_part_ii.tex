@@ -29,9 +29,10 @@ We revisit a smart thermostat that regulates a room using two linguistic inputs 
 \label{sec:softcomp_hard_computing_the_classical_paradigm}
 
 Hard computing refers to the classical approach to computation where the goal is to produce precise, unambiguous, and mathematically exact outputs. This paradigm assumes that the relationships between inputs and outputs can be modeled accurately using well-defined mathematical equations. For example, Einstein's mass-energy equivalence formula,
-\[
+\begin{equation}
 E = mc^2,
-\]
+\label{eq:softcomp_emc2}
+\end{equation}
 is a precise, unambiguous, and exact mathematical expression.
 
 In hard computing, the process typically involves:
@@ -74,12 +75,13 @@ These components often overlap and complement each other in practical applicatio
 The key insight behind soft computing is to exploit the \emph{tolerance for imprecision and uncertainty} inherent in many real-world problems. Consider the example of handwritten digit recognition using a convolutional neural network (CNN):
 
 \begin{itemize}
-    \item The input is a handwritten digit, say the digit "4".
+    \item The input is a handwritten digit, say the digit ``4''.
     \item The network extracts features and produces a probability distribution over possible digits.
     \item The output might be:
-    \[
-    P(\text{digit} = 4) = 0.60, \quad P(\text{digit} = 7) = 0.20, \quad P(\text{digit} = 1) = 0.20.
-    \]
+    \begin{equation}
+        P(\text{digit} = 4) = 0.60, \quad P(\text{digit} = 7) = 0.20, \quad P(\text{digit} = 1) = 0.20.
+        \label{eq:softcomp_cnn_probs_example}
+    \end{equation}
 \end{itemize}
 
 This output is \emph{not precise} in the classical sense; it expresses uncertainty and partial belief. The system tolerates this imprecision and still makes a decision based on the highest probability, demonstrating robustness and flexibility.
@@ -242,16 +244,20 @@ Recall that the motivation behind fuzzy logic was to develop a mathematical and 
 
 Relational algebra is a formal language used primarily in database theory to manipulate sets and relations. It provides operators such as union ($\cup$), intersection ($\cap$), and set difference ($\setminus$) that operate on sets:
 
-\begin{align*}
+\begin{equation}
+\begin{aligned}
 A \cup B &= \{ x \mid x \in A \text{ or } x \in B \}, \\
 A \cap B &= \{ x \mid x \in A \text{ and } x \in B \}.
-\end{align*}
+\end{aligned}
+\label{eq:softcomp_relational_union_intersection}
+\end{equation}
 
 The third canonical operator is the set difference
-\[
+\begin{equation}
 A \setminus B = \{ x \mid x \in A \text{ and } x \notin B \},
-\]
-which removes from \(A\) any elements that also belong to \(B\). For instance, if \(A\) is the set of all graduate students and \(B\) the set of teaching assistants, then \(A \setminus B\) contains graduate students who are not currently TAs.
+\label{eq:softcomp_relational_set_difference}
+\end{equation}
+which removes from \(A\) any elements that also belong to \(B\). For instance, if \(A\) is the set of all graduate students and \(B\) the set of research assistants, then \(A \setminus B\) contains graduate students who are not currently research assistants.
 
 These operators have well-defined meanings and predictable outputs, making relational algebra a precise language for reasoning about collections of elements. The vocabulary is limited but sufficient for set-theoretic operations.
 
@@ -381,12 +387,13 @@ This chapter is therefore not nostalgia. It is one lens for how intelligent beha
 \label{sec:softcomp_from_crisp_sets_to_fuzzy_sets}
 
 \paragraph{Crisp sets} are classical sets where an element either belongs or does not belong to the set. Formally, for a universe \(X\), a crisp set \(A \subseteq X\) is characterized by its \emph{characteristic function}:
-\[
+\begin{equation}
 \chi_A(x) = \begin{cases}
 1 & \text{if } x \in A, \\
 0 & \text{if } x \notin A.
 \end{cases}
-\]
+\label{eq:softcomp_characteristic_function}
+\end{equation}
 
 \paragraph{Example:} Consider two classes:
 \[
@@ -395,9 +402,10 @@ This chapter is therefore not nostalgia. It is one lens for how intelligent beha
 These are crisp sets since no student belongs to both classes simultaneously.
 
 \paragraph{Fuzzy sets} generalize this notion by allowing partial membership. A fuzzy set \( \tilde{A} \) on \(X\) is characterized by a \emph{membership function}:
-\[
+\begin{equation}
 \mu_{\tilde{A}}: X \to [0,1],
-\]
+\label{eq:softcomp_membership_function}
+\end{equation}
 where \(\mu_{\tilde{A}}(x)\) quantifies the degree to which \(x\) belongs to \(\tilde{A}\).
 
 \subsubsection*{Example: Sizes as fuzzy sets}
@@ -466,12 +474,17 @@ As we move from the fuzzy trilogy to evolutionary computing, the design contract
 \end{itemize}
 \end{tcolorbox}
 
-\begin{tcolorbox}[summarybox, title={Exercises and lab ideas}]
-\begin{itemize}
-    \item Rewrite one crisp threshold policy (for example, braking or thermostat actuation) as fuzzy labels and evaluate at least three boundary cases.
-    \item On one toy rule base, compare max--min and max--product operator choices and explain how the output behavior changes.
-    \item Build a one-page setup sheet (universes, memberships, operator defaults) and use it to reproduce the same outputs after a delayed rerun.
-\end{itemize}
+\begin{tcolorbox}[summarybox, title={Exercises}]
+\textbf{Exercise 1 (Easy).} Rewrite one crisp threshold policy (braking, thermostat actuation, or an alarm trigger) as fuzzy labels and test at least three boundary cases where crisp logic flips abruptly. \\
+\textbf{Deliverable:} the crisp policy + the fuzzy rewrite + a short table of boundary-case inputs and outputs.
+
+\smallskip
+\textbf{Exercise 2 (Medium).} On one small rule base, compare max--min and max--product choices end-to-end and explain the behavioral difference in terms of ``how conjunction is interpreted.'' \\
+\textbf{Deliverable:} one input\(\rightarrow\)output curve under both operators + one paragraph describing which regime is more conservative/aggressive and why.
+
+\smallskip
+\textbf{Exercise 3 (Medium).} Build a reproducibility sheet for a fuzzy controller: universes (with units), memberships (with parameters), operator defaults, discretization step, and test points. Rerun the same controller later and verify you can reproduce the outputs exactly. \\
+\textbf{Deliverable:} the one-page sheet + a short note explaining which missing detail would make reproduction impossible.
 
 \medskip
 \noindent\textbf{Fast-track note.} As you move into \Crefrange{chap:fuzzysets}{chap:fuzzyinference}, keep operator choices explicit and consistent. Many downstream mismatches come from hidden defaults set at the start.

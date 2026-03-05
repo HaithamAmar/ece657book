@@ -119,7 +119,6 @@ Chapter-to-file mapping
 |---:|---|---|
 | A | Linear Systems Primer | `appendix_linear_systems.tex` |
 | B | Kernel Methods and Support Vector Machines | `appendix_kernel_methods.tex` |
-| C | Course Logistics | `appendix_logistics.tex` |
 - Note: an older alternate Chapter 1 draft is archived at `archive/lecture_1.tex` and guarded with `\endinput`; it is **not** part of the main build.
 
 Recent flow/layout work (2026-01-04)
@@ -267,7 +266,7 @@ Goal: stabilize the manuscript (PDF + EPUB) and converge to “publishable” by
 5) **Chapter kit uniformity (end-of-chapter blocks)**
    - Default end-of-chapter kit (keep the titles exactly):
      - `Key takeaways` (tcolorbox)
-     - `Exercises and lab ideas` (tcolorbox)
+     - `Exercises` (tcolorbox)
      - `Where we head next.` (paragraph)
    - Keep the bibliography centralized (book-wide references section); do not append per-chapter references paragraphs.
    - Do not reintroduce `\subsection*{Summary}` or per-chapter “Further Reading/References” lists. If a chapter genuinely needs an exception, document why.

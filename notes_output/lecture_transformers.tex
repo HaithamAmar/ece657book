@@ -190,11 +190,13 @@ resolving local collocations. Multi-head attention gives the model multiple lear
 each head has its own projection matrices and can compute a different attention pattern over the same sequence.
 
 Multiple heads attend in parallel after learned linear projections:
-\begin{align}
+\begin{equation}
+\begin{aligned}
     \mathrm{head}_i &= \operatorname{Attn}(\mathbf{X}\mathbf{W}_i^Q,\, \mathbf{X}\mathbf{W}_i^K,\, \mathbf{X}\mathbf{W}_i^V),\\
     \operatorname{MHA}(\mathbf{X}) &= [\mathrm{head}_1;\ldots;\mathrm{head}_h]\, \mathbf{W}^O,
-    \label{eq:transformers_mha}
-\end{align}
+\end{aligned}
+\label{eq:transformers_mha}
+\end{equation}
 with \(\mathbf{W}_i^Q \in \mathbb{R}^{d_{\text{model}} \times d_k}\), \(\mathbf{W}_i^K \in \mathbb{R}^{d_{\text{model}} \times d_k}\), \(\mathbf{W}_i^V \in \mathbb{R}^{d_{\text{model}} \times d_v}\), and output projection \(\mathbf{W}^O\in\mathbb{R}^{(h d_v)\times d_{\text{model}}}\).
 For cross-attention, the formula is the same but keys/values come from encoder states: \(\operatorname{Attn}(\mathbf{X}_{\text{dec}}\mathbf{W}_i^Q,\,\mathbf{X}_{\text{enc}}\mathbf{W}_i^K,\,\mathbf{X}_{\text{enc}}\mathbf{W}_i^V)\).
 \Cref{fig:lec13_transformer_block} bundles scaled dot-product attention, multi-head concatenation, and the residual pre-LN block so the entire signal path is visible at a glance.
@@ -391,11 +393,13 @@ For cross-attention, the formula is the same but keys/values come from encoder s
 \subsection{Positional encodings (order without recurrence)}
 \label{sec:transformers_positional_information}
 Transformers lack recurrence, so order has to be injected explicitly. A simple baseline (from \citet{Vaswani2017}) is a sinusoidal positional encoding: for position \(\mathrm{pos}\) and feature index \(i\),
-\begin{align}
+\begin{equation}
+\begin{aligned}
     \mathrm{PE}(\mathrm{pos},\,2i)   &= \sin\!\left(\frac{\mathrm{pos}}{10000^{2i/d_{\text{model}}}}\right),\\
     \mathrm{PE}(\mathrm{pos},\,2i+1) &= \cos\!\left(\frac{\mathrm{pos}}{10000^{2i/d_{\text{model}}}}\right).
-    \label{eq:transformers_sinusoidal_pe}
-\end{align}
+\end{aligned}
+\label{eq:transformers_sinusoidal_pe}
+\end{equation}
 You add this vector (or a learned alternative) to the token embedding at each position. The engineering point is not the specific constant; it is that different dimensions oscillate at different frequencies, so nearby positions look similar in some coordinates and far positions look different in others.
 
 A tempting baseline is to represent the position as an ID (or a one-hot vector) and treat it like any other lookup. That \emph{can} work as a table, but it is a poor fit for how attention does its comparisons. One-hot positions are orthogonal: under dot products they only tell you ``same position'' versus ``different position,'' not whether two positions are one step apart or fifty steps apart. A fixed table also has a hard maximum length: if you trained up to \(n=512\) and you now see position 513, you must extend (and usually re-train) the lookup.
@@ -567,11 +571,13 @@ on batch statistics, which matters for variable-length sequences and small batch
 
 In the \emph{pre-LN} layout (common in modern implementations), each sublayer sees a normalized input and then its output is
 added back to the residual stream:
-\begin{align}
+\begin{equation}
+\begin{aligned}
 \mathbf{H}_1 &= \mathbf{H} + \operatorname{MHA}(\operatorname{LayerNorm}(\mathbf{H})),\\
 \mathbf{H}_{\text{out}} &= \mathbf{H}_1 + \operatorname{FFN}(\operatorname{LayerNorm}(\mathbf{H}_1)).
-    \label{eq:transformers_preln_block}
-\end{align}
+\end{aligned}
+\label{eq:transformers_preln_block}
+\end{equation}
 The original Transformer applied LayerNorm after each residual add (post-LN); the attention and FFN computations are the same,
 only the placement of normalization changes.
 
@@ -689,15 +695,13 @@ The original BERT paper also used an auxiliary ``next sentence prediction'' (NSP
 \paragraph{GPT: decoder-only, causal self-attention, next-token prediction.}
 GPT-style models are stacks of Transformer \emph{decoders} with the cross-attention removed: they use masked (causal) self-attention plus an FFN in each block. The causal mask enforces the autoregressive factorization:
 \begin{equation}
-    p_\theta(w_{1:n}) = \prod_{t=1}^{n-1} p_\theta\!\left(w_{t+1}\mid w_{1:t}\right),
+    \begin{aligned}
+        p_\theta(w_{1:n}) &= \prod_{t=1}^{n-1} p_\theta\!\left(w_{t+1}\mid w_{1:t}\right),\\
+        \mathcal{L}_{\text{CLM}} &= -\sum_{t=1}^{n-1} \log p_\theta\!\left(w_{t+1}\mid w_{1:t}\right).
+    \end{aligned}
     \label{eq:transformers_clm_factorization}
 \end{equation}
-and the training objective (causal language modeling, CLM) is the corresponding negative log-likelihood,
-\begin{equation}
-    \mathcal{L}_{\text{CLM}}
-    = -\sum_{t=1}^{n-1} \log p_\theta\!\left(w_{t+1}\mid w_{1:t}\right).
-    \label{eq:transformers_clm_objective}
-\end{equation}
+The training objective (causal language modeling, CLM) is the corresponding negative log-likelihood in \eqref{eq:transformers_clm_factorization}.
 This is where it is easy to mix up training and generation. During training you do \emph{not} feed back the model's sampled token at each step; you feed the true prefix (teacher forcing) and compute the loss for all positions in parallel under the causal mask (as in the code block earlier). During inference you do sample/argmax and append one token at a time, and that is where decoding settings (temperature, top-\(k\), top-\(p\)) matter; see \Cref{sec:transformers_decoding_and_evaluation}.
 
 Historically, GPT-1 used a 12-layer decoder-only stack with about 117M parameters and showed that simple next-token pre-training can transfer to many downstream tasks with surprisingly little architectural customization \citep{Radford2018}. GPT-2 and later work scaled the same basic recipe with larger models and broader data \citep{Radford2019,Brown2020}.
@@ -809,7 +813,7 @@ Equivariance & N/A & Permutation-equivariant until positions (cf. conv translati
 \end{itemize}
 
 \medskip
-\noindent\textbf{What to be able to do.}
+\noindent\textbf{Minimum viable mastery.}
 \begin{itemize}
     \item Compute masked attention for a short sequence and explain why the mask enforces causality.
     \item Explain pre-LN vs.\ post-LN and why residual paths influence optimization stability.
@@ -824,16 +828,19 @@ Equivariance & N/A & Permutation-equivariant until positions (cf. conv translati
 \end{itemize}
 \end{tcolorbox}
 
-\begin{tcolorbox}[summarybox, title={Exercises and lab ideas}]
-\begin{itemize}
-    \item Hand-compute a 2-token attention step with masking; verify against a short script.
-    \item Implement a single-block decoder-only transformer (embed + pos + pre-LN MHA + FFN) and train on a tiny character corpus; report perplexity.
-    \item Compare naive attention vs.\ FlashAttention on \(n \in \{256, 1024, 4096\}\); log peak memory and tokens/s.
-    \item Fine-tune a base model with RoPE vs.\ ALiBi and evaluate extrapolation to 2\(\times\) the training context.
-    \item Implement DPO on a small preference dataset; report win-rates versus the SFT baseline.
-\end{itemize}
+\begin{tcolorbox}[summarybox, title={Exercises}]
+\textbf{Exercise 1 (Easy).} Hand-compute one masked self-attention step for a 3-token prefix. Write the causal mask, compute the attention weights, and compute the output vectors. \\
+\textbf{Deliverable:} the mask matrix + the attention weights (as numbers) + a short note explaining exactly which future tokens were blocked and why.
 
-\medskip
+\smallskip
+\textbf{Exercise 2 (Medium).} Build a tiny decoder-only model for next-token prediction on a small synthetic corpus (or a tiny character corpus) and run a controlled masking experiment: train once with a correct causal mask and once with an incorrect mask that leaks future tokens. \\
+\textbf{Deliverable:} the training curves + one concrete ``cheating'' example that the leaky model can solve but the correctly masked model cannot.
+
+\smallskip
+\textbf{Exercise 3 (Medium).} Verify the representation claim: without positional information, a self-attention block is permutation-equivariant. Test this by permuting token order and checking that outputs permute the same way; then add positional encodings and show the equivariance breaks in the expected way. \\
+\textbf{Deliverable:} one small numerical sanity check (before/after positions) + one paragraph linking the observation to why positional design matters.
+
+\par\medskip
 \noindent\textbf{If you are skipping ahead.} After this chapter, the book pivots away from neural sequence models, so treat this chapter as the last stop for masking discipline and evaluation hygiene. If you need the embedding objectives and bias/deployment checklist, see \Cref{chap:nlp}.
 \end{tcolorbox}
 

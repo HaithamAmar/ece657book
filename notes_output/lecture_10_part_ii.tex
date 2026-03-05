@@ -61,10 +61,14 @@ These values are the local evidence carried by the rule antecedent. The antecede
 
 \paragraph{Aggregation operator:} The combined antecedent membership is obtained by applying a fuzzy logical operator, typically the \emph{minimum} (intersection) or the \emph{product} operator:
 
-\begin{align}
-\mu_{\text{antecedent}}(x_1, \ldots, x_n) &= \min_{i=1}^n \mu_{A_i}(x_i), \quad \text{(min operator)} \label{eq:antecedent_min} \\
-\text{or} \quad \mu_{\text{antecedent}}(x_1, \ldots, x_n) &= \prod_{i=1}^n \mu_{A_i}(x_i). \quad \text{(product operator)} \label{eq:antecedent_prod}
-\end{align}
+\par\noindent
+\begin{equation}
+    \begin{aligned}
+        \mu_{\text{antecedent}}(x_1, \ldots, x_n) &= \min_{i=1}^n \mu_{A_i}(x_i), \qquad \text{(min operator)},\\
+        \mu_{\text{antecedent}}(x_1, \ldots, x_n) &= \prod_{i=1}^n \mu_{A_i}(x_i), \qquad \text{(product operator)}.
+    \end{aligned}
+    \label{eq:antecedent_min}
+\end{equation}
 
 This value quantifies the degree to which the entire antecedent condition is satisfied by the input vector $\mathbf{x} = (x_1, \ldots, x_n)$. More generally, any t\hyp{}norm $T$ can be used in place of the min or product, provided it satisfies the standard properties (commutativity, associativity, monotonicity, and $T(a,1)=a$); the chosen t\hyp{}norm shapes how strictly the rule demands simultaneous satisfaction of all antecedents.
 
@@ -282,12 +286,17 @@ For the thermostat example, Mamdani rules (``IF error is Cold AND rate is Stable
 \end{itemize}
 \end{tcolorbox}
 
-\begin{tcolorbox}[summarybox, title={Exercises and lab ideas}]
-\begin{itemize}
-    \item Implement a Mamdani thermostat with three error labels and two rate labels; experiment with min/product t\hyp{}norms and report the resulting control surfaces.
-    \item Build a Sugeno/TSK variant of the same controller and compare outputs to the Mamdani version under identical test trajectories.
-    \item Evaluate different defuzzification methods (centroid, weighted average, max membership) on a toy rule base and quantify the steady-state error they induce.
-\end{itemize}
+\begin{tcolorbox}[summarybox, title={Exercises}]
+\textbf{Exercise 1 (Easy).} Reproduce the thermostat worked example in code end-to-end: fuzzify, compute firing strengths, apply implication, aggregate, and centroid-defuzzify. \\
+\textbf{Deliverable:} a short table showing the computed \(\mu\)'s and \(\alpha_j\)'s for \(e=-2\), \(r=0.5\), plus the final \(u^\star\) computed by your centroid routine.
+
+\smallskip
+\textbf{Exercise 2 (Medium).} Treat operator choice as a semantic design decision: run the same rule base under max--min vs.\ max--product and show how the output surface changes over \((e,r)\). Audit at least two properties (e.g., monotonicity in \(|e|\) at fixed \(r\), saturation at large \(|e|\), or sensitivity to discretization step size). \\
+\textbf{Deliverable:} two control-surface plots + one paragraph explaining one difference that matters operationally.
+
+\smallskip
+\textbf{Exercise 3 (Medium).} Build a Sugeno/TSK variant of the thermostat controller and compare it against the Mamdani version under identical test trajectories. Focus on interpretability and debugging: explain which variant makes it easier to localize a misbehavior to one rule/parameter. \\
+\textbf{Deliverable:} one trajectory plot (Mamdani vs.\ TSK) + a short debugging note naming the first place you would look when outputs drift.
 
 \medskip
 \noindent\textbf{Fast-track note.} Before moving to \Cref{chap:evo}, keep the same audit discipline: log operator choices, memberships, and evaluation settings so results remain interpretable and reproducible.

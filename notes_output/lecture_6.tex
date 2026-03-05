@@ -447,6 +447,7 @@ This omits batching, convolution strides, and optimizer detail but highlights th
 \end{tcolorbox}
 
 \begin{tcolorbox}[summarybox, title={Key takeaways}]
+\textbf{If you remember only a few things.}
 \begin{itemize}
     \item Convolutions introduce sparse connectivity and parameter sharing, dramatically reducing parameters vs. fully connected layers.
     \item Padding and stride control spatial resolution; pooling aggregates features to build invariances.
@@ -455,7 +456,7 @@ This omits batching, convolution strides, and optimizer detail but highlights th
 \end{itemize}
 
 \medskip
-\noindent\textbf{A good checkpoint.}
+\noindent\textbf{Minimum viable mastery.}
 \begin{itemize}
     \item Given \((n, f, s, p)\), compute output shapes and parameter counts for a convolutional block.
     \item Explain equivariance vs.\ invariance and how stride/pooling/padding affect each.
@@ -473,15 +474,19 @@ This omits batching, convolution strides, and optimizer detail but highlights th
 \noindent\textbf{Ethical considerations.} CNNs are often deployed where mistakes have real cost (medical triage, access control, surveillance). Treat data provenance and slice audits as part of correctness: a high top\hyp{}1 accuracy on a benchmark does not guarantee fair or safe behavior in a new population or capture setup.
 \end{tcolorbox}
 
-\begin{tcolorbox}[summarybox, title={Exercises and lab ideas}]
-\begin{itemize}
-    \item Hand-compute a 1D cross-correlation with several \((n, f, s, p)\) tuples and verify the shapes and values against a small script.
-    \item Compare max-pool + stride 1 vs.\ stride-2 convolutions on a toy dataset; report accuracy and FLOPs.
-    \item Equivariance sanity check: translate an image and confirm intermediate feature maps translate accordingly.
-    \item Train two depth-10 CNNs on a tiny dataset: one plain, one with identity skips; compare convergence and accuracy.
-\end{itemize}
+\begin{tcolorbox}[summarybox, title={Exercises}]
+\textbf{Exercise 1 (Easy).} Do one full shape-and-value sanity check: hand-compute a 1D cross-correlation for a short input and kernel, then verify the output values and shapes against a short script for several \((n,f,s,p)\) settings. \\
+\textbf{Deliverable:} the hand calculation + the matching script output + a one-line rule that predicts the output length.
 
-\medskip
+\smallskip
+\textbf{Exercise 2 (Medium).} Test equivariance vs.\ invariance empirically: translate an image (or a simple synthetic pattern), record an intermediate feature map before pooling/striding, and show how it shifts; then show how pooling/stride changes the behavior. \\
+\textbf{Deliverable:} two feature-map visualizations + one paragraph explaining what information pooling throws away on purpose.
+
+\smallskip
+\textbf{Exercise 3 (Medium).} Compare a plain deep CNN to the same network with identity skips (residual-style). Keep the dataset tiny so you can overfit fast, and treat the experiment as an optimization diagnosis rather than a leaderboard. \\
+\textbf{Deliverable:} training curves for both models + one short explanation linking the difference to gradient flow.
+
+\par\medskip
 \noindent\textbf{If you are skipping ahead.} The optimization and regularization knobs here carry almost unchanged into \Crefrange{chap:rnn}{chap:transformers}; what changes is how context is represented and propagated, not the core loss-minimization discipline.
 \end{tcolorbox}
 

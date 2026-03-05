@@ -594,13 +594,19 @@ This contrast helps position the data-driven chapters that follow, where the sys
 \end{itemize}
 \end{tcolorbox}
 
-\begin{tcolorbox}[summarybox, title={Exercises and lab ideas}]
-\begin{itemize}
-    \item Implement a minimal example from this chapter and visualize intermediate quantities (plots or diagnostics) to match the pseudocode.
-    \item Stress-test a key hyperparameter or design choice discussed here and report the effect on validation performance or stability.
-    \item Re-derive one core equation or update rule by hand and check it numerically against your implementation.
-\end{itemize}
-\medskip
+\begin{tcolorbox}[summarybox, title={Exercises}]
+\textbf{Exercise 1 (Easy).} Implement a small rule set of \emph{safe transformations} (constant extraction, linear substitution, polynomial division). \\
+\textbf{Deliverable:} for each proposed antiderivative \(F\), report a residual check \(F'(x)-f(x)\) on a declared domain.
+
+\smallskip
+\textbf{Exercise 2 (Medium).} Add one heuristic transformation (e.g., integration by parts, a trig identity, or a pattern match) and implement backtracking when a branch stalls. \\
+\textbf{Deliverable:} a trace showing (state, chosen action, backtrack points) on 3 integrals.
+
+\smallskip
+\textbf{Exercise 3 (Medium).} Design one adversarial example where a heuristic rewrite \emph{looks} plausible but fails a domain/branch condition. \\
+\textbf{Deliverable:} the counterexample + the exact check that catches it.
+
+\par\medskip
 \noindent\textbf{If you are skipping ahead.} Keep the pattern vocabulary: safe vs.\ heuristic moves, explicit budgets, and residual/verification checks. The data-driven chapters reuse the same discipline (objective, constraints, and validation) even though the ``actions'' become parameter updates; the fuzzy and evolutionary chapters reuse it again when tuning operators and rule systems under constraints.
 \end{tcolorbox}
 

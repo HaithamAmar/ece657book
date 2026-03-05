@@ -188,23 +188,18 @@ With the conceptual picture fixed, we now run one continuous derivation path fro
 \paragraph{Embedding lookup as a tiny network (shapes).}
 \label{sec:nlp_neural_network_architecture_for_word_embeddings}
 Fix a vocabulary of size \(V\) and an embedding dimension \(d\) (e.g., \(V=10{,}000\), \(d=300\)). A token is an index \(i\in\{1,\ldots,V\}\), represented as a one-hot row vector \(\mathbf{x}\in\{0,1\}^{1\times V}\). The embedding table \(\mathbf{W}\in\mathbb{R}^{V\times d}\) is trainable, and the embedding for the token is the row lookup
-\begin{align}
-    \mathbf{h} &= \mathbf{x}\mathbf{W}\in\mathbb{R}^{1\times d}. \label{eq:hidden_layer}
-\end{align}
+\begin{equation}
+    \begin{aligned}
+        \mathbf{h} &= \mathbf{x}\mathbf{W}\in\mathbb{R}^{1\times d},\\
+        \mathbf{z} &= \mathbf{h}\mathbf{W}_{\text{out}} \in \mathbb{R}^{1\times V},\\
+        \hat{\mathbf{y}}_j &= \frac{\exp(z_j)}{\sum_{k=1}^V \exp(z_k)}, \quad j=1,\ldots, V,\\
+        \mathcal{L} &= - \sum_{j=1}^V y_j \log \hat{y}_j.
+    \end{aligned}
+    \label{eq:hidden_layer}
+\end{equation}
 Because \(\mathbf{x}\) is one-hot, this multiplication selects exactly one row of \(\mathbf{W}\); that is the whole ``embedding lookup'' operation.
 
-To turn the lookup into a prediction task (CBOW or skip-gram), we add output-side vectors \(\mathbf{W}_{\text{out}}\in\mathbb{R}^{d\times V}\) and compute logits
-\begin{align}
-    \mathbf{z} &= \mathbf{h}\mathbf{W}_{\text{out}} \in \mathbb{R}^{1\times V}. \label{eq:output_logits}
-\end{align}
-These logits are passed through a softmax function to produce a probability distribution over the vocabulary:
-\begin{align}
-    \hat{\mathbf{y}}_j = \frac{\exp(z_j)}{\sum_{k=1}^V \exp(z_k)}, \quad j=1,\ldots, V. \label{eq:softmax}
-\end{align}
-Training then minimizes cross\hyp{}entropy (equivalently, negative log-likelihood) against the one-hot target \(\mathbf{y}\):
-\begin{align}
-    \mathcal{L} = - \sum_{j=1}^V y_j \log \hat{y}_j. \label{eq:cross_entropy}
-\end{align}
+To turn the lookup into a prediction task (CBOW or skip-gram), we add output-side vectors \(\mathbf{W}_{\text{out}}\in\mathbb{R}^{d\times V}\), compute logits \(\mathbf{z}\), apply a softmax to get a vocabulary distribution \(\hat{\mathbf{y}}\), and then minimize cross\hyp{}entropy (equivalently, negative log-likelihood) against the one-hot target \(\mathbf{y}\).
 During learning, \(\mathbf{W}\) and \(\mathbf{W}_{\text{out}}\) update so that words that share contexts end up with similar vectors.
 
 \paragraph{Context window and sequential input.}
@@ -259,10 +254,10 @@ where \( \mathbf{x}_{t+j} \) is the one-hot vector for the context word at posit
 
 This hidden representation \( \mathbf{h} \) is then used to predict the target word \( w_t \) via a softmax layer:
 
-\begin{align}
+\begin{equation}
 P(w_t \mid \text{context}) = \frac{\exp(\mathbf{h}\,\mathbf{u}_{w_t})}{\sum_{w=1}^V \exp(\mathbf{h}\,\mathbf{u}_w)}
 \label{eq:cbow-softmax}
-\end{align}
+\end{equation}
 
 where \( \mathbf{u}_w \) is the output vector corresponding to word \( w \).
 It is useful to think of the set of output vectors as the \emph{columns} of a second matrix \(\mathbf{W}_{\text{out}} \in \mathbb{R}^{d \times V}\); although \(\mathbf{W}_{\text{out}}\) often starts as a copy of \(\mathbf{W}^\top\), the two sets of embeddings are optimized independently during training. Many modern implementations optionally \emph{tie} these matrices so that \(\mathbf{W}_{\text{out}}=\mathbf{W}^\top\), reducing parameters and encouraging symmetry between input and output spaces.
@@ -288,10 +283,10 @@ The input is the one-hot vector \( \mathbf{x}_t \) representing the center word,
 
 Each context word \( w_{t+j} \) is predicted by applying a softmax over the output vectors (again using the output-embedding matrix \(\mathbf{W}_{\text{out}}\)):
 
-\begin{align}
+\begin{equation}
 P(w_{t+j} \mid w_t) = \frac{\exp(\mathbf{h}\,\mathbf{u}_{w_{t+j}})}{\sum_{w=1}^V \exp(\mathbf{h}\,\mathbf{u}_w)}
 \label{eq:skipgram-softmax}
-\end{align}
+\end{equation}
 
 where \( \mathbf{u}_w \) are the output vectors as before.
 
@@ -475,11 +470,13 @@ Taking logarithms on both sides and absorbing the (word-specific) normalizer int
 where \( b_i \) and \( b_k \) are bias terms associated with words \( w_i \) and \( w_k \), respectively. These biases account for the overall frequency or importance of each word while implicitly capturing the effect of \(Z_i\).
 
 \paragraph{Derivation:} Starting from the co-occurrence counts,
-\begin{align}
+\begin{equation}
+\begin{aligned}
     \log X_{ik} - \log X_i &= \log \frac{X_{ik}}{X_i} = \log P(k|i) \\
     &\approx \mathbf{v}_i\,\mathbf{u}_k + b_i + b_k.
-    \label{eq:log_xik}
-\end{align}
+\end{aligned}
+\label{eq:log_xik}
+\end{equation}
 
 This equation suggests that the log co-occurrence counts can be approximated by a bilinear form plus biases.
 
@@ -655,14 +652,19 @@ This chapter has developed word-embedding models from co-occurrence statistics, 
 \end{itemize}
 \end{tcolorbox}
 
-\begin{tcolorbox}[summarybox, title={Exercises and lab ideas}]
-\begin{itemize}
-    \item Implement a minimal example from this chapter and visualize intermediate quantities (plots or diagnostics) to match the pseudocode.
-    \item Stress-test a key hyperparameter or design choice discussed here and report the effect on validation performance or stability.
-    \item Re-derive one core equation or update rule by hand and check it numerically against your implementation.
-\end{itemize}
+\begin{tcolorbox}[summarybox, title={Exercises}]
+\textbf{Exercise 1 (Easy).} Train a small skip\hyp{}gram (negative sampling) embedding model on a modest corpus and audit the geometry: nearest neighbors, cosine similarity, and one analogy-style probe (even if it fails). \\
+\textbf{Deliverable:} three neighbor lists + one short note explaining one neighbor that surprised you (and what it says about distributional meaning).
 
-\medskip
+\smallskip
+\textbf{Exercise 2 (Medium).} Compare two embedding objectives on the same corpus: a local-window method (word2vec-style) and a global method (GloVe-style or a matrix-factorization baseline). Focus on what changes \emph{qualitatively}: which words move, which neighborhoods stabilize, and which analogies become more/less consistent. \\
+\textbf{Deliverable:} one side-by-side neighborhood comparison + one paragraph explaining the difference as an objective/weighting effect.
+
+\smallskip
+\textbf{Exercise 3 (Medium).} Run one bias audit and treat it as an engineering check, not a headline: pick a simple test (e.g., WEAT-style, neighborhood bias, or projection tests), then try one mitigation (corpus filtering, re-weighting, or a debiasing transform) and report what it changes and what it does not. \\
+\textbf{Deliverable:} the bias score(s) before/after + one paragraph stating a limitation of your chosen test.
+
+\par\medskip
 \noindent\textbf{If you are skipping ahead.} You can treat embeddings as feature vectors for any downstream model, but the audit mindset matters: log your corpus choices and evaluation splits so that later ``fairness'' or calibration conclusions have context.
 \end{tcolorbox}
 

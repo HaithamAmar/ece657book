@@ -265,14 +265,16 @@ Using \eqref{eq:energy_function}, write out the energies explicitly:
 \end{align*}
 
 Since only \( s_i \) changes, and weights are symmetric with zero diagonal \( w_{ii} = 0 \), the difference simplifies to
-\begin{align}
-    \Delta E &= E_{\text{new}} - E_{\text{old}} \nonumber \\
-    &= -\frac{1}{2} \sum_{j=1}^N \left( w_{ij} s_i^{\text{new}} s_j + w_{ji} s_j s_i^{\text{new}} \right) + \theta_i s_i^{\text{new}} \nonumber \\
-    &\quad + \frac{1}{2} \sum_{j=1}^N \left( w_{ij} s_i^{\text{old}} s_j + w_{ji} s_j s_i^{\text{old}} \right) - \theta_i s_i^{\text{old}} \nonumber \\
-    &= - \sum_{j=1}^N w_{ij} s_j \left( s_i^{\text{new}} - s_i^{\text{old}} \right) + \theta_i \left( s_i^{\text{new}} - s_i^{\text{old}} \right) \nonumber \\
+\begin{equation}
+\begin{aligned}
+    \Delta E &= E_{\text{new}} - E_{\text{old}} \\
+    &= -\frac{1}{2} \sum_{j=1}^N \left( w_{ij} s_i^{\text{new}} s_j + w_{ji} s_j s_i^{\text{new}} \right) + \theta_i s_i^{\text{new}} \\
+    &\quad + \frac{1}{2} \sum_{j=1}^N \left( w_{ij} s_i^{\text{old}} s_j + w_{ji} s_j s_i^{\text{old}} \right) - \theta_i s_i^{\text{old}} \\
+    &= - \sum_{j=1}^N w_{ij} s_j \left( s_i^{\text{new}} - s_i^{\text{old}} \right) + \theta_i \left( s_i^{\text{new}} - s_i^{\text{old}} \right) \\
     &= - \left( s_i^{\text{new}} - s_i^{\text{old}} \right) \left( \sum_{j=1}^N w_{ij} s_j - \theta_i \right).
-    \label{eq:deltaE}
-\end{align}
+\end{aligned}
+\label{eq:deltaE}
+\end{equation}
 
 Define the \emph{local field} \( h_i \) at neuron \( i \) as
 \begin{equation}
@@ -557,14 +559,19 @@ You will almost never deploy a classical Hopfield net as-is (capacity and spurio
 \end{itemize}
 \end{tcolorbox}
 
-\begin{tcolorbox}[summarybox, title={Exercises and lab ideas}]
-\begin{itemize}
-    \item Implement asynchronous recall for bipolar states with symmetric \(W\) and \(w_{ii}=0\). Plot energy vs.\ update step and verify it never increases.
-    \item Store \(P\) random patterns with Hebbian weights. Use a fixed random seed and a fixed corruption protocol: pick one pattern \(\mathbf{\xi}^\mu\), flip \(k\) bits uniformly at random, then run asynchronous updates for a fixed budget (or until no flips occur). Sweep \(P/N\) and corruption level \(k\); plot both energy \(E(\mathbf{s}(t))\) and overlap \(m^{(\mu)}(\mathbf{s}(t))\) versus step, and report when spurious attractors become common.
-    \item Construct (or search for) a small example where synchronous updates enter a 2-cycle; compare with asynchronous updates from the same initial state.
-\end{itemize}
+\begin{tcolorbox}[summarybox, title={Exercises}]
+\textbf{Exercise 1 (Easy).} Implement asynchronous recall for bipolar states with symmetric \(W\) and \(w_{ii}=0\). Verify empirically that energy never increases during recall. \\
+\textbf{Deliverable:} one energy\hyp{}vs\hyp{}step plot + a one-sentence statement of the exact update rule you used.
 
-\medskip
+\smallskip
+\textbf{Exercise 2 (Medium).} Treat capacity as an engineering parameter: store \(P\) random patterns with Hebbian weights, corrupt one pattern by flipping \(k\) bits, and run recall. Sweep \(P/N\) and \(k\); report when spurious attractors become common by tracking both energy and overlap \(m^{(\mu)}\). \\
+\textbf{Deliverable:} an overlap summary plot over the sweep + one short conclusion about what ``overloading'' looks like empirically.
+
+\smallskip
+\textbf{Exercise 3 (Medium).} Find a small case where synchronous updates enter a 2-cycle (or fail to converge cleanly), then rerun from the same initial state with asynchronous updates. \\
+\textbf{Deliverable:} a state/energy trace showing the cycle + a short explanation of why the asynchronous regime is easier to reason about.
+
+\par\medskip
 \noindent\textbf{If you are skipping ahead.} The key transferable idea is the combination of a state update rule with a scalar quantity that tracks progress (energy, loss, or validation curves). That mindset carries into deep training in \Crefrange{chap:mlp}{chap:cnn}.
 \end{tcolorbox}
 

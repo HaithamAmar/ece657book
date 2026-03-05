@@ -40,8 +40,7 @@ pandoc \
   notes_output/lecture_10_part_ii.tex \
   notes_output/lecture_11.tex \
   notes_output/notation.tex \
-  notes_output/appendix_linear_systems.tex \
-  notes_output/appendix_logistics.tex
+  notes_output/appendix_linear_systems.tex
 ```
 
 Optional flags:

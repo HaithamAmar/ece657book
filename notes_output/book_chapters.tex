@@ -131,6 +131,6 @@ and test edge cases numerically before you tune aesthetics.
   \item Operators (selection, crossover, mutation) encode exploration vs.\ exploitation; tune them against variance across runs.
   \item Constraints and multi-objectives are first-class: define feasibility and trade-offs before optimizing.
   \item Report reproducibly: seeds, multiple runs, and distributions matter more than a single best trajectory.
-  \item \textbf{Unifying lens:} this Part fixes the representation and feedback signal, and the rest is choosing an update rule plus audits that prevent silent failure.
+  \item \textbf{Unifying lens:} this Part removes the gradient and asks what discipline is needed when feedback is noisy, sparse, or available only as a fitness rank.
 \end{itemize}
 \end{tcolorbox}

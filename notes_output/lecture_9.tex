@@ -897,10 +897,14 @@ Constructing fuzzy sets with appropriate membership functions is a challenging t
 \paragraph{Definitions}
 
 Given a fuzzy set \( A \) with membership function \(\mu_A(x)\), we introduce two non-negative shape parameters constrained to \(\alpha\ge 1\) (dilation gain) and \(\beta\ge 1\) (contraction gain) so that the resulting hedges behave monotonically:
-\begin{align}
-\text{Dilation:} \quad & \mu_{A^{(d)}}(x) = \big(\mu_A(x)\big)^{1/\alpha}, \quad \alpha \geq 1, \label{eq:dilation} \\
-\text{Contraction:} \quad & \mu_{A^{(c)}}(x) = \big(\mu_A(x)\big)^{\beta}, \quad \beta \geq 1. \label{eq:contraction}
-\end{align}
+
+\begin{equation}
+\mu_{A^{(d)}}(x) = \big(\mu_A(x)\big)^{1/\alpha}, \qquad \alpha \geq 1 \quad \text{(dilation).}
+\end{equation}\label{eq:dilation}
+
+\begin{equation}
+\mu_{A^{(c)}}(x) = \big(\mu_A(x)\big)^{\beta}, \qquad \beta \geq 1 \quad \text{(contraction).}
+\end{equation}\label{eq:contraction}
 Using separate symbols \(\alpha\) and \(\beta\) avoids the notational clash that occurs when a single parameter \(k\) is forced to satisfy both \(0<k\leq 1\) (for dilation) and \(k \geq 1\) (for contraction). In some references these two operations are also called \emph{expansion} and \emph{narrowing}; we treat the terms as synonyms.
 
 Note that:
@@ -1177,13 +1181,17 @@ Practical tip: libraries such as \texttt{scikit-fuzzy} provide a tested \texttt{
 \end{itemize}
 \end{tcolorbox}
 
-\begin{tcolorbox}[summarybox, title={Exercises and lab ideas}]
-\begin{itemize}
-    \item Define fuzzy labels for a new universe (e.g., vehicle speed); sketch overlapping memberships and compute degrees for 3 sample points.
-    \item Using two different t\hyp{}norm/s\hyp{}norm pairs, compute the union/intersection of two fuzzy sets at specific points; comment on differences.
-    \item Write memberships for the thermostat error/rate variables (triangular or trapezoidal) and evaluate them at a few inputs.
-    \item Plot overlapping memberships using the provided snippet; adjust parameters to see how overlap changes.
-\end{itemize}
+\begin{tcolorbox}[summarybox, title={Exercises}]
+\textbf{Exercise 1 (Easy).} Define 3--5 fuzzy labels for a new universe (e.g., vehicle speed, battery state of charge, or network latency). Compute membership degrees for three sample points and explain one design choice (coverage, overlap, or saturation). \\
+\textbf{Deliverable:} the membership definitions + the three computed degree vectors + one sentence justifying your overlap.
+
+\smallskip
+\textbf{Exercise 2 (Medium).} Compare semantics, not just formulas: pick two t\hyp{}norm/s\hyp{}norm pairs (e.g., max--min vs.\ max--product) and compute union/intersection at several points. Interpret the numerical differences as different meanings of ``AND'' and ``OR.'' \\
+\textbf{Deliverable:} a small pointwise table + one paragraph explaining which pair is more strict/lenient and in what sense.
+
+\smallskip
+\textbf{Exercise 3 (Medium).} Run a units/scale audit: take one set of membership functions and rescale the universe (change units or normalize), then show what must be adjusted so that behavior remains consistent downstream. \\
+\textbf{Deliverable:} before/after plots (or parameter tables) + one paragraph describing how scale mistakes create controllers that ``never fire'' or ``always saturate.''
 
 \medskip
 \noindent\textbf{Fast-track note.} Later fuzzy chapters build directly on these primitives. If rule outputs become unstable, revisit universe scaling and membership overlap first.

@@ -47,12 +47,12 @@ We observe a dataset \(\mathcal D = \{(\mathbf{x}_i, y_i)\}_{i=1}^N\) drawn inde
 The \emph{population risk} and \emph{empirical risk} associated with \(h_\theta\) are
 
 \begin{equation}
-    \begin{aligned}
-        R(h_\theta) &= \mathbb{E}_{(\mathbf{x}, y)\sim \mathcal P}\big[\ell\big(h_\theta(\mathbf{x}), y\big)\big],\\
-        \hat R_N(h_\theta) &= \frac{1}{N} \sum_{i=1}^N \ell\big(h_\theta(\mathbf{x}_i), y_i\big).
-    \end{aligned}
-\end{equation}
+\begin{aligned}
+    R(h_\theta) &= \mathbb{E}_{(\mathbf{x}, y)\sim \mathcal P}\big[\ell\big(h_\theta(\mathbf{x}), y\big)\big],\\
+    \hat R_N(h_\theta) &= \frac{1}{N} \sum_{i=1}^N \ell\big(h_\theta(\mathbf{x}_i), y_i\big).
+\end{aligned}
 \label{eq:population_and_empirical_risk}
+\end{equation}
 Because \(\mathcal P\) is unknown, learning algorithms minimize empirical proxies of \(R(h_\theta)\). We posit a model family \(h_\theta\) and use data to choose parameter values that make its predictions behave like the measured input--output pairs. In practice we do this on a \emph{training set} (the data used to fit parameters), and we reserve held-out data to check whether the fitted model is trustworthy; \Cref{sec:lec1_model_selection} makes these evaluation protocols precise. Audit is not an external add-on: in engineering terms, it is part of the model contract.
 
 \subsection{Fitting, Overfitting, and Underfitting}
@@ -649,7 +649,7 @@ Ridge adds \(\lambda\|\boldsymbol{\beta}\|_2^2\) to the objective, shrinking coe
 \textbf{Exercise 3 (Easy).} Demonstrate leakage by fitting preprocessing on the full dataset (incorrect) vs.\ training split only (correct). \\
 \textbf{Deliverable:} the test error gap + a one-paragraph explanation of why the error is not ``real performance.''
 
-\medskip
+\par\medskip
 \noindent\textbf{If you are skipping ahead.} Keep the ERM loop and split hygiene close: model class, loss/regularizer, optimizer, and a clean train/val/test protocol. Those ideas are assumed immediately in \Cref{chap:logistic} and reused throughout the neural chapters.
 \end{tcolorbox}
 

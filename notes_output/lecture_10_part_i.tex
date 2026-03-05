@@ -616,11 +616,33 @@ Start with max--min when safety and monotonicity matter; its outputs stay within
 The choice of composition operator therefore follows a practical rule: begin with max--min for its interpretability and stability, and reach for the alternatives catalogued in \Cref{tab:tnorms} only when the application demands smoother or more aggressive aggregation.
 
 \begin{tcolorbox}[summarybox, title={Key takeaways}]
-This chapter establishes the transfer machinery used by inference: move labels across universes with the extension principle, handle many-to-one mappings with sup aggregation, and keep operator choices consistent across composition, projection, and complement. When debugging, check domain feasibility first, then preimage aggregation, then operator consistency; most silent errors come from one of those three.
+\textbf{Minimum viable mastery.}
+\begin{itemize}
+    \item Apply the extension principle to move a fuzzy set through a mapping (and state the domain assumptions explicitly).
+    \item Compute one sup--\(T\) composition end-to-end and explain where \(\sup\) (aggregation) and \(T\) (conjunction strength) enter.
+    \item Choose an operator family once (t\hyp{}norm/s\hyp{}norm/complement) and carry it consistently through composition, projection, and aggregation.
+\end{itemize}
+
+\medskip
+\noindent\textbf{Common pitfalls.}
+\begin{itemize}
+    \item Mixing operator defaults across steps and then trying to ``debug'' the surface after the fact.
+    \item Losing track of universes/units so the transfer is computed on the wrong domain.
+    \item Treating smoother alternatives as ``better'' by default: they change semantics, not just aesthetics.
+\end{itemize}
 \end{tcolorbox}
 
-\begin{tcolorbox}[summarybox, title={Exercises and lab ideas}]
-Run one many-to-one transfer (e.g., \(y=x^2\)) and one constrained-domain transfer, then verify one reported membership value from code.
+\begin{tcolorbox}[summarybox, title={Exercises}]
+\textbf{Exercise 1 (Easy).} Build a tiny fuzzy relation \(R(X,Y)\) on a discrete grid and compute both projections: ``what \(Y\) is plausible given \(X\)'' and ``what \(X\) is plausible given \(Y\).'' \\
+\textbf{Deliverable:} the relation table + both projected fuzzy sets + one sentence interpreting each projection.
+
+\smallskip
+\textbf{Exercise 2 (Medium).} Compute one sup--\(T\) composition end-to-end for two relations under max--min and under max--product. Treat the comparison as a semantics question: what changes when conjunction is ``bottleneck'' vs.\ ``multiplicative''? \\
+\textbf{Deliverable:} the composed relation under both choices + a short explanation of one entry that differs and why.
+
+\smallskip
+\textbf{Exercise 3 (Medium).} Apply the extension principle to a many-to-one mapping (e.g., \(y=x^2\)) under a constrained domain and show how the constraint changes the transferred membership. \\
+\textbf{Deliverable:} a small numerical check (a few membership values) + one paragraph naming the implicit assumption you are making about admissible pre-images.
 \end{tcolorbox}
 
 \paragraph{Where we head next.} \Cref{chap:fuzzyinference} operationalizes these relation tools: each rule induces a fuzzy relation on input-output space, then sup-$T$ composition and projection produce the implied output set before aggregation and defuzzification. The same defaults (max--min with standard complement) carry over, as summarized in \eqref{eq:antecedent_min}--\eqref{eq:output_aggregation}.

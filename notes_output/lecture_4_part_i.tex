@@ -43,12 +43,12 @@ Consider a multi-layer perceptron with layers indexed by $l = 0, 1, \ldots, L$, 
 The forward pass through the network is given by:
 
 \begin{equation}
-    \begin{aligned}
-        z_j^{(l)} &= \sum_i a_i^{(l-1)} w_{ij}^{(l)} + b_j^{(l)},\\
-        a_j^{(l)} &= f\big(z_j^{(l)}\big).
-    \end{aligned}
-\end{equation}
+\begin{aligned}
+    z_j^{(l)} &= \sum_i a_i^{(l-1)} w_{ij}^{(l)} + b_j^{(l)},\\
+    a_j^{(l)} &= f\big(z_j^{(l)}\big).
+\end{aligned}
 \label{eq:forward_pass}
+\end{equation}
 where $b_j^{(l)}$ is the bias term for neuron $j$ in layer $l$, and $f(\cdot)$ is the activation function, typically nonlinear (e.g., sigmoid, ReLU). Equation~\eqref{eq:forward_pass} makes it explicit that we sum over every incoming neuron $i$ in layer $l-1$ to form the affine pre-activation $z_j^{(l)}$.
 
 \subsection{Loss and Objective}
@@ -202,12 +202,14 @@ a_k^{(L)} = f\big(z_k^{(L)}\big),
 where \(f(\cdot)\) is the activation function.
 
 The error term for output neuron \( k \) is
-\begin{align}
+\begin{equation}
+\begin{aligned}
 \delta_k^{(L)} &= \frac{\partial \mathcal{L}}{\partial z_k^{(L)}} \\
 &= \frac{\partial \mathcal{L}}{\partial a_k^{(L)}} \frac{\partial a_k^{(L)}}{\partial z_k^{(L)}} \\
 &= \big(a_k^{(L)} - t_k\big) \, f'\big(z_k^{(L)}\big),
+\end{aligned}
 \label{eq:delta_output}
-\end{align}
+\end{equation}
 where \(f'\) denotes the derivative of the activation function evaluated element-wise. With squared error, this is the
 entire story: \(\partial \mathcal{L}/\partial a_k^{(L)} = a_k^{(L)}-t_k\), and the chain rule contributes the extra
 \(f'(z_k^{(L)})\) factor.
@@ -221,12 +223,14 @@ carrying an additional \(f'(z)\) term in the output\hyp{}layer learning signal.
 \label{sec:backprop_hidden_layer_error_terms_sub}
 
 For a hidden neuron \( j \) in layer \( l \), the error term \(\delta_j^{(l)}\) depends on the error terms of the neurons in the next layer \( l+1 \) to which it connects. Using the chain rule,
-\begin{align}
+\begin{equation}
+\begin{aligned}
 \delta_j^{(l)} &= \frac{\partial \mathcal{L}}{\partial z_j^{(l)}} \\
 &= \sum_{k} \frac{\partial \mathcal{L}}{\partial z_k^{(l+1)}} \frac{\partial z_k^{(l+1)}}{\partial z_j^{(l)}} \\
 &= \sum_{k} \delta_k^{(l+1)} \frac{\partial z_k^{(l+1)}}{\partial z_j^{(l)}}.
+\end{aligned}
 \label{eq:delta_hidden_chain}
-\end{align}
+\end{equation}
 
 Since
 \[
@@ -773,10 +777,11 @@ Define the error signal at layer \(l\) as:
 Then the chain rule gives a reusable backward recursion:
 \begin{equation}
 \begin{aligned}
-\boldsymbol{\delta}^{(L)} &= \nabla_{\mathbf{A}^{(L)}} \mathcal{L} \odot f^{(L)\prime}(\mathbf{Z}^{(L)}), \\
-\boldsymbol{\delta}^{(l-1)} &= \left(\boldsymbol{\delta}^{(l)}(\mathbf{W}^{(l)})^\top\right) \odot f^{(l-1)\prime}(\mathbf{Z}^{(l-1)}), \quad l = L, \ldots, 2,
+    \boldsymbol{\delta}^{(L)} &= \nabla_{\mathbf{A}^{(L)}} \mathcal{L} \odot f^{(L)\prime}(\mathbf{Z}^{(L)}), \\
+    \boldsymbol{\delta}^{(l-1)} &= \left(\boldsymbol{\delta}^{(l)}(\mathbf{W}^{(l)})^\top\right) \odot f^{(l-1)\prime}(\mathbf{Z}^{(l-1)}), \quad l = L, \ldots, 2,
 \end{aligned}
-\end{equation}\label{eq:backprop_delta_recursion}
+\label{eq:backprop_delta_recursion}
+\end{equation}
 where \(\odot\) denotes element-wise multiplication and \(f^{(l)\prime}\) is the derivative of the activation function at layer \( l \).
 
 Finally, turn those \(\delta\)'s into parameter gradients:
@@ -786,7 +791,8 @@ Finally, turn those \(\delta\)'s into parameter gradients:
         \frac{\partial \mathcal{L}}{\partial \mathbf{W}^{(l)}} &= (\mathbf{A}^{(l-1)})^\top \boldsymbol{\delta}^{(l)},\\
         \frac{\partial \mathcal{L}}{\partial \mathbf{b}^{(l)}} &= \mathbf{1}^\top \boldsymbol{\delta}^{(l)}.
     \end{aligned}
-\end{equation}\label{eq:backprop_param_grads}
+    \label{eq:backprop_param_grads}
+\end{equation}
 If your loss is defined as a mean over the batch, divide these batch sums by \(B\); the shape ledger earlier in the chapter uses that mean convention.
 
 These equations are the whole story: cache forward values, propagate \(\delta\)'s backward, then assemble gradients. \Cref{fig:lec4_backprop_flow} complements the algebra by showing how cached activations (forward arrows) line up with backward error signals in a simple two-layer network.
@@ -859,12 +865,16 @@ This matches the matrix-form recap: the forward pass produces activations and ca
 \end{tcolorbox}
 
 \begin{tcolorbox}[summarybox, title={Exercises}]
-\begin{itemize}
-    \item \textbf{A full trace on paper:} pick a tiny network and write out the forward values and \(\delta\)'s by hand, then match them against a short script.
-    \item \textbf{Finite differences:} implement a gradient check for one layer and report the worst relative error; track down the first mismatch.
-    \item \textbf{Activation choice:} run the same task with sigmoid/tanh/ReLU and compare gradient norms by layer; relate what you see to \Cref{fig:lec4-activations}.
-    \item \textbf{Early stopping:} train until overfitting is visible, then add early stopping and report how the best checkpoint changes.
-\end{itemize}
+\textbf{Exercise 1 (Easy).} For the pseudocode box above, write the \emph{cache contract}: list exactly what must be stored during the forward pass so the backward pass can be computed without re-running forward computations. \\
+\textbf{Deliverable:} a one-page ``shape + cache ledger'' (names, shapes, and where each cached tensor is used).
+
+\smallskip
+\textbf{Exercise 2 (Medium).} Implement the 2-layer MLP train step (forward + backward) and run a finite-difference gradient check on a tiny batch. Use the same loss convention as the chapter (mean over batch) and report the worst relative error across parameters. \\
+\textbf{Deliverable:} the max relative error + the first bug you found (transpose, batch scaling, or a cached value) and how you diagnosed it.
+
+\smallskip
+\textbf{Exercise 3 (Medium).} Create a controlled ``gradient flow'' stress test: keep the dataset fixed and vary only (i) activation (sigmoid/tanh/ReLU) and (ii) initialization scale. Track per-layer gradient norms over the first 50 updates and relate the curves to the saturation/derivative picture in \Cref{fig:lec4-activations}. \\
+\textbf{Deliverable:} one plot of gradient norms by layer + one paragraph explaining which failure mode you observed (vanishing, exploding, or silent plateaus) and why.
     \end{tcolorbox}
     \medskip
     \noindent\textbf{If you are jumping chapters.} Keep one habit: run a tiny gradient check before scaling up.

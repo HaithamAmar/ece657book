@@ -106,9 +106,9 @@ Vectors of candidate solutions are written as \(\mathbf{x}\), objective values a
 
 Consider an optimization problem where the goal is to find an input vector \( \mathbf{x} \in \mathbb{R}^n \) that minimizes (or maximizes) a given objective function \( J: \mathbb{R}^n \to \mathbb{R} \). Formally, we want to solve
 
-\begin{align}
+\begin{equation}
     \mathbf{x}^* = \arg \min_{\mathbf{x} \in \mathcal{D}} J(\mathbf{x}), \label{eq:optimization_problem}
-\end{align}
+\end{equation}
 
 where \(\mathcal{D} \subseteq \mathbb{R}^n\) is the feasible domain incorporating any bound, equality, or inequality constraints required by the application.
 
@@ -302,10 +302,10 @@ During reproduction, offspring inherit genes from parents via crossover and muta
 \paragraph{Modeling the Genetic Operations}
 
 Let \(\mathbf{p}_1\) and \(\mathbf{p}_2\) be parent chromosomes. The offspring chromosome \(\mathbf{o}\) is formed by combining segments from \(\mathbf{p}_1\) and \(\mathbf{p}_2\) according to a crossover pattern, and then applying mutation:
-\begin{align}
+\begin{equation}
     \mathbf{o} = \text{Mutate}\big(\text{Crossover}(\mathbf{p}_1, \mathbf{p}_2, \mathbf{u})\big).
     \label{eq:evo_offspring_from_parents}
-\end{align}
+\end{equation}
 
 The crossover operator selects which genes come from which parent, often modeled by a binary mask \(\mathbf{u}\in\{0,1\}^L\), where
 \[
@@ -507,10 +507,10 @@ selection rules you can audit and tune.
 Given a population of $N$ chromosomes, each chromosome $i$ has an associated fitness value $f_i$. The fitness function quantifies the quality of the solution represented by the chromosome.
 
 A common approach to selection is to assign each chromosome a probability of being chosen proportional to its fitness. This can be expressed as:
-\begin{align}
+\begin{equation}
     p_i = \frac{f_i}{\sum_{j=1}^N f_j}, \quad i=1,2,\ldots, N,
     \label{eq:selection_probability}
-\end{align}
+\end{equation}
 where $p_i$ is the probability that chromosome $i$ is selected.
 
 \paragraph{Practical note (fitness scaling).}
@@ -557,10 +557,10 @@ When fitness values are close or vary widely, roulette wheel selection may not p
 \end{enumerate}
 
 A simple linear ranking scheme is:
-\begin{align}
+\begin{equation}
     p(r_i) = \frac{2 - s}{N} + \frac{2(r_i - 1)(s - 1)}{N(N - 1)},
     \label{eq:linear_ranking}
-\end{align}
+\end{equation}
 where $s \in [1,2]$ controls selection pressure. When $s=1$, all chromosomes have equal probability; when $s=2$, the best chromosome has twice the average probability.
 
 \paragraph{Elitism}
@@ -1149,12 +1149,17 @@ When two or more objectives conflict, we seek a set of Pareto-optimal solutions 
 \noindent\textbf{Ethical considerations.} Evolutionary search will exploit whatever you write down as fitness. If the objective is a proxy for the real goal, the optimizer can ``win'' in ways you did not intend (metric gaming, unsafe corner solutions, hidden constraint violations). Treat objective design and constraint auditing as part of system safety, not as afterthoughts.
 \end{tcolorbox}
 
-\begin{tcolorbox}[summarybox, title={Exercises and lab ideas}]
-\begin{itemize}
-    \item Implement a simple GA for $f(x)=\cos(5\pi x)\exp(-x^2)$, experimenting with penalty vs.\ repair strategies for the $[0,0.5]$ constraint.
-    \item Prototype a CMA-ES or Differential Evolution solver on a noisy Rosenbrock function and compare convergence traces against the canonical GA.
-    \item Build a tiny GP to rediscover a closed-form expression (e.g., $y = x^3 + x$) from samples; report how often crossover/mutation produce valid programs.
-\end{itemize}
+\begin{tcolorbox}[summarybox, title={Exercises}]
+\textbf{Exercise 1 (Easy).} Turn the chapter's one-generation trace into a reproducible unit test: implement the exact selection/crossover/mutation steps used in \Cref{tab:ga-toy} and verify that your code reproduces the same intermediate population (parents chosen, offspring produced, and replacement). \\
+\textbf{Deliverable:} a step-by-step table matching \Cref{tab:ga-toy} + one sentence explaining what would make such a trace \emph{non-reproducible}.
+
+\smallskip
+\textbf{Exercise 2 (Medium).} Study selection pressure vs.\ diversity on a multi-modal 1D objective (any bounded interval): run tournament selection with several tournament sizes (or roulette vs.\ tournament) under a fixed evaluation budget. Track both best fitness and a diversity proxy (e.g., genotype variance or number of unique individuals). \\
+\textbf{Deliverable:} best-fitness curves (median over seeds) + one diversity plot + a short conclusion about when the GA ``wins'' by collapsing diversity too early.
+
+\smallskip
+\textbf{Exercise 3 (Medium).} Compare constraint handling strategies under the same fitness-call budget: penalty vs.\ feasibility-first selection (or repair). Use a constrained objective where the unconstrained optimum is infeasible so the difference is visible. \\
+\textbf{Deliverable:} a plot of feasibility rate over generations + the best feasible fitness over time + one paragraph explaining what your constraint strategy is implicitly prioritizing.
 
 \medskip
 \noindent\textbf{Fast-track note.} This chapter is largely self-contained. If you revisit earlier model chapters, keep the common thread explicit: each method still needs a clear objective, a diagnostic that exposes failure, and a reporting protocol that survives replication.

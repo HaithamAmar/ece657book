@@ -333,7 +333,8 @@ For a given input \(\mathbf{x}\), each neuron computes a similarity score. Two c
         y_i &= \mathbf{w}_i^\top \mathbf{x} \qquad &&\text{(dot-product similarity)},\\
         d_i &= \|\mathbf{x} - \mathbf{w}_i\|_2^2 \qquad &&\text{(squared Euclidean distance)}.
     \end{aligned}
-\end{equation}\label{eq:som_similarity_measures}
+    \label{eq:som_similarity_measures}
+\end{equation}
 In both expressions \(\mathbf{w}_i\) and \(\mathbf{x}\) are column vectors, so \( \mathbf{w}_i^\top \mathbf{x}\) is a scalar similarity score while \(d_i\) computes the squared Euclidean distance.
 
 When using dot products we select the neuron with the maximum \(y_i\); when using distances we equivalently select the neuron with the minimum \(d_i\) (or the maximum of \(-d_i\)):
@@ -1111,11 +1112,13 @@ This function ensures that neurons closer to the winning neuron receive larger u
 \paragraph{Time-Dependent Parameters}
 
 Both the learning rate \(\alpha(t)\) and neighborhood radius \(\sigma(t)\) decrease over time, typically following exponential decay laws:
-\begin{align}
+\begin{equation}
+\begin{aligned}
     \alpha(t) &= \alpha_0 \exp\left(-\frac{t}{\tau_\alpha}\right), \\
     \sigma(t) &= \sigma_0 \exp\left(-\frac{t}{\tau_\sigma}\right),
-    \label{eq:decay_parameters}
-\end{align}
+\end{aligned}
+\label{eq:decay_parameters}
+\end{equation}
 where \(\alpha_0\) and \(\sigma_0\) are initial values, and \(\tau_\alpha, \tau_\sigma\) are time constants controlling the decay rates.
 
 \paragraph{Summary of the Six Learning Steps}
@@ -1243,14 +1246,18 @@ Tracking both metrics reveals whether the neighborhood decay is too slow (over-s
 \end{tcolorbox}
 
 \begin{tcolorbox}[summarybox, title={Exercises}]
-\begin{itemize}
-    \item Train a \(10\times 10\) SOM on handwritten digits (MNIST) and plot component planes; report quantization/topographic errors as training progresses.
-    \item Implement the six-step SOM procedure with both Gaussian and rectangular neighborhood functions and compare convergence speed.
-    \item Visualize the effect of annealing schedules by freezing the learning rate and neighborhood radius at different epochs and observing the resulting U-Matrix.
-    \item Compare SOM prototypes to K-means centers on the same dataset; sweep \((\sigma(t))\) schedules and map sizes; report QE/TE and a trustworthiness@k measure.
-\end{itemize}
+\textbf{Exercise 1 (Easy).} Train a small SOM on a simple 2D dataset where geometry is visible (two clusters, a ring, or a Swiss-roll projection). Visualize the grid and how input points map to BMUs; then plot the U\hyp{}matrix. \\
+\textbf{Deliverable:} the mapping plot + the U\hyp{}matrix + one paragraph explaining what the U\hyp{}matrix is revealing.
 
-\medskip
+\smallskip
+\textbf{Exercise 2 (Medium).} Train a \(10\times 10\) SOM on a higher-dimensional dataset (e.g., MNIST). Track QE and TE during training and show how input normalization and neighborhood annealing change both metrics. \\
+\textbf{Deliverable:} QE/TE curves + one set of component-plane plots + one concrete failure mode you observed (tearing, collapse, or loss of topology).
+
+\smallskip
+\textbf{Exercise 3 (Medium).} Compare SOM prototypes to K\hyp{}means centers on the same dataset. Treat the comparison as a question about \emph{what is being optimized}: clustering distortion vs.\ topology preservation. \\
+\textbf{Deliverable:} a side-by-side visualization (SOM vs.\ K\hyp{}means) + a short discussion of which method is easier to audit for structure (and why).
+
+\par\medskip
 \noindent\textbf{If you are skipping ahead.} Keep the notion of an ``energy landscape'' from this chapter in mind: \Cref{chap:hopfield} makes that idea explicit with a Lyapunov energy, and later attention models (\Cref{chap:transformers}) can be read as learned, content-based neighborhood selection.
 \end{tcolorbox}
 

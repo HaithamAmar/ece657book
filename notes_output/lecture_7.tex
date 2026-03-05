@@ -934,10 +934,13 @@ Recall that the goal is to estimate the conditional probability of a word \( w_t
 \]
 
 This probability can be modeled using an RNN, which maintains a hidden state \( \mathbf{h}_t \) that summarizes the history up to time \( t \). A common indexing choice is: consume the current token \(w_t\) (as an embedding \(\mathbf{x}_t\)) and predict the \emph{next} token \(w_{t+1}\). This is equivalent to modeling \(P(w_t\mid w_{1: t-1})\) after a one-step shift.
-\begin{align}
+\begin{equation}
+\begin{aligned}
     \mathbf{h}_t &= f(\mathbf{h}_{t-1}, \mathbf{x}_t; \theta), \\
-    P(w_{t+1} \mid w_1, \ldots, w_t) &= g(\mathbf{h}_t; \theta), \label{eq:rnn_output_prob}
-\end{align}
+    P(w_{t+1} \mid w_1, \ldots, w_t) &= g(\mathbf{h}_t; \theta),
+\end{aligned}
+\label{eq:rnn_output_prob}
+\end{equation}
 where \( \mathbf{x}_t \) is the input representation (e.g., a word embedding) of the token \( w_t \), \( f \) is the recurrent update function parameterized by \(\theta\), and \( g \) maps the hidden state to a probability distribution over the vocabulary. Because the hidden state is computed recursively, \(\mathbf{h}_t\) is a deterministic summary of the entire prefix \((w_1,\ldots,w_t)\):
 \[
 \mathbf{h}_t=f(f(\cdots f(\mathbf{h}_0,\mathbf{x}_1),\ldots),\mathbf{x}_t).
@@ -1035,16 +1038,18 @@ Variable-length sequences are almost always padded to a common length for batchi
 \end{tcolorbox}
 
 \begin{tcolorbox}[summarybox, title={Exercises}]
-\begin{itemize}
-    \item Train a many\hyp{}to\hyp{}one sentiment classifier; plot gradient norms with and without clipping.
-    \item Train a small time\hyp{}series predictor; compare full BPTT vs.\ truncated BPTT windows and quantify the stability trade\hyp{}off.
-    \item Implement a many\hyp{}to\hyp{}many tagging model; verify that padding masks do not affect the loss or gradients.
-    \item Optional preview: train a small LSTM next\hyp{}token model; compare perplexity with/without weight tying and scheduled sampling (then revisit in \Cref{chap:nlp}).
-    \item Empirically sweep \(\|\mathbf{W}_{hh}\|\) (spectral scaling) and reproduce vanishing/exploding behavior.
-    \item Implement the masked, truncated-BPTT loop above and verify that pads do not affect the loss.
-\end{itemize}
+\textbf{Exercise 1 (Easy).} Implement a padding-mask invariance test for a sequence model: pad the same batch to two different lengths and verify that (i) the loss is unchanged and (ii) gradients on real tokens are unchanged (to tight tolerance). \\
+\textbf{Deliverable:} a short test that fails when masking is wrong + one paragraph explaining how mask bugs can masquerade as ``model improvements.''
 
-\medskip
+\smallskip
+\textbf{Exercise 2 (Medium).} Train a small time-series predictor and compare full BPTT to truncated BPTT (several window sizes \(K\)). Track training stability (gradient norms, loss oscillations) and final predictive quality under a fixed compute budget. \\
+\textbf{Deliverable:} one plot showing the stability/quality trade-off across \(K\) + a short conclusion about credit assignment horizon.
+
+\smallskip
+\textbf{Exercise 3 (Medium).} Reproduce vanishing/exploding behavior by sweeping the effective scale of \(\mathbf{W}_{hh}\) (or its spectral norm proxy) and testing gradient clipping as a mitigation. \\
+\textbf{Deliverable:} gradient-norm traces (with/without clipping) + one paragraph linking the observation to why gating (LSTM/GRU) exists.
+
+\par\medskip
 \noindent\textbf{If you are skipping ahead.} Keep the loss/perplexity diagnostics and masking discipline from this chapter. \Cref{chap:transformers} changes the architecture, but the same evaluation traps and data-leakage risks remain.
 \end{tcolorbox}
 

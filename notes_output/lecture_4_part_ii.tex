@@ -182,9 +182,9 @@ G_M(\mathbf{x})
 where each \(G_i(\mathbf{x})\) is a radial basis function centered at some point \(\mathbf{c}_i \in \mathbb{R}^n\); stacking all \(M\) responses into \(\mathbf{G}(\mathbf{x})\) makes it clear that \(M\) controls the dimensionality of the transformed feature space.
 
 The output layer then computes
-\begin{align}
-\mathbf{y}(\mathbf{x}) &= \mathbf{W}^\top \mathbf{G}(\mathbf{x}) + \mathbf{b}, \label{eq:rbfn_output}
-\end{align}
+\begin{equation}
+\mathbf{y}(\mathbf{x}) = \mathbf{W}^\top \mathbf{G}(\mathbf{x}) + \mathbf{b}, \label{eq:rbfn_output}
+\end{equation}
 where \(\mathbf{W} \in \mathbb{R}^{M \times K}\) is the weight matrix connecting the hidden layer to the output layer, and \(\mathbf{b} \in \mathbb{R}^K\) is a bias vector.
 
 \paragraph{Interpretation:} The hidden layer maps the input \(\mathbf{x}\) into a new feature space via nonlinear functions \(G_i\), and the output layer performs a linear combination of these features to produce the final output.
@@ -193,9 +193,9 @@ where \(\mathbf{W} \in \mathbb{R}^{M \times K}\) is the weight matrix connecting
 \label{sec:rbf_radial_basis_functions}
 
 The functions \(G_i(\mathbf{x})\) are typically chosen to be radially symmetric functions centered at \(\mathbf{c}_i\), such as Gaussian functions:
-\begin{align}
-G_i(\mathbf{x}) &= \varphi\left(\|\mathbf{x} - \mathbf{c}_i\|\right) = \exp\left(-\frac{\|\mathbf{x} - \mathbf{c}_i\|^2}{2\sigma_i^2}\right), \label{eq:gaussian_rbf}
-\end{align}
+\begin{equation}
+G_i(\mathbf{x}) = \varphi\left(\|\mathbf{x} - \mathbf{c}_i\|\right) = \exp\left(-\frac{\|\mathbf{x} - \mathbf{c}_i\|^2}{2\sigma_i^2}\right), \label{eq:gaussian_rbf}
+\end{equation}
 where \(\sigma_i\) is the width (spread) parameter controlling the receptive field of the \(i\)-th basis function.
 
 Other choices of radial basis functions are possible, but the Gaussian is the most common due to its smoothness and locality properties.
@@ -459,10 +459,10 @@ where
 \]
 
     The training problem reduces to solving the linear system:
-\begin{align}
+\begin{equation}
 \min_{\mathbf{w}} \| \mathbf{y} - \boldsymbol{\Phi} \mathbf{w} \|^2,
 \label{eq:rbf_weight_training}
-\end{align}
+\end{equation}
 where \(\mathbf{y}\) is the vector of target outputs and \(\boldsymbol{\Phi}\) is the design matrix with entries \(\boldsymbol{\Phi}_{ji} = \varphi_i(\mathbf{x}_j)\).
 When \(\boldsymbol{\Phi}^\top\boldsymbol{\Phi}\) is well-conditioned, the ordinary least-squares solution is
 \[
@@ -710,14 +710,18 @@ In \Cref{chap:som}, we move from supervised RBF models to unsupervised, self-org
 \end{itemize}
 \end{tcolorbox}
 
-\begin{tcolorbox}[summarybox, title={Exercises and lab ideas}]
-\begin{itemize}
-    \item Train an RBFN on the two-moons dataset; sweep \(M\) and \(\sigma\), add a small \(\lambda\) grid, plot validation curves and decision boundaries; report the \((M,\sigma,\lambda)\) that minimizes validation error and discuss over/underfitting.
-    \item Compare primal RBFN and kernel ridge regression with an RBF kernel on datasets of size \(N\in\{200,2000,20\,000\}\); measure accuracy and runtime; note when each approach is preferable.
-    \item Show that setting centers at all data points with \(\lambda>0\) yields the same predictions as kernel ridge regression; derive the relationship between \(\mathbf{w}\) and \(\boldsymbol{\alpha}\).
-    \item Plot how validation error moves with \((M,\sigma,\lambda)\) and link the curves back to the bias--variance discussion in \Cref{chap:supervised}.
-\end{itemize}
-\medskip
+\begin{tcolorbox}[summarybox, title={Exercises}]
+\textbf{Exercise 1 (Medium).} Train an RBFN on a 2D nonlinear classification task (e.g., two moons). Sweep \(M\), \(\sigma\), and a small \(\lambda\) grid; plot decision boundaries and validation curves. \\
+\textbf{Deliverable:} one figure with 3 boundaries (underfit / best / overfit) + the chosen \((M,\sigma,\lambda)\) and a short bias--variance diagnosis.
+
+\smallskip
+\textbf{Exercise 2 (Easy).} Treat regularization as numerical hygiene: for one fixed dataset and basis, plot the condition number of the linear system versus \(\lambda\) and show how predictions become stable as \(\lambda\) increases from 0. \\
+\textbf{Deliverable:} condition-number vs.\ \(\lambda\) plot + one paragraph explaining why ``mathematically correct'' can still be numerically wrong at \(\lambda=0\).
+
+\smallskip
+\textbf{Exercise 3 (Medium).} Demonstrate the primal/dual equivalence: use all data points as centers with \(\lambda>0\) and verify that the primal RBFN predictions match kernel ridge regression with an RBF kernel. \\
+\textbf{Deliverable:} a short derivation relating \(\mathbf{w}\) and \(\boldsymbol{\alpha}\) + a numerical check that the two prediction vectors agree to tight tolerance.
+\par\medskip
 \noindent\textbf{If you are skipping ahead.} Keep the idea that ``nonlinear'' can still be linear-in-parameters once a basis is fixed. That perspective is reused in kernel methods and shows up again when we discuss architectural bias (CNNs) and representation choices.
 \end{tcolorbox}
 

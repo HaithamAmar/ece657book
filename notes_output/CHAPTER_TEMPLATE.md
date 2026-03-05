@@ -23,7 +23,7 @@ Each chapter file under `notes_output/lecture_*.tex` must contain the following 
 Near the end of the chapter:
 
 - A `tcolorbox` with `title={Key takeaways}`
-- A `tcolorbox` with `title={Exercises and lab ideas}`
+- A `tcolorbox` with `title={Exercises}`
 - A paragraph heading `\paragraph{Where we head next.}`
 - A paragraph heading `\paragraph{References.}`
 
@@ -39,4 +39,3 @@ Near the end of the chapter:
 
 - Prefer “display math” (`equation`/`align`/`\[...\]`) over `\(\displaystyle ...\)` to avoid reader clipping.
 - Keep tables readable; wide tables should be rare and intentional (the production gatekeeper flags them by default).
-

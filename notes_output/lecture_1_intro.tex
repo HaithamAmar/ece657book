@@ -8,12 +8,10 @@
 Intelligent systems are engineered artifacts that perceive, reason, and act under constraints. This chapter sets the shared vocabulary (historical context, core definitions, recurring design themes), and \Cref{fig:roadmap} shows how the strands connect and where to enter.
 
 \begin{tcolorbox}[summarybox, title={Learning Outcomes}]
-After this chapter, you should be able to:
 \begin{itemize}
-    \item Explain what this book means by an \emph{intelligent system} (and how that differs from an \emph{intelligent machine}).
-    \item Place modern AI ideas in a brief historical context (logic, computation, and learning).
-    \item Use the book's organizing lenses (system components, levels of intelligence) to interpret later chapters.
-    \item Navigate the book structure and reading paths using the roadmap figure.
+    \item Define what we mean by an \emph{intelligent system} and distinguish it from an \emph{intelligent machine}.
+    \item Place the main strands of modern AI (logic, computation, learning) in a short historical arc.
+    \item Use the book's organizing lenses (components, levels, and the representation\(\rightarrow\)objective\(\rightarrow\)update\(\rightarrow\)audit loop) to situate a method and anticipate its failure modes.
 \end{itemize}
 \end{tcolorbox}
 
@@ -82,24 +80,7 @@ Following the Turing Test, research into machine learning and symbolic AI accele
 
 This historical arc sets the stage for contemporary intelligent systems: programmable artifacts whose behavior is grounded in formal models, implemented on digital hardware, and increasingly trained or tuned from data. The sections that follow make the working definitions and modeling assumptions explicit.
 
-% Examination and assessment policy details removed from Chapter 1; see Appendix: Course Logistics if needed.
-
-% \subsection{Course Recommendations}
-
-% \paragraph{Concurrent Courses}
-% \begin{itemize}
-%     \item It is not necessary to take ECE657 concurrently with related courses such as ECE570.
-%     \item Taking both simultaneously may lead to cognitive overload or confusion because ECE570 covers overlapping supervised-learning algorithms (e.g., SVMs, AdaBoost, kernel PCA) but uses a statistics-first notation---probabilistic modeling and statistical learning theory are introduced before systems considerations---and larger Kaggle-style projects, whereas ECE657 emphasizes systems thinking and hybrid intelligent architectures.
-%     \item The chapters are designed to be self-contained, so scheduling can be adapted to your offering.
-% \end{itemize}
-
-% \paragraph{Independent Study}
-% \begin{itemize}
-%     \item Students are encouraged to engage in individual reading and exploration beyond the chapter materials.
-%     \item This will help deepen understanding and prepare for assignments and exams.
-% \end{itemize}
-
-% A week-by-week topic plan may be provided separately; readers can review it to anticipate upcoming discussions when available.
+% (Intentionally omitted: course logistics/administrivia. This book is written to stand alone.)
 
 \subsection{Defining Artificial Intelligence and Intelligent Systems}
 \label{sec:intro_defining_artificial_intelligence_and_intelligent_systems}
@@ -195,7 +176,7 @@ The design checklist above becomes concrete when we dissect a deployed system. C
 \begin{description}[style=nextline]
     \item[Problem + value role] Detect humans entering restricted zones (understand the present) and log footage for later audits (explain the past).
     \item[Representation] Images are streamed as \(H\times W\times 3\) tensors; regions of interest and background models are maintained to suppress noise.
-    \item[Objectives/constraints] Maintain $<200$\, ms end-to-end latency and $<1\%$ false negatives; respect privacy/retention policies.
+    \item[Objectives/constraints] Maintain $<200\,\si{\milli\second}$ end-to-end latency and $<1\%$ false negatives; respect privacy/retention policies.
     \item[Hardware (perception/action)] CMOS (complementary metal-oxide-semiconductor) sensor, on-board DSP (digital signal processor)/accelerator, motorized pan/tilt for re-targeting.
     \item[Software (reasoning)] A YOLO-style object detector (e.g., YOLOv8 \citep{Jocher2023UltralyticsYOLOv8}) fine-tuned on site-specific data, fused with Kalman filters for track smoothing and MPC (model predictive control) logic that commands the pan/tilt actuator or triggers alerts.
     \item[Integration] Edge inference handles immediate reactions; metadata is sent to a cloud analytics service that enriches logs and retrains models (predicting the future by anticipating recurrent intrusion times).
@@ -456,13 +437,18 @@ Reinforcement learning is a major pillar of modern AI, but it is not a primary f
 Even a technically correct model can be harmful when it is deployed as a decision rule. When systems touch people, treat audits (slices, calibration, robustness, and constraint checks) as part of the design contract, not as optional polish.
 \end{tcolorbox}
 
-\begin{tcolorbox}[summarybox, title={Exercises and lab ideas}]
-\begin{itemize}
-    \item Pick one engineered system you know (e.g., a recommender, a robot, a control loop) and identify its \emph{percepts}, \emph{internal representation}, and \emph{actions}.
-    \item For one section of this chapter, rewrite the core definition in your own words and list one concrete failure mode the definition helps you anticipate.
-    \item Choose a reading path using \Cref{fig:roadmap}, and write down which two chapters you will skim first (and why).
-\end{itemize}
-\medskip
+\begin{tcolorbox}[summarybox, title={Exercises}]
+\textbf{Exercise 1 (Easy).} Pick one engineered system you know (a recommender, a robot, a control loop, a monitoring pipeline) and write its design in the book's vocabulary: \emph{percepts}, \emph{representation}, \emph{actions}, \emph{objective}, and \emph{constraints}. \\
+\textbf{Deliverable:} a one-page block diagram + 5 bullets (one per term) written concretely for your system.
+
+\smallskip
+\textbf{Exercise 2 (Medium).} Choose one plausible failure mode for that system that would \emph{not} show up as a single headline metric drop (a silent failure). Define an audit that would expose it (slice, calibration check, constraint test, or robustness probe). \\
+\textbf{Deliverable:} the failure-mode description + an explicit test procedure + the pass/fail criterion.
+
+\smallskip
+\textbf{Exercise 3 (Medium).} Use \Cref{fig:roadmap} to justify a learning path for your system: which representation family would you start with (symbolic, supervised, neural, fuzzy, evolutionary) and why? \\
+\textbf{Deliverable:} a short paragraph that names (i) the representation, (ii) the update/search operator, (iii) the feedback signal, and (iv) the first audit you would run.
+\par\medskip
 \noindent\textbf{If you are skipping ahead.} Keep the operational vocabulary (representation, actions, objective/goal test, and audit/checks) and the roadmap (\Cref{fig:roadmap}) in mind; later chapters assume these as the organizing lens for both symbolic and data-driven tools.
 \end{tcolorbox}
 
