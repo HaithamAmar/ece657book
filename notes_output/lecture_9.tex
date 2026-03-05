@@ -33,12 +33,12 @@ Consider the thermostat's temperature error \(e = T_{\text{room}} - T_{\text{set
     \mu_{\text{Cold}}(e)=
     \begin{cases}
         1, & e \le -4,\\
-        \frac{0-e}{4}, & -4 < e < 0,\\
+        -\frac{e}{4}, & -4 < e < 0,\\
         0, & e \ge 0.
     \end{cases}
     \label{eq:fuzzysets_cold_membership_example}
 \end{equation}
-With this design, \(e=-2\) yields \(\mu_{\text{Cold}}(-2)=0.5\): ``cold'' is half true. Later chapters reuse this shoulder \emph{shape} but may shift its breakpoints to reflect different sensors, comfort bands, or operating assumptions. This number is not a probability; it is a degree of truth for a linguistic predicate. The rest of this chapter is about making these mappings explicit (shapes, overlaps, and operators) so they can be inspected and tuned rather than assumed.
+With this design, \(e=-2\) yields \(\mu_{\text{Cold}}(-2)=0.5\): ``cold'' is half true (and in the linear region \(e<0\), so \(-e>0\)). Later chapters reuse this shoulder \emph{shape} but may shift its breakpoints to reflect different sensors, comfort bands, or operating assumptions. This number is not a probability; it is a degree of truth for a linguistic predicate. The rest of this chapter is about making these mappings explicit (shapes, overlaps, and operators) so they can be inspected and tuned rather than assumed.
 
 \begin{tcolorbox}[summarybox, title={Author's note: membership design is where judgment enters}]
 Membership functions are an explicit way to encode boundary subjectivity. At the extremes, many labels are uncontroversial (very short vs.\ very tall, clearly cold vs.\ clearly hot). The modeling work happens in the overlap zone. We choose shapes and breakpoints so borderline cases are represented as graded truth rather than forced yes/no decisions. In practice, start by anchoring obvious extremes from measurements, then tune overlap widths to match observed behavior and control smoothness.

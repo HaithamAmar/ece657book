@@ -371,11 +371,10 @@ As a concrete diagnostic, \Cref{fig:lec6-dropout} shows how dropout can flatten 
             \addplot[cbBlue, thick, samples=200, domain=-6:6] {1/sqrt(2*pi*1.5)*exp(-((x-2)^2)/(2*1.5))};
             \addplot[cbOrange, thick, samples=200, domain=-6:6] {1/sqrt(2*pi*0.8)*exp(-((x+1)^2)/(2*0.8))};
         \nextgroupplot[title={Post-BN (per-channel)}]
-            \addplot[cbBlue, thick, samples=200, domain=-6:6] {1/sqrt(2*pi*1.0)*exp(-(x^2)/2)}; \addlegendentry{channel 1}
-            \addplot[cbOrange, thick, samples=200, domain=-6:6] {1/sqrt(2*pi*1.0)*exp(-(x^2)/2)}; \addlegendentry{channel 2}
+            \addplot[cbBlue, thick, samples=200, domain=-6:6] {1/sqrt(2*pi*1.0)*exp(-(x^2)/2)};
         \end{groupplot}
     \end{tikzpicture}
-    \caption{Batch normalization normalizes per-channel activations and then applies a learned scale and shift, which stabilizes training by keeping activation scales in a reasonable range.}
+    \caption{Batch normalization first maps each channel to a standard normal shape and then applies a learned scale and shift (\(\gamma,\beta\)); the normalized distribution shown here is the pre-affine step that stabilizes gradients.}
     \label{fig:lec6-bn}
 \end{figure}
 

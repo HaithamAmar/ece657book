@@ -235,7 +235,7 @@ making the computation and estimation of the likelihood tractable. It is importa
 One widely used approach to classification, especially for binary problems, is \emph{logistic regression}. Logistic regression models the posterior probability \(P(y=1 \mid \mathbf{x})\) directly as a function of \(\mathbf{x}\), without explicitly modeling the class-conditional densities.
 
 \begin{tcolorbox}[summarybox, title={Logistic regression at a glance}]
-\textbf{Objective:} Minimize binary cross\hyp{}entropy (negative log-likelihood) between true labels \(y\in\{0,1\}\) and predicted probabilities \(\hat{p}=\sigma(\boldsymbol{\beta}^\top \tilde{\mathbf{x}})\).\\
+\textbf{Objective:} Minimize binary cross\hyp{}entropy (negative log-likelihood) between true labels \(y\in\{0,1\}\) and predicted probabilities \(\pi(\mathbf{x})=\sigma(\boldsymbol{\beta}^\top \tilde{\mathbf{x}})\).\\
 \textbf{Key hyperparameters:} Regularization type/strength (L2 or L1, penalty \(\lambda\); many libraries use \(C=1/\lambda\)), feature scaling, optimization settings (step size, iterations).\\
 \textbf{Defaults:} Standardize features; use L2 regularization with moderate strength; start with a 0.5 decision threshold and adjust only if class costs are asymmetric.\\
 \textbf{Common pitfalls:} Strong collinearity between features, severe class imbalance, and uncalibrated probability outputs if the model is over-regularized or trained on a biased sample.

@@ -674,12 +674,12 @@ With the backprop derivation in place, it helps to compare the standard nonlinea
             \addplot[cbBlue, dashed, domain=-3:3] {0};
         \nextgroupplot[
             title={Sigmoid},
-            xmin=-4, xmax=4,
+            xmin=-3, xmax=3,
             ymin=-0.1, ymax=1.1,
             ytick={0,0.5,1},
         ]
-            \addplot[cbOrange, thick, domain=-4:4] {1/(1+exp(-x))};
-            \addplot[cbOrange, dashed, domain=-4:4] {1/(1+exp(-x))*(1-1/(1+exp(-x)))};
+            \addplot[cbOrange, thick, domain=-3:3] {1/(1+exp(-x))};
+            \addplot[cbOrange, dashed, domain=-3:3] {1/(1+exp(-x))*(1-1/(1+exp(-x)))};
         \nextgroupplot[
             title={tanh},
             ymin=-1.1, ymax=1.1,
@@ -705,7 +705,20 @@ With the backprop derivation in place, it helps to compare the standard nonlinea
 \end{figure}
 \FloatBarrier
 
-For reference, \(\sigma'(z)=\sigma(z)\bigl(1-\sigma(z)\bigr)\), \(\tanh'(z)=1-\tanh^2(z)\), and the ReLU derivative is \(0\) for negative inputs and \(1\) for positive inputs (take \(0\) at the origin).
+For quick reference:
+\begin{center}
+\small
+\begin{tabular}{@{}llll@{}}
+\toprule
+Activation & \(f(z)\) & \(f'(z)\) & Reuse from forward pass? \\
+\midrule
+Sigmoid & \(\sigma(z)\) & \(\sigma(z)\bigl(1-\sigma(z)\bigr)\) & Yes (\(a(1-a)\)) \\
+\(\tanh\) & \(\tanh(z)\) & \(1-\tanh^2(z)\) & Yes (\(1-a^2\)) \\
+ReLU & \(\max(0,z)\) & \(\mathbf{1}_{z>0}\) & Yes (sign of pre-activation) \\
+\bottomrule
+\end{tabular}
+\end{center}
+For ReLU, take derivative \(0\) at the origin.
 
 \paragraph{Trade-offs}
 Some activations match the intuition of a smooth ``firing curve''; others are chosen mainly because they train well. Sigmoid and tanh saturate at large magnitude inputs, which slows gradients in deep networks. ReLU avoids saturation on the positive side but can produce ``dying ReLUs'' when biases push units negative and the gradients become zero; if many units stall, use He initialization, reduce the learning rate, or swap to a leaky ReLU with a small negative slope (e.g., 0.01).

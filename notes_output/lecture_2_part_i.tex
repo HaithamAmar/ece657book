@@ -50,7 +50,7 @@ A key insight in tackling complex integrals is to \emph{reduce} the problem into
 
 \paragraph{Safe Transformations}
 
-We define \emph{safe transformations} as invertible substitutions that allow back-substitution: if \(u=\phi(x)\) and \(F_u\) is an antiderivative of \(T[g](u)\), then \(F_u\!\circ\!\phi\) differentiates back to \(g(x)\). Safe transformations are algebraic substitutions or factorings that survive reversal. Examples include:
+We define \emph{safe transformations} as invertible substitutions that allow back-substitution: if \(u=\phi(x)\) and \(F_u\) is an antiderivative of \(T[g](u)\), then \(F_u\!\circ\!\phi\) differentiates back to \(g(x)\). We write \(F\) for antiderivatives of \(f\)-type terms and \(G\) for antiderivatives of \(g\)-type terms, so \(F'(x)=f(x)\) and \(G'(x)=g(x)\). Safe transformations are algebraic substitutions or factorings that survive reversal. Examples include:
 
 \begin{itemize}
   \item \textbf{Constant factor extraction:} If \(G\) is an antiderivative of \(g\), then \(a g\) has antiderivative \(a G\); differentiating confirms \(\frac{d}{dx}[a G(x)] = a g(x)\).
@@ -272,12 +272,28 @@ The worked integral above already showed branch behavior (e.g., \(x=\sin y\) vs.
                         fill=cbBlue!25,
                         label={[anchor=north east, font=\scriptsize\bfseries, text=cbBlue!70!black, inner sep=2pt, yshift=-1pt]north east:[S]}
                     },
+                    problem/.style={
+                        base,
+                        draw=gray!70,
+                        fill=gray!15
+                    },
                     heur/.style={
                         base,
                         draw=cbOrange!70!black,
                         fill=cbOrange!25,
                         dashed,
                         label={[anchor=north east, font=\scriptsize\bfseries, text=cbOrange!70!black, inner sep=2pt, yshift=-1pt]north east:[H]}
+                    },
+                    goal/.style={
+                        base,
+                        draw=cbGreen!60!black,
+                        fill=cbGreen!20
+                    },
+                    dead/.style={
+                        base,
+                        draw=gray!70,
+                        fill=gray!20,
+                        dashed
                     },
                     line/.style={
                         draw=gray!80,
@@ -289,7 +305,7 @@ The worked integral above already showed branch behavior (e.g., \(x=\sin y\) vs.
                 ]
 
                     % Level 0
-                    \node[safe] (root) at (0,0) {\(\displaystyle \int \frac{4}{(1-x^2)^{5/2}}\, dx\)};
+                    \node[problem] (root) at (0,0) {\(\displaystyle \int \frac{4}{(1-x^2)^{5/2}}\, dx\)};
 
                     % Level 1
                     \node[safe] (factor) at (-4.2, -2.8) {Factor constants\\restrict \(|x|<1\)};
@@ -301,8 +317,10 @@ The worked integral above already showed branch behavior (e.g., \(x=\sin y\) vs.
                     \node[heur] (stall)  at ( 4.2, -6.0) {Heuristic stalls\\backtrack};
 
                     % Level 3
-                    \node[safe] (dx)     at (-8.8, -9.0) {Use \(dx=\cos y\, dy\)};
-                    \node[safe] (reduce) at (-4.2, -9.0) {Reduce to \(4\int \sec^4 y\, dy\)};
+                    \node[safe] (dx)     at (-6.5, -9.0) {Use \(dx=\cos y\, dy\)};
+                    \node[safe] (reduce) at (-6.5, -11.0) {Reduce to \(4\int \sec^4 y\, dy\)};
+                    \node[goal] (goal)   at (-6.5, -13.0) {GOAL: \(F(y)=4\tan y+\frac{4}{3}\tan^3 y+C\)};
+                    \node[dead] (dead)   at ( 4.2, -8.8) {BACKTRACK\\no closed form on this branch};
 
                     % Edges
                     \draw[line] (root.south) -- ++(0,-0.6) -| (factor.north);
@@ -312,9 +330,11 @@ The worked integral above already showed branch behavior (e.g., \(x=\sin y\) vs.
                     \draw[line] (factor.south) -- ++(0,-0.6) -| (sinh.north);
 
                     \draw[line] (letu) -- (stall);
+                    \draw[line] (stall) -- (dead);
 
-                    \draw[line] (subs.south) -- ++(0,-0.6) -| (dx.north);
-                    \draw[line] (subs.south) -- ++(0,-0.6) -| (reduce.north);
+                    \draw[line] (subs.south) -- (dx.north);
+                    \draw[line] (dx.south) -- (reduce.north);
+                    \draw[line] (reduce.south) -- (goal.north);
 
                     % Legend
                     \node[
@@ -324,7 +344,7 @@ The worked integral above already showed branch behavior (e.g., \(x=\sin y\) vs.
                         inner sep=8pt,
                         minimum width=10cm,
                         minimum height=1.5cm
-                    ] (legendBox) at (0, -11.0) {};
+                    ] (legendBox) at (0, -15.4) {};
 
                     \node[safe, minimum width=2.5cm, text width=2cm, scale=0.8, label={}]
                         at ($(legendBox.west)+(2.0,0)$) {Safe move};
@@ -356,12 +376,28 @@ The worked integral above already showed branch behavior (e.g., \(x=\sin y\) vs.
                         fill=cbBlue!25,
                         label={[anchor=north east, font=\scriptsize\bfseries, text=cbBlue!70!black, inner sep=2pt, yshift=-1pt]north east:[S]}
                     },
+                    problem/.style={
+                        base,
+                        draw=gray!70,
+                        fill=gray!15
+                    },
                     heur/.style={
                         base,
                         draw=cbOrange!70!black,
                         fill=cbOrange!25,
                         dashed,
                         label={[anchor=north east, font=\scriptsize\bfseries, text=cbOrange!70!black, inner sep=2pt, yshift=-1pt]north east:[H]}
+                    },
+                    goal/.style={
+                        base,
+                        draw=cbGreen!60!black,
+                        fill=cbGreen!20
+                    },
+                    dead/.style={
+                        base,
+                        draw=gray!70,
+                        fill=gray!20,
+                        dashed
                     },
                     line/.style={
                         draw=gray!80,
@@ -373,7 +409,7 @@ The worked integral above already showed branch behavior (e.g., \(x=\sin y\) vs.
                 ]
 
                     % Level 0
-                    \node[safe] (root) at (0,0) {\(\displaystyle \int \frac{4}{(1-x^2)^{5/2}}\, dx\)};
+                    \node[problem] (root) at (0,0) {\(\displaystyle \int \frac{4}{(1-x^2)^{5/2}}\, dx\)};
 
                     % Level 1
                     \node[safe] (factor) at (-4.2, -2.8) {Factor constants\\restrict \(|x|<1\)};
@@ -385,8 +421,10 @@ The worked integral above already showed branch behavior (e.g., \(x=\sin y\) vs.
                     \node[heur] (stall)  at ( 4.2, -6.0) {Heuristic stalls\\backtrack};
 
                     % Level 3
-                    \node[safe] (dx)     at (-8.8, -9.0) {Use \(dx=\cos y\, dy\)};
-                    \node[safe] (reduce) at (-4.2, -9.0) {Reduce to \(4\int \sec^4 y\, dy\)};
+                    \node[safe] (dx)     at (-6.5, -9.0) {Use \(dx=\cos y\, dy\)};
+                    \node[safe] (reduce) at (-6.5, -11.0) {Reduce to \(4\int \sec^4 y\, dy\)};
+                    \node[goal] (goal)   at (-6.5, -13.0) {GOAL: \(F(y)=4\tan y+\frac{4}{3}\tan^3 y+C\)};
+                    \node[dead] (dead)   at ( 4.2, -8.8) {BACKTRACK\\no closed form on this branch};
 
                     % Edges
                     \draw[line] (root.south) -- ++(0,-0.6) -| (factor.north);
@@ -396,9 +434,11 @@ The worked integral above already showed branch behavior (e.g., \(x=\sin y\) vs.
                     \draw[line] (factor.south) -- ++(0,-0.6) -| (sinh.north);
 
                     \draw[line] (letu) -- (stall);
+                    \draw[line] (stall) -- (dead);
 
-                    \draw[line] (subs.south) -- ++(0,-0.6) -| (dx.north);
-                    \draw[line] (subs.south) -- ++(0,-0.6) -| (reduce.north);
+                    \draw[line] (subs.south) -- (dx.north);
+                    \draw[line] (dx.south) -- (reduce.north);
+                    \draw[line] (reduce.south) -- (goal.north);
 
                     % Legend
                     \node[
@@ -408,7 +448,7 @@ The worked integral above already showed branch behavior (e.g., \(x=\sin y\) vs.
                         inner sep=8pt,
                         minimum width=10cm,
                         minimum height=1.5cm
-                    ] (legendBox) at (0, -11.0) {};
+                    ] (legendBox) at (0, -15.4) {};
 
                     \node[safe, minimum width=2.5cm, text width=2cm, scale=0.8, label={}]
                         at ($(legendBox.west)+(2.0,0)$) {Safe move};
@@ -423,18 +463,12 @@ The worked integral above already showed branch behavior (e.g., \(x=\sin y\) vs.
         \fi
 
         % Keep the caption free of inline math; it wraps poorly in some EPUB renderers.
-        \caption{Transformation tree for the running example integral. Badges \textbf{[S]}/\textbf{[H]} mark safe vs.\ heuristic moves; the dashed branch mirrors the sine substitution. The tree view makes it easy to see where an attempt branched and where backtracking entered.}
+        \caption{Transformation tree for the running example integral. Badges \textbf{[S]}/\textbf{[H]} mark safe vs.\ heuristic moves; the left branch shows the sequential safe path, while the right branch terminates in explicit backtracking. The tree view makes solved and dead-end leaves visible.}
         \label{fig:lec3_transform_tree}
 \end{figure}
 
 
-\paragraph{Example:} For the integral problem, the root node is the original integral. From there, we branch into applying different substitutions or algebraic manipulations, such as
-\[
-\begin{aligned}
-\text{Apply substitution } u=\tan(x) &\Rightarrow \text{integration by parts} \\
-&\Rightarrow \text{inverse trig identities} \Rightarrow \cdots
-\end{aligned}
-\]
+\paragraph{Example:} For the integral problem, the root node is the original integral. From there, branches encode concrete substitutions and algebraic manipulations, and failed heuristic paths explicitly return to the previous decision point.
 
 \paragraph{Safe vs. Heuristic Transformations:}
 \begin{itemize}
@@ -526,7 +560,7 @@ The pseudocode mirrors the narrative: record the original integrand \(f_0\), tra
 \begin{table}[t]
 \centering
 % Avoid inline math in captions; it wraps poorly in some EPUB renderers.
-\caption{Table: Transformation toolkit (safe vs.\ heuristic). Preconditions keep domains/branches explicit (e.g., restrictions like ``x in (-1,1)'' for square-root expressions); principal branches unless noted.}
+\caption{Transformation toolkit (safe vs.\ heuristic). Preconditions keep domains/branches explicit (e.g., restrictions like ``x in (-1,1)'' for square-root expressions); principal branches unless noted.}
 \small
 \begin{tabularx}{0.96\linewidth}{@{}>{\raggedright\arraybackslash}p{0.22\linewidth} >{\raggedright\arraybackslash}X >{\raggedright\arraybackslash}X @{}}
 \toprule

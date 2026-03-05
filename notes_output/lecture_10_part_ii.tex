@@ -21,7 +21,7 @@ Local linguistic rules become a global behavior only after you commit to concret
 \end{tcolorbox}
 
 \paragraph{Running example checkpoint.}
-For the thermostat, each rule combines the temperature error (\textit{Cold}, \textit{Slightly Warm}, \ldots) and rate-of-change to set heater power. As you work through antecedent aggregation, implication, and defuzzification, keep one concrete rule base (e.g., ``IF error is Cold AND rate is Stable THEN heater power is High'') in mind; the formulas below map directly onto that setup.
+For the thermostat, each rule combines the temperature error (\textit{Cold}, \textit{Slightly Warm}, \ldots) and rate-of-change to set heater power. Here ``AND'' is a t\hyp{}norm (default: min), not Boolean conjunction; details appear in the operator subsection below. As you work through antecedent aggregation, implication, and defuzzification, keep one concrete rule base (e.g., ``IF error is Cold AND rate is Stable THEN heater power is High'') in mind; the formulas below map directly onto that setup.
 
 \subsection{Context and Motivation}
 \label{sec:fuzzyinference_context_and_motivation}

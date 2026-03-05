@@ -549,9 +549,9 @@ Even though SOMs are inherently unsupervised, their training dynamics still bene
         ]
             \nextgroupplot[title={Unregularized}]
                 \ifdefined\HCode
-                    \addplot3[surf, shader=flat, opacity=0.92, domain=-2:2, y domain=-2:2]{0.4*x^2 + 0.1*y^2 + 0.8*x*y};
+                    \addplot3[surf, shader=flat, opacity=0.92, domain=-2:2, y domain=-2:2]{0.8*x^2 + 0.05*y^2};
                 \else
-                    \addplot3[surf, shader=interp, opacity=0.92, domain=-2:2, y domain=-2:2]{0.4*x^2 + 0.1*y^2 + 0.8*x*y};
+                    \addplot3[surf, shader=interp, opacity=0.92, domain=-2:2, y domain=-2:2]{0.8*x^2 + 0.05*y^2};
                 \fi
             \nextgroupplot[title={Neighbor-coupled}]
                 \ifdefined\HCode
@@ -561,7 +561,7 @@ Even though SOMs are inherently unsupervised, their training dynamics still bene
                 \fi
         \end{groupplot}
     \end{tikzpicture}
-    \caption{Regularization smooths an objective surface (schematic). Coupling neighboring prototypes (right) yields wider, flatter basins than the jagged unregularized landscape (left).}
+    \caption{Regularization smooths an objective surface (schematic). Coupling neighboring prototypes (right) yields wider, flatter basins than the narrow, ill-conditioned unregularized basin (left).}
     \label{fig:lec5-regularization}
 \end{figure}
 
