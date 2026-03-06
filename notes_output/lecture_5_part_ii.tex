@@ -97,7 +97,11 @@ and
 \[
 E_{01}(\mathbf{x}) = -\frac{1}{2}\sum_{i\neq j} w'_{ij} x_i x_j + \sum_i \theta'_i x_i + \text{const},
 \]
-with \(w'_{ij}=4w_{ij}\) and \(\theta'_i = 2\theta_i + 2\sum_{j\neq i} w_{ij}\) under the sign convention in \(E_{\pm1}\). The additive constant does not affect which states minimize the energy or the update dynamics. This table summarizes the correspondence:
+with \(w'_{ij}=4w_{ij}\) and \(\theta'_i = 2\theta_i + 2\sum_{j\neq i} w_{ij}\) under the threshold convention used in \(E_{\pm1}\). The additive constant does not affect which states minimize the energy or the update dynamics. This table summarizes the correspondence:
+
+\begin{tcolorbox}[summarybox, title={Sign convention: threshold form vs.\ bias form}]
+This chapter uses the threshold update \(s_i \leftarrow \operatorname{sign}(h_i-\theta_i)\). Under that convention the energy carries the term \(+\sum_i \theta_i s_i\). If you prefer to write the same dynamics with an additive bias \(b_i\) in the local field, set \(b_i=-\theta_i\); the identical energy is then written as \(-\sum_i b_i s_i\). The dynamics are unchanged once the translation \(b_i=-\theta_i\) is kept explicit.
+\end{tcolorbox}
 
 \begin{center}
 \begin{tabular}{@{}p{0.32\linewidth}p{0.28\linewidth}p{0.28\linewidth}@{}}
@@ -121,7 +125,7 @@ Hopfield defined an energy function \(E: \{-1, +1\}^N \to \mathbb{R}\) associate
     E(\mathbf{s}) = -\frac{1}{2} \sum_{i=1}^N \sum_{j=1}^N w_{ij} s_i s_j + \sum_{i=1}^N \theta_i s_i.
     \label{eq:energy_function}
 \end{equation}
-Because the weights are symmetric and satisfy \(w_{ii}=0\), the double sum may equivalently be written as \(\sum_{i<j} w_{ij} s_i s_j\); the \(\tfrac{1}{2}\) factor explicitly prevents counting each unordered pair twice, so removing it would scale the energy by two. Thresholds \(\theta_i\) act like biases; many texts write the second term as \(-\sum_i b_i s_i\) with \(b_i = \theta_i\).
+Because the weights are symmetric and satisfy \(w_{ii}=0\), the double sum may equivalently be written as \(\sum_{i<j} w_{ij} s_i s_j\); the \(\tfrac{1}{2}\) factor explicitly prevents counting each unordered pair twice, so removing it would scale the energy by two. This sign is consistent with the update rule \(s_i \leftarrow \operatorname{sign}(h_i-\theta_i)\). If you switch to a bias form \(h_i+b_i\), the same energy is written as \(-\sum_i b_i s_i\) with \(b_i=-\theta_i\).
 % Chapter 10 (continued)
 
 \begin{tcolorbox}[summarybox, title={Engineering lens: energy as an objective (not a metaphor)}]

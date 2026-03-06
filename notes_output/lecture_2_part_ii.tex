@@ -72,7 +72,7 @@ Equation~\eqref{eq:bayes_theorem} provides a principled way to compute the poste
 Despite its theoretical appeal, the Bayes classifier is rarely used directly: the class-conditional densities and priors are usually unknown, and estimating them reliably (especially in high dimensions) is itself a modeling problem. Practical classifiers therefore approximate Bayes' rule by making simplifying assumptions (a generative model) or by learning the posterior \(P(y\mid \mathbf{x})\) directly (a discriminative model).
 
 \paragraph{Running example: a two-cluster dataset}
-To keep the discussion concrete, we reuse a small toy dataset in \Cref{fig:lec1_dataset} consisting of two Gaussian clusters. Under a simple generative assumption (equal covariances and similar priors), \Cref{fig:lec1_bayes} visualizes the Bayes\hyp{}optimal decision boundary: it is linear in this linear discriminant analysis (LDA) setting, while unequal covariances yield a quadratic boundary. This running example will anchor the geometric intuition (what a decision boundary looks like) before we turn to discriminative models that learn \(\pi(\mathbf{x})\) directly.
+To keep the discussion concrete, we reuse a small toy dataset in \Cref{fig:lec4_dataset} consisting of two Gaussian clusters. Under a simple generative assumption (equal covariances and similar priors), \Cref{fig:lec4_bayes} visualizes the Bayes\hyp{}optimal decision boundary: it is linear in this linear discriminant analysis (LDA) setting, while unequal covariances yield a quadratic boundary. This running example will anchor the geometric intuition (what a decision boundary looks like) before we turn to discriminative models that learn \(\pi(\mathbf{x})\) directly.
 
     \begin{figure}[!htbp]
         \centering
@@ -121,7 +121,7 @@ To keep the discussion concrete, we reuse a small toy dataset in \Cref{fig:lec1_
         \ensuretikzbackgroundlayers
     \end{tikzpicture}
     \caption[Synthetic binary dataset.]{Synthetic binary dataset built from two anisotropic Gaussian clusters; shaded ellipses hint at the underlying density while the scattered samples are reused throughout the running examples. It helps build intuition for how decision boundaries relate to class geometry before fitting discriminative models.}
-    \label{fig:lec1_dataset}
+    \label{fig:lec4_dataset}
 \end{figure}
 
 
@@ -172,11 +172,11 @@ As shown in \Cref{fig:lec2_sigmoid_bce}, linear scores (logits), the binary cros
     \end{tikzpicture}
     % Avoid inline math in captions; it wraps poorly in some EPUB renderers.
     \caption{Bayes-optimal boundary for two Gaussian classes. Equal covariances and similar priors (LDA setting) yield a linear separator; unequal covariances yield a quadratic boundary. The boundary is near the equal-posterior line (vertical, pink); left/right regions map to predicted classes R0 and R1.}
-    \label{fig:lec1_bayes}
+    \label{fig:lec4_bayes}
 \end{figure}
 
 
-\Cref{fig:lec1_mle_map} provides the low-data MAP-versus-MLE comparison used in this discussion.
+\Cref{fig:lec4_mle_map} provides the low-data MAP-versus-MLE comparison used in this discussion.
 
 \begin{figure}[!htbp]
         \centering
@@ -219,7 +219,7 @@ As shown in \Cref{fig:lec2_sigmoid_bce}, linear scores (logits), the binary cros
     \end{tikzpicture}
         % Avoid inline math in captions; it wraps poorly in some EPUB renderers.
         \caption{MAP estimates interpolate between the prior mean and the data-driven MLE. As the sample size grows, the MAP curve approaches the true mean; with little data, the prior dominates.}
-        \label{fig:lec1_mle_map}
+        \label{fig:lec4_mle_map}
     \end{figure}
 
 \paragraph{Naive Bayes Approximation}
@@ -349,7 +349,7 @@ The Hessian has the form \(\mathbf{X}^\top \mathbf{W} \mathbf{X}\) where \(\math
 
 
 \paragraph{Optimization geometry (why iterative solvers)}
-Unlike linear regression, logistic regression does not have a closed-form solution for \(\boldsymbol{\beta}\), even though the objective is convex. In practice we therefore rely on iterative solvers (gradient methods, quasi\hyp{}Newton methods, or Newton/iteratively reweighted least squares (IRLS) in moderate dimensions). \Cref{fig:lec1_gd} is a convex quadratic toy that reminds us what an optimization trajectory looks like when we minimize a smooth objective: step size and conditioning shape how quickly iterates contract toward the minimizer.
+Unlike linear regression, logistic regression does not have a closed-form solution for \(\boldsymbol{\beta}\), even though the objective is convex. In practice we therefore rely on iterative solvers (gradient methods, quasi\hyp{}Newton methods, or Newton/iteratively reweighted least squares (IRLS) in moderate dimensions). \Cref{fig:lec4_gd} is a convex quadratic toy that reminds us what an optimization trajectory looks like when we minimize a smooth objective: step size and conditioning shape how quickly iterates contract toward the minimizer.
 
 \begin{figure}[!htbp]
     \centering
@@ -410,7 +410,7 @@ Unlike linear regression, logistic regression does not have a closed-form soluti
         \ensuretikzbackgroundlayers
     \end{tikzpicture}
         \caption{Gradient-descent iterates contracting toward the minimizer of a convex quadratic cost (schematic). Ellipses are level sets; arrows show the ``steepest descent along contours'' direction. Poor conditioning stretches the ellipses and slows convergence.}
-        \label{fig:lec1_gd}
+        \label{fig:lec4_gd}
     \end{figure}
 
 \paragraph{Geometry of the logistic surface.} The decision rule is linear in feature space even though the posterior itself is smoothly varying. \Cref{fig:lec2-logistic-boundary} depicts this duality: the white hyperplane slices the space into two half-spaces while the probability ``ramp'' shows how margins translate into calibrated confidences.
@@ -456,7 +456,7 @@ Two common priors explain the two penalties that appear most often in practice: 
 \end{itemize}
 \end{tcolorbox}
 
-Once we have a probabilistic classifier, we need diagnostics that quantify performance on held-out data. For multi-class prediction, the confusion matrix \(C_{ij}\) records the number of examples with true class \(i\) predicted as \(j\). From \(C\) we compute accuracy, per-class precision/recall, and aggregate metrics. \emph{Macro-averaged} precision/recall first evaluate the metric per class and then average them uniformly, whereas \emph{micro-averaged} precision/recall pool all true/false positives across classes before computing the ratio (equivalent to weighting each example equally). Visual inspection (\Cref{fig:lec1_confusion}) helps diagnose systematic errors across classes.
+Once we have a probabilistic classifier, we need diagnostics that quantify performance on held-out data. For multi-class prediction, the confusion matrix \(C_{ij}\) records the number of examples with true class \(i\) predicted as \(j\). From \(C\) we compute accuracy, per-class precision/recall, and aggregate metrics. \emph{Macro-averaged} precision/recall first evaluate the metric per class and then average them uniformly, whereas \emph{micro-averaged} precision/recall pool all true/false positives across classes before computing the ratio (equivalent to weighting each example equally). Visual inspection (\Cref{fig:lec4_confusion}) helps diagnose systematic errors across classes.
 
 On highly imbalanced problems accuracy and AUROC can be misleading; prefer class-balanced metrics (macro-F1) and AUPRC. \Cref{fig:lec1-roc-pr} collects ROC and PR curves on one page so you can choose operating points explicitly.
 
@@ -520,7 +520,7 @@ Use class or sample weights (e.g., inverse prevalence) inside the loss, and pick
         \ensuretikzbackgroundlayers
     \end{tikzpicture}
         \caption{Confusion matrix for a three-class classifier; diagonals dominate, indicating strong accuracy with modest confusion between classes B and C.}
-        \label{fig:lec1_confusion}
+        \label{fig:lec4_confusion}
     \end{figure}
 
 
