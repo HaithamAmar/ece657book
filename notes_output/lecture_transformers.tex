@@ -156,7 +156,7 @@ Because \(V=\mathbf{I}_2\), the attention output equals the weight matrix: \(\op
 \end{tcolorbox}
 
 \begin{tcolorbox}[summarybox, title={Shape ledger}]
-We treat mini\hyp{}batches as \(\mathbf{X}\in\mathbb{R}^{B\times n \times d_{\text{model}}}\) (batch, sequence, features). After the linear projections each head carries \(\mathbf{Q},\mathbf{K}\in\mathbb{R}^{B\times h \times n \times d_k}\), \(\mathbf{V}\in\mathbb{R}^{B\times h \times n \times d_v}\), and the attention weights live in \(\mathbb{R}^{B\times h \times n \times n}\). Reading dimensions in this order avoids confusion when mixing frameworks; \(h\cdot d_k = d_{\text{model}}\) (often \(d_v=d_k\)). FFN inner widths typically 2--4$\times d_{\text{model}}$.
+We treat mini\hyp{}batches as \(\mathbf{X}\in\mathbb{R}^{B\times n \times d_{\text{model}}}\) (batch, sequence, features), and \(h\) always denotes the number of attention heads. After the linear projections each head carries \(\mathbf{Q},\mathbf{K}\in\mathbb{R}^{B\times h \times n \times d_k}\), \(\mathbf{V}\in\mathbb{R}^{B\times h \times n \times d_v}\), and the attention weights live in \(\mathbb{R}^{B\times h \times n \times n}\). Reading dimensions in this order avoids confusion when mixing frameworks; \(h\cdot d_k = d_{\text{model}}\) (often \(d_v=d_k\)). FFN inner widths typically 2--4$\times d_{\text{model}}$.
 \end{tcolorbox}
 
 \begin{tcolorbox}[summarybox, title={Complexity and memory}]

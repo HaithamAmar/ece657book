@@ -62,7 +62,7 @@ where the penalty term covers hard limits (actuator saturation, safety constrain
 \end{tcolorbox}
 
 \begin{tcolorbox}[summarybox, title={Application example: GA over neural networks (outer-loop design search)}]
-Neural networks are trained by gradients, but many \emph{design} decisions around them are discrete, constrained, and evaluation\hyp{}limited. Consider designing a CNN or an RNN for a fixed task and dataset. The inner loop is familiar: train by backpropagation and score generalization on a validation split. The outer loop is the hard part: choose architecture and training knobs under a compute budget.
+Neural networks are trained by gradients, but many \emph{design} decisions around them are discrete, constrained, and evaluation\hyp{}limited. Consider designing a CNN (\Cref{chap:cnn}), an RNN (\Cref{chap:rnn}), or a Transformer (\Cref{chap:transformers}) for a fixed task and dataset. The inner loop is familiar: train by backpropagation and score generalization on a validation split. The outer loop is the hard part: choose architecture and training knobs under a compute budget.
 \par\smallskip
 A GA makes that outer loop explicit. Encode a candidate design as a chromosome \(\mathbf{g}\) containing discrete choices (depth, width, kernel sizes, pooling schedule, sequence length/window, optimizer family) and continuous knobs (learning rate, weight decay, dropout rate). Define an objective that matches the book's audit discipline:
 \[
