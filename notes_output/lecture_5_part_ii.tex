@@ -525,9 +525,9 @@ so in one asynchronous flip we recover \(\mathbf{s}^{(1)}=\mathbf{\xi}\). The en
 Beyond the intended memories \(\{\pm \mathbf{\xi}^\mu\}\), Hopfield networks can converge to \emph{spurious attractors}: stable states formed by mixtures of stored patterns. These unintended minima become increasingly common as the loading factor \(P/N\) grows (here \(P\) denotes the number of stored patterns); for random patterns the practical capacity is roughly \(0.138\, N\). The possibility of converging to a spurious state, or to the complemented memory rather than the original, explains why Hopfield networks are better viewed as associative memories than as discriminative classifiers.
 
 \paragraph{Historical and practical significance}
-I like Hopfield networks because they show a recurring engineering move: constrain a system until you can prove something useful, then use that proof as a debugging lens. Symmetry + no self-loops gives you an energy you can compute; asynchronous updates give you a monotone progress measure.
+Hopfield networks illustrate a recurring engineering move: constrain a system until you can prove something useful, then use that proof as a debugging lens. Symmetry + no self-loops gives an energy you can compute; asynchronous updates give a monotone progress measure.
 
-You will almost never deploy a classical Hopfield net as-is (capacity and spurious minima show up fast). But the idea ``memory as an objective landscape'' survives, and it is the right mental model to carry into later energy-based and content-addressable mechanisms.
+Classical Hopfield nets are rarely deployed as-is because capacity limits and spurious minima appear quickly. But the idea ``memory as an objective landscape'' survives, and it is the right mental model to carry into later energy-based and content-addressable mechanisms.
 
 \paragraph{Connections to other chapters.} Hopfield networks sit next to SOMs in spirit: both are unsupervised, but the diagnostic tools differ. SOMs give you map geometry (U-matrix/component planes); Hopfield gives you overlap and an energy trace to check whether recall is behaving. Later, attention revisits content-addressable lookup in a differentiable form.
 

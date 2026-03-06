@@ -1159,7 +1159,7 @@ One run of SOM training is repetitive in a good way: you keep presenting inputs,
 Batch SOM (one pass per epoch) is deterministic given the assignments; it often stabilizes faster than purely online updates.
 \end{tcolorbox}
 
-\noindent I find it useful to tell the SOM story in \emph{three stages}, even though the code is often written as a longer checklist. The stages are: \textbf{Initialization} (seed the prototype grid), \textbf{Competition} (pick a best-matching unit for each input), and \textbf{Cooperation} (update a neighborhood and decay \(\alpha(t)\) and \(\sigma(t)\)). The six-step procedure in \Cref{sec:som_training_steps} is simply one way to operationalize those stages when you implement the algorithm and decide when to stop.
+\noindent It is useful to tell the SOM story in \emph{three stages}, even though the code is often written as a longer checklist. The stages are: \textbf{Initialization} (seed the prototype grid), \textbf{Competition} (pick a best-matching unit for each input), and \textbf{Cooperation} (update a neighborhood and decay \(\alpha(t)\) and \(\sigma(t)\)). The six-step procedure in \Cref{sec:som_training_steps} is simply one way to operationalize those stages when implementing the algorithm and deciding when to stop.
 
 \subsection{Applications of Kohonen Self-Organizing Maps}
 \label{sec:som_applications_of_kohonen_self_organizing_maps}
@@ -1204,11 +1204,11 @@ When the neighborhood is collapsed to a single winner (no neighbors), the update
 
 \begin{tcolorbox}[summarybox, title={Theory notes and recipes}]
 \textbf{Convergence/magnification (theory lens):} With decays \(\alpha(t)\to 0\), \(\sigma(t)\to 0\) and \(\sum_t \alpha(t)=\infty\), \(\sum_t \alpha^2(t)<\infty\), SOM updates converge under mild assumptions \citep{ErwinObermayerSchulten1992,CottrellFort1986}. One qualitative takeaway is \emph{magnification}: dense regions of the data tend to attract more units of the map.\\
-\textbf{A practical recipe (engineering lens):} If I have no prior, I treat these as starting points, not rules. Use \(5\sqrt{N}\)--\(10\sqrt{N}\) units when unsure; hex grids reduce anisotropy; wrap-around (toroidal) grids reduce edge effects. Initialize \(\mathbf{w}_j\) from data or along the first two PCs; pick \(\alpha_0\in[0.1,0.5]\) and decay toward \(\alpha_{\min}\approx 10^{-3}\); set \(\sigma_0\) to roughly the map radius and decay toward 1--1.5 cells.
+\textbf{A practical recipe (engineering lens):} Without a strong prior, treat these as starting points rather than rules. Use \(5\sqrt{N}\)--\(10\sqrt{N}\) units when unsure; hex grids reduce anisotropy; wrap-around (toroidal) grids reduce edge effects. Initialize \(\mathbf{w}_j\) from data or along the first two PCs; pick \(\alpha_0\in[0.1,0.5]\) and decay toward \(\alpha_{\min}\approx 10^{-3}\); set \(\sigma_0\) to roughly the map radius and decay toward 1--1.5 cells.
 \end{tcolorbox}
 
 \begin{tcolorbox}[summarybox, title={Related and growing variants}]
-\textbf{Neural Gas / Growing Neural Gas} \citep{MartinetzBerkovichSchulten1993,Fritzke1994GrowingNeuralGas} drop the fixed grid and instead learn neighborhood structure (and, in the growing variants, add units dynamically). \textbf{Generative topographic mapping (GTM)} (Bishop et al.) provides a probabilistic, topographic embedding with likelihoods/uncertainty. I like to remember the landscape this way: k-means gives prototypes with no organization; SOMs add a fixed organizing prior; these variants let the organization itself adapt.
+\textbf{Neural Gas / Growing Neural Gas} \citep{MartinetzBerkovichSchulten1993,Fritzke1994GrowingNeuralGas} drop the fixed grid and instead learn neighborhood structure (and, in the growing variants, add units dynamically). \textbf{Generative topographic mapping (GTM)} (Bishop et al.) provides a probabilistic, topographic embedding with likelihoods/uncertainty. A useful way to place the landscape is this: k-means gives prototypes with no organization; SOMs add a fixed organizing prior; these variants let the organization itself adapt.
 \end{tcolorbox}
 
 \paragraph{Complexity and out-of-sample mapping.} A full online epoch costs \(O(NM)\) (N data, M units); batch passes cost similar but fewer epochs. For large M, use approximate nearest-neighbor BMU search (k-d trees or vector-index libraries such as FAISS). New points map via their BMU; optional soft responsibilities use \(h_{ci}\) for smoothing.

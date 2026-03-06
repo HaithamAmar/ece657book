@@ -190,7 +190,7 @@ Self-attention by itself does not know what ``before'' and ``after'' mean: witho
 \label{sec:transformers_multi_head_attention_mha}
 One attention head gives you one similarity space. Multi-head attention gives you several in parallel: each head learns its own projections and can focus on different relations at the same time (local vs.\ global cues, syntactic vs.\ semantic signals, or different parts of an image-like grid). You should not read heads as guaranteed ``modules'' with fixed roles; the point is capacity and parallel views under the same weighted-average mechanism.
 
-One intuition I find useful in language is that several relations matter at once. Some languages encode gender;
+A useful intuition in language is that several relations matter at once. Some languages encode gender;
 some emphasize agreement; and word order can differ substantially across languages (subject--verb--object versus
 other patterns). During translation you may need to track several of these constraints simultaneously while still
 resolving local collocations. Multi-head attention gives the model multiple learned ``views'' at the same time:
@@ -649,7 +649,7 @@ At generation step \(t\), the decoder computes one new query vector \(\mathbf{q}
 \end{equation}
 where \(\mathbf{K}_{1:t}\) and \(\mathbf{V}_{1:t}\) are the matrices formed by stacking all cached keys/values up to step \(t\). The engineering tradeoff is simple: bigger context means bigger cache. So context size is not only a modeling choice; it is also a memory/latency budget choice at inference time.
 
-\begin{tcolorbox}[summarybox, title={Tokenization note from a GPT-2-style implementation (why students should care)}]
+\begin{tcolorbox}[summarybox, title={Tokenization note from a GPT-2-style implementation}]
 The nanochat reference implementation reinforces four practical points:
 \begin{itemize}
     \item GPT-style tokenizers are often \emph{byte-level BPE}: this avoids unknown-token failures on odd characters and mixed text.
@@ -718,6 +718,8 @@ Historically, GPT-1 used a 12-layer decoder-only stack with about 117M parameter
 \paragraph{Encoder--decoder (seq2seq): conditional generation via cross-attention.}
 Encoder--decoder Transformers keep the clean translation structure: the encoder reads the source; the decoder generates the target with causal self-attention plus cross-attention into the encoder outputs. This remains a natural fit whenever the output is explicitly conditioned on an input sequence (translation, summarization, structured prediction). Text-to-text models such as T5 make this conditioning view explicit by casting many tasks into a single seq2seq format \citep{Raffel2020}.
 
+At this point the core mechanics are in place. The rest of the chapter shifts from \emph{what a Transformer layer does} to three practical questions readers usually care about next. First, how do we keep attention usable when context gets long and the quadratic cost becomes painful? Second, once pre-training has produced a capable base model, how do we adapt it to a task or domain without breaking the useful structure it already learned? Third, when the model emits a probability distribution rather than a sentence, how do decoding and post-training decisions change what a user actually sees? Keeping these stages separate helps: architecture, pre-training, adaptation, and deployment are connected, but they are not the same engineering decision.
+
 \subsection{Long Contexts and Efficient Attention}
 \label{sec:transformers_long_contexts_and_efficient_attention}
 Memory and compute scale quadratically with sequence length. Practical systems therefore mix several tricks:
@@ -730,6 +732,8 @@ Relative/rotary position schemes and KV caching are summarized in \Cref{sec:tran
 
 \subsection{Fine-Tuning and Parameter-Efficient Adaptation}
 \label{sec:transformers_fine_tuning_and_parameter_efficient_adaptation}
+Long-context tricks keep the base architecture affordable; fine-tuning answers a different question. By the time we fine-tune, the model already knows how to represent tokens, mix context, and predict the next symbol. What changes now is the \emph{behavior we want from that machinery}. Sometimes we want a domain shift (medical reports, legal text, telemetry logs). Sometimes we want a task shift (classification, summarization, retrieval support, instruction following). The practical concern is always the same: move the model enough to become useful on the new task, but not so much that we erase useful general behavior or make the run impossible to reproduce.
+
 Pre-training gives you a general-purpose language model; fine-tuning adapts that model to a task, domain, or interaction style. \emph{Full fine-tuning} updates all weights, which can yield the best performance when you have enough high-quality data and a stable objective, but it is also the easiest to overfit or to accidentally ``forget'' useful general behavior.
 
 \emph{Parameter-efficient fine-tuning (PEFT)} methods (LoRA, adapters, prefix/prompt tuning, and related variants) inject small trainable modules while freezing most of the base model, enabling rapid adaptation with lower memory and more predictable changes. In LoRA, you freeze a weight matrix \(\mathbf{W}\) and learn a low-rank update \(\Delta \mathbf{W}=\mathbf{B}\mathbf{A}\) (rank \(r\)), so only a small number of parameters move during tuning. These methods are attractive when you want many task-specific variants of a shared base model, or when you need to keep the base weights fixed for deployment and auditing.
@@ -739,6 +743,8 @@ Regardless of whether you update all weights or only a small adapter, treat fine
 
 \subsection{Decoding and Evaluation}
 \label{sec:transformers_decoding_and_evaluation}
+A trained language model does not produce a sentence directly; it produces logits over the next-token vocabulary. Decoding is the separate procedure that converts those scores into an actual sequence. This distinction matters because an observed failure may arise either from the learned distribution itself or from the inference rule used to select tokens. Training determines which continuations receive probability mass; decoding determines how that distribution is turned into behavior at generation time.
+
 Training produces a distribution over the next token; decoding turns that distribution into an actual sequence. For decoder-only models, decoding runs autoregressively: predict \(p_\theta(x_{t+1}\mid x_{1:t})\), choose a token, append it, and repeat. This is also where the KV cache matters (see \Cref{fig:lec13_micro_figures}): you reuse past keys/values so generating one more token does not require recomputing attention over the entire prefix from scratch.
 
 \paragraph{From token representations to a next-token distribution.}
@@ -778,6 +784,8 @@ For evaluation, perplexity summarizes next-token performance for language modeli
 
 \subsection{Alignment (Brief)}
 \label{sec:transformers_alignment_brief}
+Pre-training, fine-tuning, decoding, and alignment operate at different stages of the system. Pre-training learns broad statistical structure; fine-tuning specializes that structure to a task or domain; decoding converts token probabilities into sequences at inference time; alignment modifies post-training behavior relative to human preferences or safety constraints. Keeping these stages distinct helps when diagnosing failures, because the source of a problem may lie in the data, the task definition, the retrieval setup, the decoding policy, or the evaluation protocol rather than in alignment alone.
+
 Post-training \emph{alignment} shapes model behavior to match human preferences, safety constraints, and interaction norms. In broad terms, alignment objectives do not change the Transformer mechanics; they change what you reward during optimization (and therefore what behaviors are reinforced).
 
 RLHF optimizes a policy against a learned reward model (with careful regularization to avoid drifting too far from the base model). Preference-based objectives such as DPO, KTO, or ORPO optimize directly from ranked pairs without a full reinforcement-learning loop.
@@ -787,13 +795,23 @@ Alignment can improve helpfulness and reduce obvious failures, but it can also i
 
 \subsection{Advanced notes (optional)}
 \label{sec:transformers_advanced_attention_and_efficiency_notes_snapshot}
-\begin{itemize}
-    \item \textbf{Relative/rotary positions.} RoPE \citep{Su2021RoPE} encodes position by rotating query and key vectors rather than adding a fixed embedding to the token representation. Concretely, for a position \(m\) the \(d\)-dimensional query is partitioned into \(d/2\) pairs of dimensions; each pair \((q_{2i}, q_{2i+1})\) is rotated by angle \(m\theta_i\) where \(\theta_i = 10000^{-2i/d}\). Because the dot product of a rotated query at position \(m\) with a rotated key at position \(n\) depends only on the \emph{relative} displacement \(m - n\) (by the rotation subtraction identity), the model can attend to relative distance without explicitly computing it. This property allows trained RoPE models to extrapolate better to sequence lengths beyond those seen during training, which is why nearly all modern large-language-model families (LLaMA, Mistral, Qwen) adopt RoPE as their default positional scheme. ALiBi \citep{Press2022ALiBi} takes a simpler approach: it subtracts a linear bias proportional to token distance from attention logits, requiring no change to embeddings; the trade-off is that absolute tables keep fixed anchors useful for classification tokens while rotary/relative schemes favour extrapolation and smoothly sliding context windows.
-    \item \textbf{KV-cache management.} Decoder-only inference stores per-layer key/value tensors; chunked caching, paged attention, and sliding windows keep memory linear in context length. Speculative decoding and assisted decoding reuse a lightweight draft model to propose tokens that the full model verifies before committing.
-    \item \textbf{Efficient kernels.} FlashAttention \citep{Dao2022FlashAttention} computes attention blocks in streaming tiles to keep activations in SRAM. Long-context variants mix windowed attention, recurrent memory, or low-rank adapters; state-space models such as Mamba \citep{Gu2023Mamba} provide linear-time alternatives that back-propagate through implicitly defined kernels.
-    \item \textbf{Mixture-of-experts and routing.} Sparse MoE layers \citep{Shazeer2017MoE} add conditional capacity; router z-losses, capacity factors, and load-balancing losses are essential to avoid expert collapse.
-    \item \textbf{Test-time scaling.} Curriculum-based sampling (nucleus, temperature annealing), classifier-free guidance, and beam-search variants all tune the accuracy/latency frontier; plan to log decoding hyperparameters alongside checkpoints so experiments are reproducible.
-\end{itemize}
+The following notes are intended as orientation to ideas that now appear frequently in modern model descriptions. The goal is not to add a new prerequisite list, but to identify the problem each idea addresses and the trade-off it introduces.
+
+\paragraph{Relative/rotary positions.}
+RoPE \citep{Su2021RoPE} changes how position enters the attention score. Instead of adding a fixed positional vector to the token representation, it rotates each query/key coordinate pair by a position-dependent angle. Concretely, for position \(m\) the \(d\)-dimensional query is partitioned into \(d/2\) pairs \((q_{2i}, q_{2i+1})\), and each pair is rotated by angle \(m\theta_i\) where \(\theta_i = 10000^{-2i/d}\). The important consequence is simpler than the formula: the dot product between a query at position \(m\) and a key at position \(n\) depends on the \emph{relative} offset \(m-n\). That is why RoPE often extrapolates better to longer contexts. ALiBi \citep{Press2022ALiBi} takes an even lighter approach: it subtracts a linear distance penalty directly from the attention logits. In practice, think of absolute tables, RoPE, and ALiBi as three ways to tell attention where tokens sit; the main engineering question is whether you value fixed anchors or better long-context extrapolation.
+
+\paragraph{KV-cache management.}
+Decoder-only inference stores per-layer key/value tensors so the model does not recompute the whole prefix at every step. This makes generation feasible, but it turns context length into a memory-budget question. Chunked caching, paged attention, and sliding windows are engineering responses to that constraint. Speculative decoding and assisted decoding push the same idea further: let a cheaper draft model propose tokens, then let the full model verify them before committing.
+
+\paragraph{Efficient kernels and recurrent alternatives.}
+FlashAttention \citep{Dao2022FlashAttention} keeps the same exact attention computation but changes the implementation so blocks of the attention map are streamed through fast memory (SRAM) rather than materialized wastefully. Long-context variants then push further by mixing windowed attention, recurrent memory, or low-rank approximations. State-space models such as Mamba \citep{Gu2023Mamba} attack the same long-context problem from a different angle: instead of saying ``make quadratic attention cheaper,'' they ask whether a different sequence operator can preserve long-range structure with linear-time updates.
+
+\paragraph{Mixture-of-experts and routing.}
+Sparse MoE layers \citep{Shazeer2017MoE} increase model capacity by activating only a subset of expert blocks per token. The appealing story is ``more capacity without paying full dense cost.'' The engineering warning is that routing is now part of the optimization problem. Router z-losses, capacity factors, and load-balancing losses are not decoration; they are what prevent the system from collapsing onto a few overused experts.
+
+\paragraph{Test-time scaling.}
+Not every performance gain comes from retraining. Decoding choices such as nucleus sampling, temperature schedules, beam-style search variants, and guided or assisted generation change the accuracy/latency frontier at inference time. This is why decoding settings belong in experiment logs. If two runs use different sampling rules, they are not the same system from an evaluation standpoint.
+
 Parameter-efficient tuning methods are covered in \Cref{sec:transformers_fine_tuning_and_parameter_efficient_adaptation}.
 
 \subsection{RNNs vs. Transformers: When and Why}
@@ -814,7 +832,7 @@ Equivariance & N/A & Permutation-equivariant until positions (cf. conv translati
 \end{tabular}
 \end{table}
 
-\begin{tcolorbox}[summarybox, title={Key takeaways}]
+\begin{tcolorbox}[summarybox, breakable, title={Key takeaways}]
 \noindent\textbf{Terminology.} Masked-LM and next-token LM are \emph{self-supervised} (targets derived from input), not unsupervised.
 \par\smallskip
 \begin{itemize}
@@ -839,7 +857,8 @@ Equivariance & N/A & Permutation-equivariant until positions (cf. conv translati
 \end{itemize}
 \end{tcolorbox}
 
-\begin{tcolorbox}[summarybox, title={Exercises}]
+\clearpage
+\begin{tcolorbox}[summarybox, breakable, title={Exercises}]
 \textbf{Exercise 1 (Easy).} Hand-compute one masked self-attention step for a 3-token prefix. Write the causal mask, compute the attention weights, and compute the output vectors. \\
 \textbf{Deliverable:} the mask matrix + the attention weights (as numbers) + a short note explaining exactly which future tokens were blocked and why.
 
@@ -850,9 +869,10 @@ Equivariance & N/A & Permutation-equivariant until positions (cf. conv translati
 \smallskip
 \textbf{Exercise 3 (Medium).} Verify the representation claim: without positional information, a self-attention block is permutation-equivariant. Test this by permuting token order and checking that outputs permute the same way; then add positional encodings and show the equivariance breaks in the expected way. \\
 \textbf{Deliverable:} one small numerical sanity check (before/after positions) + one paragraph linking the observation to why positional design matters.
+\end{tcolorbox}
 
-\par\medskip
-\noindent\textbf{If you are skipping ahead.} After this chapter, the book pivots away from neural sequence models, so treat this chapter as the last stop for masking discipline and evaluation hygiene. If you need the embedding objectives and bias/deployment checklist, see \Cref{chap:nlp}.
+\begin{tcolorbox}[summarybox, title={If you are skipping ahead}]
+After this chapter, the book pivots away from neural sequence models, so this is the last stop for masking discipline and evaluation hygiene. If you need the embedding objectives and the bias/deployment checklist that feed into this chapter, see \Cref{chap:nlp}.
 \end{tcolorbox}
 
 \medskip
