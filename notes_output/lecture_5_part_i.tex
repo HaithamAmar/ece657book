@@ -618,7 +618,7 @@ Now evaluate four inputs, using squared Euclidean distance to pick the best and 
 The BMU/second-BMU pairs are \((4,1)\), \((2,4)\), \((3,4)\), \((1,4)\). Under 4-neighbor adjacency, pairs \((4,1)\) and \((1,4)\) are \emph{not} adjacent (diagonal), so \(\text{TE}=2/4=0.5\).
 Meanwhile the average distance to the BMU is \(\text{QE}\approx 0.1962\).
 
-The lesson is that QE is a ``prototype fit'' score, while TE is an ``ordering'' score. You can improve QE by moving prototypes toward the data while still tearing the map if nearby grid units do not represent nearby regions of the input space.
+The lesson is that QE is a ``prototype fit'' score, while TE is an ``ordering'' score. Improving QE alone does not prevent a torn map when nearby grid units represent unrelated regions of the input space.
 \end{tcolorbox}
 
 \begin{tcolorbox}[summarybox, title={Batch SOM in practice}, breakable]

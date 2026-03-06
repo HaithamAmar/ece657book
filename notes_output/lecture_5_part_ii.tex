@@ -103,17 +103,13 @@ with \(w'_{ij}=4w_{ij}\) and \(\theta'_i = 2\theta_i + 2\sum_{j\neq i} w_{ij}\) 
 This chapter uses the threshold update \(s_i \leftarrow \operatorname{sign}(h_i-\theta_i)\). Under that convention the energy carries the term \(+\sum_i \theta_i s_i\). If you prefer to write the same dynamics with an additive bias \(b_i\) in the local field, set \(b_i=-\theta_i\); the identical energy is then written as \(-\sum_i b_i s_i\). The dynamics are unchanged once the translation \(b_i=-\theta_i\) is kept explicit.
 \end{tcolorbox}
 
-\begin{center}
-\begin{tabular}{@{}p{0.32\linewidth}p{0.28\linewidth}p{0.28\linewidth}@{}}
-\toprule
- & \(\{-1,+1\}\) encoding & \(\{0,1\}\) encoding \\
-\midrule
-State variable & \(s_i \in \{-1,+1\}\) & \(x_i = (s_i+1)/2\) \\
-Energy & \(E_{\pm1}(\mathbf{s})\) & \(E_{01}(\mathbf{x}) = E_{\pm1}(2\mathbf{x}-\mathbf{1})\) \\
-Update rule & \(s_i \leftarrow \operatorname{sign}(h_i - \theta_i)\) & \(x_i \leftarrow \mathbf{1}[h'_i - \theta'_i > 0]\) \\
-\bottomrule
-\end{tabular}
-\end{center}
+\begin{tcolorbox}[summarybox, title={Encoding correspondence at a glance}]
+\begin{itemize}
+    \item \textbf{State variable:} \(s_i \in \{-1,+1\}\) in the bipolar form, and \(x_i=(s_i+1)/2\) in the binary form.
+    \item \textbf{Energy:} \(E_{01}(\mathbf{x}) = E_{\pm1}(2\mathbf{x}-\mathbf{1})\) up to the additive constant shown above.
+    \item \textbf{Update rule:} \(s_i \leftarrow \operatorname{sign}(h_i-\theta_i)\) in the bipolar form, and \(x_i \leftarrow \mathbf{1}[h'_i-\theta'_i>0]\) in the binary form.
+\end{itemize}
+\end{tcolorbox}
 
 Whenever an equation later in the chapter uses \(s_i\) you can translate it to \(x_i\) via this affine mapping; we call out both forms only when the distinction matters. As a concrete example, the pattern \(\mathbf{x}=[1,0,1,0]\) in the \(\{0,1\}\) encoding maps to \(\mathbf{s}=2\mathbf{x}-\mathbf{1}=[+1,-1,+1,-1]\); conversely \(\mathbf{s}=[-1,+1,+1]\) corresponds to \(\mathbf{x}=[0,1,1]\).
 
@@ -417,17 +413,11 @@ so \(\operatorname{sign}(\mathbf{h})=\mathbf{\xi}\). That is the basic content-a
 
 \begin{tcolorbox}[summarybox, title={Numeric recall trace (two asynchronous flips)}]
 Start from a probe with two wrong bits, \(\mathbf{s}^{(0)}=(1,-1,-1,-1)\). With \(\theta_i=0\), the local field is \(h_i=\sum_j w_{ij}s_j\), and the update rule \eqref{eq:hopfield_update_rule} sets \(s_i\leftarrow \operatorname{sign}(h_i)\). One possible asynchronous update order (neuron 2, then neuron 3) gives:
-\begin{center}
-\begin{tabular}{@{}lccc@{}}
-\toprule
-Step & Update & Local field & New state \\
-\midrule
-0 & -- & -- & \((1,-1,-1,-1)\) \\
-1 & \(i=2\) & \(h_2=0.25\) & \((1,1,-1,-1)\) \\
-2 & \(i=3\) & \(h_3=0.75\) & \((1,1,1,-1)=\mathbf{\xi}\) \\
-\bottomrule
-\end{tabular}
-\end{center}
+\begin{itemize}
+    \item \textbf{Step 0:} \(\mathbf{s}^{(0)}=(1,-1,-1,-1)\).
+    \item \textbf{Step 1 (update \(i=2\)):} \(h_2=0.25\), so \(\mathbf{s}^{(1)}=(1,1,-1,-1)\).
+    \item \textbf{Step 2 (update \(i=3\)):} \(h_3=0.75\), so \(\mathbf{s}^{(2)}=(1,1,1,-1)=\mathbf{\xi}\).
+\end{itemize}
 The energy drops along the way: \(E=0.5 \rightarrow 0 \rightarrow -1.5\).
 \end{tcolorbox}
 

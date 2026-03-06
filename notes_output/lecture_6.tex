@@ -385,7 +385,7 @@ The identity term \(\mathbf{I}\) ensures that the gradient never completely vani
 A well-designed augmentation pipeline can double or triple effective training-set diversity without collecting new data. Key families:
 \begin{itemize}
   \item \textbf{Geometric:} random horizontal/vertical flips, rotations ($\pm$15--30\textdegree), crops and resizes, affine shears.
-  \item \textbf{Colour/photometric:} brightness, contrast, saturation, hue jitter; grayscale conversion; Gaussian blur.
+  \item \textbf{Color/photometric:} brightness, contrast, saturation, hue jitter; grayscale conversion; Gaussian blur.
   \item \textbf{Mixing augmentations:} \textbf{MixUp} linearly interpolates two training images and their labels (\(\tilde{x}=\lambda x_i+(1-\lambda)x_j\)); \textbf{CutMix} pastes a rectangular region from one image into another and mixes labels proportionally to area.
   \item \textbf{Test-time augmentation (TTA):} average predictions over multiple augmented views at inference to reduce prediction variance.
 \end{itemize}

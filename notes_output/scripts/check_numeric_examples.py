@@ -357,40 +357,62 @@ def check_hopfield():
         raise AssertionError("Could not parse the printed Hopfield recall energy sequence")
     E_seq_expected = [float(mEseq.group(1)), float(mEseq.group(2)), float(mEseq.group(3))]
 
-    # Extract tabular lines for steps 0/1/2.
-    mtab = re.search(r"\\begin\{tabular\}[\s\S]*?\\midrule([\s\S]*?)\\bottomrule", box, re.DOTALL)
-    if not mtab:
-        raise AssertionError("Could not parse the Hopfield recall trace table")
-    tab = mtab.group(1)
     steps: list[tuple[int, int, float, tuple[int, int, int, int]]] = []
-    for raw in tab.splitlines():
-        line = raw.strip()
-        if not line or "&" not in line or line.startswith("%"):
-            continue
-        line = line.rstrip("\\").strip()
-        cells = [c.strip() for c in line.split("&")]
-        if len(cells) < 4:
-            continue
-        step = int(cells[0])
-        if step == 0:
-            # 0 & -- & -- & (state)
-            mstate = re.search(r"(?<!\\)\(([^)]*)\)", cells[3])
-            if not mstate:
-                raise AssertionError("Could not parse Hopfield recall step-0 state")
-            steps.append((0, 0, 0.0, _parse_int_tuple(mstate.group(1))))
-            continue
+    mtab = re.search(r"\\begin\{tabular\}[\s\S]*?\\midrule([\s\S]*?)\\bottomrule", box, re.DOTALL)
+    if mtab:
+        tab = mtab.group(1)
+        for raw in tab.splitlines():
+            line = raw.strip()
+            if not line or "&" not in line or line.startswith("%"):
+                continue
+            line = line.rstrip("\\").strip()
+            cells = [c.strip() for c in line.split("&")]
+            if len(cells) < 4:
+                continue
+            step = int(cells[0])
+            if step == 0:
+                mstate = re.search(r"(?<!\\)\(([^)]*)\)", cells[3])
+                if not mstate:
+                    raise AssertionError("Could not parse Hopfield recall step-0 state")
+                steps.append((0, 0, 0.0, _parse_int_tuple(mstate.group(1))))
+                continue
 
-        mi = re.search(r"i\s*=\s*(\d+)", cells[1])
-        mhv = re.search(r"=\s*([0-9.+-]+)", cells[2])
-        mstate = re.search(r"(?<!\\)\(([^)]*)\)", cells[3])
-        if not (mi and mhv and mstate):
-            continue
-        update_i = int(mi.group(1))
-        h_val = float(mhv.group(1))
-        state_tup = _parse_int_tuple(mstate.group(1))
-        if len(state_tup) != 4:
-            raise AssertionError("Malformed state tuple in Hopfield recall table")
-        steps.append((step, update_i, h_val, state_tup))
+            mi = re.search(r"i\s*=\s*(\d+)", cells[1])
+            mhv = re.search(r"=\s*([0-9.+-]+)", cells[2])
+            mstate = re.search(r"(?<!\\)\(([^)]*)\)", cells[3])
+            if not (mi and mhv and mstate):
+                continue
+            update_i = int(mi.group(1))
+            h_val = float(mhv.group(1))
+            state_tup = _parse_int_tuple(mstate.group(1))
+            if len(state_tup) != 4:
+                raise AssertionError("Malformed state tuple in Hopfield recall table")
+            steps.append((step, update_i, h_val, state_tup))
+    else:
+        mstep0 = re.search(
+            r"\\textbf\{Step 0:\}\s*\\\(\\mathbf\{s\}\^\{\(0\)\}=\\?([([][^])]+[)\]])\\\)",
+            box,
+        )
+        if not mstep0:
+            raise AssertionError("Could not parse Hopfield recall trace table")
+        steps.append((0, 0, 0.0, _parse_int_tuple(mstep0.group(1).strip("[]()"))))
+
+        for match in re.finditer(
+            r"\\textbf\{Step\s+(\d+)\s+\(update\s+\\\(i=(\d+)\\\)\):\}\s*\\\(h_(\d+)=([0-9.+-]+)\\\),\s*so\s*\\\(\\mathbf\{s\}\^\{\(\d+\)\}=\\?([([][^])]+[)\]])(?:=\\mathbf\{\\xi\})?\\\)",
+            box,
+        ):
+            step = int(match.group(1))
+            update_i = int(match.group(2))
+            field_index = int(match.group(3))
+            h_val = float(match.group(4))
+            state_tup = _parse_int_tuple(match.group(5).strip("[]()"))
+            if len(state_tup) != 4:
+                raise AssertionError("Malformed state tuple in Hopfield recall table")
+            if field_index != update_i:
+                raise AssertionError(
+                    f"Hopfield recall trace used h_{field_index} for update i={update_i}"
+                )
+            steps.append((step, update_i, h_val, state_tup))
 
     steps_sorted = sorted(steps, key=lambda t: t[0])
     if [t[0] for t in steps_sorted] != [0, 1, 2]:

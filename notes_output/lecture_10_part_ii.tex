@@ -261,7 +261,7 @@ u^\ast = \frac{\sum_i \lambda_i u_i}{\sum_i \lambda_i},
 eliminating the defuzzification integral. The trade-offs are:
 \begin{itemize}
     \item \textbf{Mamdani:} transparent consequents, straightforward incorporation of expert knowledge, but higher computational cost due to aggregation and centroid evaluation.
-    \item \textbf{Sugeno/TSK:} faster evaluation (weighted averages), amenable to gradient-based tuning of the consequent parameters, yet less interpretable because consequents are numerical functions rather than linguistic labels.
+    \item \textbf{Sugeno/TSK:} faster evaluation through weighted averages and easier gradient-based tuning of the consequent parameters, but less interpretable because consequents are numerical functions rather than linguistic labels.
 \end{itemize}
 For the thermostat example, Mamdani rules (``IF error is Cold AND rate is Stable THEN heater power is High'') are ideal when operators must audit decisions, whereas a Sugeno/TSK variant is preferable when embedding the controller into a high-speed or automatically tuned loop.
 \footnote{Classic sources: \citet{Mamdani1975} for clipping implication; \citet{TakagiSugeno1985} for TSK; \citet{Jang1993} for ANFIS; see also \citep{Klement2000,Dubois1988} for operator/implicator theory.}
@@ -273,7 +273,7 @@ A natural limitation of handcrafted fuzzy systems is that membership breakpoints
 
 \paragraph{Architecture (five layers, two-input example).}
 \begin{enumerate}
-  \item \textbf{Fuzzification layer.} Each node computes the membership degree \(\mu_{A_i}(x_1)\) or \(\mu_{B_j}(x_2)\) using trainable membership function parameters (e.g., Gaussian centres and widths).
+  \item \textbf{Fuzzification layer.} Each node computes the membership degree \(\mu_{A_i}(x_1)\) or \(\mu_{B_j}(x_2)\) using trainable membership function parameters (e.g., Gaussian centers and widths).
   \item \textbf{Rule strength layer.} Each node \(i\) computes the product (or minimum) of its antecedent memberships: \(w_i = \mu_{A_i}(x_1) \cdot \mu_{B_i}(x_2)\).
   \item \textbf{Normalisation layer.} Each firing strength is normalised: \(\bar{w}_i = w_i / \sum_j w_j\).
   \item \textbf{Consequent layer.} Each node computes \(\bar{w}_i f_i\) where \(f_i = p_i x_1 + q_i x_2 + r_i\) is a linear (Sugeno) consequent with trainable parameters \((p_i, q_i, r_i)\).
@@ -284,7 +284,7 @@ A natural limitation of handcrafted fuzzy systems is that membership breakpoints
 ANFIS uses a hybrid of gradient-descent (backpropagation, for the membership-function parameters in layer 1) and least-squares estimation (LSE, for the linear consequent parameters in layer 4). The LSE pass is exact and fast; the gradient pass tunes the shape of the antecedents. Iterating these two passes converges reliably for moderate-sized problems.
 
 \paragraph{Connection to the fuzzy trilogy.}
-ANFIS closes the loop between the three Part III chapters: the membership functions of \Cref{chap:fuzzysets} become trainable nodes, the extension/composition ideas of \Cref{chap:fuzzyrelations} govern how rule strengths propagate, and the Sugeno inference of this chapter provides the differentiable output. The parameters that ANFIS tunes automatically (breakpoints, widths, rule weights) can also be optimised with a genetic algorithm --- see \Cref{chap:evo} for that population-based alternative when the search space is non-smooth or multi-modal.
+ANFIS closes the loop between the three Part III chapters: the membership functions of \Cref{chap:fuzzysets} become trainable nodes, the extension/composition ideas of \Cref{chap:fuzzyrelations} govern how rule strengths propagate, and the Sugeno inference of this chapter provides the differentiable output. The parameters that ANFIS tunes automatically (breakpoints, widths, rule weights) can also be optimized with a genetic algorithm --- see \Cref{chap:evo} for that population-based alternative when the search space is non-smooth or multi-modal.
 
 \begin{tcolorbox}[summarybox, title={Key takeaways}]
 \begin{itemize}

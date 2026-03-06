@@ -706,8 +706,10 @@ With the backprop derivation in place, it helps to compare the standard nonlinea
 \FloatBarrier
 
 For quick reference:
-\begin{center}
+\begin{table}[h]
+\centering
 \small
+\caption{Activation derivative quick reference. Forward-pass activations can be reused directly for sigmoid and tanh derivatives; ReLU depends on the sign of the pre-activation.}
 \begin{tabular}{@{}llll@{}}
 \toprule
 Activation & \(f(z)\) & \(f'(z)\) & Reuse from forward pass? \\
@@ -717,7 +719,7 @@ Sigmoid & \(\sigma(z)\) & \(\sigma(z)\bigl(1-\sigma(z)\bigr)\) & Yes (\(a(1-a)\)
 ReLU & \(\max(0,z)\) & \(\mathbf{1}_{z>0}\) & Yes (sign of pre-activation) \\
 \bottomrule
 \end{tabular}
-\end{center}
+\end{table}
 For ReLU, take derivative \(0\) at the origin.
 
 \paragraph{Trade-offs}

@@ -97,7 +97,7 @@ Before editing, I audited all P0 items. Several were already fixed in recent pas
 ### [DONE-05] P1-05 + P2-06 — ResNet Rationale + Data Augmentation Box — lecture_6.tex (Ch 11) ✅
 - **File:** `lecture_6.tex`
 - **Insertion 1 (ResNet):** Added `\paragraph{Residual (skip) connections}` after the gradient clipping paragraph, with the residual learning formula `y = F(x) + x`, the gradient identity term `I` explanation, and He et al. (2016) citation
-- **Insertion 2 (Augmentation):** Added `Data augmentation` tcolorbox after the ResNet paragraph covering: geometric transforms, colour jitter, MixUp (Zhang 2018), CutMix (Yun 2019), test-time augmentation, and label-preservation rules
+- **Insertion 2 (Augmentation):** Added `Data augmentation` tcolorbox after the ResNet paragraph covering: geometric transforms, color jitter, MixUp (Zhang 2018), CutMix (Yun 2019), test-time augmentation, and label-preservation rules
 
 ### [DONE-06] P1-07 — Expanded RoPE/ALiBi Explanation — lecture_transformers.tex (Ch 14) ✅
 - **File:** `lecture_transformers.tex`

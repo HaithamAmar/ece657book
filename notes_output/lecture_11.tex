@@ -50,9 +50,9 @@ Genetic algorithms remain relevant because many high-impact optimization loops a
 This also explains the bridge from Part III. Fuzzy systems expose structured, interpretable policy components (membership shapes and rules), and evolutionary search provides a practical mechanism for tuning those components when manual adjustment does not scale.
 \end{tcolorbox}
 
-\begin{tcolorbox}[summarybox, title={Application note: budgeted search in the wild (locomotion, ML/LLMs, and physical experiments)}]
-\textbf{Robot gait / locomotion.} Suppose we want a legged robot to move forward robustly across slightly different terrains. The design has mixed knobs: continuous parameters (gains, trajectory coefficients, penalty weights) and discrete choices (controller mode, safety logic, constraint-handling policy). A single trial is expensive and noisy (contact dynamics, initial conditions, sensor noise), so it is natural to treat performance as a black-box fitness, average over multiple seeds, and search under a strict evaluation budget.\par
-\textbf{Hyperparameter and pipeline tuning (including LLM systems).} Many modern learning pipelines have the same structure: discrete design choices (model family, system configuration variant, data filters) plus continuous knobs (learning rates, thresholds, temperatures), measured by an empirical score with variance across runs. Evolutionary search is attractive when gradients are unavailable, the evaluation surface is rugged, or the objective invites silent failure modes (metric gaming, constraint violations). Read this chapter as the non\hyp{}differentiable sibling of ERM: same objective\hyp{}and\hyp{}audit discipline, different update mechanism.\par
+\begin{tcolorbox}[summarybox, title={Application note: budgeted search in practice}]
+\textbf{Robot gait / locomotion.} Suppose we want a legged robot to move forward robustly across slightly different terrains. The design has mixed knobs: continuous parameters (gains, trajectory coefficients, penalty weights) and discrete choices (controller mode, safety logic, constraint-handling policy). A single trial is expensive and noisy, so it is natural to treat performance as a black-box fitness, average over multiple seeds, and search under a strict evaluation budget.\par
+\textbf{Hyperparameter and pipeline tuning (including LLM systems).} Many modern learning pipelines have the same structure: discrete design choices (model family, system configuration variant, data filters) plus continuous knobs (learning rates, thresholds, temperatures), measured by an empirical score with variance across runs. Evolutionary search is attractive when gradients are unavailable, the evaluation surface is rugged, or the objective invites silent failure modes. Read this chapter as the non\hyp{}differentiable sibling of ERM: same objective\hyp{}and\hyp{}audit discipline, different update mechanism.\par
 \textbf{Physical-world analogy (jet nozzle).} Classic evolution-strategy examples describe optimizing a jet-nozzle shape via random mutations plus selection: you do not differentiate the wind tunnel; you spend a limited trial budget to evolve better designs. The point of the analogy is not biology, but budgeted optimization under constraints.
 \end{tcolorbox}
 
@@ -216,7 +216,9 @@ Two clarifications keep the analogy honest. First, ``genes'' are not physical ob
 \subsection{Summary of Biological Mechanisms Modeled in GAs}
 \label{sec:evo_summary_of_biological_mechanisms_modeled_in_gas}
 
-\begin{center}
+\begin{table}[h]
+\centering
+\caption{Biological analogies and their genetic-algorithm counterparts. Use this only as an intuition bridge; the formal algorithmic objects remain encodings, operators, and selection rules.}
 \begin{tabularx}{0.86\linewidth}{@{}l >{\raggedright\arraybackslash}X@{}}
 \toprule
 \textbf{Biological Process} & \textbf{GA Analog} \\
@@ -229,7 +231,7 @@ Selection & Fitness-based selection of parents and survivors \\
 Generations & Iterative improvement over time \\
 \bottomrule
 \end{tabularx}
-\end{center}
+\end{table}
 
 The remainder of this section formalizes how candidate solutions are encoded and how genetic operators manipulate those encodings during evolution.
 
@@ -461,7 +463,9 @@ x = \text{decimal value of binary string}
 If the decoded value is zero, it is invalid due to division by zero, so such genotypes are discarded or penalized.
 
 \paragraph{Fitness Evaluation}
-For minimization problems, selection still expects ``higher is better,'' so define fitness as a monotone transform of the cost (e.g., \(F(x)=-f(x)\) or \(F(x)=1/(1+f(x))\)), and then incorporate penalties or feasibility rules for constraint violations.
+\begin{sloppypar}
+For minimization problems, selection still expects ``higher is better,'' so map the cost to a monotone fitness score, for example \(F(x)=-f(x)\) or \(F(x)=1/(1+f(x))\). Then add penalties or feasibility rules for constraint violations.
+\end{sloppypar}
 
 \subsection{Population Initialization and Size}
 \label{sec:evo_population_initialization_and_size}
@@ -1014,7 +1018,7 @@ Common defaults are \(\omega \approx 0.7\), \(c_1 \approx c_2 \approx 1.5\), and
 PSO has no crossover or mutation operators; all information sharing happens through the velocity update. This makes PSO very easy to implement and well-suited to continuous, unconstrained (or lightly constrained) problems. GAs and DE generally outperform PSO when the search space has many discrete components or when diversity preservation is critical. PSO can converge prematurely on multimodal landscapes; restart heuristics or topology variants (ring, von Neumann) mitigate this.
 
 \paragraph{Pointer: neuro-evolution and NEAT.}
-Both GAs and PSO can optimise neural network weights and topologies simultaneously---an approach called \emph{neuro-evolution}. The landmark algorithm in this space is NEAT (NeuroEvolution of Augmenting Topologies), which grows network structure incrementally using historical markings to align crossover across networks with different topologies. NEAT demonstrated that topology-and-weight evolution could solve problems that fixed-topology neuro-evolution could not, and it has experienced a resurgence in reinforcement learning settings where the loss landscape is non-differentiable or highly non-stationary. Modern descendants (HyperNEAT, POET, Open-Ended Learning) extend the idea to indirect encodings and competitive co-evolution.
+Both GAs and PSO can optimize neural network weights and topologies simultaneously---an approach called \emph{neuro-evolution}. The landmark algorithm in this space is NEAT (NeuroEvolution of Augmenting Topologies), which grows network structure incrementally using historical markings to align crossover across networks with different topologies. NEAT demonstrated that topology-and-weight evolution could solve problems that fixed-topology neuro-evolution could not, and it has experienced a resurgence in reinforcement learning settings where the loss landscape is non-differentiable or highly non-stationary. Modern descendants (HyperNEAT, POET, Open-Ended Learning) extend the idea to indirect encodings and competitive co-evolution.
 
 \subsection{Genetic Programming (GP)}
 \label{sec:evo_genetic_programming_gp}
@@ -1059,12 +1063,12 @@ A candidate program is evaluated by executing it on a training set and comparing
 
 Suppose we have the following initial program trees:
 
-\begin{center}
-\begin{tabular}{c c}
-Parent 1: & $f_1 = (x_1 \times x_3) + (x_1 + x_4)$ \\
-Parent 2: & $f_2 = (x_2 - 5) \times (x_4 + 1)$
-\end{tabular}
-\end{center}
+\[
+\begin{aligned}
+\text{Parent 1:}\quad & f_1 = (x_1 \times x_3) + (x_1 + x_4), \\
+\text{Parent 2:}\quad & f_2 = (x_2 - 5) \times (x_4 + 1).
+\end{aligned}
+\]
 
 Suppose we exchange the right subtree of $f_1$ (the addition node $x_1 + x_4$) with the left subtree of $f_2$ (the subtraction node $x_2 - 5$). The resulting offspring are
 \[

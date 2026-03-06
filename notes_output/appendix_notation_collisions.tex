@@ -11,8 +11,10 @@ This appendix lists the most common \emph{notation collisions} in this book: sym
 \end{itemize}
 \end{tcolorbox}
 
-\begin{center}
+\begin{table}[h]
+\centering
 \small
+\caption{Notation collision index. Use this appendix when a symbol is overloaded across probability, optimization, and deep learning contexts.}
 {\setlength{\tabcolsep}{4pt}%
 \renewcommand{\arraystretch}{1.15}%
 \begin{tabular}{@{}>{\raggedright\arraybackslash}p{0.12\linewidth} >{\raggedright\arraybackslash}p{0.30\linewidth} >{\raggedright\arraybackslash}p{0.50\linewidth}@{}}
@@ -29,6 +31,6 @@ This appendix lists the most common \emph{notation collisions} in this book: sym
 \(\phi,\varphi,\Phi\) & Feature map; RBF basis function; design matrix & Kernel methods use \(\phi(\cdot)\) for feature maps and \(\Phi\) for the resulting design matrix; RBF chapters reserve \(\varphi(\cdot)\) for radial basis functions. If you see \(\Phi\mathbf{w}\) it is a design matrix; if you see \(\varphi(\|\mathbf{x}-\mathbf{c}\|)\) it is an RBF. \\
 \end{tabular}
 }
-\end{center}
+\end{table}
 
 \paragraph{Reading note.} When a symbol is reused with a different meaning, chapters typically flag the local meaning near the first use. When reading out of order, use this index to disambiguate quickly and keep the local convention consistent.

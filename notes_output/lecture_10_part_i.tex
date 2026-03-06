@@ -210,7 +210,7 @@ For two variables, the extension principle becomes:
 \end{equation}
 The minimum t\hyp{}norm plays the role of the generic operator \(\otimes\); any other t\hyp{}norm could be substituted so long as the same choice is applied throughout the inference pipeline.
 
-The numeric workflow is consistent: list all preimages \((x_1,x_2)\) with \(f(x_1,x_2)=y\), compute the minimum membership for each pair, then take the maximum.
+The numeric workflow is consistent. List all preimages \((x_1,x_2)\) with \(f(x_1,x_2)=y\), compute the minimum membership for each pair, then take the maximum.
 
 \textbf{Example:} Compute \(\mu_B(0)\).
 
@@ -400,31 +400,35 @@ In implementation terms, these are row-wise and column-wise max operations on a 
 
 \begin{figure}[h]
     \centering
-    \begin{tabular}{c|ccc}
-        & $y_1$ & $y_2$ & $y_3$ \\
-        \hline
-        $x_1$ & 0.9 & 0.3 & 0.1 \\
-        $x_2$ & 0.4 & 0.8 & 0.2 \\
-        $x_3$ & 0.1 & 0.6 & 0.5 \\
-    \end{tabular}
-    \hspace{1em}
-    \begin{tabular}{c}
-        $\pi_X(R)$ \\
-        \hline
-        0.9 \\
-        0.8 \\
-        0.6 \\
-    \end{tabular}
-    \hspace{1em}
-    \begin{tabular}{c}
-        $\pi_Y(R)$ \\
-        \hline
-        0.9 \\
-        0.8 \\
-        0.5 \\
-    \end{tabular}
+    \[
+    \begin{array}{c@{\qquad}c@{\qquad}c}
+        \begin{array}{c|ccc}
+            & y_1 & y_2 & y_3 \\
+            \hline
+            x_1 & 0.9 & 0.3 & 0.1 \\
+            x_2 & 0.4 & 0.8 & 0.2 \\
+            x_3 & 0.1 & 0.6 & 0.5
+        \end{array}
+        &
+        \begin{array}{c}
+            \pi_X(R) \\
+            \hline
+            0.9 \\
+            0.8 \\
+            0.6
+        \end{array}
+        &
+        \begin{array}{c}
+            \pi_Y(R) \\
+            \hline
+            0.9 \\
+            0.8 \\
+            0.5
+        \end{array}
+    \end{array}
+    \]
     % Avoid inline math in captions; it wraps poorly in some EPUB renderers.
-    \caption{Illustrative fuzzy relation table (left) together with its projections onto the error universe (middle) and the rate-of-change universe (right). These are the exact quantities used in the running thermostat example before composing rules. Use it to build rule antecedents from a relation and verify which universe each projection inhabits.}
+    \caption{Illustrative fuzzy relation matrix (left) together with its row-wise and column-wise projections (middle/right). These are the exact quantities reused in the running thermostat example before composing rules. Use it to verify which universe each projection inhabits before the rule base is composed.}
     \label{fig:lec10_projection_matrix}
 \end{figure}
 

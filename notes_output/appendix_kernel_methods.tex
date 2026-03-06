@@ -1,4 +1,6 @@
 \section{Kernel Methods and Support Vector Machines}\label{app:kernels}
+\begingroup
+\sloppy
 
 This appendix is a concise reference for the ``kernel/SVM'' thread that appears throughout the book (hinge losses in \Cref{chap:supervised}, RBF feature maps in \Cref{chap:rbf}, and the geometry of margins). The goal is not to be exhaustive, but to make the notation and the relationship between explicit (finite) feature maps and implicit (kernel) feature maps unambiguous.
 
@@ -14,7 +16,7 @@ Given training points \(\{\mathbf{x}_i\}_{i=1}^N\), the \emph{Gram matrix} \(K\i
 
 Kernel ridge regression fits a function of the form
 \[
-f(\mathbf{x})=\sum_{i=1}^N \alpha_i\, k(\mathbf{x}_i,\mathbf{x}),
+f(\mathbf{x})=\sum_{i=1}^N \alpha_i\, k\!\bigl(\mathbf{x}_i, \mathbf{x}\bigr),
 \]
 where the coefficient vector \(\boldsymbol{\alpha}\in\mathbb{R}^N\) solves
 \begin{equation}
@@ -44,3 +46,4 @@ where many coefficients \(\alpha_i\) become zero (only \emph{support vectors} re
     \item \textbf{Kernel method (implicit features):} work directly with \(K\in\mathbb{R}^{N\times N}\), which corresponds to an implicit feature map of potentially very high dimension. This is attractive for small-to-medium \(N\) when the kernel encodes a useful inductive bias, but training and storage scale poorly with \(N\) unless approximations are used.
     \item \textbf{Nystr\"om / low-rank approximations:} choose \(M\) landmark points and project into a rank-\(M\) space, recovering an explicit finite basis that connects the kernel view back to the RBFN picture in \Cref{chap:rbf}.
 \end{itemize}
+\endgroup

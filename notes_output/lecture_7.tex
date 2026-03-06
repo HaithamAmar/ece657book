@@ -914,7 +914,7 @@ Gating (LSTM/GRU) made long-range gradient flow workable by creating additive me
 \end{figure}
 
 
-\subsection{Synthesis: RNN Derivations, Gating Decisions, and Sequence Modelling Limits}
+\subsection{Synthesis: RNN Derivations, Gating Decisions, and Sequence Modeling Limits}
 \label{sec:rnn_wrapping_up_the_derivations}
 
 One canonical sequence task is \emph{next-step prediction}: use the history up to step \(t\) to predict a target at step \(t+1\). The target can be continuous (forecasting), categorical (a label at each step), or discrete from a finite set (symbols/words). The mechanics are the same: define a per-step predictive distribution (or regression output), accumulate a loss over time, and train by BPTT on the unrolled computation graph.

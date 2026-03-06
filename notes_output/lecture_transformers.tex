@@ -700,7 +700,9 @@ where \(w_i\) is the token ID, \(i\) is the position index, and \(s_i\in\{\mathr
 The original BERT paper also used an auxiliary ``next sentence prediction'' (NSP) objective for sentence pairs; later variants often drop it. For our purposes, the core encoder-only story is: bidirectional self-attention plus an objective that forces representations to be predictive of missing content.
 
 \paragraph{GPT: decoder-only, causal self-attention, next-token prediction.}
-GPT-style models are stacks of Transformer \emph{decoders} with the cross-attention removed: they use masked (causal) self-attention plus an FFN in each block. The causal mask enforces the autoregressive factorization:
+\begin{sloppypar}
+GPT-style models are decoder-only Transformers: the cross-attention block is removed, and each layer keeps masked self-attention plus an FFN. The causal mask enforces the autoregressive factorization:
+\end{sloppypar}
 \begin{equation}
     \begin{aligned}
         p_\theta(w_{1:n}) &= \prod_{t=1}^{n-1} p_\theta\!\left(w_{t+1}\mid w_{1:t}\right),\\
@@ -796,7 +798,9 @@ Parameter-efficient tuning methods are covered in \Cref{sec:transformers_fine_tu
 
 \subsection{RNNs vs. Transformers: When and Why}
 \label{sec:transformers_rnns_vs_transformers_when_and_why}
-\begin{center}
+\begin{table}[h]
+\centering
+\caption{RNNs versus Transformers: engineering trade-offs. Use it as a design quick reference when deciding whether sequential inductive bias or parallel global context matters more for the task at hand.}
 \begin{tabular}{@{}>{\raggedright\arraybackslash}p{0.24\linewidth} >{\raggedright\arraybackslash}p{0.34\linewidth} >{\raggedright\arraybackslash}p{0.34\linewidth}@{}}
 \toprule
  & \textbf{RNN/LSTM/GRU} & \textbf{Transformer} \\
@@ -808,7 +812,7 @@ Best for & Small data, streaming & Large data, global deps \\
 Equivariance & N/A & Permutation-equivariant until positions (cf. conv translation equivariance in \Cref{chap:cnn}) \\
 \bottomrule
 \end{tabular}
-\end{center}
+\end{table}
 
 \begin{tcolorbox}[summarybox, title={Key takeaways}]
 \noindent\textbf{Terminology.} Masked-LM and next-token LM are \emph{self-supervised} (targets derived from input), not unsupervised.
