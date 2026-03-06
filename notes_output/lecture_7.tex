@@ -220,7 +220,7 @@ Layer Normalization~\citep{Ba2016} stabilizes recurrent dynamics by normalizing 
 Here we use recurrence to model \emph{ordered} data. The goal is not to converge to a fixed point, but to carry a useful state forward so predictions at time \(t\) can depend on earlier inputs. The shared theme is that dynamics matter; the diagnostics differ (energy trace and overlap for Hopfield, versus likelihood/perplexity and gradient health for sequence models).
 \end{tcolorbox}
 
-\subsection{Input--output configurations and mathematical formulation}
+\subsection{Input--Output Configurations and Mathematical Formulation}
 \label{sec:rnn_input_output_configurations_and_mathematical_formulation}
 
 RNNs appear in a few standard input--output shapes. In a many\hyp{}to\hyp{}one task (e.g., sentiment), the model consumes \(\mathbf{x}_{1:T}\) and emits one label from the final state. In many\hyp{}to\hyp{}many tasks (e.g., tagging), it emits an output at every step. In one\hyp{}to\hyp{}many settings (conditional generation), it starts from a conditioning signal (an initial state or an encoder output) and then generates autoregressively. Bidirectional encoders run the recurrence forward and backward and concatenate states when you want both left and right history during labeling, or when you want a richer encoder representation for a decoder.
@@ -841,7 +841,7 @@ Variable-length sequences are padded; the mask zeros out pads in the loss. Reset
 \end{itemize}
 \end{tcolorbox}
 
-\subsection{From recurrent state to attention}
+\subsection{From Recurrent State to Attention: Bridging Gated RNNs and Transformers}
 \label{sec:rnn_from_recurrent_state_to_attention}
 \paragraph{Attention mechanisms.}
 Even with gating, long sequences can challenge fixed-size hidden states. Attention augments the decoder with a content-based lookup into the encoder states, as visualized in \Cref{fig:lec7-attention}. Bright entries correspond to encoder positions that most influence each generated token.
@@ -914,7 +914,7 @@ Gating (LSTM/GRU) made long-range gradient flow workable by creating additive me
 \end{figure}
 
 
-\subsection{Wrapping Up the Derivations}
+\subsection{Synthesis: RNN Derivations, Gating Decisions, and Sequence Modelling Limits}
 \label{sec:rnn_wrapping_up_the_derivations}
 
 One canonical sequence task is \emph{next-step prediction}: use the history up to step \(t\) to predict a target at step \(t+1\). The target can be continuous (forecasting), categorical (a label at each step), or discrete from a finite set (symbols/words). The mechanics are the same: define a per-step predictive distribution (or regression output), accumulate a loss over time, and train by BPTT on the unrolled computation graph.
@@ -1046,6 +1046,18 @@ Variable-length sequences are almost always padded to a common length for batchi
 
 \par\medskip
 \noindent\textbf{If you are skipping ahead.} Keep the loss/perplexity diagnostics and masking discipline from this chapter. \Cref{chap:transformers} changes the architecture, but the same evaluation traps and data-leakage risks remain.
+\end{tcolorbox}
+
+\begin{tcolorbox}[summarybox, title={Beyond gated RNNs: state-space models (S4, Mamba)}]
+Gated RNNs (LSTM/GRU) solve vanishing gradients but remain \emph{sequential}: computing \(\mathbf{h}_t\) requires \(\mathbf{h}_{t-1}\), so training cannot be parallelized across time the way Transformer attention can. Structured State-Space Models (S4) recast the recurrence as a \emph{convolution}: the state-space equations
+\[
+  \mathbf{h}'(t) = \mathbf{A}\mathbf{h}(t) + \mathbf{B}x(t),
+  \qquad
+  y(t) = \mathbf{C}\mathbf{h}(t),
+\]
+have a closed-form convolution kernel \(\bar{K} = (\mathbf{C}\mathbf{B},\, \mathbf{C}\mathbf{A}\mathbf{B},\, \mathbf{C}\mathbf{A}^2\mathbf{B}, \ldots)\) that allows \emph{parallel-scan} training across the full sequence in \(O(L \log L)\) time instead of \(O(L)\) sequential steps. At inference the recurrence form recovers constant-cost per-token generation. Mamba \citep{Gu2023Mamba} extends S4 with input-dependent (selective) state transitions, matching Transformer perplexity on language modeling while retaining linear-time inference.
+
+\textbf{When to prefer SSMs over attention or gated RNNs:} (i) very long sequences (\(>8\mathrm{k}\) tokens) where quadratic attention cost is prohibitive; (ii) streaming or low-latency inference where constant-time recurrent steps matter; (iii) biological or physical time-series where the continuous-time state-space formulation aligns with the data-generating process.
 \end{tcolorbox}
 
 \medskip

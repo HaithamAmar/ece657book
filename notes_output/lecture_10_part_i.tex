@@ -136,7 +136,7 @@ B &= \{(0, 0.141), (1, 0.340), (4, 0.4)\}.
 \label{eq:extension_squared_example}
 \end{equation}
 
-Even on this very small domain the mapping \(f(x)=x^2\) is \emph{many-to-one}, because \(x=-1\) and \(x=1\) both map to \(y=1\); the example therefore highlights how the supremum handles multiple preimages.
+Even on this very small domain the mapping \(f(x)=x^2\) is \emph{non-injective} (many-to-one): \(x=-1\) and \(x=1\) both map to \(y=1\). The supremum rule is precisely what handles this case --- it selects the strongest preimage membership rather than double-counting or averaging. Notice also that no \(x\) maps to a negative \(y\), so the mapping is \emph{non-surjective} onto \(\mathbb{R}\); for those output values the extension principle correctly returns \(\mu_B(y)=0\) (no supporting evidence). Together, these two properties --- non-injectivity and non-surjectivity --- are the general cases the definition \eqref{eq:membership-transform} is designed to handle.
 \begin{tcolorbox}[summarybox, title={Worked example: monotone map (Celsius \(\to\) Fahrenheit)}]
 Let \(A=\text{Comfortable}_C\) be triangular on Celsius with breakpoints \((21,23,25)\). For the affine map \(f(x)=1.8x+32\), the image \(B=f(A)\) is triangular with breakpoints \(f(21)=69.8\), \(f(23)=73.4\), \(f(25)=77.0\). Because \(f\) is strictly increasing, \(\mu_B(y)=\mu_A(f^{-1}(y))\) and every \(\alpha\)-cut maps directly: \(B_\alpha = f(A_\alpha)\). This is the fastest way to reuse the same linguistic label across units without recomputing via \eqref{eq:membership-transform}.
 \end{tcolorbox}

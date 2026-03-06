@@ -1,9 +1,16 @@
 % Chapter 16
 \section{Fuzzy Sets and Membership Functions: Foundations and Representations}\label{chap:fuzzysets}
 \index{fuzzy set}
+\index{fuzzy set!type-2 fuzzy set}
+\index{fuzzy set!interval type-2 (IT2)}
 \index{membership function}
+\index{membership function!triangular}
+\index{membership function!trapezoidal}
+\index{membership function!Gaussian}
 \index{defuzzification}
 \index{centroid (defuzzification)}
+\index{footprint of uncertainty (FOU)}
+\index{Karnik--Mendel algorithm}
 \graphicspath{{assets/lec9/}{assets/lec16/}}
 
 \noindent Building on \Cref{chap:softcomp}, we formalize the foundations of fuzzy logic: universes of discourse, fuzzy sets, membership functions, and the operators used throughout the fuzzy trilogy. You will see some ideas from \Cref{chap:softcomp} again, but now in a form you can compute and sanity-check numerically (a deliberate preview\(\rightarrow\)formalization pattern). These tools define the thermostat labels used later and prepare the transfer/inference steps developed in \Crefrange{chap:fuzzyrelations}{chap:fuzzyinference}.
@@ -359,12 +366,28 @@ The core set generalizes the notion of crisp membership to fuzzy sets.
 \]
 These points are useful for interpreting the "core region" and the "fuzzy boundary" of the set.
 
-\paragraph{Open and Closed Fuzzy Sets}
-- A \emph{left-shoulder set} reaches membership 1 for sufficiently small $x$ and then decreases smoothly (useful for labels such as ``Very Cold'').
-- A \emph{right-shoulder set} mirrors this behavior for large $x$ (e.g., ``Very Hot'').
-- A \emph{closed fuzzy set} has a membership function that attains 1 only on a bounded interval, typically forming a trapezoidal or triangular shape.
+\paragraph{Shoulder and Bounded-Core Fuzzy Sets}
+Three shape families cover most linguistic labels:
+\begin{itemize}
+  \item A \emph{left-shoulder set} (sometimes called an open-left set in older literature) reaches membership 1 for all sufficiently small \(x\) and then decreases smoothly to 0; useful for labels such as ``Very Cold'' or ``Very Low.''
+  \item A \emph{right-shoulder set} (open-right) mirrors this for large \(x\); useful for labels such as ``Very Hot'' or ``Very High.''
+  \item A \emph{bounded-core set} (sometimes called a closed set in older texts, though that usage is non-standard) attains membership 1 only on a bounded interval and tapers to 0 on both sides; triangular and trapezoidal shapes are the canonical examples (e.g., ``Comfy'' temperature, ``Medium'' speed).
+\end{itemize}
+These distinctions help in modeling asymmetric uncertainties or preferences. This shoulder/bounded-core terminology is standard in modern fuzzy-set writing; avoid the informal ``open/closed'' labels in formal definitions.
 
-These distinctions help in modeling asymmetric uncertainties or preferences.
+\begin{tcolorbox}[summarybox, title={Type-2 Fuzzy Sets: handling uncertain membership}]
+In a standard (type-1) fuzzy set the membership value \(\mu_A(x)\) is a crisp number. When expert knowledge is itself imprecise or when membership functions are learned from noisy data, it is more realistic to let the membership value itself be a fuzzy set. This leads to \emph{type-2 fuzzy sets} \citep{Zadeh1975}.
+
+The \textbf{footprint of uncertainty (FOU)} is the bounded region in the \((x, \mu)\) plane swept out by all admissible membership grades:
+\[
+  \text{FOU}(A) = \bigcup_{x \in X} [{}^{l}\mu_A(x),\; {}^{u}\mu_A(x)],
+\]
+where \({}^{l}\mu_A\) and \({}^{u}\mu_A\) are the lower and upper membership functions bounding the uncertainty.
+
+An \textbf{interval type-2 (IT2) fuzzy set} is the practically dominant special case: at each \(x\) the secondary membership is uniformly 1 over the FOU interval and 0 outside. IT2 sets are used in robust fuzzy controllers (thermostat, traffic signal, servo drives) when sensor noise or time-varying parameters make crisp breakpoints unreliable.
+
+\textbf{Reduction:} before using an IT2 fuzzy set for inference, it must be \emph{type-reduced} to a type-1 set (or a crisp value). The Karnik--Mendel iterative algorithm is the standard method; simpler closed-form approximations (Nie--Tan method) are often sufficient in practice.
+\end{tcolorbox}
 
 \subsection{Probability vs. Possibility}
 \label{sec:fuzzysets_probability_vs_possibility}

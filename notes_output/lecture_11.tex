@@ -6,6 +6,13 @@
 \index{crossover (GA)}
 \index{mutation (GA)}
 \index{fitness function}
+\index{particle swarm optimisation (PSO)}
+\index{NEAT (NeuroEvolution of Augmenting Topologies)}
+\index{neuro-evolution}
+\index{differential evolution (DE)}
+\index{multi-objective optimisation}
+\index{NSGA-II}
+\index{genetic programming (GP)}
 \graphicspath{{assets/lec19/}}
 
 Parts I--III built three complementary toolkits: optimize models against data (ERM), learn representations with gradients, and encode auditable heuristics with fuzzy rules. Each is powerful when you can write a smooth objective or commit to a compact rule base. Many engineering choices, however, live outside that comfort zone: the knobs are discrete or tightly constrained, evaluations are noisy or expensive, and the landscape is rugged enough that local improvement is unreliable.
@@ -31,6 +38,9 @@ When gradients are unavailable or the landscape is rugged, treat design as searc
 \label{sec:evo_context_and_motivation}
 
 Evolutionary computing is the strand you reach for when the objective is a black box (simulation, experiment, or expensive audit) or when the design space is a mix of continuous and discrete choices. The modeling contract stays simple: pick an encoding, define a fitness function, state the constraints, and commit to an evaluation budget. The algorithm then trades exploration (diversity) against exploitation (selecting what works) as it searches a rugged landscape.
+
+\paragraph{Connection to the Ch.\,1 case study.}
+The autonomous-vehicle example sketched in \Cref{chap:intro} highlights a familiar outer-loop problem: some design choices are continuous, some are discrete, and the only reliable score comes from closed-loop evaluation under realistic constraints. Evolutionary search is a practical tool in exactly that regime, where threshold policies, architecture choices, and trade-offs must be tuned under a fixed evaluation budget.
 
 In the fuzzy trilogy, once you commit to membership shapes and a rule base, a practical question remains: how do you tune those choices (and their trade-offs) when hand tweaks do not scale? Evolutionary search provides a disciplined answer: score candidate controllers, select the better ones, perturb/recombine them, and keep iterating until the improvements flatten or the budget runs out.
 
@@ -981,6 +991,30 @@ where \(\sigma\) controls exploration (large \(\sigma\)) versus local refinement
 \end{tcolorbox}
 
 Both algorithms plug into the same evaluation loop shown earlier and can reuse the constraint-handling policies in the preceding box. In practice many teams prototype with DE (fast, few knobs) and switch to CMA-ES when the problem demands higher precision or adaptive covariance modeling.
+
+\subsection{Particle Swarm Optimisation (PSO)}
+\label{sec:evo_particle_swarm_optimisation}
+
+Particle Swarm Optimisation is a population-based metaheuristic inspired by collective behaviour in bird flocks and fish schools. Each candidate solution (``particle'') moves through the search space by blending its own best-known position with the swarm's best-known position.
+
+\paragraph{Update equations.}
+Each particle \(i\) has a position \(\mathbf{x}_i\) and a velocity \(\mathbf{v}_i\). At each iteration:
+\begin{align*}
+  \mathbf{v}_i^{(t+1)} &= \omega \, \mathbf{v}_i^{(t)}
+    + c_1 r_1 \bigl(\mathbf{p}_i - \mathbf{x}_i^{(t)}\bigr)
+    + c_2 r_2 \bigl(\mathbf{g} - \mathbf{x}_i^{(t)}\bigr), \\
+  \mathbf{x}_i^{(t+1)} &= \mathbf{x}_i^{(t)} + \mathbf{v}_i^{(t+1)},
+\end{align*}
+where \(\mathbf{p}_i\) is particle \(i\)'s personal best position, \(\mathbf{g}\) is the global best position across the entire swarm, \(\omega\) is the \emph{inertia weight} (controls exploration vs.\ exploitation), \(c_1\) and \(c_2\) are the \emph{cognitive} and \emph{social} coefficients, and \(r_1, r_2 \sim \mathcal{U}(0,1)\) are fresh random draws each iteration.
+
+\paragraph{Hyperparameter guidance.}
+Common defaults are \(\omega \approx 0.7\), \(c_1 \approx c_2 \approx 1.5\), and a swarm size around 20--50 particles. A linearly decreasing inertia schedule (\(\omega\) from roughly 0.9 to 0.4) shifts the search from broad exploration early to local refinement late. For constrained problems, apply Deb's feasibility rules or velocity clamping to keep particles within bounds.
+
+\paragraph{Comparison with GAs and DE.}
+PSO has no crossover or mutation operators; all information sharing happens through the velocity update. This makes PSO very easy to implement and well-suited to continuous, unconstrained (or lightly constrained) problems. GAs and DE generally outperform PSO when the search space has many discrete components or when diversity preservation is critical. PSO can converge prematurely on multimodal landscapes; restart heuristics or topology variants (ring, von Neumann) mitigate this.
+
+\paragraph{Pointer: neuro-evolution and NEAT.}
+Both GAs and PSO can optimise neural network weights and topologies simultaneously---an approach called \emph{neuro-evolution}. The landmark algorithm in this space is NEAT (NeuroEvolution of Augmenting Topologies), which grows network structure incrementally using historical markings to align crossover across networks with different topologies. NEAT demonstrated that topology-and-weight evolution could solve problems that fixed-topology neuro-evolution could not, and it has experienced a resurgence in reinforcement learning settings where the loss landscape is non-differentiable or highly non-stationary. Modern descendants (HyperNEAT, POET, Open-Ended Learning) extend the idea to indirect encodings and competitive co-evolution.
 
 \subsection{Genetic Programming (GP)}
 \label{sec:evo_genetic_programming_gp}

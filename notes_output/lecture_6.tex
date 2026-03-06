@@ -5,6 +5,14 @@
 \index{receptive field}
 \index{batch normalization (BN)}
 \index{dropout}
+\index{weight initialization}
+\index{weight initialization!Xavier initialization}
+\index{weight initialization!He initialization}
+\index{ResNet}
+\index{skip connection}
+\index{data augmentation}
+\index{MixUp}
+\index{gradient clipping}
 \graphicspath{{assets/lec6/}{assets/lec8/}}
 
 \Cref{chap:hopfield} used energy to make recurrence stable: dynamics settle, memories persist, and failure has a concrete signature. Vision problems have a different flavor. The system must form a representation that is rich enough to support decisions, yet structured enough to learn from finite data.
@@ -46,6 +54,9 @@ CNNs emerged as a pragmatic answer: keep end-to-end gradient training, but bake 
     \item \textbf{Training toolkit:} the stabilizers you will reuse later (initialization, activations, normalization, regularization, optimizers).
 \end{itemize}
 One term we will use early is \emph{receptive field}: the receptive field of a feature value is the region of the input grid that can influence it. The word is literal---outside that region, the unit does not ``receive'' signal from the input---and stacking layers grows this region.
+
+\paragraph{Connection to the Ch.\,1 case study.}
+The industrial-plant camera system introduced in \Cref{sec:intro_case_study_ai_enabled_camera_as_an_intelligent_system} is a direct application of this chapter: it takes a pixel grid as input, uses convolutional feature extraction to localise humans in the frame, and outputs an alarm signal when the occupancy score exceeds a calibrated threshold. Many of the tools discussed below---local receptive fields, weight sharing, pooling, and normalization---fit naturally into that pipeline.
 
 \subsection{Why fully connected layers break on images}
 \label{sec:cnn_why_fully_connected_layers_break_on_images}
@@ -314,6 +325,27 @@ The derivative is maximized at $\sigma(x)=0.5$, where $\sigma'(x)=0.25$, so repe
 
 Initialization is not just a detail: it sets the scale of activations and gradients at the start of training. A practical rule is to pick the weight variance to be inversely proportional to fan\hyp{}in (and sometimes fan\hyp{}out), so signals neither blow up nor fade as they pass through many layers. Xavier and He initializations are two standard choices that implement this idea for common nonlinearities.
 
+\begin{tcolorbox}[summarybox, title={Initializing weights: Xavier and He}]
+Both schemes derive from a variance-preservation argument: choose the initial weight scale so that, at the start of training, the variance of activations does not explode or vanish as the signal propagates through many layers.
+
+\textbf{Xavier / Glorot initialization} targets symmetric activations near zero (tanh, sigmoid in their linear regime):
+\[
+  \operatorname{Var}(w) = \frac{2}{n_{\text{in}} + n_{\text{out}}},
+  \quad
+  w \sim \mathcal{U}\!\left[-\sqrt{\tfrac{6}{n_{\text{in}}+n_{\text{out}}}},\; \sqrt{\tfrac{6}{n_{\text{in}}+n_{\text{out}}}}\right].
+\]
+where \(n_{\text{in}}\) and \(n_{\text{out}}\) are the number of input and output units of the layer.
+
+\textbf{He / Kaiming initialization} corrects for the fact that ReLU zeros out half its inputs, so the effective fan-in is halved:
+\[
+  \operatorname{Var}(w) = \frac{2}{n_{\text{in}}},
+  \quad
+  w \sim \mathcal{N}\!\left(0,\; \sqrt{\tfrac{2}{n_{\text{in}}}}\right).
+\]
+
+\textbf{Rule of thumb:} use Xavier for tanh/sigmoid activations; use He for ReLU and its variants (Leaky ReLU, ELU, GELU). Without proper initialization, deep networks often train very slowly or not at all --- this single choice can mean the difference between a model that converges in hundreds of epochs and one that never moves. See \Cref{chap:backprop} for the gradient-flow view.
+\end{tcolorbox}
+
 \paragraph{Choice of activation function}
 
 Selecting activation functions whose derivatives do not vanish easily is crucial. For example:
@@ -336,6 +368,29 @@ Batch normalization stabilizes the scale of activations during training by norma
 \paragraph{Gradient clipping}
 
 For exploding gradients, gradient clipping limits the maximum gradient norm during backpropagation, preventing a single bad batch from producing a destructive update. It is not a substitute for good initialization and normalization, but it is a practical safety valve when training is otherwise stable.
+
+\paragraph{Residual (skip) connections}
+
+Even with careful initialization and normalization, plain deep networks hit a \emph{degradation ceiling}: at some depth, accuracy on the training set itself begins to fall, indicating an optimization (not generalization) problem. \citet{He2016} solved this with a simple idea: instead of learning the desired mapping \(\mathcal{H}(\mathbf{x})\) directly, let the layers learn the \emph{residual} \(\mathcal{F}(\mathbf{x}) = \mathcal{H}(\mathbf{x}) - \mathbf{x}\) and add the identity shortcut explicitly:
+\[
+  \mathbf{y} = \mathcal{F}(\mathbf{x}) + \mathbf{x}.
+\]
+The gradient of the loss with respect to early-layer inputs now has a direct path through the ``\(+\mathbf{x}\)'' branch, bypassing the nonlinearities:
+\[
+  \frac{\partial \mathcal{L}}{\partial \mathbf{x}} = \frac{\partial \mathcal{L}}{\partial \mathbf{y}}\left(\frac{\partial \mathcal{F}}{\partial \mathbf{x}} + \mathbf{I}\right).
+\]
+The identity term \(\mathbf{I}\) ensures that the gradient never completely vanishes, even when the learned residual is near zero. This single architectural change allowed training of networks with 50, 100, and even 1\,000+ layers and is now a universal building block of modern deep architectures.
+
+\begin{tcolorbox}[summarybox, title={Data augmentation: expanding effective dataset size}]
+A well-designed augmentation pipeline can double or triple effective training-set diversity without collecting new data. Key families:
+\begin{itemize}
+  \item \textbf{Geometric:} random horizontal/vertical flips, rotations ($\pm$15--30\textdegree), crops and resizes, affine shears.
+  \item \textbf{Colour/photometric:} brightness, contrast, saturation, hue jitter; grayscale conversion; Gaussian blur.
+  \item \textbf{Mixing augmentations:} \textbf{MixUp} linearly interpolates two training images and their labels (\(\tilde{x}=\lambda x_i+(1-\lambda)x_j\)); \textbf{CutMix} pastes a rectangular region from one image into another and mixes labels proportionally to area.
+  \item \textbf{Test-time augmentation (TTA):} average predictions over multiple augmented views at inference to reduce prediction variance.
+\end{itemize}
+\textbf{Key rules:} (i) augmentations must be label-preserving (a flipped cat is still a cat; a horizontally flipped digit ``6'' may not be a ``6''); (ii) training and evaluation pipelines must be kept separate; (iii) report the exact augmentation recipe alongside results --- it is a model hyperparameter.
+\end{tcolorbox}
 
 Taken together, these tools stabilize optimization; the figures below highlight dropout, normalization, and optimizer behavior in practice.
 

@@ -6,10 +6,17 @@
 \index{attention!cross-attention}
 \index{multi-head attention}
 \index{positional encoding}
+\index{positional encoding!RoPE (rotary position embedding)}
+\index{positional encoding!ALiBi}
 \index{BERT}
 \index{GPT}
 \index{LoRA}
 \index{KV cache}
+\index{FlashAttention}
+\index{fine-tuning}
+\index{pre-training}
+\index{masked language modeling}
+\index{scaled dot-product attention}
 
 \Cref{chap:rnn} made the sequence problem explicit: stateful computation plus gradients that must flow across time. \Cref{chap:nlp} then supplied the representation layer that makes those sequence objectives practical. This chapter keeps those representations but loosens the ``one step at a time'' constraint: instead of marching through time, we let each position look around and pull in what it needs through attention.
 
@@ -563,7 +570,7 @@ We will return to the main Transformer families (encoder-only vs.\ decoder-only 
 
 \subsection{Transformer blocks and training stabilizers}
 \label{sec:transformers_encoder_decoder_stacks_and_stabilizers}
-Transformer blocks are built from the same few ingredients repeated many times: attention, a small feed-forward network, and
+Transformer blocks are built from the same few ingredients repeated many times: attention, a small feedforward network, and
 stability glue (residual connections, normalization, dropout). Residual connections keep a direct path for information and
 gradients: the input to a sublayer is added back to its output so the model can refine a representation without destroying it.
 LayerNorm stabilizes scale by normalizing each token vector across its feature dimension; unlike BatchNorm it does not depend
@@ -581,7 +588,7 @@ added back to the residual stream:
 The original Transformer applied LayerNorm after each residual add (post-LN); the attention and FFN computations are the same,
 only the placement of normalization changes.
 
-The feed-forward sublayer (FFN) is applied independently to each position (row). In matrix form it is typically two linear
+The feedforward sublayer (FFN) is applied independently to each position (row). In matrix form it is typically two linear
 layers with a nonlinearity:
 \begin{equation}
     \operatorname{FFN}(\mathbf{H})
@@ -594,7 +601,7 @@ where \(\sigma\) is commonly ReLU (original paper) or GELU (many modern stacks),
 \begin{tcolorbox}[summarybox, title={Author's note: attention mixes; the FFN refines (two different jobs)}]
 Self-attention is where tokens ``talk'' to each other. It is the part of the block that \emph{mixes across positions}: each token forms a query, assigns weights over other tokens' keys, and pulls a weighted average of their values.
 
-The feed-forward sublayer is different. It is applied \emph{independently} to each token: the same small MLP processes every position, taking whatever the attention step mixed in and turning it into a cleaner set of features for the next layer. If you like metaphors, I think of attention as the class discussion and the FFN as the private tutor: the discussion lets you hear from others; the tutor helps you rewrite your notes in a form you can use.
+The feedforward sublayer is different. It is applied \emph{independently} to each token: the same small MLP processes every position, taking whatever the attention step mixed in and turning it into a cleaner set of features for the next layer. If you like metaphors, I think of attention as the class discussion and the FFN as the private tutor: the discussion lets you hear from others; the tutor helps you rewrite your notes in a form you can use.
 \end{tcolorbox}
 
 \paragraph{Decoder blocks: masked self-attention plus cross-attention.}
@@ -779,7 +786,7 @@ Alignment can improve helpfulness and reduce obvious failures, but it can also i
 \subsection{Advanced notes (optional)}
 \label{sec:transformers_advanced_attention_and_efficiency_notes_snapshot}
 \begin{itemize}
-    \item \textbf{Relative/rotary positions.} RoPE \citep{Su2021RoPE} and ALiBi \citep{Press2022ALiBi} replace absolute sinusoidal embeddings with rotation/bias terms so extrapolating to longer sequences no longer requires re-fitting positional lookups; the trade-off is that absolute tables keep fixed anchors for classification tokens while rotary/relative schemes favour extrapolation and smoothly sliding windows.
+    \item \textbf{Relative/rotary positions.} RoPE \citep{Su2021RoPE} encodes position by rotating query and key vectors rather than adding a fixed embedding to the token representation. Concretely, for a position \(m\) the \(d\)-dimensional query is partitioned into \(d/2\) pairs of dimensions; each pair \((q_{2i}, q_{2i+1})\) is rotated by angle \(m\theta_i\) where \(\theta_i = 10000^{-2i/d}\). Because the dot product of a rotated query at position \(m\) with a rotated key at position \(n\) depends only on the \emph{relative} displacement \(m - n\) (by the rotation subtraction identity), the model can attend to relative distance without explicitly computing it. This property allows trained RoPE models to extrapolate better to sequence lengths beyond those seen during training, which is why nearly all modern large-language-model families (LLaMA, Mistral, Qwen) adopt RoPE as their default positional scheme. ALiBi \citep{Press2022ALiBi} takes a simpler approach: it subtracts a linear bias proportional to token distance from attention logits, requiring no change to embeddings; the trade-off is that absolute tables keep fixed anchors useful for classification tokens while rotary/relative schemes favour extrapolation and smoothly sliding context windows.
     \item \textbf{KV-cache management.} Decoder-only inference stores per-layer key/value tensors; chunked caching, paged attention, and sliding windows keep memory linear in context length. Speculative decoding and assisted decoding reuse a lightweight draft model to propose tokens that the full model verifies before committing.
     \item \textbf{Efficient kernels.} FlashAttention \citep{Dao2022FlashAttention} computes attention blocks in streaming tiles to keep activations in SRAM. Long-context variants mix windowed attention, recurrent memory, or low-rank adapters; state-space models such as Mamba \citep{Gu2023Mamba} provide linear-time alternatives that back-propagate through implicitly defined kernels.
     \item \textbf{Mixture-of-experts and routing.} Sparse MoE layers \citep{Shazeer2017MoE} add conditional capacity; router z-losses, capacity factors, and load-balancing losses are essential to avoid expert collapse.

@@ -754,12 +754,12 @@ y = x \sin x.
     \item If you report performance, report it as a reproducible experiment (seed, split, optimizer recipe). Avoid quoting a single ``typical'' number unless you can regenerate it.
 \end{itemize}
 
-\subsection{Applications}
+\subsection{Applications of Backpropagation-Trained Networks}
 \label{sec:backprop_applications_of_multi_layer_perceptrons}
 
 MLPs show up in two roles. Sometimes they are the whole model, as in small function-approximation and classification tasks. More often they are trainable blocks inside larger systems: the same affine\(\rightarrow\)nonlinearity pattern appears in convolutional networks, recurrent networks, and attention models. Later chapters return to this connection at scale. In all cases, the training signal still arrives as a loss at the output, and backpropagation is what assigns that loss to each parameter through the stored intermediate values from the forward pass.
 
-\subsection{Limitations}
+\subsection{Limitations and Known Failure Modes of MLPs}
 \label{sec:backprop_limitations_of_multi_layer_perceptrons}
 
 MLPs are flexible, but they require care to train reliably. The main limitations show up as training instability, sensitivity to design choices, and difficulty diagnosing silent implementation mistakes. Training can be sensitive: small changes to the random initialization, data order, or step-size settings can lead to noticeably different outcomes, especially when the problem is poorly conditioned.

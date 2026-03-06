@@ -4,6 +4,10 @@
 \index{perceptron}
 \index{Adaline}
 \index{activation function}
+\index{universal approximation theorem (UAT)}
+\index{decision boundary}
+\index{Hebb rule}
+\index{perceptron convergence theorem}
 
 \Cref{chap:logistic} established linear and logistic models as strong baselines, but their decision boundaries stay linear in the original feature space. We now shift from a statistical lens to a biological abstraction: simple neurons whose composition yields nonlinear decision surfaces. This chapter introduces neuron models, perceptrons, activation functions, and the first learning rules (perceptron and Adaline); \Cref{fig:roadmap} marks this as the start of the neural strand.
 
@@ -291,7 +295,7 @@ We explicitly set \(f(0)=1\); other texts sometimes use \(f(0)=\tfrac{1}{2}\), s
 
 This model laid the groundwork for later developments in neural networks, including the introduction of differentiable nonlinearities that enable gradient-based learning.
 
-\subsection{McCulloch-Pitts neuron: examples and limits}
+\subsection{The McCulloch--Pitts Neuron: Logical Computation and Limits}
 \label{sec:perceptron_mcculloch_pitts_neuron_examples_and_limits}
 
 Recall the MP neuron definition in \eqref{eq:weighted_sum}--\eqref{eq:threshold_output} (equivalently \eqref{eq:neuron_output}); here we focus on logic-gate examples and the limitations that motivate learnable variants.
@@ -418,6 +422,16 @@ Let \(\mathbf{w}^{(t)}\) denote the perceptron weights after \(t\) mistakes, wit
     which implies \(T \le (R/\gamma)^2\).
 \end{enumerate}
 Therefore the perceptron halts after finitely many mistakes on separable data. If the data are not separable, some \(\gamma > 0\) cannot be found, and the above argument no longer applies; hence the need for multilayer networks.
+\end{tcolorbox}
+
+\begin{tcolorbox}[summarybox, title={Universal Approximation Theorem (UAT)}]
+\textbf{Statement} \citep{Cybenko1989,Hornik1991}: A feedforward network with a single hidden layer containing a \emph{sufficient} (finite) number of units with a non-constant, bounded, and monotone-increasing continuous activation function can approximate any continuous function \(f: \mathbb{R}^n \to \mathbb{R}\) on a compact set \(K \subset \mathbb{R}^n\) to any desired accuracy \(\epsilon > 0\).
+
+Formally, for any \(\epsilon > 0\) there exist weights and biases such that
+\[
+  \sup_{\mathbf{x} \in K} \left| \hat{f}(\mathbf{x}) - f(\mathbf{x}) \right| < \epsilon.
+\]
+\textbf{What it does \emph{not} say.} The theorem is purely existential: it guarantees that an approximating network \emph{exists} but says nothing about how wide the hidden layer must be, how to find the weights, or how well gradient-based training will locate the solution. In practice, depth (multiple layers) often requires far fewer total parameters than the width needed for a single-layer approximation. The perceptron limitations you just saw are a reminder: expressivity alone does not imply trainability.
 \end{tcolorbox}
 
 \begin{tcolorbox}[summarybox, title={Common perceptron pitfalls}]

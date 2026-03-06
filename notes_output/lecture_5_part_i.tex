@@ -170,7 +170,7 @@ Common techniques include Principal Component Analysis (PCA), which preserves di
 
 % Chapter 9 (continued)
 
-\subsection{Dimensionality Reduction and Feature Mapping}
+\subsection{Feature Mapping: From Prototype Vectors to Grid Coordinates}
 \label{sec:som_dimensionality_reduction_and_feature_mapping}
 
 The dimensionality-reduction goals were covered in \Cref{sec:som_dimensionality_reduction_simplifying_high_dimensional_data}; here we make explicit what kind of ``mapping'' a SOM actually learns. A SOM does not return a continuous coordinate system like PCA or classical MDS. Instead, it learns a \emph{finite set} of prototype vectors \(\{\mathbf{w}_i\}\) arranged on a low-dimensional grid with fixed coordinates \(\{\mathbf{r}_i\}\). Each input \(\mathbf{x}\in\mathbb{R}^n\) is mapped to the grid by choosing its best matching unit (BMU),
@@ -479,7 +479,7 @@ At \(t=0\) the learning rate is \(\alpha(0)=0.3\), and only the winner updates:
 \]
 For the next input, \(t=1\) so \(\alpha(1)=0.3\times 0.5 = 0.15\), and the same computation repeats with the new winner.
 
-\subsection{Winner-Takes-All Learning Recap}
+\subsection{Winner-Takes-All Learning: Consolidation After the Numerical Example}
 \label{sec:som_winner_takes_all_learning_recap}
 
 The WTA selection and update were defined in \Cref{sec:som_winner_takes_all_learning_and_weight_update_rules}; the numerical example above uses the same BMU criterion \eqref{eq:bmu} and the winner-only form of the update in \eqref{eq:som_update}.
@@ -1076,7 +1076,7 @@ Each neuron \(j\) in \(\mathcal{N}(c)\) updates its weight vector according to \
 Cooperative competitive learning is the winner\hyp{}takes\hyp{}all loop with one extra ingredient: a neighborhood kernel on the \emph{grid}. For each input \(\mathbf{x}(t)\), you (i) compute match scores, (ii) pick the BMU \(c\), (iii) compute neighborhood weights from grid distances \(\|\mathbf{r}_j-\mathbf{r}_c\|\), and (iv) update the BMU and its neighbors with the cooperative rule. The neighborhood term is what turns ``a set of prototypes'' into ``an organized map.''
 
 The two schedules play different roles. The learning rate \(\alpha(t)\) controls how fast prototypes move; the neighborhood width \(\sigma(t)\) controls \emph{how much} the map is encouraged to be globally ordered. If \(\sigma(t)\) shrinks too quickly, the map can freeze before it has a chance to organize (a common source of topology errors). If \(\sigma(t)\) stays large for too long, the map can remain smooth but blurry, with weak separation between regions. This is why the monitoring tools introduced earlier (e.g., QE/TE and stability across seeds) are not decoration: they are how you tell whether the schedule is producing the behavior you intended.
-\subsection{Wrapping Up the Kohonen Self-Organizing Map (SOM) Derivations}
+\subsection{Synthesis: SOM Training Rules, Annealing Schedules, and Design Choices}
 \label{sec:som_wrapping_up_the_kohonen_self_organizing_map_som_derivations}
 
 At this point the SOM training story is complete: you have a similarity rule (to pick a winner), a neighborhood rule (to decide who else learns), and schedules that anneal both over time. The only subtlety is that these pieces interact. A large neighborhood early is what gives you global organization; a small neighborhood late is what lets prototypes settle into fine detail without tearing the map.

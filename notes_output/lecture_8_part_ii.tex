@@ -22,8 +22,16 @@ Soft computing makes that vagueness explicit. Instead of insisting on exact equa
 When precision is costly or ill-defined, make the vagueness explicit and keep the system auditable: represent linguistic concepts with membership functions, reason with operator choices you can explain, and tune those choices with optimization rather than brittle rules.
 \end{tcolorbox}
 
-\paragraph{Running example (thermostat).}
-We revisit a smart thermostat that regulates a room using two linguistic inputs (temperature error and rate of change) and one output (heater power). This compact scenario returns throughout the fuzzy trilogy: first to parameterize membership functions (\Cref{chap:fuzzysets}), then to transport labels across related universes (\Cref{chap:fuzzyrelations}), and finally to assemble complete inference systems (\Cref{chap:fuzzyinference}).
+\paragraph{Running example (thermostat).}\label{par:softcomp_thermostat_intro}
+Throughout the fuzzy trilogy we use a single running example: a smart thermostat that regulates a room by mapping two linguistic inputs to one linguistic output.
+
+\begin{itemize}
+    \item \textbf{Input 1 --- temperature error} \(e = T_{\text{room}} - T_{\text{set}}\) (\si{\celsius}), ranging roughly from \(-5\) to \(+5\). Labels: \textit{Cold}, \textit{Comfy}, \textit{Hot}.
+    \item \textbf{Input 2 --- rate of change} \(\dot{e}\) (\si{\celsius\per\minute}), ranging from \(-2\) to \(+2\). Labels: \textit{Falling}, \textit{Stable}, \textit{Rising}.
+    \item \textbf{Output --- heater power} \(u \in [0,1]\). Labels: \textit{Off}, \textit{Low}, \textit{Medium}, \textit{High}.
+\end{itemize}
+
+The fuzzy rule \emph{``IF error is Cold AND rate is Falling THEN power is High''} is the kind of statement the system must represent, evaluate, and defuzzify. \Cref{chap:fuzzysets} parameterizes the membership functions for each label, \Cref{chap:fuzzyrelations} shows how labels transfer across related universes, and \Cref{chap:fuzzyinference} assembles the complete inference pipeline. Keep this loop in mind as each formalism is introduced.
 
 \subsection{Hard Computing: The Classical Paradigm}
 \label{sec:softcomp_hard_computing_the_classical_paradigm}
