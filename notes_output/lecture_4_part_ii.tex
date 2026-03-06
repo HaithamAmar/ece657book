@@ -84,7 +84,7 @@ We denote each basis response by \(\varphi_i(\mathbf{x})\); stacking them yields
         \node[align=left, font=\scriptsize, right=0.3cm of y] {Linear weights \(w_i\)\\learned from data};
     \end{tikzpicture}
     % Avoid inline math in captions; it wraps poorly in some EPUB renderers.
-\caption{RBFN architecture. Inputs feed fixed radial units parameterized by centers and widths; a linear readout with weights and bias is trained by a regression or classification loss. Only the output weights are typically learned, while centers and widths come from clustering or spacing heuristics.}
+\caption{RBFN architecture. Inputs feed radial units parameterized by centers and widths; a linear readout with weights and bias is trained by a regression or classification loss. In the classical pipeline only the output weights are learned, while centers and widths come from clustering or spacing heuristics; variants also fine-tune centers and widths end-to-end.}
     \label{fig:rbf_architecture_weights}
 \end{figure}
 \FloatBarrier

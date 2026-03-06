@@ -77,9 +77,9 @@ The scoring function \(a(\cdot,\cdot)\) can be a dot product, a bilinear form, o
 \(\mathbf{c}_t\) is the context the decoder uses when predicting \(y_t\).
 This style of encoder--decoder attention traces back to early neural machine translation work
 \citep{Bahdanau2015}.
-That is the core move: different output positions can ``look back'' at different parts of the source.
+That is the core move: different output positions can consult different parts of the source. In modern terminology this is \emph{cross-attention}: queries come from the decoder state, while keys and values come from the encoder states.
 This is the bridge from encoder--decoder RNNs to Transformers: the attention math stays; what changes is
-that Transformers build the states \(\mathbf{h}_j\) and \(\mathbf{s}_t\) without recurrence.
+that Transformers build the states \(\mathbf{h}_j\) and \(\mathbf{s}_t\) without recurrence. This is distinct from decoder self-attention, where queries, keys, and values all come from the decoder sequence itself.
 
 \subsection{Scaled Dot-Product Attention}
 \label{sec:transformers_scaled_dot_product_attention}
@@ -137,7 +137,7 @@ with \(\mathbf{W}^Q,\mathbf{W}^K\in\mathbb{R}^{d_{\text{model}}\times d_k}\) and
 In self-attention, \(\mathbf{X}\) is the same sequence for all three. In cross-attention (seq2seq), \(\mathbf{Q}\) typically comes from decoder states while \(\mathbf{K},\mathbf{V}\) come from encoder states; the math is unchanged. Multi-head attention simply runs this projection-and-attend pattern several times in parallel with separate \(\mathbf{W}_i^Q,\mathbf{W}_i^K,\mathbf{W}_i^V\).
 
 \begin{tcolorbox}[summarybox, title={Worked example: 2-token causal self-attention (one head)}]
-Let \(d_k=d_v=2\) and \(Q=K=V=\mathbf{I}_2\). Without masking, the scaled scores are
+For this toy calculation we bypass the learned projection matrices and set \(Q=K=V=\mathbf{I}_2\). In a trained Transformer, separate learned linear maps produce \(Q\), \(K\), and \(V\) from the token embeddings. Let \(d_k=d_v=2\). Without masking, the scaled scores are
 \[
 S=\frac{QK^\top}{\sqrt{d_k}}=\frac{1}{\sqrt{2}}\mathbf{I}_2.
 \]

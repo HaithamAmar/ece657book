@@ -110,6 +110,8 @@ Feedforward neural networks (FNNs) are characterized by a unidirectional flow of
 
 Conceptually, this can be thought of as a cascade of neuron activations where each neuron receives input signals, processes them, and passes the output to the next layer. This architecture aligns with the idea that sensory information in biological systems is processed in a hierarchical manner.
 
+Before writing the first equation, fix the convention: examples are row vectors, weights multiply on the right, and in mini\hyp{}batches the bias is broadcast across rows.
+
 Mathematically, if we denote the input vector as \(\mathbf{x}\), the output of layer \(l\) as \(\mathbf{a}^{(l)}\), and the weight matrix connecting layer \(l-1\) to layer \(l\) as \(\mathbf{W}^{(l)}\), the feedforward operation is given by:
 \begin{equation}
 \begin{aligned}

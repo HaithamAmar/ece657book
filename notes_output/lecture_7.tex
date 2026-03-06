@@ -309,7 +309,7 @@ Consider a simple RNN cell with the following update equations:
         \coordinate (braceR) at ($(h3.south east)+(0,-12mm)$);
         \draw[decorate, decoration={brace, amplitude=5pt}] (braceL) -- node[midway, below=10pt]{\scriptsize shared parameters across the unrolled sequence} (braceR);
     \end{tikzpicture}
-    \caption{Unrolling an RNN reveals repeated application of the same parameters across time steps. This view motivates backpropagation through time (BPTT), which accumulates gradients through every copy before updating the shared weights.}
+    \caption{Unrolled RNN over three time steps. The brace marks that the same parameters \(\mathbf{W}_{xh}\), \(\mathbf{W}_{hh}\), and \(\mathbf{W}_{hy}\) are reused at every step; backpropagation through time (BPTT) accumulates gradient contributions through all copies before updating those shared weights.}
     \label{fig:lec7-rnn-unrolled}
 \end{figure}
 
