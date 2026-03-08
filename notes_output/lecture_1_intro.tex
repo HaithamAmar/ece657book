@@ -28,6 +28,59 @@ Use this chapter as a standing reference: later tools reuse the same system voca
 Paradigms differ mainly in the \emph{space being searched} (parameters, rules, programs, prototypes, populations) and the \emph{feedback signal} available (labels, self\hyp{}supervision, rules, fitness). The rest of the book is a tour of design points under this contract; the back-matter synthesis in \Cref{fig:big-picture-map} and \Cref{tab:big-picture-models} summarizes the map once the chapter tour is complete.
 \end{tcolorbox}
 
+\begin{figure}[t]
+    \centering
+    \begin{tikzpicture}[
+        >=Stealth,
+        box/.style={draw=gray!45, rounded corners=8pt, line width=0.9pt, text width=5.3cm, minimum height=2.6cm, align=center, inner sep=10pt},
+        looparrow/.style={->, line width=1.1pt, gray!72, shorten >=2pt, shorten <=2pt},
+        badge/.style={circle, draw=gray!45, fill=white, minimum size=20pt, inner sep=0pt, font=\bfseries\small}
+    ]
+        \node[box, fill=cbBlue!10]   (repr) at (0,2.05) {%
+            {\textbf{\Large Representation}\par}
+            \vspace{2pt}
+            {\large What is stored?\par}
+            \vspace{5pt}
+            {\footnotesize\color{black!55}state, features, rules, prototypes}
+        };
+        \node[box, fill=cbOrange!12] (obj)  at (7.0,2.05) {%
+            {\textbf{\Large Objective}\par}
+            \vspace{2pt}
+            {\large What counts as better?\par}
+            \vspace{5pt}
+            {\footnotesize\color{black!55}loss, likelihood, energy, fitness}
+        };
+        \node[box, fill=cbGreen!12]  (upd)  at (7.0,-2.05) {%
+            {\textbf{\Large Update}\par}
+            \vspace{2pt}
+            {\large How does it change?\par}
+            \vspace{5pt}
+            {\footnotesize\color{black!55}gradients, rules, search,\par population operators}
+        };
+        \node[box, fill=cbPink!12]   (aud)  at (0,-2.05) {%
+            {\textbf{\Large Audit}\par}
+            \vspace{2pt}
+            {\large What can fail silently?\par}
+            \vspace{5pt}
+            {\footnotesize\color{black!55}leakage, instability, calibration,\par constraints}
+        };
+        \node[badge] at ([xshift=10pt,yshift=-10pt]repr.north west) {1};
+        \node[badge] at ([xshift=10pt,yshift=-10pt]obj.north west) {2};
+        \node[badge] at ([xshift=10pt,yshift=-10pt]upd.north west) {3};
+        \node[badge] at ([xshift=10pt,yshift=-10pt]aud.north west) {4};
+
+        \draw[looparrow] (repr.east) -- (obj.west);
+        \draw[looparrow] (obj.south) -- (upd.north);
+        \draw[looparrow] (upd.west) -- (aud.east);
+        \draw[looparrow] (aud.north) -- (repr.south);
+    \end{tikzpicture}
+    \caption{The recurring engineering loop used throughout the book. Later parts keep the loop but shift where the main design pressure sits.}
+    \label{fig:unified_contract_loop}
+\end{figure}
+\FloatBarrier
+
+The rest of the book can be read as controlled variation on \Cref{fig:unified_contract_loop}. Some chapters keep the objective fixed and change the representation; others keep the representation and feedback signal fixed but change the update rule; later chapters make the audit burden itself a first-class design problem.
+
 \paragraph{What we mean by a model.}
 In this book, a \emph{model} is any system that maps observed information to a prediction about an outcome.
 Sometimes the prediction is a single value (regression), and often it is a probability distribution over

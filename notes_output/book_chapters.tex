@@ -26,6 +26,7 @@
 \begin{tcolorbox}[summarybox, title={How to read Part II (rolling window)}]
 \begin{itemize}
   \item \textbf{One loop, many architectures:} define a loss, run a forward pass, cache intermediates, backprop gradients, validate, then iterate.
+  \item \textbf{Loop emphasis:} relative to \Cref{fig:unified_contract_loop}, this part mostly stresses the \emph{update} box --- gradient flow, masking, normalization, and optimizer stability determine whether the representation can actually be learned.
   \item \textbf{Two bottlenecks reappear:} expressivity (can the model represent the boundary?) and trainability (can gradients reach the parameters?).
   \item \textbf{Continuity checks:} watch shapes and caching in feedforward models, watch masking in sequence models, and keep calibration/slice audits alongside accuracy.
 \end{itemize}
@@ -77,6 +78,7 @@ the difference between a model with a low loss and a system that makes good deci
 \begin{tcolorbox}[summarybox, title={How to read Part III (rolling window)}]
 \begin{itemize}
   \item \textbf{A trilogy by design:} fuzzy sets \(\rightarrow\) fuzzy relations \(\rightarrow\) fuzzy inference; each chapter reuses the thermostat to add one layer of machinery.
+  \item \textbf{Loop emphasis:} relative to \Cref{fig:unified_contract_loop}, this part shifts pressure toward the \emph{representation} and \emph{audit} boxes --- the memberships, operators, and rule base are the model, so units, overlaps, and edge-case checks matter early.
   \item \textbf{Repetition is intentional:} concepts reappear as intuition, then as algebra, then as end-to-end behavior. Read repeated material as ``preview vs.\ formalization vs.\ sanity-check.''
   \item \textbf{Audit like an engineer:} keep universes/units explicit, pick operators explicitly, and verify edge cases numerically before tuning aesthetics.
 \end{itemize}
@@ -120,6 +122,7 @@ and test edge cases numerically before you tune aesthetics.
 \begin{tcolorbox}[summarybox, title={How to read Part IV (rolling window)}]
 \begin{itemize}
   \item \textbf{Optimization lens:} treat evolutionary algorithms as a budgeted optimizer for black-box, noisy, or constrained objectives (not as biology).
+  \item \textbf{Loop emphasis:} relative to \Cref{fig:unified_contract_loop}, this part changes the \emph{update} box most sharply --- gradients disappear and the update becomes selection, mutation, crossover, and constraint handling under a fixed evaluation budget.
   \item \textbf{Repetition is intentional:} the GA loop appears as a big-picture story, then as operator details, then as a numeric trace you can verify in code.
   \item \textbf{Reporting is part of correctness:} match evaluation budgets, run multiple seeds, and report distributions and constraint handling explicitly.
 \end{itemize}

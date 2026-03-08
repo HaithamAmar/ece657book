@@ -283,6 +283,43 @@ A natural limitation of handcrafted fuzzy systems is that membership breakpoints
 \paragraph{Hybrid learning.}
 ANFIS uses a hybrid of gradient-descent (backpropagation, for the membership-function parameters in layer 1) and least-squares estimation (LSE, for the linear consequent parameters in layer 4). The LSE pass is exact and fast; the gradient pass tunes the shape of the antecedents. Iterating these two passes converges reliably for moderate-sized problems.
 
+\begin{tcolorbox}[summarybox, breakable, title={ANFIS ledger: what flows forward, what flows backward}]
+\textbf{Two-rule shape ledger (scalar output).} For inputs \(x_1,x_2\), the fuzzification layer produces antecedent memberships such as \(\mu_{A_1}(x_1), \mu_{A_2}(x_1), \mu_{B_1}(x_2), \mu_{B_2}(x_2)\). The rule layer compresses those into firing strengths \(\mathbf{w}=[w_1,w_2]^\top\), where \(w_i=\mu_{A_i}(x_1)\mu_{B_i}(x_2)\). Normalization gives \(\bar{\mathbf{w}}=[\bar w_1,\bar w_2]^\top\) with \(\bar w_i=w_i/(w_1+w_2)\). The consequent layer forms \(\mathbf{f}=[f_1,f_2]^\top\), where \(f_i=p_i x_1 + q_i x_2 + r_i\), and the output is the weighted sum
+\[
+\hat y = \bar{\mathbf{w}}^\top \mathbf{f} = \sum_i \bar w_i f_i.
+\]
+
+\textbf{Backward path to the membership parameters.} If the loss is \(L(\hat y, y)\), then the premise parameters \(\theta\) (centers, widths, breakpoints, etc.) are updated through the same chain-rule logic as \Cref{chap:backprop}:
+\[
+\frac{\partial L}{\partial \theta}
+=
+\frac{\partial L}{\partial \hat y}
+\sum_i
+\frac{\partial \hat y}{\partial \bar w_i}
+\frac{\partial \bar w_i}{\partial w_i}
+\frac{\partial w_i}{\partial \mu}
+\frac{\partial \mu}{\partial \theta}.
+\]
+The new ingredient is only the normalization step: because \(\bar w_i\) depends on every rule weight, changing one membership function perturbs the whole normalized rule mixture, not just one path.
+
+\textbf{Hybrid update sketch.}
+\begin{verbatim}
+for each epoch:
+    # forward pass
+    compute memberships mu_Ai(x1), mu_Bi(x2)
+    compute rule strengths w_i and normalized weights wbar_i
+
+    # consequent update (Sugeno coefficients)
+    solve (p_i, q_i, r_i) by least squares with fixed wbar_i
+
+    # premise update (membership parameters)
+    recompute yhat and loss
+    backpropagate dL/dtheta through w_i, wbar_i, and mu
+    theta <- theta - eta * grad_theta
+\end{verbatim}
+This is why ANFIS is a genuine bridge back to neural-network training without collapsing fuzzy inference into an ordinary dense MLP: the premise side still behaves like an interpretable rule base, while the consequent side can be solved with linear-algebra tools.
+\end{tcolorbox}
+
 \paragraph{Connection to the fuzzy trilogy.}
 ANFIS closes the loop between the three Part III chapters: the membership functions of \Cref{chap:fuzzysets} become trainable nodes, the extension/composition ideas of \Cref{chap:fuzzyrelations} govern how rule strengths propagate, and the Sugeno inference of this chapter provides the differentiable output. The parameters that ANFIS tunes automatically (breakpoints, widths, rule weights) can also be optimized with a genetic algorithm --- see \Cref{chap:evo} for that population-based alternative when the search space is non-smooth or multi-modal.
 

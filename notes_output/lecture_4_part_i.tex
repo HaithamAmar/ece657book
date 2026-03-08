@@ -895,6 +895,6 @@ This matches the matrix-form recap: the forward pass produces activations and ca
     \noindent\textbf{If you are jumping chapters.} Keep one habit: run a tiny gradient check before scaling up.
 
     \medskip
-    \paragraph{Where we head next.} \Cref{chap:rbf} introduces radial basis function networks, an alternative nonlinear route where many hidden features are fixed and the output layer can be solved more directly. This provides a clean contrast to end-to-end backpropagation and a different training decomposition to compare against.
+    \paragraph{Where we head next.} \Cref{chap:rbf} is a deliberate contrast chapter, not a kernel detour. The representation remains nonlinear, but the training decomposition changes: instead of learning every layer end-to-end, we first choose localized basis functions and then solve a linear readout more directly. This gives a second answer to the question ``where should the nonlinearity live?'' before we move to prototype organization in \Cref{chap:som} and energy-based recurrence in \Cref{chap:hopfield}.
 
     \nocite{Rumelhart1986, Haykin2009}

@@ -758,6 +758,10 @@ where \(\boldsymbol{\ell}_t\) are the logits (unnormalized scores). Softmax conv
 \(p_\theta(x_{t+1}=v\mid x_{1:t})=\operatorname{softmax}(\boldsymbol{\ell}_t)_v\),
 and the cross-entropy (CE) loss trains the model to put mass on the observed next token.
 
+\begin{tcolorbox}[summarybox, title={Where the proper-scoring story reappears}]
+Attention weights and output probabilities are different objects. The row-wise softmax in \(\mathbf{A}=\operatorname{softmax}(\mathbf{Q}\mathbf{K}^\top/\sqrt{d_k})\) creates \emph{internal routing weights} over keys; it is part of the representation mechanism, not the final predictive distribution scored by log loss or the Brier score from \Cref{chap:supervised}. The predictive probabilities appear only after the language-model head maps \(\mathbf{h}_t\) to vocabulary logits \(\boldsymbol{\ell}_t\) and a vocabulary softmax converts those logits into \(p_\theta(x_{t+1}\mid x_{1:t})\). In that sense, sequence modeling keeps the same contract as earlier classification chapters: the architecture builds a representation, but the proper scoring rule is applied to the model's output distribution.
+\end{tcolorbox}
+
 \paragraph{Temperature and sampling (how you choose a token).}
 Temperature rescales logits before softmax:
 \begin{equation}
