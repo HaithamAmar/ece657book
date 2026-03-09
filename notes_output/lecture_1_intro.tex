@@ -410,42 +410,51 @@ The book also maintains a deliberate dual emphasis: representation learning with
 
 \subsection{Roadmap and Reading Paths}
 \label{sec:intro_roadmap_and_reading_paths}
-\begin{figure}[!b]
+\begin{figure}[t]
     \centering
-    \captionsetup{width=.65\linewidth}
-    \resizebox{.9\linewidth}{!}{%
-    \begin{tikzpicture}[>=Stealth, node distance=1.6cm and 1.8cm]
-        \tikzstyle{block}=[draw, rounded corners, align=center, minimum width=2.6cm, minimum height=0.8cm, fill=gray!5]
-        % Main chain
-        \node[block] (reg) {Linear\\Regression};
-        \node[block, right=of reg] (log) {Logistic\\Regression};
-        \node[block, right=of log] (mlp) {MLP\\(Backprop)};
-        \node[block, right=of mlp] (cnn) {CNN\\(Conv/Pool)};
-        \node[block, right=of cnn] (rnn) {RNN\\(BPTT)};
-        \node[block, right=of rnn] (trf) {Transformers\\(Attention)};
-        % Branch: SOM -> Fuzzy
-        \node[block, below=1.2cm of mlp] (som) {SOM\\(Competitive)};
-        \node[block, right=of som] (fuzzy) {Fuzzy Sets\\\& Inference};
-        % Parallel: Optimization -> GA/GP
-        \node[block, above=1.2cm of mlp] (opt) {Optimization\\(GD/Reg)};
-        \node[block, right=of opt] (ga) {Evolutionary\\(GA/GP)};
-        % Arrows main
-        \draw[->] (reg) -- (log);
-        \draw[->] (log) -- (mlp);
-        \draw[->] (mlp) -- (cnn);
-        \draw[->] (cnn) -- (rnn);
-        \draw[->] (rnn) -- (trf);
-        % Arrows branches
-        \draw[->] (mlp) -- (som);
-        \draw[->] (som) -- (fuzzy);
-        \draw[->] (opt) -- (ga);
-        % Cross-links (light)
-        \draw[->, gray!60] (mlp) to[bend left=15] (ga);
-        \draw[->, gray!60] (fuzzy) to[bend right=20] (trf);
-    \end{tikzpicture}%
-    }
+    \captionsetup{width=.88\linewidth}
+    \begin{adjustbox}{max width=\linewidth}
+    \begin{tikzpicture}[
+        >=Stealth,
+        strand/.style={draw=gray!48, rounded corners=8pt, line width=1.05pt, minimum width=2.35cm, minimum height=1.12cm, align=center, inner sep=8pt},
+        lane/.style={font=\small\bfseries\color{gray!86}, align=right},
+        patharrow/.style={->, line width=1.35pt, gray!74},
+        connector/.style={->, line width=1.1pt, gray!60},
+        crosslink/.style={->, dashed, line width=1.0pt, gray!46}
+    ]
+        \node[lane] at (-1.65,2.05) {Optimization\\thread};
+        \node[lane] at (-1.55,0.0) {Core supervised\\path};
+        \node[lane] at (-1.65,-2.05) {Soft-computing\\branch};
+
+        \node[strand, fill=cbPink!15]   (opt) at (4.2,2.05) {Optimization\\[-1pt]\footnotesize GD / regularization};
+        \node[strand, fill=cbPink!22]   (ga)  at (6.95,2.05) {Evolutionary\\[-1pt]\footnotesize GA / GP};
+
+        \node[strand, fill=cbBlue!15]    (reg) at (0.0,0.0) {Linear\\[-1pt]\footnotesize regression};
+        \node[strand, fill=cbBlue!15]    (log) at (2.20,0.0) {Logistic\\[-1pt]\footnotesize regression};
+        \node[strand, fill=cbBlue!18]    (mlp) at (4.40,0.0) {MLP\\[-1pt]\footnotesize backprop};
+        \node[strand, fill=cbBlue!18]    (cnn) at (6.60,0.0) {CNN\\[-1pt]\footnotesize conv / pool};
+        \node[strand, fill=cbBlue!18]    (rnn) at (8.80,0.0) {RNN\\[-1pt]\footnotesize BPTT};
+        \node[strand, fill=cbGreen!18]   (trf) at (11.00,0.0) {Transformer\\[-1pt]\footnotesize attention};
+
+        \node[strand, fill=cbGreen!18]   (som) at (4.40,-2.05) {SOM\\[-1pt]\footnotesize competitive};
+        \node[strand, fill=cbOrange!18]  (fuzzy) at (6.95,-2.05) {Fuzzy sets\\[-1pt]\footnotesize \& inference};
+
+        \draw[patharrow] (reg) -- (log);
+        \draw[patharrow] (log) -- (mlp);
+        \draw[patharrow] (mlp) -- (cnn);
+        \draw[patharrow] (cnn) -- (rnn);
+        \draw[patharrow] (rnn) -- (trf);
+
+        \draw[patharrow] (opt) -- (ga);
+        \draw[connector] (mlp.south) -- (som.north);
+        \draw[patharrow] (som) -- (fuzzy);
+
+        \draw[crosslink] (ga.south) to[bend left=18] (trf.north);
+        \draw[crosslink] (fuzzy.north) to[bend right=18] (rnn.south);
+    \end{tikzpicture}
+    \end{adjustbox}
     \captionsetup{justification=raggedright}
-    \caption{Roadmap of the book strands (core supervised path through attention models; SOM/fuzzy; optimization/evolutionary). It also serves as a quick prerequisite map when you want to jump ahead and later backfill foundations.}
+    \caption{Roadmap of the book strands. The central path carries the predictive-modeling arc from linear models to Transformers; the lower branch collects competitive learning and fuzzy reasoning; the upper thread tracks optimization ideas that culminate in evolutionary search.}
     \label{fig:roadmap}
 \end{figure}
 

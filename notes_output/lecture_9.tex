@@ -228,8 +228,8 @@ with analogous expressions for the \(A\) and \(D\) categories. These overlapping
     \vspace{0.4em}
 \begin{tikzpicture}
     \begin{axis}[
-            width=0.72\linewidth,
-            height=4.6cm,
+            width=0.74\linewidth,
+            height=4.9cm,
             xmin=60, xmax=95,
             ymin=0, ymax=1.05,
             xlabel={Score}, ylabel={Membership},
@@ -237,28 +237,29 @@ with analogous expressions for the \(A\) and \(D\) categories. These overlapping
             ytick={0,0.5,1},
             legend style={at={(0.02,0.98)}, anchor=north west, draw=none, fill=none},
             axis background/.style={fill=white},
+            grid=both,
+            grid style={gray!12},
+            minor x tick num=1,
             clip=true
         ]
+            \path[fill=cbBlue!10, draw=none] (axis cs:75,0) rectangle (axis cs:80,1.05);
             % Grade C trapezoid
-            \addplot[thick, cbBlue, name path=C] coordinates {
+            \addplot[thick, cbBlue] coordinates {
                 (60,0) (65,0) (70,1) (75,1) (80,0) (95,0)
             };
             \addlegendentry{Grade $C$}
             % Grade B trapezoid
-            \addplot[thick, cbOrange, name path=B] coordinates {
+            \addplot[thick, cbOrange] coordinates {
                 (60,0) (75,0) (80,1) (85,1) (90,0) (95,0)
             };
             \addlegendentry{Grade $B$}
-            % Shaded overlap region
-            \addplot[fill=cbBlue!20, draw=none] fill between[
-                of=C and B,
-                soft clip={domain=75:80}
-            ];
-            \node[cbBlue!60!black] at (axis cs:77.5,0.6) {overlap};
+            \addplot[gray, dashed] coordinates {(75,0) (75,1.05)};
+            \addplot[gray, dashed] coordinates {(80,0) (80,1.05)};
+            \node[font=\scriptsize, cbBlue!60!black] at (axis cs:77.5,0.68) {shared region};
         \end{axis}
     \end{tikzpicture}
     % Avoid inline math in captions; it wraps poorly in some EPUB renderers.
-    \caption{Trapezoidal membership functions for grades C and B with the overlapping region shaded. Scores near 78--82 partially satisfy both grade definitions. This overlap design keeps boundary cases smooth instead of forcing abrupt label switches.}
+    \caption{Trapezoidal membership functions for grades C and B with the shared region highlighted. Scores between 75 and 80 partially satisfy both grade definitions. This overlap keeps boundary cases smooth instead of forcing abrupt label switches.}
     \label{fig:lec9-grade-trapezoids}
 \end{figure}
 
