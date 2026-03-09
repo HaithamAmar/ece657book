@@ -270,84 +270,88 @@ During reproduction, offspring inherit genes from parents via crossover and muta
 
 \begin{figure}[t]
     \centering
-    \captionsetup{width=.9\linewidth}
-    \begin{adjustbox}{max width=\linewidth}
+    \captionsetup{width=.88\linewidth}
+    \begin{adjustbox}{width=.95\linewidth}
     \begin{tikzpicture}[
-        panel/.style={draw=gray!42, rounded corners=8pt, fill=gray!4, minimum width=5.45cm, minimum height=4.05cm},
-        paneltitle/.style={font=\bfseries\normalsize},
-        flow/.style={->, line width=1.1pt, gray!72},
-        box/.style={draw=gray!45, rounded corners=4pt, fill=white, minimum width=1.7cm, minimum height=0.56cm, font=\footnotesize, align=center},
-        tiny/.style={font=\scriptsize, color=gray!82},
-        fitbar/.style={draw=none, fill=cbBlue!55},
-        midbar/.style={draw=none, fill=cbBlue!30},
-        lowbar/.style={draw=none, fill=cbBlue!15}
+        >=Stealth,
+        card/.style={draw=gray!30, rounded corners=3pt, fill=white, line width=0.6pt},
+        cardtitle/.style={font=\footnotesize\bfseries, text=gray!80},
+        flow/.style={-{Stealth[length=2.2mm,width=1.6mm]}, line width=0.9pt, gray!70},
+        box/.style={draw=gray!40, rounded corners=2pt, fill=white, minimum width=1.8cm, minimum height=0.55cm, font=\footnotesize, align=center},
+        tiny/.style={font=\scriptsize, text=gray!70}
     ]
-        % Selection panel
+        % --- Selection Card ---
         \begin{scope}[shift={(0,0)}]
-            \node[panel] at (0,0) {};
-            \node[paneltitle] at (0,1.34) {Selection};
-            \node[font=\small, anchor=east] at (-1.72,0.56) {fit};
-            \node[font=\small, anchor=east] at (-1.72,0.02) {mid};
-            \node[font=\small, anchor=east] at (-1.72,-0.52) {low};
-            \fill[fitbar] (-1.25,0.30) rectangle (1.55,0.74);
-            \fill[midbar] (-1.25,-0.16) rectangle (0.95,0.28);
-            \fill[lowbar] (-1.25,-0.62) rectangle (0.28,-0.18);
-            \draw[gray!35] (-1.25,0.30) rectangle (1.75,0.74);
-            \draw[gray!35] (-1.25,-0.16) rectangle (1.75,0.28);
-            \draw[gray!35] (-1.25,-0.62) rectangle (1.75,-0.18);
-            \node[tiny, anchor=west] at (1.10,0.52) {high};
-            \node[tiny, anchor=west] at (0.50,0.06) {medium};
-            \node[tiny, anchor=west] at (-0.12,-0.40) {low};
+            \node[card, minimum width=4.2cm, minimum height=3.0cm] at (0,0) {};
+            \node[cardtitle] at (0, 1.2) {Selection};
+
+            \node[font=\footnotesize, anchor=east] at (-1.1, 0.45) {fit};
+            \fill[cbBlue!50] (-0.9, 0.3) rectangle (1.0, 0.6);
+            \draw[gray!40, line width=0.5pt] (-0.9, 0.3) rectangle (1.3, 0.6);
+            \node[tiny, anchor=west] at (1.4, 0.45) {0.60};
+
+            \node[font=\footnotesize, anchor=east] at (-1.1, -0.05) {mid};
+            \fill[cbBlue!30] (-0.9, -0.2) rectangle (0.4, 0.1);
+            \draw[gray!40, line width=0.5pt] (-0.9, -0.2) rectangle (1.3, 0.1);
+            \node[tiny, anchor=west] at (1.4, -0.05) {0.42};
+
+            \node[font=\footnotesize, anchor=east] at (-1.1, -0.55) {low};
+            \fill[cbBlue!10] (-0.9, -0.7) rectangle (-0.1, -0.4);
+            \draw[gray!40, line width=0.5pt] (-0.9, -0.7) rectangle (1.3, -0.4);
+            \node[tiny, anchor=west] at (1.4, -0.55) {0.18};
         \end{scope}
 
-        % Crossover panel
-        \begin{scope}[shift={(5.70,0)}]
-            \node[panel] at (0,0) {};
-            \node[paneltitle] at (0,1.34) {Crossover};
-            \node[font=\small, anchor=east] at (-1.88,0.56) {parent A};
-            \node[font=\small, anchor=east] at (-1.88,0.04) {parent B};
-            \node[font=\small, anchor=east] at (-1.88,-0.82) {child 1};
-            \node[font=\small, anchor=east] at (-1.88,-1.34) {child 2};
+        % --- Crossover Card ---
+        \begin{scope}[shift={(5.40,0)}]
+            \node[card, minimum width=5.0cm, minimum height=3.0cm] at (0,0) {};
+            \node[cardtitle] at (0, 1.2) {Crossover};
 
-            \fill[cbBlue!45]   (-1.30,0.34) rectangle (0.35,0.78);
-            \fill[cbOrange!35] (0.35,0.34) rectangle (1.75,0.78);
-            \draw[gray!40] (-1.30,0.34) rectangle (1.75,0.78);
+            \node[font=\footnotesize, anchor=east] at (-0.6, 0.5) {parent A};
+            \fill[cbBlue!40] (-0.4, 0.35) rectangle (2.0, 0.65);
+            \draw[gray!40, line width=0.5pt] (-0.4, 0.35) rectangle (2.0, 0.65);
 
-            \fill[cbOrange!35] (-1.30,-0.18) rectangle (0.35,0.26);
-            \fill[cbBlue!45]   (0.35,-0.18) rectangle (1.75,0.26);
-            \draw[gray!40] (-1.30,-0.18) rectangle (1.75,0.26);
+            \node[font=\footnotesize, anchor=east] at (-0.6, 0) {parent B};
+            \fill[cbOrange!30] (-0.4, -0.15) rectangle (2.0, 0.15);
+            \draw[gray!40, line width=0.5pt] (-0.4, -0.15) rectangle (2.0, 0.15);
 
-            \draw[dashed, gray!70] (0.35,0.98) -- (0.35,-0.44);
-            \draw[flow] (0.23,-0.46) -- (0.23,-0.68);
-            \draw[flow] (0.47,-0.46) -- (0.47,-0.68);
+            \draw[dashed, gray!80, line width=0.8pt] (0.8, 0.85) -- (0.8, -0.25);
+            \node[tiny, fill=white, inner sep=1pt] at (0.8, 0.85) {cut};
 
-            \fill[cbBlue!45]   (-1.30,-1.04) rectangle (0.35,-0.60);
-            \fill[cbBlue!45]   (0.35,-1.04) rectangle (1.75,-0.60);
-            \draw[gray!40] (-1.30,-1.04) rectangle (1.75,-0.60);
+            \draw[flow] (0.5, -0.25) -- (0.5, -0.5);
+            \draw[flow] (1.1, -0.25) -- (1.1, -0.5);
 
-            \fill[cbOrange!35] (-1.30,-1.56) rectangle (0.35,-1.12);
-            \fill[cbOrange!35] (0.35,-1.56) rectangle (1.75,-1.12);
-            \draw[gray!40] (-1.30,-1.56) rectangle (1.75,-1.12);
+            \node[font=\footnotesize, anchor=east] at (-0.6, -0.65) {child 1};
+            \fill[cbBlue!40] (-0.4, -0.8) rectangle (0.8, -0.5);
+            \fill[cbOrange!30] (0.8, -0.8) rectangle (2.0, -0.5);
+            \draw[gray!40, line width=0.5pt] (-0.4, -0.8) rectangle (2.0, -0.5);
+            \draw[gray!40, line width=0.5pt] (0.8, -0.8) -- (0.8, -0.5);
 
-            \node[tiny] at (0.35,0.93) {cut};
+            \node[font=\footnotesize, anchor=east] at (-0.6, -1.15) {child 2};
+            \fill[cbOrange!30] (-0.4, -1.3) rectangle (0.8, -1.0);
+            \fill[cbBlue!40] (0.8, -1.3) rectangle (2.0, -1.0);
+            \draw[gray!40, line width=0.5pt] (-0.4, -1.3) rectangle (2.0, -1.0);
+            \draw[gray!40, line width=0.5pt] (0.8, -1.3) -- (0.8, -1.0);
         \end{scope}
 
-        % Constraints panel
-        \begin{scope}[shift={(2.85,-4.05)}]
-            \node[panel] at (0,0) {};
-            \node[paneltitle] at (0,1.34) {Constraints};
-            \node[box] (cand) at (-1.45,0.20) {candidate};
-            \node[draw=gray!45, diamond, aspect=1.8, fill=white, minimum width=1.45cm, minimum height=0.78cm, font=\footnotesize, align=center] (feas) at (0.30,0.20) {feasible?};
-            \node[box, fill=cbOrange!18] (repair) at (0.25,-1.08) {repair /\\ penalty};
-            \node[box, fill=cbGreen!16] (eval) at (1.95,0.20) {evaluate};
+        % --- Constraints Card ---
+        \begin{scope}[shift={(2.7, -3.7)}]
+            \node[card, minimum width=7.6cm, minimum height=3.0cm] at (0,0) {};
+            \node[cardtitle] at (0, 1.2) {Constraints};
+
+            \node[box, minimum width=1.8cm] (cand) at (-2.4, 0.3) {candidate};
+            \node[draw=gray!50, diamond, aspect=1.8, fill=white, minimum width=1.5cm, minimum height=0.7cm, font=\footnotesize, align=center, inner sep=1pt] (feas) at (0, 0.3) {feasible?};
+            \node[box, fill=cbGreen!15, minimum width=1.8cm] (eval) at (2.4, 0.3) {evaluate};
+
+            \node[box, fill=cbOrange!15, minimum width=1.8cm] (repair) at (0, -0.8) {repair /\\ penalty};
+
             \draw[flow] (cand.east) -- (feas.west);
-            \draw[flow] (feas.east) -- node[above, tiny, pos=0.55] {yes} (eval.west);
-            \draw[flow] (feas.south) -- node[right, tiny, pos=0.45] {no} (repair.north);
+            \draw[flow] (feas.east) -- (eval.west) node[midway, above, tiny, yshift=1pt] {yes};
+            \draw[flow] (feas.south) -- (repair.north) node[midway, right, tiny, xshift=1pt] {no};
             \draw[flow] (repair.east) -| (eval.south);
         \end{scope}
     \end{tikzpicture}
     \end{adjustbox}
-    \caption{Evolutionary micro-operators. Left: selection increases the sampling rate of fitter candidates. Center: crossover splices parent segments to produce new chromosomes. Right: constraint handling routes candidates through feasibility checks before final evaluation.}
+    \caption{Evolutionary micro-operators. Selection increases the sampling rate of fitter candidates, crossover recombines parent segments, and constraint handling routes infeasible candidates through repair or penalty before evaluation.}
     \label{fig:lec11-ea-micro}
 \end{figure}
 
@@ -834,40 +838,51 @@ This is the implementation-facing assembly of the GA loop. Earlier sections moti
 
 \begin{figure}[!ht]
 \centering
+\captionsetup{width=.92\linewidth}
 \begin{adjustbox}{max width=\linewidth, center}
 \begin{tikzpicture}[
-  font=\small,
+  font=\normalsize,
   >=Stealth,
-  node distance=18mm and 26mm,
-  line width=0.9pt,
+  node distance=20mm and 24mm,
+  line width=1.0pt,
   block/.style={
-    draw, rounded corners=2pt,
-    minimum width=38mm, minimum height=12mm,
-    align=center
+    draw=gray!48, rounded corners=3pt,
+    minimum width=41mm, minimum height=13mm,
+    align=center, fill=cbBlue!8
   },
+  operator/.style={block, fill=cbOrange!11},
+  terminal/.style={block, fill=cbGreen!14, minimum width=28mm},
   decision/.style={
-    draw, diamond, aspect=2.2,
+    draw=gray!48, diamond, aspect=2.0,
     inner sep=1.5pt, align=center,
-    minimum width=24mm, minimum height=14mm
+    minimum width=26mm, minimum height=16mm,
+    fill=cbPink!10
   },
-  flow/.style={->},
-  loop/.style={->, dashed},
-  lab/.style={font=\footnotesize, inner sep=1pt}
+  flow/.style={->, gray!72},
+  loop/.style={->, dashed, gray!68},
+  lab/.style={font=\footnotesize, fill=white, inner sep=1pt},
+  stage/.style={font=\scriptsize\bfseries, text=gray!78}
 ]
 
 % --- Nodes (stable layout) ---
 \node[block]   (init) {Initialization\\random population};
 \node[block, right=of init] (fit) {Fitness evaluation};
 \node[decision, right=of fit] (term) {Termination?};
+\node[terminal, right=18mm of term] (stop) {Stop};
 
-\node[block, below=18mm of fit] (sel) {Selection};
-\node[block, right=of sel] (cross) {Crossover};
-\node[block, right=of cross] (mut) {Mutation};
-\node[block, below=18mm of cross] (rep) {Replacement};
+\node[operator, below=18mm of fit] (sel) {Selection};
+\node[operator, right=of sel] (cross) {Crossover};
+\node[operator, right=of cross] (mut) {Mutation};
+\node[block, below=18mm of cross, fill=cbGreen!8] (rep) {Replacement};
+
+\node[stage] at ($(fit.north)+(0,9mm)$) {Evaluation};
+\node[stage] at ($(cross.south)+(0,-10mm)$) {Variation loop};
+\node[stage] at ($(stop.north)+(0,8mm)$) {Exit};
 
 % --- Main flow ---
 \draw[flow] (init) -- (fit);
 \draw[flow] (fit) -- (term);
+\draw[flow] (term) -- node[above, lab]{yes} (stop);
 
 \draw[flow] (term.south) -- node[right, lab, xshift=2pt]{no} (sel.north);
 \draw[flow] (sel) -- (cross);
@@ -879,17 +894,11 @@ This is the implementation-facing assembly of the GA loop. Earlier sections moti
 % replacement feeds next generation evaluation (clean dashed loop)
 \draw[loop] (rep.north) -- node[left, lab, pos=0.35, yshift=1pt]{next generation} (fit.south);
 
-% optional ``inner loop'' annotation (slightly above for readability)
-\draw[<->, dashed] ([yshift=4mm]sel.east) -- node[above, lab, yshift=2pt]{inner loop} ([yshift=4mm]cross.west);
-
-% yes/stop arrow drawn as overlay so it does not blow up the bounding box
-\begin{scope}[overlay]
-  \draw[flow] (term.north) -- ++(0,12mm) node[above, lab, yshift=1pt]{yes / stop};
-\end{scope}
+\draw[<->, dashed, gray!60] ([yshift=4mm]sel.east) -- node[above, lab, yshift=2pt]{variation operators} ([yshift=4mm]mut.west);
 
 \end{tikzpicture}
 \end{adjustbox}
-\caption{GA flowchart showing the iterative process: initialization leads to fitness evaluation and a termination check. If not terminated, the algorithm proceeds through selection, crossover, mutation, and replacement, which then feeds the next generation's fitness evaluation. Reference when verifying that your implementation preserves the intended control flow.}
+\caption{GA control flow. Initialization leads to fitness evaluation and a termination check. If the stop criterion is not met, the algorithm cycles through selection, crossover, mutation, and replacement before evaluating the next generation. Use this figure to verify that your implementation preserves the intended loop structure.}
 \label{fig:lec11-ga-flow}
 \end{figure}
 

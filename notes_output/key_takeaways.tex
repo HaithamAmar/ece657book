@@ -34,17 +34,23 @@
 \end{tcolorbox}
 
 
-\begin{figure}[!hb]
+\begin{figure}[t]
     \centering
-    % Auto-fit the taxonomy diagram to the text width to avoid clipping
+    \captionsetup{width=.94\linewidth}
     \begin{adjustbox}{max width=\linewidth, center}
-    \begin{tikzpicture}[x=2.6cm, y=1.35cm]
-        % Column labels (levels)
+    \begin{tikzpicture}[
+        x=3.32cm,
+        y=1.80cm,
+        levelhead/.style={draw=gray!35, rounded corners=3pt, fill=gray!6, minimum width=2.2cm, minimum height=0.56cm, font=\footnotesize\bfseries, text=gray!86},
+        rowhead/.style={anchor=east, font=\footnotesize\bfseries, text=gray!80, align=right},
+        model/.style={draw, rounded corners=3pt, line width=0.9pt, minimum width=2.8cm, minimum height=1.02cm, font=\scriptsize, align=center, inner sep=3pt}
+    ]
+        \fill[gray!3, rounded corners=5pt] (0.45,0.72) rectangle (4.55,6.32);
+
         \foreach \L/\X in {1/1,2/2,3/3,4/4}{
-            \node[font=\footnotesize] at (\X,6.6) {Level \L};
+            \node[levelhead] at (\X,6.72) {Level \L};
         }
 
-        % Row labels (model nature)
         \foreach \N/\Y in {
             {Prob./kernel}/6,
             {Connectionist}/5,
@@ -52,27 +58,22 @@
             {Fuzzy rule-based}/3,
             {Evolutionary / search}/2,
             {Energy-based}/1} {
-            \node[anchor=east, font=\footnotesize] at (0.05,\Y) {\N};
+            \node[rowhead] at (0.16,\Y) {\N};
         }
 
-        % Light grid
         \foreach \y in {1,...,6}{
-            \draw[gray!20] (0.4,\y) -- (4.6,\y);
+            \draw[gray!24, line width=0.6pt] (0.45,\y) -- (4.55,\y);
         }
         \foreach \x in {1,...,4}{
-            \draw[gray!20] (\x,0.7) -- (\x,6.3);
+            \draw[gray!24, line width=0.6pt] (\x,0.72) -- (\x,6.28);
         }
 
-        % Style for model cells
-        \tikzset{model/.style={draw, rounded corners=1pt, minimum width=2.4cm, minimum height=0.9cm, font=\scriptsize, align=center}}
-
-        % Legend (clean block centered below the grid, with generous spacing)
-        \node[draw, rounded corners=2pt, fill=white, inner sep=6pt] at (2.5,-1.15) (legend) {%
+        \node[draw=gray!35, rounded corners=4pt, fill=white, inner sep=6pt] at (2.5,-0.58) {%
             \begin{tikzpicture}[x=0.6cm, y=0.6cm]
                 \matrix[matrix of nodes,
                         nodes={anchor=west, font=\scriptsize},
                         row sep=3pt,
-                        column sep=8pt] {
+                        column sep=7pt] {
                     \node[font=\scriptsize\bfseries, anchor=west] {Legend:}; &
                     \node[draw, rounded corners=1pt, fill=cbBlue!20, draw=cbBlue, minimum width=0.55cm, minimum height=0.3cm] {}; & supervised; &
                     \node[draw, rounded corners=1pt, fill=cbGreen!20, draw=cbGreen, minimum width=0.55cm, minimum height=0.3cm] {}; & self-/unsupervised; \\
@@ -82,27 +83,20 @@
             \end{tikzpicture}
         };
 
-        % Model families (aligned to columns/rows)
-        % Probabilistic / kernel row (y=6)
         \node[model, fill=cbBlue!20, draw=cbBlue] at (2.0,6.0) {Linear /\\ logistic};
         \node[model, fill=cbBlue!20, draw=cbBlue] at (3.0,6.0) {Kernel SVMs /\\ RBF nets};
 
-        % Connectionist row (y=5)
-        \node[model, fill=cbBlue!20, draw=cbBlue]   at (2.0,5.0) {MLPs / CNNs};
+        \node[model, fill=cbBlue!20, draw=cbBlue]   at (2.0,5.0) {MLPs /\\ CNNs};
         \node[model, fill=cbGreen!20, draw=cbGreen] at (3.0,5.0) {RNNs /\\ sequence models};
         \node[model, fill=cbGreen!20, draw=cbGreen] at (4.0,5.0) {Transformers /\\ LMs};
 
-        % Unsupervised / competitive row (y=4)
         \node[model, fill=cbGreen!20, draw=cbGreen] at (2.5,4.0) {SOMs};
 
-        % Fuzzy rule-based row (y=3)
         \node[model, fill=cbOrange!20, draw=cbOrange] at (1.8,3.0) {Fuzzy\\ controllers};
         \node[model, fill=cbOrange!20, draw=cbOrange] at (2.6,3.0) {Fuzzy\\ inference};
 
-        % Evolutionary / search row (y=2)
         \node[model, fill=cbPink!20, draw=cbPink] at (2.5,2.0) {GA / GP};
 
-        % Energy-based row (y=1)
         \node[model, fill=cbPink!20, draw=cbPink] at (2.5,1.0) {Hopfield /\\ energy models};
     \end{tikzpicture}
     \end{adjustbox}

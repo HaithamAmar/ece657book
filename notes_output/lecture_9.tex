@@ -1132,48 +1132,65 @@ Practical tip: libraries such as \texttt{scikit-fuzzy} provide a tested \texttt{
     \centering
     \begin{tikzpicture}
         \begin{groupplot}[
-            group style={group size=2 by 1, horizontal sep=1.8cm},
-            width=0.38\linewidth, height=0.32\linewidth,
-            xmin=0, xmax=1, ymin=0, ymax=1.05,
-            xlabel={Fan speed $s$}, ylabel={Membership}
+            group style={group size=2 by 1, horizontal sep=1.2cm},
+            width=0.48\linewidth, height=0.42\linewidth,
+            xmin=0, xmax=1, ymin=0, ymax=1.15,
+            xlabel={Fan speed $s$},
+            axis background/.style={fill=white},
+            grid=major,
+            grid style={gray!15, line width=0.5pt},
+            tick label style={font=\footnotesize, text=gray!70!black},
+            label style={font=\small},
+            title style={font=\normalsize\bfseries, yshift=1ex},
+            clip mode=individual
         ]
-            % Panel A: base sets + clipping
-            \nextgroupplot[
-                title={(A) Sets and clipping},
-                title style={at={(0.5,1.22)}, anchor=south},
-                legend style={font=\scriptsize, at={(0.5,1.08)}, anchor=south, legend columns=3}
-            ]
-            \addplot[cbBlue, thick] coordinates {(0,1) (0.5,0)}; \addlegendentry{Low}
-            \addplot[cbOrange, thick] coordinates {(0.25,0) (0.5,1) (0.75,0)}; \addlegendentry{Medium}
-            \addplot[cbGreen, thick] coordinates {(0.5,0) (1,1)}; \addlegendentry{High}
-            \addplot[gray, dashed] coordinates {(0,0.3) (1,0.3)};
-            \addplot[gray, dashed] coordinates {(0,0.133) (1,0.133)};
-            \node[font=\scriptsize, anchor=south east, fill=white, inner sep=1pt] at (axis cs:0.98,0.3){$0.3$};
-            \node[font=\scriptsize, anchor=north east, fill=white, inner sep=1pt] at (axis cs:0.98,0.133){$0.133$};
-            \node[font=\scriptsize, anchor=south west, fill=white, inner sep=1pt] at (axis cs:0.02,0.3){$0.3$};
-            \node[font=\scriptsize, anchor=north west, fill=white, inner sep=1pt] at (axis cs:0.02,0.133){$0.133$};
-            % Panel B: aggregated output + centroid
-            \nextgroupplot[
-                title={(B) Aggregated $\mu_\text{out}$ and centroid},
-                title style={at={(0.5,1.22)}, anchor=south}
-            ]
-            % Baselines for fill
-            \addplot[name path=axisLeft, draw=none] coordinates {(0.25,0) (0.75,0)};
-            \addplot[name path=axisRight, draw=none] coordinates {(0.5,0) (1,0)};
-            % Truncated Medium (peak 0.3)
-            \addplot[name path=truncMLeft, cbOrange, thick, domain=0.25:0.5, samples=100] { (x-0.25)/0.25 <= 0.3? (x-0.25)/0.25: 0.3 };
-            \addplot[name path=truncMRight, cbOrange, thick, domain=0.5:0.75, samples=100] { (0.75-x)/0.25 <= 0.3? (0.75-x)/0.25: 0.3 };
-            % Fill under truncated Medium
-            \addplot[cbOrange!30, draw=none] fill between[of=truncMLeft and axisLeft];
-            \addplot[cbOrange!30, draw=none] fill between[of=truncMRight and axisLeft];
-            % Truncated High (peak 0.133)
-            \addplot[name path=truncH, cbGreen, thick, domain=0.5:1, samples=100] { (x-0.5)/0.5 <= 0.133? (x-0.5)/0.5: 0.133 };
-            % Fill under truncated High
-            \addplot[cbGreen!30, draw=none] fill between[of=truncH and axisRight];
-            % Aggregated (max) as envelope (approximate by plotting both truncations)
-            % Centroid marker
-            \addplot[red, dashed] coordinates {(0.58,0) (0.58,0.35)};
-            \node[font=\scriptsize, anchor=south, fill=white, inner sep=1pt] at (axis cs:0.58,0.36){$s^{\star}\approx 0.58$};
+            % --- Panel A: Base sets + clipping ---
+            \nextgroupplot[title={(A) Clipped consequents}, ylabel={Membership}]
+
+            \addplot[cbBlue, thick] coordinates {(0,1) (0.5,0)};
+            \addplot[cbOrange, thick] coordinates {(0.25,0) (0.5,1) (0.75,0)};
+            \addplot[cbGreen, thick] coordinates {(0.5,0) (1,1)};
+
+            \addplot[gray!70, dashed, thick] coordinates {(0,0.3) (1,0.3)};
+            \addplot[gray!70, dashed, thick] coordinates {(0,0.133) (1,0.133)};
+
+            \node[font=\footnotesize, text=gray!80!black, anchor=south west, inner sep=1pt] at (axis cs:0.01,0.31){$0.3$};
+            \node[font=\footnotesize, text=gray!80!black, anchor=south west, inner sep=1pt] at (axis cs:0.01,0.143){$0.133$};
+
+            \node[font=\footnotesize, text=cbBlue, anchor=south west] at (axis cs:0.02,0.85) {Low};
+            \node[font=\footnotesize, text=cbOrange, anchor=south] at (axis cs:0.50,1.02) {Medium};
+            \node[font=\footnotesize, text=cbGreen, anchor=south east] at (axis cs:0.98,0.85) {High};
+
+            % --- Panel B: Aggregated output + centroid ---
+            \nextgroupplot[title={(B) Aggregated output}]
+
+            \addplot[draw=none, fill=gray!20] coordinates {
+                (0.25,0) (0.325,0.3) (0.675,0.3) (0.71675,0.133) (1,0.133) (1,0) (0.25,0)
+            };
+
+            \addplot[cbOrange, thick] coordinates {
+                (0.25,0) (0.325,0.3) (0.675,0.3) (0.75,0)
+            };
+
+            \addplot[cbGreen, thick] coordinates {
+                (0.5,0) (0.5665,0.133) (1,0.133) (1,0)
+            };
+
+            \addplot[black!75, line width=1.1pt, line join=round] coordinates {
+                (0.25,0) (0.325,0.3) (0.675,0.3) (0.71675,0.133) (1,0.133)
+            };
+
+            \addplot[red!75!black, dashed, thick] coordinates {(0.579755,0) (0.579755,0.5)};
+            \addplot[red!75!black, only marks, mark=*, mark size=1.8pt] coordinates {(0.579755,0.15)};
+            \node[
+                font=\footnotesize\bfseries,
+                anchor=south,
+                text=red!75!black,
+                fill=white,
+                inner sep=2pt,
+                fill opacity=0.8,
+                text opacity=1
+            ] at (axis cs:0.58,0.52) {$s^{\star}\approx 0.58$};
         \end{groupplot}
     \end{tikzpicture}
     % Avoid inline math in captions; it wraps poorly in some EPUB renderers.
